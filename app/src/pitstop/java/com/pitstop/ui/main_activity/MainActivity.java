@@ -34,9 +34,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -45,11 +42,6 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.database.LocalShopAdapter;
@@ -68,8 +60,8 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothObservable;
-import com.pitstop.observer.BluetoothObserver;
+import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -103,8 +95,8 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 /**
  * Created by David on 6/8/2016.
  */
-public class MainActivity extends IBluetoothServiceActivity implements ObdManager.IBluetoothDataListener
-        , MainActivityCallback, BluetoothObservable<BluetoothObserver> {
+public class MainActivity extends IBluetoothServiceActivity implements MainActivityCallback
+        , Device215BreakingObserver, BluetoothConnectionObserver{
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -121,7 +113,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-            autoConnectService.addCallback(MainActivity.this);
+            autoConnectService.subscribe(MainActivity.this);
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
@@ -250,7 +242,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toggleConnectionStatusActionBar(false);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setSubtitle("Disconnected");
+        }
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -328,7 +322,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
             serviceIsBound = true;
         }
         if (autoConnectService != null){
-            autoConnectService.addCallback(this);
+            autoConnectService.subscribe(this);
         }
 
 
@@ -353,7 +347,7 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onStop() {
         hideLoading();
-        autoConnectService.removeCallback(this);
+        autoConnectService.unsubscribe(this);
         super.onStop();
     }
 
@@ -561,38 +555,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
             }
         });
-
-    }
-
-    @Override
-    public void getBluetoothState(int state) {
-        if (state == IBluetoothCommunicator.DISCONNECTED) {
-            notifyDeviceDisconnected();
-            Log.i(TAG, "Bluetooth disconnected");
-        }
-        else if (state == IBluetoothCommunicator.CONNECTING){
-            notifySearchingForDevice();
-        }
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-
     }
 
     private boolean ignoreMissingDeviceName = false;
@@ -601,25 +563,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
 
     //Primarily for development reasons, set inside BluetoothAutoConnectService
     public static boolean allowDeviceOverwrite = false;
-
-    @Override
-    //This method is invoked by BluetoothAutoConnectService, only after device has been verified
-    public void pidData(PidPackage pidPackage) {
-
-        LogUtils.LOGD(TAG,"pidData(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
-                + " ignoreMissingDeviceName?"+ignoreMissingDeviceName);
-
-        /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
-        **For 215 device only*/
-
-        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                && !ignoreMissingDeviceName && allowDeviceOverwrite){
-
-            if (autoConnectService.isConnectedTo215() && (pidPackage.deviceId.isEmpty() || pidPackage.deviceId.equals("0"))){
-                displayGetScannerIdDialog();
-            }
-        }
-    }
 
     private void displayGetScannerIdDialog(){
         if (idInput) return;
@@ -657,24 +600,6 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
                 alertInvalidDeviceNameDialog.show();
             }
         });
-    }
-
-    @Override
-    public void dtcData(final DtcPackage dtcPackage) {
-
-    }
-
-    @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.
-                equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            Log.i(TAG, "Device logout");
-        }
     }
 
     public void hideLoading() {
@@ -1200,77 +1125,41 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
         LogUtils.LOGD(TAG,"AccessToken: "+application.getAccessToken());
     }
 
-    public void toggleConnectionStatusActionBar(boolean isConnected){
+    @Override
+    public void onDeviceNeedsOverwrite() {
+
+        LogUtils.LOGD(TAG,"onDeviceNeedsOverwrite(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
+                + " ignoreMissingDeviceName?"+ignoreMissingDeviceName);
+
+        /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
+        **For 215 device only*/
+
+        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                && !ignoreMissingDeviceName && allowDeviceOverwrite){
+
+            displayGetScannerIdDialog();
+        }
+    }
+
+    @Override
+    public void onSearchingForDevice() {
         if (getSupportActionBar() != null){
-            //getSupportActionBar().setSubtitle(isConnected ? R.string.connected_device:R.string.disconnected_device);
-            //Above is temporarily removed until bluetooth status appearance is fixed and in order.
-        }
-
-    }
-
-
-    private List<BluetoothObserver> observerList = new ArrayList<>();
-
-    @Override
-    public void subscribe(BluetoothObserver observer) {
-        if (!observerList.contains(observer)){
-            observerList.add(observer);
+            getSupportActionBar().setSubtitle("Searching");
         }
     }
 
     @Override
-    public void unsubscribe(BluetoothObserver observer) {
-        if (observerList.contains(observer)){
-            observerList.remove(observer);
-        }
-    }
-
-    @Override
-    public void notifySearchingForDevice() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (BluetoothObserver observer: observerList){
-                    observer.onSearchingForDevice();
-                }
-            }
-        });
-    }
-
-    boolean deviceReady = false;
-    @Override
-    public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
-        deviceReady = true;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (BluetoothObserver observer: observerList){
-                    observer.onDeviceReady(vin, scannerId, scannerName);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void notifyDeviceDisconnected() {
-        //Only notify disconnection if the device that was disconnected was verified and ready
-        if (deviceReady){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (BluetoothObserver observer: observerList){
-                        observer.onDeviceDisconnected();
-                    }
-                }
-            });
-            deviceReady = false;
+    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setSubtitle("Connected");
         }
 
-
     }
 
     @Override
-    public BluetoothAutoConnectService getBluetoothAutoConnectService(){
-        return autoConnectService;
+    public void onDeviceDisconnected() {
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setSubtitle("Disconnected");
+        }
     }
 }

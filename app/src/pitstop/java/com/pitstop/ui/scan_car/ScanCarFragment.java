@@ -34,8 +34,8 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.observer.BluetoothObservable;
-import com.pitstop.observer.BluetoothObserver;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -109,7 +109,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
     private boolean gotServices = false;
     private boolean gotRecalls = false;
 
-    private BluetoothObservable<BluetoothObserver> bluetoothObservable;
+    private BluetoothConnectionObservable<BluetoothConnectionObserver> bluetoothObservable;
     private UseCaseComponent useCaseComponent;
 
     private Set<CarIssue> recalls;
@@ -134,7 +134,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .build();
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        bluetoothObservable = (BluetoothObservable<BluetoothObserver>)getActivity();
+        bluetoothObservable = (BluetoothConnectionObservable<BluetoothConnectionObserver>)getActivity();
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))

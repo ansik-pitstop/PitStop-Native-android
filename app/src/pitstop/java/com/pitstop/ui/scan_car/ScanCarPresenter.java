@@ -19,8 +19,8 @@ import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothObservable;
-import com.pitstop.observer.BluetoothObserver;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.utils.NetworkHelper;
@@ -46,9 +46,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private Car dashboardCar;
     private BluetoothAutoConnectService mAutoConnectService;
     private UseCaseComponent useCaseComponent;
-    private BluetoothObservable<BluetoothObserver> bluetoothObservable;
+    private BluetoothConnectionObservable<BluetoothConnectionObserver> bluetoothObservable;
 
-    public ScanCarPresenter(BluetoothObservable<BluetoothObserver> observable
+    public ScanCarPresenter(BluetoothConnectionObservable<BluetoothConnectionObserver> observable
             , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
 
         bluetoothObservable = observable;
@@ -300,7 +300,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         mCallback = (ScanCarContract.View) view;
 
         bluetoothObservable.subscribe(this);
-        mAutoConnectService = bluetoothObservable.getBluetoothAutoConnectService();
+        //Below statement needs to be available
+        //mAutoConnectService = bluetoothObservable.getBluetoothAutoConnectService();
 
         if (mAutoConnectService != null){
             mAutoConnectService.addCallback(this);
@@ -332,9 +333,14 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onDeviceReady(BluetoothAutoConnectService bluetoothAutoConnectService) {
-        mAutoConnectService = bluetoothAutoConnectService;
+    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+
     }
+//
+//    @Override
+//    public void onDeviceReady(BluetoothAutoConnectService bluetoothAutoConnectService) {
+//        mAutoConnectService = bluetoothAutoConnectService;
+//    }
 
     @Override
     public void onDeviceDisconnected() {
@@ -342,5 +348,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (mCallback.isScanning()){
             interruptScan(ERR_INTERRUPT_DC);
         }
+    }
+
+    @Override
+    public void onGotDtc(DtcPackage dtcPackage) {
+
     }
 }

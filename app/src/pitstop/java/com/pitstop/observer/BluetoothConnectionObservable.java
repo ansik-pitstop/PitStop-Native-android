@@ -1,12 +1,11 @@
 package com.pitstop.observer;
 
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-
 /**
  * Created by Karol Zdebel on 6/28/2017.
  */
 
-public interface BluetoothObservable<T> extends Subject<T>{
+public interface BluetoothConnectionObservable extends Subject{
+
     //Invoked if device recognized as broken and requires id overwrite
     void notifyDeviceNeedsOverwrite();
 
@@ -19,6 +18,5 @@ public interface BluetoothObservable<T> extends Subject<T>{
     //Invoked if the currently used scanner has disconnected
     void notifyDeviceDisconnected();
 
-    //Invoked if dtc data has been received from the device
-    void notifyDtcData(DtcPackage dtcPackage);
+
 }

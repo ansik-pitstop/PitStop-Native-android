@@ -65,6 +65,12 @@ import com.pitstop.models.TripStart;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.observer.BluetoothScanObservable;
+import com.pitstop.observer.BluetoothScanObserver;
+import com.pitstop.observer.Device215BreakingObserver;
+import com.pitstop.observer.Observer;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
@@ -88,7 +94,8 @@ import java.util.Map;
 /**
  * Created by Paul Soladoye on 11/04/2016.
  */
-public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener {
+public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
+        , BluetoothScanObservable, BluetoothConnectionObservable{
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
     private static final EventSource EVENT_SOURCE
@@ -396,26 +403,77 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         Log.i(TAG, "Calling service callbacks to getBluetooth State - auto connect service");
-        broadcastBluetoothState(state);
 
     }
 
-    private void broadcastBluetoothState(int state){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.getBluetoothState(state);
+    private List<Observer> observerList = new ArrayList<>();
+
+    @Override
+    public void subscribe(Observer observer) {
+        if (!observerList.contains(observer)){
+            observerList.add(observer);
+        }
+    }
+
+    @Override
+    public void unsubscribe(Observer observer) {
+        if (observerList.contains(observer)){
+            observerList.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyDeviceNeedsOverwrite() {
+        for (Observer o : observerList) {
+            if (o instanceof Device215BreakingObserver) {
+                ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
+            }
+        }
+    }
+
+    @Override
+    public void notifySearchingForDevice() {
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onSearchingForDevice();
+            }
+        }
+    }
+
+    boolean deviceReady = false;
+    @Override
+    public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
+        deviceReady = true;
+        for (Observer observer: observerList){
+            ((BluetoothConnectionObserver)observer)
+                    .onDeviceReady(vin, scannerId, scannerName);
+        }
+    }
+
+    @Override
+    public void notifyDeviceDisconnected() {
+        //Only notify disconnection if the device that was disconnected was verified and ready
+        if (deviceReady){
+            for (Observer observer: observerList){
+                if (observer instanceof BluetoothConnectionObserver){
+                    ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
+                }
+            }
+            deviceReady = false;
+        }
+    }
+
+    @Override
+    public void notifyDtcData(DtcPackage dtcPackage) {
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothScanObserver) {
+                ((BluetoothScanObserver) observer).onGotDtc(dtcPackage);
+            }
         }
     }
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-        Log.i(TAG, "Setting ctrl response on service callbacks - auto-connect service");
-        broadcastSetCtrlResponse(responsePackageInfo);
-    }
-
-    private void broadcastSetCtrlResponse(ResponsePackageInfo responsePackageInfo){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.setCtrlResponse(responsePackageInfo);
-        }
     }
 
     /**
@@ -434,13 +492,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
-        broadcastSetParameterResponse(responsePackageInfo);
-    }
-
-    private void broadcastSetParameterResponse(ResponsePackageInfo responsePackageInfo){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.setCtrlResponse(responsePackageInfo);
-        }
     }
 
     private void handle212Trip(TripInfoPackage tripInfoPackage){
@@ -714,14 +765,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 +pendingTripInfoPackages.size(), true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        //Send trip to listeners
-        broadcastTripData(tripInfoPackage);
-    }
-
-    private void broadcastTripData(TripInfoPackage tripInfoPackage){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.tripData(tripInfoPackage);
-        }
     }
 
     public void connectedDeviceInvalid(){
@@ -850,8 +893,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
             deviceManager.setPidsToSend(supportedPids);
         }
-
-        broadcastParameterData(parameterPackage);
     }
 
     //Remove data that was acquired from the wrong device during the VIN verification process
@@ -859,14 +900,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pendingPidPackages.clear();
         pendingTripInfoPackages.clear();
         pendingDtcPackages.clear();
-    }
-
-    private void broadcastParameterData(ParameterPackage parameterPackage){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            if (c != null){
-                c.parameterData(parameterPackage);
-            }
-        }
     }
 
     //Queue up the pid packages that arrive before VIN is verified
@@ -1013,14 +1046,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
             sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
         }
-
-        broadcastPidData(pidPackage);
-    }
-
-    private void broadcastPidData(PidPackage pidPackage){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.pidData(pidPackage);
-        }
     }
 
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
@@ -1070,14 +1095,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
             getFreezeData();
-        }
-
-        broadcastDtcData(dtcPackage);
-    }
-
-    private void broadcastDtcData(DtcPackage dtcPackage){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.dtcData(dtcPackage);
         }
     }
 
@@ -1221,15 +1238,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
         }
-
-        broadcastDeviceLogin(loginPackageInfo);
-
-    }
-
-    private void broadcastDeviceLogin(LoginPackageInfo loginPackageInfo){
-        for (ObdManager.IBluetoothDataListener c: callbacks){
-            c.deviceLogin(loginPackageInfo);
-        }
     }
 
     public void saveScannerOnResultPostCar(Car createdCar) {
@@ -1275,20 +1283,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
             return BluetoothAutoConnectService.this;
-        }
-    }
-
-    public void addCallback(ObdManager.IBluetoothDataListener callback){
-        if (!callbacks.contains(callback)){
-            Log.d(TAG,"Adding new callback ");
-            callbacks.add(callback);
-        }
-    }
-
-    public void removeCallback(ObdManager.IBluetoothDataListener callback){
-        if (callbacks.contains(callback)){
-            Log.d(TAG,"Removing callback");
-            callbacks.remove(callback);
         }
     }
 
