@@ -101,27 +101,17 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         });
     }
     private void getHours(Dealership dealership){
-        System.out.println("Testing does the dealership have hours "+dealership.getHours());
-
         networkHelper.get("shop/" + dealership.getId() + "/calendar", new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 List<String> timesToRemove = new ArrayList<String>();
-
                 if(requestError == null && response != null){
                     try{
                         JSONObject responsesJson = new JSONObject(response);
                         JSONObject dates = responsesJson.getJSONObject("dates");
-                        System.out.println("Testing response "+dates);
-
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("requested"),year+"-"+fixMonth(month)+"-"+day));
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
-                        for(String s:timesToRemove){
-                            System.out.println("Testing remove time "+s);
-                        }
-
-
                     }catch (JSONException e){
 
                     }
@@ -177,14 +167,12 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
     }
 
     public List<String> getRemoveTimes(JSONArray dates,String date){
-        System.out.println("Testing date"+date);
         List<String> datesToRemove = new ArrayList<>();
         for(int i = 0 ;i < dates.length();i++){
             try{
                 String currentDate = dates.getString(i);
                 if(currentDate.contains(date)){
                     datesToRemove.add(currentDate.substring(11,13)+currentDate.substring(14,16));
-                    System.out.println("Testing "+currentDate.substring(11,13)+currentDate.substring(14,16));
                 }
             }catch (JSONException e){
             }

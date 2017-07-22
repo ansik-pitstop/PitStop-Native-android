@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -28,6 +27,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.service_request.RequestServiceCallback;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,11 +92,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     @BindView(R.id.service_time_loading)
     ProgressBar timeLoading;
 
-
-
-
-
-
     private ServiceFormPresenter presenter;
 
     private RequestServiceCallback callback;
@@ -130,9 +125,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
 
-
-
-
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
@@ -143,12 +135,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
                 presenter.dateSelected(year,month+1,dayOfMonth,calender);//month is 0 based
             }
         });
+        MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ServiceFormPresenter(callback,component);
-        presenter.subscribe(this);
-        if(callback.checkTentative().equals(STATE_TENTATIVE)){
-            presenter.setCommentHint("Salesperson");
-        }
+        presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
 
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,12 +164,19 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
                 presenter.onSubmitClicked();
             }
         });
-
-
-        presenter.setDealer(dashCar);
-        presenter.setIssues();
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.subscribe(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -298,6 +294,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     @Override
     public void hideCalender() {
         calender.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void disableButton(boolean disable) {
+            submitButton.setClickable(!disable);
     }
 
     @Override
