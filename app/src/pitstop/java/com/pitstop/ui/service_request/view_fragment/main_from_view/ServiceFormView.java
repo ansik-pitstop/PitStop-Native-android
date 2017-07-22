@@ -27,5 +27,6 @@ public interface ServiceFormView {
     void toast(String message);
     void showLoading(boolean show);
     void setCommentHint(String hint);
+    void disableButton(boolean disable);
 
 }
