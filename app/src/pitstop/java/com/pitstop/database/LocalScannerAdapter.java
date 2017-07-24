@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 
 import java.util.ArrayList;
@@ -330,10 +329,10 @@ public class LocalScannerAdapter {
         return false;
     }
 
-    public void deleteCar(Car car){
+    public void removeScanner(int carId){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.SCANNER.TABLE_NAME, TABLES.SCANNER.KEY_CAR_ID + "=?",
-                new String[]{String.valueOf(car.getId())});
+                new String[]{String.valueOf(carId)});
     }
 
 
