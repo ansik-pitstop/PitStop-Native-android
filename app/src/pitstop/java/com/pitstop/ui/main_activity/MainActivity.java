@@ -33,7 +33,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -60,6 +59,7 @@ import com.pitstop.models.ObdScanner;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -125,7 +125,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                         return;
                     }
                 }
-                if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                if (autoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
                     autoConnectService.startBluetoothSearch(); // refresh clicked
                 }
             }
@@ -629,7 +629,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                                            int[] grantResults) {
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (autoConnectService.getState() == IBluetoothCommunicator.DISCONNECTED) {
+                if (autoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
                     autoConnectService.startBluetoothSearch();
                 }
             } else {

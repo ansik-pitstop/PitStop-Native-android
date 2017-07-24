@@ -23,6 +23,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
 
@@ -257,7 +258,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getDTC(View view) {
-        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
+        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
             service.startBluetoothSearch();
         }else {
             service.getDTCs();
@@ -267,7 +268,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
+        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
             service.startBluetoothSearch();
         }else {
             service.getSupportedPids();

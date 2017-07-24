@@ -376,7 +376,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
              * once bluetooth connection is lost.
              * @see MainActivity#connectedCarIndicator()
              * */
-            deviceConnState = State.DISCONNECTED;
+
+            //Only notify that device disonnected if a verified connection was established previously
+            if (deviceIsVerified){
+                deviceConnState = State.DISCONNECTED;
+                notifyDeviceDisconnected();
+            }
 
             /**
              * Save current trip data when bluetooth gets disconnected from device
@@ -761,6 +766,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
                 && terminalRTCTime == -1 && !AddCarActivity.addingCarWithDevice){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
+
+            //Check if device needs to sync rtc time
+            final long YEAR = 32000000;
+            long currentTime = System.currentTimeMillis() / 1000;
+            long deviceRtcTime = Long.valueOf(parameterPackage.value);
+            long diff = currentTime - deviceRtcTime;
+
+            //Sync if difference is greater than a year
+            if (diff > YEAR){
+                notifySyncingDevice();
+                syncObdDevice();
+            }
         }
 
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
@@ -770,6 +787,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Notify observers about the received VIN
             notifyVIN(parameterPackage.value, parameterPackage.deviceId);
+            //Device verification starting
+            notifyVerifyingDevice();
 
             verificationInProgress = true;
             deviceConnState = State.VERIFYING;
@@ -798,6 +817,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setFixedUpload();
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
+                    notifyDeviceNeedsOverwrite();
                 }
 
                 @Override
@@ -812,6 +832,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setFixedUpload();
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
+                    notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
                 }
 
                 @Override
@@ -823,6 +844,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     verificationInProgress = false;
                     deviceConnState = State.SEARCHING;
                     deviceManager.onConnectedDeviceInvalid();
+                    notifySearchingForDevice();
                 }
 
                 @Override
@@ -834,6 +856,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     verificationInProgress = false;
                     deviceConnState = State.SEARCHING;
                     deviceManager.onConnectedDeviceInvalid();
+                    notifySearchingForDevice();
                 }
 
                 @Override
@@ -1078,6 +1101,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             saveDtcs(dtcPackage);
             getFreezeData();
         }
+
+        notifyDtcData(dtcPackage);
     }
 
     private List<FreezeFramePackage> pendingFreezeFrames = new ArrayList<>();
@@ -1388,11 +1413,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Context.MODE_PRIVATE);
         return sharedPreferences.getString(DEVICE_ID, null);
     }
-
-    public int getState() {
-        return deviceManager.getState();
-    }
-
 
     public void getSupportedPids(){ // supported pids
         LogUtils.debugLogI(TAG, "getting supported PIDs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());

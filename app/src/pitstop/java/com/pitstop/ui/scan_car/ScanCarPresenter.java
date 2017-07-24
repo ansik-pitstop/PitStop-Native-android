@@ -2,7 +2,6 @@ package com.pitstop.ui.scan_car;
 
 import android.util.Log;
 
-import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.EventSource;
@@ -251,9 +250,8 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     }
 
     private boolean isConnectedToDevice() {
-        return mAutoConnectService != null
-                && mAutoConnectService.getState() == BluetoothCommunicator.CONNECTED
-                && mAutoConnectService.isCommunicatingWithDevice();
+        return mAutoConnectService != null && mAutoConnectService.getDeviceState()
+                .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
     /**

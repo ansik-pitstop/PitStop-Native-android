@@ -21,7 +21,8 @@ public interface BluetoothConnectionObservable extends Subject{
     //Invoked if observable is in the process of searching for a device
     void notifySearchingForDevice();
 
-    //Invoked if device has been successfully paired and is ready for use
+    //Invoked if device has been successfully paired and is ready for use, this includes
+    //  syncing rtc time
     void notifyDeviceReady(String vin, String scannerId, String scannerName);
 
     //Invoked if the currently used scanner has disconnected
