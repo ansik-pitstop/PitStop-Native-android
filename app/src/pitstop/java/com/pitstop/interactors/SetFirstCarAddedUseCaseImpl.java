@@ -2,6 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.models.User;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -28,15 +30,15 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
     @Override
     public void run() {
         userRepository.setFirstCarAdded(sent
-                , new UserRepository.UserFirstCarAddedSetCallback() {
+                , new Repository.Callback<Object>() {
 
             @Override
-            public void onFirstCarAddedSet() {
+            public void onSuccess(Object object) {
                 callback.onFirstCarAddedSet();
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

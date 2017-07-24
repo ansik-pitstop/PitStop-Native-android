@@ -5,6 +5,8 @@ import android.os.Handler;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.Settings;
+import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
@@ -19,13 +21,16 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
     private ScannerRepository scannerRepository;
     private UserRepository userRepository;
+    private CarRepository carRepository;
     private Handler handler;
     private Callback callback;
     private ParameterPackage parameterPackage;
 
     public HandleVinOnConnectUseCaseImpl(ScannerRepository scannerRepository
-            , UserRepository userRepository, Handler handler){
+            ,CarRepository carRepository, UserRepository userRepository, Handler handler){
+
         this.scannerRepository = scannerRepository;
+        this.carRepository = carRepository;
         this.userRepository = userRepository;
         this.handler = handler;
     }
@@ -50,15 +55,26 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         final String deviceVin = parameterPackage.value;
         final String deviceId = parameterPackage.deviceId;
 
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
+            public void onSuccess(Settings data) {
 
-                //Device VIN invalid, get a different one
-                if (!car.getVin().equals(deviceVin)){
-                    callback.onDeviceInvalid();
+                //user has no car set
+                if (!data.hasMainCar()){
+                    callback.onError();
                     return;
                 }
+
+                //Get user car
+                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.Callback<Car>() {
+                    @Override
+                    public void onSuccess(Car car) {
+
+                        //Device VIN invalid, get a different one
+                        if (!car.getVin().equals(deviceVin)){
+                            callback.onDeviceInvalid();
+                            return;
+                        }
 
 
                 boolean carScannerValid = car.getScannerId() != null
@@ -97,21 +113,50 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
                 //Anything below is case 1
 
-                /*We need to check whether the car has no scanner at all, or whether it is being changed
-                * If the scanner is being changed, the old one needs to be deactived*/
+                        /*We need to check whether the car has no scanner at all, or whether it is being changed
+                        * If the scanner is being changed, the old one needs to be deactived*/
 
-                ObdScanner obdScanner = new ObdScanner(car.getId(),deviceId); //Scanner to be added
-                obdScanner.setStatus(true); //Set to active
+                        ObdScanner obdScanner = new ObdScanner(car.getId(),deviceId); //Scanner to be added
+                        obdScanner.setStatus(true); //Set to active
 
-                if (car.getScannerId() != null && !car.getScannerId().isEmpty()){
-                    ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScannerId());
-                    oldCarScanner.setStatus(false); //Set to inactive
+                        if (car.getScannerId() != null && !car.getScannerId().isEmpty()){
+                            ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScannerId());
+                            oldCarScanner.setStatus(false); //Set to inactive
 
-                    scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
-                        @Override
-                        public void onSuccess(Object data) {
+                            scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object data) {
 
-                            //Scanner set to inactive, now add the new one
+                                    //Scanner set to inactive, now add the new one
+                                    addScanner(obdScanner, new AddScannerCallback() {
+                                        @Override
+                                        public void onDeviceAlreadyActive() {
+                                            //Another user has this scanner
+                                            callback.onDeviceAlreadyActive();
+                                        }
+
+                                        @Override
+                                        public void onScannerCreated() {
+                                            callback.onSuccess();
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            callback.onError();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onError(int error) {
+                                    callback.onError();
+                                }
+                            });
+
+                        }
+
+                        //Car does not have a scanner so simply create one
+                        else{
                             addScanner(obdScanner, new AddScannerCallback() {
                                 @Override
                                 public void onDeviceAlreadyActive() {
@@ -121,6 +166,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                 @Override
                                 public void onScannerCreated() {
+                                    //Scanner created
                                     callback.onSuccess();
                                 }
 
@@ -131,49 +177,20 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             });
                         }
 
-                        @Override
-                        public void onError(int error) {
-                            callback.onError();
-                        }
-                    });
+                    }
 
-                }
-
-                //Car does not have a scanner so simply create one
-                else{
-                    addScanner(obdScanner, new AddScannerCallback() {
-                        @Override
-                        public void onDeviceAlreadyActive() {
-                            //Another user has this scanner
-                            callback.onDeviceAlreadyActive();
-                        }
-
-                        @Override
-                        public void onScannerCreated() {
-                            //Scanner created
-                            callback.onSuccess();
-                        }
-
-                        @Override
-                        public void onError() {
-                            callback.onError();
-                        }
-                    });
-                }
-
+                    @Override
+                    public void onError(int error) {
+                        callback.onError();
+                    }
+                });
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onError();
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
-
     }
 
     interface AddScannerCallback {

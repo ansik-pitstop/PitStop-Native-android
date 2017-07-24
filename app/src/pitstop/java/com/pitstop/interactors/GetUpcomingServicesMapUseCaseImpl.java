@@ -2,10 +2,11 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.ArrayList;
@@ -45,17 +46,23 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     public void run() {
 
         //Get current users car
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
+            public void onSuccess(Settings data) {
+
+                if (!data.hasMainCar()){
+                    Map<Integer,List<UpcomingService>> map = new LinkedHashMap<Integer, List<UpcomingService>>();
+                    callback.onGotUpcomingServicesMap(map);
+                    return;
+                }
 
                 //Use the current users car to get all the current issues
-                carIssueRepository.getUpcomingCarIssues(car.getId()
+                carIssueRepository.getUpcomingCarIssues(data.getCarId()
                         , new CarIssueRepository.CarIssueGetUpcomingCallback() {
 
                             @Override
                             public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
-                                
+
                                 //Return ordered upcoming services through parameter to callback
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
                                 Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
@@ -72,13 +79,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             }
 
             @Override
-            public void onNoCarSet() {
-                Map<Integer,List<UpcomingService>> map = new LinkedHashMap<Integer, List<UpcomingService>>();
-                callback.onGotUpcomingServicesMap(map);
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
