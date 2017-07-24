@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -36,14 +37,14 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                shopRepository.getShopsByUserId(user.getId(), new ShopRepository.ShopsGetCallback() {
+                shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>>() {
                     @Override
-                    public void onShopsGot(List<Dealership> dealerships) {
+                    public void onSuccess(List<Dealership> dealerships) {
                         callback.onShopGot(dealerships);
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
