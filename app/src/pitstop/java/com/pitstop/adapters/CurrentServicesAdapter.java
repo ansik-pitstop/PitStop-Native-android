@@ -19,7 +19,7 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.interactors.MarkServiceDoneUseCase;
+import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;

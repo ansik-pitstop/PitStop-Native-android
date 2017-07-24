@@ -17,7 +17,7 @@ import com.pitstop.R;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUserCarUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 
 public class MainServicesFragment extends Fragment{
