@@ -51,14 +51,14 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                                 return;
                             }
                         }
-                        shopRepository.delete(dealership.getId(), user.getId(), new ShopRepository.ShopDeleteCallback() {
+                        shopRepository.delete(dealership.getId(), user.getId(), new Repository.Callback<Object>() {
                             @Override
-                            public void onShopDeleted() {
+                            public void onSuccess(Object response) {
                                 callback.onShopRemoved();
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(int error) {
                                 callback.onError();
                             }
                         });

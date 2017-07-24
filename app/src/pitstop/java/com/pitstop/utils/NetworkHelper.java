@@ -90,7 +90,7 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
-    private void post(String uri, RequestCallback callback, JSONObject body) {
+    public void post(String uri, RequestCallback callback, JSONObject body) {
         if (!isConnected(context)) {
             Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
@@ -680,10 +680,6 @@ public class NetworkHelper {
     public void getUser(int userId, RequestCallback callback) {
         LOGI(TAG, "getUser: " + userId);
         get("user/" + userId, callback);
-    }
-
-    public void getPitStopShops(RequestCallback callback){
-        get("shop?shopType=partner",callback);
     }
 
     public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
