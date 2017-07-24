@@ -43,9 +43,9 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                 userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
                     public void onSuccess(Settings data) {
-                        carRepository.get(data.getCarId(), user.getId(), new CarRepository.CarGetCallback() {
+                        carRepository.get(data.getCarId(), user.getId(), new CarRepository.Callback<Car>() {
                             @Override
-                            public void onCarGot(Car car) {
+                            public void onSuccess(Car car) {
                                 carIssueRepository.requestService(user.getId(), car.getId(), car.getDealership().getId(), state, timeStamp, comments, new RequestCallback() {
                                     @Override
                                     public void done(String response, RequestError requestError) {
@@ -59,7 +59,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(int error) {
 
                             }
                         });

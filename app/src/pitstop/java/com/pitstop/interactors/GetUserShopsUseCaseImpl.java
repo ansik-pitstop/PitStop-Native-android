@@ -37,7 +37,7 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>> {
+                shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>>() {
                     @Override
                     public void onSuccess(List<Dealership> dealerships) {
                         callback.onShopGot(dealerships);

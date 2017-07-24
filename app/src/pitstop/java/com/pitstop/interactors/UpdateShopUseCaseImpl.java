@@ -52,7 +52,7 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
       userRepository.getCurrentUser(new Repository.Callback<User>() {
           @Override
           public void onSuccess(User user) {
-              shopRepository.update(dealership, user.getId(), new Repository.Callback<Object> {
+              shopRepository.update(dealership, user.getId(), new Repository.Callback<Object>() {
                   @Override
                   public void onSuccess(Object response) {
                       EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);

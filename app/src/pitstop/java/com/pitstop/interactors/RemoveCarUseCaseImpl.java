@@ -63,7 +63,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             @Override
             public void onSuccess(Settings data) {
 
-                carRepository.delete(carToDeleteId, new CarRepository.CarDeleteCallback() {
+                carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
 
                     @Override
                     public void onSuccess(Object response) {
@@ -71,7 +71,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                             userRepository.getCurrentUser(new Repository.Callback<User>() {
 
                                 @Override
-                                public void onGotUser(User user) {
+                                public void onSuccess(User user) {
                                     carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
 
                                         @Override

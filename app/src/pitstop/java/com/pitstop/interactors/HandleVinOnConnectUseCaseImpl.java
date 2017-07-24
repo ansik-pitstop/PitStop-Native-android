@@ -66,9 +66,9 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
 
                 //Get user car
-                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.CarGetCallback() {
+                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.Callback<Car>() {
                     @Override
-                    public void onCarGot(Car car) {
+                    public void onSuccess(Car car) {
 
                         //Device VIN invalid, get a different one
                         if (!car.getVin().equals(deviceVin)){
@@ -180,7 +180,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });

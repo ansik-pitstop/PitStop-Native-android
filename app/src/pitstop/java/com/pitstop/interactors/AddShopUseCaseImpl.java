@@ -38,7 +38,7 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                shopRepository.insert(dealership, user.getId(), new ShopRepository.ShopInsertCallback() {
+                shopRepository.insert(dealership, user.getId(), new ShopRepository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object response) {
                         callback.onShopAdded();

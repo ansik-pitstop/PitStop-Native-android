@@ -43,14 +43,14 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     return;
                 }
 
-                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.CarGetCallback() {
+                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.Callback<Car>() {
                     @Override
-                    public void onCarGot(Car car) {
+                    public void onSuccess(Car car) {
                         callback.onCarRetrieved(car);
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
