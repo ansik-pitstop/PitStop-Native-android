@@ -50,13 +50,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/assets" type="java-test-resource" />
@@ -65,6 +58,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/assets" type="java-resource" />
@@ -143,7 +143,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/multi-dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/ndkBuild" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/pre-dexed" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/reload-dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/restart-dex" />
@@ -153,7 +152,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/build/retrolambda" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
@@ -165,7 +163,6 @@
     <orderEntry type="library" exported="" name="sqlbrite-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
     <orderEntry type="library" exported="" name="rxandroid-2.0.1" level="project" />
-    <orderEntry type="library" exported="" name="play-services-places-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-location-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.4.0" level="project" />
@@ -183,12 +180,12 @@
     <orderEntry type="library" exported="" name="universal-image-loader-1.9.5" level="project" />
     <orderEntry type="library" exported="" name="firebase-common-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="circleimageview-2.1.0" level="project" />
-    <orderEntry type="library" exported="" name="support-compat-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-10.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-25.1.0" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-25.1.1" level="project" />
+    <orderEntry type="library" exported="" name="support-compat-25.1.1" level="project" />
     <orderEntry type="library" exported="" name="dagger-2.9" level="project" />
+    <orderEntry type="library" exported="" name="support-media-compat-25.1.1" level="project" />
     <orderEntry type="library" exported="" name="bolts-applinks-1.4.0" level="project" />
-    <orderEntry type="library" exported="" name="support-media-compat-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="core-4.7.2" level="project" />
     <orderEntry type="library" exported="" name="butterknife-annotations-8.4.0" level="project" />
@@ -204,17 +201,18 @@
     <orderEntry type="library" exported="" name="play-services-base-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="bolts-tasks-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="core-3.2.1" level="project" />
-    <orderEntry type="library" exported="" name="support-fragment-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="crashlytics-core-2.3.16" level="project" />
     <orderEntry type="library" exported="" name="android-DecoView-charting-v0.9.6" level="project" />
-    <orderEntry type="library" exported="" name="support-core-ui-25.1.0" level="project" />
+    <orderEntry type="library" exported="" name="support-core-ui-25.1.1" level="project" />
     <orderEntry type="library" exported="" name="mixpanel-android-4.8.0" level="project" />
     <orderEntry type="library" exported="" name="jsr250-api-1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-vision-10.0.1" level="project" />
     <orderEntry type="library" exported="" name="subsampling-scale-image-view-3.5.0" level="project" />
     <orderEntry type="library" exported="" name="jsr305-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-iid-10.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-core-utils-25.1.0" level="project" />
+    <orderEntry type="library" exported="" name="support-core-utils-25.1.1" level="project" />
+    <orderEntry type="library" exported="" name="support-fragment-25.1.1" level="project" />
+    <orderEntry type="library" exported="" name="material-calendarview-1.4.3" level="project" />
     <orderEntry type="library" exported="" name="parse-android-1.15.8" level="project" />
     <orderEntry type="library" exported="" name="facebook-android-sdk-4.12.1" level="project" />
     <orderEntry type="library" exported="" name="okio-1.13.0" level="project" />
@@ -234,7 +232,6 @@
     <orderEntry type="library" exported="" name="appcompat-v7-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-25.1.0" level="project" />
     <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
-    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
-    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
+    <orderEntry type="library" exported="" name="android-android-24" level="project" />
   </component>
 </module>
