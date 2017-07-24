@@ -3,16 +3,10 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
-import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
+import com.pitstop.models.Settings;
+import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -21,13 +15,15 @@ import org.json.JSONObject;
 public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     private UserRepository userRepository;
-    private NetworkHelper networkHelper;
+    private CarRepository carRepository;
     private Callback callback;
     private Handler handler;
 
-    public GetUserCarUseCaseImpl(UserRepository userRepository, NetworkHelper networkHelper, Handler handler) {
+    public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+            , Handler handler) {
+
         this.userRepository = userRepository;
-        this.networkHelper = networkHelper;
+        this.carRepository = carRepository;
         this.handler = handler;
     }
 
@@ -39,21 +35,30 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     @Override
     public void run() {
-
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                callback.onCarRetrieved(car);
+            public void onSuccess(Settings data) {
+                if (!data.hasMainCar()) {
+                    callback.onNoCarSet();
+                    return;
+                }
+
+                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.Callback<Car>() {
+                    @Override
+                    public void onSuccess(Car car) {
+                        callback.onCarRetrieved(car);
+                    }
+
+                    @Override
+                    public void onError(int error) {
+                        callback.onError();
+                    }
+                });
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onNoCarSet();
-            }
+            public void onError(int error) {
 
-            @Override
-            public void onError() {
-                callback.onError();
             }
         });
     }

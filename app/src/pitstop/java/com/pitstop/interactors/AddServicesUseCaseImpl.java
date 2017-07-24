@@ -2,9 +2,10 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.List;
@@ -29,10 +30,10 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
 
     @Override
     public void run() {
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                carIssueRepository.insert(car.getId(),carIssues,new CarIssueRepository.CarIssueInsertCallback(){
+            public void onSuccess(Settings data) {
+                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.CarIssueInsertCallback(){
 
                     @Override
                     public void onCarIssueAdded() {
@@ -47,12 +48,7 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onError();
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
