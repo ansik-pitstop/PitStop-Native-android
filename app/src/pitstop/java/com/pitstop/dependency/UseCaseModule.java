@@ -205,8 +205,8 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,NetworkHelper networkHelper, Handler handler){
-        return new GetUserCarUseCaseImpl(userRepository,networkHelper, handler);
+    GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,CarRepository carRepository, Handler handler){
+        return new GetUserCarUseCaseImpl(userRepository,carRepository, handler);
     }
 
     @Provides
@@ -248,9 +248,9 @@ public class UseCaseModule {
 
     @Provides
     HandleVinOnConnectUseCase handleVinOnConnectUseCase(ScannerRepository scannerRepository
-            , UserRepository userRepository, Handler handler){
+            , CarRepository carRepository, UserRepository userRepository, Handler handler){
 
-        return new HandleVinOnConnectUseCaseImpl(scannerRepository
+        return new HandleVinOnConnectUseCaseImpl(scannerRepository, carRepository
                 , userRepository,  handler);
     }
 

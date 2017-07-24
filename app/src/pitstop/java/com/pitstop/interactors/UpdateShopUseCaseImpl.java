@@ -49,9 +49,9 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
 
     @Override
     public void run() {
-      userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+      userRepository.getCurrentUser(new Repository.Callback<User>() {
           @Override
-          public void onGotUser(User user) {
+          public void onSuccess(User user) {
               shopRepository.update(dealership, user.getId(), new Repository.Callback<Object>() {
                   @Override
                   public void onSuccess(Object response) {
@@ -68,7 +68,7 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
               });
           }
           @Override
-          public void onError() {
+          public void onError(int error) {
               callback.onError();
           }
       });

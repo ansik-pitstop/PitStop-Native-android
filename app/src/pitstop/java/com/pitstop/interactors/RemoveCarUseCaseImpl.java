@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -58,28 +59,28 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     @Override
     public void run() {
 
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
-
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                carRepository.delete(carToDeleteId, new Repository.Callback<Object>() {
+            public void onSuccess(Settings data) {
+
+                carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
 
                     @Override
                     public void onSuccess(Object response) {
-                        if(car.getId() == carToDeleteId){// deleted the users current car
-                            userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+                        if(data.getCarId() == carToDeleteId){// deleted the users current car
+                            userRepository.getCurrentUser(new Repository.Callback<User>() {
 
                                 @Override
-                                public void onGotUser(User user) {
+                                public void onSuccess(User user) {
                                     carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
 
                                         @Override
                                         public void onSuccess(List<Car> cars) {
                                             if(cars.size()>0){//does the user have another car?
-                                                userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new UserRepository.UserSetCarCallback() {
+                                                userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new Repository.Callback<Object>() {
 
                                                     @Override
-                                                    public void onSetCar() {
+                                                    public void onSuccess(Object object) {
                                                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                                 ,eventSource));
@@ -87,7 +88,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     }
 
                                                     @Override
-                                                    public void onError() {
+                                                    public void onError(int error) {
                                                         callback.onError();
                                                     }
                                                 });
@@ -116,7 +117,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                 }
 
                                 @Override
-                                public void onError() {
+                                public void onError(int error) {
                                     callback.onError();
                                 }
                             });
@@ -133,15 +134,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-
-            }
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
-
             }
         });
-
     }
 }

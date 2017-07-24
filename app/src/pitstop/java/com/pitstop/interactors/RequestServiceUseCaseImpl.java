@@ -3,12 +3,13 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.repositories.ShopRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -36,37 +37,42 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new UserRepository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
-                userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+            public void onSuccess(User user) {
+                userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
-                    public void onGotCar(Car car) {
-                        carIssueRepository.requestService(user.getId(), car.getId(), car.getDealership().getId(), state, timeStamp, comments, new RequestCallback() {
+                    public void onSuccess(Settings data) {
+                        carRepository.get(data.getCarId(), user.getId(), new CarRepository.Callback<Car>() {
                             @Override
-                            public void done(String response, RequestError requestError) {
-                                if(requestError == null && response != null){
-                                    callback.onServicesRequested();
-                                }else{
-                                    callback.onError();
-                                }
+                            public void onSuccess(Car car) {
+                                carIssueRepository.requestService(user.getId(), car.getId(), car.getDealership().getId(), state, timeStamp, comments, new RequestCallback() {
+                                    @Override
+                                    public void done(String response, RequestError requestError) {
+                                        if(requestError == null && response != null){
+                                            callback.onServicesRequested();
+                                        }else{
+                                            callback.onError();
+                                        }
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(int error) {
+
                             }
                         });
                     }
 
                     @Override
-                    public void onNoCarSet() {
-                        callback.onError();
-                    }
+                    public void onError(int error) {
 
-                    @Override
-                    public void onError() {
-                        callback.onError();
                     }
                 });
             }
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

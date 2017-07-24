@@ -3,6 +3,7 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
@@ -38,15 +39,19 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void run() {
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
-                userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
-                    @Override
-                    public void onGotUser(User user) {
-                        carRepository.getCarsByUserId(user.getId()
-                                ,new Repository.Callback<List<Car>>() {
+            public void onSuccess(Settings data) {
 
+                if (!data.hasMainCar()) {
+                    callback.onCarsRetrieved(new ArrayList<Car>());
+                    return;
+                }
+
+                userRepository.getCurrentUser(new Repository.Callback<User>(){
+                    @Override
+                    public void onSuccess(User user) {
+                        carRepository.getCarsByUserId(user.getId(),new CarRepository.Callback<List<Car>>() {
                             @Override
                             public void onSuccess(List<Car> cars) {
                                 callback.onCarsRetrieved(cars);
@@ -59,7 +64,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
@@ -67,18 +72,10 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onCarsRetrieved(new ArrayList<Car>());
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
-
-
-
 
     }
 }

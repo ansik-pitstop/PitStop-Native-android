@@ -2,6 +2,8 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
+import com.pitstop.models.Settings;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -28,16 +30,16 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
     @Override
     public void run() {
-        userRepository.checkFirstCarAdded(new UserRepository.CheckFirstCarAddedCallback() {
-                    @Override
-                    public void onFirstCarAddedChecked(boolean added) {
-                        callback.onFirstCarAddedChecked(added);
-                    }
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+            @Override
+            public void onSuccess(Settings data) {
+                callback.onFirstCarAddedChecked(data.isFirstCarAdded());
+            }
 
-                    @Override
-                    public void onError() {
-                        callback.onError();
-                    }
-                });
+            @Override
+            public void onError(int error) {
+                callback.onError();
+            }
+        });
     }
 }

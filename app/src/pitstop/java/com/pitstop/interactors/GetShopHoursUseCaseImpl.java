@@ -57,9 +57,9 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
+        userRepository.getCurrentUser(new UserRepository.Callback<User>() {
             @Override
-            public void onGotUser(User user) {
+            public void onSuccess(User user) {
                 shopRepository.getShopsByUserId(user.getId(), new ShopRepository.Callback<List<Dealership>>() {
                     @Override
                     public void onSuccess(List<Dealership> dealerships) {
@@ -95,7 +95,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });

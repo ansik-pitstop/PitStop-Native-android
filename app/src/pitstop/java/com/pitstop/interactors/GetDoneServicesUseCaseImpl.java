@@ -2,9 +2,10 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.ArrayList;
@@ -37,12 +38,17 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     public void run() {
 
         //Get current users car
-        userRepository.getUserCar(new UserRepository.UserGetCarCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onGotCar(Car car) {
+            public void onSuccess(Settings data) {
+
+                if (!data.hasMainCar()){
+                    callback.onGotDoneServices(new ArrayList<CarIssue>());
+                    return;
+                }
 
                 //Use the current users car to get all the current issues
-                carIssueRepository.getDoneCarIssues(car.getId()
+                carIssueRepository.getDoneCarIssues(data.getCarId()
                         , new CarIssueRepository.CarIssueGetDoneCallback() {
 
                             @Override
@@ -58,15 +64,9 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
             }
 
             @Override
-            public void onNoCarSet() {
-                callback.onGotDoneServices(new ArrayList<CarIssue>());
-            }
-
-            @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
-
     }
 }
