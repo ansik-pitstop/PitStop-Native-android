@@ -12,6 +12,7 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
@@ -61,19 +62,19 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
             @Override
             public void onGotCar(Car car) {
-                carRepository.delete(carToDeleteId, new CarRepository.CarDeleteCallback() {
+                carRepository.delete(carToDeleteId, new Repository.Callback<Object>() {
 
                     @Override
-                    public void onCarDeleted() {
+                    public void onSuccess(Object response) {
                         if(car.getId() == carToDeleteId){// deleted the users current car
                             userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
 
                                 @Override
                                 public void onGotUser(User user) {
-                                    carRepository.getCarsByUserId(user.getId(), new CarRepository.CarsGetCallback() {
+                                    carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
 
                                         @Override
-                                        public void onCarsGot(List<Car> cars) {
+                                        public void onSuccess(List<Car> cars) {
                                             if(cars.size()>0){//does the user have another car?
                                                 userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new UserRepository.UserSetCarCallback() {
 
@@ -108,12 +109,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                         }
 
                                         @Override
-                                        public void onError() {
-                                            callback.onError();
-                                        }
-
-                                        @Override
-                                        public void onNoCarsGot(List<Car> cars) {
+                                        public void onError(int error) {
                                             callback.onError();
                                         }
                                     });
@@ -130,7 +126,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });
