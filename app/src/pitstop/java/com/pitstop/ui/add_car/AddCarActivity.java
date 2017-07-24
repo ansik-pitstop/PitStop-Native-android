@@ -33,7 +33,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.SetUserCarUseCase;
+import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.view_fragment.AddCar1Fragment;

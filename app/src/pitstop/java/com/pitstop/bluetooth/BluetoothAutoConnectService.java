@@ -51,9 +51,9 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.HandleVinOnConnectUseCase;
-import com.pitstop.interactors.Trip215EndUseCase;
-import com.pitstop.interactors.Trip215StartUseCase;
+import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
+import com.pitstop.interactors.other.Trip215EndUseCase;
+import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
@@ -310,6 +310,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.CONNECTED) {
+
+            deviceConnState = true;
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
@@ -922,7 +924,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        deviceConnState = true;
         if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
             currentDeviceId = pidPackage.deviceId;
         }
@@ -1303,7 +1304,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * 3, then device is connected
      */
     public boolean isCommunicatingWithDevice() {
-        return deviceConnState;
+        return deviceIsVerified && deviceConnState;
     }
 
     /**
