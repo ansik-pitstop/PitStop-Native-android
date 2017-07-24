@@ -311,6 +311,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.CONNECTED) {
 
+            deviceConnState = true;
+
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
@@ -922,7 +924,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        deviceConnState = true;
         if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
             currentDeviceId = pidPackage.deviceId;
         }
@@ -1303,7 +1304,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * 3, then device is connected
      */
     public boolean isCommunicatingWithDevice() {
-        return deviceConnState;
+        return deviceIsVerified && deviceConnState;
     }
 
     /**
