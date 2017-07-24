@@ -12,4 +12,5 @@ import com.pitstop.models.Dealership;
 public interface PrefMaker {
     Preference carToPref(Car car, boolean currentCar);
     Preference shopToPref(Dealership dealership);
+    Preference noShops();
 }
