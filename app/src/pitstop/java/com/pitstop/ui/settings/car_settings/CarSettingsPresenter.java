@@ -45,7 +45,7 @@ public class CarSettingsPresenter {
     }
 
     public void preferenceClicked(String key){
-        if(carSettings == null){return;}
+        if(carSettings == null || switcher == null){return;}
         if(key.equals(CHANGE_SHOP)){
             mixpanelHelper.trackButtonTapped("ChangeShop","CarSettings");
             switcher.startCustomShops(carSettings.getCar());
@@ -57,7 +57,7 @@ public class CarSettingsPresenter {
             component.setUseCarUseCase().execute(carSettings.getCar().getId(), EventSource.SOURCE_SETTINGS, new SetUserCarUseCase.Callback() {
                 @Override
                 public void onUserCarSet() {
-                    if(carSettings != null){
+                    if(carSettings != null && switcher != null){
                         switcher.setViewMainSettings();
                     }
                 }
@@ -102,7 +102,7 @@ public class CarSettingsPresenter {
         component.removeCarUseCase().execute(car.getId(),EventSource.SOURCE_SETTINGS, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
-                if(carSettings != null){
+                if(carSettings != null && switcher != null){
                     switcher.setViewMainSettings();
                 }
             }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -30,6 +31,7 @@ import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -63,7 +65,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     TextView shopAddress;
 
     @BindView(R.id.service_calender)
-    CalendarView calender;
+    DatePicker datePicker;
 
     @BindView(R.id.service_time_list)
     RecyclerView timeList;
@@ -121,20 +123,21 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
         application = (GlobalApplication)context;
         View view = inflater.inflate(R.layout.fragment_service_form, container, false);
         ButterKnife.bind(this,view);
-        calender.setVisibility(View.GONE);
+        datePicker.setVisibility(View.GONE);
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        calender.setMinDate(System.currentTimeMillis());
-        calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        Calendar calendar = Calendar.getInstance();
+        datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                presenter.dateSelected(year,month+1,dayOfMonth,calender);//month is 0 based
+            public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
+                presenter.dateSelected(i,i1+1,i2,datePicker);//month is 0 based
             }
         });
+
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
         presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
@@ -171,6 +174,8 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     public void onResume() {
         super.onResume();
         presenter.subscribe(this);
+        datePicker.setMinDate(System.currentTimeMillis()-(long)60000);//one minute
+
     }
 
     @Override
@@ -293,7 +298,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void hideCalender() {
-        calender.setVisibility(View.GONE);
+        datePicker.setVisibility(View.GONE);
     }
 
     @Override
@@ -303,7 +308,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void showCalender() {
-        calender.setVisibility(View.VISIBLE);
+        datePicker.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -327,10 +332,10 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void toggleCalender() {
-        if(calender.getVisibility()== View.GONE){
-            calender.setVisibility(View.VISIBLE);
+        if(datePicker.getVisibility()== View.GONE){
+            datePicker.setVisibility(View.VISIBLE);
         }else{
-            calender.setVisibility(View.GONE);
+            datePicker.setVisibility(View.GONE);
         }
     }
 

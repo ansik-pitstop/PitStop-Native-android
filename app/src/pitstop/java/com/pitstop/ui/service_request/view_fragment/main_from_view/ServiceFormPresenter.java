@@ -2,6 +2,7 @@ package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 
 import android.widget.CalendarView;
+import android.widget.DatePicker;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.AddServicesUseCase;
@@ -17,6 +18,7 @@ import com.pitstop.utils.MixpanelHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -87,13 +89,14 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.toggleCalender();
     }
 
-    public void dateSelected(int year, int month, int dayOfMonth, CalendarView calendar){
+    public void dateSelected(int year, int month, int dayOfMonth, DatePicker datePicker){
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
         String date = year+"/"+month+"/"+dayOfMonth;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
-        SimpleDateFormat dayInWeek = new SimpleDateFormat("u");
+        SimpleDateFormat dayInWeek = new SimpleDateFormat("E");
+
         try{
             Date inDate = oldFormat.parse(date);
             String outDate = newFormat.format(inDate);
@@ -117,13 +120,13 @@ public class ServiceFormPresenter implements PresenterCallback{
                 @Override
                 public void onNotOpen() {
                     if(view == null || callback == null){return;}
-                    resetDate(calendar,"There are no times available for this date");
+                    resetDate(datePicker,"There are no times available for this date");
                 }
 
                 @Override
                public void onError() {
                     if(view == null || callback == null){return;}
-                    resetDate(calendar,"There was an error loading these times");
+                    resetDate(datePicker,"There was an error loading these times");
                }
             });
             finalizeDate(outDate);
@@ -151,9 +154,10 @@ public class ServiceFormPresenter implements PresenterCallback{
         timeSelected = true;
     }
 
-    private void resetDate( CalendarView calendar, String message){
+    private void resetDate( DatePicker datePicker, String message){
         if(view == null || callback == null){return;}
-        calendar.setDate(System.currentTimeMillis());
+        Calendar calendar = Calendar.getInstance();
+        datePicker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         view.showDate("Tap to select date");
         view.showCalender();
         view.showLoading(false);

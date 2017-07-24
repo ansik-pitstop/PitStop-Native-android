@@ -200,9 +200,29 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         this.day = day;
         this.callback = callback;
         this.shopId = shopId;
-        this.dayInWeek = Integer.parseInt(dayInWeek);
-        if(this.dayInWeek == 7){
-            this.dayInWeek = 0;
+
+        switch (dayInWeek){
+            case("Mon"):
+                this.dayInWeek = 1;
+                break;
+            case("Tue"):
+                this.dayInWeek = 2;
+                break;
+            case("Wed"):
+                this.dayInWeek = 3;
+                break;
+            case("Thu"):
+                this.dayInWeek = 4;
+                break;
+            case("Fri"):
+                this.dayInWeek = 5;
+                break;
+            case("Sat"):
+                this.dayInWeek = 6;
+                break;
+            case("Sun"):
+                this.dayInWeek = 0;
+                break;
         }
         handler.post(this);
     }

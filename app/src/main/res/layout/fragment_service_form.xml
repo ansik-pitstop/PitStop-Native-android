@@ -113,11 +113,20 @@
 
         <include layout="@layout/divider" />
 
-        <CalendarView
-            android:id="@+id/service_calender"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:background="@color/white"
+            android:layout_height="wrap_content">
+
+            <DatePicker
+                android:id="@+id/service_calender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:headerBackground="@color/primary"
+                android:visibility="visible"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
