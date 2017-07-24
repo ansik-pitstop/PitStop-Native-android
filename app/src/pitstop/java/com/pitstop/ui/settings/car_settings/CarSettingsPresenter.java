@@ -2,9 +2,9 @@ package com.pitstop.ui.settings.car_settings;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetCarByCarIdUseCase;
-import com.pitstop.interactors.RemoveCarUseCase;
-import com.pitstop.interactors.SetUserCarUseCase;
+import com.pitstop.interactors.get.GetCarByCarIdUseCase;
+import com.pitstop.interactors.remove.RemoveCarUseCase;
+import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;

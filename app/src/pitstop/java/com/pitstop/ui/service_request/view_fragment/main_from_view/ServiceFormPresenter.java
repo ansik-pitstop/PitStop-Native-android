@@ -4,10 +4,9 @@ package com.pitstop.ui.service_request.view_fragment.main_from_view;
 import android.widget.CalendarView;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.AddServicesUseCase;
-import com.pitstop.interactors.GetPitstopShopsUseCase;
-import com.pitstop.interactors.GetShopHoursUseCase;
-import com.pitstop.interactors.RequestServiceUseCase;
+import com.pitstop.interactors.add.AddServicesUseCase;
+import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;

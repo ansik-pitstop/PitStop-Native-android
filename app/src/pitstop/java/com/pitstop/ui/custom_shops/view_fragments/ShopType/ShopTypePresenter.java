@@ -3,7 +3,7 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopType;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.UpdateCarDealershipUseCase;
+import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;

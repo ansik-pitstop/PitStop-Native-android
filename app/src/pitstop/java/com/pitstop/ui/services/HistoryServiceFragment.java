@@ -21,7 +21,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetDoneServicesUseCase;
+import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
