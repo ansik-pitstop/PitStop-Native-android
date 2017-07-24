@@ -8,6 +8,13 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 
 public interface BluetoothConnectionObservable extends Subject{
 
+    interface State{
+        final String DISCONNECTED = "disconnected"; //No bluetooth activity
+        final String SEARCHING = "state_searching"; //Searching for bluetooth device
+        final String VERIFYING = "state_verifying"; //Verifying currently connected device
+        final String CONNECTED = "state_connected"; //Established trusted connection with device
+    }
+
     //Invoked if device recognized as broken and requires id overwrite
     void notifyDeviceNeedsOverwrite();
 
@@ -34,6 +41,8 @@ public interface BluetoothConnectionObservable extends Subject{
 
     //Invoked when an observer requests a VIN, returned through notifyVIN() method
     void requestVIN();
+
+    String getDeviceState();
 
 
 }
