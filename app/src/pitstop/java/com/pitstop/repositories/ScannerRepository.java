@@ -29,6 +29,12 @@ public class ScannerRepository implements Repository {
     }
 
     public void createScanner(ObdScanner scanner, Callback callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         Log.d(TAG,"creating scanner: "+scanner);
         putScanner(scanner,getCreateScannerCallback(callback,scanner));
     }
@@ -68,13 +74,19 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
     }
 
     public void updateScanner(ObdScanner scanner, Callback<Object> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         //Same logic for both
         Log.d(TAG,"updating scanner: "+scanner);
         putScanner(scanner,getUpdateScannerCallback(callback,scanner));
@@ -90,7 +102,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
@@ -98,6 +110,12 @@ public class ScannerRepository implements Repository {
 
     /*boolean active: whether you want to look for active device or not*/
     public void getScanner(String scannerId, Callback<ObdScanner> callback){
+
+        if (!networkHelper.isConnected()){
+            callback.onError(ERR_OFFLINE);
+            return;
+        }
+
         Log.d(TAG,"getting scanner, scannerId: "+scannerId);
         networkHelper.get("scanner/"+scannerId, getGetScannerCallback(callback));
     }
@@ -128,15 +146,18 @@ public class ScannerRepository implements Repository {
 
                         ObdScanner obdScanner = new ObdScanner(carId,deviceName,scannerId);
                         obdScanner.setStatus(isActive);
+
+                        localScannerStorage.removeScanner(obdScanner.getCarId());
+                        localScannerStorage.storeScanner(obdScanner);
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(requestError.getStatusCode());
+                        callback.onError(ERR_UNKNOWN);
                         e.printStackTrace();
                     }
                 }
                 else{
-                    callback.onError(requestError.getStatusCode());
+                    callback.onError(ERR_UNKNOWN);
                 }
             }
         };
