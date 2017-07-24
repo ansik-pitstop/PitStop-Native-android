@@ -50,6 +50,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/assets" type="java-test-resource" />
@@ -58,13 +65,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/assets" type="java-resource" />
@@ -153,6 +153,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
+      <excludeFolder url="file://$MODULE_DIR$/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/build/retrolambda" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
@@ -232,6 +233,8 @@
     <orderEntry type="library" exported="" name="multidex-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-25.1.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-25.1.0" level="project" />
+    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
+    <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
     <orderEntry type="module" module-name="MaterialShowcaseView" exported="" />
   </component>
 </module>
