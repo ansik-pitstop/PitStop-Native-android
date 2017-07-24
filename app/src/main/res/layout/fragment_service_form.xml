@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/service_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true">
@@ -60,11 +61,11 @@
         <include layout="@layout/divider" />
 
         <LinearLayout
+            android:id="@+id/service_date_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/service_date_button"
-            android:background="@color/white">
+            android:background="@color/white"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -113,25 +114,16 @@
 
         <include layout="@layout/divider" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:background="@color/white"
-            android:layout_height="wrap_content">
 
-            <DatePicker
-                android:id="@+id/service_calender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:headerBackground="@color/primary"
-                android:visibility="visible"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true" />
-        </RelativeLayout>
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/service_calender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
+            android:id="@+id/service_time_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/service_time_button"
             android:background="@color/white"
             android:orientation="horizontal">
 
@@ -157,9 +149,9 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true">
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/service_time_text"
@@ -280,9 +272,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:orientation="vertical"
             android:focusable="true"
-            android:focusableInTouchMode="true">
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
 
             <EditText
                 android:id="@+id/addition_comments"
