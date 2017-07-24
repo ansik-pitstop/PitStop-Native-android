@@ -8,14 +8,17 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,8 +31,12 @@ import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -43,6 +50,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
+
+    @BindView(R.id.service_scroll)
+    ScrollView scrollView;
 
     @BindView(R.id.addition_comments)
     EditText additionalComments;
@@ -63,7 +73,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     TextView shopAddress;
 
     @BindView(R.id.service_calender)
-    CalendarView calender;
+    MaterialCalendarView calendarView;
 
     @BindView(R.id.service_time_list)
     RecyclerView timeList;
@@ -121,20 +131,20 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
         application = (GlobalApplication)context;
         View view = inflater.inflate(R.layout.fragment_service_form, container, false);
         ButterKnife.bind(this,view);
-        calender.setVisibility(View.GONE);
+        calendarView.setVisibility(View.GONE);
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
-
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        calender.setMinDate(System.currentTimeMillis());
-        calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        Calendar calendar = Calendar.getInstance();
+        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                presenter.dateSelected(year,month+1,dayOfMonth,calender);//month is 0 based
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                presenter.dateSelected(date.getYear(),date.getMonth()+1,date.getDay(),calendarView);//month is 0 based
             }
         });
+
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
         presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
@@ -171,6 +181,8 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     public void onResume() {
         super.onResume();
         presenter.subscribe(this);
+        Calendar calendar = Calendar.getInstance();
+        calendarView.state().edit().setMinimumDate(calendar).commit();
     }
 
     @Override
@@ -293,7 +305,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void hideCalender() {
-        calender.setVisibility(View.GONE);
+        calendarView.setVisibility(View.GONE);
     }
 
     @Override
@@ -303,7 +315,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void showCalender() {
-        calender.setVisibility(View.VISIBLE);
+        calendarView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -327,10 +339,10 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void toggleCalender() {
-        if(calender.getVisibility()== View.GONE){
-            calender.setVisibility(View.VISIBLE);
+        if(calendarView.getVisibility()== View.GONE){
+            calendarView.setVisibility(View.VISIBLE);
         }else{
-            calender.setVisibility(View.GONE);
+            calendarView.setVisibility(View.GONE);
         }
     }
 

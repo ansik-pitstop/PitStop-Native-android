@@ -42,11 +42,11 @@ public class ShopSettingsPresenter {
     }
 
     public void removeShop(Dealership dealership){
-        if(shopSettings == null){return;}
+        if(shopSettings == null || switcher == null){return;}
         component.getRemoveShopUseCase().execute(dealership, new RemoveShopUseCase.Callback() {
             @Override
             public void onShopRemoved() {
-                if(shopSettings != null){
+                if(shopSettings != null && switcher != null){
                     switcher.setViewMainSettings();
                 }
             }
@@ -68,7 +68,7 @@ public class ShopSettingsPresenter {
     }
 
     public void showForm(Dealership dealership){
-        if(shopSettings == null){return;}
+        if(shopSettings == null || switcher == null){return;}
         mixpanelHelper.trackButtonTapped("EditShop","ShopSettings");
         switcher.setViewShopForm(dealership);
     }
