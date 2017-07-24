@@ -475,20 +475,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void notifyVIN(String vin, String scannerId){
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothCarObserver){
-                ((BluetoothCarObserver)observer).onGotVIN(vin, scannerId);
-            }
-        }
-    }
-
-    @Override
-    public void requestVIN() {
-        getVinFromCar();
-    }
-
-    @Override
     public String getDeviceState() {
         return deviceConnState;
     }
@@ -780,13 +766,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
 
+        //If adding car connect to first recognized device
+        else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
+                && AddCarActivity.addingCarWithDevice){
+            notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                    ,parameterPackage.deviceId);
+            setFixedUpload();
+            deviceIsVerified = true;
+            verificationInProgress = false;
+            deviceConnState = State.CONNECTED;
+        }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && !AddCarActivity.addingCarWithDevice && !verificationInProgress
                 && !deviceIsVerified){
 
-            //Notify observers about the received VIN
-            notifyVIN(parameterPackage.value, parameterPackage.deviceId);
             //Device verification starting
             notifyVerifyingDevice();
 

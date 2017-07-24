@@ -141,12 +141,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         } else if (BluetoothAdapter.getDefaultAdapter() == null) { // Device doesn't support bluetooth
             mCallback.hideLoading("Your device does not support bluetooth");
         } else {
-            if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
-                // Already connected to module
-                Log.i(TAG, "Getting car vin with device connected");
-                mCallback.showLoading("Linking with Device, give it a few seconds");
-                getVinWithTimeout();
-            } else {
+            if (!mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
                 // Need to search for module
                 Log.i(TAG, "Searching for car but device not connected");
                 mCallback.showLoading("Searching for Car");
@@ -501,20 +496,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mSearchCarTimer.start();
     }
 
-    private void getVinWithTimeout() {
-        mAutoConnectService.requestVIN();
-        isAskingForVin = true;
-        mGetVinTimer.cancel();
-        mGetVinTimer.start();
-    }
-
-    private void setRtcWithTimeout() {
-        needToSetTime = true;
-        mSetRtcTimer.start();
-        hasGotValidRtc = false;
-        mAutoConnectService.syncObdDevice();
-    }
-
     /**
      * Check if DTCs are retrieved after 15 seconds
      */
@@ -687,98 +668,32 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
             mCallback.onDeviceConnected();
 
-            hasGotValidRtc = false;
         }
 
-        if (isAskingForVin){
-            pendingCar.setScannerId(scannerId);
-            String retrievedVin = vin;
-            Log.d(TAG, "Retrieved VIN: " + retrievedVin);
-
-            mCallback.showLoading("Getting car VIN");
-
-            try {
-                JSONObject properties = new JSONObject()
-                        .put("VIN", retrievedVin)
-                        .put("View", MixpanelHelper.ADD_CAR_VIEW);
-                mMixpanelHelper.trackCustom("Retrieved VIN from device", properties);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            if (isValidVin(retrievedVin)) {
-                Log.i(TAG, "Retrieved VIN is valid");
-                mCallback.onVINRetrieved(retrievedVin, true);
-
-                isAskingForVin = false;
-                getVinAttempts = 0;
-                mGetVinTimer.cancel();
-
-                mAutoConnectService.setFixedUpload();
-                pendingCar.setVin(retrievedVin);
-
-                startAddingNewCar();
-                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
-            } else if (!needToSetTime && getVinAttempts > 8) { /* || -> && */
-                isAskingForVin = false;
-                mCallback.onVINRetrieved(null, false);
-
-                Log.i(TAG, "Vin returned was not valid");
-                getVinAttempts = 0;
-                pendingCar.setVin("");
-                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
-            } else {
-                Log.i(TAG, "VIN returned is not valid, attempts: " + getVinAttempts);
-                getVinAttempts++;
-                isAskingForVin = true;
-            }
-        }
-
-    }
-
-    @Override
-    public void onDeviceDisconnected() {
-        if (isSearchingForCar) mCallback.hideLoading("Disconnected from device, add failed.");
-    }
-
-    @Override
-    public void onDeviceVerifying() {
-
-    }
-
-    @Override
-    public void onDeviceSyncing() {
-
-    }
-
-    @Override
-    public void onGotVIN(String vin, String scannerId) {
-        if (!isAskingForVin) return;
         pendingCar.setScannerId(scannerId);
-        Log.d(TAG, "Retrieved VIN: " + vin +" from scanner: "+scannerId);
+        String retrievedVin = vin;
+        Log.d(TAG, "Retrieved VIN: " + retrievedVin);
 
         mCallback.showLoading("Getting car VIN");
 
         try {
             JSONObject properties = new JSONObject()
-                    .put("VIN", vin)
+                    .put("VIN", retrievedVin)
                     .put("View", MixpanelHelper.ADD_CAR_VIEW);
             mMixpanelHelper.trackCustom("Retrieved VIN from device", properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if (isValidVin(vin)) {
+        if (isValidVin(retrievedVin)) {
             Log.i(TAG, "Retrieved VIN is valid");
-            mCallback.onVINRetrieved(vin, true);
+            mCallback.onVINRetrieved(retrievedVin, true);
 
             isAskingForVin = false;
             getVinAttempts = 0;
             mGetVinTimer.cancel();
 
-            mAutoConnectService.setFixedUpload();
-            pendingCar.setVin(vin);
+            pendingCar.setVin(retrievedVin);
 
             startAddingNewCar();
             mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
@@ -796,6 +711,22 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             getVinAttempts++;
             isAskingForVin = true;
         }
+
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+        if (isSearchingForCar) mCallback.hideLoading("Disconnected from device, add failed.");
+    }
+
+    @Override
+    public void onDeviceVerifying() {
+
+    }
+
+    @Override
+    public void onDeviceSyncing() {
+
     }
 
     @Override

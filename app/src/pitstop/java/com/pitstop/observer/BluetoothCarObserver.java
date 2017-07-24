@@ -8,9 +8,6 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 
 public interface BluetoothCarObserver extends Observer {
 
-    //Vin retrieved from the device that is currently being used
-    void onGotVIN(String vin, String scannerId);
-
     //DTC data retrieved from the device that is currently being used
     void onGotDtc(DtcPackage dtcPackage);
 }
