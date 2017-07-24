@@ -3,17 +3,10 @@ package com.pitstop.interactors;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by Matthew on 2017-06-20.
@@ -45,14 +38,14 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                carRepository.get(carId,user.getId(), new CarRepository.CarGetCallback() {
+                carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
                     @Override
-                    public void onCarGot(Car car) {
+                    public void onSuccess(Car car) {
                         callback.onCarGot(car);
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
                 });

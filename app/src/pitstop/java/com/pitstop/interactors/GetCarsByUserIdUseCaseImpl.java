@@ -5,8 +5,8 @@ import android.os.Handler;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,19 +44,15 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                 userRepository.getCurrentUser(new UserRepository.UserGetCallback(){
                     @Override
                     public void onGotUser(User user) {
-                        carRepository.getCarsByUserId(user.getId(),new CarRepository.CarsGetCallback() {
+                        carRepository.getCarsByUserId(user.getId()
+                                ,new Repository.Callback<List<Car>>() {
+
                             @Override
-                            public void onCarsGot(List<Car> cars) {
+                            public void onSuccess(List<Car> cars) {
                                 callback.onCarsRetrieved(cars);
                             }
-
                             @Override
-                            public void onNoCarsGot(List<Car> cars) {
-
-                            }
-
-                            @Override
-                            public void onError() {
+                            public void onError(int error) {
                                 callback.onError();
                             }
                         });
