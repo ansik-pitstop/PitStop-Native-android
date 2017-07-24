@@ -119,7 +119,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         ObdScanner obdScanner = new ObdScanner(car.getId(),deviceId); //Scanner to be added
                         obdScanner.setStatus(true); //Set to active
 
-                        if (car.getScannerId() != null && !car.getScannerId().isEmpty()){
+                        if (carScannerExists){
                             ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScannerId());
                             oldCarScanner.setStatus(false); //Set to inactive
 
