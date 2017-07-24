@@ -2,10 +2,9 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.pitstop.database.UserAdapter;
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
@@ -39,14 +38,14 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                shopRepository.insert(dealership, user.getId(), new ShopRepository.ShopInsertCallback() {
+                shopRepository.insert(dealership, user.getId(), new Repository.Callback<Object>() {
                     @Override
-                    public void onShopAdded() {
+                    public void onSuccess(Object response) {
                         callback.onShopAdded();
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
 
                     }

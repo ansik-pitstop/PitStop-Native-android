@@ -60,18 +60,18 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                shopRepository.getShopsByUserId(user.getId(), new ShopRepository.ShopsGetCallback() {
+                shopRepository.getShopsByUserId(user.getId(), new ShopRepository.Callback<List<Dealership>>() {
                     @Override
-                    public void onShopsGot(List<Dealership> dealerships) {
+                    public void onSuccess(List<Dealership> dealerships) {
                        for(Dealership d:dealerships){
                            if(d.getId() == shopId){
                                getHours(d);
                                return;
                            }
                        }
-                       shopRepository.getPitstopShops(new ShopRepository.GetPitstopShopsCallback() {
+                       shopRepository.getPitstopShops(new ShopRepository.Callback<List<Dealership>>() {
                            @Override
-                           public void onShopsGot(List<Dealership> dealershipList) {
+                           public void onSuccess(List<Dealership> dealershipList) {
                                for(Dealership d: dealershipList){
                                    if(d.getId() == shopId ){
                                        getHours(d);
@@ -81,14 +81,14 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                            }
 
                            @Override
-                           public void onError() {
+                           public void onError(int error) {
                                 callback.onError();
                            }
                        });
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                          callback.onError();
                     }
                 });

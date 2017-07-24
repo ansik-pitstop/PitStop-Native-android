@@ -2,20 +2,11 @@ package com.pitstop.interactors;
 
 import android.os.Handler;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.pitstop.models.Dealership;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,14 +30,14 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
         if(!networkHelper.isConnected()){
             callback.onError();
         }
-        shopRepository.getPitstopShops(new ShopRepository.GetPitstopShopsCallback() {
+        shopRepository.getPitstopShops(new Repository.Callback<List<Dealership>>() {
             @Override
-            public void onShopsGot(List<Dealership> dealershipList) {
+            public void onSuccess(List<Dealership> dealershipList) {
                 callback.onShopsGot(dealershipList);
             }
 
             @Override
-            public void onError() {
+            public void onError(int error) {
                 callback.onError();
             }
         });
