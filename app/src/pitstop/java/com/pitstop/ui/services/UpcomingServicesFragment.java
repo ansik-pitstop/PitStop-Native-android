@@ -28,7 +28,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetUpcomingServicesMapUseCase;
+import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.mainFragments.CarDataFragment;

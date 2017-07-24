@@ -30,7 +30,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.GetPrevIgnitionTimeUseCase;
+import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
