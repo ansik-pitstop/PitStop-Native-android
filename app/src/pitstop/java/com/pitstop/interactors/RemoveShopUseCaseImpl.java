@@ -6,6 +6,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -41,9 +42,9 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
         userRepository.getCurrentUser(new UserRepository.UserGetCallback() {
             @Override
             public void onGotUser(User user) {
-                carRepository.getCarsByUserId(user.getId(), new CarRepository.CarsGetCallback() {
+                carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
                     @Override
-                    public void onCarsGot(List<Car> cars) {
+                    public void onSuccess(List<Car> cars) {
                         for(Car c : cars){
                             if(c.getDealership().getId() == dealership.getId()){
                                 callback.onCantRemoveShop();
@@ -64,14 +65,10 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(int error) {
                         callback.onError();
                     }
 
-                    @Override
-                    public void onNoCarsGot(List<Car> cars) {
-                        callback.onError();
-                    }
                 });
             }
             @Override
