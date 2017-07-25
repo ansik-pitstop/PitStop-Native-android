@@ -143,7 +143,9 @@ public class MainSettingsPresenter {
                     mainSettings.resetShops();
                     if(dealerships.size()>0){
                         for(Dealership d : dealerships){
-                            mainSettings.addShop(prefMaker.shopToPref(d));
+                            if(!d.getName().contains("No Shop") && !d.getName().contains("No Dealership")){
+                                mainSettings.addShop(prefMaker.shopToPref(d));
+                            }
                         }
                     }else{
                         mainSettings.addShop(prefMaker.noShops());

@@ -4,6 +4,7 @@ package com.pitstop.ui.service_request.view_fragment.main_from_view;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
@@ -184,7 +185,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             @Override
             public void onServicesRequested() {
                 if(view == null || callback == null){return;}
-               component.getAddServicesUseCase().execute(issues, new AddServicesUseCase.Callback() {
+               component.getAddServicesUseCase().execute(issues, EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                    @Override
                    public void onServicesAdded() {
                        if(view == null || callback == null){return;}
