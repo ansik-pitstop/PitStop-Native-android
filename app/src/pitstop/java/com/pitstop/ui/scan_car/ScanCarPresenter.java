@@ -2,15 +2,9 @@ package com.pitstop.ui.scan_car;
 
 import android.util.Log;
 
-import com.castel.obd.info.LoginPackageInfo;
-import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -43,6 +37,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private Car dashboardCar;
     private UseCaseComponent useCaseComponent;
     private BluetoothConnectionObservable bluetoothObservable;
+
+    private boolean isAskingForDtcs = false;
+    private boolean realTimeDataRetrieved = true;
+
+    private Set<String> retrievedDtcs;
+    private Set<CarIssue> services;
+    private Set<CarIssue> recalls;
 
     public ScanCarPresenter(BluetoothConnectionObservable observable
             , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
@@ -129,9 +130,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         checkEngineIssuesTimer.start();
     }
 
-    private Set<CarIssue> services;
-    private Set<CarIssue> recalls;
-
     @Override
     public void getServicesAndRecalls() {
         Log.d(TAG, "getServicesAndRecalls");
@@ -195,54 +193,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         mCallback.onScanInterrupted(errorMessage);
     }
 
-    @Override
-    public void getBluetoothState(int state) {
-    }
-
-    @Override
-    public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-
-    }
-
-    @Override
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-
-    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-    }
-
-    @Override
-    public void parameterData(ParameterPackage parameterPackage) {
-
-    }
-
-    @Override
-    public void pidData(PidPackage pidPackage) {
-        if (mCallback != null && !realTimeDataRetrieved && pidPackage.realTime){
-            realTimeDataRetrieved = true;
-            mCallback.onRealTimeDataRetrieved();
-        }
-    }
-
-    private Set<String> retrievedDtcs;
-
-    @Override
-    public void dtcData(DtcPackage dtcPackage) {
-
-    }
-
-    @Override
-    public void ffData(FreezeFramePackage ffPackage) {
-
-    }
-
     private void cancelAllTimers() {
         checkEngineIssuesTimer.cancel();
         checkRealTimeTimer.cancel();
@@ -251,7 +201,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
      * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
      * is no DTCs currently.
      */
-    private boolean isAskingForDtcs = false;
     private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(20, 0) {
         @Override
         public void onRetry() {
@@ -266,7 +215,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         }
     };
 
-    private boolean realTimeDataRetrieved = true;
     private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
         @Override
         public void onRetry() {

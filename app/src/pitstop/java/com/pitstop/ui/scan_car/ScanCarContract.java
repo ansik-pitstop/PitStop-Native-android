@@ -3,7 +3,6 @@ package com.pitstop.ui.scan_car;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.observer.BluetoothCarObserver;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -70,8 +69,7 @@ public interface ScanCarContract {
 
     }
 
-    interface Presenter extends BasePresenter, ObdManager.IBluetoothDataListener
-            , BluetoothConnectionObserver, BluetoothCarObserver {
+    interface Presenter extends BasePresenter, BluetoothConnectionObserver, BluetoothCarObserver {
 
         String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
         String ERR_INTERRUPT_DC = "Your device disconnected during the scan"
