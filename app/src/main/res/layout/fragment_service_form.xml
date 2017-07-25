@@ -4,7 +4,7 @@
     android:id="@+id/service_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="true">
+    android:clickable="true">M
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -118,7 +118,9 @@
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
             android:id="@+id/service_calender"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:mcv_selectionColor="@color/primary"
+            />
 
         <LinearLayout
             android:id="@+id/service_time_button"

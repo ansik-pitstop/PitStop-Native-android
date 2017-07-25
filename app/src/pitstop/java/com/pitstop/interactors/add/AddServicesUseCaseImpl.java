@@ -2,11 +2,18 @@ package com.pitstop.interactors.add;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -21,6 +28,8 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     private Callback callback;
     private List<CarIssue> carIssues;
     private Handler handler;
+
+    private EventSource eventSource;
 
     public AddServicesUseCaseImpl(CarIssueRepository carIssueRepository, UserRepository userRepository, Handler handler) {
         this.carIssueRepository = carIssueRepository;
@@ -37,6 +46,9 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
 
                     @Override
                     public void onCarIssueAdded() {
+                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                ,eventSource));
                         callback.onServicesAdded();
                     }
 
@@ -56,7 +68,8 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     }
 
     @Override
-    public void execute(List<CarIssue> carIssues, Callback callback) {
+    public void execute(List<CarIssue> carIssues, String eventSource, Callback callback) {
+        this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carIssues = carIssues;
         handler.post(this);
