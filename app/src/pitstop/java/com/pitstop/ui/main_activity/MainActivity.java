@@ -310,22 +310,28 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     private void displayDeviceState(String state){
-
         Log.d(TAG,"displayDeviceState(): "+state);
+
         if (getSupportActionBar() == null) return;
 
-        if (state.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            getSupportActionBar().setSubtitle("Device connected");
-        }
-        else if(state.equals(BluetoothConnectionObservable.State.VERIFYING)){
-            getSupportActionBar().setSubtitle("Verifying device");
-        }
-        else if(state.equals(BluetoothConnectionObservable.State.SEARCHING)){
-            getSupportActionBar().setSubtitle("Searching for device");
-        }
-        else if(state.equals(BluetoothConnectionObservable.State.DISCONNECTED)){
-            getSupportActionBar().setSubtitle("Device not connected");
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if (state.equals(BluetoothConnectionObservable.State.CONNECTED)){
+                    getSupportActionBar().setSubtitle("Device connected");
+                }
+                else if(state.equals(BluetoothConnectionObservable.State.VERIFYING)){
+                    getSupportActionBar().setSubtitle("Verifying device");
+                }
+                else if(state.equals(BluetoothConnectionObservable.State.SEARCHING)){
+                    getSupportActionBar().setSubtitle("Searching for device");
+                }
+                else if(state.equals(BluetoothConnectionObservable.State.DISCONNECTED)){
+                    getSupportActionBar().setSubtitle("Device not connected");
+                }
+            }
+        });
     }
 
     @Override
