@@ -6,6 +6,10 @@ import com.castel.obd.util.JsonUtil;
  * Created by Paul Soladoye on 14/04/2016.
  */
 public class RequestError {
+
+    public final static String ERR_UNKNOWN = "unknown_error";
+    public final static String ERR_OFFLINE = "offline_error";
+
     private String error;
     private String message;
     private int statusCode;
@@ -51,9 +55,18 @@ public class RequestError {
 
     public static RequestError getUnknownError() {
         RequestError requestError = new RequestError();
-        requestError.setError("unknown_error");
+        requestError.setError(ERR_UNKNOWN);
         requestError.setMessage("Couldn't connect to server.  Please try again.");
 
         return requestError;
     }
+
+    public static RequestError getOfflineError(){
+        RequestError requestError = new RequestError();
+        requestError.setError(ERR_OFFLINE);
+        requestError.setMessage("No internet connection.");
+
+        return requestError;
+    }
+
 }

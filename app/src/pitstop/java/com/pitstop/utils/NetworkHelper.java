@@ -6,7 +6,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.parse.ParseInstallation;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -91,10 +90,6 @@ public class NetworkHelper {
     }
 
     public void post(String uri, RequestCallback callback, JSONObject body) {
-        if (!isConnected(context)) {
-            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + getAccessToken())
@@ -107,10 +102,6 @@ public class NetworkHelper {
     }
 
     public void get(String uri, RequestCallback callback) {
-        if (!isConnected(context)) {
-            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + getAccessToken())
@@ -122,10 +113,6 @@ public class NetworkHelper {
     }
 
     public void put(String uri, RequestCallback callback, JSONObject body) {
-        if (!isConnected(context)) {
-            Toast.makeText(context, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
                 .header("Authorization", "Bearer " + getAccessToken())
