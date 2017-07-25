@@ -50,12 +50,6 @@ public class ShopRepository implements Repository{
     }
 
     public void getPitstopShops(Callback<List<Dealership>> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         networkHelper.get(END_POINT_SHOP_PITSTOP,getGetPitstopShopsRequestCallback(callback));
 
         //Offline logic below, not being used as of n
@@ -79,11 +73,11 @@ public class ShopRepository implements Repository{
                         localShopAdapter.storeDealerships(dealerships);
                         callback.onSuccess(dealerships);
                     }catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
 
             }
@@ -92,12 +86,6 @@ public class ShopRepository implements Repository{
     }
 
     public void insert(Dealership dealership, int userId, Callback<Object> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         removeLocalShop = false;
 
         JSONObject body = new JSONObject();
@@ -167,24 +155,24 @@ public class ShopRepository implements Repository{
                                                     localShopAdapter.storeCustom(dealership);
                                                     callback.onSuccess(response);
                                                 }else{
-                                                    callback.onError(ERR_UNKNOWN);
+                                                    callback.onError(requestError);
                                                 }
                                             }
                                         },userSettings);
                                     }else{
-                                        callback.onError(ERR_UNKNOWN);
+                                        callback.onError(requestError);
                                     }
                                 }catch (JSONException e){
-                                    callback.onError(ERR_UNKNOWN);
+                                    callback.onError(requestError);
                                     e.printStackTrace();
                                 }
                             }
                         });
                     }else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }catch(JSONException e){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                     e.printStackTrace();
                 }
             }
@@ -194,11 +182,6 @@ public class ShopRepository implements Repository{
     }
 
     public void getShopsByUserId(int userId, Callback<List<Dealership>> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         networkHelper.getUserSettingsById(userId,getGetShopsRequestCallback(callback));
 
@@ -242,11 +225,11 @@ public class ShopRepository implements Repository{
                          callback.onSuccess(dealershipArray);
                      }
                  }catch (JSONException e){
-                     callback.onError(ERR_UNKNOWN);
+                     callback.onError(requestError);
                      e.printStackTrace();
                  }
              }else{
-                 callback.onError(ERR_UNKNOWN);
+                 callback.onError(requestError);
              }
          }
      };
@@ -254,12 +237,6 @@ public class ShopRepository implements Repository{
     }
 
     public void update(Dealership dealership,int userId, Callback<Object> callback ){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
 
     }
@@ -299,17 +276,17 @@ public class ShopRepository implements Repository{
                                     localShopAdapter.removeById(dealership.getId());
                                     localShopAdapter.storeCustom(dealership);
                                 }else{
-                                    callback.onError(ERR_UNKNOWN);
+                                    callback.onError(requestError);
                                 }
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                         e.printStackTrace();
                     }
 
                 }else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -319,12 +296,6 @@ public class ShopRepository implements Repository{
 
 
     public void delete(int shopId,int userId, Callback<Object> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         networkHelper.getUserSettingsById(userId,getDeleteShopRequestCallback(callback,userId,shopId) );
     }
 
@@ -355,11 +326,11 @@ public class ShopRepository implements Repository{
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -368,11 +339,6 @@ public class ShopRepository implements Repository{
 
 
     public void get(int dealerId, int userId, Callback<Dealership> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         networkHelper.getUserSettingsById(userId,getGetShopRequestCallback(callback, dealerId));
 
@@ -405,11 +371,11 @@ public class ShopRepository implements Repository{
                             }
                         }
                     }catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                         e.printStackTrace();
                     }
                 }else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
