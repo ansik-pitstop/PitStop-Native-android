@@ -242,9 +242,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setSubtitle("Disconnected");
-        }
+        displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -311,9 +309,29 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         }
     }
 
+    private void displayDeviceState(String state){
+
+        Log.d(TAG,"displayDeviceState(): "+state);
+        if (getSupportActionBar() == null) return;
+
+        if (state.equals(BluetoothConnectionObservable.State.CONNECTED)){
+            getSupportActionBar().setSubtitle("Device connected");
+        }
+        else if(state.equals(BluetoothConnectionObservable.State.VERIFYING)){
+            getSupportActionBar().setSubtitle("Verifying device");
+        }
+        else if(state.equals(BluetoothConnectionObservable.State.SEARCHING)){
+            getSupportActionBar().setSubtitle("Searching for device");
+        }
+        else if(state.equals(BluetoothConnectionObservable.State.DISCONNECTED)){
+            getSupportActionBar().setSubtitle("Device not connected");
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+
 
         Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
@@ -322,6 +340,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             serviceIsBound = true;
         }
         if (autoConnectService != null){
+            displayDeviceState(autoConnectService.getDeviceState());
             autoConnectService.subscribe(this);
         }
 
@@ -1143,31 +1162,22 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     @Override
     public void onSearchingForDevice() {
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setSubtitle("Searching");
-        }
+        displayDeviceState(BluetoothConnectionObservable.State.SEARCHING);
     }
 
     @Override
     public void onDeviceReady(String vin, String scannerId, String scannerName) {
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setSubtitle("Connected");
-        }
-
+        displayDeviceState(BluetoothConnectionObservable.State.CONNECTED);
     }
 
     @Override
     public void onDeviceDisconnected() {
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setSubtitle("Disconnected");
-        }
+        displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED);
     }
 
     @Override
     public void onDeviceVerifying() {
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setSubtitle("Verifying");
-        }
+        displayDeviceState(BluetoothConnectionObservable.State.VERIFYING);
     }
 
     @Override

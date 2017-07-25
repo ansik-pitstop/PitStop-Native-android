@@ -447,6 +447,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     boolean deviceReady = false;
     @Override
     public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
+        Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
+                +", scannerName: "+scannerName);
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
@@ -456,6 +458,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyDeviceDisconnected() {
+        Log.d(TAG,"notifyDeviceDisconnected()");
         //Only notify disconnection if the device that was disconnected was verified and ready
         if (deviceReady){
             for (Observer observer: observerList){
@@ -469,9 +472,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyVerifyingDevice() {
+        Log.d(TAG,"notifyVerifyingDevice()");
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
+                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
             }
         }
     }
@@ -483,20 +487,27 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifySyncingDevice() {
+        Log.d(TAG,"notifySyncingDevice()");
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
+                ((BluetoothConnectionObserver)observer).onDeviceSyncing();
             }
         }
     }
 
     @Override
     public void notifyDtcData(DtcPackage dtcPackage) {
+        Log.d(TAG,"notifyDtcData() "+dtcPackage);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothCarObserver) {
                 ((BluetoothCarObserver) observer).onGotDtc(dtcPackage);
             }
         }
+    }
+
+    @Override
+    public void requestDtcData() {
+        getDTCs();
     }
 
     @Override
@@ -1286,6 +1297,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (deviceManager.startScan()){
             deviceConnState = State.SEARCHING;
+            notifySearchingForDevice();
         }
     }
 

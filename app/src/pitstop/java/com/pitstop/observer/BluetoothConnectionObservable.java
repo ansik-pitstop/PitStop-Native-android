@@ -37,6 +37,9 @@ public interface BluetoothConnectionObservable extends Subject{
     //Invoked if dtc data has been received from the device
     void notifyDtcData(DtcPackage dtcPackage);
 
+    //Invoked when a observer needs the dtc data
+    void requestDtcData();
+
     String getDeviceState();
 
 

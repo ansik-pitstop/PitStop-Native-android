@@ -6,7 +6,6 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
@@ -42,7 +41,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private ScanCarContract.View mCallback;
     private NetworkHelper networkHelper;
     private Car dashboardCar;
-    private BluetoothAutoConnectService mAutoConnectService;
     private UseCaseComponent useCaseComponent;
     private BluetoothConnectionObservable bluetoothObservable;
 
@@ -55,12 +53,17 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     }
 
+    private boolean isDeviceReady(){
+        return bluetoothObservable.getDeviceState()
+                .equals(BluetoothConnectionObservable.State.CONNECTED);
+    }
+
     @Override
     public void startScan() {
-        if (isConnectedToDevice()){
+        if (isDeviceReady()){
             mCallback.onScanStarted();
             getServicesAndRecalls();
-            checkRealTime();
+            getEngineCodes();
         }
         else{
             mCallback.onStartScanFailed(ERR_START_DC);
@@ -117,11 +120,11 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getEngineCodes() {
-        if (!isConnectedToDevice()) return;
+        if (!isDeviceReady()) return;
 
         retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
-        mAutoConnectService.getDTCs();
+        bluetoothObservable.requestDtcData();
         checkEngineIssuesTimer.cancel();
         checkEngineIssuesTimer.start();
     }
@@ -232,11 +235,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void dtcData(DtcPackage dtcPackage) {
-        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
 
-        if (dtcPackage.dtcs != null && isAskingForDtcs) {
-            retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
-        }
     }
 
     @Override
@@ -248,12 +247,6 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         checkEngineIssuesTimer.cancel();
         checkRealTimeTimer.cancel();
     }
-
-    private boolean isConnectedToDevice() {
-        return mAutoConnectService != null && mAutoConnectService.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED);
-    }
-
     /**
      * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
      * is no DTCs currently.
@@ -325,15 +318,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void onDeviceReady(String vin, String scannerId, String scannerName) {
 
     }
-//
-//    @Override
-//    public void onDeviceReady(BluetoothAutoConnectService bluetoothAutoConnectService) {
-//        mAutoConnectService = bluetoothAutoConnectService;
-//    }
 
     @Override
     public void onDeviceDisconnected() {
-        mAutoConnectService = null;
         if (mCallback.isScanning()){
             interruptScan(ERR_INTERRUPT_DC);
         }
@@ -351,6 +338,10 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void onGotDtc(DtcPackage dtcPackage) {
+        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
 
+        if (dtcPackage.dtcs != null && isAskingForDtcs) {
+            retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
+        }
     }
 }

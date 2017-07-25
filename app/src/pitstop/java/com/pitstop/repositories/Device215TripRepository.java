@@ -117,6 +117,7 @@ public class Device215TripRepository implements Repository{
                         //Trip start didn't make it to backend
                         if (!data.has("id")){
                             callback.onSuccess(null);
+                            return;
                         }
                         int id = data.getInt("id");
                         long tripIdRaw = data.getLong("tripIdRaw");
