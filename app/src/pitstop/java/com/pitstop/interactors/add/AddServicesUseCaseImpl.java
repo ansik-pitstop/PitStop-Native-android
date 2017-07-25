@@ -43,10 +43,10 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings data) {
-                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.CarIssueInsertCallback(){
+                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.Callback<Object>(){
 
                     @Override
-                    public void onCarIssueAdded() {
+                    public void onSuccess(Object response) {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
@@ -54,7 +54,7 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });

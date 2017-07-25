@@ -49,14 +49,14 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                     return;
                 }
 
-                carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.CarIssueGetCurrentCallback() {
+                carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.Callback<List<CarIssue>>() {
                     @Override
-                    public void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent) {
+                    public void onSuccess(List<CarIssue> carIssueCurrent) {
                         callback.onGotCurrentServices(carIssueCurrent);
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });

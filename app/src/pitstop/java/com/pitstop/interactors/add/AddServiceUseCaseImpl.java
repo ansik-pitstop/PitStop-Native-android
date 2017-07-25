@@ -3,6 +3,7 @@ package com.pitstop.interactors.add;
 import android.os.Handler;
 
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 
 /**
@@ -23,15 +24,15 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
 
     @Override
     public void run() {
-        carIssueRepository.insert(carIssue,new CarIssueRepository.CarIssueInsertCallback(){
+        carIssueRepository.insert(carIssue,new CarIssueRepository.Callback<Object>(){
 
                 @Override
-                public void onCarIssueAdded() {
+                public void onSuccess(Object response) {
                     callback.onServiceRequested();
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                     callback.onError();
                 }
             });

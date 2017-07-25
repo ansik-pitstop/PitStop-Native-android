@@ -50,15 +50,15 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                 //Use the current users car to get all the current issues
                 carIssueRepository.getDoneCarIssues(data.getCarId()
-                        , new CarIssueRepository.CarIssueGetDoneCallback() {
+                        , new CarIssueRepository.Callback<List<CarIssue>>() {
 
                             @Override
-                            public void onCarIssueGotDone(List<CarIssue> carIssueDone) {
+                            public void onSuccess(List<CarIssue> carIssueDone) {
                                 callback.onGotDoneServices(carIssueDone);
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 callback.onError();
                             }
                         });

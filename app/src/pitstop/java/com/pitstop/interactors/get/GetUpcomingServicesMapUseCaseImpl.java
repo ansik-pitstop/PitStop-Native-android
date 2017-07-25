@@ -59,10 +59,10 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                 //Use the current users car to get all the current issues
                 carIssueRepository.getUpcomingCarIssues(data.getCarId()
-                        , new CarIssueRepository.CarIssueGetUpcomingCallback() {
+                        , new CarIssueRepository.Callback<List<UpcomingIssue>>() {
 
                             @Override
-                            public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
+                            public void onSuccess(List<UpcomingIssue> carIssueUpcoming) {
 
                                 //Return ordered upcoming services through parameter to callback
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
@@ -72,7 +72,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 callback.onError();
                             }
 
