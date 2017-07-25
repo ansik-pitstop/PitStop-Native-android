@@ -660,6 +660,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onDeviceReady(String vin, String scannerId, String scannerName) {
+        Log.d(TAG,"onDeviceReady() vin: "+vin+", scannerId: "+scannerId+", scannerName: "+scannerName);
+
         mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         if (isSearchingForCar) { // it was searching for device previously
