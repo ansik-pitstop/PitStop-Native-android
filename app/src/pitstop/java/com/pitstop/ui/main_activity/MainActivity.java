@@ -1165,7 +1165,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     @Override
     public void onDeviceVerifying() {
-
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setSubtitle("Verifying");
+        }
     }
 
     @Override

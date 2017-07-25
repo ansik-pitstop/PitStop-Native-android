@@ -159,6 +159,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
     public boolean manuallyUpdateMileage = false;
+    private boolean deviceIdMissing = true;
 
     // queue for sending trip flags
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
@@ -179,6 +180,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private Handler handler = new Handler();
 
     private BluetoothServiceBroadcastReceiver connectionReceiver = new BluetoothServiceBroadcastReceiver();
+
 
     @Override
     public void onCreate() {
@@ -607,9 +609,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "Adding trip to pending list"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        boolean deviceIdMissing = (tripInfoPackage.deviceId == null
-                || tripInfoPackage.deviceId.isEmpty());
-
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         pendingTripInfoPackages.add(tripInfoPackage);
@@ -748,6 +747,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        deviceIdMissing = parameterPackage.deviceId == null || parameterPackage.deviceId.isEmpty();
+
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
                 && terminalRTCTime == -1 && !AddCarActivity.addingCarWithDevice){
@@ -769,12 +770,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //If adding car connect to first recognized device
         else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && AddCarActivity.addingCarWithDevice){
-            notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
-                    ,parameterPackage.deviceId);
             setFixedUpload();
             deviceIsVerified = true;
             verificationInProgress = false;
             deviceConnState = State.CONNECTED;
+            notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                    ,parameterPackage.deviceId);
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
@@ -909,8 +910,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void pidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        boolean deviceIdMissing = pidPackage.deviceId == null || pidPackage.deviceId.isEmpty();
 
         if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified " +
@@ -1058,9 +1057,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        //Waiting for overwrite
-        boolean deviceIdMissing = dtcPackage.deviceId == null || dtcPackage.deviceId.isEmpty();
-
         if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
@@ -1106,8 +1102,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void ffData(FreezeFramePackage ffPackage) {
         LogUtils.debugLogD(TAG, "ffData() " + ffPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        boolean deviceIdMissing = ffPackage.deviceId == null || ffPackage.deviceId.isEmpty();
 
         if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
