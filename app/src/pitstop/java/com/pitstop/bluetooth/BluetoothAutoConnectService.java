@@ -791,7 +791,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCarWithDevice && !verificationInProgress
+                && !AddCarActivity.addingCar && !verificationInProgress
                 && !deviceIsVerified){
 
             //Device verification starting
