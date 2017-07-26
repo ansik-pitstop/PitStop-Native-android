@@ -25,6 +25,17 @@ public class Appointment {
     @Expose
     private int id;
 
+    public Appointment(){
+
+    }
+
+    public Appointment(int shopId, String state, String date, String comments){
+        this.shopId = shopId;
+        this.state = state;
+        this.date = date;
+        this.comments = comments;
+    }
+
     public String getComments(){ return comments;}
 
     public String getDate() { return date;}
