@@ -298,7 +298,8 @@ public class CarIssueRepository implements Repository{
     }
 
     public void getDoneCarIssues(int carId, Callback<List<CarIssue>> callback){
-        networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
+        networkHelper.get(String.format("car/%s/issues?type=history", String.valueOf(carId))
+                , getDoneCarIssuesRequestCallback(carId,callback));
         //return carIssueAdapter.getAllDoneCarIssues();
     }
 
