@@ -682,13 +682,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                askForDealership(createdCar);
             }
         });
-        /*mPagerAdapter.addFragment(AddCarChooseDealershipFragment.class, "SelectDealership", 2);
-        ((TextView) findViewById(R.id.step_text)).setText("STEP 3/3");
-        mPagerAdapter.notifyDataSetChanged();
-        mPager.setCurrentItem(2);
-
-        // Go to the selectDealership fragment
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SELECT_DEALERSHIP_VIEW);*/
     }
 
     @Override

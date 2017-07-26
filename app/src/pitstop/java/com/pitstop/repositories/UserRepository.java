@@ -43,7 +43,8 @@ public class UserRepository implements Repository{
 
     public void insert(User model, Callback<Object> callback) {
         if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
+
+            callback.onError(new RequestError());
             return;
         }
 
@@ -62,12 +63,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(null);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -76,11 +77,6 @@ public class UserRepository implements Repository{
     }
 
     public void update(User model, Callback<Object> callback) {
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         userAdapter.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getUserUpdateRequestCallback(callback));
@@ -96,12 +92,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(null);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -110,15 +106,10 @@ public class UserRepository implements Repository{
     }
 
     public void getCurrentUser(Callback<User> callback){
-        if(!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
+        if (userAdapter.getUser() == null){
+            callback.onError(RequestError.getUnknownError());
             return;
         }
-        else if (userAdapter.getUser() == null){
-            callback.onError(ERR_UNKNOWN);
-            return;
-        }
-
         networkHelper.get(END_POINT_USER+userAdapter.getUser().getId()
                 ,getUserGetRequestCallback(callback));
     }
@@ -133,12 +124,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(User.jsonToUserObject(response));
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -147,11 +138,6 @@ public class UserRepository implements Repository{
     }
 
     public void setUserCar(int userId, int carId, Callback<Object> callback){
-
-        if(!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         getUserSettings(userId, new RequestCallback() {
             @Override
@@ -170,7 +156,7 @@ public class UserRepository implements Repository{
                     }
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         });
@@ -186,12 +172,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -201,11 +187,6 @@ public class UserRepository implements Repository{
 
     public void setFirstCarAdded(final boolean added
             , final Callback<Object> callback){
-
-        if(!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         final int userId = userAdapter.getUser().getId();
 
@@ -227,12 +208,12 @@ public class UserRepository implements Repository{
                     }
                     catch(JSONException e){
                         e.printStackTrace();
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
 
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         });
@@ -248,12 +229,12 @@ public class UserRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -263,18 +244,13 @@ public class UserRepository implements Repository{
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 
-        if(!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         final int userId = userAdapter.getUser().getId();
 
         getUserSettings(userId, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError != null){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                     return;
                 }
                 try{

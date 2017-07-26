@@ -59,20 +59,20 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                             }
 
                             @Override
-                            public void onError(int error) {
+                            public void onError(RequestError error) {
 
                             }
                         });
                     }
 
                     @Override
-                    public void onError(int error) {
+                    public void onError(RequestError error) {
 
                     }
                 });
             }
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

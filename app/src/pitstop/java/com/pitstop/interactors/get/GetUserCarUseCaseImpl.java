@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
@@ -50,14 +51,14 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     }
 
                     @Override
-                    public void onError(int error) {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
 
             }
         });

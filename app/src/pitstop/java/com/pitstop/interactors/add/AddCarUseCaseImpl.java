@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 
@@ -52,7 +53,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

@@ -29,12 +29,6 @@ public class ScannerRepository implements Repository {
     }
 
     public void createScanner(ObdScanner scanner, Callback callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         Log.d(TAG,"creating scanner: "+scanner);
         putScanner(scanner,getCreateScannerCallback(callback,scanner));
     }
@@ -74,18 +68,13 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
     }
 
     public void updateScanner(ObdScanner scanner, Callback<Object> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         //Same logic for both
         Log.d(TAG,"updating scanner: "+scanner);
@@ -102,7 +91,7 @@ public class ScannerRepository implements Repository {
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -110,12 +99,6 @@ public class ScannerRepository implements Repository {
 
     /*boolean active: whether you want to look for active device or not*/
     public void getScanner(String scannerId, Callback<ObdScanner> callback){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         Log.d(TAG,"getting scanner, scannerId: "+scannerId);
         networkHelper.get("scanner/"+scannerId, getGetScannerCallback(callback));
     }
@@ -152,12 +135,12 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                         e.printStackTrace();
                     }
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };

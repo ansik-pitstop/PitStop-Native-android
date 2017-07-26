@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
@@ -49,22 +50,22 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                 //Use the current users car to get all the current issues
                 carIssueRepository.getDoneCarIssues(data.getCarId()
-                        , new CarIssueRepository.CarIssueGetDoneCallback() {
+                        , new CarIssueRepository.Callback<List<CarIssue>>() {
 
                             @Override
-                            public void onCarIssueGotDone(List<CarIssue> carIssueDone) {
+                            public void onSuccess(List<CarIssue> carIssueDone) {
                                 callback.onGotDoneServices(carIssueDone);
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 callback.onError();
                             }
                         });
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

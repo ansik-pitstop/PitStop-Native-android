@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.User;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
@@ -37,7 +38,7 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
                 callback.onUserRetrieved(user);
             }
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });
