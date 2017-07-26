@@ -3,11 +3,13 @@ package com.pitstop.repositories;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.models.Appointment;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -27,6 +29,10 @@ import java.util.List;
  */
 
 public class CarIssueRepository implements Repository{
+
+    private final String END_POINT_REQUEST_SERVICE = "utility/serviceRequest";
+    private final String END_POINT_ISSUES_UPCOMING = "car/%s/issues?type=upcoming";
+    private final String END_POINT_ISSUES_CURRENT = "car/%s/issues?type=active";
 
     public static final int DEALERSHIP_ISSUES = 0;
 
@@ -184,7 +190,9 @@ public class CarIssueRepository implements Repository{
     }
 
     public void getUpcomingCarIssues(int carId, Callback<List<UpcomingIssue>> callback){
-        networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
+        networkHelper.get(String.format(END_POINT_ISSUES_UPCOMING, String.valueOf(carId))
+                , getUpcomingCarIssuesRequestCallback(callback));
+
     }
 
     private RequestCallback getUpcomingCarIssuesRequestCallback(Callback<List<UpcomingIssue>> callback){
@@ -208,7 +216,8 @@ public class CarIssueRepository implements Repository{
     }
 
     public  void getCurrentCarIssues(int carId, Callback<List<CarIssue>> callback){
-        networkHelper.getCurrentCarIssues(carId,getCurrentCarIssuesRequestCallback(carId,callback));
+        networkHelper.get(String.format(END_POINT_ISSUES_CURRENT, String.valueOf(carId))
+                , getCurrentCarIssuesRequestCallback(carId,callback));
     }
 
     private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
@@ -238,8 +247,54 @@ public class CarIssueRepository implements Repository{
     }
 
 
-    public void requestService(int userId,int carId, int shopId,String state, String appointmentTimeStamp, String comments, RequestCallback callback ){
-        networkHelper.requestService(userId,carId,shopId,state ,appointmentTimeStamp, comments,callback);
+    public void requestService(int userId, int carId, Appointment appointment
+            , Callback<Object> callback ){
+
+        JSONObject body = new JSONObject();
+        JSONObject options = new JSONObject();
+        try {
+            body.put("userId", userId);
+            body.put("carId", carId);
+            body.put("shopId", appointment.getShopId());
+            body.put("comments", appointment.getComments());
+            options.put("state", appointment.getState());
+            options.put("appointmentDate", appointment.getDate());
+            body.put("options", options);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        networkHelper.post(END_POINT_REQUEST_SERVICE, getRequestServiceCallback(callback), body);
+
+        // If state is tentative, we put salesPerson to another endpoint
+        if (appointment.getState().equals(RequestServiceActivity.STATE_TENTATIVE)) {
+            JSONObject updateSalesman = new JSONObject();
+            try {
+                updateSalesman.put("carId", carId);
+                updateSalesman.put("salesperson", appointment.getComments());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            networkHelper.put("car", new RequestCallback() {
+                @Override
+                public void done(String response, RequestError requestError) {
+                }
+            }, updateSalesman);
+        }
+    }
+
+    private RequestCallback getRequestServiceCallback(Callback<Object> callback){
+        return new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    callback.onSuccess(response);
+                    return;
+                }
+                else{
+                    callback.onError(requestError);
+                }
+            }
+        };
     }
 
     public void getDoneCarIssues(int carId, Callback<List<CarIssue>> callback){

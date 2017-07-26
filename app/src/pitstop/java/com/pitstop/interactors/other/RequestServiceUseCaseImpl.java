@@ -2,10 +2,10 @@ package com.pitstop.interactors.other;
 
 import android.os.Handler;
 
+import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
@@ -46,28 +46,33 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                         carRepository.get(data.getCarId(), user.getId(), new CarRepository.Callback<Car>() {
                             @Override
                             public void onSuccess(Car car) {
-                                carIssueRepository.requestService(user.getId(), car.getId(), car.getDealership().getId(), state, timeStamp, comments, new RequestCallback() {
+                                Appointment appointment = new Appointment(car.getDealership().getId()
+                                        , state, timeStamp, comments);
+                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
+                                        , new Repository.Callback<Object>() {
+
                                     @Override
-                                    public void done(String response, RequestError requestError) {
-                                        if(requestError == null && response != null){
-                                            callback.onServicesRequested();
-                                        }else{
-                                            callback.onError();
-                                        }
+                                    public void onSuccess(Object object) {
+                                        callback.onServicesRequested();
+                                    }
+
+                                    @Override
+                                    public void onError(RequestError error){
+                                        callback.onError();
                                     }
                                 });
                             }
 
                             @Override
                             public void onError(RequestError error) {
-
+                                callback.onError();
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-
+                        callback.onError();
                     }
                 });
             }
