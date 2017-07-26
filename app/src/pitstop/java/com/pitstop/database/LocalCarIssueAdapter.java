@@ -88,6 +88,20 @@ public class LocalCarIssueAdapter {
         return carIssue;
     }
 
+    public void deleteAllUpcomingCarIssues(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_ISSUE_TYPE + "=?",
+                new String[] { CarIssue.ISSUE_NEW });
+    }
+
+    public void deleteAllDoneCarIssues(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_ISSUE_TYPE + "=?",
+                new String[] { CarIssue.ISSUE_DONE });
+    }
+
     public List<CarIssue> getAllUpcomingCarIssues() {
         List<CarIssue> carIssues = new ArrayList<>();
 
