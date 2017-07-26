@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -37,7 +38,7 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

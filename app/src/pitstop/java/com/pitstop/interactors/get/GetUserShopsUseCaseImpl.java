@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
@@ -44,14 +45,14 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
                     }
 
                     @Override
-                    public void onError(int error) {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Trip215;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
 
@@ -49,7 +50,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });
