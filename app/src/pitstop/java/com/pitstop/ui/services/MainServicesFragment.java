@@ -19,6 +19,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 
 public class MainServicesFragment extends Fragment{
 
@@ -112,7 +113,7 @@ public class MainServicesFragment extends Fragment{
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
 
             }
         });

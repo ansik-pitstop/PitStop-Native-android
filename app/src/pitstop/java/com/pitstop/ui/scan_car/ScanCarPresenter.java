@@ -106,7 +106,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
 
             }
         });

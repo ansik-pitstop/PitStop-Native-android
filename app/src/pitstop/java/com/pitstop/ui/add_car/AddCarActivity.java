@@ -35,6 +35,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.view_fragment.AddCar1Fragment;
 import com.pitstop.ui.add_car.view_fragment.AddCar2NoDongleFragment;
@@ -678,7 +679,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             }
 
             @Override
-            public void onError() {// really need this to work
+            public void onError(RequestError error) {// really need this to work
                askForDealership(createdCar);
             }
         });

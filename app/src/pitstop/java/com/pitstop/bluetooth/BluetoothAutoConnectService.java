@@ -682,8 +682,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
 
-                            @Override
-                    public void onError() {
+                    @Override
+                    public void onError(RequestError error) {
                         LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
@@ -718,7 +718,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
                         LogUtils.debugLogD(TAG,"Error saving trip start", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
@@ -867,7 +867,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                     LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred"
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
