@@ -47,24 +47,69 @@ public class CarIssueRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(CarIssue model, Callback<Object> callback) {
-        carIssueAdapter.storeCarIssue(model);
-        networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
-                ,model.getDescription(),model.getPriority(),getInsertCarIssueRequestCallback(callback));
-        return true;
+    public void insert(CarIssue issue, Callback<Object> callback) {
+
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+
+        try{
+            if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)) {
+                data.put(new JSONObject()
+                        .put("type", issue.getIssueType())
+                        .put("status", issue.getStatus())
+                        .put("id", issue.getId()));
+            } else {
+                data.put(new JSONObject()
+                        .put("type", issue.getIssueType())
+                        .put("item", issue.getItem())
+                        .put("action", issue.getAction())
+                        .put("description", issue.getDescription())
+                        .put("priority", issue.getPriority()));
+            }
+        }
+        catch(JSONException e){
+            e.printStackTrace();
+        }
+
+        networkHelper.post("car/" + issue.getCarId() + "/service"
+                , getInsertCarIssueRequestCallback(callback), body);
     }
 
     public void insert(int carId,List<CarIssue> issues, Callback<Object> callback){
-        carIssueAdapter.storeIssues(issues);
-        networkHelper.postMultiplePresetIssue(carId, issues, getgetInsertCarIssuesRequestCallback(callback));
+        JSONObject body = new JSONObject();
+        JSONArray data = new JSONArray();
+        try {
+            for (CarIssue issue : issues) {
+                if (issue.getIssueType().equals(CarIssue.TYPE_PRESET)) {
+                    data.put(new JSONObject()
+                            .put("type", issue.getIssueType())
+                            .put("status", issue.getStatus())
+                            .put("id", issue.getId()));
+                } else {
+                    data.put(new JSONObject()
+                            .put("type", issue.getIssueType())
+                            .put("item", issue.getItem())
+                            .put("action", issue.getAction())
+                            .put("description", issue.getDescription())
+                            .put("priority", issue.getPriority()));
+                }
+            }
+            body.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.post("car/" + carId + "/service"
+                , getInsertCarIssuesRequestCallback(callback), body);
     }
 
-    private RequestCallback getgetInsertCarIssuesRequestCallback(Callback<Object> callback){
+    private RequestCallback getInsertCarIssuesRequestCallback(Callback<Object> callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null && response != null){
                     callback.onSuccess(response);
+
                 }else{
                     callback.onError(requestError);
                 }
@@ -95,19 +140,25 @@ public class CarIssueRepository implements Repository{
         return requestCallback;
     }
 
-    public boolean updateCarIssue(CarIssue model, Callback<Object> callback) {
-        carIssueAdapter.updateCarIssue(model);
+    public void updateCarIssue(CarIssue issue, Callback<Object> callback) {
+        JSONObject body = new JSONObject();
 
-        if (model.getStatus().equals(CarIssue.ISSUE_DONE)){
-            networkHelper.setIssueDone(model.getCarId(),model.getId(),model.getDaysAgo()
-                    ,model.getDoneMileage(),getUpdateCarIssueRequestCallback(callback));
-        }
-        else if (model.getStatus().equals(CarIssue.ISSUE_PENDING)){
-            networkHelper.setIssuePending(model.getCarId(),model.getId()
-                    ,getUpdateCarIssueRequestCallback(callback));
+        try {
+            body.put("carId", issue.getCarId());
+            body.put("issueId", issue.getId());
+            body.put("status", issue.getStatus());
+
+            if (issue.getStatus().equals(CarIssue.ISSUE_DONE)){
+                body.put("daysAgo", issue.getDaysAgo());
+                body.put("mileage", issue.getDoneMileage());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        return false;
+        networkHelper.put("issue", getUpdateCarIssueRequestCallback(callback), body);
+
     }
 
     private RequestCallback getUpdateCarIssueRequestCallback(Callback<Object> callback){
@@ -132,7 +183,7 @@ public class CarIssueRepository implements Repository{
         return requestCallback;
     }
 
-    public synchronized void getUpcomingCarIssues(int carId, Callback<List<UpcomingIssue>> callback){
+    public void getUpcomingCarIssues(int carId, Callback<List<UpcomingIssue>> callback){
         networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
     }
 
@@ -191,9 +242,9 @@ public class CarIssueRepository implements Repository{
         networkHelper.requestService(userId,carId,shopId,state ,appointmentTimeStamp, comments,callback);
     }
 
-    public  List<CarIssue> getDoneCarIssues(int carId, Callback<List<CarIssue>> callback){
+    public void getDoneCarIssues(int carId, Callback<List<CarIssue>> callback){
         networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
-        return carIssueAdapter.getAllDoneCarIssues();
+        //return carIssueAdapter.getAllDoneCarIssues();
     }
 
     private RequestCallback getDoneCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
