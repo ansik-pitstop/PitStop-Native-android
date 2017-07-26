@@ -28,9 +28,6 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
 
     @Override
     public void run() {
-        if(!networkHelper.isConnected()){
-            callback.onError();
-        }
         shopRepository.getPitstopShops(new Repository.Callback<List<Dealership>>() {
             @Override
             public void onSuccess(List<Dealership> dealershipList) {
@@ -39,7 +36,7 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

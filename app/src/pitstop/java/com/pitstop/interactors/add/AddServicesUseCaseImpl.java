@@ -55,14 +55,14 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 

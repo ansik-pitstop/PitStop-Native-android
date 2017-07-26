@@ -269,7 +269,7 @@ public class MainDashboardFragment extends CarDataFragment {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 hideLoading(null);
             }
         });

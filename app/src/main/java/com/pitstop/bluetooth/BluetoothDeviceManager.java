@@ -32,6 +32,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.models.DebugMessage;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
@@ -374,7 +375,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                                 }
 
                                 @Override
-                                public void onError(String error) {
+                                public void onError(RequestError error) {
                                     deviceInterface = new Device215B(mContext, dataListener
                                             , deviceName);
                                     connectToDevice(device);

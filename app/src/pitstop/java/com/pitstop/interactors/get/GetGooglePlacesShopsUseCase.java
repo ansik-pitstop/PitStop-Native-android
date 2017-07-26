@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public interface GetGooglePlacesShopsUseCase extends Interactor {
     interface CallbackShops{
         void onShopsGot(List<Dealership> dealerships);
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes usecase

@@ -276,7 +276,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 //Error logic here
             }
         });
@@ -363,7 +363,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
 
             }
         });
@@ -406,7 +406,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                                                 }
 
                                                 @Override
-                                                public void onError() {
+                                                public void onError(RequestError error) {
                                                     //Networking error logic here
                                                 }
                                             });
@@ -414,7 +414,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 //Error logic here
                             }
                         });
@@ -576,7 +576,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
 
             }
         });
@@ -769,7 +769,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 hideLoading();
                 Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
             }
@@ -803,7 +803,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 hideLoading();
                 Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
             }
@@ -831,7 +831,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 hideLoading();
                 Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
             }
@@ -999,7 +999,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 hideLoading();
                 Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
             }

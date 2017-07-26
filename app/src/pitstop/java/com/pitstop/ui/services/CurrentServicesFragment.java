@@ -26,6 +26,7 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
@@ -119,7 +120,7 @@ public class CurrentServicesFragment extends CarDataFragment {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
         });
@@ -153,7 +154,7 @@ public class CurrentServicesFragment extends CarDataFragment {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 uiInitialized = false;
             }
         });

@@ -39,7 +39,7 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

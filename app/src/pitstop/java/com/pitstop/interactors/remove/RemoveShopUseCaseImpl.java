@@ -37,9 +37,6 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
 
     @Override
     public void run() {
-        if(!networkHelper.isConnected()){
-            callback.onError();
-        }
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -60,21 +57,21 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError();
+                                callback.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
 
                 });
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

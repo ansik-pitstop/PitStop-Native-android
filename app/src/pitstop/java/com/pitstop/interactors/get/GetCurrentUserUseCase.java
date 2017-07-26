@@ -3,6 +3,8 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.User;
+import com.pitstop.network.RequestCallback;
+import com.pitstop.network.RequestError;
 
 
 /**
@@ -12,7 +14,7 @@ import com.pitstop.models.User;
 public interface GetCurrentUserUseCase extends Interactor {
     interface Callback{
         void onUserRetrieved(User user);
-        void onError();
+        void onError(RequestError error);
     }
 
     //Execute the use case
