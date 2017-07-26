@@ -2,6 +2,7 @@ package com.pitstop.interactors.add;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public interface AddServicesUseCase extends Interactor {
     interface Callback{
         void onServicesAdded();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case

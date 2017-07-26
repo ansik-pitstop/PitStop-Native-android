@@ -1,7 +1,7 @@
 package com.pitstop.interactors.remove;
 
 import com.pitstop.interactors.Interactor;
-import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -14,7 +14,7 @@ import com.pitstop.models.Car;
 public interface RemoveCarUseCase extends Interactor {
     interface Callback{
         void onCarRemoved();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case

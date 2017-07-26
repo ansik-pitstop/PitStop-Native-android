@@ -54,7 +54,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

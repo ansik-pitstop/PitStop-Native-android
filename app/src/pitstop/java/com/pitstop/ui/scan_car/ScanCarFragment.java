@@ -34,6 +34,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -191,7 +192,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
 
                 }
             });

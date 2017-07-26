@@ -95,11 +95,14 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
                         }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
                             callback.onShopsGot(new ArrayList<Dealership>());
                         }else{
-                            callback.onError();
+                            callback.onError(RequestError.getUnknownError());
                         }
                     }catch (JSONException e){
-                        callback.onError();
+                        callback.onError(RequestError.getUnknownError());
                     }
+                }
+                else{
+                    callback.onError(requestError);
                 }
             }
         });

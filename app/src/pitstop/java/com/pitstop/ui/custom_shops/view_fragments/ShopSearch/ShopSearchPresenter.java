@@ -10,6 +10,7 @@ import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopPresnter;
 import com.pitstop.utils.MixpanelHelper;
@@ -73,7 +74,7 @@ public class ShopSearchPresenter implements ShopPresnter {
                         }
                     }
                     @Override
-                    public void onError() {//go to the shop form without extra details
+                    public void onError(RequestError error) {//go to the shop form without extra details
                         if(shopSearch != null){
                             switcher.setViewShopForm(dealership);
                         }
@@ -102,7 +103,7 @@ public class ShopSearchPresenter implements ShopPresnter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
 
 
             }
@@ -152,7 +153,7 @@ public class ShopSearchPresenter implements ShopPresnter {
                 }
             }
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(shopSearch != null){
                     loadingCounter-=1;
                     if(loadingCounter == 0){
@@ -176,7 +177,7 @@ public class ShopSearchPresenter implements ShopPresnter {
                 }
             }
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(shopSearch != null){
                     shopSearch.loadingMyShops(false);
                     shopSearch.toast("There was an error loading your shops");
@@ -195,7 +196,7 @@ public class ShopSearchPresenter implements ShopPresnter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(shopSearch != null){
                     shopSearch.toast("There was an error loading the Pitstop shops");
                 }

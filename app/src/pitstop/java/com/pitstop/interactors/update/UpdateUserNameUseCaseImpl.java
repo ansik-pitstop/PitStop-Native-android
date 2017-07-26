@@ -60,7 +60,7 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
                     }
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
 
                     }
                 });
@@ -69,7 +69,7 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 

@@ -6,6 +6,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 
 /**
  * Created by matt on 2017-06-08.
@@ -43,7 +44,7 @@ public class CustomShopPresenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
             }
         });
 

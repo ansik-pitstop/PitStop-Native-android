@@ -89,7 +89,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                                     @Override
                                                     public void onError(RequestError error) {
-                                                        callback.onError();
+                                                        callback.onError(error);
                                                     }
                                                 });
                                             }else{//user doesn't have another car
@@ -102,7 +102,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                                     ,eventSource));
                                                             callback.onCarRemoved();
                                                         }else{
-                                                            callback.onError();
+                                                            callback.onError(requestError);
                                                         }
                                                     }
                                                 });
@@ -111,14 +111,14 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            callback.onError();
+                                            callback.onError(error);
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    callback.onError();
+                                    callback.onError(error);
                                 }
                             });
                         }else{
@@ -128,14 +128,14 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

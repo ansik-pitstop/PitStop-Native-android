@@ -59,14 +59,14 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError();
+                                callback.onError(error);
                             }
                         });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

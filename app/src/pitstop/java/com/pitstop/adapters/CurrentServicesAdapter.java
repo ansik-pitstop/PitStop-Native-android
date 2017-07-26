@@ -22,6 +22,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
@@ -163,7 +164,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                                 }
 
                                 @Override
-                                public void onError() {
+                                public void onError(RequestError error) {
                                 }
                             });
                         }
