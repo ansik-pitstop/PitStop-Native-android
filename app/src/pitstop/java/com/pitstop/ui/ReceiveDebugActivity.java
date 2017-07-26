@@ -1,7 +1,6 @@
 package com.pitstop.ui;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -24,6 +23,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
 
@@ -43,7 +43,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             // cast the IBinder and get MyService instance
             BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
             service = ((BluetoothAutoConnectService.BluetoothBinder) service1).getService();
-            service.addCallback(ReceiveDebugActivity.this); // register
+            //service.addCallback(ReceiveDebugActivity.this); // register
         }
 
         @Override
@@ -58,8 +58,8 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         BTSTATUS.setText("Bluetooth Getting Started");
         setTitle("Connect to Car");
         pendingUpload = false;
-        bindService(new Intent(this, BluetoothAutoConnectService.class),
-                serviceConnection, BIND_AUTO_CREATE);
+//        bindService(new Intent(this, BluetoothAutoConnectService.class),
+//                serviceConnection, BIND_AUTO_CREATE);
         clicked = false;
     }
 
@@ -258,7 +258,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getDTC(View view) {
-        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
+        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
             service.startBluetoothSearch();
         }else {
             service.getDTCs();
@@ -268,7 +268,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getState() != IBluetoothCommunicator.CONNECTED) {
+        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
             service.startBluetoothSearch();
         }else {
             service.getSupportedPids();

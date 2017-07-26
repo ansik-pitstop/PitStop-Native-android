@@ -126,19 +126,21 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         this.dataListener = dataListener;
     }
 
-    public synchronized void startScan() {
+    //Returns false if search didn't begin again
+    public synchronized boolean startScan() {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
-            return;
+            return false;
         }
 
         if (mBluetoothAdapter.isDiscovering()) {
             Log.i(TAG, "Already scanning");
-            return;
+            return false;
         }
 
         connectBluetooth();
+        return true;
     }
 
     public synchronized void onConnectDeviceValid(){
@@ -158,6 +160,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void close() {
+
+        if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+        }
+
         if (communicator != null) {
             communicator.close();
         }

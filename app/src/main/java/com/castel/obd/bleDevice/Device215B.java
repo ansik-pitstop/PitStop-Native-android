@@ -480,10 +480,6 @@ public class Device215B implements AbstractDevice {
                     }
 
                     dataListener.pidData(pidPackage);
-                } else { // to request a new IDR package
-                    PidPackage pidPackage = new PidPackage();
-                    pidPackage.realTime = false;
-                    dataListener.pidData(pidPackage);
                 }
 
                 if(idrInfo.dtc != null && !idrInfo.dtc.isEmpty()) {
