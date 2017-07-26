@@ -34,5 +34,6 @@ public abstract class CarService {
         return issue.getItem();
     }
 
+    public int getId() { return issue.getIssueId(); }
 
 }
