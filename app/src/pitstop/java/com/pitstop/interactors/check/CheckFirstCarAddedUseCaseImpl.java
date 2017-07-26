@@ -3,6 +3,7 @@ package com.pitstop.interactors.check;
 import android.os.Handler;
 
 import com.pitstop.models.Settings;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
@@ -37,7 +38,7 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

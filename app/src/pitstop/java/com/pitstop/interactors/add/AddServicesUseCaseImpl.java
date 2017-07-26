@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
@@ -42,10 +43,10 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings data) {
-                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.CarIssueInsertCallback(){
+                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.Callback<Object>(){
 
                     @Override
-                    public void onCarIssueAdded() {
+                    public void onSuccess(Object response) {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
@@ -53,14 +54,14 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

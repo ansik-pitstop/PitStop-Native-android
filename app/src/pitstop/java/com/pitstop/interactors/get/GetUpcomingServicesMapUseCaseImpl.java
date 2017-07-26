@@ -5,6 +5,7 @@ import android.os.Handler;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
@@ -58,10 +59,10 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                 //Use the current users car to get all the current issues
                 carIssueRepository.getUpcomingCarIssues(data.getCarId()
-                        , new CarIssueRepository.CarIssueGetUpcomingCallback() {
+                        , new CarIssueRepository.Callback<List<UpcomingIssue>>() {
 
                             @Override
-                            public void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming) {
+                            public void onSuccess(List<UpcomingIssue> carIssueUpcoming) {
 
                                 //Return ordered upcoming services through parameter to callback
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
@@ -71,7 +72,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 callback.onError();
                             }
 
@@ -79,7 +80,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });
