@@ -6,6 +6,7 @@ import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -63,7 +64,7 @@ public class CarSettingsPresenter {
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                     if(carSettings != null){
                         carSettings.toast("An error occurred while updating your car");
                     }
@@ -87,7 +88,7 @@ public class CarSettingsPresenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(carSettings != null){
                     carSettings.toast("There was an error loading your car details");
                 }
@@ -107,7 +108,7 @@ public class CarSettingsPresenter {
                 }
             }
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(carSettings != null){
                     carSettings.toast("There was an error removing your car");
                 }

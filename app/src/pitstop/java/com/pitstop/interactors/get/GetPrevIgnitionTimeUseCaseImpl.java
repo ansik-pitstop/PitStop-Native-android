@@ -58,7 +58,7 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(null);
+                callback.onError(error);
             }
         });
     }

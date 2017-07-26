@@ -1,9 +1,6 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 
-import android.widget.CalendarView;
-import android.widget.DatePicker;
-
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -12,6 +9,7 @@ import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
@@ -124,7 +122,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                 }
 
                 @Override
-               public void onError() {
+               public void onError(RequestError error) {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,"There was an error loading these times");
                }
@@ -194,7 +192,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                    }
 
                    @Override
-                   public void onError() {
+                   public void onError(RequestError error) {
                        if(view == null || callback == null){return;}
                        view.disableButton(false);
                       view.toast("There was an error adding your services");
@@ -203,7 +201,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
                 view.disableButton(false);
               view.toast("There was an error requesting this service");

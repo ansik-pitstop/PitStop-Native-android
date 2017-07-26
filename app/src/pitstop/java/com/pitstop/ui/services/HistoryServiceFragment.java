@@ -23,6 +23,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
@@ -170,7 +171,7 @@ public class HistoryServiceFragment extends CarDataFragment {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
             }
         });

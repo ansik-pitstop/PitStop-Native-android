@@ -1,6 +1,7 @@
 package com.pitstop.interactors.set;
 
 import com.pitstop.interactors.Interactor;
+import com.pitstop.network.RequestError;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -13,7 +14,7 @@ import com.pitstop.interactors.Interactor;
 public interface SetUserCarUseCase extends Interactor {
     interface Callback{
         void onUserCarSet();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case

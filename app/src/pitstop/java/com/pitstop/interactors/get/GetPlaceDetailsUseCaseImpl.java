@@ -65,17 +65,17 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
                         dealership.setPhoneNumber(results.getString("formatted_phone_number"));
                         callback.onDetailsGot(dealership);
                         }else{
-                            callback.onError();
+                            callback.onError(requestError);
                         }
 
                     }catch(JSONException e){
-                        callback.onError();
+                        callback.onError(RequestError.getUnknownError());
                     }
 
                 }
             });
         }else {
-            callback.onError();
+            callback.onError(RequestError.getUnknownError());
         }
     }
 }

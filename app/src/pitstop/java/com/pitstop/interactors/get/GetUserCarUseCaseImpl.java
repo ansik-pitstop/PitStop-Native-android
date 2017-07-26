@@ -52,14 +52,14 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-
+                callback.onError(error);
             }
         });
     }

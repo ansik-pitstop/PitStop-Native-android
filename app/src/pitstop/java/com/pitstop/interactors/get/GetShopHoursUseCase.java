@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
+import com.pitstop.network.RequestError;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface GetShopHoursUseCase extends Interactor {
         void onHoursGot(List<String> hours);
         void onNoHoursAvailable(List<String> defaultHours);
         void onNotOpen();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case

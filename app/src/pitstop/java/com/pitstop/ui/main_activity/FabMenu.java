@@ -14,6 +14,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -113,7 +114,7 @@ public class FabMenu {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
 
                     }
                 });
@@ -144,7 +145,7 @@ public class FabMenu {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
 
                     }
                 });
@@ -175,7 +176,7 @@ public class FabMenu {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
 
                     }
                 });
@@ -210,7 +211,7 @@ public class FabMenu {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(RequestError error) {
 
                     }
                 });

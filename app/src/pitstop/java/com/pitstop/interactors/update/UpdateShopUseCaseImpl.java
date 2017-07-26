@@ -64,13 +64,13 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
 
                   @Override
                   public void onError(RequestError error) {
-                      callback.onError();
+                      callback.onError(error);
                   }
               });
           }
           @Override
           public void onError(RequestError error) {
-              callback.onError();
+              callback.onError(error);
           }
       });
     }

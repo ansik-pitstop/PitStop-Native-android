@@ -9,6 +9,7 @@ import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.ui.settings.PrefMaker;
 import com.pitstop.utils.MixpanelHelper;
@@ -102,7 +103,7 @@ public class MainSettingsPresenter {
                 }
             }
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(mainSettings != null && switcher != null){
                     switcher.loading(false);
                     mainSettings.toast("There was an error loading your cars");
@@ -126,7 +127,7 @@ public class MainSettingsPresenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(mainSettings != null){
                     mainSettings.toast("There was an error loading your details");
                 }
@@ -154,7 +155,7 @@ public class MainSettingsPresenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(mainSettings != null){
                     mainSettings.toast("There was an error loading your shops");
                 }
@@ -174,7 +175,7 @@ public class MainSettingsPresenter {
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                 }
             });
         }else if(key.equals(PHONE_PREF_KEY)){
@@ -187,7 +188,7 @@ public class MainSettingsPresenter {
                 }
 
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
 
                 }
             });

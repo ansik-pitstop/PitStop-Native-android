@@ -2,6 +2,7 @@ package com.pitstop.interactors.add;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -14,7 +15,7 @@ import com.pitstop.models.issue.CarIssue;
 public interface AddServiceUseCase extends Interactor {
     interface Callback{
         void onServiceRequested();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case

@@ -6,6 +6,7 @@ import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopPresnter;
 import com.pitstop.utils.MixpanelHelper;
@@ -62,7 +63,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(pitstopShops != null){
                     pitstopShops.loading(false);
                     pitstopShops.toast("There was an error loading the Pitstop shops");
@@ -98,7 +99,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 pitstopShops.toast("There was an error selecting this shop");
 
             }

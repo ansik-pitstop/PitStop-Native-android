@@ -7,6 +7,7 @@ import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.update.UpdateShopUseCase;
 import com.pitstop.models.Address;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
@@ -97,7 +98,7 @@ public class ShopFormPresenter {
                     }
                 }
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                     if(shopForm != null){
                         shopForm.toast("There was an error updating your shops details");
                     }
@@ -117,7 +118,7 @@ public class ShopFormPresenter {
                             }
 
                             @Override
-                            public void onError() {
+                            public void onError(RequestError error) {
                                 if(shopForm != null){
                                     shopForm.toast("There was an error adding your shop");
                                 }
@@ -125,7 +126,7 @@ public class ShopFormPresenter {
                         });
                 }
                 @Override
-                public void onError() {
+                public void onError(RequestError error) {
                     if(shopForm != null){
                         shopForm.toast("There was an error adding your shop");
                     }

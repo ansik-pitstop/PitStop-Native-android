@@ -31,6 +31,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
@@ -171,7 +172,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
                 showError();
             }

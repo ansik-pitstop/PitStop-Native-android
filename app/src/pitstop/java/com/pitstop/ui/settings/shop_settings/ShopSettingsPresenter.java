@@ -3,6 +3,7 @@ package com.pitstop.ui.settings.shop_settings;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -59,7 +60,7 @@ public class ShopSettingsPresenter {
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 if(shopSettings != null){
                     shopSettings.toast("There was an error removing this shop");
                 }

@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.network.RequestError;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 public interface GetUpcomingServicesMapUseCase extends Interactor {
     interface Callback{
         void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap);
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes usecase

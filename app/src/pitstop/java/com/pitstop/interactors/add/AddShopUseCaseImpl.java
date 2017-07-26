@@ -47,7 +47,7 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
 
                     }
                 });
@@ -55,7 +55,7 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 

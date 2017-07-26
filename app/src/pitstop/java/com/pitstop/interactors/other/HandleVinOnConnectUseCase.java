@@ -2,6 +2,7 @@ package com.pitstop.interactors.other;
 
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.interactors.Interactor;
+import com.pitstop.network.RequestError;
 
 /**
  * Validates scanner to see if its paired with another car and if so
@@ -20,7 +21,7 @@ public interface HandleVinOnConnectUseCase extends Interactor {
         void onDeviceBrokenAndCarHasScanner(String scannerId);
         void onDeviceInvalid();
         void onDeviceAlreadyActive(); //Another user has this scanner
-        void onError();
+        void onError(RequestError error);
     }
 
     void execute(ParameterPackage parameterPackage, Callback callback);

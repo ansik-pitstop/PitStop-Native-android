@@ -33,7 +33,7 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

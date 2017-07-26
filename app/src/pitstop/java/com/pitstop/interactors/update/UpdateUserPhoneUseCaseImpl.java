@@ -44,7 +44,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
                     }
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
 
                     }
                 });
@@ -53,7 +53,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 

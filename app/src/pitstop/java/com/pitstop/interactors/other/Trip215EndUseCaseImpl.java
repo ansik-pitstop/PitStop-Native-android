@@ -74,7 +74,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
 
@@ -82,7 +82,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

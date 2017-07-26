@@ -39,7 +39,7 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 
