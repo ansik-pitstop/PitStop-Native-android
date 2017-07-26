@@ -34,10 +34,10 @@ public class CarIssueRepository implements Repository{
     private final String END_POINT_ISSUES_UPCOMING = "car/%s/issues?type=upcoming";
     private final String END_POINT_ISSUES_CURRENT = "car/%s/issues?type=active";
 
-    public static final int DEALERSHIP_ISSUES = 0;
+    private static final int DEALERSHIP_ISSUES = 0;
 
     private static CarIssueRepository INSTANCE;
-    private LocalCarIssueAdapter carIssueAdapter;
+    private LocalCarIssueAdapter carIssueAdapter; //To be integrated once refactored
     private NetworkHelper networkHelper;
 
     public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
