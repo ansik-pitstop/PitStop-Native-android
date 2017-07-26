@@ -51,7 +51,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }
