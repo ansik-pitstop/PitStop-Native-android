@@ -3,6 +3,7 @@ package com.pitstop.interactors.update;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Dealership;
+import com.pitstop.network.RequestError;
 
 /**
  * Created by Matthew on 2017-06-27.
@@ -11,7 +12,7 @@ import com.pitstop.models.Dealership;
 public interface UpdateShopUseCase extends Interactor {
     interface Callback{
         void onShopUpdated();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Executes the use case
