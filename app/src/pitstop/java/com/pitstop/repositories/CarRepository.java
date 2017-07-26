@@ -41,12 +41,6 @@ public class CarRepository implements Repository{
     }
 
     public void insert(Car car, Callback<Object> callback) {
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         //Insert to backend
         networkHelper.createNewCar(car.getUserId(),(int)car.getTotalMileage()
             ,car.getVin(),car.getScannerId(),car.getShopId()
@@ -66,11 +60,11 @@ public class CarRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                     return;
                 }
             }
@@ -80,11 +74,6 @@ public class CarRepository implements Repository{
     }
 
     public void update(Car car, Callback<Object> callback) {
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         //Update backend
         networkHelper.updateCar(car.getId(),car.getTotalMileage()
@@ -101,7 +90,7 @@ public class CarRepository implements Repository{
                     callback.onSuccess(response);
                 }
                 else{
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -110,11 +99,6 @@ public class CarRepository implements Repository{
     }
 
     public void getCarsByUserId(int userId, Callback<List<Car>> callback ){
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
 
         networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback, userId));
     }
@@ -178,20 +162,20 @@ public class CarRepository implements Repository{
                                         localCarAdapter.storeCars(cars);
                                         callback.onSuccess(cars);
                                     }catch (JSONException e){
-                                        callback.onError(ERR_UNKNOWN);
+                                        callback.onError(requestError);
                                     }
                                 }else{
-                                    callback.onError(ERR_UNKNOWN);
+                                    callback.onError(requestError);
                                 }
                             }
                         });
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JSONException e){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -200,12 +184,6 @@ public class CarRepository implements Repository{
     }
 
     public void get(int id,int userId, Callback<Car> callback) {
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         networkHelper.getCarsById(id,getGetCarRequestCallback(callback,userId));
     }
 
@@ -257,11 +235,11 @@ public class CarRepository implements Repository{
                                         localCarAdapter.storeCarData(car);
                                         callback.onSuccess(car);
                                     }catch (JSONException e){
-                                        callback.onError(ERR_UNKNOWN);
+                                        callback.onError(requestError);
                                         e.printStackTrace();
                                     }
                                 }else{
-                                    callback.onError(ERR_UNKNOWN);
+                                    callback.onError(requestError);
                                 }
                             }
                         });
@@ -269,11 +247,11 @@ public class CarRepository implements Repository{
 
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JSONException e){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };
@@ -281,12 +259,6 @@ public class CarRepository implements Repository{
     }
 
     public void delete(int carId, Callback<Object> callback) {
-
-        if (!networkHelper.isConnected()){
-            callback.onError(ERR_OFFLINE);
-            return;
-        }
-
         networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback, carId));
     }
 
@@ -301,11 +273,11 @@ public class CarRepository implements Repository{
                         callback.onSuccess(response);
                     }
                     else{
-                        callback.onError(ERR_UNKNOWN);
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
-                    callback.onError(ERR_UNKNOWN);
+                    callback.onError(requestError);
                 }
             }
         };

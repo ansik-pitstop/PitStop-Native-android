@@ -2,6 +2,8 @@ package com.pitstop.network;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -66,6 +68,13 @@ public class HttpRequest {
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
     }
 
+    private boolean isConnected(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     public void executeAsync() {
         if (Utils.isEmpty(uri)) {
             return;
@@ -78,6 +87,12 @@ public class HttpRequest {
 
                 }
             };
+        }
+
+        //Check if connection exists before proceeding with request
+        if (!isConnected()){
+            listener.done(null, RequestError.getOfflineError());
+            return;
         }
 
         HttpClientAsyncTask asyncRequest = new HttpClientAsyncTask();

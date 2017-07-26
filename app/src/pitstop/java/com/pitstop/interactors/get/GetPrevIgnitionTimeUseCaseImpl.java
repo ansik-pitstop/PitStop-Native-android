@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Trip215;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
 
@@ -56,7 +57,7 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError(null);
             }
         });

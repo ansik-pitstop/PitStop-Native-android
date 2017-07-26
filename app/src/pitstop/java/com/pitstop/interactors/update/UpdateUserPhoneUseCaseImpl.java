@@ -3,6 +3,7 @@ package com.pitstop.interactors.update;
 import android.os.Handler;
 
 import com.pitstop.models.User;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
@@ -42,7 +43,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
                         callback.onUserPhoneUpdated();
                     }
                     @Override
-                    public void onError(int error) {
+                    public void onError(RequestError error) {
                         callback.onError();
 
                     }
@@ -51,7 +52,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

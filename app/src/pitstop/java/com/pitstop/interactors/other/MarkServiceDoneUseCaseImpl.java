@@ -3,6 +3,7 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 
 /**
@@ -24,14 +25,14 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     @Override
     public void run() {
         carIssue.setStatus(CarIssue.ISSUE_DONE);
-        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.CarIssueUpdateCallback() {
+        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<Object>() {
             @Override
-            public void onCarIssueUpdated() {
+            public void onSuccess(Object response) {
                 callback.onServiceMarkedAsDone();
             }
 
             @Override
-            public void onError() {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

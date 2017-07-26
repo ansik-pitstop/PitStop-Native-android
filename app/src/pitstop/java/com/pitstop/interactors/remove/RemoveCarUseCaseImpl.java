@@ -88,7 +88,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     }
 
                                                     @Override
-                                                    public void onError(int error) {
+                                                    public void onError(RequestError error) {
                                                         callback.onError();
                                                     }
                                                 });
@@ -110,14 +110,14 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                         }
 
                                         @Override
-                                        public void onError(int error) {
+                                        public void onError(RequestError error) {
                                             callback.onError();
                                         }
                                     });
                                 }
 
                                 @Override
-                                public void onError(int error) {
+                                public void onError(RequestError error) {
                                     callback.onError();
                                 }
                             });
@@ -127,14 +127,14 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                     }
 
                     @Override
-                    public void onError(int error) {
+                    public void onError(RequestError error) {
                         callback.onError();
                     }
                 });
             }
 
             @Override
-            public void onError(int error) {
+            public void onError(RequestError error) {
                 callback.onError();
             }
         });

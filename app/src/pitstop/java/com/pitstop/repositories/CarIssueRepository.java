@@ -26,39 +26,13 @@ import java.util.List;
  * Created by Karol Zdebel on 5/29/2017.
  */
 
-public class CarIssueRepository {
+public class CarIssueRepository implements Repository{
 
-    private final int MAX_RESPONSE_LENGTH = 70000;
     public static final int DEALERSHIP_ISSUES = 0;
 
     private static CarIssueRepository INSTANCE;
     private LocalCarIssueAdapter carIssueAdapter;
     private NetworkHelper networkHelper;
-
-    public interface CarIssueInsertCallback{
-        void onCarIssueAdded();
-        void onError();
-    }
-
-    public interface CarIssueUpdateCallback{
-        void onCarIssueUpdated();
-        void onError();
-    }
-
-    public interface CarIssueGetUpcomingCallback{
-        void onCarIssueGotUpcoming(List<UpcomingIssue> carIssueUpcoming);
-        void onError();
-    }
-
-    public interface CarIssueGetCurrentCallback{
-        void onCarIssueGotCurrent(List<CarIssue> carIssueCurrent);
-        void onError();
-    }
-
-    public interface CarIssueGetDoneCallback{
-        void onCarIssueGotDone(List<CarIssue> carIssueDone);
-        void onError();
-    }
 
     public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
             , NetworkHelper networkHelper) {
@@ -73,47 +47,47 @@ public class CarIssueRepository {
         this.networkHelper = networkHelper;
     }
 
-    public boolean insert(CarIssue model, CarIssueInsertCallback callback) {
+    public boolean insert(CarIssue model, Callback<Object> callback) {
         carIssueAdapter.storeCarIssue(model);
         networkHelper.postUserInputIssue(model.getCarId(),model.getItem(),model.getAction()
                 ,model.getDescription(),model.getPriority(),getInsertCarIssueRequestCallback(callback));
         return true;
     }
 
-    public void insert(int carId,List<CarIssue> issues, CarIssueInsertCallback callback){
+    public void insert(int carId,List<CarIssue> issues, Callback<Object> callback){
         carIssueAdapter.storeIssues(issues);
         networkHelper.postMultiplePresetIssue(carId, issues, getgetInsertCarIssuesRequestCallback(callback));
     }
 
-    private RequestCallback getgetInsertCarIssuesRequestCallback(CarIssueInsertCallback callback){
+    private RequestCallback getgetInsertCarIssuesRequestCallback(Callback<Object> callback){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if(requestError == null && response != null){
-                    callback.onCarIssueAdded();
+                    callback.onSuccess(response);
                 }else{
-                    callback.onError();
+                    callback.onError(requestError);
                 }
             }
         };
         return requestCallback;
     }
 
-    private RequestCallback getInsertCarIssueRequestCallback(CarIssueInsertCallback callback){
+    private RequestCallback getInsertCarIssueRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarIssueAdded();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
-
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
@@ -121,7 +95,7 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public boolean updateCarIssue(CarIssue model, CarIssueUpdateCallback callback) {
+    public boolean updateCarIssue(CarIssue model, Callback<Object> callback) {
         carIssueAdapter.updateCarIssue(model);
 
         if (model.getStatus().equals(CarIssue.ISSUE_DONE)){
@@ -136,21 +110,21 @@ public class CarIssueRepository {
         return false;
     }
 
-    private RequestCallback getUpdateCarIssueRequestCallback(CarIssueUpdateCallback callback){
+    private RequestCallback getUpdateCarIssueRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        callback.onCarIssueUpdated();
+                        callback.onSuccess(response);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError);
                     }
                 }
                 catch(JsonIOException e){
-
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
@@ -158,11 +132,11 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public synchronized void getUpcomingCarIssues(int carId, CarIssueGetUpcomingCallback callback){
+    public synchronized void getUpcomingCarIssues(int carId, Callback<List<UpcomingIssue>> callback){
         networkHelper.getUpcomingCarIssues(carId,getUpcomingCarIssuesRequestCallback(callback));
     }
 
-    private RequestCallback getUpcomingCarIssuesRequestCallback(CarIssueGetUpcomingCallback callback){
+    private RequestCallback getUpcomingCarIssuesRequestCallback(Callback<List<UpcomingIssue>> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -171,10 +145,10 @@ public class CarIssueRepository {
                     Timeline timelineData = new Gson().fromJson(response, Timeline.class);
                     List<UpcomingIssue> issues = timelineData.getResults().get(DEALERSHIP_ISSUES)
                             .getUpcomingIssues();
-                    callback.onCarIssueGotUpcoming(issues);
+                    callback.onSuccess(issues);
                 }
                 else{
-                    callback.onError();
+                    callback.onError(requestError);
                 }
             }
         };
@@ -182,11 +156,11 @@ public class CarIssueRepository {
         return requestCallback;
     }
 
-    public  void getCurrentCarIssues(int carId, CarIssueGetCurrentCallback callback){
+    public  void getCurrentCarIssues(int carId, Callback<List<CarIssue>> callback){
         networkHelper.getCurrentCarIssues(carId,getCurrentCarIssuesRequestCallback(carId,callback));
     }
 
-    private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, CarIssueGetCurrentCallback callback){
+    private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -197,14 +171,14 @@ public class CarIssueRepository {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
 
                         ArrayList<CarIssue> carIssues = CarIssue.createCarIssues(jsonArray,carId);
-                        callback.onCarIssueGotCurrent(carIssues);
+                        callback.onSuccess(carIssues);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError);
                     }
                 }
                 catch(JSONException e){
-                    callback.onError();
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
@@ -217,12 +191,12 @@ public class CarIssueRepository {
         networkHelper.requestService(userId,carId,shopId,state ,appointmentTimeStamp, comments,callback);
     }
 
-    public  List<CarIssue> getDoneCarIssues(int carId, CarIssueGetDoneCallback callback){
+    public  List<CarIssue> getDoneCarIssues(int carId, Callback<List<CarIssue>> callback){
         networkHelper.getDoneCarIssues(carId,getDoneCarIssuesRequestCallback(carId,callback));
         return carIssueAdapter.getAllDoneCarIssues();
     }
 
-    private RequestCallback getDoneCarIssuesRequestCallback(final int carId, CarIssueGetDoneCallback callback){
+    private RequestCallback getDoneCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -234,14 +208,14 @@ public class CarIssueRepository {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
                         carIssues = CarIssue.createCarIssues(jsonArray,carId);
 
-                        callback.onCarIssueGotDone(carIssues);
+                        callback.onSuccess(carIssues);
                     }
                     else{
-                        callback.onError();
+                        callback.onError(requestError);
                     }
                 }
                 catch(JSONException e){
-
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
