@@ -49,7 +49,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         //Log.d(TAG,"")
 
         if (!parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            callback.onError();
+            callback.onError(RequestError.getUnknownError());
             return;
         }
 
@@ -62,7 +62,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                 //user has no car set
                 if (!data.hasMainCar()){
-                    callback.onError();
+                    callback.onError(RequestError.getUnknownError());
                     return;
                 }
 
@@ -142,15 +142,15 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                         }
 
                                         @Override
-                                        public void onError() {
-                                            callback.onError();
+                                        public void onError(RequestError error) {
+                                            callback.onError(error);
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    callback.onError();
+                                    callback.onError(error);
                                 }
                             });
 
@@ -172,8 +172,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 }
 
                                 @Override
-                                public void onError() {
-                                    callback.onError();
+                                public void onError(RequestError error) {
+                                    callback.onError(error);
                                 }
                             });
                         }
@@ -182,14 +182,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }
@@ -197,7 +197,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     interface AddScannerCallback {
         void onDeviceAlreadyActive();
         void onScannerCreated();
-        void onError();
+        void onError(RequestError error);
     }
 
     //Add scanner, but first verify that it isn't already active
@@ -225,7 +225,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
 
@@ -233,7 +233,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

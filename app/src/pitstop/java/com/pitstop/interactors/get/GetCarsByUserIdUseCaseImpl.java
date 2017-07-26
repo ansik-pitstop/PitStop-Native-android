@@ -59,14 +59,14 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                             }
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError();
+                                callback.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
 
@@ -74,7 +74,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 

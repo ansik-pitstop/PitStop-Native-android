@@ -82,21 +82,21 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
 
                            @Override
                            public void onError(RequestError error) {
-                                callback.onError();
+                                callback.onError(error);
                            }
                        });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                         callback.onError();
+                         callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }
@@ -113,7 +113,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
                     }catch (JSONException e){
-
+                        callback.onError(RequestError.getUnknownError());
                     }
                 }
 
@@ -132,7 +132,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                     }
                     callback.onHoursGot(makeTimes(Integer.parseInt(hour.getString("open")),Integer.parseInt(hour.getString("close")),timesToRemove));
                 }catch (JSONException e){
-                    callback.onError();
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         });
@@ -175,6 +175,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                     datesToRemove.add(currentDate.substring(11,13)+currentDate.substring(14,16));
                 }
             }catch (JSONException e){
+                callback.onError(RequestError.getUnknownError());
             }
         }
         return datesToRemove;

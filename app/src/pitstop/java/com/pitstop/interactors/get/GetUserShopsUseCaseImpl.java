@@ -32,9 +32,6 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
 
     @Override
     public void run() {
-        if(!networkHelper.isConnected()){
-            callback.onError();
-        }
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -46,14 +43,14 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError();
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
     }

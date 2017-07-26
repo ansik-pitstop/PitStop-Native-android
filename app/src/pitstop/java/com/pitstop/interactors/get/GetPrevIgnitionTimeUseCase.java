@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
+import com.pitstop.network.RequestError;
 
 /**
  * Get the previous trip's ignition time
@@ -13,7 +14,7 @@ public interface GetPrevIgnitionTimeUseCase extends Interactor {
     interface Callback{
         void onGotIgnitionTime(long ignitionTime);
         void onNoneExists();
-        void onError(String error);
+        void onError(RequestError error);
     }
 
     void execute(String scannerName, Callback callback);

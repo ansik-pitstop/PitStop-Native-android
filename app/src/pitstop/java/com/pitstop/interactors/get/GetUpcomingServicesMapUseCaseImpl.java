@@ -73,7 +73,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError();
+                                callback.onError(error);
                             }
 
                         });
@@ -81,7 +81,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
             @Override
             public void onError(RequestError error) {
-                callback.onError();
+                callback.onError(error);
             }
         });
 
