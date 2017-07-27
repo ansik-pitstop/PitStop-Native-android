@@ -782,7 +782,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //If adding car connect to first recognized device, or 212 device
         // without checking vin(even when not adding car)
         else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && AddCarActivity.addingCar){
+                && AddCarActivity.addingCar && !deviceIsVerified){
             setFixedUpload();
             deviceIsVerified = true;
             verificationInProgress = false;
