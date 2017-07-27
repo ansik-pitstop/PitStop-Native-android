@@ -276,7 +276,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
                 }
-                handler.postDelayed(this, 5000);
+                handler.postDelayed(this, 15000);
             }
         };
 

@@ -291,5 +291,9 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
         if (dtcPackage.dtcs != null && isAskingForDtcs) {
             retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
         }
+        mCallback.onEngineCodesRetrieved(retrievedDtcs);
+        isAskingForDtcs = false;
+        checkEngineIssuesTimer.cancel();
+
     }
 }
