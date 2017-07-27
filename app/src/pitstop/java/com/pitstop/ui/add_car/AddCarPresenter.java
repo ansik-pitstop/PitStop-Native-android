@@ -273,6 +273,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         int carUserId = existedCar.getUserId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
                         if (carUserId != 0) { // User id is not 0, this car is still in use
+                            mCallback.hideLoading("Cannot Add Car, In Use By Another User!");
                             mCallback.askForManualVinInput();
                             String eventName;
                             if (carUserId == mApplication.getCurrentUserId()) {
@@ -312,8 +313,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             }
         });
     }
-
+    boolean savingCarToServer = false;
     private synchronized void saveCarToServer(Car car) {
+
+        if (savingCarToServer) return;
+
+        savingCarToServer = true;
+
         Log.i(TAG, "Save car to server: " + car.toString());
 
         if (!mCallback.checkNetworkConnection(null)) return;
@@ -329,7 +335,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     @Override
                     public void done(String response, RequestError requestError) {
                         mCallback.showLoading("Final Touches");
-
+                        savingCarToServer = false;
                         if (requestError == null) {
                             try {
                                 createdCar = Car.createCar(response);

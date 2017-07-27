@@ -186,6 +186,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onBackPressed() {
+
         if (mPager.getCurrentItem() == AddCarViewPager.PAGE_FIRST) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
@@ -277,22 +278,17 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
         addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        EditText vinInput = ((EditText) findViewById(R.id.VIN));
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
-                if (addCarButton != null){
-                    addCarButton.setEnabled(false);
-                }
-                searchForCar(v);
+                presenter.onGotVin(vinInput.getText().toString().toUpperCase());
             }
         });
     }
 
     @Override
     public void onMileageInputCancelled(){
-        if (addCarButton != null){
-            addCarButton.setEnabled(true);
-        }
     }
 
     /**
@@ -333,9 +329,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
-                if (addCarButton != null){
-                    addCarButton.setEnabled(true);
-                }
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
@@ -528,9 +521,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
-        if (addCarButton != null){
-            addCarButton.setEnabled(true);
-        }
         showLoading("Mileage entered, searching for car...");
     }
 
@@ -665,13 +655,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         EditText vinInput = ((EditText) findViewById(R.id.VIN));
         addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
-        addCarButton.setEnabled(true);
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
-                if (addCarButton != null){
-                    addCarButton.setEnabled(false);
-                }
                 presenter.onGotVin(vinInput.getText().toString().toUpperCase());
             }
         });
