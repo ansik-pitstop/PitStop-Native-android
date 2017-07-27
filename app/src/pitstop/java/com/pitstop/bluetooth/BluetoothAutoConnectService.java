@@ -1326,6 +1326,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (deviceManager.startScan()){
             deviceConnState = State.SEARCHING;
             notifySearchingForDevice();
+            Log.d(TAG,"Started scan");
+        }
+        else{
+            Log.d(TAG,"Scan failed");
         }
     }
 

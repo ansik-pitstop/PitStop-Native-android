@@ -347,7 +347,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             autoConnectService.subscribe(this);
         }
 
-
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {

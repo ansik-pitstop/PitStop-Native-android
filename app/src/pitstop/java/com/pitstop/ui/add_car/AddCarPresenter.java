@@ -500,7 +500,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private void searchCarWithTimeout() {
         if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED))
             hasGotValidRtc = false;
-        mAutoConnectService.startBluetoothSearch(2);  // search for car
         isSearchingForCar = true;
         mSearchCarTimer.cancel();
         mSearchCarTimer.start();
@@ -536,7 +535,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     private boolean isSearchingForCar = false; // flag variable
-    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(10, 6) {
+    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(15, 6) {
         @Override
         public void onRetry() {
             if (!isSearchingForCar) {
@@ -584,7 +583,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 this.cancel();
                 return;
             }
-            if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
+            if (!mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.SEARCHING)) {
                 mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
             } else {
                 getVinAttempts++;
