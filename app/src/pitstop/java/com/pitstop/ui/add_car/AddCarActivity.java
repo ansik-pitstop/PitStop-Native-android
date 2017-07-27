@@ -302,6 +302,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
      */
     public void searchForCar(View view) {
 
+
+
         try { // Log in Mixpanel
             JSONObject properties = new JSONObject();
             properties.put("Button", addingCarWithDevice ? MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE : MixpanelHelper.ADD_CAR_NO_HARDWARE_ADD_VEHICLE);
