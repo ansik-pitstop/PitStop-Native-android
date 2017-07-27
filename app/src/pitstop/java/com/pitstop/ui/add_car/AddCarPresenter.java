@@ -28,6 +28,7 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -127,7 +128,16 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void searchAndGetVin() {
+
         checkBluetoothService();
+
+        if (mAutoConnectService != null && mAutoConnectService.getDeviceState()
+                .equals(BluetoothConnectionObservable.State.CONNECTED)){
+            ReadyDevice readyDevice = mAutoConnectService.getReadyDevice();
+            pendingCar.setVin(readyDevice.getVin());
+            pendingCar.setScannerId(readyDevice.getScannerId());
+        }
+
 
         if (isValidVin(pendingCar.getVin())) { // if Vin has been entered by the user
             Log.d(TAG, "VIN is valid, start creating car");

@@ -59,6 +59,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.Pid;
+import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
@@ -164,6 +165,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private boolean isSendingTripRequest = false;
     private boolean deviceIsVerified = false;
+    private ReadyDevice readyDevice = null;
 
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
     private String supportedPids = "";
@@ -481,6 +483,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public ReadyDevice getReadyDevice() {
+        if (deviceConnState.equals(State.CONNECTED)){
+            return readyDevice;
+        }
+        return null;
+    }
+
+    @Override
     public void notifySyncingDevice() {
         Log.d(TAG,"notifySyncingDevice()");
         for (Observer observer: observerList){
@@ -783,6 +793,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceIsVerified = true;
             verificationInProgress = false;
             deviceConnState = State.CONNECTED;
+            readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                    ,parameterPackage.deviceId);
             notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                     ,parameterPackage.deviceId);
         }
@@ -800,6 +812,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {
+
                     LogUtils.debugLogD(TAG, "handleVinOnConnect: Success"
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceIsVerified = true;
@@ -807,12 +820,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setFixedUpload();
                     deviceManager.onConnectDeviceValid();
                     deviceConnState = State.CONNECTED;
+                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
                     notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                             ,parameterPackage.deviceId);
                 }
 
                 @Override
                 public void onDeviceBrokenAndCarMissingScanner() {
+
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
                           ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     MainActivity.allowDeviceOverwrite = true;
@@ -826,6 +842,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceBrokenAndCarHasScanner(String scannerId) {
+
                     LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
                             ", overwriting scanner id to "+scannerId,true
                             , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
@@ -836,11 +853,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setFixedUpload();
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
+                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
                     notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
                 }
 
                 @Override
                 public void onDeviceInvalid() {
+
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid."
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
@@ -853,6 +873,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceAlreadyActive() {
+
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active"
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
@@ -865,6 +886,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onError(RequestError error) {
+
                     LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred"
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     clearInvalidDeviceData();
