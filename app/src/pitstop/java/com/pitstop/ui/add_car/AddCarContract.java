@@ -63,7 +63,8 @@ public interface AddCarContract {
          * @param deletedCar
          * @param positiveButton
          */
-        void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton);
+        void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton
+                ,DialogInterface.OnClickListener negativeButton);
 
         /**
          * When we start creating a new car in the backend

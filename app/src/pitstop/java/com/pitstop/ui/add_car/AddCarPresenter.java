@@ -91,6 +91,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void updatePendingCarMileage(int mileage) {
+        if (mCallback == null) return;
+
         // The user confirms adding this vehicle after entering the mileage
         try {
             JSONObject properties = new JSONObject();
@@ -113,6 +115,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void cancelUpdateMileage() {
+        if (mCallback == null) return;
+
         // The user cancels adding this vehicle (cancel mileage input)
         try {
             JSONObject properties = new JSONObject()
@@ -130,6 +134,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void searchAndGetVin() {
+        if (mCallback == null) return;
 
         if (searching) return;
         searching = true;
@@ -177,6 +182,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public synchronized void startAddingNewCar() {
+        if (mCallback == null) return;
+
         checkBluetoothService();
 
         if (!mCallback.checkNetworkConnection(null)) {
@@ -274,7 +281,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
                         if (carUserId != 0) { // User id is not 0, this car is still in use
                             mCallback.hideLoading("Cannot Add Car, In Use By Another User!");
-                            mCallback.askForManualVinInput();
                             String eventName;
                             if (carUserId == mApplication.getCurrentUserId()) {
                                 eventName = MixpanelHelper.ADD_CAR_CAR_EXIST_FOR_CURRENT_USER;
@@ -302,6 +308,11 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                 public void onClick(DialogInterface dialog, int which) {
                                     saveCarToServer(pendingCar);
                                 }
+                            }, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mCallback.hideLoading(null);
+                                }
                             });
                         }
                     } else { // in case error happened when parsing the car response
@@ -315,6 +326,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
     boolean savingCarToServer = false;
     private synchronized void saveCarToServer(Car car) {
+        if (mCallback == null) return;
 
         if (savingCarToServer) return;
 
@@ -387,6 +399,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public void updateCreatedCarDealership(final Dealership dealership) {
         Log.i(TAG, "Shop selected: " + dealership.getName());
+        if (mCallback == null) return;
 
         if (!mCallback.checkNetworkConnection(null)) return;
 
@@ -423,6 +436,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
      * Asks for DTCs if connected to bluetooth, otherwise finishes Add Car
      */
     private void onCarSuccessfullyPosted() {
+        if (mCallback == null) return;
         // After successfully posting car to server, attempt to get engine codes
         // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
         cancelAllTimeouts();
@@ -440,14 +454,16 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 @Override
                 public void done(String response, RequestError requestError) {
                     if (requestError == null){
-
+                        mCallback.hideLoading("Car added");
                         EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(type,EVENT_SOURCE));
-                        //mCallback.onPostCarSucceeded(createdCar);
+                        mCallback.onPostCarSucceeded(createdCar);
+                    }
+                    else{
+                        mCallback.hideLoading("Failed to set user car");
                     }
                 }
             });
-            //mCallback.onPostCarSucceeded(createdCar);
         }
     }
 
@@ -477,6 +493,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void bindBluetoothService() {
+        if (mCallback == null) return;
         mCallback.getActivity().bindService(
                 new Intent(mApplication, BluetoothAutoConnectService.class),
                 mServiceConnection,
@@ -490,6 +507,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void unbindBluetoothService() {
+        if (mCallback == null) return;
         mCallback.getActivity().unbindService(mServiceConnection);
         pendingCar = null;
     }
@@ -500,6 +518,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void checkBluetoothService() {
+        if (mCallback == null) return;
         if (mAutoConnectService == null) {
             mAutoConnectService = mCallback.getAutoConnectService();
             mAutoConnectService.subscribe(this);
@@ -548,6 +567,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
         @Override
         public void onTimeout() {
+            if (mCallback == null) return;
             if (!needToSetTime) return;
             needToSetTime = false;
             mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_SET_RTC, MixpanelHelper.ADD_CAR_VIEW);
@@ -568,7 +588,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         @Override
         public void onTimeout() {
             Log.d(TAG,"Search timer, timeout, vin attempts: " +getVinAttempts);
-            mCallback.onTimeoutRetry("Searching for car ", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
+            if (mCallback != null){
+                mCallback.onTimeoutRetry("Searching for car ", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
+            }
             searching = false;
         }
     };
@@ -586,6 +608,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
         @Override
         public void onTimeout() {
+            if (mCallback == null) return;
+
             Log.d(TAG,"Vin timer, timeout, vin failed attempts:" +getVinAttempts);
             if (getVinAttempts < 8){
                 mAutoConnectService.requestVin();
@@ -621,6 +645,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
         @Override
         public void onTimeout() {
+            if (mCallback == null) return;
             if (!isAskingForDtc) return;
             isAskingForDtc = false;
             mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS_TIMEOUT,
@@ -672,6 +697,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onDeviceReady(String vin, String scannerId, String scannerName) {
+        if (mCallback == null) return;
         Log.d(TAG,"onDeviceReady() vin: "+vin+", scannerId: "+scannerId+", scannerName: "+scannerName);
 
         mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
@@ -733,6 +759,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onGotDtc(DtcPackage dtcPackage) {
+        if (mCallback == null) return;
         if (!isAskingForDtc) return;
         isAskingForDtc = false;
         mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS_TIMEOUT,
@@ -756,6 +783,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onGotVin(String vin) {
+        if (mCallback == null) return;
+
         Log.d(TAG, "onGotVin(), vin: " + vin);
 
         if (isValidVin(vin)) {

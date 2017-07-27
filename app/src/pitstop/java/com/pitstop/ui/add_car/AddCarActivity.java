@@ -580,7 +580,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton) {
+    public void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton
+            ,DialogInterface.OnClickListener negativeButton) {
         if (isFinishing()) return;
 
         new AnimatedDialogBuilder(this)
