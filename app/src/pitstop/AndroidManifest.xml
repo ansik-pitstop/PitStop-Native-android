@@ -126,6 +126,10 @@
             android:name=".ui.ReceiveDebugActivity"
             android:label="@string/title_activity_receive_debug" />
 
+         <activity android:name=".ui.services.custom_service.CustomServiceActivity"
+             android:screenOrientation="portrait"
+             android:label="Custom Service Information"/>
+
         <activity
             android:name=".ui.add_car.PendingAddCarActivity"
             android:label="Please Connect to Internet" />

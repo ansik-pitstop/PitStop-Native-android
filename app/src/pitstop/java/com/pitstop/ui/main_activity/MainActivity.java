@@ -70,6 +70,7 @@ import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 import com.pitstop.ui.service_request.RequestServiceActivity;
+import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MigrationService;
@@ -788,8 +789,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onCarRetrieved(Car car) {
                 if (!checkDealership(car)) return;
-
-                final Intent intent = new Intent(thisInstance, MyAppointmentActivity.class);
+                final Intent intent = new Intent(thisInstance, CustomServiceActivity.class);//Fix this
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
                 startActivity(intent);
                 hideLoading();
