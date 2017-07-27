@@ -43,6 +43,10 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         handler.post(this);
     }
 
+    private boolean isValidVin(final String vin) {
+        return vin != null && (vin.length() == 17);
+    }
+
     @Override
     public void run() {
         //ADD LOGS
@@ -71,13 +75,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     @Override
                     public void onSuccess(Car car) {
 
-                        //Device VIN invalid, get a different one
-                        if (!car.getVin().equals(deviceVin)){
-                            callback.onDeviceInvalid();
-                            return;
-                        }
-
-
+                        boolean carVinValid = deviceVin != null
+                                && (deviceVin.length() == 17);
                         boolean carScannerValid = car.getScannerId() != null
                                 && !car.getScannerId().isEmpty()
                                 && car.getScannerId().equals(deviceId);
@@ -92,8 +91,17 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             return;
                         }
 
+                        //Check if device vin didn't match, only if the car scanner exists
+                        if (carScannerExists && !car.getVin().equals(deviceVin)){
+                            callback.onDeviceInvalid();
+                            return;
+                        }
+
                         /*Otherwise a scanner needs to be created there are three cases
                         * 1. User has a good scanner, but the car doesn't have it stored
+                        *   1.1 Vin is valid (Returned properly by device)
+                        *   1.2 Vin is invalid (Not supported or not being returned)
+                        *   Both of the above cases will be treated the same for now.
                         * 2. User has a broken scanner, and the car doesn't have it stored
                         * 3. User has a broken scanner and the car has it stored
                         * In case 2 we need to wait for the user to override the ID, this isn't addressed
@@ -113,6 +121,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             return;
                         }
                         //Anything below is case 1
+
 
                         /*We need to check whether the car has no scanner at all, or whether it is being changed
                         '* If the scanner is being changed, the old one needs to be deactived*/
