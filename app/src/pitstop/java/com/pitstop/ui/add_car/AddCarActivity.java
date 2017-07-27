@@ -648,10 +648,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public void askForManualVinInput() {
         if (!addingCar) return;
 
-        hideLoading("This Car has been added previously!");
-        if (addCarButton != null){
-            addCarButton.setEnabled(true);
-        }
+        Log.d(TAG,"askForManualVinInput()");
 
         if (mPager.getCurrentItem() == 1) {
             if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
@@ -661,8 +658,23 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) {
                 mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
                 mPager.setCurrentItem(1);
+
             }
+
         }
+
+        EditText vinInput = ((EditText) findViewById(R.id.VIN));
+        addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        addCarButton.setEnabled(true);
+        addCarButton.setOnClickListener(new DebouncingOnClickListener() {
+            @Override
+            public void doClick(View v) {
+                if (addCarButton != null){
+                    addCarButton.setEnabled(false);
+                }
+                presenter.onGotVin(vinInput.getText().toString().toUpperCase());
+            }
+        });
     }
 
     @Override

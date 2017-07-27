@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.observer.BluetoothCarObserver;
+import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
@@ -69,7 +69,7 @@ public interface ScanCarContract {
 
     }
 
-    interface Presenter extends BasePresenter, BluetoothConnectionObserver, BluetoothCarObserver {
+    interface Presenter extends BasePresenter, BluetoothConnectionObserver, BluetoothDtcObserver {
 
         String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
         String ERR_INTERRUPT_DC = "Your device disconnected during the scan"

@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class ScanCarPresenter implements ScanCarContract.Presenter {
+public class ScanDtcPresenter implements ScanCarContract.Presenter {
 
-    private static final String TAG = ScanCarPresenter.class.getSimpleName();
+    private static final String TAG = ScanDtcPresenter.class.getSimpleName();
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
     private ScanCarContract.View mCallback;
@@ -45,7 +45,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
-    public ScanCarPresenter(BluetoothConnectionObservable observable
+    public ScanDtcPresenter(BluetoothConnectionObservable observable
             , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
 
         bluetoothObservable = observable;

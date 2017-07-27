@@ -126,9 +126,15 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
+    private boolean searching = false;
+
     @Override
     public void searchAndGetVin() {
 
+        if (searching) return;
+        searching = true;
+
+        mSearchTimer.start();
         checkBluetoothService();
 
         if (mAutoConnectService != null && mAutoConnectService.getDeviceState()
@@ -138,11 +144,16 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             pendingCar.setScannerId(readyDevice.getScannerId());
         }
 
+        mCallback.showLoading("Searching for Car");
 
         if (isValidVin(pendingCar.getVin())) { // if Vin has been entered by the user
             Log.d(TAG, "VIN is valid, start creating car");
+            searching = false;
             startAddingNewCar();
             return;
+        }else{
+            mCallback.showLoading("Getting car VIN");
+            mGetVinTimer.start();
         }
 
         if (ContextCompat.checkSelfPermission(mApplication, MainActivity.LOC_PERMS[0]) != PackageManager.PERMISSION_GRANTED
@@ -155,7 +166,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                 // Need to search for module
                 Log.i(TAG, "Searching for car but device not connected");
                 mCallback.showLoading("Searching for Car");
-                searchCarWithTimeout();
             }
         }
     }
@@ -296,6 +306,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     } else { // in case error happened when parsing the car response
                         mCallback.askForManualVinInput();
                         mAutoConnectService.connectedDeviceInvalid();
+                        searching = false;
                     }
                 }
             }
@@ -497,14 +508,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    private void searchCarWithTimeout() {
-        if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED))
-            hasGotValidRtc = false;
-        isSearchingForCar = true;
-        mSearchCarTimer.cancel();
-        mSearchCarTimer.start();
-    }
-
     /**
      * Check if DTCs are retrieved after 15 seconds
      */
@@ -518,11 +521,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void cancelAllTimeouts() {
-        isSearchingForCar = false;
-        mSearchCarTimer.cancel();
         needToSetTime = false;
         mSetRtcTimer.cancel();
-        isAskingForVin = false;
         mGetVinTimer.cancel();
         isAskingForDtc = false;
         mGetDtcTimer.cancel();
@@ -533,28 +533,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         cancelAllTimeouts();
         hasGotMileage = false;
     }
-
-    private boolean isSearchingForCar = false; // flag variable
-    private final TimeoutTimer mSearchCarTimer = new TimeoutTimer(15, 6) {
-        @Override
-        public void onRetry() {
-            if (!isSearchingForCar) {
-                this.cancel();
-                return;
-            }
-            isSearchingForCar = true;
-            searchAndGetVin();
-        }
-
-        @Override
-        public void onTimeout() {
-            if (!isSearchingForCar) return;
-            isSearchingForCar = false;
-            mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_CONNECT, MixpanelHelper.ADD_CAR_VIEW);
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, "Failed");
-            mCallback.onTimeoutRetry("Searching for car", MixpanelHelper.ADD_CAR_RETRY_CONNECT);
-        }
-    };
 
     private boolean needToSetTime = false; // flag variable
     private final TimeoutTimer mSetRtcTimer = new TimeoutTimer(40, 0) {
@@ -573,39 +551,59 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     };
 
     private boolean hasGotValidRtc = false;
-    private boolean isAskingForRtc = false;
-    private boolean isAskingForVin = false;
     private int getVinAttempts = 0;
-    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(10, 6) {
+
+    private final TimeoutTimer mSearchTimer = new TimeoutTimer(60,1) {
         @Override
         public void onRetry() {
-            if (!isAskingForVin && !isAskingForRtc) {
-                this.cancel();
-                return;
-            }
-            if (!mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.SEARCHING)) {
-                mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
-            } else {
+
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"Search timer, timeout, vin attempts: " +getVinAttempts);
+            mCallback.onTimeoutRetry("Searching for car ", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
+            searching = false;
+        }
+    };
+
+    private final TimeoutTimer mGetVinTimer = new TimeoutTimer(6, 8) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"Vin timer, retry, vin failed attempts:" +getVinAttempts);
+            mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
+            if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)){
                 getVinAttempts++;
-                mAutoConnectService.getCarVIN();
+                mAutoConnectService.requestVin();
             }
         }
 
         @Override
         public void onTimeout() {
-            if (!isAskingForVin && isAskingForRtc) return;
-            pendingCar.setVin("");
-            isAskingForRtc = false;
-            isAskingForVin = false;
-            if (hasGotValidRtc) {
-                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_VIN, MixpanelHelper.ADD_CAR_VIEW);
-                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Failed");
-                mCallback.onTimeoutRetry("Read VIN from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
-            } else {
-                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_RTC, MixpanelHelper.ADD_CAR_VIEW);
-                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_RTC, "Failed");
-                mCallback.onTimeoutRetry("Read RTC from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_RTC);
+            Log.d(TAG,"Vin timer, timeout, vin failed attempts:" +getVinAttempts);
+            if (getVinAttempts < 8){
+                mAutoConnectService.requestVin();
+                getVinAttempts++;
+                mGetVinTimer.cancel();
+                mGetVinTimer.start();
             }
+            else{
+                searching = false;
+                mCallback.hideLoading("Failed to get VIN, please enter VIN above");
+                mSearchTimer.cancel();
+                pendingCar.setVin("");
+                mCallback.askForManualVinInput();
+            }
+
+//            if (hasGotValidRtc) {
+//                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_VIN, MixpanelHelper.ADD_CAR_VIEW);
+//                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Failed");
+//                mCallback.onTimeoutRetry("Read VIN from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
+//            } else {
+//                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_RTC, MixpanelHelper.ADD_CAR_VIEW);
+//                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_RTC, "Failed");
+//                mCallback.onTimeoutRetry("Read RTC from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_RTC);
+//            }
         }
     };
 
@@ -664,7 +662,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onSearchingForDevice() {
-        if (isSearchingForCar) mCallback.showLoading("Connecting to device");
     }
 
     @Override
@@ -673,19 +670,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
         mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
-        if (isSearchingForCar) { // it was searching for device previously
-            isSearchingForCar = false;
-            mSearchCarTimer.cancel();
-
-            mCallback.onDeviceConnected();
-
-        }
+        mCallback.onDeviceConnected();
 
         pendingCar.setScannerId(scannerId);
         String retrievedVin = vin;
-        Log.d(TAG, "Retrieved VIN: " + retrievedVin);
-
-        mCallback.showLoading("Getting car VIN");
 
         try {
             JSONObject properties = new JSONObject()
@@ -700,7 +688,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             Log.i(TAG, "Retrieved VIN is valid");
             mCallback.onVINRetrieved(retrievedVin, true);
 
-            isAskingForVin = false;
             getVinAttempts = 0;
             mGetVinTimer.cancel();
 
@@ -709,25 +696,23 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             startAddingNewCar();
             mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
-        } else if (!needToSetTime && getVinAttempts > 8) { /* || -> && */
-            isAskingForVin = false;
+        } else if (getVinAttempts > 8) { /* || -> && */
             mCallback.onVINRetrieved(null, false);
 
             Log.i(TAG, "Vin returned was not valid");
             getVinAttempts = 0;
             pendingCar.setVin("");
+            mCallback.askForManualVinInput();
             mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
         } else {
             Log.i(TAG, "VIN returned is not valid, attempts: " + getVinAttempts);
             getVinAttempts++;
-            isAskingForVin = true;
         }
 
     }
 
     @Override
     public void onDeviceDisconnected() {
-        if (isSearchingForCar) mCallback.hideLoading("Disconnected from device, add failed.");
     }
 
     @Override
@@ -742,6 +727,51 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void onGotDtc(DtcPackage dtcPackage) {
+        if (!isAskingForDtc) return;
+        isAskingForDtc = false;
+        mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS_TIMEOUT,
+                MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+        // If getting DTCs timeout, for the sake of keeping good UX, we skip it
+        PreferenceManager.getDefaultSharedPreferences(mApplication).edit()
+                .putInt(MainDashboardFragment.pfCurrentCar, createdCar.getId()).apply();
+        mNetworkHelper.setMainCar(mApplication.getCurrentUserId(), createdCar.getId(), new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
 
+                    EventType type = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                    EventBus.getDefault().post(
+                            new CarDataChangedEvent(type,EVENT_SOURCE));
+                    mCallback.onPostCarSucceeded(createdCar);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onGotVin(String vin) {
+        Log.d(TAG, "onGotVin(), vin: " + vin);
+
+        if (isValidVin(vin)) {
+            Log.i(TAG, "Retrieved VIN is valid");
+            mCallback.onVINRetrieved(vin, true);
+
+            getVinAttempts = 0;
+            mGetVinTimer.cancel();
+
+            pendingCar.setVin(vin);
+
+            startAddingNewCar();
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
+        }
+        else if (getVinAttempts > 8) { /* || -> && */
+            mCallback.onVINRetrieved(null, false);
+
+            Log.i(TAG, "Vin returned was not valid");
+            getVinAttempts = 0;
+            pendingCar.setVin("");
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
+        }
     }
 }

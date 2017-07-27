@@ -66,9 +66,10 @@ import com.pitstop.models.TripStart;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothCarObserver;
+import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -449,7 +450,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady(vin, scannerId, scannerName);
+                    .onDeviceReady("", scannerId, scannerName);
         }
     }
 
@@ -485,6 +486,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public ReadyDevice getReadyDevice() {
         if (deviceConnState.equals(State.CONNECTED)){
+            readyDevice.setVin("");
             return readyDevice;
         }
         return null;
@@ -504,8 +506,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void notifyDtcData(DtcPackage dtcPackage) {
         Log.d(TAG,"notifyDtcData() "+dtcPackage);
         for (Observer observer : observerList) {
-            if (observer instanceof BluetoothCarObserver) {
-                ((BluetoothCarObserver) observer).onGotDtc(dtcPackage);
+            if (observer instanceof BluetoothDtcObserver) {
+                ((BluetoothDtcObserver) observer).onGotDtc(dtcPackage);
+            }
+        }
+    }
+
+    @Override
+    public void notifyVin(String vin) {
+        vinRequested = false;
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothDtcObserver) {
+                ((BluetoothVinObserver)observer).onGotVin(vin);
             }
         }
     }
@@ -513,6 +525,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void requestDtcData() {
         getDTCs();
+    }
+
+
+    private boolean vinRequested = false;
+    @Override
+    public void requestVin() {
+        if (deviceConnState.equals(State.CONNECTED)){
+            vinRequested = true;
+            getVinFromCar();
+        }
     }
 
     @Override
@@ -766,6 +788,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        if (parameterPackage.paramType == ParameterPackage.ParamType.VIN && vinRequested){
+            notifyVin("");
+        }
 
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME

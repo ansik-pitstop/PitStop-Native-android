@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -124,7 +125,7 @@ public interface AddCarContract {
 
 
 
-    interface Presenter extends BluetoothPresenter{
+    interface Presenter extends BluetoothPresenter, BluetoothVinObserver{
 
         /**
          * @param mileage the mileage entered by user after starting searching for car
