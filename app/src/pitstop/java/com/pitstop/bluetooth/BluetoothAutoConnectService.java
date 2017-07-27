@@ -450,7 +450,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady("", scannerId, scannerName);
+                    .onDeviceReady(vin, scannerId, scannerName);
         }
     }
 
@@ -486,7 +486,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public ReadyDevice getReadyDevice() {
         if (deviceConnState.equals(State.CONNECTED)){
-            readyDevice.setVin("");
             return readyDevice;
         }
         return null;
@@ -790,7 +789,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if (parameterPackage.paramType == ParameterPackage.ParamType.VIN && vinRequested){
-            notifyVin("");
+            notifyVin(parameterPackage.value);
         }
 
         //Get terminal RTC time
