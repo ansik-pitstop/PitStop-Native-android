@@ -140,8 +140,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        connectBluetooth();
-        return true;
+        return connectBluetooth();
     }
 
     public synchronized void onConnectDeviceValid(){
@@ -311,26 +310,26 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return deviceInterface.getDeviceName();
     }
 
-    private synchronized void connectBluetooth() {
+    private synchronized boolean connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
-            return;
+            return false;
         }
 
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Log.i(TAG, "Bluetooth already connecting");
-            return;
+            return false;
         }
 
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
-            return;
+            return false;
         }
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
-        mBluetoothAdapter.startDiscovery();
+        return mBluetoothAdapter.startDiscovery();
     }
 
     // for classic discovery

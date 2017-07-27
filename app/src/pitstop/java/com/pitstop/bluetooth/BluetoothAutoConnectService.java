@@ -1302,6 +1302,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch(int... source) {
+        if (deviceIsVerified && deviceConnState == State.CONNECTED) return;
         LogUtils.debugLogD(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""),
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (deviceManager.startScan()){

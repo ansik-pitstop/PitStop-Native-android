@@ -125,9 +125,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                         return;
                     }
                 }
-                if (autoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
-                    autoConnectService.startBluetoothSearch(); // refresh clicked
-                }
             }
         }
 
