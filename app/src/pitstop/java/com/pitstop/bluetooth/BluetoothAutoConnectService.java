@@ -209,10 +209,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager = new BluetoothDeviceManager(this);
 
             deviceManager.setBluetoothDataListener(this);
-            if (BluetoothAdapter.getDefaultAdapter()!=null
-                    && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                startBluetoothSearch(3);  // start search when service starts
-            }
         }
 
         localPid = new LocalPidAdapter(application);

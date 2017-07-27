@@ -91,6 +91,13 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             return;
                         }
 
+                        /*Invalid vin and device, connect to the device by default
+                        *since there is no way to verify it, and most users have one device*/
+                        if (!deviceIdValid && !carVinValid){
+                            callback.onSuccess();
+                            return;
+                        }
+
                         //Check if device vin didn't match, only if the car scanner exists
                         if (carScannerExists && !car.getVin().equals(deviceVin)){
                             callback.onDeviceInvalid();
