@@ -649,6 +649,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         if (!addingCar) return;
 
         hideLoading("This Car has been added previously!");
+        if (addCarButton != null){
+            addCarButton.setEnabled(true);
+        }
 
         if (mPager.getCurrentItem() == 1) {
             if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
