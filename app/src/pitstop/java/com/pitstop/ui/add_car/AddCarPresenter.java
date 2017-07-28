@@ -195,8 +195,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public synchronized void startAddingNewCar() {
+        searching = false;
         if (mCallback == null) return;
-
         checkBluetoothService();
 
         if (!mCallback.checkNetworkConnection(null)) {
@@ -331,7 +331,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                     } else { // in case error happened when parsing the car response
                         mCallback.askForManualVinInput();
                         mAutoConnectService.connectedDeviceInvalid();
-                        searching = false;
                     }
                 }
             }
