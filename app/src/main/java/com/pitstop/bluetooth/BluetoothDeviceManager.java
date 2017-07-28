@@ -267,6 +267,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
+            Log.d(TAG,"ConnectToDevice() device: "+device+", already connecting, return");
             return;
         }
 

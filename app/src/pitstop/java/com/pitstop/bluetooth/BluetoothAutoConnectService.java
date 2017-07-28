@@ -244,8 +244,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicSetFixedUploadRunnable = new Runnable() {
             @Override
             public void run(){
-                if (deviceIsVerified && deviceManager.getState()
-                        == IBluetoothCommunicator.CONNECTED){
+                if (deviceIsVerified && deviceConnState.equals(State.CONNECTED)){
+                    Log.d(TAG,"Period set fixed upload request executing");
+
                     setFixedUpload();
                 }
                 handler.postDelayed(this,15000);
@@ -257,6 +258,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             @Override
             public void run() { // this is for auto connect for bluetooth classic
                 if (terminalRTCTime == -1 && deviceConnState.equals(State.CONNECTED)){
+                    Log.d(TAG,"Periodic get terminal time request executing");
+
                     getObdDeviceTime();
                 }
                 handler.postDelayed(this, 10000);
@@ -267,8 +270,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetVinRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (!deviceIsVerified && !verificationInProgress
-                        && deviceConnState.equals(State.CONNECTED)){
+                if (deviceConnState.equals(State.VERIFYING)){
                     LogUtils.debugLogI(TAG, "Periodic vin request executed."
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
@@ -317,6 +319,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+            deviceConnState = State.VERIFYING;
+            notifyVerifyingDevice();
 
             //Get VIN to validate car
             getVinFromCar();
@@ -530,6 +535,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void requestVin() {
         if (deviceConnState.equals(State.CONNECTED)){
+            Log.d(TAG,"Period vin request executing");
             vinRequested = true;
             getVinFromCar();
         }
