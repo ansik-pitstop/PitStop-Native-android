@@ -244,6 +244,11 @@ public class UserRepository implements Repository{
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 
+        if(userAdapter.getUser() == null){
+            callback.onError(RequestError.getUnknownError());
+            return;
+        }
+
         final int userId = userAdapter.getUser().getId();
 
         getUserSettings(userId, new RequestCallback() {
