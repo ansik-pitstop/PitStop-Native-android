@@ -128,6 +128,8 @@ public interface AddCarContract {
 
     interface Presenter extends BluetoothPresenter, BluetoothVinObserver{
 
+        void onBackPressed();
+
         /**
          * @param mileage the mileage entered by user after starting searching for car
          */

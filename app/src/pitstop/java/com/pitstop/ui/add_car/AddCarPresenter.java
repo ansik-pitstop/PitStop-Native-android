@@ -90,6 +90,14 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     public boolean hasGotMileage = false;
 
     @Override
+    public void onBackPressed() {
+        if (searching){
+            searching = false;
+            cancelAllTimeouts();
+        }
+    }
+
+    @Override
     public void updatePendingCarMileage(int mileage) {
         if (mCallback == null) return;
 
@@ -559,6 +567,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mGetVinTimer.cancel();
         isAskingForDtc = false;
         mGetDtcTimer.cancel();
+        searching = false;
     }
 
     @Override

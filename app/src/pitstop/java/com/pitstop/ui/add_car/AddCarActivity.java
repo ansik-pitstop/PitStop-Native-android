@@ -219,6 +219,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
+        if (presenter != null){
+            presenter.onBackPressed();
+        }
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BACK, MixpanelHelper.ADD_CAR_VIEW);
     }
 
