@@ -122,6 +122,7 @@ public class MainServicesFragment extends Fragment{
     private void bindDefaultDealerUI(){
         //Get the themes default primary color
         TypedValue defaultColor = new TypedValue();
+        if(getActivity() == null){return;}
         getActivity().getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
 
         //Set other changed UI elements back to original color
