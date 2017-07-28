@@ -25,7 +25,11 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -49,6 +53,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -666,6 +671,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void askForDealership(Car createdCar) {
+        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType,new EventSourceImpl(EventSource.SOURCE_ADD_CAR)));
         if (!addingCar) return;
 
         AddCarActivity thisActivity = this;

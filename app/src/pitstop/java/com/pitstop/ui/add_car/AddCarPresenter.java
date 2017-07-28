@@ -441,7 +441,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
      * Asks for DTCs if connected to bluetooth, otherwise finishes Add Car
      */
     private void onCarSuccessfullyPosted() {
+        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType,EVENT_SOURCE));
         if (mCallback == null) return;
+
         // After successfully posting car to server, attempt to get engine codes
         // Also start timing out, if after 15 seconds it didn't finish, just skip it and jumps to MainActivity
         cancelAllTimeouts();
