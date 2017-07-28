@@ -77,6 +77,9 @@ public class UpcomingIssue implements Issue{
 
     @Override
     public int getPriority() {
+        if(priority == null){
+            return 2;
+        }
         return priority;
     }
 
