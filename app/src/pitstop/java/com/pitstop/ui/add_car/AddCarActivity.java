@@ -193,7 +193,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public void onBackPressed() {
 
         //Ignore if car is being added to server currently
-        if (presenter != null && presenter.isSavingCarToServer()){
+        if (presenter != null && presenter.isAddingCarToServer()){
             return;
         }
 

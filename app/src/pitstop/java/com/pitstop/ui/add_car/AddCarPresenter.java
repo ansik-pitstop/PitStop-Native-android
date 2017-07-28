@@ -147,6 +147,9 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         if (searching) return;
         searching = true;
 
+        pendingCar.setVin("");
+        pendingCar.setScannerId("");
+
         mSearchTimer.start();
         checkBluetoothService();
 
@@ -196,8 +199,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public synchronized void startAddingNewCar() {
         searching = false;
+        if (addingCarToServer) return;
         if (mCallback == null) return;
         checkBluetoothService();
+        addingCarToServer = true;
 
         if (!mCallback.checkNetworkConnection(null)) {
             Log.d(TAG, "Start Pending Add Car");
@@ -211,12 +216,17 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             public void done(String response, RequestError requestError) {
                 if (requestError != null) {
                     mCallback.hideLoading("There was a network error, please try again");
+                    addingCarToServer = false;
                     return;
                 }
 
-                if (!mCallback.checkNetworkConnection(null)) return;
+                if (!mCallback.checkNetworkConnection(null)){
+                    addingCarToServer = false;
+                    return;
+                }
 
                 if (response.equals("{}")) { // vin does not exist in the backend
+                    addingCarToServer = false;
                     mCallback.onPostCarStarted();
                     mNetworkHelper.createNewCarWithoutShopId(mApplication.getCurrentUserId(),
                             (int) pendingCar.getBaseMileage(),
@@ -285,10 +295,12 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                         //Ask user if they want to connect for sure here
 
                     } catch (JSONException e) {
+                        addingCarToServer = false;
                         e.printStackTrace();
                     }
 
                     if (existedCar != null) {
+                        addingCarToServer = false;
                         mLocalCarAdapter.updateCar(existedCar);
                         int carUserId = existedCar.getUserId();
                         Log.d(TAG, "User Id for car " + existedCar.getVin() + " is: " + carUserId);
@@ -320,16 +332,19 @@ public class AddCarPresenter implements AddCarContract.Presenter {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     saveCarToServer(pendingCar);
+                                    addingCarToServer = false;
                                 }
                             }, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mCallback.hideLoading(null);
+                                    addingCarToServer = false;
                                 }
                             });
                         }
                     } else { // in case error happened when parsing the car response
                         mCallback.askForManualVinInput();
+                        addingCarToServer = false;
                         mAutoConnectService.connectedDeviceInvalid();
                     }
                 }
@@ -337,9 +352,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         });
     }
 
+    private boolean addingCarToServer = false;
     @Override
-    public boolean isSavingCarToServer(){
-        return savingCarToServer;
+    public boolean isAddingCarToServer(){
+        return addingCarToServer || savingCarToServer;
     }
 
     boolean savingCarToServer = false;
@@ -638,6 +654,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             mSearchTimer.cancel();
             pendingCar.setVin("");
             mCallback.askForManualVinInput();
+
 
 //            if (hasGotValidRtc) {
 //                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_VIN, MixpanelHelper.ADD_CAR_VIEW);

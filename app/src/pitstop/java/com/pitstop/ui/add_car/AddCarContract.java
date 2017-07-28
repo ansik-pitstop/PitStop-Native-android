@@ -128,7 +128,7 @@ public interface AddCarContract {
 
     interface Presenter extends BluetoothPresenter, BluetoothVinObserver{
 
-        boolean isSavingCarToServer();
+        boolean isAddingCarToServer();
 
         void onBackPressed();
 
