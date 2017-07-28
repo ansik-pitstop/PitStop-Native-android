@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -109,7 +110,16 @@ public class CarRepository implements Repository{
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null && response != null){
-                        List<Car> cars = Car.createCarsList(response);
+                        List<Car> cars = new ArrayList<>();
+                        JSONArray carsJson = new JSONArray(response);
+                        for(int i = 0;i<carsJson.length();i++){
+                            try{
+                                cars.add(Car.createCar(carsJson.getString(i)));
+                            }catch (JSONException e){
+
+                            }
+                        }
+
                         networkHelper.getUserSettingsById(userId, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
