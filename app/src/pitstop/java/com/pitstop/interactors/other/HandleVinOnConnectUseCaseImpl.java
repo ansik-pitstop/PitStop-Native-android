@@ -78,7 +78,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     @Override
                     public void onSuccess(Car car) {
 
-                        boolean carVinValid = deviceVin != null
+                        boolean deviceVinValid = deviceVin != null
                                 && (deviceVin.length() == 17);
                         boolean carScannerValid = car.getScannerId() != null
                                 && !car.getScannerId().isEmpty()
@@ -97,15 +97,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                         /*Invalid vin and device, connect to the device by default
                         *since there is no way to verify it, and most users have one device*/
-                        if (!deviceIdValid && !carVinValid){
+                        if (!deviceIdValid && !deviceVinValid){
                             Log.d(TAG,"No device id and no VIN, onSuccess()");
                             callback.onSuccess();
                             return;
                         }
 
-                        //Check if device vin didn't match, only if the car scanner exists
-                        if (carScannerExists && !car.getVin().equals(deviceVin)){
-                            Log.d(TAG,"Car scanner exists, VIN does not match, onDeviceInvalid()");
+                        if (deviceVinValid && !car.getVin().equals(deviceVin)){
+                            Log.d(TAG,"Device vin is valid but does not match car VIN");
                             callback.onDeviceInvalid();
                             return;
                         }

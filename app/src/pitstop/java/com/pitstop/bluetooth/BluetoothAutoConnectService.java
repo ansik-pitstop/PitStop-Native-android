@@ -1371,9 +1371,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch(int... source) {
-        LogUtils.debugLogD(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""),
+        LogUtils.debugLogD(TAG, "startBluetoothSearch() deviceCOnState: "+deviceConnState + ((source != null && source.length > 0) ? source[0] : ""),
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (!deviceConnState.equals(State.DISCONNECTED)){
+        if (deviceConnState.equals(State.CONNECTED)){
             Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
             return;
         }
