@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class ScanCarPresenter implements ScanCarContract.Presenter {
+public class ScanPresenter implements ScanCarContract.Presenter {
 
-    private static final String TAG = ScanCarPresenter.class.getSimpleName();
+    private static final String TAG = ScanPresenter.class.getSimpleName();
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
     private ScanCarContract.View mCallback;
@@ -45,7 +45,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
-    public ScanCarPresenter(BluetoothConnectionObservable observable
+    public ScanPresenter(BluetoothConnectionObservable observable
             , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
 
         bluetoothObservable = observable;
@@ -54,19 +54,25 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     }
 
-    private boolean isDeviceReady(){
+    private boolean isDeviceConnected(){
         return bluetoothObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
+    private boolean isDisconnected(){
+        return bluetoothObservable.getDeviceState()
+                .equals(BluetoothConnectionObservable.State.DISCONNECTED);
+    }
+
     @Override
     public void startScan() {
-        if (isDeviceReady()){
+        if (isDeviceConnected()){
             mCallback.onScanStarted();
             getServicesAndRecalls();
             getEngineCodes();
         }
         else{
+            bluetoothObservable.requestDeviceSearch();
             mCallback.onStartScanFailed(ERR_START_DC);
         }
     }
@@ -121,7 +127,7 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getEngineCodes() {
-        if (!isDeviceReady()) return;
+        if (!isDeviceConnected()) return;
 
         retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
@@ -201,15 +207,18 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
      * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
      * is no DTCs currently.
      */
-    private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(20, 0) {
+    private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(5, 4) {
         @Override
         public void onRetry() {
-            // do nothing
+            if (retrievedDtcs.isEmpty() && bluetoothObservable != null){
+                bluetoothObservable.requestDtcData();
+            }
         }
 
         @Override
         public void onTimeout() {
             if (mCallback == null || !isAskingForDtcs ) return;
+
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
@@ -288,8 +297,13 @@ public class ScanCarPresenter implements ScanCarContract.Presenter {
     public void onGotDtc(DtcPackage dtcPackage) {
         Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
 
-        if (dtcPackage.dtcs != null && isAskingForDtcs) {
+        if (!isAskingForDtcs) return;
+        //Got DTC
+        if (dtcPackage.dtcs != null && dtcPackage.dtcs.length > 0) {
             retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
+            mCallback.onEngineCodesRetrieved(retrievedDtcs);
+            isAskingForDtcs = false;
+            checkEngineIssuesTimer.cancel();
         }
     }
 }

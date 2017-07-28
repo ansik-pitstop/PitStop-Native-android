@@ -1,6 +1,7 @@
 package com.pitstop.observer;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.models.ReadyDevice;
 
 /**
  * Created by Karol Zdebel on 6/28/2017.
@@ -37,10 +38,21 @@ public interface BluetoothConnectionObservable extends Subject{
     //Invoked if dtc data has been received from the device
     void notifyDtcData(DtcPackage dtcPackage);
 
+    void notifyVin(String vin);
+
     //Invoked when a observer needs the dtc data
     void requestDtcData();
 
+    //Invoked when an observer needs the device VIN
+    void requestVin();
+
+    //Request scan for device
+    void requestDeviceSearch();
+
+    //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();
 
+    //Returns the already connected device, NULL if not connected
+    ReadyDevice getReadyDevice();
 
 }
