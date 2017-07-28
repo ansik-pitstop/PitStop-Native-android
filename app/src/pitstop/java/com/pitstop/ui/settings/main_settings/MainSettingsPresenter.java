@@ -47,6 +47,8 @@ public class MainSettingsPresenter {
     }
 
     public void subscribe(MainSettingsView mainSettings ){
+        if(switcher == null){return;}
+
         mixpanelHelper.trackViewAppeared("MainSettings");
         this.mainSettings = mainSettings;
         switcher.loading(true);

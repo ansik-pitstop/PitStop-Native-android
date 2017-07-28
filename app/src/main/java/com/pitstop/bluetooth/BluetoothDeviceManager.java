@@ -323,8 +323,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private synchronized boolean connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
-        int thisScanAttempt = scanNumber;
-
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
             return false;
@@ -342,21 +340,23 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
 
+        scanNumber++;
+        int thisScanAttempt = scanNumber;
         //Cancel discovery after 12 seconds
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 //Check to make sure were not cancelling a future scan
                 // after this one's already been cancelled
-                if (mBluetoothAdapter.isDiscovering() && thisScanAttempt == scanNumber){
-                    mBluetoothAdapter.cancelDiscovery();
+                if (thisScanAttempt == scanNumber+1){
+                    if (mBluetoothAdapter.isDiscovering()){
+                        mBluetoothAdapter.cancelDiscovery();
+                    }
                     dataListener.scanFinished();
                 }
-
             }
         }, 12000);
 
-        scanNumber++;
         return mBluetoothAdapter.startDiscovery();
     }
 

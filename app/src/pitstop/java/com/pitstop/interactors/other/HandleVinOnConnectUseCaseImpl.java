@@ -53,6 +53,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         //ADD LOGS
         //Log.d(TAG,"")
 
+        //ADDRESS NULL VALUE CASE
+
         if (!parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
             callback.onError(RequestError.getUnknownError());
             return;

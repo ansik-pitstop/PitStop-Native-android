@@ -535,6 +535,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void requestVin() {
         if (deviceConnState.equals(State.CONNECTED)){
+
             Log.d(TAG,"Period vin request executing");
             vinRequested = true;
             getVinFromCar();
@@ -1244,7 +1245,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                 }
 
                                 List<String> dtcList = Arrays.asList(dtcPackage.dtcs);
-                                List<String> toRemove = new ArrayList<String>();
+                                List<String> toRemove = new ArrayList<>();
                                 for (String dtc: dtcList){
                                     if (dtcNames.contains(dtc)){
                                         toRemove.add(dtc);

@@ -59,9 +59,9 @@ public class ScanPresenter implements ScanCarContract.Presenter {
                 .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
-    private boolean isSearchingForDevice(){
+    private boolean isDisconnected(){
         return bluetoothObservable.getReadyDevice()
-                .equals(BluetoothConnectionObservable.State.SEARCHING);
+                .equals(BluetoothConnectionObservable.State.DISCONNECTED);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             getServicesAndRecalls();
             getEngineCodes();
         }
-        else{
+        else if (!isDisconnected()){
             bluetoothObservable.requestDeviceSearch();
             mCallback.onStartScanFailed(ERR_START_DC);
         }
