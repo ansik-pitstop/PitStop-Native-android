@@ -145,7 +145,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
         loadPreviousState();
 
         if (presenter == null){
-            presenter = new ScanDtcPresenter(bluetoothObservable, useCaseComponent
+            presenter = new ScanPresenter(bluetoothObservable, useCaseComponent
                     , networkComponent.networkHelper());
         }
         presenter.bind(this);
