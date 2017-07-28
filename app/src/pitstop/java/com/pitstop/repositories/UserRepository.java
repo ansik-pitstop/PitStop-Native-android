@@ -262,12 +262,14 @@ public class UserRepository implements Repository{
     }
 
     public void getCurrentUserSettings(Callback<Settings> callback){
-
         if(!networkHelper.isConnected()){
             callback.onError(ERR_OFFLINE);
             return;
         }
-
+        if(userAdapter.getUser() == null){
+            callback.onError(ERR_UNKNOWN);
+            return;
+        }
         final int userId = userAdapter.getUser().getId();
 
         getUserSettings(userId, new RequestCallback() {

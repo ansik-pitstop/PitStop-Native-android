@@ -374,7 +374,9 @@ public class MainDashboardFragment extends CarDataFragment {
             mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
             mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
             mMyTripsIcon.setImageResource(R.drawable.route_2);
-            ((MainActivity)getActivity()).changeTheme(false);
+            if( ((MainActivity)getActivity()) != null){
+                ((MainActivity)getActivity()).changeTheme(false);
+            }
             mCarLogoImage.setVisibility(View.VISIBLE);
             dealershipName.setVisibility(View.VISIBLE);
             carName.setTextColor(Color.BLACK);
