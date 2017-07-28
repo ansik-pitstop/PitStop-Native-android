@@ -207,15 +207,18 @@ public class ScanPresenter implements ScanCarContract.Presenter {
      * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
      * is no DTCs currently.
      */
-    private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(20, 0) {
+    private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(5, 4) {
         @Override
         public void onRetry() {
-            // do nothing
+            if (retrievedDtcs.isEmpty() && bluetoothObservable != null){
+                bluetoothObservable.requestDtcData();
+            }
         }
 
         @Override
         public void onTimeout() {
             if (mCallback == null || !isAskingForDtcs ) return;
+
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
@@ -301,10 +304,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
             isAskingForDtcs = false;
             checkEngineIssuesTimer.cancel();
-        }
-        //Got empty DTC, keep trying because sometimes they turn up empty
-        else{
-            bluetoothObservable.requestDtcData();
         }
     }
 }
