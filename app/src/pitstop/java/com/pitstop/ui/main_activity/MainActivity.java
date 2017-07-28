@@ -368,7 +368,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     protected void onStop() {
         hideLoading();
-        autoConnectService.unsubscribe(this);
+        if (autoConnectService != null){
+            autoConnectService.unsubscribe(this);
+        }
         super.onStop();
     }
 
