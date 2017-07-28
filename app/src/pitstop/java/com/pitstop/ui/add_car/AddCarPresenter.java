@@ -598,7 +598,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     private final TimeoutTimer mGetVinTimer = new TimeoutTimer(6, 8) {
         @Override
         public void onRetry() {
-            Log.d(TAG,"Vin timer, retry, vin failed attempts:" +getVinAttempts);
+            Log.d(TAG,"Vin timer, retry, vin failed attempts:" +getVinAttempts+", connection state: "+mAutoConnectService.getDeviceState());
             mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
             if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)){
                 getVinAttempts++;

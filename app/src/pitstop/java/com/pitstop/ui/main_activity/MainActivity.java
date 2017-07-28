@@ -114,6 +114,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.subscribe(MainActivity.this);
+            displayDeviceState(autoConnectService.getDeviceState());
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
@@ -334,7 +335,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     protected void onResume() {
         super.onResume();
-
 
         Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
