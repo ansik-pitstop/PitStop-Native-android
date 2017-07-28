@@ -294,12 +294,17 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     public void onGotDtc(DtcPackage dtcPackage) {
         Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
 
-        if (dtcPackage.dtcs != null && isAskingForDtcs) {
+        if (!isAskingForDtcs) return;
+        //Got DTC
+        if (dtcPackage.dtcs != null && dtcPackage.dtcs.length > 0) {
             retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
+            mCallback.onEngineCodesRetrieved(retrievedDtcs);
+            isAskingForDtcs = false;
+            checkEngineIssuesTimer.cancel();
         }
-        mCallback.onEngineCodesRetrieved(retrievedDtcs);
-        isAskingForDtcs = false;
-        checkEngineIssuesTimer.cancel();
-
+        //Got empty DTC, keep trying because sometimes they turn up empty
+        else{
+            bluetoothObservable.requestDtcData();
+        }
     }
 }

@@ -1240,7 +1240,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     dtcNames.add(issue.getItem());
                                 }
 
-                                List<String> dtcList = Arrays.asList(dtcPackage.dtcs);
+                                List<String> dtcList = new ArrayList<String>();
+                                for (String dtc: dtcPackage.dtcs){
+                                    dtcList.add(dtc);
+                                }
                                 List<String> toRemove = new ArrayList<>();
                                 for (String dtc: dtcList){
                                     if (dtcNames.contains(dtc)){
