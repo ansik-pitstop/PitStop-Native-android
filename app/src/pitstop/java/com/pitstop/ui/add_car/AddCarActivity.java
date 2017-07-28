@@ -192,6 +192,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     @Override
     public void onBackPressed() {
 
+        //Ignore if car is being added to server currently
+        if (presenter != null && presenter.isSavingCarToServer()){
+            return;
+        }
+
         if (mPager.getCurrentItem() == AddCarViewPager.PAGE_FIRST) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.

@@ -336,6 +336,12 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             }
         });
     }
+
+    @Override
+    public boolean isSavingCarToServer(){
+        return savingCarToServer;
+    }
+
     boolean savingCarToServer = false;
     private synchronized void saveCarToServer(Car car) {
         if (mCallback == null) return;
