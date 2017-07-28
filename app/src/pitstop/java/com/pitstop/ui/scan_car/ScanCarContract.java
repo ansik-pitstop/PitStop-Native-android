@@ -74,9 +74,7 @@ public interface ScanCarContract {
         String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
         String ERR_INTERRUPT_DC = "Your device disconnected during the scan"
                 +", please reconnect and try again.";
-        String ERR_START_DC = "No device connected, please connect to your " +
-                "vehicle device to begin scan.";
-        String ERR_START_SEARCH = "No device connected, search for device started." +
+        String ERR_START_DC = "No device connected, search for device started." +
                 " Please wait for device to connect and try again.";
 
         void startScan();

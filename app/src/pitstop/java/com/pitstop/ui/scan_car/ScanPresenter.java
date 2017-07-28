@@ -71,11 +71,8 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             getServicesAndRecalls();
             getEngineCodes();
         }
-        else if (!isSearchingForDevice()){
-            bluetoothObservable.requestDeviceSearch();
-            mCallback.onStartScanFailed(ERR_START_SEARCH);
-        }
         else{
+            bluetoothObservable.requestDeviceSearch();
             mCallback.onStartScanFailed(ERR_START_DC);
         }
     }
