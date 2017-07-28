@@ -256,8 +256,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (terminalRTCTime == -1 && deviceManager.getState()
-                        == IBluetoothCommunicator.CONNECTED){
+                if (terminalRTCTime == -1 && deviceConnState.equals(State.CONNECTED)){
                     getObdDeviceTime();
                 }
                 handler.postDelayed(this, 10000);
@@ -268,8 +267,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetVinRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (!deviceIsVerified && !verificationInProgress && deviceManager.getState()
-                        == IBluetoothCommunicator.CONNECTED){
+                if (!deviceIsVerified && !verificationInProgress
+                        && deviceConnState.equals(State.CONNECTED)){
                     LogUtils.debugLogI(TAG, "Periodic vin request executed."
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
@@ -1385,19 +1384,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     public String getCurrentDeviceId() {
         return currentDeviceId;
-    }
-
-    /**
-     * Gets the Car's VIN. Check if obd device is synced. If synced,
-     * send command to device to retrieve vin info.
-     *
-     * @see #getObdDeviceTime()
-     * @see #parameterData(ParameterPackage)
-     */
-    public void getCarVIN() {
-        LogUtils.debugLogI(TAG, "getCarVin", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        isGettingVin = true;
-        getObdDeviceTime();
     }
 
     /**

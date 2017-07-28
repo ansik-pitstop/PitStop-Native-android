@@ -287,7 +287,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getVin(View view) {
-        service.getCarVIN();
+        service.getVinFromCar();
     }
 
     public void getRtc(View view) {
