@@ -25,7 +25,11 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.AddCarViewPagerAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -49,6 +53,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -186,6 +191,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onBackPressed() {
+
+        //Ignore if car is being added to server currently
+        if (presenter != null && presenter.isAddingCarToServer()){
+            return;
+        }
+
         if (mPager.getCurrentItem() == AddCarViewPager.PAGE_FIRST) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
@@ -212,6 +223,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             // Otherwise, select the previous step.
             ((TextView) findViewById(R.id.step_text)).setText("STEP " + Integer.toString(mPager.getCurrentItem()) + "/3");
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        }
+        if (presenter != null){
+            presenter.onBackPressed();
         }
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BACK, MixpanelHelper.ADD_CAR_VIEW);
     }
@@ -277,22 +291,17 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         mPagerAdapter.notifyDataSetChanged();
         mPager.setCurrentItem(1);
         addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        EditText vinInput = ((EditText) findViewById(R.id.VIN));
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
-                if (addCarButton != null){
-                    addCarButton.setEnabled(false);
-                }
-                searchForCar(v);
+                presenter.onGotVin(vinInput.getText().toString().toUpperCase());
             }
         });
     }
 
     @Override
     public void onMileageInputCancelled(){
-        if (addCarButton != null){
-            addCarButton.setEnabled(true);
-        }
     }
 
     /**
@@ -333,9 +342,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
             } else {
                 hideLoading("Invalid VIN");
-                if (addCarButton != null){
-                    addCarButton.setEnabled(true);
-                }
             }
         } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) { // If in the AddCar2YesDongleFragment
             Log.i(TAG, "Searching for car");
@@ -528,9 +534,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
     @Override
     public void onMileageEntered() {
-        if (addCarButton != null){
-            addCarButton.setEnabled(true);
-        }
         showLoading("Mileage entered, searching for car...");
     }
 
@@ -590,7 +593,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     }
 
     @Override
-    public void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton) {
+    public void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton
+            ,DialogInterface.OnClickListener negativeButton) {
         if (isFinishing()) return;
 
         new AnimatedDialogBuilder(this)
@@ -648,7 +652,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
     public void askForManualVinInput() {
         if (!addingCar) return;
 
-        hideLoading("This Car has been added previously!");
+        Log.d(TAG,"askForManualVinInput()");
 
         if (mPager.getCurrentItem() == 1) {
             if (mPagerAdapter.getItem(1) instanceof AddCar2NoDongleFragment) {
@@ -658,12 +662,25 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
             } else if (mPagerAdapter.getItem(1) instanceof AddCar2YesDongleFragment) {
                 mPagerAdapter.addFragment(AddCar2NoDongleFragment.class, "NoDongle", 1);
                 mPager.setCurrentItem(1);
+
             }
+
         }
+
+        EditText vinInput = ((EditText) findViewById(R.id.VIN));
+        addCarButton = (Button)mPagerAdapter.getItem(1).getView().findViewById(R.id.add_vehicle);
+        addCarButton.setOnClickListener(new DebouncingOnClickListener() {
+            @Override
+            public void doClick(View v) {
+                presenter.onGotVin(vinInput.getText().toString().toUpperCase());
+            }
+        });
     }
 
     @Override
     public void askForDealership(Car createdCar) {
+        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+        EventBus.getDefault().post(new CarDataChangedEvent(eventType,new EventSourceImpl(EventSource.SOURCE_ADD_CAR)));
         if (!addingCar) return;
 
         AddCarActivity thisActivity = this;

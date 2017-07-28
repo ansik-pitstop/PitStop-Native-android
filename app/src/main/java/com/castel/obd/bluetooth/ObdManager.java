@@ -321,6 +321,8 @@ public class ObdManager {
 
         void ffData(FreezeFramePackage ffPackage);
 
+        void scanFinished();
+
     }
 
 

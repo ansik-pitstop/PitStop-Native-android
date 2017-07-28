@@ -114,6 +114,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.subscribe(MainActivity.this);
+            displayDeviceState(autoConnectService.getDeviceState());
 
             // Send request to user to turn on bluetooth if disabled
             if (BluetoothAdapter.getDefaultAdapter() != null) {
@@ -124,9 +125,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                                 true, getString(R.string.request_permission_location_message));
                         return;
                     }
-                }
-                if (autoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
-                    autoConnectService.startBluetoothSearch(); // refresh clicked
                 }
             }
         }
@@ -338,7 +336,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     protected void onResume() {
         super.onResume();
 
-
         Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
         if (!serviceIsBound){
@@ -348,8 +345,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (autoConnectService != null){
             displayDeviceState(autoConnectService.getDeviceState());
             autoConnectService.subscribe(this);
+            autoConnectService.requestDeviceSearch();
         }
-
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -372,7 +369,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     protected void onStop() {
         hideLoading();
-        autoConnectService.unsubscribe(this);
+        if (autoConnectService != null){
+            autoConnectService.unsubscribe(this);
+        }
         super.onStop();
     }
 
