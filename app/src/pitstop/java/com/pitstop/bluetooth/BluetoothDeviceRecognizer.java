@@ -67,7 +67,7 @@ public class BluetoothDeviceRecognizer {
             Log.d(TAG,"scanner name null or scanner name doesn't contain BT_DEVICE_NAME");
             return RecognizeResult.IGNORE;
         }
-        else if (isBanned(device) && !AddCarActivity.addingCarWithDevice){
+        else if (isBanned(device) && !AddCarActivity.addingCar){
             Log.d(TAG,"Device banned");
             return RecognizeResult.BANNED;
         }

@@ -199,6 +199,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         });
     }
 
+    @Override
+    public void scanFinished() {
+
+    }
+
 //    @Override
 //    public void getIOData(final DataPackageInfo dataPackageInfo) {
 //        Log.i(TAG, "getIOData");
@@ -282,7 +287,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getVin(View view) {
-        service.getCarVIN();
+        service.getVinFromCar();
     }
 
     public void getRtc(View view) {
