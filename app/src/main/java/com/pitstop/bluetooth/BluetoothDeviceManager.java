@@ -348,7 +348,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             public void run() {
                 //Check to make sure were not cancelling a future scan
                 // after this one's already been cancelled
-                if (thisScanAttempt == scanNumber+1){
+                if (thisScanAttempt == scanNumber){
                     if (mBluetoothAdapter.isDiscovering()){
                         mBluetoothAdapter.cancelDiscovery();
                     }
