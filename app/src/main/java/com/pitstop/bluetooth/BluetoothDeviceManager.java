@@ -147,6 +147,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
             Log.i(TAG,"Stopping scan");
             mBluetoothAdapter.cancelDiscovery();
+            dataListener.scanFinished();
         }
     }
 
@@ -163,6 +164,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
+            dataListener.scanFinished();
         }
 
         if (communicator != null) {
@@ -306,12 +308,21 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
+    public boolean isScanning(){
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
+            && mBluetoothAdapter.isDiscovering();
+    }
+
     public String getConnectedDeviceName() {
         return deviceInterface.getDeviceName();
     }
 
+
+    private int scanNumber = 0;
     private synchronized boolean connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
+
+        int thisScanAttempt = scanNumber;
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
@@ -329,6 +340,22 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
+
+        //Cancel discovery after 12 seconds
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Check to make sure were not cancelling a future scan
+                // after this one's already been cancelled
+                if (mBluetoothAdapter.isDiscovering() && thisScanAttempt == scanNumber){
+                    mBluetoothAdapter.cancelDiscovery();
+                    dataListener.scanFinished();
+                }
+
+            }
+        }, 12000);
+
+        scanNumber++;
         return mBluetoothAdapter.startDiscovery();
     }
 

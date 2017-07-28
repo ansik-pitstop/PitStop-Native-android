@@ -76,6 +76,8 @@ public interface ScanCarContract {
                 +", please reconnect and try again.";
         String ERR_START_DC = "No device connected, please connect to your " +
                 "vehicle device to begin scan.";
+        String ERR_START_SEARCH = "No device connected, search for device started." +
+                " Please wait for device to connect and try again.";
 
         void startScan();
 

@@ -54,17 +54,26 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     }
 
-    private boolean isDeviceReady(){
+    private boolean isDeviceConnected(){
         return bluetoothObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
+    private boolean isSearchingForDevice(){
+        return bluetoothObservable.getReadyDevice()
+                .equals(BluetoothConnectionObservable.State.SEARCHING);
+    }
+
     @Override
     public void startScan() {
-        if (isDeviceReady()){
+        if (isDeviceConnected()){
             mCallback.onScanStarted();
             getServicesAndRecalls();
             getEngineCodes();
+        }
+        else if (!isSearchingForDevice()){
+            bluetoothObservable.requestDeviceSearch();
+            mCallback.onStartScanFailed(ERR_START_SEARCH);
         }
         else{
             mCallback.onStartScanFailed(ERR_START_DC);
@@ -121,7 +130,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void getEngineCodes() {
-        if (!isDeviceReady()) return;
+        if (!isDeviceConnected()) return;
 
         retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;

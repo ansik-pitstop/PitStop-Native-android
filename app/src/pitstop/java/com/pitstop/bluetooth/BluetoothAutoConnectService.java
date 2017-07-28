@@ -279,7 +279,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        handler.postDelayed(periodScanRunnable, 15000);
+        handler.post(periodScanRunnable);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
         handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
@@ -534,6 +534,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             vinRequested = true;
             getVinFromCar();
         }
+    }
+
+    @Override
+    public void requestDeviceSearch() {
+        Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState);
+        if (deviceConnState.equals(State.CONNECTED)) return;
+        startBluetoothSearch(7);
     }
 
     @Override
@@ -1197,6 +1204,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         saveFreezeFrame(ffPackage);
     }
 
+    @Override
+    public void scanFinished() {
+
+        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState);
+
+        //Search came to an end
+        if (deviceConnState.equals(State.SEARCHING)){
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+        }
+    }
+
     private void saveDtcs(final DtcPackage dtcPackage) {
         Car car = carAdapter.getCarByScanner(dtcPackage.deviceId);
 
@@ -1345,9 +1364,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch(int... source) {
-        if (deviceIsVerified && deviceConnState == State.CONNECTED) return;
         LogUtils.debugLogD(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""),
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        if (deviceIsVerified && deviceConnState.equals(State.CONNECTED)){
+            Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
+            return;
+        }
         if (deviceManager.startScan()){
             deviceConnState = State.SEARCHING;
             notifySearchingForDevice();
