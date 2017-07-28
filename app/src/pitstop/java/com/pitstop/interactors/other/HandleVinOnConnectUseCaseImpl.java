@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
@@ -87,6 +88,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                         //Car has a valid scanner so nothing needs to be done
                         if (carScannerValid){
+                            Log.d(TAG,"Car scanner matches, onSuccess()");
                             callback.onSuccess();
                             return;
                         }
@@ -94,12 +96,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         /*Invalid vin and device, connect to the device by default
                         *since there is no way to verify it, and most users have one device*/
                         if (!deviceIdValid && !carVinValid){
+                            Log.d(TAG,"No device id and no VIN, onSuccess()");
                             callback.onSuccess();
                             return;
                         }
 
                         //Check if device vin didn't match, only if the car scanner exists
                         if (carScannerExists && !car.getVin().equals(deviceVin)){
+                            Log.d(TAG,"Car scanner exists, VIN does not match, onDeviceInvalid()");
                             callback.onDeviceInvalid();
                             return;
                         }
@@ -122,6 +126,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                         //Case 2, address this later
                         if (!carScannerExists && !deviceIdValid){
+                            Log.d(TAG,"No car scanner and device id invalid, onDeviceBrokenAndCarMissingScanner()");
 
                             //Check if car has a scanner id, if so use that one
                             callback.onDeviceBrokenAndCarMissingScanner();
@@ -149,11 +154,13 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                         @Override
                                         public void onDeviceAlreadyActive() {
                                             //Another user has this scanner
+                                            Log.d(TAG,"Adding scanner that is already active, onDeviceAlreadyActive()");
                                             callback.onDeviceAlreadyActive();
                                         }
 
                                         @Override
                                         public void onScannerCreated() {
+                                            Log.d(TAG,"Overwrote scanner id, onSuccess()");
                                             callback.onSuccess();
                                         }
 
@@ -184,6 +191,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 @Override
                                 public void onScannerCreated() {
                                     //Scanner created
+                                    Log.d(TAG,"Created new scanner, onSuccess()");
                                     callback.onSuccess();
                                 }
 
