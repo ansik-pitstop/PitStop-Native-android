@@ -795,6 +795,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void parameterData(ParameterPackage parameterPackage) {
         if (parameterPackage == null) return;
 
+        //Change null to empty
+        if (parameterPackage.value == null){
+            parameterPackage.value = "";
+        }
+
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
         LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
