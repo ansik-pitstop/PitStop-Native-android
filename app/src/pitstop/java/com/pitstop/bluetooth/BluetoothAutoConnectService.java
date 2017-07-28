@@ -66,9 +66,9 @@ import com.pitstop.models.TripStart;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
@@ -461,14 +461,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifyDeviceDisconnected() {
         Log.d(TAG,"notifyDeviceDisconnected()");
-        //Only notify disconnection if the device that was disconnected was verified and ready
-        if (deviceReady){
-            for (Observer observer: observerList){
-                if (observer instanceof BluetoothConnectionObserver){
-                    ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
-                }
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
             }
-            deviceReady = false;
         }
     }
 
@@ -1377,7 +1373,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void startBluetoothSearch(int... source) {
         LogUtils.debugLogD(TAG, "startBluetoothSearch() " + ((source != null && source.length > 0) ? source[0] : ""),
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (deviceConnState.equals(State.CONNECTED)){
+        if (!deviceConnState.equals(State.DISCONNECTED)){
             Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
             return;
         }

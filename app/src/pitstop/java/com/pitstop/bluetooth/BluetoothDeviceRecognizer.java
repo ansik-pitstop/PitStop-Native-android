@@ -59,7 +59,7 @@ public class BluetoothDeviceRecognizer {
     }
 
     public RecognizeResult onDeviceFound(BluetoothDevice device) {
-        if (device == null || device.getName() == null || true) return RecognizeResult.DISCONNECT;
+        if (device == null || device.getName() == null) return RecognizeResult.DISCONNECT;
 
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 

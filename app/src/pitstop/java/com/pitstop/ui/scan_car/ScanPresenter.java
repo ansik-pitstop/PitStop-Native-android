@@ -60,7 +60,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     private boolean isDisconnected(){
-        return bluetoothObservable.getReadyDevice()
+        return bluetoothObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.DISCONNECTED);
     }
 
