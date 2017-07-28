@@ -353,7 +353,9 @@ public class MainActivity extends IBluetoothServiceActivity implements ObdManage
     @Override
     protected void onStop() {
         hideLoading();
-        autoConnectService.removeCallback(this);
+        if(autoConnectService != null){
+            autoConnectService.removeCallback(this);
+        }
         super.onStop();
     }
 
