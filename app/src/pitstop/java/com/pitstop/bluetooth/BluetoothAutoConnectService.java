@@ -313,6 +313,61 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return mBinder;
     }
 
+    private void sendConnectedNotification(){
+
+        //show a custom notification
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
+
+        final Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
+
+        String carName = connectedCar == null ? "Click here to find out more" :
+                connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                        .setLargeIcon(icon)
+                        .setColor(getResources().getColor(R.color.highlight))
+                        .setContentTitle("Car is Connected")
+                        .setContentText(carName);
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        stackBuilder.addParentStack(MainActivity.class);
+
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(notifID, mBuilder.build());
+
+        // Mixpanel time event
+        if (!bluetoothConnectedTimeEventStarted) {
+            bluetoothConnectedTimeEventStarted = true;
+            mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+        }
+    }
+
+    private void cancelConnectedNotification(){
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(notifID);
+
+        // Mixpanel time event
+        if (bluetoothConnectedTimeEventStarted) {
+            bluetoothConnectedTimeEventStarted = false;
+            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
+        }
+    }
+
     @Override
     public void getBluetoothState(int state) {
         if (state == IBluetoothCommunicator.CONNECTED) {
@@ -328,46 +383,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Get RTC and mileage once connected
             getObdDeviceTime();
-
-            //show a custom notification
-            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
-
-            final Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
-
-            String carName = connectedCar == null ? "Click here to find out more" :
-                    connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
-
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                            .setLargeIcon(icon)
-                            .setColor(getResources().getColor(R.color.highlight))
-                            .setContentTitle("Car is Connected")
-                            .setContentText(carName);
-
-            Intent resultIntent = new Intent(this, MainActivity.class);
-            resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-            stackBuilder.addParentStack(MainActivity.class);
-
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(
-                            0,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
-            mBuilder.setContentIntent(resultPendingIntent);
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(notifID, mBuilder.build());
-
-            // Mixpanel time event
-            if (!bluetoothConnectedTimeEventStarted) {
-                bluetoothConnectedTimeEventStarted = true;
-                mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
-            }
 
         } else {
 
@@ -385,6 +400,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
+                cancelConnectedNotification();
             }
 
             /**
@@ -394,16 +410,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             if (currentDeviceId != null && lastData != null && !localPidResult4.getAllPidDataEntries().isEmpty()) {
                 sendPidDataResult4ToServer(lastData);
-            }
-
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(notifID);
-
-            // Mixpanel time event
-            if (bluetoothConnectedTimeEventStarted) {
-                bluetoothConnectedTimeEventStarted = false;
-                mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
             }
 
         }
@@ -863,6 +869,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                             ,parameterPackage.deviceId);
+                    sendConnectedNotification();
                 }
 
                 @Override
@@ -877,6 +884,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
                     notifyDeviceNeedsOverwrite();
+                    sendConnectedNotification();
                 }
 
                 @Override
@@ -895,6 +903,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
                             ,parameterPackage.deviceId);
                     notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
+                    sendConnectedNotification();
                 }
 
                 @Override
