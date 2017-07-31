@@ -60,7 +60,7 @@ public class BluetoothDeviceRecognizer {
 
     private boolean rssiScanInProgress = false;
     private Map<BluetoothDevice,Short> deviceRssiMap = new HashMap<>();
-    private final Short MIN_RSSI_THRESHOLD = -1;
+    private final Short MIN_RSSI_THRESHOLD = -55;
 
     public void onStartRssiScan(Callback callback, Handler handler){
         Log.d(TAG,"onStartRssiScan() called, rssiScanInProgress? "+rssiScanInProgress);
