@@ -367,12 +367,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             String action = intent.getAction();
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) 0);
                 String deviceName = device.getName();
                 Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
+                //Notify bluetooth device recognizer that device has been found
+                mBluetoothDeviceRecognizer.onDeviceFound(device,rssi);
+
+                //Begin RSSI scan, searching for valid device with strongest signal
                 mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {
                     @Override
                     public void onDevice212Ready(BluetoothDevice device) {
@@ -423,17 +428,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
                     }
                 }, mHandler);
-
-                switch (mBluetoothDeviceRecognizer.onDeviceFound(device,rssi)) {
-                    case VALID:
-                        Log.v(TAG, "Found device: " + deviceName+", RSSI: "+rssi);
-                        break;
-
-                    case BANNED:
-                        Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
-                                +" is on banned list and being ignored");
-                        break;
-                }
             }
         }
     };
