@@ -21,6 +21,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Settings;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
@@ -160,17 +161,22 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     }
 
     @Override
-    public Preference carToPref(Car car, boolean currentCar){// this is a tough one to decouple
-        Preference carPref = new Preference(context);
+    public Preference carToPref(Car car, boolean currentCar){
+        String title = new String();
+        String info = new String();
+        boolean check = false;
         if(currentCar){
-            carPref.setWidgetLayoutResource(R.layout.vehicle_pref_icon);
+            check = true;
         }
-        carPref.setTitle(car.getMake() + " " +car.getModel());
         if(car.getDealership() != null){
-            carPref.setSummary(car.getDealership().getName());
-        }else{
-            carPref.setSummary("No Dealership");
+            title = car.getMake() + " " +car.getModel();
         }
+        if(car.getDealership() != null){
+            info = car.getDealership().getName();
+        }else{
+           info = "No Dealership";
+        }
+        SettingsPreference carPref = new SettingsPreference(context,title,info,check);
         carPref.setKey("car_item");
         carPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -185,10 +191,8 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 
     @Override
     public Preference shopToPref(Dealership dealership) {
-        Preference shopPref = new Preference(context);
-        shopPref.setTitle(dealership.getName());
+        SettingsPreference shopPref = new SettingsPreference(context,dealership.getName(),dealership.getAddress(),false);
         shopPref.setKey("shop_item");
-        shopPref.setSummary(dealership.getAddress());
         shopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
