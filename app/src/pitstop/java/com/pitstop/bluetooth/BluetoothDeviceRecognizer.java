@@ -70,11 +70,11 @@ public class BluetoothDeviceRecognizer {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                short strongestRssi = Short.MIN_VALUE;
+                short strongestRssi = Short.MAX_VALUE;
                 BluetoothDevice strongestRssiDevice = null;
 
                 for (Map.Entry<BluetoothDevice,Short> device: deviceRssiMap.entrySet()){
-                    if (device.getValue() != null && device.getValue() > strongestRssi){
+                    if (device.getValue() != null && device.getValue() < strongestRssi){
                         strongestRssiDevice = device.getKey();
                         strongestRssi = device.getValue();
                     }
@@ -82,10 +82,10 @@ public class BluetoothDeviceRecognizer {
                 Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
                         +strongestRssiDevice.getName());
 
-                if (strongestRssiDevice == null || strongestRssi <= MIN_RSSI_THRESHOLD){
+                if (strongestRssiDevice == null || strongestRssi >= MIN_RSSI_THRESHOLD){
                     callback.onNoDeviceFound();
                 }
-                else if (strongestRssi > MIN_RSSI_THRESHOLD){
+                else if (strongestRssi < MIN_RSSI_THRESHOLD){
                     if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                         callback.onDevice212Ready(strongestRssiDevice);
                     } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
