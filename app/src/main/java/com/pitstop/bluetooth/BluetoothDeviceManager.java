@@ -369,48 +369,60 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) 0);
                 String deviceName = device.getName();
-                Log.d(TAG, deviceName + "   " + device.getAddress());
+                Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
-                switch (mBluetoothDeviceRecognizer.onDeviceFound(device)) {
-                    case CONNECT:
-                        Log.v(TAG, "Found device: " + deviceName);
-                        if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
-                            deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, deviceName);
-                            connectToDevice(device);
-                        } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
+                mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {
+                    @Override
+                    public void onDevice212Ready(BluetoothDevice device) {
+                        deviceInterface = new Device212B(mContext, dataListener
+                                , BluetoothDeviceManager.this, device.getName());
+                        connectToDevice(device);
+                    }
 
-                            //Device needs previous ignition time for trip start/end logic
-                            useCaseComponent.getPrevIgnitionTimeUseCase().execute(deviceName
-                                    , new GetPrevIgnitionTimeUseCase.Callback() {
+                    @Override
+                    public void onDevice215Ready(BluetoothDevice device) {
+                        useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
+                                , new GetPrevIgnitionTimeUseCase.Callback() {
 
-                                @Override
-                                public void onGotIgnitionTime(long ignitionTime) {
-                                    Log.v(TAG, "Received ignition time: "+ignitionTime);
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName, ignitionTime);
-                                    connectToDevice(device);
+                                    @Override
+                                    public void onGotIgnitionTime(long ignitionTime) {
+                                        Log.v(TAG, "Received ignition time: "+ignitionTime);
+                                        deviceInterface = new Device215B(mContext, dataListener
+                                                , device.getName(), ignitionTime);
+                                        connectToDevice(device);
 
-                                }
+                                    }
 
-                                @Override
-                                public void onNoneExists() {
-                                    Log.v(TAG, "No previous ignition time exists!");
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName);
-                                    connectToDevice(device);
-                                }
+                                    @Override
+                                    public void onNoneExists() {
+                                        Log.v(TAG, "No previous ignition time exists!");
+                                        deviceInterface = new Device215B(mContext, dataListener
+                                                , device.getName());
+                                        connectToDevice(device);
+                                    }
 
-                                @Override
-                                public void onError(RequestError error) {
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName);
-                                    connectToDevice(device);
-                                    Log.v(TAG, "ERROR: could not get previous ignition time");
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        deviceInterface = new Device215B(mContext, dataListener
+                                                , device.getName());
+                                        connectToDevice(device);
+                                        Log.v(TAG, "ERROR: could not get previous ignition time");
 
-                                }
-                            });
-                        }
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onNoDeviceFound() {
+
+                    }
+                }, mHandler);
+
+                switch (mBluetoothDeviceRecognizer.onDeviceFound(device,rssi)) {
+                    case VALID:
+                        Log.v(TAG, "Found device: " + deviceName+", RSSI: "+rssi);
                         break;
 
                     case BANNED:

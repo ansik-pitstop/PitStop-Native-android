@@ -1,37 +1,37 @@
 package com.pitstop.bluetooth;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
+import android.os.Handler;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that identifies IDD bluetooth device
  */
 public class BluetoothDeviceRecognizer {
 
-    private static final String TAG = BluetoothDeviceRecognizer.class.getSimpleName();
+    public interface Callback{
+        void onDevice212Ready(BluetoothDevice device);
+        void onDevice215Ready(BluetoothDevice device);
+        void onNoDeviceFound();
+    }
 
+    private static final String TAG = BluetoothDeviceRecognizer.class.getSimpleName();
+    private Callback callback;
     private static final int NOTIFICATION_ID = 9101; // arbitrary id
 
     public enum RecognizeResult {
-        IGNORE, CONNECT, DISCONNECT, BANNED
+        VALID, INVALID, BANNED
     }
 
     private final MixpanelHelper mMixpanelHelper;
@@ -58,14 +58,55 @@ public class BluetoothDeviceRecognizer {
         return false;
     }
 
-    public RecognizeResult onDeviceFound(BluetoothDevice device) {
-        if (device == null || device.getName() == null) return RecognizeResult.DISCONNECT;
+    private boolean rssiScanInProgress = false;
+    private Map<BluetoothDevice,Short> deviceRssiMap = new HashMap<>();
+    private final Short MIN_RSSI_THRESHOLD = -1;
+
+    public void onStartRssiScan(Callback callback, Handler handler){
+
+        Log.d(TAG,"onStartRssiScan() called");
+        if (!rssiScanInProgress){
+            rssiScanInProgress = true;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    short strongestRssi = Short.MIN_VALUE;
+                    BluetoothDevice strongestRssiDevice = null;
+
+                    for (Map.Entry<BluetoothDevice,Short> device: deviceRssiMap.entrySet()){
+                        if (device.getValue() != null && device.getValue() > strongestRssi){
+                            strongestRssiDevice = device.getKey();
+                            strongestRssi = device.getValue();
+                        }
+                    }
+                    Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
+                            +strongestRssiDevice.getName());
+
+                    if (strongestRssiDevice == null || strongestRssi <= MIN_RSSI_THRESHOLD){
+                        callback.onNoDeviceFound();
+                    }
+                    else if (strongestRssi > MIN_RSSI_THRESHOLD){
+                        if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                            callback.onDevice212Ready(strongestRssiDevice);
+                        } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                            callback.onDevice215Ready(strongestRssiDevice);
+                        }
+                    }
+
+                    rssiScanInProgress = false;
+                }
+            },12000);
+        }
+    }
+
+    public RecognizeResult onDeviceFound(BluetoothDevice device, short rssi) {
+        if (device == null || device.getName() == null) return RecognizeResult.INVALID;
 
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
 
         if (device.getName() == null || !device.getName().contains(ObdManager.BT_DEVICE_NAME)) {
             Log.d(TAG,"scanner name null or scanner name doesn't contain BT_DEVICE_NAME");
-            return RecognizeResult.IGNORE;
+            return RecognizeResult.INVALID;
         }
         else if (isBanned(device) && !AddCarActivity.addingCar){
             Log.d(TAG,"Device banned");
@@ -73,39 +114,10 @@ public class BluetoothDeviceRecognizer {
         }
         else{
             Log.d(TAG,"Returning CONNECT");
-            return RecognizeResult.CONNECT;
+            deviceRssiMap.put(device,rssi);
+            return RecognizeResult.VALID;
         }
 
-    }
-
-    private void notifyOnUnrecognizedDeviceFound(String scannerName) {
-
-        final NotificationManager notificationManager = (NotificationManager)
-                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        Bitmap icon = BitmapFactory.decodeResource(mContext.getResources(),
-                R.mipmap.ic_push);
-
-        final Intent addCarIntent = new Intent(mContext, AddCarActivity.class);
-        addCarIntent.putExtra(AddCarActivity.EXTRA_PAIR_PENDING, true);
-
-        final PendingIntent click = PendingIntent.getActivity(mContext, 0,
-                addCarIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        final NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mContext)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setTicker("Unrecognized Pitstop device found!")
-                        .setAutoCancel(true)
-                        .setOnlyAlertOnce(true)
-                        .setContentIntent(click)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setLargeIcon(icon)
-                        .setColor(ContextCompat.getColor(mContext, R.color.highlight))
-                        .setContentTitle("Unrecognized Pitstop device found")
-                        .setContentText("Tap to pair with " + scannerName);
-
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
 }
