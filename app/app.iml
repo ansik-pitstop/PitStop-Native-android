@@ -50,13 +50,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstopDebug/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/assets" type="java-test-resource" />
@@ -65,6 +58,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstopDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/pitstop/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/pitstop/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/pitstop/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/assets" type="java-resource" />
@@ -143,6 +143,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/multi-dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/ndkBuild" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/pre-dexed" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/reload-dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/restart-dex" />
@@ -152,10 +153,11 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
+      <excludeFolder url="file://$MODULE_DIR$/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/build/retrolambda" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 24 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 24 Platform (1)" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="swipeablerecyclerview-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-core-10.0.1" level="project" />

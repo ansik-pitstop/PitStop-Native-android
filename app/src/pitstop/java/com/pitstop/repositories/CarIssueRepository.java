@@ -6,6 +6,7 @@ import com.pitstop.database.LocalCarIssueAdapter;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.CustomIssue;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;

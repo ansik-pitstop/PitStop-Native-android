@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,6 +74,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     private CustomServiceListAdapter partNameAdapter;
     private CustomServiceListAdapter priorityAdapter;
 
+    private KeyListener actionTextListener;
+    private KeyListener partNameTextListener;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
@@ -80,6 +84,8 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
         View view = inflater.inflate(R.layout.fragment_custom_services,container,false);
         ButterKnife.bind(this,view);
+        actionTextListener = actionText.getKeyListener();
+        partNameTextListener = partNameText.getKeyListener();
         actionList.setNestedScrollingEnabled(false);
         partNameList.setNestedScrollingEnabled(false);
         priorityList.setNestedScrollingEnabled(false);
@@ -179,6 +185,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public void showActionText(CustomIssueListItem item) {
         actionText.setText(item.getText());
+        actionText.setKeyListener(null);
         actionText.setTextColor(Color.parseColor(item.getCardColor()));
         actionText.setVisibility(View.VISIBLE);
     }
@@ -186,6 +193,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public void showPartNameText(CustomIssueListItem item) {
         partNameText.setText(item.getText());
+        partNameText.setKeyListener(null);
         partNameText.setTextColor(Color.parseColor(item.getCardColor()));
         partNameText.setVisibility(View.VISIBLE);
     }
@@ -193,21 +201,26 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public void showPriorityText(CustomIssueListItem item) {
         priorityText.setText(item.getText());
+        priorityText.setKeyListener(null);
         priorityText.setTextColor(Color.parseColor(item.getCardColor()));
         priorityText.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void showPartNameText() {
+    public void showPartNameText() {//this is the other option
         partNameText.setVisibility(View.VISIBLE);
+        partNameText.setText("");
+        partNameText.setKeyListener(partNameTextListener);
         partNameText.setTextColor(ContextCompat.getColor(getActivity(), R.color.label_text_dark));
         partNameText.requestFocus();
         imm.showSoftInput(partNameText, InputMethodManager.SHOW_IMPLICIT);
     }
 
     @Override
-    public void showActionText() {
+    public void showActionText() {//this is the other option
         actionText.setVisibility(View.VISIBLE);
+        actionText.setText("");
+        actionText.setKeyListener(actionTextListener);
         actionText.setTextColor(ContextCompat.getColor(getActivity(), R.color.label_text_dark));
         actionText.requestFocus();
         imm.showSoftInput(actionText, InputMethodManager.SHOW_IMPLICIT);
