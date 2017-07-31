@@ -140,14 +140,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        connectBluetooth();
-        return true;
+        return connectBluetooth();
     }
 
     public synchronized void onConnectDeviceValid(){
         if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
             Log.i(TAG,"Stopping scan");
             mBluetoothAdapter.cancelDiscovery();
+            dataListener.scanFinished();
         }
     }
 
@@ -164,6 +164,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
+            dataListener.scanFinished();
         }
 
         if (communicator != null) {
@@ -266,6 +267,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
+            Log.d(TAG,"ConnectToDevice() device: "+device+", already connecting, return");
             return;
         }
 
@@ -307,30 +309,55 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
+    public boolean isScanning(){
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
+            && mBluetoothAdapter.isDiscovering();
+    }
+
     public String getConnectedDeviceName() {
         return deviceInterface.getDeviceName();
     }
 
-    private synchronized void connectBluetooth() {
+
+    private int scanNumber = 0;
+    private synchronized boolean connectBluetooth() {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
-            return;
+            return false;
         }
 
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Log.i(TAG, "Bluetooth already connecting");
-            return;
+            return false;
         }
 
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null");
-            return;
+            return false;
         }
 
         Log.i(TAG, "BluetoothAdapter starts discovery");
-        mBluetoothAdapter.startDiscovery();
+
+        scanNumber++;
+        int thisScanAttempt = scanNumber;
+        //Cancel discovery after 12 seconds
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Check to make sure were not cancelling a future scan
+                // after this one's already been cancelled
+                if (thisScanAttempt == scanNumber){
+                    if (mBluetoothAdapter.isDiscovering()){
+                        mBluetoothAdapter.cancelDiscovery();
+                    }
+                    dataListener.scanFinished();
+                }
+            }
+        }, 12000);
+
+        return mBluetoothAdapter.startDiscovery();
     }
 
     // for classic discovery

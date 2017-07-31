@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -62,7 +63,8 @@ public interface AddCarContract {
          * @param deletedCar
          * @param positiveButton
          */
-        void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton);
+        void onConfirmAddingDeletedCar(Car deletedCar, DialogInterface.OnClickListener positiveButton
+                ,DialogInterface.OnClickListener negativeButton);
 
         /**
          * When we start creating a new car in the backend
@@ -124,7 +126,11 @@ public interface AddCarContract {
 
 
 
-    interface Presenter extends BluetoothPresenter{
+    interface Presenter extends BluetoothPresenter, BluetoothVinObserver{
+
+        boolean isAddingCarToServer();
+
+        void onBackPressed();
 
         /**
          * @param mileage the mileage entered by user after starting searching for car
