@@ -376,6 +376,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {
                     @Override
                     public void onDevice212Ready(BluetoothDevice device) {
+                        Log.d(TAG, "onStartRssiScan, device212 > RSSI_Threshold, device: "+device);
+
                         deviceInterface = new Device212B(mContext, dataListener
                                 , BluetoothDeviceManager.this, device.getName());
                         connectToDevice(device);
@@ -383,40 +385,42 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                     @Override
                     public void onDevice215Ready(BluetoothDevice device) {
+                        Log.d(TAG, "onStartRssiScan, device215 > RSSI_Threshold, device: "+device);
+
                         useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
                                 , new GetPrevIgnitionTimeUseCase.Callback() {
 
-                                    @Override
-                                    public void onGotIgnitionTime(long ignitionTime) {
-                                        Log.v(TAG, "Received ignition time: "+ignitionTime);
-                                        deviceInterface = new Device215B(mContext, dataListener
-                                                , device.getName(), ignitionTime);
-                                        connectToDevice(device);
+                            @Override
+                            public void onGotIgnitionTime(long ignitionTime) {
+                                Log.v(TAG, "Received ignition time: "+ignitionTime);
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName(), ignitionTime);
+                                connectToDevice(device);
 
-                                    }
+                            }
 
-                                    @Override
-                                    public void onNoneExists() {
-                                        Log.v(TAG, "No previous ignition time exists!");
-                                        deviceInterface = new Device215B(mContext, dataListener
-                                                , device.getName());
-                                        connectToDevice(device);
-                                    }
+                            @Override
+                            public void onNoneExists() {
+                                Log.v(TAG, "No previous ignition time exists!");
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName());
+                                connectToDevice(device);
+                            }
 
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        deviceInterface = new Device215B(mContext, dataListener
-                                                , device.getName());
-                                        connectToDevice(device);
-                                        Log.v(TAG, "ERROR: could not get previous ignition time");
+                            @Override
+                            public void onError(RequestError error) {
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName());
+                                connectToDevice(device);
+                                Log.v(TAG, "ERROR: could not get previous ignition time");
 
-                                    }
-                                });
+                            }
+                        });
                     }
 
                     @Override
                     public void onNoDeviceFound() {
-
+                        Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
                     }
                 }, mHandler);
 

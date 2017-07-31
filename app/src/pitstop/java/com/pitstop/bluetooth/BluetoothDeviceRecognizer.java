@@ -63,40 +63,39 @@ public class BluetoothDeviceRecognizer {
     private final Short MIN_RSSI_THRESHOLD = -1;
 
     public void onStartRssiScan(Callback callback, Handler handler){
+        Log.d(TAG,"onStartRssiScan() called, rssiScanInProgress? "+rssiScanInProgress);
 
-        Log.d(TAG,"onStartRssiScan() called");
-        if (!rssiScanInProgress){
-            rssiScanInProgress = true;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    short strongestRssi = Short.MIN_VALUE;
-                    BluetoothDevice strongestRssiDevice = null;
+        if (rssiScanInProgress) return;
+        rssiScanInProgress = true;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                short strongestRssi = Short.MIN_VALUE;
+                BluetoothDevice strongestRssiDevice = null;
 
-                    for (Map.Entry<BluetoothDevice,Short> device: deviceRssiMap.entrySet()){
-                        if (device.getValue() != null && device.getValue() > strongestRssi){
-                            strongestRssiDevice = device.getKey();
-                            strongestRssi = device.getValue();
-                        }
+                for (Map.Entry<BluetoothDevice,Short> device: deviceRssiMap.entrySet()){
+                    if (device.getValue() != null && device.getValue() > strongestRssi){
+                        strongestRssiDevice = device.getKey();
+                        strongestRssi = device.getValue();
                     }
-                    Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
-                            +strongestRssiDevice.getName());
-
-                    if (strongestRssiDevice == null || strongestRssi <= MIN_RSSI_THRESHOLD){
-                        callback.onNoDeviceFound();
-                    }
-                    else if (strongestRssi > MIN_RSSI_THRESHOLD){
-                        if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-                            callback.onDevice212Ready(strongestRssiDevice);
-                        } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-                            callback.onDevice215Ready(strongestRssiDevice);
-                        }
-                    }
-
-                    rssiScanInProgress = false;
                 }
-            },12000);
-        }
+                Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
+                        +strongestRssiDevice.getName());
+
+                if (strongestRssiDevice == null || strongestRssi <= MIN_RSSI_THRESHOLD){
+                    callback.onNoDeviceFound();
+                }
+                else if (strongestRssi > MIN_RSSI_THRESHOLD){
+                    if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+                        callback.onDevice212Ready(strongestRssiDevice);
+                    } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+                        callback.onDevice215Ready(strongestRssiDevice);
+                    }
+                }
+
+                rssiScanInProgress = false;
+            }
+        },12000);
     }
 
     public RecognizeResult onDeviceFound(BluetoothDevice device, short rssi) {
