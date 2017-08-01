@@ -61,16 +61,16 @@ public class BluetoothDeviceRecognizer {
     private boolean rssiScanInProgress = false;
     private Map<BluetoothDevice,Short> deviceRssiMap = new HashMap<>();
 
-    public void onStartRssiScan(Callback callback, Handler handler, boolean periodic){
+    public void onStartRssiScan(Callback callback, Handler handler, boolean notUrgent){
         Log.d(TAG,"onStartRssiScan() called, rssiScanInProgress? "+rssiScanInProgress
-            +", periodicScan? "+periodic);
+            +", nonUrgent? "+notUrgent);
 
         if (rssiScanInProgress) return;
         rssiScanInProgress = true;
 
         short minRssiThreshold;
         //Periodic scan only connects if user is within close distance of device
-        if (periodic){
+        if (notUrgent){
             minRssiThreshold = -70;
         }
         //Deliberate scan, connect regardless
