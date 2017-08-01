@@ -378,7 +378,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) 0);
+                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                 String deviceName = device.getName();
                 Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 

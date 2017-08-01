@@ -91,8 +91,15 @@ public class BluetoothDeviceRecognizer {
                         strongestRssi = device.getValue();
                     }
                 }
-                Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
-                        +strongestRssiDevice.getName());
+
+                if (strongestRssiDevice != null){
+                    Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
+                            +strongestRssiDevice.getName());
+                }
+                else{
+                    Log.d(TAG,"No device found");
+                }
+
 
                 if (strongestRssiDevice == null || strongestRssi <= minRssiThreshold){
                     callback.onNoDeviceFound();
