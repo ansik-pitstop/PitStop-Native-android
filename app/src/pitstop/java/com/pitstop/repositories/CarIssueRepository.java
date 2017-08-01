@@ -147,6 +147,39 @@ public class CarIssueRepository implements Repository{
         return requestCallback;
     }
 
+    public void insertCustom(int carId, int userid, CustomIssue issue,Callback<Object> callback){
+        JSONObject body = new JSONObject();
+        try{
+            body.put("carId",carId);
+            body.put("issueType","customUser");
+            JSONObject data = new JSONObject();
+            data.put("name",issue.getName());
+            data.put("action",issue.getAction());
+            data.put("priority",issue.getPriority());
+            data.put("description",issue.getDescription());
+            data.put("userId",userid);
+            body.put("data",data);
+
+        }catch (JSONException e){
+            callback.onError(RequestError.getUnknownError());
+        }
+        networkHelper.post("issue",getInsertCustomRequestCallback(callback),body);
+
+    }
+    public RequestCallback getInsertCustomRequestCallback(Callback<Object> callback){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null && response != null){
+                    callback.onSuccess(response);
+                }else{
+                  callback.onError(requestError);
+                }
+            }
+        };
+        return requestCallback;
+    }
+
     public void updateCarIssue(CarIssue issue, Callback<Object> callback) {
         JSONObject body = new JSONObject();
 

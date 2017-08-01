@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -22,7 +24,11 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.service.CustomIssueListItem;
+import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
 
 import java.util.List;
 
@@ -60,6 +66,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @BindView(R.id.service_priority_text)
     EditText priorityText;
 
+    @BindView(R.id.service_create_button)
+    Button createButton;
+
     @BindView(R.id.service_scroll_view)
     ScrollView scrollView;
 
@@ -90,7 +99,12 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         partNameList.setNestedScrollingEnabled(false);
         priorityList.setNestedScrollingEnabled(false);
         imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        presenter = new ServiceFormPresenter();
+
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+
+        presenter = new ServiceFormPresenter(component, (CustomServiceActivityCallback)getActivity());
         priorityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,6 +137,12 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
             }
             @Override
             public void afterTextChanged(Editable editable) {
+            }
+        });
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                presenter.onCreateButton();
             }
         });
         return view;
@@ -225,6 +245,42 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         actionText.requestFocus();
         imm.showSoftInput(actionText, InputMethodManager.SHOW_IMPLICIT);
     }
+
+    @Override
+    public void disableCreateButton(boolean enabled) {
+        createButton.setEnabled(enabled);
+    }
+
+    @Override
+    public String getAction() {
+        return actionText.getText().toString();
+    }
+
+    @Override
+    public String getPriority() {
+        return priorityText.getText().toString();
+    }
+
+    @Override
+    public String getDescription() {
+        return descriptionText.getText().toString();
+    }
+
+    @Override
+    public String getPartName() {
+        return partNameText.getText().toString();
+    }
+
+    @Override
+    public void showReminder(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(message)
+                .setTitle("Reminder");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
 
     @Override
     public void onResume() {

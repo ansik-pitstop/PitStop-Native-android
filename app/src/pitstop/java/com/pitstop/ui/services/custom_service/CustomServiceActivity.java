@@ -14,7 +14,7 @@ import com.pitstop.ui.services.custom_service.view_fragments.ServiceFormFragment
  * Created by Matt on 2017-07-25.
  */
 
-public class CustomServiceActivity extends AppCompatActivity implements CustomServiceView {
+public class CustomServiceActivity extends AppCompatActivity implements CustomServiceView,CustomServiceActivityCallback {
     private CustomServicePresenter presenter;
     private FragmentManager fragmentManager;
     private ServiceFormFragment serviceFormFragment;
@@ -50,5 +50,10 @@ public class CustomServiceActivity extends AppCompatActivity implements CustomSe
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.custom_service_view_holder, serviceFormFragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void finishForm() {
+        finish();
     }
 }

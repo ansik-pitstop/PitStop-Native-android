@@ -1,6 +1,12 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddCustomServiceUseCase;
+import com.pitstop.models.issue.CustomIssue;
 import com.pitstop.models.service.CustomIssueListItem;
+import com.pitstop.network.RequestError;
+import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +19,12 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     private ServiceFormView view;
 
-    public ServiceFormPresenter(){
+    private CustomServiceActivityCallback callback;
+    private UseCaseComponent component;
 
+    public ServiceFormPresenter(UseCaseComponent component,CustomServiceActivityCallback callback){
+        this.component = component;
+        this.callback = callback;
     }
     public void subscribe(ServiceFormView view){
         this.view = view;
@@ -197,5 +207,44 @@ public class ServiceFormPresenter implements PresenterCallback {
     public void onPartNameOther() {
         view.showPartNameText();
         view.togglePriorityList();
+    }
+
+    public void onCreateButton(){
+        view.disableCreateButton(false);
+        CustomIssue customIssue = new CustomIssue();
+        if(view.getPartName().equals("")){
+            view.showReminder("Please enter the part name");
+            view.disableCreateButton(true);
+            return;
+        }else if(view.getPriority().equals("")){
+            view.showReminder("Please select a priority");
+            view.disableCreateButton(true);
+            return;
+        }
+        customIssue.setAction(view.getAction());
+        customIssue.setDescription(view.getDescription());
+        customIssue.setName(view.getPartName());
+        String priority = view.getPriority();
+        if(priority.equals("Low")){
+            customIssue.setPriority(1);
+        }else if(priority.equals("High")){
+            customIssue.setPriority(3);
+        }else if(priority.equals("Critical")){
+            customIssue.setPriority(4);
+        }else {
+            customIssue.setPriority(2);
+        }
+        component.getAddCustomServiceUseCase().execute(customIssue, EventSource.SOURCE_REQUEST_SERVICE, new AddCustomServiceUseCase.Callback() {
+            @Override
+            public void onIssueAdded() {
+                System.out.println("Testing issue added");
+                callback.finishForm();
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                view.disableCreateButton(true);
+            }
+        });
     }
 }

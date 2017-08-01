@@ -20,5 +20,11 @@ public interface ServiceFormView {
     void showPriorityText(CustomIssueListItem item);
     void showActionText();
     void showPartNameText();
+    void disableCreateButton(boolean enabled);
+    String getAction();
+    String getPartName();
+    String getPriority();
+    String getDescription();
+    void showReminder(String message);
 
 }

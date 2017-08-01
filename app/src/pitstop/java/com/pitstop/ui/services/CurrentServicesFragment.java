@@ -2,6 +2,7 @@ package com.pitstop.ui.services;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.pitstop.EventBus.EventSource;
@@ -26,10 +28,12 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.CustomIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
+import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +57,9 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
+
+    @BindView(R.id.service_launch_custom)
+    LinearLayout customSeerviceButton;
 
     private CurrentServicesAdapter carIssuesAdapter;
 
@@ -89,6 +96,14 @@ public class CurrentServicesFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
+        customSeerviceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
+                startActivity(intent);
+            }
+        });
+
         setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
 

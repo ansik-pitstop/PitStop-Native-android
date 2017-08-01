@@ -2,11 +2,20 @@ package com.pitstop.interactors.add;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.models.Settings;
+import com.pitstop.models.issue.CustomIssue;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Matt on 2017-07-31.
@@ -14,52 +23,56 @@ import com.pitstop.repositories.UserRepository;
 
 public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     private CarIssueRepository carIssueRepository;
+    private CarRepository carRepository;
     private UserRepository userRepository;
     private Handler handler;
     private Callback callback;
 
-    private int carId;
+    private CustomIssue issue;
 
     private EventSource eventSource;
 
-    public AddCustomServiceUseCaseImpl(CarIssueRepository carIssueRepository, UserRepository userRepository, Handler handler){
+    public AddCustomServiceUseCaseImpl(CarRepository carRepository,UserRepository userRepository, CarIssueRepository carIssueRepository, Handler handler){
         this.carIssueRepository = carIssueRepository;
         this.userRepository = userRepository;
+        this.carRepository = carRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(int carId, String eventSource, Callback callback) {
+    public void execute(CustomIssue issue, String eventSource, Callback callback) {
         this.eventSource = new EventSourceImpl(eventSource);
-        this.carId = carId;
+        this.issue = issue;
         this.callback = callback;
         handler.post(this);
     }
 
     @Override
     public void run() {
-
-
-    }
-    /*
-
-     public boolean insertCustom(int carId, CustomIssue issue,CarIssueCustomInsertCallback callback){
-        networkHelper.postUserInputIssue(carId,issue.getName(),issue.getAction(),issue.getDescription(),issue.getPriority(),getInsertCustomRequestCallback(callback));
-        return true;
-    }
-    public RequestCallback getInsertCustomRequestCallback(CarIssueCustomInsertCallback callback){
-        RequestCallback requestCallback = new RequestCallback() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void done(String response, RequestError requestError) {
-                if(requestError == null && response != null){
-                    callback.onCustomIssueAdded();
-                }else{
-                    callback.onError();
-                }
-            }
-        };
-        return requestCallback;
-    }
+            public void onSuccess(Settings data) {
+                carIssueRepository.insertCustom(data.getCarId(), data.getUserId(), issue, new Repository.Callback<Object>() {
+                    @Override
+                    public void onSuccess(Object data) {
+                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                ,eventSource));
+                        callback.onIssueAdded();
+                    }
 
-     */
+                    @Override
+                    public void onError(RequestError error) {
+                        callback.onError(error);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                callback.onError(error);
+
+            }
+        });
+    }
 }

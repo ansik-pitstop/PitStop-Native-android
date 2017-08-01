@@ -252,7 +252,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/service_create_button"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
