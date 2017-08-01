@@ -217,7 +217,7 @@ public class MixpanelHelper {
     /**
      * Bluetooth Events
      */
-    public static final String EVENT_BLUETOOTH = "Bluetooth Event: ";
+    public static final String EVENT_BLUETOOTH = "Bluetooth Event";
 
     public static final String BT_TRIP_START = "Trip start being processed";
     public static final String BT_TRIP_END = "Trip end being processed";
