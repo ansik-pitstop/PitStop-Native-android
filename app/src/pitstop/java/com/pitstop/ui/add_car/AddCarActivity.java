@@ -586,7 +586,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY
+                                , MixpanelHelper.ADD_CAR_VIEW);
                         searchForCar(null);
                     }
                 })

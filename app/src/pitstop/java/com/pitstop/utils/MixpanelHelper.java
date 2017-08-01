@@ -76,8 +76,6 @@ public class MixpanelHelper {
     public static final String ADD_CAR_CAR_EXIST_FOR_CURRENT_USER = "Car already exists for user";
     public static final String ADD_CAR_CAR_EXIST_FOR_ANOTHER_USER = "Car already exists for another user";
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
-    public static final String ADD_CAR_TRY_GET_VIN_AGAIN = "Try to get VIN again";
-    public static final String ADD_CAR_GET_SET_RTC_AGAIN = "Try to get and set RTC";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
     public static final String ADD_CAR_VIEW = "Add Car";
