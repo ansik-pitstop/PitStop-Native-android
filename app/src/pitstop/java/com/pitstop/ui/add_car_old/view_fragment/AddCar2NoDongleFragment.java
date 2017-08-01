@@ -31,7 +31,7 @@ public class AddCar2NoDongleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_add_car_2_no_dongle, container, false);
+                R.layout.fragment_vin_entry, container, false);
         final Button searchButton= (Button) rootView.findViewById(R.id.add_vehicle);
         final Button scanButton= (Button) rootView.findViewById(R.id.scan_vin);
         final TextView scanButtonText= (TextView) rootView.findViewById(R.id.scan_vin_alternate_text);

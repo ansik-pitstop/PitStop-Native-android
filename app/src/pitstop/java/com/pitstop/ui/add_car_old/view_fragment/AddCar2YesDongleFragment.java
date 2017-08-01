@@ -18,7 +18,7 @@ public class AddCar2YesDongleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_add_car_2, container, false);
+                R.layout.fragment_device_search, container, false);
 
         return rootView;
     }

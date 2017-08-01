@@ -21,10 +21,11 @@ import butterknife.OnClick;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public class AskHasDeviceFragment extends Fragment {
+public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     private ViewGroup rootView;
     private AskHasDevicePresenter presenter;
+    private MixpanelHelper mixpanelHelper;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class AskHasDeviceFragment extends Fragment {
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
-        MixpanelHelper mixpanelHelper = new MixpanelHelper(
+        mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
         presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper);
@@ -46,21 +47,29 @@ public class AskHasDeviceFragment extends Fragment {
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_ask_has_device, container, false);
         ButterKnife.bind(this, rootView);
-
+        presenter.subscribe(this);
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        presenter.unsubscribe();
+        super.onDestroyView();
     }
 
     @OnClick(R.id.bt_yes_device)
     protected void yesButtonClicked(){
         if (presenter == null) return;
-
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE
+                , MixpanelHelper.ADD_CAR_VIEW);
         presenter.onHasDeviceSelected();
     }
 
     @OnClick(R.id.bt_no_device)
     protected void noButtonClicked(){
         if (presenter == null) return;
-
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE
+                , MixpanelHelper.ADD_CAR_VIEW);
         presenter.onNoDeviceSelected();
     }
 }

@@ -78,6 +78,7 @@ public class MixpanelHelper {
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
+    public static final String ADD_CAR_SEARCH_TAPPED = "Search For Vehicle";
     public static final String ADD_CAR_VIEW = "Add Car";
     /**
      * In step 1
