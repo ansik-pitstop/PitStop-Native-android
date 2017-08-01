@@ -47,9 +47,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.pitstop.utils.MixpanelHelper.ADD_CAR_STEP_GET_VIN;
-
-
 /**
  * Created by yifan on 16/11/22.
  */
@@ -422,7 +419,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
                         } else {
                             //Scanner id exists in backend
-                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND, MixpanelHelper.ADD_CAR_VIEW);
+                            mMixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCANNER_EXISTS_IN_BACKEND
+                                    , MixpanelHelper.ADD_CAR_VIEW);
                             mCallback.hideLoading(requestError.getMessage());
                             Log.e(TAG, "Create new car: " + requestError.getMessage());
                         }
@@ -570,6 +568,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         mGetDtcTimer.cancel();
         mGetDtcTimer.start();
         mAutoConnectService.getDTCs();
+        mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_DTCS
+            , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
 //        mAutoConnectService.getPendingDTCs();
     }
 
@@ -598,6 +598,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         @Override
         public void onTimeout() {
             Log.d(TAG,"Search timer, timeout, vin attempts: " +getVinAttempts);
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
             if (mCallback != null){
                 mCallback.onTimeoutRetry(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                         , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
@@ -612,7 +614,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             Log.d(TAG,"Vin timer, retry, vin failed attempts:" +getVinAttempts+", connection state: "+mAutoConnectService.getDeviceState());
             mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
             if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)){
-                mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                         , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
                 getVinAttempts++;
                 mAutoConnectService.requestVin();
@@ -623,7 +625,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         public void onTimeout() {
             if (mCallback == null) return;
 
-            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
             Log.d(TAG,"Vin timer, timeout, vin failed attempts:" +getVinAttempts);
             searching = false;
@@ -725,7 +727,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             pendingCar.setVin(retrievedVin);
 
             startAddingNewCar();
-            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         }
         else{
@@ -791,7 +793,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             pendingCar.setVin(vin);
 
             startAddingNewCar();
-            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         }

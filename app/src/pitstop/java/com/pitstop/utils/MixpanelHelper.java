@@ -110,8 +110,6 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_RESULT_PENDING = "Pending";
     public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
-    public static final String ADD_CAR_STEP_GET_RTC = "Getting RTC";
-    public static final String ADD_CAR_STEP_SET_RTC = "Setting RTC";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
     public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
