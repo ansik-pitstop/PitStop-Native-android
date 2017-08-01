@@ -75,7 +75,7 @@ public class BluetoothDeviceRecognizer {
         }
         //Deliberate scan, connect regardless
         else{
-            minRssiThreshold = Short.MAX_VALUE;
+            minRssiThreshold = Short.MIN_VALUE;
         }
         Log.d(TAG,"onStartRssiScan(): min rsssi threshold set to "+minRssiThreshold);
 
