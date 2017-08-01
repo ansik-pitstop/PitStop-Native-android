@@ -128,7 +128,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
-    public synchronized boolean startScan() {
+    public synchronized boolean startScan(boolean periodic) {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
@@ -140,7 +140,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        return connectBluetooth();
+        return connectBluetooth(periodic);
     }
 
     public synchronized void onConnectDeviceValid(){
@@ -258,7 +258,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
-        startScan();
+        startScan(false);
     }
 
     /**
@@ -320,7 +320,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
 
     private int scanNumber = 0;
-    private synchronized boolean connectBluetooth() {
+    private boolean periodicScanInProgress = false;
+    private synchronized boolean connectBluetooth(boolean periodic) {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
@@ -353,11 +354,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         mBluetoothAdapter.cancelDiscovery();
                     }
                     dataListener.scanFinished();
+                    periodicScanInProgress = false;
                 }
             }
         }, 12000);
 
-        return mBluetoothAdapter.startDiscovery();
+        if (mBluetoothAdapter.startDiscovery()){
+            periodicScanInProgress = periodic;
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     // for classic discovery
@@ -427,7 +435,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     public void onNoDeviceFound() {
                         Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
                     }
-                }, mHandler);
+                }, mHandler, periodicScanInProgress);
             }
         }
     };

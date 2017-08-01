@@ -234,7 +234,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void run() { // this is for auto connect for bluetooth classic
                 if(deviceConnState.equals(State.DISCONNECTED)) {
                     Log.d(TAG, "Running periodic scan");
-                    startBluetoothSearch(4); // periodic scan
+                    startBluetoothSearch(-1); // periodic scan
                 }
                 handler.postDelayed(this, 30000);
             }
@@ -1374,13 +1374,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void startBluetoothSearch(int... source) {
+        boolean periodic = (source!= null && source.length > 0 && source[0] == -1);
         LogUtils.debugLogD(TAG, "startBluetoothSearch() deviceCOnState: "+deviceConnState + ((source != null && source.length > 0) ? source[0] : ""),
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (deviceConnState.equals(State.CONNECTED)){
             Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
             return;
         }
-        if (deviceManager.startScan()){
+        if (deviceManager.startScan(periodic)){
             deviceConnState = State.SEARCHING;
             notifySearchingForDevice();
             Log.d(TAG,"Started scan");

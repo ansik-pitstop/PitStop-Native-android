@@ -60,21 +60,33 @@ public class BluetoothDeviceRecognizer {
 
     private boolean rssiScanInProgress = false;
     private Map<BluetoothDevice,Short> deviceRssiMap = new HashMap<>();
-    private final Short MIN_RSSI_THRESHOLD = -55;
 
-    public void onStartRssiScan(Callback callback, Handler handler){
-        Log.d(TAG,"onStartRssiScan() called, rssiScanInProgress? "+rssiScanInProgress);
+    public void onStartRssiScan(Callback callback, Handler handler, boolean periodic){
+        Log.d(TAG,"onStartRssiScan() called, rssiScanInProgress? "+rssiScanInProgress
+            +", periodicScan? "+periodic);
 
         if (rssiScanInProgress) return;
         rssiScanInProgress = true;
+
+        short minRssiThreshold;
+        //Periodic scan only connects if user is within close distance of device
+        if (periodic){
+            minRssiThreshold = -70;
+        }
+        //Deliberate scan, connect regardless
+        else{
+            minRssiThreshold = 0;
+        }
+        Log.d(TAG,"onStartRssiScan(): min rsssi threshold set to "+minRssiThreshold);
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                short strongestRssi = Short.MAX_VALUE;
+                short strongestRssi = Short.MIN_VALUE;
                 BluetoothDevice strongestRssiDevice = null;
 
                 for (Map.Entry<BluetoothDevice,Short> device: deviceRssiMap.entrySet()){
-                    if (device.getValue() != null && device.getValue() < strongestRssi){
+                    if (device.getValue() != null && device.getValue() > strongestRssi){
                         strongestRssiDevice = device.getKey();
                         strongestRssi = device.getValue();
                     }
@@ -82,10 +94,10 @@ public class BluetoothDeviceRecognizer {
                 Log.d(TAG,"Strongest rssi found: "+strongestRssi+", device name: "
                         +strongestRssiDevice.getName());
 
-                if (strongestRssiDevice == null || strongestRssi >= MIN_RSSI_THRESHOLD){
+                if (strongestRssiDevice == null || strongestRssi <= minRssiThreshold){
                     callback.onNoDeviceFound();
                 }
-                else if (strongestRssi < MIN_RSSI_THRESHOLD){
+                else if (strongestRssi > minRssiThreshold){
                     if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
                         callback.onDevice212Ready(strongestRssiDevice);
                     } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
