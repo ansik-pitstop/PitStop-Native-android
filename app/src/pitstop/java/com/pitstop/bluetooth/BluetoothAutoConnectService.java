@@ -279,7 +279,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        handler.postDelayed(periodScanRunnable,300000);
+        handler.post(periodScanRunnable);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
         handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
