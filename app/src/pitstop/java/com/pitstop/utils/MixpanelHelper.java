@@ -219,19 +219,19 @@ public class MixpanelHelper {
      */
     public static final String EVENT_BLUETOOTH = "Bluetooth Event";
 
-    public static final String BT_TRIP_START = "Trip start being processed";
-    public static final String BT_TRIP_END = "Trip end being processed";
-    public static final String BT_DTC_REQUESTED = "Requested device for DTC";
+    public static final String BT_TRIP_START = "Trip Start Processing";
+    public static final String BT_TRIP_END = "Trip End Processing";
+    public static final String BT_DTC_REQUESTED = "Requested DTC";
     public static final String BT_VIN_GOT = "Received VIN";
     public static final String BT_DTC_GOT = "Received DTC";
-    public static final String BT_SYNCING = "Syncing device RTC";
-    public static final String BT_CONNECTED = "Connected to verified device";
-    public static final String BT_VERIFYING = "Verifying device";
-    public static final String BT_SEARCHING = "Searching for device";
-    public static final String BT_DISCONNECTED = "Disconnected from device";
-    public static final String BT_SCAN_URGENT = "Started urgent scan";
-    public static final String BT_SCAN_NOT_URGENT = "Started non-urgent scan";
-    public static final String BT_DEVICE_BROKEN = "Device recognized as broken";
+    public static final String BT_SYNCING = "Syncing RTC";
+    public static final String BT_CONNECTED = "Connected to Verified Device";
+    public static final String BT_VERIFYING = "Verifying Device";
+    public static final String BT_SEARCHING = "Searching for Device";
+    public static final String BT_DISCONNECTED = "Disconnected from Device";
+    public static final String BT_SCAN_URGENT = "Started Urgent Scan";
+    public static final String BT_SCAN_NOT_URGENT = "Started Non-urgent Scan";
+    public static final String BT_DEVICE_BROKEN = "Device Recognized as Broken";
 
     private GlobalApplication application;
 
