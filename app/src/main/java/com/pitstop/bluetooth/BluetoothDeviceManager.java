@@ -322,6 +322,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (mBluetoothAdapter.startDiscovery()){
             nonUrgentScanInProgress = urgent;
+            if (urgent){
+                mixpanelHelper.trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT
+                        ,deviceInterface.getDeviceName());
+            }
             return true;
         }
         else{

@@ -173,10 +173,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
     /**
-     * State variable for tracking bluetooth connection time in mixpanel
-     */
-    private boolean bluetoothConnectedTimeEventStarted = false;
-    /**
      * for periodic bluetooth scans
      */
     private Handler handler = new Handler();
@@ -249,7 +245,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     setFixedUpload();
                 }
-                handler.postDelayed(this,15000);
+                handler.postDelayed(this,300000);
             }
         };
 
@@ -348,12 +344,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notifID, mBuilder.build());
-
-        // Mixpanel time event
-        if (!bluetoothConnectedTimeEventStarted) {
-            bluetoothConnectedTimeEventStarted = true;
-            mixpanelHelper.trackTimeEventStart(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
-        }
     }
 
     private void cancelConnectedNotification(){
@@ -361,11 +351,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(notifID);
 
-        // Mixpanel time event
-        if (bluetoothConnectedTimeEventStarted) {
-            bluetoothConnectedTimeEventStarted = false;
-            mixpanelHelper.trackTimeEventEnd(MixpanelHelper.TIME_EVENT_BLUETOOTH_CONNECTED);
-        }
     }
 
     @Override
@@ -457,6 +442,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
+        trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
@@ -464,9 +450,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    private void trackBluetoothEvent(String event){
+        if (readyDevice == null){
+            mixpanelHelper.trackBluetoothEvent((event));
+        }
+        else{
+            mixpanelHelper.trackBluetoothEvent(event,readyDevice.getScannerName()
+                    ,readyDevice.getScannerId(),readyDevice.getVin());
+        }
+    }
+
     @Override
     public void notifyDeviceDisconnected() {
         Log.d(TAG,"notifyDeviceDisconnected()");
+        trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
@@ -477,6 +474,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifyVerifyingDevice() {
         Log.d(TAG,"notifyVerifyingDevice()");
+        trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 ((BluetoothConnectionObserver)observer).onDeviceVerifying();
@@ -500,6 +498,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifySyncingDevice() {
         Log.d(TAG,"notifySyncingDevice()");
+        trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 ((BluetoothConnectionObserver)observer).onDeviceSyncing();
@@ -510,6 +509,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifyDtcData(DtcPackage dtcPackage) {
         Log.d(TAG,"notifyDtcData() "+dtcPackage);
+        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
                 ((BluetoothDtcObserver) observer).onGotDtc(dtcPackage);
@@ -519,6 +519,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyVin(String vin) {
+        trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT);
         vinRequested = false;
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
@@ -529,6 +530,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDtcData() {
+        trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         getDTCs();
     }
 
@@ -704,6 +706,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 LogUtils.debugLogD(TAG, "Executing trip end use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END);
 
                 useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
                         , new Trip215EndUseCase.Callback() {
@@ -747,6 +750,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 LogUtils.debugLogD(TAG, "Executing trip start use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                trackBluetoothEvent(MixpanelHelper.BT_TRIP_START);
 
                 useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
                         , new Trip215StartUseCase.Callback() {
