@@ -236,7 +236,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     Log.d(TAG, "Running periodic scan");
                     startBluetoothSearch(-1); // periodic scan
                 }
-                handler.postDelayed(this, 30000);
+                handler.postDelayed(this, 300000); //Evert 5 minutes
             }
         };
 
