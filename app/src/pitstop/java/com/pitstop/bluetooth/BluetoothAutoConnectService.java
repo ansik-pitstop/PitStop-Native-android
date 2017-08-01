@@ -545,10 +545,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestDeviceSearch() {
+    public void requestDeviceSearch(boolean urgent) {
         Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState);
         if (deviceConnState.equals(State.CONNECTED)) return;
-        startBluetoothSearch(7);
+
+        //rssi minimum threshold won't matter, rssi will only be used to prioritize devices
+        if (urgent){
+            startBluetoothSearch(7);
+        }
+        //Signal non-urgent search, making rssi minimum threshold important during connection
+        else{
+            startBluetoothSearch(-1);
+        }
     }
 
     @Override
