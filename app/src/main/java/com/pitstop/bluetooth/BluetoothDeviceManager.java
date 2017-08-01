@@ -128,7 +128,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
-    public synchronized boolean startScan() {
+    public synchronized boolean startScan(boolean periodic) {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
@@ -140,7 +140,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        return connectBluetooth();
+        return connectBluetooth(periodic);
     }
 
     public synchronized void onConnectDeviceValid(){
@@ -258,7 +258,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
-        startScan();
+        startScan(false);
     }
 
     /**
@@ -320,7 +320,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
 
     private int scanNumber = 0;
-    private synchronized boolean connectBluetooth() {
+    private boolean periodicScanInProgress = false;
+    private synchronized boolean connectBluetooth(boolean periodic) {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
@@ -353,11 +354,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         mBluetoothAdapter.cancelDiscovery();
                     }
                     dataListener.scanFinished();
+                    periodicScanInProgress = false;
                 }
             }
         }, 12000);
 
-        return mBluetoothAdapter.startDiscovery();
+        if (mBluetoothAdapter.startDiscovery()){
+            periodicScanInProgress = periodic;
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     // for classic discovery
@@ -367,57 +375,67 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             String action = intent.getAction();
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+
                 Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                 String deviceName = device.getName();
-                Log.d(TAG, deviceName + "   " + device.getAddress());
+                Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
-                switch (mBluetoothDeviceRecognizer.onDeviceFound(device)) {
-                    case CONNECT:
-                        Log.v(TAG, "Found device: " + deviceName);
-                        if (deviceName.contains(ObdManager.BT_DEVICE_NAME_212)) {
-                            deviceInterface = new Device212B(mContext, dataListener, BluetoothDeviceManager.this, deviceName);
-                            connectToDevice(device);
-                        } else if (deviceName.contains(ObdManager.BT_DEVICE_NAME_215)) {
+                //Notify bluetooth device recognizer that device has been found
+                mBluetoothDeviceRecognizer.onDeviceFound(device,rssi);
 
-                            //Device needs previous ignition time for trip start/end logic
-                            useCaseComponent.getPrevIgnitionTimeUseCase().execute(deviceName
-                                    , new GetPrevIgnitionTimeUseCase.Callback() {
+                //Begin RSSI scan, searching for valid device with strongest signal
+                mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {
+                    @Override
+                    public void onDevice212Ready(BluetoothDevice device) {
+                        Log.d(TAG, "onStartRssiScan, device212 > RSSI_Threshold, device: "+device);
 
-                                @Override
-                                public void onGotIgnitionTime(long ignitionTime) {
-                                    Log.v(TAG, "Received ignition time: "+ignitionTime);
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName, ignitionTime);
-                                    connectToDevice(device);
+                        deviceInterface = new Device212B(mContext, dataListener
+                                , BluetoothDeviceManager.this, device.getName());
+                        connectToDevice(device);
+                    }
 
-                                }
+                    @Override
+                    public void onDevice215Ready(BluetoothDevice device) {
+                        Log.d(TAG, "onStartRssiScan, device215 > RSSI_Threshold, device: "+device);
 
-                                @Override
-                                public void onNoneExists() {
-                                    Log.v(TAG, "No previous ignition time exists!");
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName);
-                                    connectToDevice(device);
-                                }
+                        useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
+                                , new GetPrevIgnitionTimeUseCase.Callback() {
 
-                                @Override
-                                public void onError(RequestError error) {
-                                    deviceInterface = new Device215B(mContext, dataListener
-                                            , deviceName);
-                                    connectToDevice(device);
-                                    Log.v(TAG, "ERROR: could not get previous ignition time");
+                            @Override
+                            public void onGotIgnitionTime(long ignitionTime) {
+                                Log.v(TAG, "Received ignition time: "+ignitionTime);
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName(), ignitionTime);
+                                connectToDevice(device);
 
-                                }
-                            });
-                        }
-                        break;
+                            }
 
-                    case BANNED:
-                        Log.v(TAG, "Device " + deviceName+" with address: "+device.getAddress()
-                                +" is on banned list and being ignored");
-                        break;
-                }
+                            @Override
+                            public void onNoneExists() {
+                                Log.v(TAG, "No previous ignition time exists!");
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName());
+                                connectToDevice(device);
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                deviceInterface = new Device215B(mContext, dataListener
+                                        , device.getName());
+                                connectToDevice(device);
+                                Log.v(TAG, "ERROR: could not get previous ignition time");
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNoDeviceFound() {
+                        Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
+                    }
+                }, mHandler, periodicScanInProgress);
             }
         }
     };
