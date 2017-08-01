@@ -295,6 +295,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED
+                        , MixpanelHelper.ADD_CAR_VIEW);
                 presenter.onGotVin(vinInput.getText().toString().toUpperCase());
             }
         });
@@ -584,7 +586,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mixpanelHelper.trackButtonTapped(mixpanelEvent, MixpanelHelper.ADD_CAR_VIEW);
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY
+                                , MixpanelHelper.ADD_CAR_VIEW);
                         searchForCar(null);
                     }
                 })
@@ -672,6 +675,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
         addCarButton.setOnClickListener(new DebouncingOnClickListener() {
             @Override
             public void doClick(View v) {
+                mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED
+                        , MixpanelHelper.ADD_CAR_VIEW);
                 presenter.onGotVin(vinInput.getText().toString().toUpperCase());
             }
         });

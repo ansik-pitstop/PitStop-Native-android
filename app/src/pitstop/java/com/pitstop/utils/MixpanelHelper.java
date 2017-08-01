@@ -76,8 +76,6 @@ public class MixpanelHelper {
     public static final String ADD_CAR_CAR_EXIST_FOR_CURRENT_USER = "Car already exists for user";
     public static final String ADD_CAR_CAR_EXIST_FOR_ANOTHER_USER = "Car already exists for another user";
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
-    public static final String ADD_CAR_TRY_GET_VIN_AGAIN = "Try to get VIN again";
-    public static final String ADD_CAR_GET_SET_RTC_AGAIN = "Try to get and set RTC";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
     public static final String ADD_CAR_VIEW = "Add Car";
@@ -110,8 +108,6 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_RESULT_PENDING = "Pending";
     public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
-    public static final String ADD_CAR_STEP_GET_RTC = "Getting RTC";
-    public static final String ADD_CAR_STEP_SET_RTC = "Setting RTC";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
     public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
@@ -119,14 +115,9 @@ public class MixpanelHelper {
     /**
      * Timeout alert
      */
-    public static final String ADD_CAR_ALERT_CONNECT = "connectingToBluetooth Failed";
-    public static final String ADD_CAR_RETRY_CONNECT = "Try to connect bluetooth again";
-    public static final String ADD_CAR_ALERT_SET_RTC = "Set RTC Failed";
-    public static final String ADD_CAR_RETRY_SET_RTC = "Try Again (Syncing taking too long)";
-    public static final String ADD_CAR_ALERT_GET_RTC = "Get RTC Failed";
-    public static final String ADD_CAR_RETRY_GET_RTC = "Try Again (Syncing taking too long)";
-    public static final String ADD_CAR_ALERT_GET_VIN = "getVin Failed";
-    public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again (VIN Retrieval Failed)";
+    public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again";
+    public static final String ADD_CAR_SUCCESS_GET_VIN = "Get Vin Success";
+    public static final String ADD_CAR_NOT_SUPPORT_VIN = "VIN Not Supported";
 
     /**
      * Main Activity
@@ -213,6 +204,29 @@ public class MixpanelHelper {
     public static final String NOTIFICATION_FETCH_ERROR = "Error in fetching Notification(s) / Network Error";
     public static final String NO_NOTIFICATION_DISPLAYED = "Empty Notification Message Displated";
 
+    /**
+     * Bluetooth Events
+     */
+    public static final String EVENT_BLUETOOTH = "Bluetooth Event";
+
+    public static final String BT_TRIP_START_RT_SUCCESS = "Real-Time Trip Start Processed Successfully";
+    public static final String BT_TRIP_START_FAILED = "Trip Start Failed To Process";
+    public static final String BT_TRIP_START_HT_SUCCESS = "Historical Trip Start Processed Successfully";
+    public static final String BT_TRIP_END_RT_SUCCESS = "Real-Time Trip Start Processed Successfully";
+    public static final String BT_TRIP_END_FAILED = "Trip Start Failed To Process";
+    public static final String BT_TRIP_END_HT_SUCCESS = "Historical Trip Start Processed Successfully";
+    public static final String BT_TRIP_END = "Trip End Processing";
+    public static final String BT_DTC_REQUESTED = "Requested DTC";
+    public static final String BT_VIN_GOT = "Received VIN";
+    public static final String BT_DTC_GOT = "Received DTC";
+    public static final String BT_SYNCING = "Syncing RTC";
+    public static final String BT_CONNECTED = "Connected to Verified Device";
+    public static final String BT_VERIFYING = "Verifying Device";
+    public static final String BT_SEARCHING = "Searching for Device";
+    public static final String BT_DISCONNECTED = "Disconnected from Device";
+    public static final String BT_SCAN_URGENT = "Started Urgent Scan";
+    public static final String BT_SCAN_NOT_URGENT = "Started Non-urgent Scan";
+    public static final String BT_DEVICE_BROKEN = "Device Recognized as Broken";
 
     private GlobalApplication application;
 
@@ -405,6 +419,41 @@ public class MixpanelHelper {
             JSONObject properties = new JSONObject();
             properties.put(UNRECOGNIZED_MODULE_STATUS, status);
             trackCustom(EVENT_PAIR_UNRECOGNIZED_MODULE, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackBluetoothEvent(String status){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(EVENT_BLUETOOTH, status);
+            trackCustom(EVENT_BLUETOOTH, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackBluetoothEvent(String status, String scannerName){
+        try {
+            if (scannerName == null) scannerName = "";
+            JSONObject properties = new JSONObject();
+            properties.put(EVENT_BLUETOOTH, status);
+            properties.put("ScannerName",scannerName);
+            trackCustom(EVENT_BLUETOOTH, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackBluetoothEvent(String status, String scannerName, String scannerId, String vin){
+        try {
+            if (scannerName == null) scannerName = "";
+            JSONObject properties = new JSONObject();
+            properties.put(EVENT_BLUETOOTH, status);
+            properties.put("ScannerName",scannerName);
+            properties.put("Vin",vin);
+            trackCustom(EVENT_BLUETOOTH, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
