@@ -119,15 +119,9 @@ public class MixpanelHelper {
     /**
      * Timeout alert
      */
-    public static final String ADD_CAR_RETRY_CONNECT = "Try to connect bluetooth again";
-    public static final String ADD_CAR_ALERT_SET_RTC = "Set RTC Failed";
-    public static final String ADD_CAR_RETRY_SET_RTC = "Try Again (Syncing taking too long)";
-    public static final String ADD_CAR_ALERT_GET_RTC = "Get RTC Failed";
-    public static final String ADD_CAR_RETRY_GET_RTC = "Try Again (Syncing taking too long)";
-    public static final String ADD_CAR_ALERT_GET_VIN = "getVin Failed";
-    public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again (VIN Retrieval Failed)";
-    public static final String ADD_CAR_SUCCESS_GET_VIN = "getVin Success";
-    public static final String ADD_CAR_NOT_SUPPORT_VIN = "Not Support";
+    public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again";
+    public static final String ADD_CAR_SUCCESS_GET_VIN = "Get Vin Success";
+    public static final String ADD_CAR_NOT_SUPPORT_VIN = "VIN Not Supported";
 
     /**
      * Main Activity
