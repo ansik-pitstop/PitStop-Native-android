@@ -72,7 +72,7 @@ import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
-import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.add_car_old.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;

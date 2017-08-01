@@ -17,7 +17,7 @@
         android:textSize="16sp"
         android:layout_gravity="center_horizontal" />
 
-    <com.pitstop.ui.add_car.view_fragment.AddCarViewPager
+    <com.pitstop.ui.add_car_old.view_fragment.AddCarViewPager
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/add_car_view_pager"

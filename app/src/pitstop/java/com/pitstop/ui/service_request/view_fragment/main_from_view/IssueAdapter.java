@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.ui.add_car.AddCarContract;
 
 import java.util.List;
 

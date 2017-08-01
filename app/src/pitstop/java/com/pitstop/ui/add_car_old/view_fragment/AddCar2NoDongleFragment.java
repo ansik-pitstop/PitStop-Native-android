@@ -1,4 +1,4 @@
-package com.pitstop.ui.add_car.view_fragment;
+package com.pitstop.ui.add_car_old.view_fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,7 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.ui.add_car.AddCarPresenter;
+import com.pitstop.ui.add_car_old.AddCarPresenter;
 
 /**
  * Created by David on 7/20/2016.

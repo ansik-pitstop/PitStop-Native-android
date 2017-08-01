@@ -9,20 +9,16 @@ import android.preference.Preference;
 import android.support.annotation.Nullable;
 
 import android.support.v7.app.AppCompatActivity;
-import android.text.Layout;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.Settings;
-import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.add_car_old.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;

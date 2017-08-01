@@ -1,4 +1,4 @@
-package com.pitstop.ui.add_car;
+package com.pitstop.ui.add_car_old;
 
 import android.content.Intent;
 import android.graphics.Paint;

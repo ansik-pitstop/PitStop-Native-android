@@ -27,7 +27,7 @@ import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
 
-import static com.pitstop.ui.add_car.AddCarActivity.ADD_CAR_SUCCESS;
+import static com.pitstop.ui.add_car_old.AddCarActivity.ADD_CAR_SUCCESS;
 import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**

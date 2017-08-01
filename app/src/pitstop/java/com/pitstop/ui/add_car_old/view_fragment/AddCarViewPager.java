@@ -1,15 +1,9 @@
-package com.pitstop.ui.add_car.view_fragment;
+package com.pitstop.ui.add_car_old.view_fragment;
 
 import android.content.Context;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
-
-import com.pitstop.R;
 
 /**
  * Created by David on 7/11/2016.

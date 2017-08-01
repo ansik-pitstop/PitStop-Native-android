@@ -1,4 +1,4 @@
-package com.pitstop.ui.add_car.view_fragment;
+package com.pitstop.ui.add_car_old.view_fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,7 +23,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.ILoadingActivity;
-import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.add_car_old.AddCarActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;

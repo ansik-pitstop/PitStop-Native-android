@@ -1,4 +1,4 @@
-package com.pitstop.ui.add_car.view_fragment;
+package com.pitstop.ui.add_car_old.view_fragment;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -13,7 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.pitstop.R;
-import com.pitstop.ui.add_car.AddCarContract;
+import com.pitstop.ui.add_car_old.AddCarContract;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
 /**
