@@ -10,8 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd.info.LoginPackageInfo;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -48,6 +46,8 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.pitstop.utils.MixpanelHelper.ADD_CAR_STEP_GET_VIN;
 
 
 /**
@@ -562,14 +562,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
     }
 
-    public void deviceLogin(LoginPackageInfo loginPackageInfo) {
-        if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
-            pendingCar.setScannerId(loginPackageInfo.deviceId);
-        } else if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
-            pendingCar.setScannerId(null);
-        }
-    }
-
     /**
      * Check if DTCs are retrieved after 15 seconds
      */
@@ -583,8 +575,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
 
     @Override
     public void cancelAllTimeouts() {
-        needToSetTime = false;
-        mSetRtcTimer.cancel();
         mGetVinTimer.cancel();
         isAskingForDtc = false;
         mGetDtcTimer.cancel();
@@ -597,24 +587,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         hasGotMileage = false;
     }
 
-    private boolean needToSetTime = false; // flag variable
-    private final TimeoutTimer mSetRtcTimer = new TimeoutTimer(40, 0) {
-        @Override
-        public void onRetry() {
-        }
-
-        @Override
-        public void onTimeout() {
-            if (mCallback == null) return;
-            if (!needToSetTime) return;
-            needToSetTime = false;
-            mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_SET_RTC, MixpanelHelper.ADD_CAR_VIEW);
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SET_RTC, "Failed");
-            mCallback.onTimeoutRetry("Syncing OBD device", MixpanelHelper.ADD_CAR_RETRY_SET_RTC);
-        }
-    };
-
-    private boolean hasGotValidRtc = false;
     private int getVinAttempts = 0;
 
     private final TimeoutTimer mSearchTimer = new TimeoutTimer(60,1) {
@@ -639,6 +611,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             Log.d(TAG,"Vin timer, retry, vin failed attempts:" +getVinAttempts+", connection state: "+mAutoConnectService.getDeviceState());
             mAutoConnectService.startBluetoothSearch(1);  // when getting vin and disconnected
             if (mAutoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)){
+                mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+                        , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
                 getVinAttempts++;
                 mAutoConnectService.requestVin();
             }
@@ -648,23 +622,13 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         public void onTimeout() {
             if (mCallback == null) return;
 
+            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, "Not Support");
             Log.d(TAG,"Vin timer, timeout, vin failed attempts:" +getVinAttempts);
             searching = false;
             mCallback.hideLoading("Failed to get VIN, please enter VIN above");
             mSearchTimer.cancel();
             pendingCar.setVin("");
             mCallback.askForManualVinInput();
-
-
-//            if (hasGotValidRtc) {
-//                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_VIN, MixpanelHelper.ADD_CAR_VIEW);
-//                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Failed");
-//                mCallback.onTimeoutRetry("Read VIN from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
-//            } else {
-//                mMixpanelHelper.trackAlertAppeared(MixpanelHelper.ADD_CAR_ALERT_GET_RTC, MixpanelHelper.ADD_CAR_VIEW);
-//                mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_RTC, "Failed");
-//                mCallback.onTimeoutRetry("Read RTC from scanner", MixpanelHelper.ADD_CAR_RETRY_GET_RTC);
-//            }
         }
     };
 
@@ -731,8 +695,6 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         if (mCallback == null) return;
         Log.d(TAG,"onDeviceReady() vin: "+vin+", scannerId: "+scannerId+", scannerName: "+scannerName);
 
-        mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-
         mCallback.onDeviceConnected();
 
         pendingCar.setScannerId(scannerId);
@@ -748,6 +710,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
 
         if (isValidVin(retrievedVin)) {
+
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
             Log.i(TAG, "Retrieved VIN is valid");
             mCallback.onVINRetrieved(retrievedVin, true);
 
@@ -757,7 +723,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             pendingCar.setVin(retrievedVin);
 
             startAddingNewCar();
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         }
         else{
@@ -810,10 +776,10 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     @Override
     public void onGotVin(String vin) {
         if (mCallback == null) return;
-
         Log.d(TAG, "onGotVin(), vin: " + vin);
 
         if (isValidVin(vin)) {
+
             Log.i(TAG, "Retrieved VIN is valid");
             mCallback.onVINRetrieved(vin, true);
 
@@ -823,16 +789,17 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             pendingCar.setVin(vin);
 
             startAddingNewCar();
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         }
-        else if (getVinAttempts > 8) { /* || -> && */
+        else if (getVinAttempts > 6) { /* || -> && */
             mCallback.onVINRetrieved(null, false);
 
             Log.i(TAG, "Vin returned was not valid");
             getVinAttempts = 0;
             pendingCar.setVin("");
-            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN, "Not Support");
+            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, "Not Support");
         }
     }
 }
