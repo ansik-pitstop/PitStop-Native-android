@@ -708,18 +708,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 LogUtils.debugLogD(TAG, "Executing trip end use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END);
 
                 useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
                         , new Trip215EndUseCase.Callback() {
                     @Override
                     public void onHistoricalTripEndSuccess() {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
                         LogUtils.debugLogD(TAG, "Historical trip END saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
 
                     @Override
                     public void onRealTimeTripEndSuccess() {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
+
                         LogUtils.debugLogD(TAG, "Real-time END trip end saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
@@ -735,6 +737,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onStartTripNotFound() {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
                         LogUtils.debugLogD(TAG, "Trip start not found, mileage will update on "
                                 +"next trip start", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
@@ -742,6 +745,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onError(RequestError error) {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
                         LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }
@@ -753,12 +757,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 LogUtils.debugLogD(TAG, "Executing trip start use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                trackBluetoothEvent(MixpanelHelper.BT_TRIP_START);
-
                 useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
                         , new Trip215StartUseCase.Callback() {
                     @Override
                     public void onRealTimeTripStartSuccess() {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RT_SUCCESS);
                         LogUtils.debugLogD(TAG, "Real-time trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
@@ -772,6 +775,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onHistoricalTripStartSuccess(){
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_HT_SUCCESS);
                         LogUtils.debugLogD(TAG, "Historical trip START saved successfully", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
@@ -779,6 +783,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     @Override
                     public void onError(RequestError error) {
+                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_FAILED);
                         LogUtils.debugLogD(TAG,"Error saving trip start", true
                                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     }

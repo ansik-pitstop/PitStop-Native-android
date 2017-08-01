@@ -209,7 +209,12 @@ public class MixpanelHelper {
      */
     public static final String EVENT_BLUETOOTH = "Bluetooth Event";
 
-    public static final String BT_TRIP_START = "Trip Start Processing";
+    public static final String BT_TRIP_START_RT_SUCCESS = "Real-Time Trip Start Processed Successfully";
+    public static final String BT_TRIP_START_FAILED = "Trip Start Failed To Process";
+    public static final String BT_TRIP_START_HT_SUCCESS = "Historical Trip Start Processed Successfully";
+    public static final String BT_TRIP_END_RT_SUCCESS = "Real-Time Trip Start Processed Successfully";
+    public static final String BT_TRIP_END_FAILED = "Trip Start Failed To Process";
+    public static final String BT_TRIP_END_HT_SUCCESS = "Historical Trip Start Processed Successfully";
     public static final String BT_TRIP_END = "Trip End Processing";
     public static final String BT_DTC_REQUESTED = "Requested DTC";
     public static final String BT_VIN_GOT = "Received VIN";
