@@ -154,8 +154,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 
     @Override
     public Preference noShops() {
-        Preference noShops = new Preference(context);
-        noShops.setTitle("No Shops");
+        SettingsPreference noShops = new SettingsPreference(context,"No Shops","",false);
         noShops.setKey("no_shop_key");
         return noShops;
     }
