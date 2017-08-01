@@ -228,8 +228,6 @@ public class MixpanelHelper {
     public static final String BT_VERIFYING = "Verifying device";
     public static final String BT_SEARCHING = "Searching for device";
     public static final String BT_DISCONNECTED = "Disconnected from device";
-    public static final String BT_VERIFICATION_FAILED = "Failed to verify device";
-    public static final String BT_VERIFICATION_SUCCESS = "Successfully verified device";
     public static final String BT_SCAN_URGENT = "Started urgent scan";
     public static final String BT_SCAN_NOT_URGENT = "Started non-urgent scan";
     public static final String BT_DEVICE_BROKEN = "Device recognized as broken";

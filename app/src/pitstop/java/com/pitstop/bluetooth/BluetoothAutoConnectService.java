@@ -421,6 +421,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyDeviceNeedsOverwrite() {
+        trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
         for (Observer o : observerList) {
             if (o instanceof Device215BreakingObserver) {
                 ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
@@ -430,6 +431,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifySearchingForDevice() {
+        trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 ((BluetoothConnectionObserver)observer).onSearchingForDevice();

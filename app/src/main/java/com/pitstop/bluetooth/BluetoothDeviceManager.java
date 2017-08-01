@@ -279,6 +279,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return deviceInterface.getDeviceName();
     }
 
+    private void trackBluetoothEvent(String event){
+        if (deviceInterface == null){
+            mixpanelHelper.trackBluetoothEvent(event);
+        }
+        else{
+            mixpanelHelper.trackBluetoothEvent(event,deviceInterface.getDeviceName());
+        }
+    }
 
     private int scanNumber = 0;
     private boolean nonUrgentScanInProgress = false;
@@ -323,8 +331,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.startDiscovery()){
             nonUrgentScanInProgress = urgent;
             if (urgent){
-                mixpanelHelper.trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT
-                        ,deviceInterface.getDeviceName());
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
+            }
+            else{
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_NOT_URGENT);
             }
             return true;
         }
