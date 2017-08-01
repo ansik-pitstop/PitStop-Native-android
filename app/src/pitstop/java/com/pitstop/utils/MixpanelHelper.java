@@ -119,7 +119,6 @@ public class MixpanelHelper {
     /**
      * Timeout alert
      */
-    public static final String ADD_CAR_ALERT_CONNECT = "connectingToBluetooth Failed";
     public static final String ADD_CAR_RETRY_CONNECT = "Try to connect bluetooth again";
     public static final String ADD_CAR_ALERT_SET_RTC = "Set RTC Failed";
     public static final String ADD_CAR_RETRY_SET_RTC = "Try Again (Syncing taking too long)";
