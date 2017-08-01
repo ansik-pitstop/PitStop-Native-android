@@ -47,7 +47,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestVin();
 
     //Request scan for device
-    void requestDeviceSearch();
+    void requestDeviceSearch(boolean urgent);
 
     //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();

@@ -72,7 +72,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             getEngineCodes();
         }
         else{
-            bluetoothObservable.requestDeviceSearch();
+            bluetoothObservable.requestDeviceSearch(true);
             mCallback.onStartScanFailed(ERR_START_DC);
         }
     }
