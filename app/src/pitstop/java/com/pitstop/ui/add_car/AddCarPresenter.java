@@ -599,7 +599,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         public void onTimeout() {
             Log.d(TAG,"Search timer, timeout, vin attempts: " +getVinAttempts);
             if (mCallback != null){
-                mCallback.onTimeoutRetry("Searching for car ", MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
+                mCallback.onTimeoutRetry(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                        , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
             }
             searching = false;
         }
@@ -622,7 +623,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         public void onTimeout() {
             if (mCallback == null) return;
 
-            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, "Not Support");
+            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
             Log.d(TAG,"Vin timer, timeout, vin failed attempts:" +getVinAttempts);
             searching = false;
             mCallback.hideLoading("Failed to get VIN, please enter VIN above");
@@ -704,7 +706,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             JSONObject properties = new JSONObject()
                     .put("VIN", retrievedVin)
                     .put("View", MixpanelHelper.ADD_CAR_VIEW);
-            mMixpanelHelper.trackCustom("Retrieved VIN from device", properties);
+            mMixpanelHelper.trackCustom(MixpanelHelper.ADD_CAR_SUCCESS_GET_VIN, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -799,7 +801,8 @@ public class AddCarPresenter implements AddCarContract.Presenter {
             Log.i(TAG, "Vin returned was not valid");
             getVinAttempts = 0;
             pendingCar.setVin("");
-            mMixpanelHelper.trackAddCarProcess(ADD_CAR_STEP_GET_VIN, "Not Support");
+            mMixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
         }
     }
 }

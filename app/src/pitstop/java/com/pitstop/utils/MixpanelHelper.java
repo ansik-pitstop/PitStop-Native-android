@@ -127,6 +127,7 @@ public class MixpanelHelper {
     public static final String ADD_CAR_ALERT_GET_VIN = "getVin Failed";
     public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again (VIN Retrieval Failed)";
     public static final String ADD_CAR_SUCCESS_GET_VIN = "getVin Success";
+    public static final String ADD_CAR_NOT_SUPPORT_VIN = "Not Support";
 
     /**
      * Main Activity
