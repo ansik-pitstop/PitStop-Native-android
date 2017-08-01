@@ -26,4 +26,30 @@ public class VinEntryPresenter {
         this.view = null;
     }
 
+    public void vinChanged(String vin){
+        if (view == null) return;
+
+        if (isVinValid(vin)){
+            view.onValidVinInput();
+        }
+        else{
+            view.onInvalidVinInput();
+        }
+    }
+
+    public void addVehicle(String vin){
+        vin = removeWhitespace(vin);
+
+        //Add vehicle logic below
+    }
+
+    private boolean isVinValid(String vin){
+        vin = removeWhitespace(vin);
+        return vin != null && (vin.length() == 17);
+    }
+
+    private String removeWhitespace(String s){
+        return s.replace(" ","").replace("\n","").replace("\t","");
+    }
+
 }

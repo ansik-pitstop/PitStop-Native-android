@@ -5,4 +5,6 @@ package com.pitstop.ui.add_car.vin_entry;
  */
 
 public interface VinEntryView {
+    void onValidVinInput();
+    void onInvalidVinInput();
 }
