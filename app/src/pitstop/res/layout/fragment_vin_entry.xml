@@ -7,7 +7,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/add_vehicle">
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <LinearLayout
             android:orientation="vertical"
@@ -45,7 +46,8 @@
                     android:layout_marginRight="16dp"
                     android:singleLine="true"
                     android:imeOptions="actionGo"
-                    android:hint="0" />
+                    android:inputType="number"
+                    android:text="0"/>
 
                 <TextView
                     android:text="Enter your VIN"
