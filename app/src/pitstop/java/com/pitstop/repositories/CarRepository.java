@@ -41,17 +41,18 @@ public class CarRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insert(Car car, boolean hasShop, Callback<Car> callback) {
+    public void insert(String vin, double baseMileage, int userId, String scannerId, int shopId
+            , boolean hasShop, Callback<Car> callback) {
         //Insert to backend
         JSONObject body = new JSONObject();
 
         try {
-            body.put("vin", car.getVin());
-            body.put("baseMileage", car.getTotalMileage());
-            body.put("userId", car.getUserId());
-            body.put("scannerId", car.getScannerId());
+            body.put("vin", vin);
+            body.put("baseMileage", baseMileage);
+            body.put("userId", userId);
+            body.put("scannerId", scannerId);
             if (hasShop){
-                body.put("shopId", car.getShopId());
+                body.put("shopId", shopId);
             }
         } catch (JSONException e) {
             e.printStackTrace();

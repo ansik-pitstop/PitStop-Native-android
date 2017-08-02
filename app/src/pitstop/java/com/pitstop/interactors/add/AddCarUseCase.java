@@ -16,6 +16,6 @@ public interface AddCarUseCase extends Interactor {
     }
 
     //Executes usecase
-    void execute(Car pendingCar, String scannerName, String eventSource, boolean carHasShop
-            , Callback callback);
+    void execute(String vin, double baseMileage, int userId, String scannerId, int shopId
+            ,String scannerName, String eventSource, boolean carHasShop, Callback callback);
 }
