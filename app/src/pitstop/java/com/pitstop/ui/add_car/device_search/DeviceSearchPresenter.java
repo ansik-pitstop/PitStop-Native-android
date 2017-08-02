@@ -1,5 +1,7 @@
 package com.pitstop.ui.add_car.device_search;
 
+import android.util.Log;
+
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
@@ -33,6 +35,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private final TimeoutTimer getVinTimer = new TimeoutTimer(6, 8) {
         @Override
         public void onRetry() {
+            Log.d(TAG,"getVinTimer.onRetry()");
+
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
             bluetoothConnectionObservable.requestVin();
@@ -40,6 +44,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
+            Log.d(TAG,"getVinTimer.onTimeout()");
+
             if (view == null) return;
 
             if (readyDevice == null){
@@ -63,6 +69,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
+            Log.d(TAG,"gindDeviceTimer.onTimeout()");
+
             if (view == null) return;
 
             view.onCannotFindDevice();
@@ -82,16 +90,20 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void subscribe(DeviceSearchView view){
+        Log.d(TAG,"subscribe()");
         this.view = view;
         bluetoothConnectionObservable.subscribe(this);
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         this.view = null;
         bluetoothConnectionObservable.unsubscribe(this);
     }
 
     public void startSearch(){
+        Log.d(TAG,"startSearch()");
+
         if (view == null) return;
 
         //Already searching, no need to start another search
@@ -146,6 +158,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onDeviceReady(ReadyDevice readyDevice) {
+        Log.d(TAG,"onDeviceReady()");
         if (view == null) return;
         if (!searchingForDevice) return;
 
@@ -198,6 +211,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     private void addCar(){
+        Log.d(TAG,"addCar()");
 
         view.showLoading("Saving Car");
 
@@ -240,6 +254,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onGotVin(String vin) {
+        Log.d(TAG,"onGotVin() vin: "+vin);
         if (view == null) return;
         if (!searchingForVin) return;
 
