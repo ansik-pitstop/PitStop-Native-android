@@ -80,9 +80,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void startSearch(){
-        //Check if VIN is valid
+
+        //Already searching, no need to start another search
+        if (searchingForDevice) return;
+
+        //Check if mileage is valid
         if (!AddCarUtils.isMileageValid(view.getMileage())){
             view.onMileageInvalid();
+            return;
         }
 
         //Check if already connected to device
@@ -109,10 +114,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForDevice = true;
             bluetoothConnectionObservable.requestDeviceSearch(true);
         }
-
     }
-
-    //Bluetooth callbacks below
 
     @Override
     public void onSearchingForDevice() {
