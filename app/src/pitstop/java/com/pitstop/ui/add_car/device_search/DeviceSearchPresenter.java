@@ -19,6 +19,8 @@ import com.pitstop.utils.TimeoutTimer;
 
 public class DeviceSearchPresenter implements BluetoothConnectionObserver, BluetoothVinObserver{
 
+    private final String TAG = getClass().getSimpleName();
+
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private DeviceSearchView view;

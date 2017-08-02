@@ -8,6 +8,8 @@ import com.pitstop.utils.MixpanelHelper;
  */
 
 public class AskHasDevicePresenter {
+    
+    private final String TAG = getClass().getSimpleName();
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;

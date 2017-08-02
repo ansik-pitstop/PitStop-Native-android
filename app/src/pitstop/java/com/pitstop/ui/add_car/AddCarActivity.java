@@ -23,6 +23,8 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class AddCarActivity extends AppCompatActivity implements FragmentSwitcher{
 
+    private final String TAG = getClass().getSimpleName();
+
     //Activity result variables
     public static final int ADD_CAR_SUCCESS_NO_DEALER = 51;
     public static final int ADD_CAR_SUCCESS_HAS_DEALER = 53;

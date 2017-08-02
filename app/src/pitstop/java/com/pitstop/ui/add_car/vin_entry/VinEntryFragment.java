@@ -38,6 +38,8 @@ import butterknife.OnTextChanged;
 
 public class VinEntryFragment extends Fragment implements VinEntryView{
 
+    private final String TAG = getClass().getSimpleName();
+
     @BindView(R.id.add_vehicle)
     Button addVehicleButton;
     @BindView(R.id.VIN)

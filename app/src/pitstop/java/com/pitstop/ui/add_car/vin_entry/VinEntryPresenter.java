@@ -14,6 +14,8 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class VinEntryPresenter {
 
+    private final String TAG = getClass().getSimpleName();
+
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private VinEntryView view;

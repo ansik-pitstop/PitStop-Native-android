@@ -35,6 +35,8 @@ import butterknife.OnClick;
 
 public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
+    private final String TAG = getClass().getSimpleName();
+
     @BindView(R.id.mileage_input)
     EditText mileageInputEditText;
 

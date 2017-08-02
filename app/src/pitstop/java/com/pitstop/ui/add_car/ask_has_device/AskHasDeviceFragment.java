@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ import butterknife.OnClick;
 
 public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
+    private final String TAG = getClass().getSimpleName();
+
     private ViewGroup rootView;
     private AskHasDevicePresenter presenter;
     private MixpanelHelper mixpanelHelper;
@@ -40,6 +43,8 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        Log.d(TAG,"onActivityCreated()");
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
@@ -60,6 +65,8 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
+
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_ask_has_device, container, false);
         ButterKnife.bind(this, rootView);
@@ -69,12 +76,17 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     @Override
     public void onDestroyView() {
+
+        Log.d(TAG,"onDestroyView()");
+
         presenter.unsubscribe();
         super.onDestroyView();
     }
 
     @OnClick(R.id.bt_yes_device)
     protected void yesButtonClicked(){
+        Log.d(TAG,"yesButtonClicked()");
+
         if (presenter == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE
                 , MixpanelHelper.ADD_CAR_VIEW);
@@ -83,6 +95,8 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     @OnClick(R.id.bt_no_device)
     protected void noButtonClicked(){
+        Log.d(TAG,"noButtonClicked()");
+
         if (presenter == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE
                 , MixpanelHelper.ADD_CAR_VIEW);
@@ -91,6 +105,7 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     @Override
     public void showLoading(@NonNull String message) {
+        Log.d(TAG,"showLoading(), message: "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.setMessage(message);
@@ -99,6 +114,7 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     @Override
     public void hideLoading(@Nullable String message) {
+        Log.d(TAG,"hideLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
@@ -109,12 +125,14 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
 
     @Override
     public void loadVinEntryView() {
+        Log.d(TAG,"loadVinEntryView()");
         if (fragmentSwitcher == null) return;
         fragmentSwitcher.setViewVinEntry();
     }
 
     @Override
     public void loadDeviceSearchView() {
+        Log.d(TAG,"loadDeviceSearchView()");
         if (fragmentSwitcher == null) return;
         fragmentSwitcher.setViewDeviceSearch();
 
