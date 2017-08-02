@@ -204,6 +204,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
-        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG);
+        if (message != null){
+            Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+        }
     }
 }

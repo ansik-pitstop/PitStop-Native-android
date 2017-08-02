@@ -182,7 +182,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
-        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG);
+
+        if (message != null){
+            Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+        }
     }
 
 }
