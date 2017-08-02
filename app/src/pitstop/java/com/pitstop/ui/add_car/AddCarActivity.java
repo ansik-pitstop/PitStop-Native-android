@@ -9,11 +9,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;
 import com.pitstop.ui.add_car.device_search.DeviceSearchFragment;
 import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.
@@ -30,11 +32,14 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     private DeviceSearchFragment deviceSearchFragment;
     private VinEntryFragment vinEntryFragment;
     private Fragment currentFragment;
+    private MixpanelHelper mixpanelHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
 
         setContentView(R.layout.activity_add_car);
+
+        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
 
         askHasDeviceFragment = AskHasDeviceFragment.getInstance();
         deviceSearchFragment = DeviceSearchFragment.getInstance();
@@ -47,6 +52,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewAskHasDevice() {
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_ASK_HAS_DEVICE_VIEW);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, askHasDeviceFragment);
         currentFragment = askHasDeviceFragment;
@@ -55,6 +62,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewDeviceSearch() {
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SEARCH_DEVICE_VIEW);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, deviceSearchFragment);
         currentFragment = deviceSearchFragment;
@@ -63,6 +72,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewVinEntry(String scannerId, String scannerName) {
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         vinEntryFragment.onGotDeviceInfo(scannerId, scannerName);
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
@@ -72,6 +83,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewVinEntry() {
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
         currentFragment = vinEntryFragment;
