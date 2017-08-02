@@ -56,7 +56,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
     }
 
     public void startAddCarActivity(View view) {
-        Intent intent = new Intent(PromptAddCarActivity.this, com.pitstop.ui.add_car_old.AddCarActivity.class);
+        Intent intent = new Intent(PromptAddCarActivity.this, AddCarActivity.class);
         startActivityForResult(intent, RC_ADD_CAR);
     }
 
