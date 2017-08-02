@@ -19,6 +19,6 @@ public class AddCarUtils {
     }
 
     public static boolean isMileageValid(int mileage){
-        return mileage > MIN_MILEAGE && mileage < MAX_MILEAGE;
+        return mileage >= MIN_MILEAGE && mileage <= MAX_MILEAGE;
     }
 }
