@@ -159,6 +159,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         else{
             view.showLoading("Searching for Device");
             searchingForDevice = true;
+            findDeviceTimer.start();
             bluetoothConnectionObservable.requestDeviceSearch(true);
         }
     }
