@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +60,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onActivityCreated()");
+
         super.onActivityCreated(savedInstanceState);
 
         progressDialog = new ProgressDialog(getActivity());
@@ -80,6 +83,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
+
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_vin_entry, container, false);
         ButterKnife.bind(this, rootView);
@@ -89,11 +94,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+
         presenter.unsubscribe();
         super.onDestroyView();
     }
 
     private boolean checkBackCamera() {
+        Log.d(TAG,"checkBackCamera()");
+
         final int CAMERA_FACING_BACK = 0;
         int cameraCount = Camera.getNumberOfCameras();
         Camera.CameraInfo info = new Camera.CameraInfo();
@@ -108,8 +117,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @OnClick(R.id.scan_vin)
     protected void scanVinClicked(){
-
-        //Scan logic here
+        Log.d(TAG,"scanVinClicked()");
 
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
 
@@ -129,6 +137,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @OnClick(R.id.add_vehicle)
     protected void addVehicleClicked(){
+        Log.d(TAG,"addVehicleClicked()");
 
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_METHOD_MANUAL
                 ,MixpanelHelper.ADD_CAR_VIEW);
@@ -137,11 +146,14 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @OnTextChanged(R.id.VIN)
     protected void onVinTextChanged(Editable editable){
+        Log.d(TAG,"onVinTextChanged() vin:"+editable.toString());
         presenter.vinChanged(vinEditText.getText().toString());
     }
 
     @Override
     public void onValidVinInput() {
+        Log.d(TAG,"onValidVininput()");
+
         addVehicleButton.setEnabled(true);
         addVehicleButton.setBackground(getResources()
                 .getDrawable(R.drawable.color_button_rectangle_highlight));
@@ -149,17 +161,24 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onInvalidVinInput() {
+        Log.d(TAG,"onInvalidVinInput()");
+
         addVehicleButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_grey));
         addVehicleButton.setEnabled(false);
     }
 
     @Override
     public int getMileage() {
+        Log.d(TAG,"getMileage(), returning: "
+                +Integer.valueOf(mileageEditText.getText().toString()));
+
         return Integer.valueOf(mileageEditText.getText().toString());
     }
 
     @Override
     public void onInvalidMileage() {
+        Log.d(TAG,"onInvalidMileage()");
+
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Invalid Mileage")
                 .setMessage("Please input a mileage between 0 and 3,000,000")
@@ -176,21 +195,31 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onGotDeviceInfo(String scannerId, String scannerName) {
+        Log.d(TAG,"onGotDeviceInfo() scannerId: "+scannerId+", scannerName: "+scannerName);
+
         presenter.gotDeviceInfo(scannerId,scannerName);
     }
 
     @Override
     public void onCarAddedWithShop(Car car) {
+        Log.d(TAG,"onCarAddedWithShop() car:"+car);
+
+        if (fragmentSwitcher == null) return;
         fragmentSwitcher.endAddCarSuccess(car,true);
     }
 
     @Override
     public void onCarAddedWithoutShop(Car car) {
+        Log.d(TAG,"onCarAddedWithoutShop() car:"+car);
+
+        if (fragmentSwitcher == null) return;
         fragmentSwitcher.endAddCarSuccess(car,false);
     }
 
     @Override
     public void onErrorAddingCar(String message) {
+        Log.d(TAG,"onErrorAddingCar()");
+
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Add Car Error")
                 .setMessage(message)
@@ -207,6 +236,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void showLoading(@NonNull String message) {
+        Log.d(TAG,"showLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.setMessage(message);
@@ -215,6 +245,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void hideLoading(@Nullable String message) {
+        Log.d(TAG,"hideLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
