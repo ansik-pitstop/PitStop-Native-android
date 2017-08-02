@@ -118,11 +118,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (!searchingForDevice) return;
 
         searchingForDevice = false;
+        findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
         //Check for valid vin
         if (isVinValid(readyDevice.getVin())){
-            findDeviceTimer.cancel();
             searchingForVin = false;
 
             //Begin  adding car
