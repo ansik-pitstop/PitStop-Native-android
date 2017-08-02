@@ -17,6 +17,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -132,6 +133,32 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onGotDeviceInfo(String scannerId, String scannerName) {
         presenter.gotDeviceInfo(scannerId,scannerName);
+    }
+
+    @Override
+    public void onCarAddedWithShop(Car car) {
+        fragmentSwitcher.endAddCarSuccess(car,true);
+    }
+
+    @Override
+    public void onCarAddedWithoutShop(Car car) {
+        fragmentSwitcher.endAddCarSuccess(car,false);
+    }
+
+    @Override
+    public void onErrorAddingCar(String message) {
+        AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
+                .setTitle("Add Car Error")
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setNegativeButton("", null).create();
+        invalidMileageDialog.show();
     }
 
 }

@@ -1,6 +1,10 @@
 package com.pitstop.ui.add_car.vin_entry;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddCarUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -12,9 +16,8 @@ public class VinEntryPresenter {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private VinEntryView view;
-    private String scannerName;
-    private String scannerId;
-    private boolean gotScannerInfo = false;
+    private String scannerName = "";
+    private String scannerId = "";
 
 
     public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
@@ -59,17 +62,37 @@ public class VinEntryPresenter {
         }
 
         //Add vehicle logic below
-        if (!gotScannerInfo){
-            //Add without scanner
-        }
-        else{
-            //Add with scanner
-        }
+        useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
+                , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+            @Override
+            public void onCarAddedWithBackendShop(Car car) {
+                if (view == null) return;
+
+                view.onCarAddedWithShop(car);
+            }
+
+            @Override
+            public void onCarAdded(Car car) {
+                if (view == null) return;
+
+                view.onCarAddedWithoutShop(car);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    view.onErrorAddingCar("Please connect to the internet to add your vehicle.");
+                }
+                else{
+                    view.onErrorAddingCar("Unexpected error occured adding car" +
+                            ", please restart the app and try again.");
+                }
+            }
+        });
 
     }
 
     public void gotDeviceInfo(String scannerName, String scannerId){
-        gotScannerInfo = true;
         this.scannerName = scannerName;
         this.scannerId = scannerId;
     }

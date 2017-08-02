@@ -32,13 +32,10 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private EventSource eventSource;
 
-    private boolean carHasShop;
     private String vin;
     private String scannerId;
     private String scannerName;
     private double baseMileage;
-    private int userId;
-    private int shopId;
 
 
     public AddCarUseCaseImpl(CarRepository carRepository, ScannerRepository scannerRepository
@@ -50,17 +47,15 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     }
 
     @Override
-    public void execute(String vin, double baseMileage, int userId, String scannerId, int shopId
-            ,String scannerName, String eventSource, boolean carHasShop, Callback callback) {
+    public void execute(String vin, double baseMileage, String scannerId
+            ,String scannerName, String eventSource, Callback callback) {
+
         this.vin = vin;
         this.baseMileage = baseMileage;
-        this.userId = userId;
         this.scannerId = scannerId;
-        this.shopId = shopId;
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.scannerName = scannerName;
-        this.carHasShop = carHasShop;
         handler.post(this);
     }
 
@@ -69,7 +64,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                    carRepository.insert(vin, baseMileage, userId, scannerId, shopId, carHasShop
+                    carRepository.insert(vin, baseMileage, user.getId(), scannerId
                             , new Repository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
