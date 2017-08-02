@@ -1,5 +1,7 @@
 package com.pitstop.ui.add_car.ask_has_device;
 
+import android.util.Log;
+
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -8,7 +10,7 @@ import com.pitstop.utils.MixpanelHelper;
  */
 
 public class AskHasDevicePresenter {
-    
+
     private final String TAG = getClass().getSimpleName();
 
     private UseCaseComponent useCaseComponent;
@@ -22,20 +24,24 @@ public class AskHasDevicePresenter {
     }
 
     public void subscribe(AskHasDeviceView view){
+        Log.d(TAG,"subscribe()");
         this.view = view;
     }
 
-    public void unsubscribe(){
+    public void unsubscribe() {
+        Log.d(TAG,"unsubscribe()");
         this.view = null;
     }
 
     public void onNoDeviceSelected(){
+        Log.d(TAG,"onNoDeviceSelected()");
         if (view == null) return;
 
         view.loadVinEntryView();
     }
 
     public void onHasDeviceSelected(){
+        Log.d(TAG,"onHasDeviceSelected()");
         if (view == null) return;
 
         view.loadDeviceSearchView();

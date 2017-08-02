@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Log.d(TAG,"onActivityCreated()");
+
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setCancelable(false);
@@ -77,6 +80,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
+
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_device_search, container, false);
         ButterKnife.bind(this, rootView);
@@ -86,12 +91,16 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+
         presenter.unsubscribe();
         super.onDestroyView();
     }
 
     @OnClick(R.id.bt_search_car)
     protected void searchForVehicleClicked(){
+        Log.d(TAG,"searchForVehicleClicked()");
+
         if (presenter == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE
                 , MixpanelHelper.ADD_CAR_VIEW);
@@ -100,6 +109,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onVinRetrievalFailed(String scannerName, String scannerId) {
+
+        Log.d(TAG,"onVinRetrievalFailed() scannerName: "+scannerName+", scannerId: "+scannerId);
 
         //Fragment switcher, go toVinEntryFragment
         fragmentSwitcher.setViewVinEntry(scannerName, scannerId);
@@ -120,6 +131,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onCannotFindDevice() {
+        Log.d(TAG,"onCannotFindDevice()");
+
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Could not find OBD device")
                 .setMessage("We were unable to find a Pitstop OBD device, please make sure that the " +
@@ -142,11 +155,15 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public int getMileage(){
+        Log.d(TAG,"getMileage(), returning: "
+                +Integer.valueOf(mileageInputEditText.getText().toString()));
         return Integer.valueOf(mileageInputEditText.getText().toString());
     }
 
     @Override
     public void onMileageInvalid() {
+        Log.d(TAG,"onMileageInvalid()");
+
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Invalid Mileage")
                 .setMessage("Please input a mileage between 0 and 3,000,000.")
@@ -164,6 +181,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onCarAddedWithShop(Car car) {
+        Log.d(TAG,"onCarAddedWithShop() car: "+car);
+
         if (fragmentSwitcher == null) return;
 
         fragmentSwitcher.endAddCarSuccess(car,true);
@@ -171,6 +190,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onCarAddedWithoutShop(Car car) {
+        Log.d(TAG,"onCarAddedWithoutShop() car: "+car);
+
         if (fragmentSwitcher == null) return;
 
         fragmentSwitcher.endAddCarSuccess(car,false);
@@ -178,6 +199,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onErrorAddingCar(String message) {
+        Log.d(TAG,"onErrorAddingCar(), message: "+message);
+
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Add Car Error")
                 .setMessage(message)
@@ -195,6 +218,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void showLoading(@NonNull String message) {
+        Log.d(TAG,"showLoading(): "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.setMessage(message);
@@ -203,6 +227,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void hideLoading(@Nullable String message) {
+        Log.d(TAG,"hideLoading(): "+message);
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
