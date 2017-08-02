@@ -2,56 +2,102 @@ package com.pitstop.interactors.add;
 
 import android.os.Handler;
 
-import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.EventBus.EventType;
-import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.models.ObdScanner;
+import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
-
-import org.greenrobot.eventbus.EventBus;
+import com.pitstop.repositories.ScannerRepository;
+import com.pitstop.repositories.UserRepository;
 
 /**
- * Created by Karol Zdebel on 5/30/2017.
+ * Created by Matt on 2017-07-27.
  */
 
 public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private CarRepository carRepository;
+    private UserRepository userRepository;
+    private ScannerRepository scannerRepository;
     private Handler handler;
-    private Car car;
     private Callback callback;
 
     private EventSource eventSource;
 
-    public AddCarUseCaseImpl(CarRepository carRepository, Handler handler){
+    private Car pendingCar;
+    private String scannerName;
+    private boolean carHasShop;
+
+
+    public AddCarUseCaseImpl(CarRepository carRepository, ScannerRepository scannerRepository
+            , UserRepository userRepository, Handler handler){
         this.carRepository = carRepository;
+        this.scannerRepository = scannerRepository;
+        this.userRepository = userRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(Car car,String eventSource, Callback callback) {
+    public void execute(Car pendingCar,String scannerName, String eventSource
+            , boolean carHasShop, Callback callback) {
         this.eventSource = new EventSourceImpl(eventSource);
-        this.car = car;
         this.callback = callback;
+        this.pendingCar = pendingCar;
+        this.scannerName = scannerName;
+        this.carHasShop = carHasShop;
         handler.post(this);
     }
 
     @Override
     public void run() {
-        carRepository.insert(car, new Repository.Callback<Object>() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onSuccess(Object response) {
-                EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                        ,eventSource));
+            public void onSuccess(User user) {
+                    carRepository.insert(pendingCar, carHasShop, new Repository.Callback<Car>() {
+                        @Override
+                        public void onSuccess(Car car) {
+                            userRepository.setUserCar(user.getId(), car.getId(), new Repository.Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object data) {
+                                    ObdScanner scanner = new ObdScanner();
+                                    if (pendingCar.getScannerId() == null || pendingCar.getScannerId().isEmpty() || scannerName == null){//empty scanner
+                                        scanner.setCarId(car.getId());
+                                        scanner.setScannerId("");
+                                        scanner.setDeviceName("");
+                                        scanner.setDatanum("");
+                                    }else{//not empty
+                                        scanner = new ObdScanner(car.getId(),pendingCar.getScannerId(),scannerName);
+                                    }
+                                    scannerRepository.createScanner(scanner, new Repository.Callback() {
+                                        @Override
+                                        public void onSuccess(Object data) {
+                                            if(car.getShopId() == 0){
+                                                callback.onCarAdded(car);
+                                            }else {
+                                                callback.onCarAddedWithBackendShop(car);
+                                            }
+                                        }
+                                        @Override
+                                        public void onError(RequestError error) {
+                                            callback.onError(error);
+                                        }
+                                    });
+                                }
 
-                callback.onCarAdded();
+                                @Override
+                                public void onError(RequestError error) {
+                                     callback.onError(error);
+                                }
+                            });
+                        }
+                        @Override
+                        public void onError(RequestError error) {
+                            callback.onError(error);
+                        }});
             }
-
             @Override
             public void onError(RequestError error) {
                 callback.onError(error);

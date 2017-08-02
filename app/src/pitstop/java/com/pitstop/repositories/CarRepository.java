@@ -41,24 +41,45 @@ public class CarRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insert(Car car, Callback<Object> callback) {
+    public void insert(Car car, boolean hasShop, Callback<Car> callback) {
         //Insert to backend
-        networkHelper.createNewCar(car.getUserId(),(int)car.getTotalMileage()
-            ,car.getVin(),car.getScannerId(),car.getShopId()
-                ,getInsertCarRequestCallback(callback, car));
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("vin", car.getVin());
+            body.put("baseMileage", car.getTotalMileage());
+            body.put("userId", car.getUserId());
+            body.put("scannerId", car.getScannerId());
+            if (hasShop){
+                body.put("shopId", car.getShopId());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.post("car", getInsertCarRequestCallback(callback), body);
 
     }
 
-    private RequestCallback getInsertCarRequestCallback(Callback<Object> callback, Car car){
+    private RequestCallback getInsertCarRequestCallback(Callback<Car> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        Car car = null;
+                        try{
+                            car = Car.createCar(response);
+                        }
+                        catch (JSONException e){
+                            e.printStackTrace();
+                            callback.onError(RequestError.getUnknownError());
+                        }
+
                         localCarAdapter.deleteCar(car.getId());
                         localCarAdapter.storeCarData(car);
-                        callback.onSuccess(response);
+                        callback.onSuccess(car);
                     }
                     else{
                         callback.onError(requestError);
