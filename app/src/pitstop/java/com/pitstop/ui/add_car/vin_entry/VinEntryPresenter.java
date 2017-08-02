@@ -47,6 +47,8 @@ public class VinEntryPresenter {
     }
 
     public void addVehicle(String vin){
+        if (view == null) return;
+
         vin = AddCarUtils.removeWhitespace(vin);
         int mileage = view.getMileage();
 

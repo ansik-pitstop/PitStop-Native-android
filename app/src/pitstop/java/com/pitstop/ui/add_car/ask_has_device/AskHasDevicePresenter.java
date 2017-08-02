@@ -28,11 +28,15 @@ public class AskHasDevicePresenter {
     }
 
     public void onNoDeviceSelected(){
+        if (view == null) return;
 
+        view.loadVinEntryView();
     }
 
     public void onHasDeviceSelected(){
+        if (view == null) return;
 
+        view.loadDeviceSearchView();
     }
 
 }

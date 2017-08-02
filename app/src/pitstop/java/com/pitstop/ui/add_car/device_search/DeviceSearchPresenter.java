@@ -38,6 +38,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
+            if (view == null) return;
+
             if (readyDevice == null){
                 view.onVinRetrievalFailed("","");
             }
@@ -58,6 +60,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
+            if (view == null) return;
+
             view.onCannotFindDevice();
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
@@ -84,6 +88,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void startSearch(){
+        if (view == null) return;
 
         //Already searching, no need to start another search
         if (searchingForDevice) return;
@@ -113,16 +118,22 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
                             @Override
                             public void onCarAddedWithBackendShop(Car car) {
+                                if (view == null) return;
+
                                 view.onCarAddedWithShop(car);
                             }
 
                             @Override
                             public void onCarAdded(Car car) {
+                                if (view == null) return;
+
                                 view.onCarAddedWithoutShop(car);
                             }
 
                             @Override
                             public void onError(RequestError error) {
+                                if (view == null) return;
+
                                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                                     view.onErrorAddingCar("Please connect to the internet to add " +
                                             "your vehicle.");
@@ -151,6 +162,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onDeviceReady(ReadyDevice readyDevice) {
+        if (view == null) return;
         if (!searchingForDevice) return;
 
         searchingForDevice = false;
@@ -167,16 +179,22 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
                         @Override
                         public void onCarAddedWithBackendShop(Car car) {
+                            if (view == null) return;
+
                             view.onCarAddedWithShop(car);
                         }
 
                         @Override
                         public void onCarAdded(Car car) {
+                            if (view == null) return;
+
                             view.onCarAddedWithoutShop(car);
                         }
 
                         @Override
                         public void onError(RequestError error) {
+                            if (view == null) return;
+
                             if (error.getError().equals(RequestError.ERR_OFFLINE)){
                                 view.onErrorAddingCar("Please connect to the internet to add " +
                                         "your vehicle.");
@@ -213,6 +231,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onGotVin(String vin) {
+        if (view == null) return;
         if (!searchingForVin) return;
 
         if (AddCarUtils.isVinValid(vin)){

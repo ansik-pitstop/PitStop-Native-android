@@ -1,7 +1,9 @@
 package com.pitstop.ui.add_car.device_search;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -9,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -39,6 +42,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private DeviceSearchPresenter presenter;
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
+    private ProgressDialog progressDialog;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -47,6 +51,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
 
         UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext()))
@@ -181,5 +189,21 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 .setNegativeButton("",null)
                 .create();
         invalidMileageDialog.show();
+    }
+
+    @Override
+    public void showLoading(@NonNull String message) {
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    @Override
+    public void hideLoading(@Nullable String message) {
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.dismiss();
+        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG);
     }
 }
