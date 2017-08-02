@@ -62,9 +62,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(60, 0) {
+    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(13, 5) {
         @Override
         public void onRetry() {
+            if (bluetoothConnectionObservable != null){
+                bluetoothConnectionObservable.requestDeviceSearch(true);
+            }
         }
 
         @Override
