@@ -73,6 +73,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             if (view == null) return;
 
+            searchingForDevice = false;
             view.onCannotFindDevice();
             view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
