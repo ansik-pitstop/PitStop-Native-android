@@ -6,7 +6,7 @@ package com.pitstop.ui.add_car.device_search;
 
 public interface DeviceSearchView {
 
-    void onVinRetrievalFailed();
+    void onVinRetrievalFailed(String scannerName, String scannerId);
     void onCannotFindDevice();
 
 }

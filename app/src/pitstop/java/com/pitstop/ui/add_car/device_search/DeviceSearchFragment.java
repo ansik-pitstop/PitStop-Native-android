@@ -32,6 +32,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private ViewGroup rootView;
     private DeviceSearchPresenter presenter;
     private MixpanelHelper mixpanelHelper;
+    private FragmentSwitcher fragmentSwitcher;
+
+    public static DeviceSearchFragment getInstance(){
+        return new DeviceSearchFragment();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -47,10 +52,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
-        FragmentSwitcher fragmentSwitcher = (FragmentSwitcher)getActivity();
+        fragmentSwitcher = (FragmentSwitcher)getActivity();
 
         presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper
-                , bluetoothConnectionObservable, fragmentSwitcher);
+                , bluetoothConnectionObservable);
     }
 
     @Nullable
@@ -78,11 +83,12 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void onVinRetrievalFailed() {
+    public void onVinRetrievalFailed(String scannerName, String scannerId) {
 
         //Fragment switcher, go toVinEntryFragment
+        fragmentSwitcher.setViewVinEntry(scannerName, scannerId);
 
-        AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
+        AlertDialog invalidMileageDialog = new AnimatedDialogBuilder(getActivity())
                 .setTitle("Could not retrieve VIN")
                 .setMessage("VIN could not be retrieved from your device, please input it manually")
                 .setCancelable(false)

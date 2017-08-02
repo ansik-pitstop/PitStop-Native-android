@@ -27,6 +27,11 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     private ViewGroup rootView;
     private AskHasDevicePresenter presenter;
     private MixpanelHelper mixpanelHelper;
+    private FragmentSwitcher fragmentSwitcher;
+
+    public static AskHasDeviceFragment getInstance(){
+        return new AskHasDeviceFragment();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -39,9 +44,9 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
-        FragmentSwitcher fragmentSwitcher = (FragmentSwitcher)getActivity();
+        fragmentSwitcher = (FragmentSwitcher)getActivity();
 
-        presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper, fragmentSwitcher);
+        presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper);
     }
 
     @Nullable

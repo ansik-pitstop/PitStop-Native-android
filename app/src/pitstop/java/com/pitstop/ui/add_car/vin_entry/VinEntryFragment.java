@@ -42,6 +42,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     private ViewGroup rootView;
     private VinEntryPresenter presenter;
     private MixpanelHelper mixpanelHelper;
+    FragmentSwitcher fragmentSwitcher;
+
+    public static VinEntryFragment getInstance(){
+        return new VinEntryFragment();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -54,9 +59,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
-        FragmentSwitcher fragmentSwitcher = (FragmentSwitcher)getActivity();
+        fragmentSwitcher = (FragmentSwitcher)getActivity();
 
-        presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper,fragmentSwitcher);
+        presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper);
     }
 
     @Nullable
@@ -123,4 +128,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setNegativeButton("", null).create();
         invalidMileageDialog.show();
     }
+
+    @Override
+    public void onGotDeviceInfo(String scannerId, String scannerName) {
+        presenter.gotDeviceInfo(scannerId,scannerName);
+    }
+
 }

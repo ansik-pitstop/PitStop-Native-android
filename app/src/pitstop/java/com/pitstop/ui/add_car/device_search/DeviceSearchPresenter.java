@@ -5,7 +5,6 @@ import com.pitstop.models.ReadyDevice;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothVinObserver;
-import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
 
@@ -21,7 +20,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private BluetoothConnectionObservable bluetoothConnectionObservable;
     private boolean searchingForVin;
     private boolean searchingForDevice;
-    private FragmentSwitcher fragmentSwitcher;
+    private ReadyDevice readyDevice;
 
     //Try to get VIN 8 times, every 6 seconds
     private final TimeoutTimer getVinTimer = new TimeoutTimer(6, 8) {
@@ -34,7 +33,13 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
-            view.onVinRetrievalFailed();
+            if (readyDevice == null){
+                view.onVinRetrievalFailed("","");
+            }
+            else{
+                view.onVinRetrievalFailed(readyDevice.getScannerName(),readyDevice.getScannerId());
+            }
+
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
 
@@ -56,12 +61,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     };
 
     public DeviceSearchPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper
-            , BluetoothConnectionObservable bluetoothConnectionObservable
-            , FragmentSwitcher fragmentSwitcher){
+            , BluetoothConnectionObservable bluetoothConnectionObservable){
+
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
-        this.fragmentSwitcher = fragmentSwitcher;
     }
 
     public void subscribe(DeviceSearchView view){
@@ -79,7 +83,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (bluetoothConnectionObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED)){
 
-            ReadyDevice readyDevice = bluetoothConnectionObservable.getReadyDevice();
+            readyDevice = bluetoothConnectionObservable.getReadyDevice();
 
             //Check if retrieved VIN is valid, otherwise begin timer
             if (!isVinValid(readyDevice.getVin())){
@@ -110,13 +114,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     @Override
-    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+    public void onDeviceReady(ReadyDevice readyDevice) {
         if (!searchingForDevice) return;
 
         searchingForDevice = false;
+        this.readyDevice = readyDevice;
 
         //Check for valid vin
-        if (isVinValid(vin)){
+        if (isVinValid(readyDevice.getVin())){
             findDeviceTimer.cancel();
             searchingForVin = false;
 

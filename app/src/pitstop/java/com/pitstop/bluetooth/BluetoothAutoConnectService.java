@@ -448,7 +448,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady(vin, scannerId, scannerName);
+                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
         }
     }
 

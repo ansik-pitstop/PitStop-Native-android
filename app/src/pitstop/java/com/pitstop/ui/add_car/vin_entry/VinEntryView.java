@@ -9,4 +9,5 @@ public interface VinEntryView {
     void onInvalidVinInput();
     int getMileage();
     void onInvalidMileage();
+    void onGotDeviceInfo(String scannerId, String scannerName);
 }

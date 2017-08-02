@@ -1,7 +1,6 @@
 package com.pitstop.ui.add_car.vin_entry;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -13,14 +12,15 @@ public class VinEntryPresenter {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private VinEntryView view;
-    private FragmentSwitcher fragmentSwitcher;
+    private String scannerName;
+    private String scannerId;
+    private boolean gotScannerInfo = false;
 
-    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper
-            ,FragmentSwitcher fragmentSwitcher){
+
+    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
 
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
-        this.fragmentSwitcher = fragmentSwitcher;
     }
 
     public void subscribe(VinEntryView view){
@@ -59,7 +59,19 @@ public class VinEntryPresenter {
         }
 
         //Add vehicle logic below
+        if (!gotScannerInfo){
+            //Add without scanner
+        }
+        else{
+            //Add with scanner
+        }
 
+    }
+
+    public void gotDeviceInfo(String scannerName, String scannerId){
+        gotScannerInfo = true;
+        this.scannerName = scannerName;
+        this.scannerId = scannerId;
     }
 
     private boolean isVinValid(String vin){
