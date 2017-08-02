@@ -2,6 +2,7 @@ package com.pitstop.ui.add_car.vin_entry;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -89,13 +91,38 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         super.onDestroyView();
     }
 
+    private boolean checkBackCamera() {
+        final int CAMERA_FACING_BACK = 0;
+        int cameraCount = Camera.getNumberOfCameras();
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        for (int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i, info);
+            if (CAMERA_FACING_BACK == info.facing) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @OnClick(R.id.scan_vin)
     protected void scanVinClicked(){
 
         //Scan logic here
 
-        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
-                ,MixpanelHelper.ADD_CAR_VIEW);
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
+
+        if (!checkBackCamera()) {
+            Toast.makeText(getContext(), "This device does not have a back facing camera",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        IntentIntegrator barcodeScanner = new IntentIntegrator(getActivity());
+        barcodeScanner.setBeepEnabled(false);
+        barcodeScanner.initiateScan();
+
+        //When the Barcode Scanner view appears
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_BARCODE_SCANNER_VIEW_APPEARED);
     }
 
     @OnClick(R.id.add_vehicle)
