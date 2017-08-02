@@ -35,6 +35,7 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
+    private UseCaseComponent useCaseComponent;
 
     public static AskHasDeviceFragment getInstance(){
         return new AskHasDeviceFragment();
@@ -50,7 +51,7 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setCancelable(false);
 
-        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
@@ -58,8 +59,6 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
                 (GlobalApplication)getActivity().getApplicationContext());
 
         fragmentSwitcher = (FragmentSwitcher)getActivity();
-
-        presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper);
     }
 
     @Nullable
@@ -70,7 +69,12 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_ask_has_device, container, false);
         ButterKnife.bind(this, rootView);
+
+        if (presenter == null){
+            presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper);
+        }
         presenter.subscribe(this);
+
         return rootView;
     }
 

@@ -2,7 +2,6 @@ package com.pitstop.ui.add_car;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -38,7 +37,9 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     private MixpanelHelper mixpanelHelper;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         Log.d(TAG,"onCreate()");
 
         setContentView(R.layout.activity_add_car);
@@ -50,8 +51,6 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         vinEntryFragment = VinEntryFragment.getInstance();
 
         setViewAskHasDevice();
-
-        super.onCreate(savedInstanceState, persistentState);
     }
 
     @Override

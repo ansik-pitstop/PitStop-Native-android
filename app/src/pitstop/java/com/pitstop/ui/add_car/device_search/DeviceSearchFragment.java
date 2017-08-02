@@ -46,6 +46,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
+    private BluetoothConnectionObservable bluetoothConnectionObservable;
+    private UseCaseComponent useCaseComponent;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -61,11 +63,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setCancelable(false);
 
-        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
-        BluetoothConnectionObservable bluetoothConnectionObservable
+        bluetoothConnectionObservable
                 = ((MainActivity)getActivity()).getBluetoothConnectService();
 
         mixpanelHelper = new MixpanelHelper(
@@ -73,8 +75,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
         fragmentSwitcher = (FragmentSwitcher)getActivity();
 
-        presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper
-                , bluetoothConnectionObservable);
     }
 
     @Nullable
@@ -85,6 +85,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_device_search, container, false);
         ButterKnife.bind(this, rootView);
+        if (presenter == null){
+            presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper
+                    , bluetoothConnectionObservable);
+        }
         presenter.subscribe(this);
         return rootView;
     }

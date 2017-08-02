@@ -53,6 +53,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
+    private UseCaseComponent useCaseComponent;
 
     public static VinEntryFragment getInstance(){
         return new VinEntryFragment();
@@ -68,7 +69,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setCancelable(false);
 
-        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
@@ -76,8 +77,6 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 (GlobalApplication)getActivity().getApplicationContext());
 
         fragmentSwitcher = (FragmentSwitcher)getActivity();
-
-        presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper);
     }
 
     @Nullable
@@ -88,6 +87,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_vin_entry, container, false);
         ButterKnife.bind(this, rootView);
+        if (presenter == null){
+            presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper);
+        }
         presenter.subscribe(this);
         return rootView;
     }
