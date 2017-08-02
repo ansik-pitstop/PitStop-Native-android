@@ -18,7 +18,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.add_car_old.AddCarActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;

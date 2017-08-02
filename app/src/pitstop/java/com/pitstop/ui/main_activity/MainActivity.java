@@ -66,7 +66,7 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car_old.AddCarActivity;
-import com.pitstop.ui.add_car_old.PromptAddCarActivity;
+import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
 import com.pitstop.ui.my_trips.MyTripsActivity;
