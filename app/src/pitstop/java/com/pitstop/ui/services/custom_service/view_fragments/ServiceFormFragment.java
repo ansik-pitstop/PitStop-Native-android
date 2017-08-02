@@ -1,6 +1,7 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -28,8 +30,11 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.service.CustomIssueListItem;
+import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
+import com.pitstop.utils.MixpanelHelper;
 
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -104,7 +109,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
                 .contextModule(new ContextModule(application))
                 .build();
 
-        presenter = new ServiceFormPresenter(component, (CustomServiceActivityCallback)getActivity());
+        MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
+
+        presenter = new ServiceFormPresenter(component, (CustomServiceActivityCallback)getActivity(),mixpanelHelper);
         priorityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -280,7 +287,17 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         dialog.show();
     }
 
-
+    @Override
+    public void showDatePicker() {
+        ServicesDatePickerDialog datePickerDialog = new ServicesDatePickerDialog(getActivity(), Calendar.getInstance(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {// year month day
+                presenter.datePicked(i,i1,i2);
+            }
+        });
+        datePickerDialog.setTitle("Select when you completed this service.");
+        datePickerDialog.show();
+    }
 
     @Override
     public void onResume() {

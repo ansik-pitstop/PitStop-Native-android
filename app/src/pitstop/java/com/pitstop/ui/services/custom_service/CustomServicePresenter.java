@@ -7,9 +7,6 @@ package com.pitstop.ui.services.custom_service;
 public class CustomServicePresenter {
     private CustomServiceView view;
 
-    public CustomServicePresenter(){
-
-    }
     public void subscribe(CustomServiceView view){
         this.view = view;
         setViewServiceForm();
@@ -19,6 +16,7 @@ public class CustomServicePresenter {
     }
 
     public void setViewServiceForm(){
+        if(view == null){return;}
         view.setViewServiceForm();
     }
 }

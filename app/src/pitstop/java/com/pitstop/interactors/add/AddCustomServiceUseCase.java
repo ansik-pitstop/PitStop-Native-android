@@ -1,7 +1,7 @@
 package com.pitstop.interactors.add;
 
 import com.pitstop.interactors.Interactor;
-import com.pitstop.models.issue.CustomIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 
 /**
@@ -10,10 +10,10 @@ import com.pitstop.network.RequestError;
 
 public interface AddCustomServiceUseCase extends Interactor {
     interface Callback{
-        void onIssueAdded();
+        void onIssueAdded(CarIssue data);
         void onError(RequestError error);
     }
 
     //Executes usecase
-    void execute(CustomIssue issue, String eventSource, Callback callback);
+    void execute(CarIssue issue, String eventSource, Callback callback);
 }

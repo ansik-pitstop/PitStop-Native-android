@@ -1,6 +1,7 @@
 package com.pitstop.ui.services;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.pitstop.EventBus.EventSource;
@@ -25,6 +27,7 @@ import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataFragment;
+import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -53,6 +56,9 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     @BindView(R.id.issue_expandable_list)
     protected ExpandableListView issueGroup;
+
+    @BindView(R.id.service_launch_custom)
+    LinearLayout customServiceButton;
 
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -88,6 +94,14 @@ public class HistoryServiceFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         ButterKnife.bind(this, view);
+        customServiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), CustomServiceActivity.class);
+                intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
+                startActivity(intent);
+            }
+        });
         setNoUpdateOnEventTypes(ignoredEvents);
         updateUI();
         return view;

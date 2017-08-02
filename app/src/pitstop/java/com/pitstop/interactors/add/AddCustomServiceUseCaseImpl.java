@@ -8,7 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Settings;
-import com.pitstop.models.issue.CustomIssue;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
@@ -28,7 +28,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     private Handler handler;
     private Callback callback;
 
-    private CustomIssue issue;
+    private CarIssue issue;
 
     private EventSource eventSource;
 
@@ -40,7 +40,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     }
 
     @Override
-    public void execute(CustomIssue issue, String eventSource, Callback callback) {
+    public void execute(CarIssue issue, String eventSource, Callback callback) {
         this.eventSource = new EventSourceImpl(eventSource);
         this.issue = issue;
         this.callback = callback;
@@ -52,13 +52,14 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings data) {
-                carIssueRepository.insertCustom(data.getCarId(), data.getUserId(), issue, new Repository.Callback<Object>() {
+                carIssueRepository.insertCustom(data.getCarId(), data.getUserId(), issue, new Repository.Callback<CarIssue>() {
                     @Override
-                    public void onSuccess(Object data) {
+                    public void onSuccess(CarIssue data) {
+
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
-                        callback.onIssueAdded();
+                        callback.onIssueAdded(data);
                     }
 
                     @Override

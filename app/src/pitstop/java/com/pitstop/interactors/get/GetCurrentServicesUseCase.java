@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface GetCurrentServicesUseCase extends Interactor {
     interface Callback{
-        void onGotCurrentServices(List<CarIssue> currentServices);
+        void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues);
         void onError(RequestError error);
     }
 

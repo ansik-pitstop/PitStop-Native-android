@@ -6,4 +6,5 @@ package com.pitstop.ui.services.custom_service;
 
 public interface CustomServiceActivityCallback {
     void finishForm();
+    boolean getHistorical();
 }

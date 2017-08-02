@@ -789,7 +789,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onCarRetrieved(Car car) {
                 if (!checkDealership(car)) return;
-                final Intent intent = new Intent(thisInstance, CustomServiceActivity.class);//Fix this
+                final Intent intent = new Intent(thisInstance, MyAppointmentActivity.class);
+                intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
                 startActivity(intent);
                 hideLoading();

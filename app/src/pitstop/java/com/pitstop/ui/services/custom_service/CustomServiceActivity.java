@@ -19,12 +19,18 @@ public class CustomServiceActivity extends AppCompatActivity implements CustomSe
     private FragmentManager fragmentManager;
     private ServiceFormFragment serviceFormFragment;
 
+    private boolean historical;
+
+
+    public static String HISTORICAL_EXTRA = "historical";
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_service);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        historical = getIntent().getExtras().getBoolean(HISTORICAL_EXTRA);
         fragmentManager = getFragmentManager();
         serviceFormFragment = new ServiceFormFragment();
         presenter = new CustomServicePresenter();
@@ -50,6 +56,11 @@ public class CustomServiceActivity extends AppCompatActivity implements CustomSe
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.custom_service_view_holder, serviceFormFragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean getHistorical() {
+        return historical;
     }
 
     @Override

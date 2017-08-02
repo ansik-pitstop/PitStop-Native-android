@@ -3,10 +3,13 @@ package com.pitstop.ui.services.custom_service.view_fragments;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
-import com.pitstop.models.issue.CustomIssue;
+import com.pitstop.interactors.other.MarkServiceDoneUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.CustomIssueListItem;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +25,33 @@ public class ServiceFormPresenter implements PresenterCallback {
     private CustomServiceActivityCallback callback;
     private UseCaseComponent component;
 
-    public ServiceFormPresenter(UseCaseComponent component,CustomServiceActivityCallback callback){
+    private CarIssue issueForLogging;
+
+    private MixpanelHelper mixpanelHelper;
+
+    private final String MIX_VIEW = "CustomServices";
+
+
+    public ServiceFormPresenter(UseCaseComponent component,CustomServiceActivityCallback callback, MixpanelHelper mixpanelHelper){
         this.component = component;
         this.callback = callback;
+        this.mixpanelHelper = mixpanelHelper;
     }
     public void subscribe(ServiceFormView view){
+        if(view == null){return;}
+        mixpanelHelper.trackViewAppeared(MIX_VIEW);
         this.view = view;
         setActionList();
         setPartNameList();
         setPriorityList();
     }
     public void unsubscribe(){
-
+        view = null;
     }
 
 
     public void setActionList(){
+        if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
         item.setText("Replace");
@@ -73,6 +87,7 @@ public class ServiceFormPresenter implements PresenterCallback {
     }
 
     public void setPartNameList(){
+        if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
         item.setText("Air Filter");
@@ -138,6 +153,7 @@ public class ServiceFormPresenter implements PresenterCallback {
     }
 
     public void setPriorityList(){
+        if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
         item.setText("Low ");
@@ -168,50 +184,68 @@ public class ServiceFormPresenter implements PresenterCallback {
     }
 
     public void onPriorityClicked(){
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("Priority",MIX_VIEW);
         view.togglePriorityList();
     }
 
     public void onPartNameClicked(){
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("PartName",MIX_VIEW);
         view.togglePartNameList();
     }
 
     public void onActionClicked(){
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("Action",MIX_VIEW);
         view.toggleActionList();
     }
 
     @Override
     public void onActionItemClicked(CustomIssueListItem item) {
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("ActionItem",MIX_VIEW);
         view.showActionText(item);
         view.toggleActionList();
     }
 
     @Override
     public void onPartNameItemClicked(CustomIssueListItem item) {
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("PartNameItem",MIX_VIEW);
         view.showPartNameText(item);
         view.togglePartNameList();
     }
 
     @Override
     public void onPriorityItemClicked(CustomIssueListItem item) {
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("PriorityItem",MIX_VIEW);
         view.showPriorityText(item);
         view.togglePriorityList();
     }
 
     @Override
     public void onActionOther() {
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("ActionOther",MIX_VIEW);
         view.showActionText();
         view.toggleActionList();
     }
 
     @Override
     public void onPartNameOther() {
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("PartNameOther",MIX_VIEW);
         view.showPartNameText();
         view.togglePriorityList();
     }
 
     public void onCreateButton(){
+        if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("Create",MIX_VIEW);
         view.disableCreateButton(false);
-        CustomIssue customIssue = new CustomIssue();
+        CarIssue customIssue = new CarIssue();
         if(view.getPartName().equals("")){
             view.showReminder("Please enter the part name");
             view.disableCreateButton(true);
@@ -223,7 +257,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         }
         customIssue.setAction(view.getAction());
         customIssue.setDescription(view.getDescription());
-        customIssue.setName(view.getPartName());
+        customIssue.setItem(view.getPartName());
         String priority = view.getPriority();
         if(priority.equals("Low")){
             customIssue.setPriority(1);
@@ -234,15 +268,50 @@ public class ServiceFormPresenter implements PresenterCallback {
         }else {
             customIssue.setPriority(2);
         }
-        component.getAddCustomServiceUseCase().execute(customIssue, EventSource.SOURCE_REQUEST_SERVICE, new AddCustomServiceUseCase.Callback() {
+        postService(customIssue);
+
+
+    }
+
+    public void datePicked(int year, int month, int day){
+        if(issueForLogging == null || view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("DatePickerDate",MIX_VIEW);
+        issueForLogging.setYear(year);
+        issueForLogging.setMonth(month);
+        issueForLogging.setDay(day);
+        issueForLogging.setDoneMileage(25);
+        component.markServiceDoneUseCase().execute(issueForLogging, new MarkServiceDoneUseCase.Callback() {
             @Override
-            public void onIssueAdded() {
-                System.out.println("Testing issue added");
+            public void onServiceMarkedAsDone() {
+                if(view == null || callback == null){return;}
                 callback.finishForm();
             }
 
             @Override
             public void onError(RequestError error) {
+                if(view == null || callback == null){return;}
+                view.showReminder("An error occurred logging your issue "+error.getMessage());
+            }
+        });
+    }
+    private void postService(CarIssue customIssue){
+        if(view == null || callback == null){return;}
+        component.getAddCustomServiceUseCase().execute(customIssue, EventSource.SOURCE_REQUEST_SERVICE, new AddCustomServiceUseCase.Callback() {
+            @Override
+            public void onIssueAdded(CarIssue data) {
+                if(view == null || callback == null){return;}
+                if(callback.getHistorical()){
+                    issueForLogging = data;
+                    mixpanelHelper.trackViewAppeared("LogCustomServiceDatePicker");
+                    view.showDatePicker();
+                    return;
+                }
+                callback.finishForm();
+            }
+            @Override
+            public void onError(RequestError error) {
+                if(view == null || callback == null){return;}
+                view.showReminder("An error occurred adding your service "+error.getMessage());
                 view.disableCreateButton(true);
             }
         });
