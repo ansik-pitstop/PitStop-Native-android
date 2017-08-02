@@ -15,6 +15,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -139,6 +140,37 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Invalid Mileage")
                 .setMessage("Please input a mileage between 0 and 3,000,000.")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("",null)
+                .create();
+        invalidMileageDialog.show();
+    }
+
+    @Override
+    public void onCarAddedWithShop(Car car) {
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.endAddCarSuccess(car,true);
+    }
+
+    @Override
+    public void onCarAddedWithoutShop(Car car) {
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.endAddCarSuccess(car,false);
+    }
+
+    @Override
+    public void onErrorAddingCar(String message) {
+        AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
+                .setTitle("Add Car Error")
+                .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

@@ -85,7 +85,7 @@ public class VinEntryPresenter {
                     view.onErrorAddingCar("Please connect to the internet to add your vehicle.");
                 }
                 else{
-                    view.onErrorAddingCar("Unexpected error occured adding car" +
+                    view.onErrorAddingCar("Unexpected error occurred adding car" +
                             ", please restart the app and try again.");
                 }
             }
