@@ -95,6 +95,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         //Already searching, no need to start another search
         if (searchingForDevice) return;
 
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
+
         //Check if mileage is valid
         if (!AddCarUtils.isMileageValid(view.getMileage())){
             view.onMileageInvalid();
@@ -104,6 +107,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         //Check if already connected to device
         if (bluetoothConnectionObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED)){
+
+            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
             readyDevice = bluetoothConnectionObservable.getReadyDevice();
 
@@ -119,10 +125,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 addCar();
             }
 
-
         }
         //Otherwise request search and wait for callback
         else{
+
+
+
             view.showLoading("Searching for Device");
             searchingForDevice = true;
             bluetoothConnectionObservable.requestDeviceSearch(true);
@@ -139,18 +147,31 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (view == null) return;
         if (!searchingForDevice) return;
 
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
+
         searchingForDevice = false;
         findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
         //Check for valid vin
         if (AddCarUtils.isVinValid(readyDevice.getVin())){
+
+            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
             searchingForVin = false;
             //Begin  adding car
             addCar();
 
         }
         else{
+
+            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
+
             view.showLoading("Getting VIN");
 
             //Try to get valid VIN
@@ -221,6 +242,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (!searchingForVin) return;
 
         if (AddCarUtils.isVinValid(vin)){
+            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                    , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
             getVinTimer.cancel();
             searchingForVin = false;
             addCar();

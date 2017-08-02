@@ -49,6 +49,9 @@ public class VinEntryPresenter {
     public void addVehicle(String vin){
         if (view == null) return;
 
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
         vin = AddCarUtils.removeWhitespace(vin);
         int mileage = view.getMileage();
 

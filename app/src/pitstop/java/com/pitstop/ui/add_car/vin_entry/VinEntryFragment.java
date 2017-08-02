@@ -92,10 +92,17 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @OnClick(R.id.scan_vin)
     protected void scanVinClicked(){
 
+        //Scan logic here
+
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
+                ,MixpanelHelper.ADD_CAR_VIEW);
     }
 
     @OnClick(R.id.add_vehicle)
     protected void addVehicleClicked(){
+
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_METHOD_MANUAL
+                ,MixpanelHelper.ADD_CAR_VIEW);
         presenter.addVehicle(vinEditText.getText().toString());
     }
 
