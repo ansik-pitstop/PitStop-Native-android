@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
@@ -28,6 +29,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     private AskHasDeviceFragment askHasDeviceFragment;
     private DeviceSearchFragment deviceSearchFragment;
     private VinEntryFragment vinEntryFragment;
+    private Fragment currentFragment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
@@ -47,6 +49,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     public void setViewAskHasDevice() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, askHasDeviceFragment);
+        currentFragment = askHasDeviceFragment;
         fragmentTransaction.commit();
     }
 
@@ -54,6 +57,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     public void setViewDeviceSearch() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, deviceSearchFragment);
+        currentFragment = deviceSearchFragment;
         fragmentTransaction.commit();
     }
 
@@ -62,11 +66,13 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         vinEntryFragment.onGotDeviceInfo(scannerId, scannerName);
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
+        currentFragment = vinEntryFragment;
         fragmentTransaction.commit();
     }
 
     @Override
     public void endAddCarSuccess(Car car, boolean hasDealership) {
+        currentFragment = null;
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
         if (hasDealership){
@@ -85,4 +91,13 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (currentFragment == vinEntryFragment || currentFragment == deviceSearchFragment){
+            setViewAskHasDevice();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
 }
