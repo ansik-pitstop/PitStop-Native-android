@@ -695,14 +695,15 @@ public class AddCarPresenter implements AddCarContract.Presenter {
     }
 
     @Override
-    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+    public void onDeviceReady(ReadyDevice readyDevice) {
         if (mCallback == null) return;
-        Log.d(TAG,"onDeviceReady() vin: "+vin+", scannerId: "+scannerId+", scannerName: "+scannerName);
+        Log.d(TAG,"onDeviceReady() vin: "+readyDevice.getVin()+", scannerId: "+readyDevice.getScannerId()+", scannerName: "
+                +readyDevice.getScannerName());
 
         mCallback.onDeviceConnected();
 
-        pendingCar.setScannerId(scannerId);
-        String retrievedVin = vin;
+        pendingCar.setScannerId(readyDevice.getScannerId());
+        String retrievedVin = readyDevice.getVin();
 
         try {
             JSONObject properties = new JSONObject()
