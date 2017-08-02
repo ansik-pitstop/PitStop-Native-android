@@ -1,7 +1,11 @@
 package com.pitstop.ui.add_car;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,7 +14,9 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.Car;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;
 import com.pitstop.ui.add_car.device_search.DeviceSearchFragment;
 import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
@@ -35,6 +41,24 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     private VinEntryFragment vinEntryFragment;
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
+    private BluetoothConnectionObservable bluetoothConnectionObservable;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG,"onServiceConnected() name: "+name.toString());
+            bluetoothConnectionObservable = ((BluetoothAutoConnectService.BluetoothBinder)service)
+                    .getService();
+            if (currentFragment == deviceSearchFragment)
+                deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG,"onServiceDisconnected() name: "+name.toString());
+
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,7 +67,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         Log.d(TAG,"onCreate()");
 
         setContentView(R.layout.activity_add_car);
-
+        bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
+                , serviceConnection, Context.BIND_AUTO_CREATE);
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
 
         askHasDeviceFragment = AskHasDeviceFragment.getInstance();
@@ -137,5 +162,9 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         else{
             super.onBackPressed();
         }
+    }
+
+    public BluetoothConnectionObservable getBluetoothConnectionObservable(){
+        return bluetoothConnectionObservable;
     }
 }

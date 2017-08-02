@@ -21,8 +21,8 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.FragmentSwitcher;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -46,7 +46,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
     private UseCaseComponent useCaseComponent;
 
     public static DeviceSearchFragment getInstance(){
@@ -67,14 +66,15 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
-        bluetoothConnectionObservable
-                = ((MainActivity)getActivity()).getBluetoothConnectService();
-
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
         fragmentSwitcher = (FragmentSwitcher)getActivity();
 
+    }
+
+    public void setBluetoothConnectionObservable(BluetoothConnectionObservable bluetoothConnectionObservable){
+        presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }
 
     @Nullable
@@ -85,10 +85,18 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_device_search, container, false);
         ButterKnife.bind(this, rootView);
+
         if (presenter == null){
-            presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper
-                    , bluetoothConnectionObservable);
+            presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper);
         }
+
+        BluetoothConnectionObservable bluetoothConnectionObservable
+                = ((AddCarActivity)getActivity()).getBluetoothConnectionObservable();
+
+        if (bluetoothConnectionObservable != null){
+            presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
+        }
+
         presenter.subscribe(this);
         return rootView;
     }

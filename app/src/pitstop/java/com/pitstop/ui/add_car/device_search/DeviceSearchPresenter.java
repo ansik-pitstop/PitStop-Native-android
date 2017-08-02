@@ -81,30 +81,45 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    public DeviceSearchPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper
-            , BluetoothConnectionObservable bluetoothConnectionObservable){
+    public DeviceSearchPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
 
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+    }
+
+    public void setBluetoothConnectionObservable(
+            BluetoothConnectionObservable bluetoothConnectionObservable){
+
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
+
+        //If view is subscribed, subscribe to bluetooth service
+        if (view != null){
+            bluetoothConnectionObservable.subscribe(this);
+        }
     }
 
     public void subscribe(DeviceSearchView view){
         Log.d(TAG,"subscribe()");
         this.view = view;
-        bluetoothConnectionObservable.subscribe(this);
+
+        if (bluetoothConnectionObservable != null){
+            bluetoothConnectionObservable.subscribe(this);
+        }
     }
 
     public void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
         this.view = null;
-        bluetoothConnectionObservable.unsubscribe(this);
+
+        if (bluetoothConnectionObservable != null){
+            bluetoothConnectionObservable.unsubscribe(this);
+        }
     }
 
     public void startSearch(){
         Log.d(TAG,"startSearch()");
 
-        if (view == null) return;
+        if (view == null || bluetoothConnectionObservable == null) return;
 
         //Already searching, no need to start another search
         if (searchingForDevice) return;
