@@ -1,6 +1,7 @@
 package com.pitstop.ui.add_car.vin_entry;
 
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -12,10 +13,14 @@ public class VinEntryPresenter {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private VinEntryView view;
+    private FragmentSwitcher fragmentSwitcher;
 
-    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
+    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper
+            ,FragmentSwitcher fragmentSwitcher){
+
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        this.fragmentSwitcher = fragmentSwitcher;
     }
 
     public void subscribe(VinEntryView view){
@@ -39,8 +44,22 @@ public class VinEntryPresenter {
 
     public void addVehicle(String vin){
         vin = removeWhitespace(vin);
+        int mileage = view.getMileage();
+
+        //Check for valid vin again, even though it should be valid here
+        if (!isVinValid(vin)){
+            view.onInvalidVinInput();
+            return;
+        }
+
+        //Check for valid mileage
+        if (mileage < 0 || mileage > 3000000){
+            view.onInvalidMileage();
+            return;
+        }
 
         //Add vehicle logic below
+
     }
 
     private boolean isVinValid(String vin){

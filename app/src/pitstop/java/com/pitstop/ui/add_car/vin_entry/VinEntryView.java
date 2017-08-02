@@ -8,4 +8,5 @@ public interface VinEntryView {
     void onValidVinInput();
     void onInvalidVinInput();
     int getMileage();
+    void onInvalidMileage();
 }

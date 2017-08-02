@@ -1,8 +1,10 @@
 package com.pitstop.ui.add_car.vin_entry;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,8 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.ui.add_car.FragmentSwitcher;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -32,6 +36,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     Button addVehicleButton;
     @BindView(R.id.VIN)
     EditText vinEditText;
+    @BindView(R.id.mileage_input)
+    EditText mileageEditText;
 
     private ViewGroup rootView;
     private VinEntryPresenter presenter;
@@ -48,7 +54,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
-        presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper);
+        FragmentSwitcher fragmentSwitcher = (FragmentSwitcher)getActivity();
+
+        presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper,fragmentSwitcher);
     }
 
     @Nullable
@@ -93,5 +101,26 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void onInvalidVinInput() {
         addVehicleButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_grey));
         addVehicleButton.setEnabled(false);
+    }
+
+    @Override
+    public int getMileage() {
+        return Integer.valueOf(mileageEditText.getText().toString());
+    }
+
+    @Override
+    public void onInvalidMileage() {
+        AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
+                .setTitle("Invalid Mileage")
+                .setMessage("Please input a mileage between 0 and 3,000,000")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setNegativeButton("", null).create();
+        invalidMileageDialog.show();
     }
 }

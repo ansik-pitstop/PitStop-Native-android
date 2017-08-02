@@ -12,6 +12,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.ButterKnife;
@@ -38,7 +39,9 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
 
-        presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper);
+        FragmentSwitcher fragmentSwitcher = (FragmentSwitcher)getActivity();
+
+        presenter = new AskHasDevicePresenter(useCaseComponent,mixpanelHelper, fragmentSwitcher);
     }
 
     @Nullable
