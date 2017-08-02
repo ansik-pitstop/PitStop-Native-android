@@ -5,6 +5,7 @@ import com.pitstop.models.ReadyDevice;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothVinObserver;
+import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
 
@@ -79,6 +80,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void startSearch(){
+        //Check if VIN is valid
+        if (!AddCarUtils.isMileageValid(view.getMileage())){
+            view.onMileageInvalid();
+        }
+
         //Check if already connected to device
         if (bluetoothConnectionObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED)){
@@ -86,7 +92,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             readyDevice = bluetoothConnectionObservable.getReadyDevice();
 
             //Check if retrieved VIN is valid, otherwise begin timer
-            if (!isVinValid(readyDevice.getVin())){
+            if (!AddCarUtils.isVinValid(readyDevice.getVin())){
                 searchingForVin = true;
                 getVinTimer.start();
             }
@@ -122,7 +128,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         this.readyDevice = readyDevice;
 
         //Check for valid vin
-        if (isVinValid(readyDevice.getVin())){
+        if (AddCarUtils.isVinValid(readyDevice.getVin())){
             searchingForVin = false;
 
             //Begin  adding car
@@ -155,18 +161,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void onGotVin(String vin) {
         if (!searchingForVin) return;
 
-        if (isVinValid(vin)){
+        if (AddCarUtils.isVinValid(vin)){
             getVinTimer.cancel();
             searchingForVin = false;
         }
-    }
-
-    private String removeWhitespace(String s){
-        return s.replace(" ","").replace("\n","").replace("\t","");
-    }
-
-    private boolean isVinValid(String vin){
-        vin = removeWhitespace(vin);
-        return vin != null && (vin.length() == 17);
     }
 }

@@ -8,5 +8,7 @@ public interface DeviceSearchView {
 
     void onVinRetrievalFailed(String scannerName, String scannerId);
     void onCannotFindDevice();
+    int getMileage();
+    void onMileageInvalid();
 
 }

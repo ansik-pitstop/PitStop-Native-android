@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -20,6 +21,7 @@ import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -28,6 +30,9 @@ import butterknife.OnClick;
  */
 
 public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
+
+    @BindView(R.id.mileage_input)
+    EditText mileageInputEditText;
 
     private ViewGroup rootView;
     private DeviceSearchPresenter presenter;
@@ -121,6 +126,28 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                         dialog.cancel();
                     }
                 }).create();
+        invalidMileageDialog.show();
+    }
+
+    @Override
+    public int getMileage(){
+        return Integer.valueOf(mileageInputEditText.getText().toString());
+    }
+
+    @Override
+    public void onMileageInvalid() {
+        AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
+                .setTitle("Invalid Mileage")
+                .setMessage("Please input a mileage between 0 and 3,000,000.")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("",null)
+                .create();
         invalidMileageDialog.show();
     }
 }

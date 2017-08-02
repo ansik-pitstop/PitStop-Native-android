@@ -5,6 +5,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -37,7 +38,7 @@ public class VinEntryPresenter {
     public void vinChanged(String vin){
         if (view == null) return;
 
-        if (isVinValid(vin)){
+        if (AddCarUtils.isVinValid(vin)){
             view.onValidVinInput();
         }
         else{
@@ -46,17 +47,17 @@ public class VinEntryPresenter {
     }
 
     public void addVehicle(String vin){
-        vin = removeWhitespace(vin);
+        vin = AddCarUtils.removeWhitespace(vin);
         int mileage = view.getMileage();
 
         //Check for valid vin again, even though it should be valid here
-        if (!isVinValid(vin)){
+        if (!AddCarUtils.isVinValid(vin)){
             view.onInvalidVinInput();
             return;
         }
 
         //Check for valid mileage
-        if (mileage < 0 || mileage > 3000000){
+        if (!AddCarUtils.isMileageValid(mileage)){
             view.onInvalidMileage();
             return;
         }
@@ -95,15 +96,6 @@ public class VinEntryPresenter {
     public void gotDeviceInfo(String scannerName, String scannerId){
         this.scannerName = scannerName;
         this.scannerId = scannerId;
-    }
-
-    private boolean isVinValid(String vin){
-        vin = removeWhitespace(vin);
-        return vin != null && (vin.length() == 17);
-    }
-
-    private String removeWhitespace(String s){
-        return s.replace(" ","").replace("\n","").replace("\t","");
     }
 
 }
