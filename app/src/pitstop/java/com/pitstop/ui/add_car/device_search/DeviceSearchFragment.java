@@ -52,27 +52,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         return new DeviceSearchFragment();
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        Log.d(TAG,"onActivityCreated()");
-
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setCancelable(false);
-
-        useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getContext()))
-                .build();
-
-        mixpanelHelper = new MixpanelHelper(
-                (GlobalApplication)getActivity().getApplicationContext());
-
-        fragmentSwitcher = (FragmentSwitcher)getActivity();
-
-    }
-
     public void setBluetoothConnectionObservable(BluetoothConnectionObservable bluetoothConnectionObservable){
         presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }
@@ -81,6 +60,27 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
+
+        if (progressDialog == null){
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
+        }
+
+        if (useCaseComponent == null){
+            useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(new ContextModule(getContext()))
+                    .build();
+        }
+
+        if (mixpanelHelper == null){
+            mixpanelHelper = new MixpanelHelper(
+                    (GlobalApplication)getActivity().getApplicationContext());
+        }
+
+        if (fragmentSwitcher == null){
+            fragmentSwitcher = (FragmentSwitcher)getActivity();
+        }
 
         rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_device_search, container, false);
