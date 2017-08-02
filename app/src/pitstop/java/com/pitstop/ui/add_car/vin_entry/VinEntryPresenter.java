@@ -1,5 +1,7 @@
 package com.pitstop.ui.add_car.vin_entry;
 
+import android.util.Log;
+
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
@@ -30,14 +32,19 @@ public class VinEntryPresenter {
     }
 
     public void subscribe(VinEntryView view){
+        Log.d(TAG,"subscribe()");
+
         this.view = view;
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
+
         this.view = null;
     }
 
     public void vinChanged(String vin){
+        Log.d(TAG,"vinChanged() vin:"+vin);
         if (view == null) return;
 
         if (AddCarUtils.isVinValid(vin)){
@@ -49,6 +56,7 @@ public class VinEntryPresenter {
     }
 
     public void addVehicle(String vin){
+        Log.d(TAG,"addVehicle() vin:"+vin);
         if (view == null) return;
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
@@ -106,6 +114,8 @@ public class VinEntryPresenter {
     }
 
     public void gotDeviceInfo(String scannerName, String scannerId){
+        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId);
+
         this.scannerName = scannerName;
         this.scannerId = scannerId;
     }
