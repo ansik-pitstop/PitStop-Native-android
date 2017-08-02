@@ -126,6 +126,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForVin = false;
 
             //Begin  adding car
+            //useCaseComponent.addCarUseCase().execute(readyDevice.getVin());
+
         }
         else{
             //Try to get valid VIN

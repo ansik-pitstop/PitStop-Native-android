@@ -7,111 +7,125 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button2">
+        android:layout_above="@+id/bt_search_car">
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#efefef"
+            android:elevation="2dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
             android:layout_centerVertical="true"
-            android:layout_alignParentStart="true">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Make Sure"
-                android:id="@+id/textView65"
-                android:layout_gravity="center_horizontal"
-                android:textColor="#fff"
-                android:layout_marginBottom="16dp" />
+            android:layout_centerHorizontal="true"
+            android:paddingTop="16dp"
+            android:focusable="false">
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#efefef"
-                android:elevation="2dp"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
-                android:paddingTop="24dp"
-                android:focusable="false">
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
 
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/imageView26"
-                        android:src="@drawable/ic_check_circle_green_400_36dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Your Car Is Turned On"
-                        android:id="@+id/textView62"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="16dp"
-                        android:textSize="16sp"
-                        android:textColor="#000" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="horizontal"
+                <TextView
+                    android:text="Enter your mileage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/input_mileage"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/imageView27"
-                        android:src="@drawable/ic_check_circle_green_400_36dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pitstop Device is Plugged In"
-                        android:id="@+id/textView64"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="16dp"
-                        android:textSize="16sp"
-                        android:textColor="#000" />
-                </LinearLayout>
+                    android:layout_marginBottom="16dp"
+                    android:singleLine="true"
+                    android:imeOptions="actionGo"
+                    android:inputType="number"
+                    android:text="0"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your Pitstop device should be able to be plugged into your car at a location close to what is indicated below"
-                    android:id="@+id/textView45"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:elevation="-1dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingBottom="16dp"
-                    android:paddingTop="8dp"
-                    android:textColor="#000" />
+                    android:text="Please make sure of the following"
+                    android:id="@+id/textView65"
+                    android:textColor="#000"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/imageView28"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/illustration_dashboard"
-                    android:adjustViewBounds="true" />
+                    android:id="@+id/imageView26"
+                    android:src="@drawable/ic_check_circle_green_400_36dp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Car Is Turned On"
+                    android:id="@+id/textView62"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:textSize="16sp"
+                    android:textColor="#000" />
             </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView27"
+                    android:src="@drawable/ic_check_circle_green_400_36dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pitstop Device is Plugged In"
+                    android:id="@+id/textView64"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:textSize="16sp"
+                    android:textColor="#000" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Pitstop device should be able to be plugged into your car at a location close to what is indicated below"
+                android:id="@+id/textView45"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:elevation="-1dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                android:textColor="#000" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView28"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/illustration_dashboard"
+                android:adjustViewBounds="true" />
+
         </LinearLayout>
+
     </RelativeLayout>
 
     <Button
