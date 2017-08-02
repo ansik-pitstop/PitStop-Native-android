@@ -47,6 +47,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 view.onVinRetrievalFailed(readyDevice.getScannerName(),readyDevice.getScannerId());
             }
 
+            view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
 
@@ -63,6 +64,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (view == null) return;
 
             view.onCannotFindDevice();
+            view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
 
