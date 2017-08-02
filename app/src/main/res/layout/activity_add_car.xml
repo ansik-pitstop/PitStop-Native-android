@@ -6,6 +6,4 @@
     android:layout_weight="1"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-
 </RelativeLayout>

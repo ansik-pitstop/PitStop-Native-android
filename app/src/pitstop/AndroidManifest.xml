@@ -131,7 +131,7 @@
              android:label="Custom Service Information"/>
 
         <activity
-            android:name=".ui.add_car_old.PendingAddCarActivity"
+            android:name=".ui.add_car.PendingAddCarActivity"
             android:label="Please Connect to Internet" />
 
         <activity
@@ -159,7 +159,7 @@
         </activity>
 
         <activity
-            android:name=".ui.add_car_old.AddCarActivity"
+            android:name=".ui.add_car.AddCarActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".ui.main_activity.MainActivity"
             android:screenOrientation="portrait"
