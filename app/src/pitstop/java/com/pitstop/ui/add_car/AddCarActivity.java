@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -38,6 +39,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        Log.d(TAG,"onCreate()");
 
         setContentView(R.layout.activity_add_car);
 
@@ -54,6 +56,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewAskHasDevice() {
+        Log.d(TAG,"setViewAskHasDevice()");
+
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_ASK_HAS_DEVICE_VIEW);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -64,6 +68,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewDeviceSearch() {
+        Log.d(TAG,"setViewDeviceSearch()");
+
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_SEARCH_DEVICE_VIEW);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -74,6 +80,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewVinEntry(String scannerId, String scannerName) {
+        Log.d(TAG,"setViewVinEntry() scannerId: "+scannerId+", scannerName: "+scannerName);
+
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -85,6 +93,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void setViewVinEntry() {
+        Log.d(TAG,"setViewVinEntry()");
+
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -95,6 +105,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void endAddCarSuccess(Car car, boolean hasDealership) {
+        Log.d(TAG,"endAddCarSuccess() hasDealership? "+hasDealership+", createdCar: "+car);
+
         currentFragment = null;
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
@@ -109,6 +121,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void endAddCarFailure() {
+        Log.d(TAG,"endAddCarFailure()");
+
         Intent data = new Intent();
         setResult(ADD_CAR_FAILED, data);
         finish();
@@ -116,6 +130,8 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG,"onBackpressed()");
+
         if (currentFragment == vinEntryFragment || currentFragment == deviceSearchFragment){
             setViewAskHasDevice();
         }
