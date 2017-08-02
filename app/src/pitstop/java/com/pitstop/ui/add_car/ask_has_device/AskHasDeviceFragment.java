@@ -104,4 +104,17 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         progressDialog.dismiss();
         Toast.makeText(getActivity(),message,Toast.LENGTH_LONG);
     }
+
+    @Override
+    public void loadVinEntryView() {
+        if (fragmentSwitcher == null) return;
+        fragmentSwitcher.setViewVinEntry();
+    }
+
+    @Override
+    public void loadDeviceSearchView() {
+        if (fragmentSwitcher == null) return;
+        fragmentSwitcher.setViewDeviceSearch();
+
+    }
 }

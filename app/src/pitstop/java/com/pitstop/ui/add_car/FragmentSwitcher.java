@@ -10,6 +10,7 @@ public interface FragmentSwitcher {
     void setViewAskHasDevice();
     void setViewDeviceSearch();
     void setViewVinEntry(String scannerId, String scannerName);
+    void setViewVinEntry();
     void endAddCarSuccess(Car car, boolean hasDealership);
     void endAddCarFailure();
 }

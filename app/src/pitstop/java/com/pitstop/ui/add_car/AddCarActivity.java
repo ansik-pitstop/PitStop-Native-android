@@ -71,6 +71,14 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     }
 
     @Override
+    public void setViewVinEntry() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
+        currentFragment = vinEntryFragment;
+        fragmentTransaction.commit();
+    }
+
+    @Override
     public void endAddCarSuccess(Car car, boolean hasDealership) {
         currentFragment = null;
         Intent data = new Intent();
