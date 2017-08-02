@@ -162,7 +162,31 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForVin = false;
 
             //Begin  adding car
-            //useCaseComponent.addCarUseCase().execute(readyDevice.getVin());
+            useCaseComponent.addCarUseCase().execute(readyDevice.getScannerId(), view.getMileage()
+                    , readyDevice.getScannerId(), readyDevice.getScannerName()
+                    , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+                        @Override
+                        public void onCarAddedWithBackendShop(Car car) {
+                            view.onCarAddedWithShop(car);
+                        }
+
+                        @Override
+                        public void onCarAdded(Car car) {
+                            view.onCarAddedWithoutShop(car);
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                                view.onErrorAddingCar("Please connect to the internet to add " +
+                                        "your vehicle.");
+                            }
+                            else{
+                                view.onErrorAddingCar("Unexpected error occurred adding car" +
+                                        ", please restart the app and try again.");
+                            }
+                        }
+                    });
 
         }
         else{
