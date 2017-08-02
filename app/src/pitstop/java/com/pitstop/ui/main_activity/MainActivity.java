@@ -56,6 +56,7 @@ import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -1172,7 +1173,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     @Override
-    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+    public void onDeviceReady(ReadyDevice device) {
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED);
     }
 
