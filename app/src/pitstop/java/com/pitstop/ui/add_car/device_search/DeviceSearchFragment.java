@@ -38,7 +38,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     private final String TAG = getClass().getSimpleName();
 
-    @BindView(R.id.mileage_input)
+    @BindView(R.id.input_mileage)
     EditText mileageInputEditText;
 
     private ViewGroup rootView;

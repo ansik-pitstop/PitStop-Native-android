@@ -45,7 +45,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     Button addVehicleButton;
     @BindView(R.id.VIN)
     EditText vinEditText;
-    @BindView(R.id.mileage_input)
+    @BindView(R.id.input_mileage)
     EditText mileageEditText;
 
     private ViewGroup rootView;
