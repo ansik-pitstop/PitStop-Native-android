@@ -164,6 +164,12 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
+    }
+
     public BluetoothConnectionObservable getBluetoothConnectionObservable(){
         return bluetoothConnectionObservable;
     }

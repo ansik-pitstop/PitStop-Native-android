@@ -361,7 +361,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-            deviceConnState = State.VERIFYING;
+            //Check to make sure were not overriding the state once
+            // its already verified and connected
+            if (deviceConnState.equals(State.SEARCHING)){
+                deviceConnState = State.VERIFYING;
+            }
             notifyVerifyingDevice();
 
             //Get VIN to validate car
@@ -852,8 +856,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
 
-        //If adding car connect to first recognized device, or 212 device
-        // without checking vin(even when not adding car)
+        //If adding car connect to first recognized device
         else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && ignoreVerification && !deviceIsVerified){
             setFixedUpload();
