@@ -191,7 +191,7 @@ public class BluetoothChat {
 			}
 		}
 
-		public void cancel() {//
+		public void cancel() {
 			try {
 				if (null != mmOutStream) {
 					mmOutStream.close();
