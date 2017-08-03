@@ -562,6 +562,7 @@ public class NetworkHelper {
                         put("user/" + userId + "/settings", callback, putOptions);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        callback.done(response,requestError);
                     }
                 }
                 else{

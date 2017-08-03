@@ -177,13 +177,18 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private void addCar(String vin, double baseMileage, int userId, String scannerId
             , Callback callback){
+        Log.d(TAG,"addCar()");
         carRepository.insert(vin, baseMileage, userId, scannerId
                 , new Repository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
+                        Log.d(TAG,"insert.onSuccess() car: "+car);
+
                         userRepository.setUserCar(userId, car.getId(), new Repository.Callback<Object>() {
                             @Override
                             public void onSuccess(Object data) {
+                                Log.d(TAG,"setUsercar.onSuccess() response: "+data);
+
                                 ObdScanner scanner = new ObdScanner();
                                 if (scannerId == null || scannerId.isEmpty()
                                         || scannerName == null){//empty scanner
@@ -196,37 +201,19 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                             ,scannerId,scannerName);
                                     scanner.setStatus(true);
                                 }
-                                scannerRepository.createScanner(scanner, new Repository.Callback() {
-                                    @Override
-                                    public void onSuccess(Object data) {
+                                Log.d(TAG,"Creating scanner: "+scanner.getScannerId()
+                                        +",status: "+scanner.getStatus());
 
-                                        //Process succeeded, notify eventbus
-                                        EventType eventType
-                                                = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                        EventBus.getDefault().post(new CarDataChangedEvent(
-                                                eventType, eventSource));
-
-                                        if(car.getShopId() == 0){
-                                            callback.onCarAdded(car);
-                                        }else {
-                                            callback.onCarAddedWithBackendShop(car);
-                                        }
-                                    }
-                                    @Override
-                                    public void onError(RequestError error) {
-
-                                        //Error adding scanner, but car was still added for the user
-                                        EventType eventType
-                                                = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                        EventBus.getDefault().post(new CarDataChangedEvent(
-                                                eventType, eventSource));
-                                        callback.onError(error);
-                                    }
-                                });
+                                //Process succeeded, notify eventbus
+                                EventType eventType
+                                        = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                EventBus.getDefault().post(new CarDataChangedEvent(
+                                        eventType, eventSource));
                             }
 
                             @Override
                             public void onError(RequestError error) {
+                                Log.d(TAG,"setUserCar.onError() error: "+error.getMessage());
                                 callback.onError(error);
                             }
                         });
