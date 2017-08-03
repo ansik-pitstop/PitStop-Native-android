@@ -27,9 +27,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private MixpanelHelper mixpanelHelper;
     private DeviceSearchView view;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
+    private ReadyDevice readyDevice = new ReadyDevice("","","");
     private boolean searchingForVin;
     private boolean searchingForDevice;
-    private ReadyDevice readyDevice = new ReadyDevice("","","");
+    private boolean addingCar = false;
 
     //Try to get VIN 8 times, every 6 seconds
     private final TimeoutTimer getVinTimer = new TimeoutTimer(6, 8) {
@@ -228,10 +229,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     private void addCar(ReadyDevice readyDevice){
-        Log.d(TAG,"addCar()");
+        Log.d(TAG,"addCar() addingCar?"+addingCar);
+
+        if (addingCar) return;
 
         view.showLoading("Saving Car");
-
+        addingCar = true;
         useCaseComponent.addCarUseCase().execute(readyDevice.getVin(), view.getMileage()
                 , readyDevice.getScannerId(), readyDevice.getScannerName()
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
@@ -239,6 +242,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAlreadyAdded(Car car){
                         Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.onCarAlreadyAdded(car);
@@ -248,6 +252,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAddedWithBackendShop(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.onCarAddedWithShop(car);
@@ -257,6 +262,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAdded(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.onCarAddedWithoutShop(car);
@@ -266,6 +272,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
+                        addingCar = false;
                         if (view == null) return;
 
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
@@ -311,8 +318,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForDevice = false;
             view.hideLoading("");
         }
-        else{
-            //Saving car, do not allow back press
+        else if (addingCar){
+            //Do nothing
         }
+        else{
+            view.showHasDeviceView();
+        }
+
     }
 }

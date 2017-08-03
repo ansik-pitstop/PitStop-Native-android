@@ -268,6 +268,13 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         }
     }
 
+    @Override
+    public void showHasDeviceView(){
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.setViewAskHasDevice();
+    }
+
     public void onBackPressed(){
         if (presenter == null) return;
         presenter.onBackPressed();

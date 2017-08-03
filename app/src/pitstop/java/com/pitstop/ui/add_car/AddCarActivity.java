@@ -189,10 +189,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     public void onBackPressed() {
-        Log.d(TAG,"onBackpressed()");
+        Log.d(TAG,"onBackPressed()");
 
-        if (currentFragment == vinEntryFragment || currentFragment == deviceSearchFragment){
+        if (currentFragment == vinEntryFragment){
             setViewAskHasDevice();
+        }
+        //Special case that requires extra layer of logic
+        else if (currentFragment == deviceSearchFragment){
+            deviceSearchFragment.onBackPressed();
         }
         else{
             super.onBackPressed();
