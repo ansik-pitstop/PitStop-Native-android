@@ -68,7 +68,7 @@ public class UserRepository implements Repository{
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
@@ -129,7 +129,7 @@ public class UserRepository implements Repository{
                 }
                 catch(JsonIOException e){
                     e.printStackTrace();
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };

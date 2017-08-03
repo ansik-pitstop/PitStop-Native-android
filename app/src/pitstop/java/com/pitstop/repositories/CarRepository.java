@@ -65,7 +65,7 @@ public class CarRepository implements Repository{
                     }
                 }
                 catch(JsonIOException e){
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                     return;
                 }
             }
@@ -108,19 +108,24 @@ public class CarRepository implements Repository{
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                try {
+
                     if (requestError == null && response != null){
                         List<Car> cars = new ArrayList<>();
-                        JSONArray carsJson = new JSONArray(response);
+
+                        JSONArray carsJson = new JSONArray();
+                        try{
+                            carsJson  = new JSONArray(response);
+                        }catch (JSONException e){
+
+                        }
+
                         for(int i = 0;i<carsJson.length();i++){
                             try{
                                 cars.add(Car.createCar(carsJson.getString(i)));
-                            }catch (JSONException e){
-                                e.printStackTrace();
-                                callback.onError(RequestError.getUnknownError());
+                            }catch (Exception e){
+
                             }
                         }
-
                         networkHelper.getUserSettingsById(userId, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
@@ -128,7 +133,12 @@ public class CarRepository implements Repository{
                                     try{
                                         JSONObject responseJson = new JSONObject(response);
                                         JSONObject userJson = responseJson.getJSONObject("user");
-                                        int mainCarId = userJson.getInt("mainCar");
+                                        int mainCarId;
+                                        if(userJson.has("mainCar")){
+                                            mainCarId = userJson.getInt("mainCar");
+                                        } else{
+                                            mainCarId = 0;
+                                        }
                                         JSONArray customShops;
                                         if(userJson.has("customShops")) {
                                             customShops = userJson.getJSONArray("customShops");
@@ -173,7 +183,7 @@ public class CarRepository implements Repository{
                                         localCarAdapter.storeCars(cars);
                                         callback.onSuccess(cars);
                                     }catch (JSONException e){
-                                        callback.onError(requestError);
+                                        callback.onError(RequestError.getUnknownError());
                                     }
                                 }else{
                                     callback.onError(requestError);
@@ -184,10 +194,6 @@ public class CarRepository implements Repository{
                     else{
                         callback.onError(requestError);
                     }
-                }
-                catch(JSONException e){
-                    callback.onError(requestError);
-                }
             }
         };
 
@@ -246,7 +252,7 @@ public class CarRepository implements Repository{
                                         localCarAdapter.storeCarData(car);
                                         callback.onSuccess(car);
                                     }catch (JSONException e){
-                                        callback.onError(requestError);
+                                        callback.onError(RequestError.getUnknownError());
                                         e.printStackTrace();
                                     }
                                 }else{
@@ -262,7 +268,7 @@ public class CarRepository implements Repository{
                     }
                 }
                 catch(JSONException e){
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
@@ -288,7 +294,7 @@ public class CarRepository implements Repository{
                     }
                 }
                 catch(JsonIOException e){
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
         };
