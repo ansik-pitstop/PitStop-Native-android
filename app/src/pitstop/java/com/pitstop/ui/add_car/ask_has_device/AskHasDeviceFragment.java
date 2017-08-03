@@ -1,6 +1,5 @@
 package com.pitstop.ui.add_car.ask_has_device;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,7 +31,6 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     private AskHasDevicePresenter presenter;
     private MixpanelHelper mixpanelHelper;
     private FragmentSwitcher fragmentSwitcher;
-    private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
 
     public static AskHasDeviceFragment getInstance(){
@@ -43,12 +41,6 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-
-        if (progressDialog == null){
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(false);
-        }
 
         if (useCaseComponent == null){
             useCaseComponent = DaggerUseCaseComponent.builder()
