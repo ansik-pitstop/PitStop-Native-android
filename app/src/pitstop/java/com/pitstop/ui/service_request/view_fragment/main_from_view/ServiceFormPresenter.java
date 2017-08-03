@@ -57,6 +57,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void subscribe(ServiceFormView view ){
+        if(callback == null){return;}
         mixpanelHelper.trackViewAppeared("RequestServiceForm");
         dateSelected = false;
         timeSelected = false;

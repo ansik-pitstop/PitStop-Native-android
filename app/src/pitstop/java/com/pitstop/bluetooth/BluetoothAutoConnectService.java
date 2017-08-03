@@ -2152,7 +2152,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
             return deviceManager.isConnectedTo215();
         else
-            return null;
+            return false;
     }
 
 }

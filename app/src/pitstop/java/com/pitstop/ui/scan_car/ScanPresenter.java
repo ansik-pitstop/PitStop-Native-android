@@ -242,7 +242,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
         Log.d(TAG,"bind()");
-        if (mCallback != null) return;
+        if (mCallback != null || bluetoothObservable == null) return;
 
         mCallback = (ScanCarContract.View) view;
 

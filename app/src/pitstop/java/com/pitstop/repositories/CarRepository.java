@@ -115,7 +115,7 @@ public class CarRepository implements Repository{
                         for(int i = 0;i<carsJson.length();i++){
                             try{
                                 cars.add(Car.createCar(carsJson.getString(i)));
-                            }catch (JSONException e){
+                            }catch (Exception e){
                                 e.printStackTrace();
                                 callback.onError(RequestError.getUnknownError());
                             }
