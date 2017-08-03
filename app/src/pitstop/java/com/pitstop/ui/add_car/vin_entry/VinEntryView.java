@@ -20,4 +20,5 @@ public interface VinEntryView extends LoadingView {
     void displayVin(String vin);
     void displayScannedVinValid();
     void displayScannedVinInvalid();
+    void showAskHasDeviceView();
 }

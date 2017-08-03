@@ -269,13 +269,22 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void showHasDeviceView(){
+    public void setLoadingCancelable(boolean cancelable) {
+        if (progressDialog == null) return;
+
+        progressDialog.setCancelable(cancelable);
+    }
+
+    @Override
+    public void showAskHasDeviceView(){
+        Log.d(TAG,"showAskHasDeviceView()");
         if (fragmentSwitcher == null) return;
 
         fragmentSwitcher.setViewAskHasDevice();
     }
 
     public void onBackPressed(){
+        Log.d(TAG,"onBackPressed()");
         if (presenter == null) return;
         presenter.onBackPressed();
     }

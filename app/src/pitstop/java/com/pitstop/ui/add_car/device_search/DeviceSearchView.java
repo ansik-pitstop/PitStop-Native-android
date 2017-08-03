@@ -17,6 +17,6 @@ public interface DeviceSearchView extends LoadingView {
     void onCarAddedWithoutShop(Car car);
     void onErrorAddingCar(String message);
     void onCarAlreadyAdded(Car car);
-    void showHasDeviceView();
+    void showAskHasDeviceView();
 
 }

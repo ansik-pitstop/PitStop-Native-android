@@ -306,6 +306,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void onBackPressed(){
+        Log.d(TAG,"onBackPressed() searchingForVin?"+searchingForVin+", searchingForDevice?"
+                +searchingForDevice+", addingCar?"+addingCar);
+
         if (view == null) return;
 
         if (searchingForVin){
@@ -322,7 +325,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             //Do nothing
         }
         else{
-            view.showHasDeviceView();
+            view.showAskHasDeviceView();
         }
 
     }

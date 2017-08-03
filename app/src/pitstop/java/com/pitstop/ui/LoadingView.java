@@ -10,4 +10,5 @@ import android.support.annotation.Nullable;
 public interface LoadingView {
     void showLoading(@NonNull String message);
     void hideLoading(@Nullable String message);
+    void setLoadingCancelable(boolean cancelable);
 }

@@ -23,6 +23,7 @@ public class VinEntryPresenter {
     private VinEntryView view;
     private String scannerName = "";
     private String scannerId = "";
+    private boolean addingCar = false;
 
 
     public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
@@ -56,8 +57,12 @@ public class VinEntryPresenter {
     }
 
     public void addVehicle(String vin){
-        Log.d(TAG,"addVehicle() vin:"+vin);
+        Log.d(TAG,"addVehicle() vin:"+vin+", addingCar?"+addingCar);
         if (view == null) return;
+        if (addingCar) return;
+
+        view.setLoadingCancelable(false); //Do not allow back button to cancel loading prompt
+        addingCar = true;
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                 , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
@@ -85,8 +90,10 @@ public class VinEntryPresenter {
             @Override
             public void onCarAlreadyAdded(Car car){
                 Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                addingCar = false;
                 if (view == null) return;
 
+                view.setLoadingCancelable(true);
                 view.onCarAlreadyAdded(car);
                 view.hideLoading(null);
             }
@@ -94,8 +101,10 @@ public class VinEntryPresenter {
             @Override
             public void onCarAddedWithBackendShop(Car car) {
                 Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
+                addingCar = false;
                 if (view == null) return;
 
+                view.setLoadingCancelable(true);
                 view.onCarAddedWithShop(car);
                 view.hideLoading("Added Car Successfully");
             }
@@ -103,8 +112,10 @@ public class VinEntryPresenter {
             @Override
             public void onCarAdded(Car car) {
                 Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
+                addingCar = false;
                 if (view == null) return;
 
+                view.setLoadingCancelable(true);
                 view.onCarAddedWithoutShop(car);
                 view.hideLoading("Added Car Successfully");
             }
@@ -112,6 +123,10 @@ public class VinEntryPresenter {
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
+                addingCar = false;
+                if (view == null) return;
+
+                view.setLoadingCancelable(true);
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     view.onErrorAddingCar("Please connect to the internet to add your vehicle.");
                     view.hideLoading(null);
@@ -150,6 +165,15 @@ public class VinEntryPresenter {
 
         this.scannerName = scannerName;
         this.scannerId = scannerId;
+    }
+
+    public void onBackPressed(){
+        if (view == null) return;
+
+        //Ignore back press if adding car
+        if (!addingCar){
+            view.showAskHasDeviceView();
+        }
     }
 
 }

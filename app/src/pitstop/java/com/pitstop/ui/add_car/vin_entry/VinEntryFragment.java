@@ -284,6 +284,14 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void showAskHasDeviceView() {
+        Log.d(TAG,"showAskHasDeviceView()");
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.setViewAskHasDevice();
+    }
+
+    @Override
     public void showLoading(@NonNull String message) {
         Log.d(TAG,"showLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -305,6 +313,13 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void setLoadingCancelable(boolean cancelable) {
+        if (progressDialog == null) return;
+
+        progressDialog.setCancelable(cancelable);
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
@@ -319,5 +334,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void onBackPressed(){
+        if (presenter == null) return;
+
+        presenter.onBackPressed();
     }
 }
