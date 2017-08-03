@@ -11,6 +11,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 
+import static android.view.KeyEvent.KEYCODE_BACK;
+
 /**
  * Created by Karol Zdebel on 8/1/2017.
  */
@@ -169,12 +171,14 @@ public class VinEntryPresenter {
     }
 
     public void onProgressDialogKeyPressed(int keyCode){
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        Log.d(TAG,"onProgressDialogKeyPressed(), backButton?"+(keyCode == KeyEvent.KEYCODE_BACK));
+        if (keyCode == KEYCODE_BACK) {
             onBackPressed();
         }
     }
 
     public void onBackPressed(){
+        Log.d(TAG,"onBackPressed()");
         if (view == null) return;
 
         //Ignore back press if adding car

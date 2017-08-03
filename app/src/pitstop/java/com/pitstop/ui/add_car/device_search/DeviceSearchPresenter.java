@@ -307,6 +307,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     public void onProgressDialogKeyPressed(int keyCode){
+        Log.d(TAG,"onProgressDialogKeyPressed(), backButton?"+(keyCode == KeyEvent.KEYCODE_BACK));
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             onBackPressed();
         }
