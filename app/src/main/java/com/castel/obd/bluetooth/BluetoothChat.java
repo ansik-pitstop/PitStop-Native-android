@@ -201,7 +201,7 @@ public class BluetoothChat {
 					mmInStream.close();
 					mmInStream = null;
 				}
-				if (null != mmSocket) {
+				if ( mmSocket != null) {
 					mmSocket.close();
 					mmSocket = null;
 				}
