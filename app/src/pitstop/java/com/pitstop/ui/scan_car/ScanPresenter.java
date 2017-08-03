@@ -245,9 +245,9 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         if (mCallback != null) return;
 
         mCallback = (ScanCarContract.View) view;
-
-        bluetoothObservable.subscribe(this);
-
+        if(bluetoothObservable != null){
+            bluetoothObservable.subscribe(this);
+        }
     }
 
     @Override

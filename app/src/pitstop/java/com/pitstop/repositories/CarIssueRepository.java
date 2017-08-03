@@ -146,16 +146,59 @@ public class CarIssueRepository implements Repository{
         return requestCallback;
     }
 
+    public void insertCustom(int carId, int userid, CarIssue issue,Callback<CarIssue> callback){
+        JSONObject body = new JSONObject();
+        try{
+            body.put("carId",carId);
+            body.put("issueType","customUser");
+            JSONObject data = new JSONObject();
+            data.put("item",issue.getItem());
+            data.put("action",issue.getAction());
+            data.put("priority",issue.getPriority());
+            data.put("description",issue.getDescription());
+            data.put("userId",userid);
+            body.put("data",data);
+
+        }catch (JSONException e){
+            callback.onError(RequestError.getUnknownError());
+        }
+        networkHelper.post("issue",getInsertCustomRequestCallback(callback,carId),body);
+
+    }
+    public RequestCallback getInsertCustomRequestCallback(Callback<CarIssue> callback,int carId){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if(requestError == null && response != null){
+                    CarIssue issue = new CarIssue();
+                    try{
+                        JSONObject responseJson = new JSONObject(response);
+                        issue.setCarId(carId);
+                        issue.setId(responseJson.getInt("id"));
+                        issue.setItem(responseJson.getString("item"));
+                        issue.setAction(responseJson.getString("action"));
+                        issue.setDescription(responseJson.getString("description"));
+                        callback.onSuccess(issue);
+                    }catch (JSONException e){
+                        callback.onSuccess(new CarIssue());
+                    }
+                }else{
+                  callback.onError(requestError);
+                }
+            }
+        };
+        return requestCallback;
+    }
+
     public void updateCarIssue(CarIssue issue, Callback<Object> callback) {
         JSONObject body = new JSONObject();
-
         try {
             body.put("carId", issue.getCarId());
             body.put("issueId", issue.getId());
             body.put("status", issue.getStatus());
 
             if (issue.getStatus().equals(CarIssue.ISSUE_DONE)){
-                body.put("daysAgo", issue.getDaysAgo());
+                body.put("daysAgo",issue.getDaysAgo());
                 body.put("mileage", issue.getDoneMileage());
             }
 
@@ -228,6 +271,7 @@ public class CarIssueRepository implements Repository{
                 try {
                     if (requestError == null){
                         JSONObject jsonObject = new JSONObject(response);
+
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
 
                         ArrayList<CarIssue> carIssues = CarIssue.createCarIssues(jsonArray,carId);

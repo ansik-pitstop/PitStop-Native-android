@@ -45,14 +45,23 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    callback.onGotCurrentServices(new ArrayList<>());
+                    callback.onGotCurrentServices(new ArrayList<>(),new ArrayList<>());
                     return;
                 }
 
                 carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.Callback<List<CarIssue>>() {
                     @Override
                     public void onSuccess(List<CarIssue> carIssueCurrent) {
-                        callback.onGotCurrentServices(carIssueCurrent);
+                        List<CarIssue> preset = new ArrayList<CarIssue>();
+                        List<CarIssue> custom = new ArrayList<CarIssue>();
+                        for( CarIssue c: carIssueCurrent){
+                            if(c.getIssueType().equals("service_preset")){
+                                preset.add(c);
+                            }else if(c.getIssueType().equals("service_user")){
+                                custom.add(c);
+                            }
+                        }
+                        callback.onGotCurrentServices(preset,custom);
                     }
 
                     @Override
