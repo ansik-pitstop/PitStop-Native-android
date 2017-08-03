@@ -126,6 +126,24 @@ public class VinEntryPresenter {
 
     }
 
+    public void onGotVinScanResult(String result){
+        if (view == null || result == null) return;
+
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
+                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+
+        view.displayVin(result);
+
+        if (AddCarUtils.isVinValid(result)){
+            view.displayScannedVinValid();
+            view.onValidVinInput();
+        }
+        else{
+            view.displayScannedVinInvalid();
+            view.onInvalidVinInput();
+        }
+    }
+
     public void gotDeviceInfo(String scannerName, String scannerId){
         Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId);
 

@@ -2,6 +2,7 @@ package com.pitstop.ui.add_car.vin_entry;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -157,6 +159,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void onValidVinInput() {
         Log.d(TAG,"onValidVininput()");
 
+        if (addVehicleButton.isEnabled()) return;
+
         addVehicleButton.setEnabled(true);
         addVehicleButton.setBackground(getResources()
                 .getDrawable(R.drawable.color_button_rectangle_highlight));
@@ -165,6 +169,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onInvalidVinInput() {
         Log.d(TAG,"onInvalidVinInput()");
+
+        if (addVehicleButton.isEnabled()) return;
 
         addVehicleButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_grey));
         addVehicleButton.setEnabled(false);
@@ -259,6 +265,22 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void displayVin(String vin) {
+        if (vin == null) vin = "";
+        vinEditText.setText(vin);
+    }
+
+    @Override
+    public void displayScannedVinValid() {
+        Toast.makeText(getContext(),"Scanned VIN Successully",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayScannedVinInvalid() {
+        Toast.makeText(getContext(),"Scanned VIN is invalid",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public void showLoading(@NonNull String message) {
         Log.d(TAG,"showLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -279,4 +301,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result == null || result.getContents() == null) presenter.onGotVinScanResult("");
+            presenter.onGotVinScanResult(result.getContents());
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

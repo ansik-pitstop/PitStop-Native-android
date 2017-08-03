@@ -840,7 +840,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Get terminal RTC time
         if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
-                && terminalRTCTime == -1 && !AddCarActivity.addingCarWithDevice){
+                && terminalRTCTime == -1 && !ignoreVerification){
             terminalRTCTime = Long.valueOf(parameterPackage.value);
 
             //Check if device needs to sync rtc time
@@ -859,6 +859,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //If adding car connect to first recognized device
         else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
                 && ignoreVerification && !deviceIsVerified){
+            LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             setFixedUpload();
             deviceIsVerified = true;
             verificationInProgress = false;
@@ -882,9 +884,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {
-
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success"
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success" +
+                                    ", ignoreVerification?"+ignoreVerification
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
                     deviceIsVerified = true;
                     verificationInProgress = false;
                     setFixedUpload();
@@ -899,9 +905,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceBrokenAndCarMissingScanner() {
-
                     LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
-                          ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +"ignoreVerification?"+ignoreVerification
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
                     MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
@@ -914,10 +924,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceBrokenAndCarHasScanner(String scannerId) {
-
                     LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
-                            ", overwriting scanner id to "+scannerId,true
-                            , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                            ", overwriting scanner id to "+scannerId+", ignoreVerification: "
+                                    +ignoreVerification
+                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
                     setDeviceNameAndId(scannerId);
                     deviceIdOverwriteInProgress = true;
                     deviceIsVerified = true;
@@ -933,9 +947,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceInvalid() {
-
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid."
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid." +
+                                    " ignoreVerification?"+ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
+
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
@@ -946,9 +965,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onDeviceAlreadyActive() {
-
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active"
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active" +
+                                    ", ignoreVerification?"+ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
@@ -959,9 +982,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 @Override
                 public void onError(RequestError error) {
-
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred"
+                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred" +
+                                    ", ignoreVerification?"+ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    //ignore result if verification state changed mid use-case execution
+                    if (ignoreVerification) return;
+
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     deviceConnState = State.SEARCHING;
