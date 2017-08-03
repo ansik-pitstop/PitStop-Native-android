@@ -189,26 +189,18 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                             public void onSuccess(Object data) {
                                 Log.d(TAG,"setUsercar.onSuccess() response: "+data);
 
-                                ObdScanner scanner = new ObdScanner();
-                                if (scannerId == null || scannerId.isEmpty()
-                                        || scannerName == null){//empty scanner
-                                    scanner.setCarId(car.getId());
-                                    scanner.setScannerId("");
-                                    scanner.setDeviceName("");
-                                    scanner.setDatanum("");
-                                }else{//not empty
-                                    scanner = new ObdScanner(car.getId()
-                                            ,scannerId,scannerName);
-                                    scanner.setStatus(true);
-                                }
-                                Log.d(TAG,"Creating scanner: "+scanner.getScannerId()
-                                        +",status: "+scanner.getStatus());
-
                                 //Process succeeded, notify eventbus
                                 EventType eventType
                                         = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                 EventBus.getDefault().post(new CarDataChangedEvent(
                                         eventType, eventSource));
+
+                                if (car.getShopId() == 0) {
+                                    callback.onCarAdded(car);
+                                }
+                                else{
+                                    callback.onCarAddedWithBackendShop(car);
+                                }
                             }
 
                             @Override

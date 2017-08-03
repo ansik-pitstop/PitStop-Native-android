@@ -42,6 +42,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
+    private boolean serviceBound = false;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -69,6 +70,7 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         setContentView(R.layout.activity_add_car);
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
+        serviceBound = true;
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
 
         askHasDeviceFragment = AskHasDeviceFragment.getInstance();
@@ -76,6 +78,18 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
         vinEntryFragment = VinEntryFragment.getInstance();
 
         setViewAskHasDevice();
+    }
+
+    @Override
+    protected void onResume() {
+
+        //Service may have been unbound in onStop(), so bring it back here
+        if (!serviceBound){
+            bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
+                    , serviceConnection, Context.BIND_AUTO_CREATE);
+            serviceBound = true;
+        }
+        super.onResume();
     }
 
     @Override
@@ -165,9 +179,12 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
     }
 
     @Override
-    protected void onDestroy() {
-        unbindService(serviceConnection);
-        super.onDestroy();
+    protected void onStop() {
+        if (serviceBound){
+            unbindService(serviceConnection);
+            serviceBound = false;
+        }
+        super.onStop();
     }
 
     public BluetoothConnectionObservable getBluetoothConnectionObservable(){
