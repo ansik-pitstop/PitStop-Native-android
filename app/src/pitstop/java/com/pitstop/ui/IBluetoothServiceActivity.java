@@ -19,7 +19,11 @@ import com.pitstop.utils.AnimatedDialogBuilder;
  */
 public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     public BluetoothAutoConnectService autoConnectService;
-    public boolean serviceIsBound;
+
+    public static final int RC_LOCATION_PERM = 101;
+
+    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                    final boolean needDescription, @Nullable final String message) {

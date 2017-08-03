@@ -434,9 +434,9 @@ public class AddCarActivity extends IBluetoothServiceActivity implements AddCarC
 
         addingCarWithDevice = false;
 
-        if (serviceIsBound) {
-            presenter.unbindBluetoothService();
-        }
+//        if (serviceIsBound) {
+//            presenter.unbindBluetoothService();
+//        }
 
         presenter.finish();
         presenter.unbind();

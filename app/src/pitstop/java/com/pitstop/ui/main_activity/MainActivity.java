@@ -112,7 +112,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.i(TAG, "connecting: onServiceConnection");
             // cast the IBinder and get MyService instance
-            serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.subscribe(MainActivity.this);
@@ -125,7 +124,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                     if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
                         requestPermission(MainActivity.this, locationPermissions, RC_LOCATION_PERM,
                                 true, getString(R.string.request_permission_location_message));
-                        return;
+                        break;
                     }
                 }
             }
@@ -134,7 +133,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             Log.i(TAG, "Disconnecting: onServiceConnection");
-            serviceIsBound = false;
             autoConnectService = null;
         }
     };
@@ -375,7 +373,10 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (autoConnectService != null){
             autoConnectService.unsubscribe(this);
         }
-        unbindService(serviceConnection);
+        if (serviceIsBound){
+            unbindService(serviceConnection);
+            serviceIsBound = false;
+        }
 
         super.onStop();
     }
@@ -1020,7 +1021,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     @Override
     protected void onDestroy() {
-        if (serviceIsBound && serviceConnection != null){
+        if (serviceIsBound){
             unbindService(serviceConnection);
             serviceIsBound = false;
         }

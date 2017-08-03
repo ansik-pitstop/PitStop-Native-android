@@ -1,15 +1,17 @@
 package com.pitstop.ui.add_car;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.pitstop.R;
@@ -17,6 +19,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;
 import com.pitstop.ui.add_car.device_search.DeviceSearchFragment;
 import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
@@ -27,7 +30,7 @@ import com.pitstop.utils.MixpanelHelper;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public class AddCarActivity extends AppCompatActivity implements FragmentSwitcher{
+public class AddCarActivity extends IBluetoothServiceActivity implements FragmentSwitcher{
 
     private final String TAG = getClass().getSimpleName();
 
@@ -52,11 +55,29 @@ public class AddCarActivity extends AppCompatActivity implements FragmentSwitche
                     .getService();
             if (currentFragment == deviceSearchFragment)
                 deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
+
+            // Send request to user to turn on locations
+            if (BluetoothAdapter.getDefaultAdapter() != null) {
+                Log.d(TAG,"onServiceConnected() Bluetooth adapter is not null!");
+                final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+                for (String permission : locationPermissions) {
+                    Log.d(TAG,"Checking permisssion: "+permission);
+                    if (ContextCompat.checkSelfPermission(AddCarActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG,"Permission not granted! requesting permission!");
+                        requestPermission(AddCarActivity.this, locationPermissions, RC_LOCATION_PERM,
+                                true, getString(R.string.request_permission_location_message));
+                        break;
+                    }
+                }
+            }
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG,"onServiceDisconnected() name: "+name.toString());
+            bluetoothConnectionObservable = null;
+            deviceSearchFragment.setBluetoothConnectionObservable(null);
 
         }
     };
