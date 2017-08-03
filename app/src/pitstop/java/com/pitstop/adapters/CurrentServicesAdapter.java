@@ -82,7 +82,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.description.setMaxLines(2);
             holder.doneImageView.setVisibility(View.INVISIBLE);
-            holder.description.setText("You have no pending Engine Code, Recalls or Services");
+            holder.description.setText("You have no pending Engine Code, Recalls or Routine Services");
             holder.title.setText("Congrats!");
             holder.imageView.setImageDrawable(
                     ContextCompat.getDrawable(context, R.drawable.ic_check_circle_green_400_36dp));

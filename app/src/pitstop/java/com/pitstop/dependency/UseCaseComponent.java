@@ -1,6 +1,7 @@
 package com.pitstop.dependency;
 
 import com.pitstop.interactors.add.AddCarUseCase;
+import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
@@ -47,6 +48,7 @@ import dagger.Component;
 @Component(modules = UseCaseModule.class)
 public interface UseCaseComponent {
 
+    AddCustomServiceUseCase getAddCustomServiceUseCase();
 
     GetShopHoursUseCase getGetShopHoursUseCase();
 

@@ -2,7 +2,9 @@ package com.pitstop.ui.services;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.pitstop.EventBus.EventSource;
@@ -30,6 +33,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataChangedNotifier;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
+import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +58,27 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
 
+    @BindView(R.id.custom_loading)
+    ProgressBar customLoading;
+
+    @BindView(R.id.service_launch_custom)
+    LinearLayout customSeerviceButton;
+
+
+    @BindView(R.id.custom_issues_list)
+    RecyclerView customIssueListRecyclerView;
+
+
+
     private CurrentServicesAdapter carIssuesAdapter;
 
+    private CurrentServicesAdapter customIssueAdapter;
+
     private List<CarIssue> carIssueList = new ArrayList<>();
+
+    private List<CarIssue> customIssueList = new ArrayList<>();
+
+
 
     private final EventType[] ignoredEvents = {
             new EventTypeImpl(EVENT_SERVICES_HISTORY),
@@ -89,6 +111,15 @@ public class CurrentServicesFragment extends CarDataFragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
+        customSeerviceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
+                intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
+                startActivity(intent);
+            }
+        });
+
         setNoUpdateOnEventTypes(ignoredEvents);
         initUI();
 
@@ -106,22 +137,36 @@ public class CurrentServicesFragment extends CarDataFragment {
         }
 
         mLoadingSpinner.setVisibility(View.VISIBLE);
+        customLoading.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
+        customIssueListRecyclerView.setVisibility(View.INVISIBLE);
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
-            public void onGotCurrentServices(List<CarIssue> currentServices) {
+            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> custom) {
                 carIssueList.clear();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
 
+                customIssueList.clear();
+                customIssueList.addAll(custom);
+                customIssueAdapter.notifyDataSetChanged();
+                /*if(customIssueList.isEmpty()){
+                    customIssueListRecyclerView.setVisibility(View.GONE);
+                }else{
+                    customIssueListRecyclerView.setVisibility(View.VISIBLE);
+                }*/
+
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
+                customLoading.setVisibility(View.INVISIBLE);
                 carIssueListView.setVisibility(View.VISIBLE);
+                customIssueListRecyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
+                customLoading.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -139,6 +184,23 @@ public class CurrentServicesFragment extends CarDataFragment {
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
+
+                customIssueAdapter = new CurrentServicesAdapter(car,customIssueList,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
+                        ,notifier);
+                customIssueListRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                customIssueListRecyclerView.setAdapter(customIssueAdapter);
+                customIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        if(customIssueList.isEmpty()){
+                            customIssueListRecyclerView.setVisibility(View.GONE);
+                        }else{
+                            customIssueListRecyclerView.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
                 carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
                         ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
                         ,notifier);

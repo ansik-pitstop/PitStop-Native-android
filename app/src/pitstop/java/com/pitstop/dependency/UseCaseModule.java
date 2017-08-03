@@ -4,6 +4,8 @@ import android.os.Handler;
 
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
+import com.pitstop.interactors.add.AddCustomServiceUseCase;
+import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
@@ -64,6 +66,7 @@ import com.pitstop.interactors.update.UpdateUserNameUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCaseImpl;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
@@ -81,6 +84,11 @@ import dagger.Provides;
 
 @Module(includes = {RepositoryModule.class, HandlerModule.class} )
 public class UseCaseModule {
+
+    @Provides
+    AddCustomServiceUseCase addCustomServiceUseCase(CarRepository carRepository, CarIssueRepository carIssueRepository, UserRepository userRepository, Handler handler){
+        return new AddCustomServiceUseCaseImpl(carRepository,userRepository,carIssueRepository,handler);
+    }
 
     @Provides
     GetShopHoursUseCase getShopHoursUseCase(ShopRepository shopRepository, UserRepository userRepository, NetworkHelper networkHelper, Handler handler){

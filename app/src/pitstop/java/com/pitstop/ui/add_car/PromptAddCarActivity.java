@@ -1,21 +1,55 @@
 package com.pitstop.ui.add_car;
 
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.ui.LoginActivity;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import io.smooch.ui.ConversationActivity;
 
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 public class PromptAddCarActivity extends AppCompatActivity {
 
+    @BindView(R.id.logout_button)
+    Button logoutButton;
+
+    @BindView(R.id.support_button)
+    TextView supportButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prompt_add_car);
+        ButterKnife.bind(this);
 
+        AppCompatActivity activity = this;
+
+        supportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConversationActivity.show(getApplicationContext());
+            }
+        });
+        supportButton.setPaintFlags(supportButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GlobalApplication)getApplicationContext()).logOutUser();
+                Intent intent = new Intent(activity, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
         //Change toolbar
         getSupportActionBar().setTitle("Add First Car");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
