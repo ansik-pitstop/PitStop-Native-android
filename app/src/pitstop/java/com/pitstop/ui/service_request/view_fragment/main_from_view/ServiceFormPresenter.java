@@ -76,6 +76,10 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void timeButtonClicked(){
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
+        if(localDealership.getName().equals("No Shop")){
+            view.showReminder("Please set a shop for this car first");
+            return;
+        }
         if(!dateSelected){
             view.showReminder("Please select a date first");
             return;
@@ -119,12 +123,14 @@ public class ServiceFormPresenter implements PresenterCallback{
                 public void onNotOpen() {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,"There are no times available for this date");
+                    view.showLoading(false);
                 }
 
                 @Override
                public void onError(RequestError error) {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,"There was an error loading these times");
+                    view.showLoading(false);
                }
             });
             finalizeDate(outDate);
