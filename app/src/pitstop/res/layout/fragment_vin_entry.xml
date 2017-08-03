@@ -122,6 +122,7 @@
         android:text="Add Vehicle"
         android:id="@+id/add_vehicle"
         android:layout_weight="1"
+        android:enabled="false"
         android:background="@drawable/color_button_rectangle_dark_grey"
         android:textSize="18sp"
         android:textStyle="bold"

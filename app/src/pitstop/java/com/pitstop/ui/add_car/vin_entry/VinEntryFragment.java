@@ -171,7 +171,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void onInvalidVinInput() {
         Log.d(TAG,"onInvalidVinInput()");
 
-        if (addVehicleButton.isEnabled()) return;
+        if (!addVehicleButton.isEnabled()) return;
 
         addVehicleButton.setBackground(getResources().getDrawable(R.drawable.color_button_rectangle_grey));
         addVehicleButton.setEnabled(false);
