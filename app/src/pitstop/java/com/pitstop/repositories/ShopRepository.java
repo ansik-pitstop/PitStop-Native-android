@@ -73,7 +73,7 @@ public class ShopRepository implements Repository{
                         localShopAdapter.storeDealerships(dealerships);
                         callback.onSuccess(dealerships);
                     }catch(JSONException e){
-                        callback.onError(requestError);
+                        callback.onError(RequestError.getUnknownError());
                         e.printStackTrace();
                     }
                 }else{
@@ -163,7 +163,7 @@ public class ShopRepository implements Repository{
                                         callback.onError(requestError);
                                     }
                                 }catch (JSONException e){
-                                    callback.onError(requestError);
+                                    callback.onError(RequestError.getUnknownError());
                                     e.printStackTrace();
                                 }
                             }
@@ -172,7 +172,7 @@ public class ShopRepository implements Repository{
                         callback.onError(requestError);
                     }
                 }catch(JSONException e){
-                    callback.onError(requestError);
+                    callback.onError(RequestError.getUnknownError());
                     e.printStackTrace();
                 }
             }
@@ -225,7 +225,7 @@ public class ShopRepository implements Repository{
                          callback.onSuccess(dealershipArray);
                      }
                  }catch (JSONException e){
-                     callback.onError(requestError);
+                     callback.onError(RequestError.getUnknownError());
                      e.printStackTrace();
                  }
              }else{
@@ -281,7 +281,7 @@ public class ShopRepository implements Repository{
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError(requestError);
+                        callback.onError(RequestError.getUnknownError());
                         e.printStackTrace();
                     }
 
@@ -326,7 +326,7 @@ public class ShopRepository implements Repository{
                             }
                         },userSettings);
                     }catch(JSONException e){
-                        callback.onError(requestError);
+                        callback.onError(RequestError.getUnknownError());
                         e.printStackTrace();
                     }
                 }else{
@@ -371,7 +371,7 @@ public class ShopRepository implements Repository{
                             }
                         }
                     }catch(JSONException e){
-                        callback.onError(requestError);
+                        callback.onError(RequestError.getUnknownError());
                         e.printStackTrace();
                     }
                 }else{

@@ -89,7 +89,12 @@ public class TripView extends Fragment {
     }
     private String dateFormat(Long date) {
         SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
-        return newFormat.format(date);
+        try {
+            return newFormat.format(date);
+        }catch (Exception e){
+            return Long.toString(date);// if format fails return millisecond time
+        }
+
     }
 
     private String dateFormat(String date){
