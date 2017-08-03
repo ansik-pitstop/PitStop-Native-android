@@ -64,7 +64,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(false);
         }
 
         if (useCaseComponent == null){
@@ -267,5 +266,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (message != null){
             Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void onBackPressed(){
+        if (presenter == null) return;
+        presenter.onBackPressed();
     }
 }

@@ -297,4 +297,22 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             addCar(readyDevice);
         }
     }
+
+    public void onBackPressed(){
+        if (view == null) return;
+
+        if (searchingForVin){
+            getVinTimer.cancel();
+            searchingForVin = false;
+            view.hideLoading("");
+        }
+        else if (searchingForDevice){
+            findDeviceTimer.cancel();
+            searchingForDevice = false;
+            view.hideLoading("");
+        }
+        else{
+            //Saving car, do not allow back press
+        }
+    }
 }
