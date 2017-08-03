@@ -41,6 +41,38 @@ public class CarRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
+    public void getCarByVin(String vin, Callback<Car> callback){
+        networkHelper.get("car/?vin=" + vin, getGetCarByVinRequestCallback(callback));
+    }
+
+    private RequestCallback getGetCarByVinRequestCallback(Callback<Car> callback){
+        return new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+
+                    //No car found
+                    if (response == null || response.equals("{}")){
+                        callback.onSuccess(null);
+                        return;
+                    }
+                    //Create car
+                    try{
+                        Car car = Car.createCar(response);
+                        callback.onSuccess(car);
+
+                    }catch(JSONException e){
+                        e.printStackTrace();
+                        callback.onError(RequestError.getUnknownError());
+                    }
+                }
+                else{
+                    callback.onError(requestError);
+                }
+            }
+        };
+    }
+
     public void insert(String vin, double baseMileage, int userId, String scannerId
             , Callback<Car> callback) {
         //Insert to backend

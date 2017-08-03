@@ -64,68 +64,145 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                    carRepository.insert(vin, baseMileage, user.getId(), scannerId
-                            , new Repository.Callback<Car>() {
+                    carRepository.getCarByVin(vin, new Repository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
-                            userRepository.setUserCar(user.getId(), car.getId(), new Repository.Callback<Object>() {
-                                @Override
-                                public void onSuccess(Object data) {
-                                    ObdScanner scanner = new ObdScanner();
-                                    if (scannerId == null || scannerId.isEmpty()
-                                            || scannerName == null){//empty scanner
-                                        scanner.setCarId(car.getId());
-                                        scanner.setScannerId("");
-                                        scanner.setDeviceName("");
-                                        scanner.setDatanum("");
-                                    }else{//not empty
-                                        scanner = new ObdScanner(car.getId()
-                                                ,scannerId,scannerName);
+                            boolean carExists = car != null;
+                            boolean hasUser = car != null && car.getUserId() != 0;
+                            boolean hasScanner = car != null && car.getScannerId() != null
+                                    && !car.getScannerId().isEmpty();
+
+                            //If car exists and has user
+                            if (carExists && hasUser){
+                                callback.onCarAlreadyAdded(car);
+                            }
+
+                            //If car exists and does not have user but scanner not active/ active
+                            else if (carExists && !hasUser && hasScanner){
+                                scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
+
+                                    @Override
+                                    public void onSuccess(ObdScanner obdScanner) {
+                                        //Active, deactivate then add
+                                        if (obdScanner.getStatus()){
+
+                                            obdScanner.setStatus(false);
+                                            scannerRepository.updateScanner(obdScanner, new Repository.Callback<Object>() {
+
+                                                @Override
+                                                public void onSuccess(Object response){
+                                                    addCar(vin,baseMileage,user.getId(),scannerId
+                                                            ,callback);
+                                                }
+
+                                                @Override
+                                                public void onError(RequestError error){
+                                                    callback.onError(error);
+                                                }
+                                            });
+                                        }
+                                        //Not active, add
+                                        else{
+                                            addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                                        }
                                     }
-                                    scannerRepository.createScanner(scanner, new Repository.Callback() {
-                                        @Override
-                                        public void onSuccess(Object data) {
 
-                                            //Process succeeded, notify eventbus
-                                            EventType eventType
-                                                    = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                            EventBus.getDefault().post(new CarDataChangedEvent(
-                                                    eventType, eventSource));
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        callback.onError(error);
+                                    }
+                                });
+                            }
 
-                                            if(car.getShopId() == 0){
-                                                callback.onCarAdded(car);
-                                            }else {
-                                                callback.onCarAddedWithBackendShop(car);
-                                            }
-                                        }
-                                        @Override
-                                        public void onError(RequestError error) {
+                            else if (carExists && !hasUser && !hasScanner){
+                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                            }
 
-                                            //Error adding scanner, but car was still added for the user
-                                            EventType eventType
-                                                    = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                            EventBus.getDefault().post(new CarDataChangedEvent(
-                                                    eventType, eventSource));
-                                            callback.onError(error);
-                                        }
-                                    });
-                                }
+                            //If car does not exist then add
+                            else if (!carExists){
+                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                            }
 
-                                @Override
-                                public void onError(RequestError error) {
-                                     callback.onError(error);
-                                }
-                            });
+                            //Unknown case
+                            else{
+                                callback.onError(RequestError.getUnknownError());
+                            }
+
+
                         }
+
                         @Override
                         public void onError(RequestError error) {
                             callback.onError(error);
-                        }});
+                        }
+                    });
+
             }
             @Override
             public void onError(RequestError error) {
                 callback.onError(error);
             }
         });
+    }
+
+    private void addCar(String vin, double baseMileage, int userId, String scannerId
+            , Callback callback){
+        carRepository.insert(vin, baseMileage, userId, scannerId
+                , new Repository.Callback<Car>() {
+                    @Override
+                    public void onSuccess(Car car) {
+                        userRepository.setUserCar(userId, car.getId(), new Repository.Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object data) {
+                                ObdScanner scanner = new ObdScanner();
+                                if (scannerId == null || scannerId.isEmpty()
+                                        || scannerName == null){//empty scanner
+                                    scanner.setCarId(car.getId());
+                                    scanner.setScannerId("");
+                                    scanner.setDeviceName("");
+                                    scanner.setDatanum("");
+                                }else{//not empty
+                                    scanner = new ObdScanner(car.getId()
+                                            ,scannerId,scannerName);
+                                }
+                                scannerRepository.createScanner(scanner, new Repository.Callback() {
+                                    @Override
+                                    public void onSuccess(Object data) {
+
+                                        //Process succeeded, notify eventbus
+                                        EventType eventType
+                                                = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                        EventBus.getDefault().post(new CarDataChangedEvent(
+                                                eventType, eventSource));
+
+                                        if(car.getShopId() == 0){
+                                            callback.onCarAdded(car);
+                                        }else {
+                                            callback.onCarAddedWithBackendShop(car);
+                                        }
+                                    }
+                                    @Override
+                                    public void onError(RequestError error) {
+
+                                        //Error adding scanner, but car was still added for the user
+                                        EventType eventType
+                                                = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                        EventBus.getDefault().post(new CarDataChangedEvent(
+                                                eventType, eventSource));
+                                        callback.onError(error);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                callback.onError(error);
+                            }
+                        });
+                    }
+                    @Override
+                    public void onError(RequestError error) {
+                        callback.onError(error);
+                    }});
     }
 }

@@ -238,6 +238,27 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void onCarAlreadyAdded(Car car) {
+        Log.d(TAG, "onCarAlreadyAdded() car: "+car);
+
+        AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
+                .setTitle("Car Already Added")
+                .setMessage("This car has already been added and is in use." +
+                        " If this is your vehicle please remove it and try again.")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("",null)
+                .create();
+
+        dialog.show();
+    }
+
+    @Override
     public void showLoading(@NonNull String message) {
         Log.d(TAG,"showLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;

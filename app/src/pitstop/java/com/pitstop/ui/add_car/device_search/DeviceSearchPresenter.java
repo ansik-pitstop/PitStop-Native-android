@@ -29,7 +29,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private BluetoothConnectionObservable bluetoothConnectionObservable;
     private boolean searchingForVin;
     private boolean searchingForDevice;
-    private ReadyDevice readyDevice;
+    private ReadyDevice readyDevice = new ReadyDevice("","","");
 
     //Try to get VIN 8 times, every 6 seconds
     private final TimeoutTimer getVinTimer = new TimeoutTimer(6, 8) {
@@ -155,7 +155,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Add the car
             else{
-                addCar();
+                addCar(readyDevice);
             }
 
         }
@@ -170,7 +170,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onSearchingForDevice() {
-
+        Log.d(TAG,"onSearchingForDevice()");
     }
 
     @Override
@@ -196,7 +196,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             searchingForVin = false;
             //Begin  adding car
-            addCar();
+            addCar(readyDevice);
 
         }
         else{
@@ -214,29 +214,40 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onDeviceDisconnected() {
-
+        Log.d(TAG,"onDeviceDisconnected()");
     }
 
     @Override
     public void onDeviceVerifying() {
-
+        Log.d(TAG,"onDeviceDisconnected()");
     }
 
     @Override
     public void onDeviceSyncing() {
-
+        Log.d(TAG,"onDeviceDisconnected()");
     }
 
-    private void addCar(){
+    private void addCar(ReadyDevice readyDevice){
         Log.d(TAG,"addCar()");
 
         view.showLoading("Saving Car");
 
-        useCaseComponent.addCarUseCase().execute(readyDevice.getScannerId(), view.getMileage()
+        useCaseComponent.addCarUseCase().execute(readyDevice.getVin(), view.getMileage()
                 , readyDevice.getScannerId(), readyDevice.getScannerName()
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+
+                    @Override
+                    public void onCarAlreadyAdded(Car car){
+                        Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                        if (view == null) return;
+
+                        view.onCarAlreadyAdded(car);
+                        view.hideLoading(null);
+                    }
+
                     @Override
                     public void onCarAddedWithBackendShop(Car car) {
+                        Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
                         if (view == null) return;
 
                         view.onCarAddedWithShop(car);
@@ -245,6 +256,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
                     @Override
                     public void onCarAdded(Car car) {
+                        Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
                         if (view == null) return;
 
                         view.onCarAddedWithoutShop(car);
@@ -253,6 +265,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
                     @Override
                     public void onError(RequestError error) {
+                        Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
                         if (view == null) return;
 
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
@@ -280,7 +293,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
             getVinTimer.cancel();
             searchingForVin = false;
-            addCar();
+            readyDevice.setVin(vin);
+            addCar(readyDevice);
         }
     }
 }

@@ -16,4 +16,5 @@ public interface VinEntryView extends LoadingView {
     void onCarAddedWithShop(Car car);
     void onCarAddedWithoutShop(Car car);
     void onErrorAddingCar(String message);
+    void onCarAlreadyAdded(Car car);
 }

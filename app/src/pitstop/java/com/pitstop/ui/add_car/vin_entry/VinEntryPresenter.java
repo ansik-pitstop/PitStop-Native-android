@@ -81,8 +81,19 @@ public class VinEntryPresenter {
         view.showLoading("Saving Car");
         useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+
+            @Override
+            public void onCarAlreadyAdded(Car car){
+                Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                if (view == null) return;
+
+                view.onCarAlreadyAdded(car);
+                view.hideLoading(null);
+            }
+
             @Override
             public void onCarAddedWithBackendShop(Car car) {
+                Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
                 if (view == null) return;
 
                 view.onCarAddedWithShop(car);
@@ -91,6 +102,7 @@ public class VinEntryPresenter {
 
             @Override
             public void onCarAdded(Car car) {
+                Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
                 if (view == null) return;
 
                 view.onCarAddedWithoutShop(car);
@@ -99,6 +111,7 @@ public class VinEntryPresenter {
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     view.onErrorAddingCar("Please connect to the internet to add your vehicle.");
                     view.hideLoading(null);
