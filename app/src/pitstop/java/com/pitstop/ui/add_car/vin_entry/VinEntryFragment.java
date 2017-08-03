@@ -26,6 +26,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.ui.FragmentIntentIntegrator;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -132,7 +133,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             return;
         }
 
-        IntentIntegrator barcodeScanner = new IntentIntegrator(getActivity());
+        IntentIntegrator barcodeScanner = new FragmentIntentIntegrator(this);
         barcodeScanner.setBeepEnabled(false);
         barcodeScanner.initiateScan();
 
