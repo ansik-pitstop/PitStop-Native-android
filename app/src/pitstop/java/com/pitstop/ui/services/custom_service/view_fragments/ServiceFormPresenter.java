@@ -259,11 +259,11 @@ public class ServiceFormPresenter implements PresenterCallback {
         customIssue.setDescription(view.getDescription());
         customIssue.setItem(view.getPartName());
         String priority = view.getPriority();
-        if(priority.equals("Low")){
+        if(priority.contains("Low")){
             customIssue.setPriority(1);
-        }else if(priority.equals("High")){
+        }else if(priority.contains("High")){
             customIssue.setPriority(3);
-        }else if(priority.equals("Critical")){
+        }else if(priority.contains("Critical")){
             customIssue.setPriority(4);
         }else {
             customIssue.setPriority(2);

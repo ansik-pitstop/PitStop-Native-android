@@ -65,6 +65,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
         allIssues       = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
         issueAdapter    = new IssuePagerAdapter(this, allIssues);
 
+        if(!allIssues.contains(carIssue)){
+            allIssues.add(carIssue);
+        }
+
         if (fromHistory) {
             findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);
         }

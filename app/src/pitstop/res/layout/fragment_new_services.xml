@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.services.CurrentServicesFragment">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
@@ -83,9 +87,10 @@
         android:layout_height="wrap_content">
 
         <ProgressBar
+            android:id="@+id/custom_loading"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:indeterminate="true"
             android:visibility="gone" />
 
@@ -126,5 +131,6 @@
                 android:layout_height="wrap_content" />
         </RelativeLayout>
     </LinearLayout>
+    </RelativeLayout>
 
 </ScrollView>

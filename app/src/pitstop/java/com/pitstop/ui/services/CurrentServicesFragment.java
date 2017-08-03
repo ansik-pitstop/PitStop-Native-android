@@ -4,6 +4,7 @@ package com.pitstop.ui.services;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -56,6 +57,9 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
+
+    @BindView(R.id.custom_loading)
+    ProgressBar customLoading;
 
     @BindView(R.id.service_launch_custom)
     LinearLayout customSeerviceButton;
@@ -133,7 +137,9 @@ public class CurrentServicesFragment extends CarDataFragment {
         }
 
         mLoadingSpinner.setVisibility(View.VISIBLE);
+        customLoading.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
+        customIssueListRecyclerView.setVisibility(View.INVISIBLE);
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
@@ -152,12 +158,15 @@ public class CurrentServicesFragment extends CarDataFragment {
                 }*/
 
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
+                customLoading.setVisibility(View.INVISIBLE);
                 carIssueListView.setVisibility(View.VISIBLE);
+                customIssueListRecyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
+                customLoading.setVisibility(View.INVISIBLE);
             }
         });
     }
