@@ -275,6 +275,7 @@
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/notifications"
+            android:screenOrientation="portrait"
             android:parentActivityName=".ui.main_activity.MainActivity"/>
 
 
