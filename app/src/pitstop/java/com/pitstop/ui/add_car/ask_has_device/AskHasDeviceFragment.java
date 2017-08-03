@@ -2,14 +2,12 @@ package com.pitstop.ui.add_car.ask_has_device;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -106,26 +104,6 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_NO_HARDWARE
                 , MixpanelHelper.ADD_CAR_VIEW);
         presenter.onNoDeviceSelected();
-    }
-
-    @Override
-    public void showLoading(@NonNull String message) {
-        Log.d(TAG,"showLoading(), message: "+message);
-        if (progressDialog == null || getActivity() == null) return;
-
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }
-
-    @Override
-    public void hideLoading(@Nullable String message) {
-        Log.d(TAG,"hideLoading() message: "+message);
-        if (progressDialog == null || getActivity() == null) return;
-
-        progressDialog.dismiss();
-        if (message != null){
-            Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override
