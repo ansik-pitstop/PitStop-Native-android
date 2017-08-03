@@ -272,11 +272,13 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void displayScannedVinValid() {
+        Log.d(TAG,"displayScannedVinValid()");
         Toast.makeText(getContext(),"Scanned VIN Successully",Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void displayScannedVinInvalid() {
+        Log.d(TAG,"displayScannedVinInvalid()");
         Toast.makeText(getContext(),"Scanned VIN is invalid",Toast.LENGTH_LONG).show();
     }
 
@@ -303,11 +305,16 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        Log.d(TAG,"onActivityResult()");
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
+                    ", result: "+(result == null ? "" : result.getContents()));
+
             if (result == null || result.getContents() == null) presenter.onGotVinScanResult("");
-            presenter.onGotVinScanResult(result.getContents());
+            else{
+                presenter.onGotVinScanResult(result.getContents());
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);

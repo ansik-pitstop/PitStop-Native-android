@@ -127,6 +127,7 @@ public class VinEntryPresenter {
     }
 
     public void onGotVinScanResult(String result){
+        Log.d(TAG,"onGotVinScanResult() result: "+result);
         if (view == null || result == null) return;
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
