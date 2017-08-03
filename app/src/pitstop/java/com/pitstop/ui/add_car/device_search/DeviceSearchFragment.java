@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +64,19 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
         if (progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
+
+            /*Has to be handled because when the ProgressDialog
+            **is open onBackPressed() is not invoked*/
+            progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                    if (presenter != null){
+                        presenter.onProgressDialogKeyPressed(keyCode);
+                    }
+                    return false;
+                }
+            });
         }
 
         if (useCaseComponent == null){
@@ -263,7 +276,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.dismiss();
-        if (message != null){
+        if (message != null && !message.isEmpty()){
             Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
         }
     }

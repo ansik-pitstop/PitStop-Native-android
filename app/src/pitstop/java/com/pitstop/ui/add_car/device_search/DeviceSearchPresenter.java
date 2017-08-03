@@ -1,6 +1,7 @@
 package com.pitstop.ui.add_car.device_search;
 
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
@@ -305,6 +306,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     }
 
+    public void onProgressDialogKeyPressed(int keyCode){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+        }
+    }
+
     public void onBackPressed(){
         Log.d(TAG,"onBackPressed() searchingForVin?"+searchingForVin+", searchingForDevice?"
                 +searchingForDevice+", addingCar?"+addingCar);
@@ -326,6 +333,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         else{
             view.showAskHasDeviceView();
+            view.hideLoading("");
         }
 
     }

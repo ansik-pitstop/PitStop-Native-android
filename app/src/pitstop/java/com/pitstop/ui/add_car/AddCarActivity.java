@@ -192,16 +192,13 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Log.d(TAG,"onBackPressed()");
 
         if (currentFragment == vinEntryFragment){
-            Log.d(TAG,"onBackPressed() currentFragment == vinEntryFragment");
             vinEntryFragment.onBackPressed();
         }
         //Special case that requires extra layer of logic
         else if (currentFragment == deviceSearchFragment){
-            Log.d(TAG,"onBackPressed() currentFragment == deviceSearchFragment");
             deviceSearchFragment.onBackPressed();
         }
         else{
-            Log.d(TAG,"onBackPressed() currentFragment not VinEntry or DeviceSearch");
             super.onBackPressed();
         }
     }

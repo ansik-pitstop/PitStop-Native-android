@@ -1,6 +1,7 @@
 package com.pitstop.ui.add_car.vin_entry;
 
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
@@ -167,12 +168,19 @@ public class VinEntryPresenter {
         this.scannerId = scannerId;
     }
 
+    public void onProgressDialogKeyPressed(int keyCode){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+        }
+    }
+
     public void onBackPressed(){
         if (view == null) return;
 
         //Ignore back press if adding car
         if (!addingCar){
             view.showAskHasDeviceView();
+            view.hideLoading("");
         }
     }
 
