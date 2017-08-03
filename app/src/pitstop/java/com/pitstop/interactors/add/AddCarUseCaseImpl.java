@@ -194,6 +194,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                 }else{//not empty
                                     scanner = new ObdScanner(car.getId()
                                             ,scannerId,scannerName);
+                                    scanner.setStatus(true);
                                 }
                                 scannerRepository.createScanner(scanner, new Repository.Callback() {
                                     @Override
