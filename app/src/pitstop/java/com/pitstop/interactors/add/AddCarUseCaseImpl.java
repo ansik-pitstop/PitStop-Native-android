@@ -1,6 +1,7 @@
 package com.pitstop.interactors.add;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -23,6 +24,8 @@ import org.greenrobot.eventbus.EventBus;
  */
 
 public class AddCarUseCaseImpl implements AddCarUseCase {
+
+    final private String TAG = getClass().getSimpleName();
 
     private CarRepository carRepository;
     private UserRepository userRepository;
@@ -50,6 +53,9 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     public void execute(String vin, double baseMileage, String scannerId
             ,String scannerName, String eventSource, Callback callback) {
 
+        Log.d(TAG,"execute() vin: "+vin+", baseMileage: "+baseMileage+", scannerId: "
+                +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource);
+
         this.vin = vin;
         this.baseMileage = baseMileage;
         this.scannerId = scannerId;
@@ -61,28 +67,42 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     @Override
     public void run() {
+        Log.d(TAG,"run()");
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                    carRepository.getCarByVin(vin, new Repository.Callback<Car>() {
+                Log.d(TAG,"getCurrentUser().onSuccess() user: "+user);
+                carRepository.getCarByVin(vin, new Repository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
+
                             boolean carExists = car != null;
                             boolean hasUser = car != null && car.getUserId() != 0;
                             boolean hasScanner = car != null && car.getScannerId() != null
                                     && !car.getScannerId().isEmpty();
 
+                            Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
+                                    +hasUser+", hasScanner?"+hasScanner+", car: "+car);
+
+                            //If statements are purposely not simplified here to make the code easy to read
+
                             //If car exists and has user
                             if (carExists && hasUser){
+                                Log.d(TAG,"carExists && hasUser, calling callback.onCarAlreadyAdded()");
                                 callback.onCarAlreadyAdded(car);
                             }
 
                             //If car exists and does not have user but scanner not active/ active
                             else if (carExists && !hasUser && hasScanner){
+                                Log.d(TAG,"carExists && !hasUser && hasScanner, getting scanner");
                                 scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
 
                                     @Override
                                     public void onSuccess(ObdScanner obdScanner) {
+                                        Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
+                                                +obdScanner.getScannerId()
+                                                +", active?"+obdScanner.getStatus());
+
                                         //Active, deactivate then add
                                         if (obdScanner.getStatus()){
 
@@ -91,39 +111,49 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                                                 @Override
                                                 public void onSuccess(Object response){
+                                                    Log.d(TAG,"updateScanner().onSuccess() response:"
+                                                            +response);
                                                     addCar(vin,baseMileage,user.getId(),scannerId
                                                             ,callback);
                                                 }
 
                                                 @Override
                                                 public void onError(RequestError error){
+                                                    Log.d(TAG,"updateScanner().onError() error: "
+                                                            +error.getMessage());
                                                     callback.onError(error);
                                                 }
                                             });
                                         }
                                         //Not active, add
                                         else{
+                                            Log.d(TAG,"scanner not active, adding car");
                                             addCar(vin,baseMileage,user.getId(),scannerId,callback);
                                         }
                                     }
 
                                     @Override
                                     public void onError(RequestError error) {
+                                        Log.d(TAG,"getScanner().onError() error: "
+                                                +error.getMessage());
+
                                         callback.onError(error);
                                     }
                                 });
                             }
 
                             else if (carExists && !hasUser && !hasScanner){
+                                Log.d(TAG,"carExists && !hasUser && !hasScanner, adding car");
                                 addCar(vin,baseMileage,user.getId(),scannerId,callback);
                             }
 
                             //If car does not exist then add
                             else if (!carExists){
+                                Log.d(TAG,"!carExists, adding car");
                                 addCar(vin,baseMileage,user.getId(),scannerId,callback);
                             }
 
-                            //Unknown case
+                            //Unknown case that is never reached
                             else{
                                 callback.onError(RequestError.getUnknownError());
                             }
