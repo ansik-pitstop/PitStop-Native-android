@@ -1,8 +1,6 @@
 package com.pitstop.bluetooth;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -10,11 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.castel.obd.bleDevice.AbstractDevice;
@@ -25,7 +19,6 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -33,7 +26,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -128,7 +120,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
-    public synchronized boolean startScan(boolean periodic) {
+    public synchronized boolean startScan(boolean urgent) {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
@@ -140,7 +132,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        return connectBluetooth(periodic);
+        return connectBluetooth(urgent);
     }
 
     public synchronized void onConnectDeviceValid(){
@@ -220,35 +212,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // on device connected?
     }
 
-    private void showConnectingNotification() {
-        Bitmap icon = BitmapFactory.decodeResource(mContext.getResources(),
-                R.mipmap.ic_push);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mContext)
-                        .setLargeIcon(icon)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setProgress(100, 100, true)
-                        .setContentTitle("Connecting to car");
-
-        Intent resultIntent = new Intent(mContext, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
-
-        stackBuilder.addParentStack(MainActivity.class);
-
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
-    }
-
     //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
@@ -283,7 +246,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to LE device");
-                showConnectingNotification();
                 communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
                 break;
@@ -291,7 +253,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to Classic device");
                 communicator = new BluetoothClassicComm(mContext, this);
-                showConnectingNotification();
                 break;
         }
 
@@ -318,10 +279,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return deviceInterface.getDeviceName();
     }
 
+    private void trackBluetoothEvent(String event){
+        if (deviceInterface == null){
+            mixpanelHelper.trackBluetoothEvent(event);
+        }
+        else{
+            mixpanelHelper.trackBluetoothEvent(event,deviceInterface.getDeviceName());
+        }
+    }
 
     private int scanNumber = 0;
-    private boolean periodicScanInProgress = false;
-    private synchronized boolean connectBluetooth(boolean periodic) {
+    private boolean nonUrgentScanInProgress = false;
+    private synchronized boolean connectBluetooth(boolean urgent) {
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
@@ -354,13 +323,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         mBluetoothAdapter.cancelDiscovery();
                     }
                     dataListener.scanFinished();
-                    periodicScanInProgress = false;
+                    nonUrgentScanInProgress = false;
                 }
             }
         }, 12000);
 
         if (mBluetoothAdapter.startDiscovery()){
-            periodicScanInProgress = periodic;
+            nonUrgentScanInProgress = urgent;
+            if (urgent){
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
+            }
+            else{
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_NOT_URGENT);
+            }
             return true;
         }
         else{
@@ -435,7 +410,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     public void onNoDeviceFound() {
                         Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
                     }
-                }, mHandler, periodicScanInProgress);
+                }, mHandler, nonUrgentScanInProgress);
             }
         }
     };

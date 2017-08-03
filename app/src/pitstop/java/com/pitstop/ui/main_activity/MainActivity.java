@@ -346,7 +346,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (autoConnectService != null){
             displayDeviceState(autoConnectService.getDeviceState());
             autoConnectService.subscribe(this);
-            autoConnectService.requestDeviceSearch();
+            autoConnectService.requestDeviceSearch(false);
         }
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
