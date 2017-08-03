@@ -158,7 +158,7 @@ public class AddCarPresenter implements AddCarContract.Presenter {
         }
         else if (mAutoConnectService !=  null && !mAutoConnectService.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.SEARCHING)){
-            mAutoConnectService.requestDeviceSearch(true);
+            mAutoConnectService.requestDeviceSearch(true, true);
         }
 
         mCallback.showLoading("Searching for Car");

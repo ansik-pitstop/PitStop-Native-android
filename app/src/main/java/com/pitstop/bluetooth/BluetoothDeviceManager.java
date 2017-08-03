@@ -120,7 +120,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
-    public synchronized boolean startScan(boolean urgent) {
+    public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
+        this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
             mBluetoothAdapter.enable();
@@ -221,7 +222,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
-        startScan(false);
+        startScan(false, false);
     }
 
     /**
@@ -343,6 +344,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
+    private boolean ignoreVerification = false;
     // for classic discovery
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -358,7 +360,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
                 //Notify bluetooth device recognizer that device has been found
-                mBluetoothDeviceRecognizer.onDeviceFound(device,rssi);
+                mBluetoothDeviceRecognizer.onDeviceFound(device,rssi,ignoreVerification);
 
                 //Begin RSSI scan, searching for valid device with strongest signal
                 mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {

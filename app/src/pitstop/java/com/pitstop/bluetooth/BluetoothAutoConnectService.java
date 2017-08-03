@@ -166,6 +166,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private boolean isSendingTripRequest = false;
     private boolean deviceIsVerified = false;
+    private boolean ignoreVerification = false; //Whether to begin verifying device by VIN or not
     private ReadyDevice readyDevice = null;
 
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
@@ -549,8 +550,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestDeviceSearch(boolean urgent) {
+    public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
         Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState);
+        this.ignoreVerification = ignoreVerification;
         if (deviceConnState.equals(State.CONNECTED)) return;
 
         //rssi minimum threshold won't matter, rssi will only be used to prioritize devices
@@ -853,7 +855,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         //If adding car connect to first recognized device, or 212 device
         // without checking vin(even when not adding car)
         else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && AddCarActivity.addingCar && !deviceIsVerified){
+                && ignoreVerification && !deviceIsVerified){
             setFixedUpload();
             deviceIsVerified = true;
             verificationInProgress = false;
@@ -865,7 +867,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !AddCarActivity.addingCar && !verificationInProgress
+                && !ignoreVerification && !verificationInProgress
                 && !deviceIsVerified){
 
             //Device verification starting
@@ -1410,7 +1412,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
             return;
         }
-        if (deviceManager.startScan(urgent)){
+        if (deviceManager.startScan(urgent,ignoreVerification)){
             deviceConnState = State.SEARCHING;
             notifySearchingForDevice();
             Log.d(TAG,"Started scan");

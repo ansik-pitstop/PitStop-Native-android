@@ -66,7 +66,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         @Override
         public void onRetry() {
             if (bluetoothConnectionObservable != null){
-                bluetoothConnectionObservable.requestDeviceSearch(true);
+                bluetoothConnectionObservable.requestDeviceSearch(true, true);
             }
         }
 
@@ -164,7 +164,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.showLoading("Searching for Device");
             searchingForDevice = true;
             findDeviceTimer.start();
-            bluetoothConnectionObservable.requestDeviceSearch(true);
+            bluetoothConnectionObservable.requestDeviceSearch(true, true);
         }
     }
 
