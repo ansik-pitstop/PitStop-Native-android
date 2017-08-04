@@ -122,14 +122,9 @@ public class VinEntryPresenter {
 
     public void addVehicle(){
         Log.d(TAG,"addVehicle() vin:"+view.getVin()+", addingCar?"+addingCar);
+
         if (view == null) return;
         if (addingCar) return;
-
-        view.setLoadingCancelable(false); //Do not allow back button to cancel loading prompt
-        addingCar = true;
-
-        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
-                , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         final String correctVin = AddCarUtils.removeWhitespace(view.getVin());
 
@@ -144,6 +139,13 @@ public class VinEntryPresenter {
             view.onInvalidMileage();
             return;
         }
+
+        view.setLoadingCancelable(false); //Do not allow back button to cancel loading prompt
+        addingCar = true;   //Do not allow multiple calls to add car
+
+        //Got VIN manually with success
+        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
+                , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
         //Add vehicle logic below
         int mileage = Integer.valueOf(view.getMileage());
