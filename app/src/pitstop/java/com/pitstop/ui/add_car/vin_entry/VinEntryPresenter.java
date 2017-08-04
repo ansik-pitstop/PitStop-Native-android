@@ -39,12 +39,18 @@ public class VinEntryPresenter {
         Log.d(TAG,"subscribe()");
 
         this.view = view;
+
+        //Get scanner id and scanner name in case they were set before presenter was subscribed
+        this.scannerId = view.getScannerId();
+        this.scannerName = view.getScannerName();
     }
 
     public void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
 
         this.view = null;
+        this.scannerId = "";
+        this.scannerName = "";
     }
 
     public void vinChanged(String vin){
@@ -121,7 +127,8 @@ public class VinEntryPresenter {
     }
 
     public void addVehicle(){
-        Log.d(TAG,"addVehicle() vin:"+view.getVin()+", addingCar?"+addingCar);
+        Log.d(TAG,"addVehicle() vin:"+view.getVin()+", addingCar?"+addingCar +", scannerId: "
+                +scannerId+", scannerName: "+scannerName);
 
         if (view == null) return;
         if (addingCar) return;

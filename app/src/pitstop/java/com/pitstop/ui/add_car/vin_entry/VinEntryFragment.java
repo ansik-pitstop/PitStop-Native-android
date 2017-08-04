@@ -61,6 +61,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
 
+    //These are empty UNLESS we enter this fragment from SearchDeviceFragment which retrieved them
+    private String scannerId = "";
+    private String scannerName = "";
+
     public static VinEntryFragment getInstance(){
         return new VinEntryFragment();
     }
@@ -173,6 +177,16 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         else return vinEditText.getText().toString();
     }
 
+    @Override
+    public String getScannerId() {
+        return scannerId;
+    }
+
+    @Override
+    public String getScannerName() {
+        return scannerName;
+    }
+
     @OnTextChanged(R.id.VIN)
     protected void onVinTextChanged(Editable editable){
         Log.d(TAG,"onVinTextChanged() vin:"+editable.toString());
@@ -228,10 +242,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onGotDeviceInfo(String scannerId, String scannerName) {
-        Log.d(TAG,"onGotDeviceInfo() scannerId: "+scannerId+", scannerName: "+scannerName);
-        if (presenter == null) return;
+        Log.d(TAG,"onGotDeviceInfo() presenter == null?"+(presenter == null)
+                +", scannerId: "+scannerId+", scannerName: "+scannerName);
 
-        presenter.gotDeviceInfo(scannerId,scannerName);
+        this.scannerId = scannerId;
+        this.scannerName = scannerName;
+
+        if (presenter != null){
+            presenter.gotDeviceInfo(scannerId,scannerName);
+        }
     }
 
     @Override
@@ -375,9 +394,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             String vin = data.getStringExtra(PendingAddCarActivity.ADD_CAR_VIN);
             int mileage = Integer.valueOf(data.getStringExtra(PendingAddCarActivity
                     .ADD_CAR_MILEAGE));
-            String scannerId = data.getStringExtra(PendingAddCarActivity.ADD_CAR_SCANNER);
+            this.scannerId = data.getStringExtra(PendingAddCarActivity.ADD_CAR_SCANNER);
+            this.scannerName = scannerId;
 
-            presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerId);
+            presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerName);
         }
 
         super.onActivityResult(requestCode, resultCode, data);

@@ -146,10 +146,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        vinEntryFragment.onGotDeviceInfo(scannerId, scannerName);
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
         currentFragment = vinEntryFragment;
         fragmentTransaction.commit();
+        vinEntryFragment.onGotDeviceInfo(scannerId, scannerName);
     }
 
     @Override
