@@ -57,6 +57,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     public void setBluetoothConnectionObservable(BluetoothConnectionObservable bluetoothConnectionObservable){
+        if (presenter == null) return;
         presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }
 
@@ -140,6 +141,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"onVinRetrievalFailed() scannerName: "+scannerName+", scannerId: "+scannerId);
 
         //Fragment switcher, go toVinEntryFragment
+        if (fragmentSwitcher == null || getActivity() == null ) return;
         fragmentSwitcher.setViewVinEntry(scannerName, scannerId);
 
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
@@ -160,6 +162,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void onCannotFindDevice() {
         Log.d(TAG,"onCannotFindDevice()");
 
+        if (getActivity() == null) return;
+
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Could not find OBD device")
                 .setMessage("We were unable to find a Pitstop OBD device, please make sure that the " +
@@ -168,7 +172,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        presenter.startSearch();
+                        if (presenter != null){
+                            presenter.startSearch();
+                        }
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -184,12 +190,19 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public String getMileage(){
         Log.d(TAG,"getMileage(), returning: "
                 +mileageInputEditText.getText().toString());
-        return mileageInputEditText.getText().toString();
+        if (mileageInputEditText == null || mileageInputEditText.getText() == null){
+            return "";
+        }
+        else{
+            return mileageInputEditText.getText().toString();
+        }
     }
 
     @Override
     public void onMileageInvalid() {
         Log.d(TAG,"onMileageInvalid()");
+
+        if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Invalid Mileage")
@@ -228,6 +241,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void onErrorAddingCar(String message) {
         Log.d(TAG,"onErrorAddingCar(), message: "+message);
 
+        if (getActivity() == null) return;
+
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Add Car Error")
                 .setMessage(message)
@@ -246,6 +261,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void onCarAlreadyAdded(Car car) {
         Log.d(TAG,"onCarAlreadyAdded() car: "+car);
+
+        if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle("Car Already Added")
@@ -314,6 +331,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
+        if (presenter == null) return;
 
         if (requestCode == RC_PENDING_ADD_CAR){
             String vin = data.getStringExtra(PendingAddCarActivity.ADD_CAR_VIN);

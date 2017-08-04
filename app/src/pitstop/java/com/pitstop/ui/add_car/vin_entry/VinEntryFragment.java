@@ -115,8 +115,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
-
-        presenter.unsubscribe();
+        if (presenter != null){
+            presenter.unsubscribe();
+        }
         super.onDestroyView();
     }
 
@@ -161,7 +162,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_METHOD_MANUAL
                 ,MixpanelHelper.ADD_CAR_VIEW);
-        presenter.addVehicle();
+        if (presenter != null){
+            presenter.addVehicle();
+        }
     }
 
     @Override
@@ -226,6 +229,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onGotDeviceInfo(String scannerId, String scannerName) {
         Log.d(TAG,"onGotDeviceInfo() scannerId: "+scannerId+", scannerName: "+scannerName);
+        if (presenter == null) return;
 
         presenter.gotDeviceInfo(scannerId,scannerName);
     }
