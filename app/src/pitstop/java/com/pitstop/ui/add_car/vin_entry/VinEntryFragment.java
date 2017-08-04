@@ -287,6 +287,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void displayVin(String vin) {
+        Log.d(TAG,"displayVin() vin: "+vin);
         if (vin == null) vin = "";
         vinEditText.setText(vin);
     }
@@ -345,6 +346,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void setLoadingCancelable(boolean cancelable) {
+        Log.d(TAG,"setLoadingCancelable() cancelable: "+cancelable);
         if (progressDialog == null) return;
 
         progressDialog.setCancelable(cancelable);
@@ -378,6 +380,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     public void onBackPressed(){
+        Log.d(TAG,"onBackPressed()");
         if (presenter == null) return;
 
         presenter.onBackPressed();

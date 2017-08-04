@@ -286,6 +286,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void setLoadingCancelable(boolean cancelable) {
+        Log.d(TAG,"setLoadingCancelable() cancelable: "+cancelable);
         if (progressDialog == null) return;
 
         progressDialog.setCancelable(cancelable);
