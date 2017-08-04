@@ -232,11 +232,18 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private void addCar(ReadyDevice readyDevice){
         Log.d(TAG,"addCar() addingCar?"+addingCar);
 
+        //Dont allow two adds
         if (addingCar) return;
+
+        //Check whether mileage is valid again, just in case it somehow changed
+        if (!AddCarUtils.isMileageValid(view.getMileage())){
+            view.onMileageInvalid();
+            return;
+        }
 
         view.showLoading("Saving Car");
         addingCar = true;
-        double mileage = view.getMileage();
+        double mileage = Double.valueOf(view.getMileage());
 
         useCaseComponent.addCarUseCase().execute(readyDevice.getVin(), mileage
                 , readyDevice.getScannerId(), readyDevice.getScannerName()

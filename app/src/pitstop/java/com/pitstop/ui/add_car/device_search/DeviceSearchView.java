@@ -11,7 +11,7 @@ public interface DeviceSearchView extends LoadingView{
 
     void onVinRetrievalFailed(String scannerName, String scannerId);
     void onCannotFindDevice();
-    int getMileage();
+    String getMileage();
     void onMileageInvalid();
     void onCarAddedWithShop(Car car);
     void onCarAddedWithoutShop(Car car);

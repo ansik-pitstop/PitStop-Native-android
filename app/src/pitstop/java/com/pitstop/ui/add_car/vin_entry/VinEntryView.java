@@ -10,7 +10,7 @@ import com.pitstop.ui.LoadingView;
 public interface VinEntryView extends LoadingView{
     void onValidVinInput();
     void onInvalidVinInput();
-    int getMileage();
+    String getMileage();
     void onInvalidMileage();
     void onGotDeviceInfo(String scannerId, String scannerName);
     void onCarAddedWithShop(Car car);

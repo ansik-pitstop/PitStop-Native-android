@@ -181,10 +181,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public int getMileage(){
+    public String getMileage(){
         Log.d(TAG,"getMileage(), returning: "
-                +Integer.valueOf(mileageInputEditText.getText().toString()));
-        return Integer.valueOf(mileageInputEditText.getText().toString());
+                +mileageInputEditText.getText().toString());
+        return mileageInputEditText.getText().toString();
     }
 
     @Override

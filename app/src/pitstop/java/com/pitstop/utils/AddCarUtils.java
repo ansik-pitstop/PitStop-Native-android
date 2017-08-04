@@ -18,6 +18,16 @@ public class AddCarUtils {
         return s.replace(" ","").replace("\n","").replace("\t","");
     }
 
+    public static boolean isMileageValid(String mileage){
+        try{
+            int intMileage = Integer.valueOf(mileage);
+            return intMileage >= MIN_MILEAGE && intMileage <= MAX_MILEAGE;
+        }
+        catch(NumberFormatException e){
+            return false;
+        }
+    }
+
     public static boolean isMileageValid(int mileage){
         return mileage >= MIN_MILEAGE && mileage <= MAX_MILEAGE;
     }

@@ -146,7 +146,8 @@ public class VinEntryPresenter {
         }
 
         //Add vehicle logic below
-        addVehicleToServer(correctVin,view.getMileage(),scannerId,scannerName);
+        int mileage = Integer.valueOf(view.getMileage());
+        addVehicleToServer(correctVin,mileage,scannerId,scannerName);
 
 
     }
@@ -208,7 +209,7 @@ public class VinEntryPresenter {
         if (!AddCarUtils.isVinValid(vin)){
             view.onInvalidVinInput();
         }
-        else if (!AddCarUtils.isMileageValid((int)mileage)){
+        else if (!AddCarUtils.isMileageValid(mileage)){
             view.onInvalidMileage();
         }
         else{

@@ -198,11 +198,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
-    public int getMileage() {
+    public String getMileage() {
         Log.d(TAG,"getMileage(), returning: "
-                +Integer.valueOf(mileageEditText.getText().toString()));
+                +mileageEditText.getText().toString());
 
-        return Integer.valueOf(mileageEditText.getText().toString());
+        return mileageEditText.getText().toString();
     }
 
     @Override
