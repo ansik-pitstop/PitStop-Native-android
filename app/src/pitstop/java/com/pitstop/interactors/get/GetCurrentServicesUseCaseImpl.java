@@ -59,6 +59,8 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                                 preset.add(c);
                             }else if(c.getIssueType().equals("service_user")){
                                 custom.add(c);
+                            }else{
+                                preset.add(c);
                             }
                         }
                         callback.onGotCurrentServices(preset,custom);
