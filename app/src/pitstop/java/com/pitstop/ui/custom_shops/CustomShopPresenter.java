@@ -7,6 +7,7 @@ import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.add_car.AddCarActivity;
 
 /**
  * Created by matt on 2017-06-08.
@@ -16,14 +17,17 @@ public class CustomShopPresenter {
     private CustomShopView customShop;
     private CustomShopActivityCallback fragmentSwitcher;
     private UseCaseComponent component;
+    private String startSource;
 
     private final static int DEBUG_NO_DEALER = 1;
     private final static int PROD_NO_DEALER = 19;
 
 
-    public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher, UseCaseComponent component){
+    public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher
+            , UseCaseComponent component, String startSource){
         this.fragmentSwitcher = fragmentSwitcher;
         this.component = component;
+        this.startSource = startSource;
     }
 
     public void setNoDealer(Car car){
@@ -53,9 +57,11 @@ public class CustomShopPresenter {
     public void subscribe(CustomShopView customShop){
         this.customShop = customShop;
     }
+
     public void unsubscribe(){
         this.customShop = null;
     }
+
     public void setViewCustomShop(){
         if(customShop == null){return;}
         fragmentSwitcher.setViewShopType();
@@ -63,8 +69,24 @@ public class CustomShopPresenter {
 
     public void setUpNavBar(){
         if(customShop == null){return;}
-        customShop.setUpNavBar();
 
+        //Show home button only if this activity hasn't been started from AddCar
+        customShop.setUpNavBar(!startSource.equals(AddCarActivity.class.getName()));
+
+    }
+
+    //Returns true if it handled the back press, false otherwise
+    public boolean onBackPressed(){
+
+        //Return true, meaning DO NOT handle this back press IF selecting a shop
+        // and Add Car was the previous activity
+        if (startSource.equals(AddCarActivity.class.getName())
+                && customShop.getCurrentViewName().equals(CustomShopView.VIEW_SHOP_TYPE)){
+
+            return true;
+        }
+
+        return false;
     }
 
 

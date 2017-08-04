@@ -23,6 +23,7 @@ import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;
 import com.pitstop.ui.add_car.device_search.DeviceSearchFragment;
 import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -166,17 +167,24 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     @Override
     public void endAddCarSuccess(Car car, boolean hasDealership) {
         Log.d(TAG,"endAddCarSuccess() hasDealership? "+hasDealership+", createdCar: "+car);
+        if (car == null) return;
 
         currentFragment = null;
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
+        //Go back to previous activity
         if (hasDealership){
             setResult(ADD_CAR_SUCCESS_HAS_DEALER, data);
+            finish();
         }
+        //Begin dealership selection
         else{
-            setResult(ADD_CAR_SUCCESS_NO_DEALER, data);
+            Intent intent = new Intent(this, CustomShopActivity.class);
+            intent.putExtra(CustomShopActivity.CAR_EXTRA,car);
+            intent.putExtra(CustomShopActivity.START_SOURCE_EXTRA,getClass().getName());
+            startActivity(intent);
+            finish();
         }
-        finish();
     }
 
     @Override
@@ -186,15 +194,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Intent data = new Intent();
         setResult(ADD_CAR_FAILED, data);
         finish();
-    }
-
-    @Override
-    public void beginPendingAddCarActivity(String vin, double mileage, String scannerId) {
-        Intent intent = new Intent(this, PendingAddCarActivity.class);
-        intent.putExtra(PendingAddCarActivity.ADD_CAR_MILEAGE, mileage);
-        intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, scannerId);
-        intent.putExtra(PendingAddCarActivity.ADD_CAR_VIN, vin);
-        startActivityForResult(intent, RC_PENDING_ADD_CAR);
     }
 
     @Override

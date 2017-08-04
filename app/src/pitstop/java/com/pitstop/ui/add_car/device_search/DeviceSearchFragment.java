@@ -301,9 +301,13 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void beginPendingAddCarActivity(String vin, double mileage, String scannerId) {
-        if (fragmentSwitcher == null) return;
+        if (getActivity() == null) return;
 
-        fragmentSwitcher.beginPendingAddCarActivity(vin,mileage,scannerId);
+        Intent intent = new Intent(getActivity(), PendingAddCarActivity.class);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_MILEAGE, mileage);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, scannerId);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_VIN, vin);
+        startActivityForResult(intent, RC_PENDING_ADD_CAR);
     }
 
     @Override

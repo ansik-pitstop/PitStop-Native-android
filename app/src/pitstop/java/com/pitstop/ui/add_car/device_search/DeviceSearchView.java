@@ -7,7 +7,7 @@ import com.pitstop.ui.LoadingView;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public interface DeviceSearchView extends LoadingView {
+public interface DeviceSearchView extends LoadingView{
 
     void onVinRetrievalFailed(String scannerName, String scannerId);
     void onCannotFindDevice();

@@ -7,7 +7,7 @@ import com.pitstop.ui.LoadingView;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public interface VinEntryView extends LoadingView {
+public interface VinEntryView extends LoadingView{
     void onValidVinInput();
     void onInvalidVinInput();
     int getMileage();
