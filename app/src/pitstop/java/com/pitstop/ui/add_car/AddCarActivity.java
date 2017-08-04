@@ -38,6 +38,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     public static final int ADD_CAR_SUCCESS_NO_DEALER = 51;
     public static final int ADD_CAR_SUCCESS_HAS_DEALER = 53;
     public static final int ADD_CAR_FAILED = 56;
+    public static final int RC_PENDING_ADD_CAR = 1043;
 
     private AskHasDeviceFragment askHasDeviceFragment;
     private DeviceSearchFragment deviceSearchFragment;
@@ -185,6 +186,15 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Intent data = new Intent();
         setResult(ADD_CAR_FAILED, data);
         finish();
+    }
+
+    @Override
+    public void beginPendingAddCarActivity(String vin, double mileage, String scannerId) {
+        Intent intent = new Intent(this, PendingAddCarActivity.class);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_MILEAGE, mileage);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, scannerId);
+        intent.putExtra(PendingAddCarActivity.ADD_CAR_VIN, vin);
+        startActivityForResult(intent, RC_PENDING_ADD_CAR);
     }
 
     @Override

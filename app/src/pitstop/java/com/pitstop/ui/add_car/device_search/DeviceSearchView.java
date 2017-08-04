@@ -18,5 +18,6 @@ public interface DeviceSearchView extends LoadingView {
     void onErrorAddingCar(String message);
     void onCarAlreadyAdded(Car car);
     void showAskHasDeviceView();
+    void beginPendingAddCarActivity(String vin, double mileage, String scannerId);
 
 }

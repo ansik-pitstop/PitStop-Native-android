@@ -41,6 +41,7 @@ import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.ui.add_car_old.view_fragment.AddCar1Fragment;
 import com.pitstop.ui.add_car_old.view_fragment.AddCar2NoDongleFragment;
 import com.pitstop.ui.add_car_old.view_fragment.AddCar2YesDongleFragment;

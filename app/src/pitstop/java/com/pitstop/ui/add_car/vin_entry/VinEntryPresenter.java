@@ -59,8 +59,69 @@ public class VinEntryPresenter {
         }
     }
 
-    public void addVehicle(String vin){
-        Log.d(TAG,"addVehicle() vin:"+vin+", addingCar?"+addingCar);
+    private void addVehicleToServer(String vin, int mileage, String scannerId, String scannerName){
+        Log.d(TAG,"addVehicleToServer() vin:"+vin+", mileage:"+mileage+", scannerId:"+scannerId
+                +", scannerName:"+scannerName);
+
+        view.showLoading("Saving Car");
+        useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
+                , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+
+                    @Override
+                    public void onCarAlreadyAdded(Car car){
+                        Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                        addingCar = false;
+                        if (view == null) return;
+
+                        view.setLoadingCancelable(true);
+                        view.onCarAlreadyAdded(car);
+                        view.hideLoading(null);
+                    }
+
+                    @Override
+                    public void onCarAddedWithBackendShop(Car car) {
+                        Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
+                        addingCar = false;
+                        if (view == null) return;
+
+                        view.setLoadingCancelable(true);
+                        view.onCarAddedWithShop(car);
+                        view.hideLoading("Added Car Successfully");
+                    }
+
+                    @Override
+                    public void onCarAdded(Car car) {
+                        Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
+                        addingCar = false;
+                        if (view == null) return;
+
+                        view.setLoadingCancelable(true);
+                        view.onCarAddedWithoutShop(car);
+                        view.hideLoading("Added Car Successfully");
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
+                        addingCar = false;
+                        if (view == null) return;
+
+                        view.setLoadingCancelable(true);
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                            view.beginPendingAddCarActivity(vin,mileage,scannerId);
+                            view.hideLoading("Please connect to the internet");
+                        }
+                        else{
+                            view.onErrorAddingCar("Unexpected error occurred adding car" +
+                                    ", please restart the app and try again.");
+                            view.hideLoading(null);
+                        }
+                    }
+                });
+    }
+
+    public void addVehicle(){
+        Log.d(TAG,"addVehicle() vin:"+view.getVin()+", addingCar?"+addingCar);
         if (view == null) return;
         if (addingCar) return;
 
@@ -70,77 +131,23 @@ public class VinEntryPresenter {
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                 , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
 
-        vin = AddCarUtils.removeWhitespace(vin);
-        int mileage = view.getMileage();
+        final String correctVin = AddCarUtils.removeWhitespace(view.getVin());
 
         //Check for valid vin again, even though it should be valid here
-        if (!AddCarUtils.isVinValid(vin)){
+        if (!AddCarUtils.isVinValid(correctVin)){
             view.onInvalidVinInput();
             return;
         }
 
         //Check for valid mileage
-        if (!AddCarUtils.isMileageValid(mileage)){
+        if (!AddCarUtils.isMileageValid(view.getMileage())){
             view.onInvalidMileage();
             return;
         }
 
         //Add vehicle logic below
-        view.showLoading("Saving Car");
-        useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
-                , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
+        addVehicleToServer(correctVin,view.getMileage(),scannerId,scannerName);
 
-            @Override
-            public void onCarAlreadyAdded(Car car){
-                Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
-                addingCar = false;
-                if (view == null) return;
-
-                view.setLoadingCancelable(true);
-                view.onCarAlreadyAdded(car);
-                view.hideLoading(null);
-            }
-
-            @Override
-            public void onCarAddedWithBackendShop(Car car) {
-                Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
-                addingCar = false;
-                if (view == null) return;
-
-                view.setLoadingCancelable(true);
-                view.onCarAddedWithShop(car);
-                view.hideLoading("Added Car Successfully");
-            }
-
-            @Override
-            public void onCarAdded(Car car) {
-                Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
-                addingCar = false;
-                if (view == null) return;
-
-                view.setLoadingCancelable(true);
-                view.onCarAddedWithoutShop(car);
-                view.hideLoading("Added Car Successfully");
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
-                addingCar = false;
-                if (view == null) return;
-
-                view.setLoadingCancelable(true);
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    view.onErrorAddingCar("Please connect to the internet to add your vehicle.");
-                    view.hideLoading(null);
-                }
-                else{
-                    view.onErrorAddingCar("Unexpected error occurred adding car" +
-                            ", please restart the app and try again.");
-                    view.hideLoading(null);
-                }
-            }
-        });
 
     }
 
@@ -185,6 +192,27 @@ public class VinEntryPresenter {
         if (!addingCar){
             view.showAskHasDeviceView();
             view.hideLoading("");
+        }
+    }
+
+    public void onGotPendingActivityResults(String vin, int mileage, String scannerId
+            , String scannerName){
+
+        Log.d(TAG,"onGotPendingActivityResults() vin: "+vin+", mileage:"+mileage+", scannerId:"
+                +scannerId+", scanner");
+
+        if (view == null) return;
+
+        this.scannerId = scannerId;
+
+        if (!AddCarUtils.isVinValid(vin)){
+            view.onInvalidVinInput();
+        }
+        else if (!AddCarUtils.isMileageValid((int)mileage)){
+            view.onInvalidMileage();
+        }
+        else{
+            addVehicleToServer(vin,view.getMileage(),scannerId,scannerName);
         }
     }
 

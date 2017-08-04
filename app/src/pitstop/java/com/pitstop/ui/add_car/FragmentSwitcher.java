@@ -13,4 +13,5 @@ public interface FragmentSwitcher {
     void setViewVinEntry();
     void endAddCarSuccess(Car car, boolean hasDealership);
     void endAddCarFailure();
+    void beginPendingAddCarActivity(String vin, double mileage, String scannerId);
 }

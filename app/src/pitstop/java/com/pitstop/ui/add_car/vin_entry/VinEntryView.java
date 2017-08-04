@@ -21,4 +21,6 @@ public interface VinEntryView extends LoadingView {
     void displayScannedVinValid();
     void displayScannedVinInvalid();
     void showAskHasDeviceView();
+    void beginPendingAddCarActivity(String vin, double mileage, String scannerId);
+    String getVin();
 }

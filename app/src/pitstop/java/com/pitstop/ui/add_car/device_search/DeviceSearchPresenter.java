@@ -236,7 +236,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         view.showLoading("Saving Car");
         addingCar = true;
-        useCaseComponent.addCarUseCase().execute(readyDevice.getVin(), view.getMileage()
+        double mileage = view.getMileage();
+
+        useCaseComponent.addCarUseCase().execute(readyDevice.getVin(), mileage
                 , readyDevice.getScannerId(), readyDevice.getScannerName()
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
 
@@ -277,9 +279,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (view == null) return;
 
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                            view.onErrorAddingCar("Please connect to the internet to add " +
-                                    "your vehicle.");
-                            view.hideLoading(null);
+                            view.beginPendingAddCarActivity(readyDevice.getVin(),mileage
+                                    ,readyDevice.getScannerId());
+                            view.hideLoading("Please connect to the internet");
                         }
                         else{
                             view.onErrorAddingCar("Unexpected error occurred adding car" +
@@ -311,6 +313,20 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             onBackPressed();
         }
+    }
+
+    public void onGotPendingActivityResults(String vin, int mileage, String scannerId
+            , String scannerName){
+
+        Log.d(TAG,"onGotPendingActivityResults() vin: "+vin+", mileage:"+mileage+", scannerId:"
+                +scannerId+", scanner");
+
+        if (view == null) return;
+
+        readyDevice.setVin(vin);
+        readyDevice.setScannerId(scannerId);
+        readyDevice.setScannerName(scannerName);
+        addCar(readyDevice);
     }
 
     public void onBackPressed(){

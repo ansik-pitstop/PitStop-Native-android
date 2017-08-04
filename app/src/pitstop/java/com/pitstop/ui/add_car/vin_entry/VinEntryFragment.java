@@ -29,6 +29,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.ui.FragmentIntentIntegrator;
 import com.pitstop.ui.add_car.FragmentSwitcher;
+import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -44,6 +45,7 @@ import butterknife.OnTextChanged;
 public class VinEntryFragment extends Fragment implements VinEntryView{
 
     private final String TAG = getClass().getSimpleName();
+    public static final int RC_PENDING_ADD_CAR = 1043;
 
     @BindView(R.id.add_vehicle)
     Button addVehicleButton;
@@ -159,7 +161,13 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_METHOD_MANUAL
                 ,MixpanelHelper.ADD_CAR_VIEW);
-        presenter.addVehicle(vinEditText.getText().toString());
+        presenter.addVehicle();
+    }
+
+    @Override
+    public String getVin(){
+        if (vinEditText == null || vinEditText.getText() == null) return "";
+        else return vinEditText.getText().toString();
     }
 
     @OnTextChanged(R.id.VIN)
@@ -304,6 +312,13 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void beginPendingAddCarActivity(String vin, double mileage, String scannerId) {
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.beginPendingAddCarActivity(vin,mileage,scannerId);
+    }
+
+    @Override
     public void showLoading(@NonNull String message) {
         Log.d(TAG,"showLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -334,6 +349,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
+        if (presenter == null) return;
+
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
@@ -343,6 +360,14 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             else{
                 presenter.onGotVinScanResult(result.getContents());
             }
+        }
+        else if (requestCode == RC_PENDING_ADD_CAR){
+            String vin = data.getStringExtra(PendingAddCarActivity.ADD_CAR_VIN);
+            int mileage = Integer.valueOf(data.getStringExtra(PendingAddCarActivity
+                    .ADD_CAR_MILEAGE));
+            String scannerId = data.getStringExtra(PendingAddCarActivity.ADD_CAR_SCANNER);
+
+            presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerId);
         }
 
         super.onActivityResult(requestCode, resultCode, data);

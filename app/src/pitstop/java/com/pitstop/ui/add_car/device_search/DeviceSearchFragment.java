@@ -2,6 +2,7 @@ package com.pitstop.ui.add_car.device_search;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.FragmentSwitcher;
+import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -38,6 +40,7 @@ import butterknife.OnClick;
 public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     private final String TAG = getClass().getSimpleName();
+    public static final int RC_PENDING_ADD_CAR = 1043;
 
     @BindView(R.id.input_mileage)
     EditText mileageInputEditText;
@@ -289,11 +292,33 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void showAskHasDeviceView(){
-        Log.d(TAG,"showAskHasDeviceView()");
+    public void showAskHasDeviceView() {
+        Log.d(TAG, "showAskHasDeviceView()");
         if (fragmentSwitcher == null) return;
 
         fragmentSwitcher.setViewAskHasDevice();
+    }
+
+    @Override
+    public void beginPendingAddCarActivity(String vin, double mileage, String scannerId) {
+        if (fragmentSwitcher == null) return;
+
+        fragmentSwitcher.beginPendingAddCarActivity(vin,mileage,scannerId);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RC_PENDING_ADD_CAR){
+            String vin = data.getStringExtra(PendingAddCarActivity.ADD_CAR_VIN);
+            int mileage = Integer.valueOf(data.getStringExtra(PendingAddCarActivity
+                    .ADD_CAR_MILEAGE));
+            String scannerId = data.getStringExtra(PendingAddCarActivity.ADD_CAR_SCANNER);
+
+            presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerId);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void onBackPressed(){
