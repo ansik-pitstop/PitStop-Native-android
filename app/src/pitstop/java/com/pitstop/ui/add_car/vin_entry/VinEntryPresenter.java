@@ -212,7 +212,7 @@ public class VinEntryPresenter {
             view.onInvalidMileage();
         }
         else{
-            addVehicleToServer(vin,view.getMileage(),scannerId,scannerName);
+            addVehicleToServer(vin,mileage,scannerId,scannerName);
         }
     }
 

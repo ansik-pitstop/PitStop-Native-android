@@ -11,8 +11,8 @@ import android.widget.TextView;
 import com.castel.obd.util.Utils;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;

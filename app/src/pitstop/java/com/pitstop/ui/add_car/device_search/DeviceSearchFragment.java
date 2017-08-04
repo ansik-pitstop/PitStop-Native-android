@@ -308,6 +308,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG,"onActivityResult()");
 
         if (requestCode == RC_PENDING_ADD_CAR){
             String vin = data.getStringExtra(PendingAddCarActivity.ADD_CAR_VIN);
