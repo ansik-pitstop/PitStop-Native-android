@@ -153,10 +153,14 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case MainActivity.RC_REQUEST_SERVICE:
-                needToRefresh = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER, false);
-                break;
+        if(data != null){
+            switch (requestCode) {
+                case MainActivity.RC_REQUEST_SERVICE:
+                    needToRefresh = data.getBooleanExtra(MainActivity.REFRESH_FROM_SERVER, false);
+                    break;
+            }
+        }else{
+            needToRefresh = false;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
