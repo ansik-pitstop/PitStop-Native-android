@@ -72,7 +72,6 @@ import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
-import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
@@ -453,7 +452,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady(new ReadyDevice("", scannerId, scannerName));
+                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
         }
     }
 
@@ -497,7 +496,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public ReadyDevice getReadyDevice() {
         if (deviceConnState.equals(State.CONNECTED)){
-            readyDevice.setVin("");
             return readyDevice;
         }
         return null;
@@ -531,7 +529,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         vinRequested = false;
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
-                ((BluetoothVinObserver)observer).onGotVin("");
+                ((BluetoothVinObserver)observer).onGotVin(vin);
             }
         }
     }
