@@ -43,8 +43,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         public void onRetry() {
             Log.d(TAG,"getVinTimer.onRetry(), loading progress: "+getVinTimer.getProgress());
 
-            if (view != null) view.setLoadingProgress(getVinTimer.getProgress());
-
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
             bluetoothConnectionObservable.requestVin();
@@ -56,7 +54,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             if (view == null) return;
 
-            view.setLoadingProgress(LoadingView.PROGRESS_MAX);
             if (readyDevice == null){
                 view.onVinRetrievalFailed("","");
             }
@@ -69,6 +66,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
 
         }
+
+        @Override
+        public void onTimeTicked(int progress){
+            Log.d(TAG,"getVinTimer.onTimeTicked(), loading progress: "+progress);
+            if (view != null) view.setLoadingProgress(getVinTimer.getProgress());
+        }
     };
 
     private final int FIND_DEVICE_RETRY_TIME = 13;
@@ -78,6 +81,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         @Override
         public void onRetry() {
             Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
+
+            if (view != null) view.setLoadingProgress(findDeviceTimer.getProgress());
 
             if (bluetoothConnectionObservable != null){
                 bluetoothConnectionObservable.requestDeviceSearch(true, true);
@@ -99,6 +104,13 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
 
         }
+
+        @Override
+        public void onTimeTicked(int progress){
+            Log.d(TAG,"findDeviceTimer.onTimeTicked(), loading progress: "+progress);
+            if (view != null) view.setLoadingProgress(findDeviceTimer.getProgress());
+        }
+
     };
 
     public DeviceSearchPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
@@ -201,6 +213,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
 
         searchingForDevice = false;
+        view.setLoadingProgress(LoadingView.PROGRESS_MAX);
         findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
@@ -322,6 +335,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (AddCarUtils.isVinValid(vin)){
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+            view.setLoadingProgress(LoadingView.PROGRESS_MAX);
             getVinTimer.cancel();
             searchingForVin = false;
             readyDevice.setVin(vin);

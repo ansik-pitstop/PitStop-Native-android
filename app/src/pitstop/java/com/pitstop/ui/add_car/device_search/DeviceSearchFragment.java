@@ -287,7 +287,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.setIndeterminate(indeterminate);
-        if (!progressDialog.isIndeterminate()){
+        if (!indeterminate){
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progressDialog.setProgress(0);
         }

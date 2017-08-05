@@ -65,7 +65,7 @@ import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
-import com.pitstop.ui.add_car_old.AddCarActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.PromptAddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.my_appointments.MyAppointmentActivity;
@@ -388,7 +388,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         //Returned from car being added
         if (data != null && requestCode == RC_ADD_CAR) {
 
-            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
                 Car addedCar = data.getParcelableExtra(CAR_EXTRA);
 
                 updateSmoochUser(application.getCurrentUser(),addedCar);

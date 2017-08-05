@@ -23,12 +23,11 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.view_fragments.PitstopShops.PitstopShopsFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopSearch.ShopSearchFragment;
 import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
-
-import static com.pitstop.ui.add_car_old.AddCarActivity.ADD_CAR_SUCCESS;
 
 /**
  * Created by matt on 2017-06-07.
@@ -187,7 +186,7 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
     public void endCustomShops() {
         Intent intent = new Intent();
         intent.putExtra(CAR_EXTRA,car);
-        setResult(ADD_CAR_SUCCESS,intent);
+        setResult(AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER,intent);
         finish();
     }
 

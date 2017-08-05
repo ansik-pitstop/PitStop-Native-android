@@ -22,7 +22,7 @@ public abstract class TimeoutTimer extends CountDownTimer {
      * @param retries The number of totalRetries before we trigger timeout message, pass 0 mean no reties
      */
     public TimeoutTimer(final int seconds, final int retries) {
-        super(seconds * 1000, seconds * 1000 / 2);
+        super(seconds * 1000, 500);
         retriesLeft = retries;
         this.totalRetries = retries;
         this.retryTime = seconds*1000;
@@ -30,10 +30,12 @@ public abstract class TimeoutTimer extends CountDownTimer {
 
     @Override
     public void onTick(long millisUntilFinished) {
-        long otherRetriesTime = retriesLeft*retryTime;
+        if (millisUntilFinished <= 0) return;
+        long otherRetriesTime = (retriesLeft-1)*retryTime;
         long totalTimeLeft = otherRetriesTime+millisUntilFinished;
         long totalTime = totalRetries*retryTime;
-        progress = (int)(totalTimeLeft/totalTime);
+        progress = 100-(int)(100*totalTimeLeft/totalTime);
+        onTimeTicked(progress);
     }
 
     @Override
@@ -64,4 +66,7 @@ public abstract class TimeoutTimer extends CountDownTimer {
      * After this method call the timer will get cancel itself
      */
     public abstract void onTimeout();
+
+    //Progress between 0-100
+    public abstract void onTimeTicked(int progress);
 }

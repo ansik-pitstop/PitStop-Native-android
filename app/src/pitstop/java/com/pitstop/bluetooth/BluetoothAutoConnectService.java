@@ -72,7 +72,7 @@ import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.Observer;
-import com.pitstop.ui.add_car_old.AddCarActivity;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
@@ -832,7 +832,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
-        LogUtils.debugLogD(TAG, "addingCar?"+AddCarActivity.addingCarWithDevice+", parameterPackage: " + parameterPackage.toString()
+        LogUtils.debugLogD(TAG, "parameterData() parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         if (parameterPackage.paramType == ParameterPackage.ParamType.VIN && vinRequested){
@@ -1385,28 +1385,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
             currentDeviceId = null;
-        }
-    }
-
-    public void saveScannerOnResultPostCar(Car createdCar) {
-        Log.d(TAG, "Saving scanner on result post car");
-
-        if (currentDeviceId == null) {
-            Log.d(TAG, "Current Device ID is null");
-            return;
-        }
-
-        String btName = deviceManager.getConnectedDeviceName();
-
-        Log.d(TAG, "Saving device name: " + (btName != null ? btName : "BT DEVICE NAME IS NULL!"));
-        Log.d(TAG, "Saving device ID: " + currentDeviceId);
-        Log.d(TAG, "Saving car ID: " + (createdCar != null ? createdCar.getId() : "Car retrieved from database using currentDeviceId is null!"));
-
-        if (btName != null && (createdCar != null || AddCarActivity.addingCarWithDevice)) {
-            Log.i(TAG, "Saving scanner locally");
-            scannerAdapter.storeScanner(new ObdScanner((createdCar != null ? createdCar.getId() : 0), btName, currentDeviceId));
-        } else {
-            Log.i(TAG, "Connected to unrecognized device");
         }
     }
 

@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.add_car_old.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
