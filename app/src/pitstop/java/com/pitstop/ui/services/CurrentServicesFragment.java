@@ -58,8 +58,8 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
 
-    @BindView(R.id.custom_loading)
-    ProgressBar customLoading;
+   /* @BindView(R.id.custom_loading)
+    ProgressBar customLoading;*/
 
     @BindView(R.id.service_launch_custom)
     LinearLayout customSeerviceButton;
@@ -137,13 +137,19 @@ public class CurrentServicesFragment extends CarDataFragment {
         }
 
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        customLoading.setVisibility(View.VISIBLE);
+        //customLoading.setVisibility(View.VISIBLE);
         carIssueListView.setVisibility(View.INVISIBLE);
-        customIssueListRecyclerView.setVisibility(View.INVISIBLE);
+        customIssueListRecyclerView.setVisibility(View.GONE);
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> custom) {
+                if(custom.isEmpty()){
+                    customIssueListRecyclerView.setVisibility(View.GONE);
+                }else{
+                    customIssueListRecyclerView.setVisibility(View.VISIBLE);
+                }
+
                 carIssueList.clear();
                 carIssueList.addAll(currentServices);
                 carIssuesAdapter.notifyDataSetChanged();
@@ -151,22 +157,16 @@ public class CurrentServicesFragment extends CarDataFragment {
                 customIssueList.clear();
                 customIssueList.addAll(custom);
                 customIssueAdapter.notifyDataSetChanged();
-                /*if(customIssueList.isEmpty()){
-                    customIssueListRecyclerView.setVisibility(View.GONE);
-                }else{
-                    customIssueListRecyclerView.setVisibility(View.VISIBLE);
-                }*/
 
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
-                customLoading.setVisibility(View.INVISIBLE);
+               // customLoading.setVisibility(View.INVISIBLE);
                 carIssueListView.setVisibility(View.VISIBLE);
-                customIssueListRecyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(RequestError error) {
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
-                customLoading.setVisibility(View.INVISIBLE);
+                //customLoading.setVisibility(View.INVISIBLE);
             }
         });
     }
