@@ -37,7 +37,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
         supportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ConversationActivity.show(getApplicationContext());
+                ConversationActivity.show(getApplicationContext(),Intent.FLAG_ACTIVITY_NEW_TASK);
             }
         });
         supportButton.setPaintFlags(supportButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);

@@ -3,6 +3,7 @@ package com.pitstop.adapters;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -200,11 +201,13 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         public TextView description;
         public ImageView imageView;
         public View container;
+        public CardView card;
         public View date; // Not used here so it is set to GONE
         public ImageView doneImageView;
 
         public ViewHolder(View v) {
             super(v);
+            card =(CardView) v.findViewById(R.id.list_car_item);
             title = (TextView) v.findViewById(R.id.title);
             description = (TextView) v.findViewById(R.id.description);
             imageView = (ImageView) v.findViewById(R.id.image_icon);
