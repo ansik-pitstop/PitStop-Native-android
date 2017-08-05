@@ -8,7 +8,12 @@ import android.support.annotation.Nullable;
  */
 
 public interface LoadingView {
-    void showLoading(@NonNull String message);
+
+    int PROGRESS_MAX = 100;
+    int PROGRESS_MIN = 0;
+
+    void showLoading(@NonNull String message, boolean indeterminate);
     void hideLoading(@Nullable String message);
     void setLoadingCancelable(boolean cancelable);
+    void setLoadingProgress(int progress);
 }

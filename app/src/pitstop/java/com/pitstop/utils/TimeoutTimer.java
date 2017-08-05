@@ -7,34 +7,50 @@ import android.os.CountDownTimer;
  */
 
 public abstract class TimeoutTimer extends CountDownTimer {
-    private final int RETRIES;
-    int currentRetries;
+
+    private final String TAG = getClass().getSimpleName();
+
+    private final int totalRetries;
+    private int retriesLeft;
+    private int retryTime;
+    private int progress = 0;
 
     /**
      * @param seconds The number of seconds in the future from the call
      *                to {@link #start()} until the countdown is done and {@link #onFinish()}
      *                is called.
-     * @param retries The number of retries before we trigger timeout message, pass 0 mean no reties
+     * @param retries The number of totalRetries before we trigger timeout message, pass 0 mean no reties
      */
     public TimeoutTimer(final int seconds, final int retries) {
         super(seconds * 1000, seconds * 1000 / 2);
-        currentRetries = retries;
-        RETRIES = retries;
+        retriesLeft = retries;
+        this.totalRetries = retries;
+        this.retryTime = seconds*1000;
     }
 
     @Override
-    public void onTick(long millisUntilFinished) {}
+    public void onTick(long millisUntilFinished) {
+        long otherRetriesTime = retriesLeft*retryTime;
+        long totalTimeLeft = otherRetriesTime+millisUntilFinished;
+        long totalTime = totalRetries*retryTime;
+        progress = (int)(totalTimeLeft/totalTime);
+    }
 
     @Override
     public void onFinish() {
-        if (currentRetries-- > 0) {
+        if (retriesLeft-- > 0) {
             onRetry();
             this.start();
         } else {
-            currentRetries = RETRIES; // refresh number of retries
+            retriesLeft = totalRetries; // refresh number of totalRetries
             onTimeout();
             cancel();
+            progress = 0;
         }
+    }
+
+    public int getProgress(){
+        return progress;
     }
 
     /**
@@ -44,7 +60,7 @@ public abstract class TimeoutTimer extends CountDownTimer {
     public abstract void onRetry();
 
     /**
-     * Failed after all retries <br>
+     * Failed after all totalRetries <br>
      * After this method call the timer will get cancel itself
      */
     public abstract void onTimeout();
