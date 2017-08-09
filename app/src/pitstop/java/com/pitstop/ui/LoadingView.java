@@ -9,11 +9,12 @@ import android.support.annotation.Nullable;
 
 public interface LoadingView {
 
-    int PROGRESS_MAX = 100;
-    int PROGRESS_MIN = 0;
+    //Displays aindeterminate progress dialog with a particular message
+    void showLoading(@NonNull String message);
 
-    void showLoading(@NonNull String message, boolean indeterminate);
+    //Hides progress dialog and displays Toast message if one is specified
     void hideLoading(@Nullable String message);
+
+    //Sets whether or not the progress dialog can be cancelled by some other action
     void setLoadingCancelable(boolean cancelable);
-    void setLoadingProgress(int progress);
 }

@@ -12,7 +12,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothVinObserver;
-import com.pitstop.ui.LoadingView;
 import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
@@ -69,8 +68,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeTicked(int progress){
-            Log.d(TAG,"getVinTimer.onTimeTicked(), loading progress: "+progress);
-            if (view != null) view.setLoadingProgress(getVinTimer.getProgress());
         }
     };
 
@@ -81,8 +78,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         @Override
         public void onRetry() {
             Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
-
-            if (view != null) view.setLoadingProgress(findDeviceTimer.getProgress());
 
             if (bluetoothConnectionObservable != null){
                 bluetoothConnectionObservable.requestDeviceSearch(true, true);
@@ -96,7 +91,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             if (view == null) return;
 
-            view.setLoadingProgress(LoadingView.PROGRESS_MAX);
             searchingForDevice = false;
             view.onCannotFindDevice();
             view.hideLoading(null);
@@ -107,8 +101,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeTicked(int progress){
-            Log.d(TAG,"findDeviceTimer.onTimeTicked(), loading progress: "+progress);
-            if (view != null) view.setLoadingProgress(findDeviceTimer.getProgress());
         }
 
     };
@@ -176,7 +168,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Check if retrieved VIN is valid, otherwise begin timer
             if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                view.showLoading("Retrieving VIN",false);
+                view.showLoading("Retrieving VIN");
                 searchingForVin = true;
                 getVinTimer.start();
             }
@@ -189,7 +181,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         //Otherwise request search and wait for callback
         else{
-            view.showLoading("Searching for Device",false);
+            view.showLoading("Searching for Device");
             searchingForDevice = true;
             findDeviceTimer.start();
             bluetoothConnectionObservable.requestDeviceSearch(true, true);
@@ -213,7 +205,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
 
         searchingForDevice = false;
-        view.setLoadingProgress(LoadingView.PROGRESS_MAX);
         findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
@@ -233,7 +224,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_PENDING);
 
-            view.showLoading("Getting VIN", false);
+            view.showLoading("Getting VIN");
 
             //Try to get valid VIN
             searchingForVin = true;
@@ -268,7 +259,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             return;
         }
 
-        view.showLoading("Saving Car",true);
+        view.showLoading("Saving Car");
+
         addingCar = true;
         double mileage = Double.valueOf(view.getMileage());
 
@@ -318,8 +310,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                             view.hideLoading("Please connect to the internet");
                         }
                         else{
-                            view.onErrorAddingCar("Unexpected error occurred adding car" +
-                                    ", please restart the app and try again.");
+                            view.onErrorAddingCar(error.getMessage());
                             view.hideLoading(null);
                         }
                     }
@@ -335,7 +326,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (AddCarUtils.isVinValid(vin)){
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
-            view.setLoadingProgress(LoadingView.PROGRESS_MAX);
             getVinTimer.cancel();
             searchingForVin = false;
             readyDevice.setVin(vin);

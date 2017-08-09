@@ -38,6 +38,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
+import static android.R.attr.indeterminate;
+
 /**
  * Created by Karol Zdebel on 8/1/2017.
  */
@@ -77,6 +79,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         if (progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCancelable(false);
+            progressDialog.setIndeterminate(true);
 
             /*Has to be handled because when the ProgressDialog
             * is open onBackPressed() is not invoked */
@@ -347,15 +350,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
-    public void showLoading(@NonNull String message, boolean indeterminate) {
+    public void showLoading(@NonNull String message) {
         Log.d(TAG,"showLoading(): "+message+", indeterminate: "+indeterminate);
         if (progressDialog == null || getActivity() == null) return;
 
-        progressDialog.setIndeterminate(indeterminate);
-        if (!progressDialog.isIndeterminate()){
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setProgress(0);
-        }
         progressDialog.setMessage(message);
         progressDialog.show();
     }
@@ -378,15 +376,6 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         if (progressDialog == null) return;
 
         progressDialog.setCancelable(cancelable);
-    }
-
-    @Override
-    public void setLoadingProgress(int progress) {
-        Log.d(TAG,"setLoadingProgress() progress: "+progress);
-        if (progressDialog == null || progress < PROGRESS_MIN
-                || progress > PROGRESS_MAX || progressDialog.isIndeterminate()) return;
-
-        progressDialog.setProgress(progress);
     }
 
     @Override

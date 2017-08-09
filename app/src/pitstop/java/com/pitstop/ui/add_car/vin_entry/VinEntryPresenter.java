@@ -69,7 +69,7 @@ public class VinEntryPresenter {
         Log.d(TAG,"addVehicleToServer() vin:"+vin+", mileage:"+mileage+", scannerId:"+scannerId
                 +", scannerName:"+scannerName);
 
-        view.showLoading("Saving Car", true);
+        view.showLoading("Saving Car");
         useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
 

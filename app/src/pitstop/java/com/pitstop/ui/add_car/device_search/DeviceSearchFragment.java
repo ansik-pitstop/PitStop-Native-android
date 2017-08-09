@@ -69,7 +69,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCancelable(false);
-
+            progressDialog.setIndeterminate(true);
             /*Has to be handled because when the ProgressDialog
             **is open onBackPressed() is not invoked*/
             progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -282,15 +282,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void showLoading(@NonNull String message, boolean indeterminate) {
-        Log.d(TAG,"showLoading(): "+message+", indeterminate: "+indeterminate);
+    public void showLoading(@NonNull String message) {
+        Log.d(TAG,"showLoading(): "+message);
         if (progressDialog == null || getActivity() == null) return;
 
-        progressDialog.setIndeterminate(indeterminate);
-        if (!indeterminate){
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setProgress(0);
-        }
         progressDialog.setMessage(message);
         progressDialog.show();
     }
@@ -312,15 +307,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (progressDialog == null) return;
 
         progressDialog.setCancelable(cancelable);
-    }
-
-    @Override
-    public void setLoadingProgress(int progress) {
-        Log.d(TAG,"setLoadingProgress() progress: "+progress);
-        if (progressDialog == null || progress < PROGRESS_MIN
-                || progress > PROGRESS_MAX || progressDialog.isIndeterminate()) return;
-
-        progressDialog.setProgress(progress);
     }
 
     @Override
