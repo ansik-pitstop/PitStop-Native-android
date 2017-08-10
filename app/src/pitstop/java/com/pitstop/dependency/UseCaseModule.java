@@ -6,6 +6,7 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
+import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
@@ -29,10 +30,10 @@ import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
-import com.pitstop.interactors.get.GetShopHoursUseCase;
-import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCaseImpl;
+import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCaseImpl;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -43,21 +44,20 @@ import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
-import com.pitstop.interactors.remove.RemoveCarUseCase;
-import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
-import com.pitstop.interactors.remove.RemoveShopUseCase;
-import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
-import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
-import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
-import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
-import com.pitstop.interactors.set.SetUserCarUseCase;
-import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCaseImpl;
+import com.pitstop.interactors.remove.RemoveCarUseCase;
+import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
+import com.pitstop.interactors.remove.RemoveShopUseCase;
+import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
+import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.set.SetUserCarUseCase;
+import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCaseImpl;
 import com.pitstop.interactors.update.UpdateShopUseCase;
@@ -66,7 +66,6 @@ import com.pitstop.interactors.update.UpdateUserNameUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCaseImpl;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
@@ -186,7 +185,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddCarUseCase addCarUseCase(CarRepository carRepository, Handler handler){
+    AddCarUseCase addCarUseCase(CarRepository carRepository, ScannerRepository scannerRepository
+            , UserRepository userRepository, Handler handler){
+
         return new AddCarUseCaseImpl(carRepository, handler);
     }
 

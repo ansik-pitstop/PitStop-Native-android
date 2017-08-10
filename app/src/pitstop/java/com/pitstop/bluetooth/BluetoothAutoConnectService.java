@@ -121,8 +121,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean gettingPID = false;
     private String deviceConnState = State.DISCONNECTED;
 
-    private BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
-
     public static int notifID = 1360119;
     private String currentDeviceId = null;
     private DataPackageInfo lastData = null;
@@ -280,7 +278,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         handler.postDelayed(periodicGetVinRunnable,5000);
         handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
 
-        mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
 
     @Override
@@ -871,7 +868,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !ignoreVerification && !verificationInProgress
+                && !ignoreVerification && !verificationInProgress && !deviceConnState.equals(State.DISCONNECTED)
                 && !deviceIsVerified){
 
             //Device verification starting
@@ -956,9 +953,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
-                    deviceConnState = State.SEARCHING;
-                    deviceManager.onConnectedDeviceInvalid();
-                    notifySearchingForDevice();
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        deviceManager.onConnectedDeviceInvalid();
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
                 }
 
                 @Override
