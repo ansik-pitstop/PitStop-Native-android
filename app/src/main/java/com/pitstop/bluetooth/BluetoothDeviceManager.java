@@ -316,22 +316,25 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        if (mBluetoothAdapter.startDiscovery() && !rssiScan){
+        if (mBluetoothAdapter.startDiscovery()){
             Log.i(TAG, "BluetoothAdapter starts discovery");
 
-            //After about 16 seconds connect to the device with the strongest signal
-            rssiScan = true;
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                    connectToNextDevice();
-                    if (!moreDevicesLeft()){
-                        dataListener.scanFinished();
+            if (!rssiScan){
+                //After about 11 seconds connect to the device with the strongest signal
+                rssiScan = true;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                        connectToNextDevice();
+                        if (!moreDevicesLeft()){
+                            dataListener.scanFinished();
+                        }
+                        rssiScan = false;
                     }
-                    rssiScan = false;
-                }
-            },16000);
+                },11000);
+            }
+
 
             nonUrgentScanInProgress = urgent;
             if (urgent){
