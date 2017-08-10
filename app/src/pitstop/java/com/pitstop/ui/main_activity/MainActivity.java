@@ -1173,21 +1173,23 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     @Override
     public void onSearchingForDevice() {
+        Log.d(TAG,"onSearchingForDevice()");
         displayDeviceState(BluetoothConnectionObservable.State.SEARCHING);
     }
 
-    @Override
     public void onDeviceReady(ReadyDevice device) {
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED);
     }
 
     @Override
     public void onDeviceDisconnected() {
+        Log.d(TAG,"onDeviceDisconnected()");
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED);
     }
 
     @Override
     public void onDeviceVerifying() {
+        Log.d(TAG,"onDeviceVerifying()");
         displayDeviceState(BluetoothConnectionObservable.State.VERIFYING);
     }
 

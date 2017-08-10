@@ -104,6 +104,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+        mBluetoothAdapter.cancelDiscovery();
 
         // for classic discovery
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -120,7 +121,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "Scan unable to start");
-            mBluetoothAdapter.enable();
             return false;
         }
 
@@ -217,6 +217,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         bannedDeviceList.add(connectedDevice);
         communicator.disconnect(connectedDevice);
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
+        if (!moreDevicesLeft()){
+            dataListener.scanFinished();
+        }
     }
 
     private boolean isBanned(BluetoothDevice device){
@@ -314,8 +317,24 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         if (mBluetoothAdapter.startDiscovery()){
-
             Log.i(TAG, "BluetoothAdapter starts discovery");
+
+            //After about 12 seconds connect to the device with the strongest signal
+            if (!rssiScan){
+                rssiScan = true;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                        connectToNextDevice();
+                        if (!moreDevicesLeft()){
+                            dataListener.scanFinished();
+                        }
+                        rssiScan = false;
+                    }
+                },16000);
+            }
+
             nonUrgentScanInProgress = urgent;
             if (urgent){
                 trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
@@ -401,6 +420,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
+            foundDevices = new HashMap<>();
             return;
 
         }
@@ -442,21 +462,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
                         && foundDevices.get(device) == null && !isBanned(device)){
                     foundDevices.put(device,rssi);
-                }
-
-                //After about 12 seconds connect to the device with the strongest signal
-                if (!rssiScan){
-                    rssiScan = true;
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                            connectToNextDevice();
-                            mBluetoothAdapter.cancelDiscovery();
-                            dataListener.scanFinished();
-                            rssiScan = false;
-                        }
-                    },16000);
                 }
             }
         }

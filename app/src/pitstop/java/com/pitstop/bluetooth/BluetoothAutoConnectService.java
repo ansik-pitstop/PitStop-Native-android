@@ -432,6 +432,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifySearchingForDevice() {
+        Log.d(TAG,"notifySearchingForDevice()");
         trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
@@ -953,9 +954,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
+
+                    deviceManager.onConnectedDeviceInvalid();
+
                     if (deviceManager.moreDevicesLeft()){
                         deviceConnState = State.SEARCHING;
-                        deviceManager.onConnectedDeviceInvalid();
                         notifySearchingForDevice();
                     }
                     else{
@@ -977,9 +980,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
-                    deviceConnState = State.SEARCHING;
                     deviceManager.onConnectedDeviceInvalid();
-                    notifySearchingForDevice();
+
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
+
                 }
 
                 @Override
@@ -993,9 +1005,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
-                    deviceConnState = State.SEARCHING;
-                    deviceManager.onConnectedDeviceInvalid();
                     verificationInProgress = false;
+                    deviceManager.onConnectedDeviceInvalid();
+
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
                 }
             });
 
@@ -1277,10 +1298,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void scanFinished() {
 
-        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState);
+        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState
+                +", deviceManager.moreDevicesLeft?"+deviceManager.moreDevicesLeft());
 
         //Search came to an end
-        if (deviceConnState.equals(State.SEARCHING)){
+        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()){
             deviceConnState = State.DISCONNECTED;
             notifyDeviceDisconnected();
         }
