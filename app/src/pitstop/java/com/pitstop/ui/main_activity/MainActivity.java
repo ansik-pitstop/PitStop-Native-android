@@ -660,7 +660,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (autoConnectService.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)) {
-                    autoConnectService.startBluetoothSearch();
+                    autoConnectService.startBluetoothSearch(false);
                 }
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
