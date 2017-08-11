@@ -215,7 +215,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void onConnectedDeviceInvalid(){
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (ignoreVerification) return;
 
         bannedDeviceList.add(connectedDevice);
         communicator.disconnect(connectedDevice);
@@ -323,12 +322,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             Log.i(TAG, "BluetoothAdapter starts discovery");
 
             if (!rssiScan){
+                Log.d(TAG,"Bonded Devices:");
+                for (BluetoothDevice d: mBluetoothAdapter.getBondedDevices()){
+                    Log.d(TAG,"device: "+d.getName()+", address: "+d.getAddress());
+                }
+
                 //After about 11 seconds connect to the device with the strongest signal
                 rssiScan = true;
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                        mBluetoothAdapter.cancelDiscovery();
                         connectToNextDevice();
                         if (!moreDevicesLeft()){
                             dataListener.scanFinished();

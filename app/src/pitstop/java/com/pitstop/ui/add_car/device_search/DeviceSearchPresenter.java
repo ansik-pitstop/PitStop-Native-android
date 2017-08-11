@@ -73,8 +73,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     private final int FIND_DEVICE_RETRY_TIME = 12;
     private final int FIND_DEVICE_RETRY_AMOUNT = 5;
-    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_AMOUNT
-            , FIND_DEVICE_RETRY_TIME) {
+    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
+            , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
         public void onRetry() {
             Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
