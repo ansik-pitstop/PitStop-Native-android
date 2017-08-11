@@ -117,6 +117,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
+    private boolean ignoreVerification = false;
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled()) {
@@ -461,7 +462,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
-                        && foundDevices.get(device) == null && !isBanned(device)){
+                        && foundDevices.get(device) == null
+                        && (ignoreVerification || !isBanned(device))){
                     foundDevices.put(device,rssi);
                 }
             }

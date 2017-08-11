@@ -188,7 +188,7 @@ public class UseCaseModule {
     AddCarUseCase addCarUseCase(CarRepository carRepository, ScannerRepository scannerRepository
             , UserRepository userRepository, Handler handler){
 
-        return new AddCarUseCaseImpl(carRepository, handler);
+        return new AddCarUseCaseImpl(carRepository, scannerRepository, userRepository, handler);
     }
 
     @Provides
