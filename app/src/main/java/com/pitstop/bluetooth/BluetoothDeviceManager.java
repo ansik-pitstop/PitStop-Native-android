@@ -345,7 +345,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         }
                         rssiScan = false;
                     }
-                },11000);
+                },16000);
             }
 
 

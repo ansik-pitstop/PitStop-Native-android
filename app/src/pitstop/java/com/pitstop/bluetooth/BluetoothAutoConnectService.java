@@ -359,7 +359,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Check to make sure were not overriding the state once
             // its already verified and connected
-            if (deviceConnState.equals(State.SEARCHING) && !ignoreVerification){
+            if ((deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.DISCONNECTED))
+                    && !ignoreVerification){
                 deviceConnState = State.VERIFYING;
                 notifyVerifyingDevice();
             }
@@ -1288,6 +1289,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState
                 +", deviceManager.moreDevicesLeft?"+deviceManager.moreDevicesLeft());
+
+        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()){
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+        }
 
     }
 
