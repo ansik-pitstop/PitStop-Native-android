@@ -121,8 +121,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean gettingPID = false;
     private String deviceConnState = State.DISCONNECTED;
 
-    private BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
-
     public static int notifID = 1360119;
     private String currentDeviceId = null;
     private DataPackageInfo lastData = null;
@@ -138,7 +136,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-    private static final int PID_CHUNK_SIZE = 200;
+    private static final int PID_CHUNK_SIZE = 15;
 
     private String lastDataNum = "";
 
@@ -230,7 +228,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void run() { // this is for auto connect for bluetooth classic
                 if(deviceConnState.equals(State.DISCONNECTED)) {
                     Log.d(TAG, "Running periodic scan");
-                    startBluetoothSearch(-1); // periodic scan
+                    startBluetoothSearch(false); // periodic scan
                 }
                 handler.postDelayed(this, 300000); //Evert 5 minutes
             }
@@ -280,7 +278,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         handler.postDelayed(periodicGetVinRunnable,5000);
         handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
 
-        mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(this);
     }
 
     @Override
@@ -362,10 +359,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Check to make sure were not overriding the state once
             // its already verified and connected
-            if (deviceConnState.equals(State.SEARCHING)){
+            if ((deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.DISCONNECTED))
+                    && !ignoreVerification){
                 deviceConnState = State.VERIFYING;
+                notifyVerifyingDevice();
             }
-            notifyVerifyingDevice();
 
             //Get VIN to validate car
             getVinFromCar();
@@ -385,7 +383,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
              * */
 
             //Only notify that device disonnected if a verified connection was established previously
-            if (deviceIsVerified){
+            if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
@@ -435,6 +433,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifySearchingForDevice() {
+        Log.d(TAG,"notifySearchingForDevice()");
         trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
@@ -554,18 +553,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
-        Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState);
+        Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState
+                +", ignoreVerification: "+ignoreVerification);
         this.ignoreVerification = ignoreVerification;
         if (deviceConnState.equals(State.CONNECTED)) return;
 
         //rssi minimum threshold won't matter, rssi will only be used to prioritize devices
-        if (urgent){
-            startBluetoothSearch(7);
-        }
-        //Signal non-urgent search, making rssi minimum threshold important during connection
-        else{
-            startBluetoothSearch(-1);
-        }
+        startBluetoothSearch(urgent);
     }
 
     @Override
@@ -639,13 +633,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private long terminalRTCTime = -1;
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
-
-    //Variables below are used for testing
-    private boolean registerDummyTripStart = false;
-    private boolean registerDummyTripEnd = false;
-    private int skipCounter = 0;
-    private int dummyTripId = -1;
-    private double lastTripEndMileage = -1;
 
     /**
      * Handles trip data containing mileage
@@ -871,7 +858,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !ignoreVerification && !verificationInProgress
+                && !ignoreVerification && !verificationInProgress && !deviceConnState.equals(State.DISCONNECTED)
                 && !deviceIsVerified){
 
             //Device verification starting
@@ -956,9 +943,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
-                    deviceConnState = State.SEARCHING;
+
                     deviceManager.onConnectedDeviceInvalid();
-                    notifySearchingForDevice();
+
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
                 }
 
                 @Override
@@ -973,9 +969,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
-                    deviceConnState = State.SEARCHING;
                     deviceManager.onConnectedDeviceInvalid();
-                    notifySearchingForDevice();
+
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
+
                 }
 
                 @Override
@@ -989,9 +994,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
-                    deviceConnState = State.SEARCHING;
-                    deviceManager.onConnectedDeviceInvalid();
                     verificationInProgress = false;
+                    deviceManager.onConnectedDeviceInvalid();
+
+                    if (deviceManager.moreDevicesLeft()){
+                        deviceConnState = State.SEARCHING;
+                        notifySearchingForDevice();
+                    }
+                    else{
+                        deviceConnState = State.DISCONNECTED;
+                        notifyDeviceDisconnected();
+                    }
+
                 }
             });
 
@@ -1273,13 +1287,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void scanFinished() {
 
-        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState);
+        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState
+                +", deviceManager.moreDevicesLeft?"+deviceManager.moreDevicesLeft());
 
-        //Search came to an end
-        if (deviceConnState.equals(State.SEARCHING)){
+        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()){
             deviceConnState = State.DISCONNECTED;
             notifyDeviceDisconnected();
         }
+
     }
 
     private void saveDtcs(final DtcPackage dtcPackage) {
@@ -1410,9 +1425,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    public void startBluetoothSearch(int... source) {
-        boolean urgent = (source!= null && source.length > 0 && source[0] == -1);
-        LogUtils.debugLogD(TAG, "startBluetoothSearch() deviceCOnState: "+deviceConnState + ((source != null && source.length > 0) ? source[0] : ""),
+    public void startBluetoothSearch(boolean urgent) {
+        LogUtils.debugLogD(TAG, "startBluetoothSearch() deviceCOnState: "+deviceConnState
+                        + ", urgent?"+urgent,
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (deviceConnState.equals(State.CONNECTED) || deviceConnState.equals(State.VERIFYING)){
             Log.d(TAG,"startBluetoothSearch() device already connected, returning.");
@@ -2121,7 +2136,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 Log.i(TAG, "Bond state changed: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
                 if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0) == BluetoothDevice.BOND_BONDED) {
-                    startBluetoothSearch(5);  // start search after pairing in case it disconnects after pair
+                    startBluetoothSearch(false);  // start search after pairing in case it disconnects after pair
                 }
             } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
@@ -2142,7 +2157,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceManager.setBluetoothDataListener(BluetoothAutoConnectService.this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        startBluetoothSearch(6); // start search when turning bluetooth on
+                        startBluetoothSearch(true); // start search when turning bluetooth on
                     }
                 }
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) { // internet connectivity listener
