@@ -434,6 +434,7 @@ public class MainDashboardFragment extends CarDataFragment {
     }
 
     private int getCarSpecificLogo(String make) {
+        if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
             return R.drawable.abarth;
         }else if (make.equalsIgnoreCase("acura")){
