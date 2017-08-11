@@ -11,8 +11,8 @@ import android.widget.TextView;
 import com.castel.obd.util.Utils;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -26,7 +26,6 @@ public class PendingAddCarActivity extends AppCompatActivity{
 
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
     public static String ADD_CAR_SCANNER = "PENDING_ADD_CAR_SCANNER_ID";
-    public static String ADD_CAR_DTCS = "PENDING_ADD_CAR_DTCS";
     public static String ADD_CAR_MILEAGE = "PENDING_ADD_CAR_MILEAGE";
 
     GlobalApplication application;
@@ -44,12 +43,10 @@ public class PendingAddCarActivity extends AppCompatActivity{
             String vin = intentFromMainActivity.getStringExtra(ADD_CAR_VIN);
             String scannerId = intentFromMainActivity.getStringExtra(ADD_CAR_SCANNER);
             String mileage = intentFromMainActivity.getStringExtra(ADD_CAR_MILEAGE);
-            String dtcs = intentFromMainActivity.getStringExtra(ADD_CAR_DTCS);
 
             if(!Utils.isEmpty(vin)) {
 
                 SharedPreferences.Editor editor = settings.edit();
-                editor.putString(ADD_CAR_DTCS, dtcs);
                 editor.putString(ADD_CAR_SCANNER, scannerId);
                 editor.putString(ADD_CAR_MILEAGE, mileage);
                 editor.putString(ADD_CAR_VIN, vin);
@@ -87,15 +84,13 @@ public class PendingAddCarActivity extends AppCompatActivity{
     private void goBackToAddCar() {
         SharedPreferences settings = getSharedPreferences(MainDashboardFragment.pfName, MODE_PRIVATE);
         // TODO: this stuff might not be needed
-        Intent intent = new Intent(PendingAddCarActivity.this,AddCarActivity.class);
+        Intent intent = new Intent(PendingAddCarActivity.this, com.pitstop.ui.add_car.AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
-        intent.putExtra(ADD_CAR_DTCS,settings.getString(ADD_CAR_DTCS,""));
         intent.putExtra(ADD_CAR_SCANNER,settings.getString(ADD_CAR_SCANNER,""));
         intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,""));
         setResult(MainActivity.RESULT_OK,intent);
 
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(ADD_CAR_DTCS, "");
         editor.putString(ADD_CAR_SCANNER, "");
         editor.putString(ADD_CAR_MILEAGE, "");
         editor.putString(ADD_CAR_VIN, "");

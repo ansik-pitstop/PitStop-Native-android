@@ -1,5 +1,7 @@
 package com.pitstop.observer;
 
+import com.pitstop.models.ReadyDevice;
+
 /**
  * Created by Karol Zdebel on 6/28/2017.
  */
@@ -10,7 +12,7 @@ public interface BluetoothConnectionObserver extends Observer{
     void onSearchingForDevice();
 
     //Device is ready to be interacted with
-    void onDeviceReady(String vin, String scannerId, String scannerName);
+    void onDeviceReady(ReadyDevice readyDevice);
 
     //Device that was previously ready now disconnected and can no longer be interacted with
     void onDeviceDisconnected();

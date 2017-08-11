@@ -96,7 +96,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                 networkHelper.setNoMainCar(user.getId(), new RequestCallback() {
                                                     @Override
                                                     public void done(String response, RequestError requestError) {
-                                                        if(response != null && requestError ==null){
+                                                        if(requestError ==null){
                                                             EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                             EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                                     ,eventSource));

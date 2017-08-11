@@ -282,9 +282,6 @@ public class HttpRequest {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            // Show alert
-            Toast.makeText(application, "Sorry, something weird is going on with our servers." +
-                    "Please retry or email us at info@getpitstop.io", Toast.LENGTH_LONG).show();
 
             listener.done(null, RequestError.getUnknownError());
         }
