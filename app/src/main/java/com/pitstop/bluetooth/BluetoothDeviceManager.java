@@ -344,7 +344,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             }
 
 
-            nonUrgentScanInProgress = urgent;
+            nonUrgentScanInProgress = !urgent;
             if (urgent){
                 trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
             }

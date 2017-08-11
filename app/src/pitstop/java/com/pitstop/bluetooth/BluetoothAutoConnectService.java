@@ -362,7 +362,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if (deviceConnState.equals(State.SEARCHING)){
                 deviceConnState = State.VERIFYING;
             }
-            notifyVerifyingDevice();
+            if (!ignoreVerification){
+                notifyVerifyingDevice();
+            }
 
             //Get VIN to validate car
             getVinFromCar();
@@ -552,7 +554,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
-        Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState);
+        Log.d(TAG,"requestDeviceSearch(), deviceConnState: "+deviceConnState
+                +", ignoreVerification: "+ignoreVerification);
         this.ignoreVerification = ignoreVerification;
         if (deviceConnState.equals(State.CONNECTED)) return;
 
