@@ -82,7 +82,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (bluetoothConnectionObservable != null){
                 bluetoothConnectionObservable.requestDeviceSearch(true, true);
             }
-        }
+    }
 
         @Override
         public void onTimeout() {

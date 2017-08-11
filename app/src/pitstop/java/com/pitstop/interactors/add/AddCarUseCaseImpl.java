@@ -3,6 +3,7 @@ package com.pitstop.interactors.add;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -195,7 +196,12 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                 EventBus.getDefault().post(new CarDataChangedEvent(
                                         eventType, eventSource));
 
-                                if (car.getShopId() == 0) {
+                                boolean carHasShop = (car.getShopId() == 1
+                                        && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
+                                        || (car.getShopId() == 19
+                                        && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
+
+                                if (!carHasShop) {
                                     callback.onCarAdded(car);
                                 }
                                 else{
