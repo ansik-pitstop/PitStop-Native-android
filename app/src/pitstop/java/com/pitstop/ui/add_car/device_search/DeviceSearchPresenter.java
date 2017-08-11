@@ -71,10 +71,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    private final int FIND_DEVICE_RETRY_TIME = 13;
-    private final int FIND_DEVICE_RETRY_AMOUNT = 5;
-    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_AMOUNT
-            , FIND_DEVICE_RETRY_TIME) {
+    private final int FIND_DEVICE_RETRY_TIME = 17;
+    private final int FIND_DEVICE_RETRY_AMOUNT = 3;
+    private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
+            , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
         public void onRetry() {
             Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
@@ -82,7 +82,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (bluetoothConnectionObservable != null){
                 bluetoothConnectionObservable.requestDeviceSearch(true, true);
             }
-        }
+    }
 
         @Override
         public void onTimeout() {
