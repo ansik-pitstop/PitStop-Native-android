@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -117,7 +116,7 @@ public class BluetoothDeviceRecognizer {
         },12000);
     }
 
-    public RecognizeResult onDeviceFound(BluetoothDevice device, short rssi) {
+    public RecognizeResult onDeviceFound(BluetoothDevice device, short rssi, boolean ignoreVerification) {
         if (device == null || device.getName() == null) return RecognizeResult.INVALID;
 
         Log.d(TAG,"onDeviceFound, device: "+device.getName() +" "+ device.getAddress());
@@ -126,7 +125,7 @@ public class BluetoothDeviceRecognizer {
             Log.d(TAG,"scanner name null or scanner name doesn't contain BT_DEVICE_NAME");
             return RecognizeResult.INVALID;
         }
-        else if (isBanned(device) && !AddCarActivity.addingCar){
+        else if (isBanned(device) && !ignoreVerification){
             Log.d(TAG,"Device banned");
             return RecognizeResult.BANNED;
         }

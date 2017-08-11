@@ -41,24 +41,75 @@ public class CarRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insert(Car car, Callback<Object> callback) {
+    public void getCarByVin(String vin, Callback<Car> callback){
+        networkHelper.get("car/?vin=" + vin, getGetCarByVinRequestCallback(callback));
+    }
+
+    private RequestCallback getGetCarByVinRequestCallback(Callback<Car> callback){
+        return new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+
+                    //No car found
+                    if (response == null || response.equals("{}")){
+                        callback.onSuccess(null);
+                        return;
+                    }
+                    //Create car
+                    try{
+                        Car car = Car.createCar(response);
+                        callback.onSuccess(car);
+
+                    }catch(JSONException e){
+                        e.printStackTrace();
+                        callback.onError(RequestError.getUnknownError());
+                    }
+                }
+                else{
+                    callback.onError(requestError);
+                }
+            }
+        };
+    }
+
+    public void insert(String vin, double baseMileage, int userId, String scannerId
+            , Callback<Car> callback) {
         //Insert to backend
-        networkHelper.createNewCar(car.getUserId(),(int)car.getTotalMileage()
-            ,car.getVin(),car.getScannerId(),car.getShopId()
-                ,getInsertCarRequestCallback(callback, car));
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("vin", vin);
+            body.put("baseMileage", baseMileage);
+            body.put("userId", userId);
+            body.put("scannerId", scannerId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.post("car", getInsertCarRequestCallback(callback), body);
 
     }
 
-    private RequestCallback getInsertCarRequestCallback(Callback<Object> callback, Car car){
+    private RequestCallback getInsertCarRequestCallback(Callback<Car> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        Car car = null;
+                        try{
+                            car = Car.createCar(response);
+                        }
+                        catch (JSONException e){
+                            e.printStackTrace();
+                            callback.onError(RequestError.getUnknownError());
+                        }
+
                         localCarAdapter.deleteCar(car.getId());
                         localCarAdapter.storeCarData(car);
-                        callback.onSuccess(response);
+                        callback.onSuccess(car);
                     }
                     else{
                         callback.onError(requestError);

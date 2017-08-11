@@ -78,15 +78,19 @@ public class MixpanelHelper {
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
+    public static final String ADD_CAR_SEARCH_TAPPED = "Search For Vehicle";
     public static final String ADD_CAR_VIEW = "Add Car";
     /**
      * In step 1
      */
+    public static final String ADD_CAR_ASK_HAS_DEVICE_VIEW = "Ask If User Has Device View";
     public static final String ADD_CAR_YES_HARDWARE = "Yes I have Pitstop Hardware";
     public static final String ADD_CAR_NO_HARDWARE = "No I do not have Pitstop Hardware";
     /**
      * In step 2
      */
+    public static final String ADD_CAR_SEARCH_DEVICE_VIEW = "Search for Device View";
+    public static final String ADD_CAR_VIN_ENTRY_VIEW = "Enter Vin Manually View";
     public static final String ADD_CAR_NO_HARDWARE_ADD_VEHICLE = "Add Vehicle";
     public static final String ADD_CAR_YES_HARDWARE_ADD_VEHICLE = "Add Vehicle";
     public static final String ADD_CAR_METHOD_DEVICE = "Through Device";

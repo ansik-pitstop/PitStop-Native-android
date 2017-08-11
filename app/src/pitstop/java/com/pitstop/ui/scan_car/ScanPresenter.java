@@ -8,6 +8,7 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -72,7 +73,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             getEngineCodes();
         }
         else{
-            bluetoothObservable.requestDeviceSearch(true);
+            bluetoothObservable.requestDeviceSearch(true, false);
             mCallback.onStartScanFailed(ERR_START_DC);
         }
     }
@@ -222,6 +223,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
+
+        @Override
+        public void onTimeTicked(int progress) {
+
+        }
     };
 
     private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
@@ -235,6 +241,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             if (mCallback == null) return;
             if (realTimeDataRetrieved || !mCallback.isScanning()) return;
             mCallback.onGetRealTimeDataTimeout();
+        }
+
+        @Override
+        public void onTimeTicked(int progress) {
+
         }
     };
 
@@ -272,7 +283,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+    public void onDeviceReady(ReadyDevice readyDevice) {
 
     }
 

@@ -10,10 +10,10 @@ import com.pitstop.models.ReadyDevice;
 public interface BluetoothConnectionObservable extends Subject{
 
     interface State{
-        final String DISCONNECTED = "disconnected"; //No bluetooth activity
-        final String SEARCHING = "state_searching"; //Searching for bluetooth device
-        final String VERIFYING = "state_verifying"; //Verifying currently connected device
-        final String CONNECTED = "state_connected"; //Established trusted connection with device
+        String DISCONNECTED = "disconnected"; //No bluetooth activity
+        String SEARCHING = "state_searching"; //Searching for bluetooth device
+        String VERIFYING = "state_verifying"; //Verifying currently connected device
+        String CONNECTED = "state_connected"; //Established trusted connection with device
     }
 
     //Invoked if device recognized as broken and requires id overwrite
@@ -47,7 +47,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestVin();
 
     //Request scan for device
-    void requestDeviceSearch(boolean urgent);
+    void requestDeviceSearch(boolean urgent, boolean ignoreVerification);
 
     //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();
