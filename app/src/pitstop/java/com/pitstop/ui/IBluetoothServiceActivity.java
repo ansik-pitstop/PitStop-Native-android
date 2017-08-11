@@ -53,7 +53,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == BluetoothServiceConnection.RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                autoConnectService.startBluetoothSearch();  // after permissions granted
+                autoConnectService.startBluetoothSearch(false);  // after permissions granted
             } else {
                 Snackbar.make(findViewById(android.R.id.content), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", new View.OnClickListener() {

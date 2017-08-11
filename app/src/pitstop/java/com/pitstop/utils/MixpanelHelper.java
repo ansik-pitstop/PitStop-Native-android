@@ -256,7 +256,8 @@ public class MixpanelHelper {
             try {
                 json.put("Username", user.getEmail());
             } catch (JSONException e) {
-                e.printStackTrace();
+                e.
+                        printStackTrace();
             }
         }
     }

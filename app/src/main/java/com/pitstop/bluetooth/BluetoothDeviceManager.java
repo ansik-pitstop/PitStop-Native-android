@@ -33,7 +33,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -83,11 +85,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private BluetoothDevice connectedDevice;
 
-    private final BluetoothDeviceRecognizer mBluetoothDeviceRecognizer;
-
-    //List of invalid addresses from current or past search that we do not want to deal with again
-    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
-
     private UseCaseComponent useCaseComponent;
 
     public enum CommType {
@@ -107,12 +104,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+        mBluetoothAdapter.cancelDiscovery();
 
         // for classic discovery
         IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         context.registerReceiver(receiver, intentFilter);
 
-        mBluetoothDeviceRecognizer = new BluetoothDeviceRecognizer(context);
     }
 
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
@@ -120,11 +117,15 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns false if search didn't begin again
+    private boolean ignoreVerification = false;
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled() && !urgent) {
             Log.i(TAG, "Scan unable to start");
-            mBluetoothAdapter.enable();
+            return false;
+        }
+        else if (!mBluetoothAdapter.isEnabled() && urgent){
+            mBluetoothAdapter.enable(); //Enable bluetooth, scan will be triggered someplace else
             return false;
         }
 
@@ -213,16 +214,28 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // on device connected?
     }
 
+    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
     //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        mBluetoothDeviceRecognizer.banDevice(connectedDevice);
+
+        bannedDeviceList.add(connectedDevice);
         communicator.disconnect(connectedDevice);
-        if (mBluetoothAdapter.isDiscovering()){
-            mBluetoothAdapter.cancelDiscovery();
+        connectToNextDevice(); //Try to connect to next device retrieved during previous scan
+        if (!moreDevicesLeft()){
+            dataListener.scanFinished();
         }
-        startScan(false, false);
+    }
+
+    private boolean isBanned(BluetoothDevice device){
+        for (BluetoothDevice d: bannedDeviceList){
+            if (d.getAddress().equals(device.getAddress())
+                    && d.getName().equals(device.getName())){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -292,6 +305,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private int scanNumber = 0;
     private boolean nonUrgentScanInProgress = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
+        nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
@@ -309,28 +323,32 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        Log.i(TAG, "BluetoothAdapter starts discovery");
-
-        scanNumber++;
-        int thisScanAttempt = scanNumber;
-        //Cancel discovery after 12 seconds
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //Check to make sure were not cancelling a future scan
-                // after this one's already been cancelled
-                if (thisScanAttempt == scanNumber){
-                    if (mBluetoothAdapter.isDiscovering()){
-                        mBluetoothAdapter.cancelDiscovery();
-                    }
-                    dataListener.scanFinished();
-                    nonUrgentScanInProgress = false;
-                }
-            }
-        }, 12000);
-
         if (mBluetoothAdapter.startDiscovery()){
-            nonUrgentScanInProgress = urgent;
+            Log.i(TAG, "BluetoothAdapter starts discovery");
+
+            if (!rssiScan){
+                Log.d(TAG,"Bonded Devices:");
+                for (BluetoothDevice d: mBluetoothAdapter.getBondedDevices()){
+                    Log.d(TAG,"device: "+d.getName()+", address: "+d.getAddress());
+                }
+
+                //After about 11 seconds connect to the device with the strongest signal
+                rssiScan = true;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                        mBluetoothAdapter.cancelDiscovery();
+                        connectToNextDevice();
+                        if (!moreDevicesLeft()){
+                            dataListener.scanFinished();
+                        }
+                        rssiScan = false;
+                    }
+                },16000);
+            }
+
+
             if (urgent){
                 trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
             }
@@ -344,7 +362,102 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    private boolean ignoreVerification = false;
+    private void connectTo212Device(BluetoothDevice device){
+        Log.d(TAG,"connectTo212Device() device: "+device.getName());
+        deviceInterface = new Device212B(mContext, dataListener
+                , BluetoothDeviceManager.this, device.getName());
+        connectToDevice(device);
+    }
+
+    private void connectTo215Device(BluetoothDevice device) {
+        Log.d(TAG,"connectTo215Device() device: "+device.getName());
+        useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
+                , new GetPrevIgnitionTimeUseCase.Callback() {
+
+                    @Override
+                    public void onGotIgnitionTime(long ignitionTime) {
+                        Log.v(TAG, "Received ignition time: " + ignitionTime);
+                        deviceInterface = new Device215B(mContext, dataListener
+                                , device.getName(), ignitionTime);
+                        connectToDevice(device);
+
+                    }
+
+                    @Override
+                    public void onNoneExists() {
+                        Log.v(TAG, "No previous ignition time exists!");
+                        deviceInterface = new Device215B(mContext, dataListener
+                                , device.getName());
+                        connectToDevice(device);
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        deviceInterface = new Device215B(mContext, dataListener
+                                , device.getName());
+                        connectToDevice(device);
+                        Log.v(TAG, "ERROR: could not get previous ignition time");
+
+                    }
+                });
+    }
+
+    public boolean moreDevicesLeft(){
+        return foundDevices.size() > 0;
+    }
+
+    private void connectToNextDevice(){
+        Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
+
+        short minRssiThreshold;
+        short strongestRssi = Short.MIN_VALUE;
+        BluetoothDevice strongestRssiDevice = null;
+
+        if (nonUrgentScanInProgress){
+            minRssiThreshold = -70;
+
+        }
+        //Deliberate scan, connect regardless
+        else{
+            minRssiThreshold = Short.MIN_VALUE;
+        }
+
+        Log.d(TAG,"minRssiThreshold set to: "+minRssiThreshold);
+
+        for (Map.Entry<BluetoothDevice,Short> device: foundDevices.entrySet()){
+            if (device.getValue() != null && device.getValue() > strongestRssi){
+                strongestRssiDevice = device.getKey();
+                strongestRssi = device.getValue();
+            }
+        }
+
+        if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
+            Log.d(TAG,"No device was found as candidate for a potential connection.");
+            foundDevices = new HashMap<>();
+            return;
+
+        }
+
+        if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
+            Log.d(TAG, "device212 > RSSI_Threshold, device: "+strongestRssiDevice);
+
+            foundDevices.remove(strongestRssiDevice);
+            connectTo212Device(strongestRssiDevice);
+
+
+        } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+
+            Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
+
+            foundDevices.remove(strongestRssiDevice);
+            connectTo215Device(strongestRssiDevice);
+
+        }
+    }
+
+    private Map<BluetoothDevice, Short> foundDevices = new HashMap<>();
+    private boolean rssiScan = false;
+
     // for classic discovery
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -353,66 +466,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 
-                Log.d(TAG, BluetoothDevice.ACTION_FOUND);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
-                String deviceName = device.getName();
-                Log.d(TAG, "name: "+deviceName + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
-                //Notify bluetooth device recognizer that device has been found
-                mBluetoothDeviceRecognizer.onDeviceFound(device,rssi,ignoreVerification);
+                Log.d(TAG, "name: "+device.getName() + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
-                //Begin RSSI scan, searching for valid device with strongest signal
-                mBluetoothDeviceRecognizer.onStartRssiScan(new BluetoothDeviceRecognizer.Callback() {
-                    @Override
-                    public void onDevice212Ready(BluetoothDevice device) {
-                        Log.d(TAG, "onStartRssiScan, device212 > RSSI_Threshold, device: "+device);
-
-                        deviceInterface = new Device212B(mContext, dataListener
-                                , BluetoothDeviceManager.this, device.getName());
-                        connectToDevice(device);
-                    }
-
-                    @Override
-                    public void onDevice215Ready(BluetoothDevice device) {
-                        Log.d(TAG, "onStartRssiScan, device215 > RSSI_Threshold, device: "+device);
-
-                        useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
-                                , new GetPrevIgnitionTimeUseCase.Callback() {
-
-                            @Override
-                            public void onGotIgnitionTime(long ignitionTime) {
-                                Log.v(TAG, "Received ignition time: "+ignitionTime);
-                                deviceInterface = new Device215B(mContext, dataListener
-                                        , device.getName(), ignitionTime);
-                                connectToDevice(device);
-
-                            }
-
-                            @Override
-                            public void onNoneExists() {
-                                Log.v(TAG, "No previous ignition time exists!");
-                                deviceInterface = new Device215B(mContext, dataListener
-                                        , device.getName());
-                                connectToDevice(device);
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                deviceInterface = new Device215B(mContext, dataListener
-                                        , device.getName());
-                                connectToDevice(device);
-                                Log.v(TAG, "ERROR: could not get previous ignition time");
-
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onNoDeviceFound() {
-                        Log.d(TAG, "onStartRssiScan, no device found or found device < threshold");
-                    }
-                }, mHandler, nonUrgentScanInProgress);
+                //Store all devices in a map
+                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
+                        && foundDevices.get(device) == null
+                        && (ignoreVerification || !isBanned(device))){
+                    foundDevices.put(device,rssi);
+                }
             }
         }
     };

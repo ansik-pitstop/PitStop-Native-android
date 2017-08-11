@@ -831,7 +831,7 @@ public class MainDashboardFragment extends CarDataFragment {
                                             ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
                                             if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED))
-                                                ((MainActivity)getActivity()).getBluetoothConnectService().startBluetoothSearch();
+                                                ((MainActivity)getActivity()).getBluetoothConnectService().startBluetoothSearch(false);
                                         }
                                     }
                                 });
