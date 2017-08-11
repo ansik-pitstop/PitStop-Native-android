@@ -441,6 +441,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     private void updateSmoochUser(com.pitstop.models.User user, Car car){
+        if (car == null || user == null) return;
+
         final HashMap<String, Object> customProperties = new HashMap<>();
         customProperties.put("VIN", car.getVin());
         Log.d(TAG, car.getVin());
