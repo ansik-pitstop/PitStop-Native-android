@@ -1,16 +1,10 @@
 package com.pitstop.bluetooth;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
-import com.pitstop.R;
 import com.pitstop.ui.BluetoothPresenter;
 import com.pitstop.ui.IBluetoothServiceActivity;
 
@@ -34,39 +28,36 @@ public class BluetoothServiceConnection implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName className, IBinder service) {
-        // cast the IBinder and get MyService instance
-        activity.serviceIsBound = true;
-        activity.autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
-        presenter.onServiceBound(activity.autoConnectService);
-        Log.i(TAG, "connecting: onServiceConnection");
-
-        if (BluetoothAdapter.getDefaultAdapter()!=null) {
-
-            if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                activity.startActivityForResult(enableBtIntent, RC_ENABLE_BT);
-                return;
-            }
-
-            String[] locationPermissions = activity.getResources().getStringArray(R.array.permissions_location);
-            for (String permission : locationPermissions) {
-                if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                    activity.requestPermission(activity, locationPermissions,
-                            RC_LOCATION_PERM, true, activity.getString(R.string.request_permission_location_message));
-                    break;
-                }
-            }
-
-        }
-
-        activity.autoConnectService.removeSyncedDevice();
+//        // cast the IBinder and get MyService instance
+//        activity.autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
+//
+//        if (BluetoothAdapter.getDefaultAdapter()!=null) {
+//
+//            if(!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+//                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                activity.startActivityForResult(enableBtIntent, RC_ENABLE_BT);
+//                return;
+//            }
+//
+//            String[] locationPermissions = activity.getResources().getStringArray(R.array.permissions_location);
+//            for (String permission : locationPermissions) {
+//                if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+//                    activity.requestPermission(activity, locationPermissions,
+//                            RC_LOCATION_PERM, true, activity.getString(R.string.request_permission_location_message));
+//                    break;
+//                }
+//            }
+//
+//        }
+//
+//        activity.autoConnectService.removeSyncedDevice();
     }
 
     @Override
     public void onServiceDisconnected(ComponentName arg0) {
-        presenter.onServiceUnbind();
-        activity.serviceIsBound = false;
-        activity.autoConnectService = null;
-        Log.i("Disconnecting","onServiceConnection");
+//        presenter.onServiceUnbind();
+//        activity.serviceIsBound = false;
+//        activity.autoConnectService = null;
+//        Log.i("Disconnecting","onServiceConnection");
     }
 }

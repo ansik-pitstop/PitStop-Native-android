@@ -2,14 +2,11 @@ package com.pitstop.ui.settings;
 
 import android.content.Context;
 import android.preference.Preference;
-import android.support.annotation.LayoutRes;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.ui.add_car.AddCarContract;
 
 /**
  * Created by Matt on 2017-07-31.

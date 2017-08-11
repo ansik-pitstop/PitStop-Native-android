@@ -56,6 +56,7 @@ import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -111,7 +112,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.i(TAG, "connecting: onServiceConnection");
             // cast the IBinder and get MyService instance
-            serviceIsBound = true;
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.subscribe(MainActivity.this);
@@ -124,7 +124,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                     if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
                         requestPermission(MainActivity.this, locationPermissions, RC_LOCATION_PERM,
                                 true, getString(R.string.request_permission_location_message));
-                        return;
+                        break;
                     }
                 }
             }
@@ -133,7 +133,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             Log.i(TAG, "Disconnecting: onServiceConnection");
-            serviceIsBound = false;
             autoConnectService = null;
         }
     };
@@ -346,7 +345,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (autoConnectService != null){
             displayDeviceState(autoConnectService.getDeviceState());
             autoConnectService.subscribe(this);
-            autoConnectService.requestDeviceSearch(false);
+            autoConnectService.requestDeviceSearch(false, false);
         }
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
@@ -370,9 +369,15 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     protected void onStop() {
         hideLoading();
+
         if (autoConnectService != null){
             autoConnectService.unsubscribe(this);
         }
+        if (serviceIsBound){
+            unbindService(serviceConnection);
+            serviceIsBound = false;
+        }
+
         super.onStop();
     }
 
@@ -383,7 +388,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         //Returned from car being added
         if (data != null && requestCode == RC_ADD_CAR) {
 
-            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS || resultCode == AddCarActivity.ADD_CAR_NO_DEALER_SUCCESS) {
+            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
                 Car addedCar = data.getParcelableExtra(CAR_EXTRA);
 
                 updateSmoochUser(application.getCurrentUser(),addedCar);
@@ -1016,7 +1021,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     @Override
     protected void onDestroy() {
-        if (serviceIsBound && serviceConnection != null){
+        if (serviceIsBound){
             unbindService(serviceConnection);
             serviceIsBound = false;
         }
@@ -1172,7 +1177,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     @Override
-    public void onDeviceReady(String vin, String scannerId, String scannerName) {
+    public void onDeviceReady(ReadyDevice device) {
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED);
     }
 
