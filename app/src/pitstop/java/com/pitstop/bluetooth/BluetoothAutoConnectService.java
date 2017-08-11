@@ -136,7 +136,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private LocalPidAdapter localPid;
     private LocalPidResult4Adapter localPidResult4;
-    private static final int PID_CHUNK_SIZE = 200;
+    private static final int PID_CHUNK_SIZE = 15;
 
     private String lastDataNum = "";
 
