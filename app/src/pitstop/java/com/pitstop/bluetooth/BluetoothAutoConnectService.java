@@ -2151,7 +2151,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceManager.setBluetoothDataListener(BluetoothAutoConnectService.this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        startBluetoothSearch(false); // start search when turning bluetooth on
+                        startBluetoothSearch(true); // start search when turning bluetooth on
                     }
                 }
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) { // internet connectivity listener

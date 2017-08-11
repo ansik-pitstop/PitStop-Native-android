@@ -120,8 +120,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean ignoreVerification = false;
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled() && !urgent) {
             Log.i(TAG, "Scan unable to start");
+            return false;
+        }
+        else if (!mBluetoothAdapter.isEnabled() && urgent){
+            mBluetoothAdapter.enable(); //Enable bluetooth, scan will be triggered someplace else
             return false;
         }
 
