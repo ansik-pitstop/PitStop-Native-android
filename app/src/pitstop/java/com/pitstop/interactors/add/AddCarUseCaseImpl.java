@@ -196,9 +196,9 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                 EventBus.getDefault().post(new CarDataChangedEvent(
                                         eventType, eventSource));
 
-                                boolean carHasShop = (car.getShopId() == 1
+                                boolean carHasShop = (car.getShopId() != 1
                                         && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
-                                        || (car.getShopId() == 19
+                                        || (car.getShopId() != 19
                                         && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
 
                                 if (!carHasShop) {
