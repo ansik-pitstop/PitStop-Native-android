@@ -644,6 +644,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void handlePendingTrips(TripInfoPackage tripInfoPackage){
+
+        boolean deviceIdMissing = (tripInfoPackage.deviceId == null
+                || tripInfoPackage.deviceId.isEmpty());
+
+        //Check to see if we received current RTC time from device upon the app detecting device
+        //If not received yet store the trip for once it is received
+        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            Log.d(TAG,"Adding pending trip.");
+            pendingTripInfoPackages.add(tripInfoPackage);
+        }
+        if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
+            LogUtils.debugLogD(TAG, "Cannot process pending trips yet, terminalRtcSet?"
+                            +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
+                            +", deviceIdMissing?"+deviceIdMissing
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            return;
+        }
+
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
         for (TripInfoPackage trip: pendingTripInfoPackages){
@@ -747,6 +765,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         pendingTripInfoPackages.removeAll(toRemove);
 
+        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+                        +" Completed all running use cases on all pending trips"
+                        +" pendingTripList.size() after removing:"
+                        +pendingTripInfoPackages.size(), true
+                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
     }
 
     private long terminalRTCTime = -1;
@@ -761,15 +784,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
 
-        boolean deviceIdMissing = (tripInfoPackage.deviceId == null
-                || tripInfoPackage.deviceId.isEmpty());
+
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
             LogUtils.debugLogD(TAG, "trip update received. "
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-            if (pendingPidPackages.size() > 0 && !deviceIdMissing){
+            if (pendingPidPackages.size() > 0){
                 Log.d(TAG,"Handling pending trips!");
                 handlePendingTrips(tripInfoPackage);
             }
@@ -788,31 +810,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Adding trip to pending list"
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        //Check to see if we received current RTC time from device upon the app detecting device
-        //If not received yet store the trip for once it is received
-        pendingTripInfoPackages.add(tripInfoPackage);
-        if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
-            LogUtils.debugLogD(TAG, "Trip added to pending list, terminalRtcSet?"
-                            +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
-                            +", deviceIdMissing?"+deviceIdMissing
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            return;
-        }
-
         LogUtils.debugLogD(TAG, "Going through all pending trips tripListSize: "
                 +pendingTripInfoPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
                 , getApplicationContext());
 
         handlePendingTrips(tripInfoPackage);
 
-        LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                +" Completed all running use cases on all pending trips"
-                +" pendingTripList.size() after removing:"
-                +pendingTripInfoPackages.size(), true
-                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
 
     }
 
