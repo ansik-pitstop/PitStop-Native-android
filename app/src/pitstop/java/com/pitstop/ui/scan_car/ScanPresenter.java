@@ -56,17 +56,21 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     private boolean isDeviceConnected(){
+        if (bluetoothObservable == null) return false;
         return bluetoothObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
     private boolean isDisconnected(){
+        if (bluetoothObservable == null) return false;
         return bluetoothObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.DISCONNECTED);
     }
 
     @Override
     public void startScan() {
+        if (mCallback == null || bluetoothObservable == null) return;
+
         if (isDeviceConnected()){
             mCallback.onScanStarted();
             getServicesAndRecalls();
@@ -253,7 +257,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
         Log.d(TAG,"bind()");
-        if (mCallback != null || bluetoothObservable == null) return;
+        if (mCallback != null) return;
 
         mCallback = (ScanCarContract.View) view;
         if(bluetoothObservable != null){
@@ -267,8 +271,10 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
         if (mCallback == null) return;
 
-        bluetoothObservable.unsubscribe(this);
-        
+        if (bluetoothObservable != null){
+            bluetoothObservable.unsubscribe(this);
+        }
+
         if (mCallback.isScanning()){
             interruptScan(ERR_INTERRUPT_GEN);
         }

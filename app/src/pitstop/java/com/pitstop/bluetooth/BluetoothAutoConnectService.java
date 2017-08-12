@@ -264,7 +264,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetVinRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (deviceConnState.equals(State.VERIFYING)){
+                //Request VIN if verifying or verification is being ignored
+                boolean requestVin = deviceConnState.equals(State.VERIFYING) || ignoreVerification;
+
+                if (requestVin){
                     LogUtils.debugLogI(TAG, "Periodic vin request executed."
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
@@ -297,6 +300,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         deviceManager.close();
+        deviceManager = null;
         super.onDestroy();
     }
 
@@ -352,6 +356,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void getBluetoothState(int state) {
+        Log.d(TAG,"getBluetoothState: "+state);
         if (state == IBluetoothCommunicator.CONNECTED) {
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received CONNECTED"
@@ -359,10 +364,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Check to make sure were not overriding the state once
             // its already verified and connected
-            if ((deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.DISCONNECTED))
-                    && !ignoreVerification){
-                deviceConnState = State.VERIFYING;
-                notifyVerifyingDevice();
+            clearInvalidDeviceData();
+            if (deviceConnState.equals(State.SEARCHING)
+                    || deviceConnState.equals(State.DISCONNECTED)){
+
+                terminalRTCTime = -1; //Reset rtc time every time a connection is made
+
+                if (!ignoreVerification){
+                    deviceConnState = State.VERIFYING;
+                    notifyVerifyingDevice();
+                }
+
             }
 
             //Get VIN to validate car
@@ -371,7 +383,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Get RTC and mileage once connected
             getObdDeviceTime();
 
-        } else {
+        } else if (state == IBluetoothCommunicator.DISCONNECTED){
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
@@ -645,44 +657,40 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            LogUtils.debugLogD(TAG, "trip update received, ignoring: "
+            LogUtils.debugLogD(TAG, "trip update received. "
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            return;
         }
-
-        LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        else{
+            LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        }
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
-        if (!isConnectedTo215() && deviceIsVerified){
+        if (!isConnectedTo215() && deviceIsVerified
+                && !tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
             LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             handle212Trip(tripInfoPackage);
             return;
         }
 
-        LogUtils.debugLogD(TAG, "Adding trip to pending list"
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
         boolean deviceIdMissing = (tripInfoPackage.deviceId == null
                 || tripInfoPackage.deviceId.isEmpty());
 
-
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
-        pendingTripInfoPackages.add(tripInfoPackage);
+        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            Log.d(TAG,"Adding pending trip.");
+            pendingTripInfoPackages.add(tripInfoPackage);
+        }
         if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
-            LogUtils.debugLogD(TAG, "Trip added to pending list, terminalRtcSet?"
+            LogUtils.debugLogD(TAG, "Cannot process pending trips yet, terminalRtcSet?"
                             +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
                             +", deviceIdMissing?"+deviceIdMissing
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
-
-        LogUtils.debugLogD(TAG, "Going through all pending trips tripListSize: "
-                +pendingTripInfoPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
 
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
@@ -703,45 +711,45 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
                         , new Trip215EndUseCase.Callback() {
-                    @Override
-                    public void onHistoricalTripEndSuccess() {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
-                        LogUtils.debugLogD(TAG, "Historical trip END saved successfully", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                    }
-
-                    @Override
-                    public void onRealTimeTripEndSuccess() {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
-
-                        LogUtils.debugLogD(TAG, "Real-time END trip end saved successfully", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                        //Send update mileage notification after 5 seconds to allow back-end to process mileage
-                        handler.postDelayed(new Runnable() {
                             @Override
-                            public void run() {
-                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            public void onHistoricalTripEndSuccess() {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
+                                LogUtils.debugLogD(TAG, "Historical trip END saved successfully", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                             }
-                        },TRIP_END_DELAY);
 
-                    }
+                            @Override
+                            public void onRealTimeTripEndSuccess() {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
 
-                    @Override
-                    public void onStartTripNotFound() {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
-                        LogUtils.debugLogD(TAG, "Trip start not found, mileage will update on "
-                                +"next trip start", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                    }
+                                LogUtils.debugLogD(TAG, "Real-time END trip end saved successfully", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                    @Override
-                    public void onError(RequestError error) {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
-                        LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                    }
-                });
+                                //Send update mileage notification after 5 seconds to allow back-end to process mileage
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                                    }
+                                },TRIP_END_DELAY);
+
+                            }
+
+                            @Override
+                            public void onStartTripNotFound() {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
+                                LogUtils.debugLogD(TAG, "Trip start not found, mileage will update on "
+                                                +"next trip start", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
+                                LogUtils.debugLogD(TAG,"TRIP END Use case returned error", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                            }
+                        });
 
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnectedTo215()){
@@ -751,35 +759,35 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
                         , new Trip215StartUseCase.Callback() {
-                    @Override
-                    public void onRealTimeTripStartSuccess() {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RT_SUCCESS);
-                        LogUtils.debugLogD(TAG, "Real-time trip START saved successfully", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                        handler.postDelayed(new Runnable() {
                             @Override
-                            public void run() {
-                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                            public void onRealTimeTripStartSuccess() {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RT_SUCCESS);
+                                LogUtils.debugLogD(TAG, "Real-time trip START saved successfully", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
+                                    }
+                                },TRIP_END_DELAY);
                             }
-                        },TRIP_END_DELAY);
-                    }
 
-                    @Override
-                    public void onHistoricalTripStartSuccess(){
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_HT_SUCCESS);
-                        LogUtils.debugLogD(TAG, "Historical trip START saved successfully", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                            @Override
+                            public void onHistoricalTripStartSuccess(){
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_HT_SUCCESS);
+                                LogUtils.debugLogD(TAG, "Historical trip START saved successfully", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                    }
+                            }
 
-                    @Override
-                    public void onError(RequestError error) {
-                        trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_FAILED);
-                        LogUtils.debugLogD(TAG,"Error saving trip start", true
-                                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                    }
-                });
+                            @Override
+                            public void onError(RequestError error) {
+                                trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_FAILED);
+                                LogUtils.debugLogD(TAG,"Error saving trip start", true
+                                        , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                            }
+                        });
 
             }
             toRemove.add(trip);
@@ -788,9 +796,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pendingTripInfoPackages.removeAll(toRemove);
 
         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                +" Completed all running use cases on all pending trips"
-                +" pendingTripList.size() after removing:"
-                +pendingTripInfoPackages.size(), true
+                        +" Completed all running use cases on all pending trips"
+                        +" pendingTripList.size() after removing:"
+                        +pendingTripInfoPackages.size(), true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
     }
@@ -874,8 +882,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     ", ignoreVerification?"+ignoreVerification
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                    //ignore result if verification state changed mid use-case execution or CONNECTED
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    //ignore result if verification state changed mid use-case execution
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     deviceIsVerified = true;
                     verificationInProgress = false;
@@ -896,7 +915,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
@@ -905,6 +935,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
                     notifyDeviceNeedsOverwrite();
+                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
+                    notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
                     sendConnectedNotification();
                 }
 
@@ -916,7 +950,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     setDeviceNameAndId(scannerId);
                     deviceIdOverwriteInProgress = true;
@@ -938,9 +983,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
 
@@ -964,9 +1019,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
                     deviceManager.onConnectedDeviceInvalid();
@@ -990,9 +1055,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
                     deviceManager.onConnectedDeviceInvalid();
@@ -1510,14 +1585,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setParam(param, value);
-    }
-
-    public void removeSyncedDevice() {
-        SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(DEVICE_ID);
-        editor.apply();
     }
 
     /**

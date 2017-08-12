@@ -147,11 +147,14 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     @Override
     public void updateUI(){
+
         mLoadingSpinner.setVisibility(View.VISIBLE);
 
         useCaseComponent.getDoneServicesUseCase().execute(new GetDoneServicesUseCase.Callback() {
             @Override
             public void onGotDoneServices(List<CarIssue> doneServices) {
+                if (getActivity() == null) return; //activity may be null by now
+
                 if(doneServices.isEmpty()) {
                     messageCard.setVisibility(View.VISIBLE);
                 }
