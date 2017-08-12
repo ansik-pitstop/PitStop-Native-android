@@ -117,17 +117,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             autoConnectService.subscribe(MainActivity.this);
             displayDeviceState(autoConnectService.getDeviceState());
 
-            // Send request to user to turn on bluetooth if disabled
-            if (BluetoothAdapter.getDefaultAdapter() != null) {
-                final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
-                for (String permission : locationPermissions) {
-                    if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermission(MainActivity.this, locationPermissions, RC_LOCATION_PERM,
-                                true, getString(R.string.request_permission_location_message));
-                        break;
-                    }
-                }
-            }
+            checkPermissions();
         }
 
         @Override
@@ -338,6 +328,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
 
+        checkPermissions();
         if (!serviceIsBound){
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             serviceIsBound = true;

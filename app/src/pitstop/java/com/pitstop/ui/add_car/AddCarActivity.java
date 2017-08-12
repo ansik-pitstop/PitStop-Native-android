@@ -1,17 +1,14 @@
 package com.pitstop.ui.add_car;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.pitstop.R;
@@ -58,20 +55,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
             if (currentFragment == deviceSearchFragment)
                 deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
 
-            // Send request to user to turn on locations
-            if (BluetoothAdapter.getDefaultAdapter() != null) {
-                Log.d(TAG,"onServiceConnected() Bluetooth adapter is not null!");
-                final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
-                for (String permission : locationPermissions) {
-                    Log.d(TAG,"Checking permisssion: "+permission);
-                    if (ContextCompat.checkSelfPermission(AddCarActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG,"Permission not granted! requesting permission!");
-                        requestPermission(AddCarActivity.this, locationPermissions, RC_LOCATION_PERM,
-                                true, getString(R.string.request_permission_location_message));
-                        break;
-                    }
-                }
-            }
+            checkPermissions();
 
         }
 
@@ -83,6 +67,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
         }
     };
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,6 +91,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     protected void onResume() {
+
+        checkPermissions();
 
         //Service may have been unbound in onStop(), so bring it back here
         if (!serviceBound){
