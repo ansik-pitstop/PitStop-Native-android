@@ -300,6 +300,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         deviceManager.close();
+        deviceManager = null;
         super.onDestroy();
     }
 
@@ -1585,14 +1586,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,
                 true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.setParam(param, value);
-    }
-
-    public void removeSyncedDevice() {
-        SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(DEVICE_ID);
-        editor.apply();
     }
 
     /**
