@@ -643,7 +643,37 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void handlePendingTrips(TripInfoPackage tripInfoPackage){
+    private long terminalRTCTime = -1;
+    private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+
+    /**
+     * Handles trip data containing mileage
+     * @param tripInfoPackage
+     */
+    @Override
+    public void tripData(final TripInfoPackage tripInfoPackage) {
+
+        final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
+
+        //Not handling trip updates anymore since live mileage has been removed
+        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            LogUtils.debugLogD(TAG, "trip update received. "
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        }
+        else{
+            LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        }
+
+        /*Code for handling 212 trip logic, moved to private method since its being
+          phased out and won't be maintained*/
+        if (!isConnectedTo215() && deviceIsVerified
+                && !tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+            LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
+                    , getApplicationContext());
+            handle212Trip(tripInfoPackage);
+            return;
+        }
 
         boolean deviceIdMissing = (tripInfoPackage.deviceId == null
                 || tripInfoPackage.deviceId.isEmpty());
@@ -770,53 +800,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         +" pendingTripList.size() after removing:"
                         +pendingTripInfoPackages.size(), true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-    }
-
-    private long terminalRTCTime = -1;
-    private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
-
-    /**
-     * Handles trip data containing mileage
-     * @param tripInfoPackage
-     */
-    @Override
-    public void tripData(final TripInfoPackage tripInfoPackage) {
-
-        final String TAG = BluetoothAutoConnectService.class.getSimpleName() + ".tripData()";
-
-
-
-        //Not handling trip updates anymore since live mileage has been removed
-        if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            LogUtils.debugLogD(TAG, "trip update received. "
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-            if (pendingPidPackages.size() > 0){
-                Log.d(TAG,"Handling pending trips!");
-                handlePendingTrips(tripInfoPackage);
-            }
-            return;
-        }
-
-        LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        /*Code for handling 212 trip logic, moved to private method since its being
-          phased out and won't be maintained*/
-        if (!isConnectedTo215() && deviceIsVerified){
-            LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-            handle212Trip(tripInfoPackage);
-            return;
-        }
-
-        LogUtils.debugLogD(TAG, "Going through all pending trips tripListSize: "
-                +pendingTripInfoPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                , getApplicationContext());
-
-        handlePendingTrips(tripInfoPackage);
-
-
 
     }
 
