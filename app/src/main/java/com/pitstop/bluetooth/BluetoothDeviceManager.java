@@ -472,9 +472,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
-                        && foundDevices.get(device) == null
+                        && !foundDevices.containsKey(device)
                         && (ignoreVerification || !isBanned(device))){
+                    Log.d(TAG,"foundDevices.put()");
                     foundDevices.put(device,rssi);
+                }
+                else{
+                    Log.d(TAG,"Device did not meet criteria for foundDevice list");
                 }
             }
         }

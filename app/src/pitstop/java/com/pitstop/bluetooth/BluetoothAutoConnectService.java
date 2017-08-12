@@ -937,6 +937,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
                     notifyDeviceNeedsOverwrite();
+                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
+                    notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                            ,parameterPackage.deviceId);
                     sendConnectedNotification();
                 }
 
