@@ -302,7 +302,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    private int scanNumber = 0;
     private boolean nonUrgentScanInProgress = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
