@@ -364,6 +364,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Check to make sure were not overriding the state once
             // its already verified and connected
+            clearInvalidDeviceData();
             if (deviceConnState.equals(State.SEARCHING)
                     || deviceConnState.equals(State.DISCONNECTED)){
 
@@ -1008,7 +1009,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         return;
                     }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
 
@@ -1045,7 +1045,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         return;
                     }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
                     deviceManager.onConnectedDeviceInvalid();
@@ -1082,7 +1081,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         return;
                     }
 
-                    clearInvalidDeviceData();
                     deviceIsVerified = false;
                     verificationInProgress = false;
                     deviceManager.onConnectedDeviceInvalid();
