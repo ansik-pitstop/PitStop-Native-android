@@ -264,7 +264,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetVinRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (deviceConnState.equals(State.VERIFYING)){
+                //Request VIN if verifying or verification is being ignored
+                boolean requestVin = deviceConnState.equals(State.VERIFYING) || ignoreVerification;
+
+                if (requestVin){
                     LogUtils.debugLogI(TAG, "Periodic vin request executed."
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     getVinFromCar();
@@ -359,10 +362,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Check to make sure were not overriding the state once
             // its already verified and connected
-            if ((deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.DISCONNECTED))
-                    && !ignoreVerification){
-                deviceConnState = State.VERIFYING;
-                notifyVerifyingDevice();
+            if (deviceConnState.equals(State.SEARCHING)
+                    || deviceConnState.equals(State.DISCONNECTED)){
+
+                terminalRTCTime = -1; //Reset rtc time every time a connection is made
+
+                if (!ignoreVerification){
+                    deviceConnState = State.VERIFYING;
+                    notifyVerifyingDevice();
+                }
+
             }
 
             //Get VIN to validate car
@@ -874,8 +883,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     ", ignoreVerification?"+ignoreVerification
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                    //ignore result if verification state changed mid use-case execution or CONNECTED
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    //ignore result if verification state changed mid use-case execution
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     deviceIsVerified = true;
                     verificationInProgress = false;
@@ -896,7 +916,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
@@ -916,7 +947,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     setDeviceNameAndId(scannerId);
                     deviceIdOverwriteInProgress = true;
@@ -938,7 +980,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
@@ -964,7 +1017,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
@@ -990,7 +1054,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
                     //ignore result if verification state changed mid use-case execution
-                    if (ignoreVerification || deviceConnState.equals(State.CONNECTED)) return;
+                    if (deviceConnState.equals(State.CONNECTED)){
+                        verificationInProgress = false;
+                        return;
+                    }
+                    //Connected to device mid use-case execution, return
+                    else if (ignoreVerification){
+                        verificationInProgress = false;
+                        if (deviceConnState.equals(State.VERIFYING)){
+                            deviceConnState = State.SEARCHING;
+                        }
+                        return;
+                    }
 
                     clearInvalidDeviceData();
                     deviceIsVerified = false;
