@@ -68,6 +68,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         }
     };
 
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
