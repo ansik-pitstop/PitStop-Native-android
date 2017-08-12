@@ -53,18 +53,20 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     }
 
     public void checkPermissions(){
+        Log.d(TAG,"checkPermissions(), adapter null?"+(BluetoothAdapter.getDefaultAdapter() == null));
         // Send request to user to turn on locations
-        if (BluetoothAdapter.getDefaultAdapter() != null) {
-            Log.d(TAG,"onServiceConnected() Bluetooth adapter is not null!");
-            final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
-            for (String permission : locationPermissions) {
-                Log.d(TAG,"Checking permisssion: "+permission);
-                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG,"Permission not granted! requesting permission!");
-                    requestPermission(this, locationPermissions, RC_LOCATION_PERM,
-                            true, getString(R.string.request_permission_location_message));
-                    break;
-                }
+        Log.d(TAG,"onServiceConnected() Bluetooth adapter is not null!");
+        final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
+        for (String permission : locationPermissions) {
+            Log.d(TAG,"Checking permisssion: "+permission);
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG,"Permission not granted! requesting permission!");
+                requestPermission(this, locationPermissions, RC_LOCATION_PERM,
+                        true, getString(R.string.request_permission_location_message));
+                break;
+            }
+            else if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED){
+                Log.d(TAG,"Permission granted!");
             }
         }
     }
