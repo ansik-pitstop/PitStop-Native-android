@@ -702,7 +702,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
                             +", deviceIdMissing?"+deviceIdMissing
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            trackBluetoothEvent(MixpanelHelper.BT_TRIP_NOT_PROCESSED);
+
+            //Only send mixpanel event for non-update trip events
+            if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
+                trackBluetoothEvent(MixpanelHelper.BT_TRIP_NOT_PROCESSED);
+            }
             return;
         }
 
