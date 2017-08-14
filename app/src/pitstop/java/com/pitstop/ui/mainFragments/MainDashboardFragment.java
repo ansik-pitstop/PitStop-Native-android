@@ -797,7 +797,6 @@ public class MainDashboardFragment extends CarDataFragment {
                                 Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
                             } else {
                                 d.dismiss();
-                                ((MainActivity)getActivity()).getBluetoothConnectService().manuallyUpdateMileage = true;
                                 showLoading();
 
                                 //Update mileage in the GUI so it doesn't have to be loaded from network
