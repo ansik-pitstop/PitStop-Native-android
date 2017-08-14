@@ -810,7 +810,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pendingTripInfoPackages.removeAll(toRemove);
 
         LogUtils.debugLogD(TAG, "rtcTime: "+tripInfoPackage.rtcTime
-                        +" Completed all running use cases on all pending trips"
+                        +" Completed running all use cases on all pending trips"
                         +" pendingTripList.size() after removing:"
                         +pendingTripInfoPackages.size(), true
                 , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
