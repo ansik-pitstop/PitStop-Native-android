@@ -550,6 +550,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids) {
+        Log.d(TAG,"setPidsToSend: "+pids);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }

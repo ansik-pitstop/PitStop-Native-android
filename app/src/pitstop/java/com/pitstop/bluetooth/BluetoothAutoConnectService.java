@@ -234,24 +234,29 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void run() { // this is for auto connect for bluetooth classic
                 if(deviceConnState.equals(State.CONNECTED)) {
                     Log.d(TAG, "Running periodic getSupportedPids()");
-                    getSupportedPids(); // periodic scan
+                    if (supportedPids.equals("")){
+                        getSupportedPids(); // periodic scan
+                    }
+                    else{
+                        deviceManager.setPidsToSend(supportedPids);
+                    }
                 }
-                handler.postDelayed(this, 60000); //Evert 5 minutes
+                handler.postDelayed(this, 30000); //Evert 5 minutes
             }
         };
 
-        //Periodically set fixed upload, temporary solution while queue for set parameters isn't implemented yet
-        Runnable periodicSetFixedUploadRunnable = new Runnable() {
-            @Override
-            public void run(){
-                if (deviceIsVerified && deviceConnState.equals(State.CONNECTED)){
-                    Log.d(TAG,"Period set fixed upload request executing");
-
-                    setFixedUpload();
-                }
-                handler.postDelayed(this,300000);
-            }
-        };
+//        //Periodically set fixed upload, temporary solution while queue for set parameters isn't implemented yet
+//        Runnable periodicSetFixedUploadRunnable = new Runnable() {
+//            @Override
+//            public void run(){
+//                if (deviceIsVerified && deviceConnState.equals(State.CONNECTED)){
+//                    Log.d(TAG,"Period set fixed upload request executing");
+//
+//                   // setFixedUpload();
+//                }
+//                handler.postDelayed(this,300000);
+//            }
+//        };
 
         //Sometimes terminal time might not be returned
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
@@ -262,7 +267,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     getObdDeviceTime();
                 }
-                handler.postDelayed(this, 10000);
+                handler.postDelayed(this, 60000);
             }
         };
 
@@ -286,7 +291,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         handler.post(periodicGetSupportedPidsRunnable);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
-        handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
+        //handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
 
     }
 
@@ -886,7 +891,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && ignoreVerification && !deviceIsVerified){
             LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            setFixedUpload();
             deviceIsVerified = true;
             verificationInProgress = false;
             deviceConnState = State.CONNECTED;
@@ -894,6 +898,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     ,parameterPackage.deviceId);
             notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                     ,parameterPackage.deviceId);
+            getSupportedPids();
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
@@ -937,7 +942,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
-                    setFixedUpload();
                 }
 
                 @Override
@@ -974,7 +978,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
-                    setFixedUpload();
                 }
 
                 @Override
@@ -1011,7 +1014,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
-                    setFixedUpload();
                 }
 
                 @Override
@@ -1609,10 +1611,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.setRtc(1088804101);
     }
 
-    public void setFixedUpload() { // to make result 4 pids send every 10 seconds
-        LogUtils.debugLogI(TAG, "Setting fixed upload parameters", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        deviceManager.setPidsToSend("2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
-    }
+//    public void setFixedUpload() { // to make result 4 pids send every 10 seconds
+//        LogUtils.debugLogI(TAG, "Setting fixed upload parameters", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+//        deviceManager.setPidsToSend("2105,2106,2107,210c,210d,210e,210f,2110,2124,2142");
+//    }
 
     public void changeSetting(String param, String value){
         LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,

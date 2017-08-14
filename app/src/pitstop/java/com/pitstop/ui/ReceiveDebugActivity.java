@@ -308,7 +308,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void setParam(View view) {
-        service.setFixedUpload();
+       // service.setFixedUpload();
     }
 
     public void initialize(View view) {

@@ -154,6 +154,7 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public String setPidsToSend(String pids) {
+        Log.d(TAG,"setPidsToSend: "+pids);
         return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
                 ,  pids.replace(",", "/") + ","+IDR_INTERVAL_TIME);
     }
