@@ -435,7 +435,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyDeviceNeedsOverwrite() {
-        trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
         for (Observer o : observerList) {
             if (o instanceof Device215BreakingObserver) {
                 ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
@@ -454,26 +453,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    boolean deviceReady = false;
     @Override
     public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
         trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
-        deviceReady = true;
         for (Observer observer: observerList){
             ((BluetoothConnectionObserver)observer)
                     .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
         }
     }
 
+    private void trackBluetoothEvent(String event, String scannerId, String vin){
+        if (scannerId == null) scannerId = "";
+        if (vin == null) vin = "";
+
+        mixpanelHelper.trackBluetoothEvent(event,scannerId,vin,deviceIsVerified,deviceConnState,terminalRTCTime);
+    }
+
     private void trackBluetoothEvent(String event){
         if (readyDevice == null){
-            mixpanelHelper.trackBluetoothEvent((event));
+            mixpanelHelper.trackBluetoothEvent(event,deviceIsVerified,deviceConnState,terminalRTCTime);
         }
         else{
-            mixpanelHelper.trackBluetoothEvent(event,readyDevice.getScannerName()
-                    ,readyDevice.getScannerId(),readyDevice.getVin());
+            trackBluetoothEvent(event,readyDevice.getScannerId()
+                    ,readyDevice.getVin());
         }
     }
 
@@ -515,7 +519,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifySyncingDevice() {
         Log.d(TAG,"notifySyncingDevice()");
-        trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 ((BluetoothConnectionObserver)observer).onDeviceSyncing();
@@ -536,7 +539,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyVin(String vin) {
-        trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT);
         vinRequested = false;
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
@@ -660,9 +662,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             LogUtils.debugLogD(TAG, "trip update received. "
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         }
-        else{
-            LogUtils.debugLogD(TAG, "Trip start/end received: " + tripInfoPackage.toString()
+        else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
+            LogUtils.debugLogD(TAG, "Trip end received: " + tripInfoPackage.toString()
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RECEIVED);
+        }
+        else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.START)){
+            LogUtils.debugLogD(TAG, "Trip start received: " + tripInfoPackage.toString()
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
         }
 
         /*Code for handling 212 trip logic, moved to private method since its being
@@ -689,6 +697,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
                             +", deviceIdMissing?"+deviceIdMissing
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            trackBluetoothEvent(MixpanelHelper.BT_TRIP_NOT_PROCESSED);
             return;
         }
 
@@ -828,6 +837,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "parameterData() parameterPackage: " + parameterPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        if (parameterPackage.paramType == ParameterPackage.ParamType.VIN){
+            trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT,parameterPackage.deviceId
+                    ,parameterPackage.value);
+        }
+        else if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME){
+            trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,parameterPackage.deviceId
+                    ,parameterPackage.value);
+        }
+
         if (parameterPackage.paramType == ParameterPackage.ParamType.VIN && vinRequested){
             notifyVin(parameterPackage.value);
         }
@@ -848,6 +866,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 notifySyncingDevice();
                 syncObdDevice();
             }
+            trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
         }
 
         //If adding car connect to first recognized device
@@ -914,6 +933,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     +"ignoreVerification?"+ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+                    trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
+
                     //ignore result if verification state changed mid use-case execution
                     if (deviceConnState.equals(State.CONNECTED)){
                         verificationInProgress = false;
@@ -948,6 +969,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ", overwriting scanner id to "+scannerId+", ignoreVerification: "
                                     +ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+                    trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
 
                     //ignore result if verification state changed mid use-case execution
                     if (deviceConnState.equals(State.CONNECTED)){
@@ -1509,6 +1532,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
         if (deviceManager.startScan(urgent,ignoreVerification)){
+
+            if (urgent){
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
+            }
+            else{
+                trackBluetoothEvent(MixpanelHelper.BT_SCAN_NOT_URGENT);
+
+            }
+
             deviceConnState = State.SEARCHING;
             notifySearchingForDevice();
             Log.d(TAG,"Started scan");
