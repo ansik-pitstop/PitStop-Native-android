@@ -1077,6 +1077,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                                     ", ignoreVerification?"+ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+                    trackBluetoothEvent(MixpanelHelper.BT_VERIFICATION_ERROR);
+
                     //ignore result if verification state changed mid use-case execution
                     if (deviceConnState.equals(State.CONNECTED)){
                         verificationInProgress = false;
