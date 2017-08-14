@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/start_report_button_holder"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+
+        android:layout_gravity="center|top">
+
+
+        <ImageView
+            android:id="@+id/imageView37"
+            app:srcCompat="@drawable/grey_circular_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="58dp" />
+
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/start_report_animation"
+            app:indicatorColor="@color/highlight"
+            app:indicatorName="SemiCircleSpinIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+        <Button
+            android:id="@+id/start_report_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="60dp"
+            android:background="@drawable/color_button_green_highlight"
+            android:textColor="@color/white_text" />
+
+        <ImageView
+            android:id="@+id/imageView41"
+            app:srcCompat="@drawable/pitstop_p3x"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="80dp"
+            android:elevation="20dp" />
+
+    </FrameLayout>
+</LinearLayout>
