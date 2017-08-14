@@ -929,7 +929,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                     deviceIsVerified = true;
                     verificationInProgress = false;
-                    setFixedUpload();
                     deviceManager.onConnectDeviceValid();
                     deviceConnState = State.CONNECTED;
                     readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
@@ -938,6 +937,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
+                    setFixedUpload();
                 }
 
                 @Override
@@ -965,7 +965,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     MainActivity.allowDeviceOverwrite = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
-                    setFixedUpload();
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
                     notifyDeviceNeedsOverwrite();
@@ -975,6 +974,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
+                    setFixedUpload();
                 }
 
                 @Override
@@ -1004,7 +1004,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceIdOverwriteInProgress = true;
                     deviceIsVerified = true;
                     verificationInProgress = false;
-                    setFixedUpload();
                     deviceConnState = State.CONNECTED;
                     deviceManager.onConnectDeviceValid();
                     readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
@@ -1012,6 +1011,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
                     sendConnectedNotification();
                     getSupportedPids(); //Get supported pids once verified
+                    setFixedUpload();
                 }
 
                 @Override
