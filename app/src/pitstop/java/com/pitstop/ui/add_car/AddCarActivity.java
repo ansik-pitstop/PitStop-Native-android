@@ -50,6 +50,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG,"onServiceConnected() name: "+name.toString());
+
+            //Set this for parent class which references auto connect service, this should be restructed later
+            setAutoConnectService(((BluetoothAutoConnectService.BluetoothBinder)service)
+                    .getService());
+
             bluetoothConnectionObservable = ((BluetoothAutoConnectService.BluetoothBinder)service)
                     .getService();
             if (currentFragment == deviceSearchFragment)
