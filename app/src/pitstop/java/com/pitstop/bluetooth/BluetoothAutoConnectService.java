@@ -1162,6 +1162,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         boolean deviceIdMissing = (pidPackage.deviceId == null
                 || pidPackage.deviceId.isEmpty());
 
+
+        if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
+            currentDeviceId = pidPackage.deviceId;
+        }
+
+        //set pid device id if we got it in parameter data but not here
+        if (deviceIdMissing && readyDevice != null && readyDevice.getScannerId() != null
+                && !readyDevice.getScannerId().isEmpty()){
+            pidPackage.deviceId = readyDevice.getScannerId();
+            currentDeviceId = readyDevice.getScannerId();
+            deviceIdMissing = false;
+        }
+
         //Set device id if we didn't retrieve it from parameterData() and we have it here
         if (readyDevice != null && readyDevice.getScannerId().isEmpty()
                 && !deviceIdMissing){
@@ -1210,14 +1223,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
             Log.i(TAG, "No pids returned pidPackage:"+pidPackage.toString());
             return;
-        }
-
-        if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
-            currentDeviceId = pidPackage.deviceId;
-        }
-        else if (readyDevice != null && readyDevice.getScannerId() != null
-                && !readyDevice.getScannerId().isEmpty()){
-            currentDeviceId = readyDevice.getScannerId();
         }
 
         // if trip id is different, start a new trip
