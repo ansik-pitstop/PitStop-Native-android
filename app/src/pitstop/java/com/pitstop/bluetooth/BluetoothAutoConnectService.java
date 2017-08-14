@@ -114,7 +114,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private GlobalApplication application;
 
-    private boolean isGettingVin = false;
     private boolean gettingPIDs = false;
     private boolean gettingPID = false;
     private String deviceConnState = State.DISCONNECTED;
@@ -230,6 +229,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
+        Runnable periodicGetSupportedPidsRunnable = new Runnable() { // start background search
+            @Override
+            public void run() { // this is for auto connect for bluetooth classic
+                if(deviceConnState.equals(State.CONNECTED)) {
+                    Log.d(TAG, "Running periodic getSupportedPids()");
+                    getSupportedPids(); // periodic scan
+                }
+                handler.postDelayed(this, 60000); //Evert 5 minutes
+            }
+        };
+
         //Periodically set fixed upload, temporary solution while queue for set parameters isn't implemented yet
         Runnable periodicSetFixedUploadRunnable = new Runnable() {
             @Override
@@ -273,6 +283,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         };
 
         handler.post(periodScanRunnable);
+        handler.post(periodicGetSupportedPidsRunnable);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
         handler.postDelayed(periodicSetFixedUploadRunnable, 10000);
@@ -926,6 +937,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
+                    getSupportedPids(); //Get supported pids once verified
                 }
 
                 @Override
@@ -962,6 +974,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
                             ,parameterPackage.deviceId);
                     sendConnectedNotification();
+                    getSupportedPids(); //Get supported pids once verified
                 }
 
                 @Override
@@ -998,6 +1011,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             ,parameterPackage.deviceId);
                     notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
                     sendConnectedNotification();
+                    getSupportedPids(); //Get supported pids once verified
                 }
 
                 @Override
@@ -1241,20 +1255,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime, pidPackage.deviceId));
                 executeTripRequests();
             }
-        }
-
-        counter++;
-
-        if(counter==20){
-            if(!isGettingVin) {
-                getSupportedPids();
-            }
-        }
-        if(counter % 500 == 0){
-            getDTCs();
-        }
-        if(counter == 2000){
-            counter = 1;
         }
     }
 
