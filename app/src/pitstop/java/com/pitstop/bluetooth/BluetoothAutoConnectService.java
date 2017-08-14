@@ -395,6 +395,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Get RTC and mileage once connected
             getObdDeviceTime();
 
+            deviceManager.requestData(); //Request data upon connecting
+
         } else if (state == IBluetoothCommunicator.DISCONNECTED){
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
@@ -1171,9 +1173,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        deviceManager.requestData();
+
         boolean deviceIdMissing = (pidPackage.deviceId == null
                 || pidPackage.deviceId.isEmpty());
-
 
         if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
             currentDeviceId = pidPackage.deviceId;
@@ -1198,66 +1201,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     , true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
             pendingPidPackages.add(pidPackage);
+
             return;
         }
 
-        //Check if its a recursive call
-        if (!processedPidPackages.contains(pidPackage) && pendingPidPackages.size() > 0){
-            LogUtils.debugLogD(TAG, "Device is verified" +
-                    ", going through pid pending list, size: " +pendingPidPackages.size()
-                    , true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-            //Not a recursive call, go throgh pending pid packages recursively
-            for (PidPackage p: pendingPidPackages){
-
-                //Set device id if it is is missing
-                if (p.deviceId == null || p.deviceId.isEmpty()){
-                    //pidPackage must have device id otherwise we would've returned
-                    p.deviceId = pidPackage.deviceId;
-                }
-
-                processedPidPackages.add(p);
-                pidData(p);
+        for (PidPackage p: pendingPidPackages){
+            if (p.deviceId == null || p.deviceId.isEmpty()){
+                //pidPackage must have device id otherwise we would've returned
+                p.deviceId = pidPackage.deviceId;
             }
 
-            pendingPidPackages.removeAll(processedPidPackages);
-            LogUtils.debugLogD(TAG, "Pid pending list size after removal: "+pendingPidPackages.size()
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        }
+            //Send pid data through to server
+            Pid pidDataObject = getPidDataObject(pidPackage);
 
-        //Send pid data through to server
-        Pid pidDataObject = getPidDataObject(pidPackage);
-
-        if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
-            localPid.createPIDData(pidDataObject);
-        }
-
-        if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-            sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
-        }
-
-        deviceManager.requestData();
-
-        if (pidPackage.pids == null || pidPackage.pids.size() == 0) {
-            Log.i(TAG, "No pids returned pidPackage:"+pidPackage.toString());
-            return;
-        }
-
-        // if trip id is different, start a new trip
-        if(!isConnectedTo215() && pidPackage.tripId != null && !pidPackage.tripId.isEmpty() && !pidPackage.tripId.equals("0")
-                && carAdapter.getCarByScanner(pidPackage.deviceId) != null) {
-            int newTripId = Integer.valueOf(pidPackage.tripId);
-            if(newTripId != lastDeviceTripId) {
-                lastDeviceTripId = newTripId;
-                sharedPreferences.edit().putInt(pfDeviceTripId, newTripId).apply();
-
-                if(lastData != null) {
-                    sendPidDataResult4ToServer(lastData);
-                }
-                tripRequestQueue.add(new TripStart(lastDeviceTripId, pidPackage.rtcTime, pidPackage.deviceId));
-                executeTripRequests();
+            if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
+                localPid.createPIDData(pidDataObject);
             }
+
+            if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
+                sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
+            }
+
         }
+
+        pendingPidPackages.removeAll(processedPidPackages);
+
     }
 
     private Pid getPidDataObject(PidPackage pidPackage){
