@@ -78,7 +78,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         @Override
         public void onRetry() {
             Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
-
+            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                    ,MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
             if (bluetoothConnectionObservable != null){
                 bluetoothConnectionObservable.requestDeviceSearch(true, true);
             }
@@ -271,6 +272,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAlreadyAdded(Car car){
                         Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_CAR_EXISTS);
                         addingCar = false;
                         if (view == null) return;
 
@@ -281,6 +284,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAddedWithBackendShop(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                         addingCar = false;
                         if (view == null) return;
 
@@ -291,6 +296,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onCarAdded(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
                         addingCar = false;
                         if (view == null) return;
 
@@ -301,6 +308,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
                         addingCar = false;
                         if (view == null) return;
 

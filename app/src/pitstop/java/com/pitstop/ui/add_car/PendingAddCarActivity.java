@@ -92,7 +92,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(ADD_CAR_SCANNER, "");
-        editor.putString(ADD_CAR_MILEAGE, "");
+        editor.putString(ADD_CAR_MILEAGE, "0");
         editor.putString(ADD_CAR_VIN, "");
         editor.apply();
         finish();

@@ -1,11 +1,15 @@
 package com.pitstop.utils;
 
+import android.bluetooth.BluetoothDevice;
+
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 /**
  * Created by Ben Wu on 2016-05-13.
@@ -73,8 +77,7 @@ public class MixpanelHelper {
      * Add Car View / Activity
      */
     public static final String ADD_CAR_BACK = "Back";
-    public static final String ADD_CAR_CAR_EXIST_FOR_CURRENT_USER = "Car already exists for user";
-    public static final String ADD_CAR_CAR_EXIST_FOR_ANOTHER_USER = "Car already exists for another user";
+    public static final String ADD_CAR_CAR_EXISTS = "Car already exists";
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
@@ -113,8 +116,7 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
-    public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
-    public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
+    public static final String ADD_CAR_STEP_SAVE_TO_SERVER = "Saving Car to Server";
 
     /**
      * Timeout alert
@@ -219,10 +221,16 @@ public class MixpanelHelper {
     public static final String BT_TRIP_END_RT_SUCCESS = "Real-Time Trip Start Processed Successfully";
     public static final String BT_TRIP_END_FAILED = "Trip Start Failed To Process";
     public static final String BT_TRIP_END_HT_SUCCESS = "Historical Trip Start Processed Successfully";
+    public static final String BT_TRIP_END_RECEIVED = "Trip End Received";
+    public static final String BT_TRIP_START_RECEIVED = "Trip Start Received";
+    public static final String BT_TRIP_NOT_PROCESSED = "Trip Not Processed";
     public static final String BT_TRIP_END = "Trip End Processing";
+    public static final String BT_FOUND_DEVICES = "Found Bluetooth Devices";
+    public static final String BT_VERIFICATION_ERROR = "Error Verifying Device";
     public static final String BT_DTC_REQUESTED = "Requested DTC";
     public static final String BT_VIN_GOT = "Received VIN";
     public static final String BT_DTC_GOT = "Received DTC";
+    public static final String BT_RTC_GOT = "Received RTC";
     public static final String BT_SYNCING = "Syncing RTC";
     public static final String BT_CONNECTED = "Connected to Verified Device";
     public static final String BT_VERIFYING = "Verifying Device";
@@ -429,35 +437,84 @@ public class MixpanelHelper {
         }
     }
 
-    public void trackBluetoothEvent(String status){
+    public void trackFoundDevices(Map<BluetoothDevice,Short> devices){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(EVENT_BLUETOOTH, BT_FOUND_DEVICES);
+
+            String deviceInfo = "";
+
+            for (Map.Entry<BluetoothDevice,Short> entry: devices.entrySet()){
+
+                String name = entry.getKey().getName();
+                if (name == null) name = "";
+
+                short rssi;
+                if (entry.getValue() == null){
+                    rssi = Short.MIN_VALUE;
+                }
+                else{
+                    rssi = entry.getValue();
+                }
+
+                deviceInfo += "( Name: "+name+", RSSI: "+rssi+" ), ";
+            }
+
+            properties.put("FoundDevices",deviceInfo);
+
+            trackCustom(EVENT_BLUETOOTH, properties);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackBluetoothEvent(String status, boolean deviceVerified, String deviceConnState,
+            long terminalRtcTime){
         try {
             JSONObject properties = new JSONObject();
             properties.put(EVENT_BLUETOOTH, status);
+            properties.put("DeviceVerified",deviceVerified);
+            properties.put("ConnectionState",deviceConnState);
+            properties.put("TerminalRtcTime",terminalRtcTime);
             trackCustom(EVENT_BLUETOOTH, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void trackBluetoothEvent(String status, String scannerName){
+    public void trackBluetoothEvent(String status, String scannerId, boolean deviceVerified
+            , String deviceConnState, long terminalRtcTime){
         try {
-            if (scannerName == null) scannerName = "";
+            if (scannerId == null) scannerId = "";
             JSONObject properties = new JSONObject();
             properties.put(EVENT_BLUETOOTH, status);
-            properties.put("ScannerName",scannerName);
+            properties.put("ScannerId",scannerId);
+            properties.put("DeviceVerified",deviceVerified);
+            properties.put("ConnectionState",deviceConnState);
+            properties.put("TerminalRtcTime",terminalRtcTime);
             trackCustom(EVENT_BLUETOOTH, properties);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void trackBluetoothEvent(String status, String scannerName, String scannerId, String vin){
+    public void trackBluetoothEvent(String status, String scannerId, String data, boolean deviceVerified
+            , String deviceConnState, long terminalRtcTime){
         try {
-            if (scannerName == null) scannerName = "";
+            if (scannerId == null) scannerId = "";
             JSONObject properties = new JSONObject();
             properties.put(EVENT_BLUETOOTH, status);
-            properties.put("ScannerName",scannerName);
-            properties.put("Vin",vin);
+            properties.put("ScannerId",scannerId);
+            if (status.equals(BT_RTC_GOT)){
+                properties.put("Rtc",data);
+            }
+            else{
+                properties.put("Vin",data);
+            }
+            properties.put("DeviceVerified",deviceVerified);
+            properties.put("ConnectionState",deviceConnState);
+            properties.put("TerminalRtcTime",terminalRtcTime);
             trackCustom(EVENT_BLUETOOTH, properties);
         } catch (JSONException e) {
             e.printStackTrace();
