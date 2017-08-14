@@ -439,7 +439,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    private Map<BluetoothDevice, Short> foundDevices = new HashMap<>();
+    private Map<BluetoothDevice, Short> foundDevices = new HashMap<>(); //Devices found by receiver
     private boolean rssiScan = false;
 
     // for classic discovery
