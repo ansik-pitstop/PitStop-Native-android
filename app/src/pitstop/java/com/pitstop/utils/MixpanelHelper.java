@@ -77,8 +77,7 @@ public class MixpanelHelper {
      * Add Car View / Activity
      */
     public static final String ADD_CAR_BACK = "Back";
-    public static final String ADD_CAR_CAR_EXIST_FOR_CURRENT_USER = "Car already exists for user";
-    public static final String ADD_CAR_CAR_EXIST_FOR_ANOTHER_USER = "Car already exists for another user";
+    public static final String ADD_CAR_CAR_EXISTS = "Car already exists";
     public static final String ADD_CAR_BLUETOOTH_RETRY = "Try to connect bluetooth again";
     public static final String ADD_CAR_SCANNER_EXISTS_IN_BACKEND = "Scanner Exists in Backend";
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
@@ -117,8 +116,7 @@ public class MixpanelHelper {
     public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
-    public static final String ADD_CAR_STEP_GET_DTCS = "Getting DTCs";
-    public static final String ADD_CAR_STEP_GET_DTCS_TIMEOUT = "Timeout when getting DTCs";
+    public static final String ADD_CAR_STEP_SAVE_TO_SERVER = "Saving Car to Server";
 
     /**
      * Timeout alert

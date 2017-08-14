@@ -167,7 +167,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     protected void addVehicleClicked(){
         Log.d(TAG,"addVehicleClicked()");
 
-        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_METHOD_MANUAL
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED
                 ,MixpanelHelper.ADD_CAR_VIEW);
         if (presenter != null){
             presenter.addVehicle();
