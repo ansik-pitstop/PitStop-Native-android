@@ -241,7 +241,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         deviceManager.setPidsToSend(supportedPids);
                     }
                 }
-                handler.postDelayed(this, 30000); //Evert 5 minutes
+                handler.postDelayed(this, 300000); //Evert 5 minutes
             }
         };
 
