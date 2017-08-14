@@ -676,7 +676,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
 
         //Set TripInfo deviceId if its not set, but we have it someplace else
-        if (tripInfoPackage.deviceId == null || tripInfoPackage.deviceId.isEmpty()
+        if ((tripInfoPackage.deviceId == null || tripInfoPackage.deviceId.isEmpty())
                 && readyDevice != null && readyDevice.getScannerId() != null
                 && !readyDevice.getScannerId().isEmpty()){
 
@@ -1169,8 +1169,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 || pidPackage.deviceId.isEmpty());
 
         //Set device id if we didn't retrieve it from parameterData() and we have it here
-        if (readyDevice != null && !readyDevice.getScannerId().isEmpty()
-                && readyDevice.getScannerId().isEmpty() && !deviceIdMissing){
+        if (readyDevice != null && readyDevice.getScannerId().isEmpty()
+                && !deviceIdMissing){
             readyDevice.setScannerId(pidPackage.deviceId);
         }
 
