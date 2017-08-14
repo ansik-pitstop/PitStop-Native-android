@@ -501,14 +501,19 @@ public class MixpanelHelper {
         }
     }
 
-    public void trackBluetoothEvent(String status, String scannerId, String vin,boolean deviceVerified
+    public void trackBluetoothEvent(String status, String scannerId, String data, boolean deviceVerified
             , String deviceConnState, long terminalRtcTime){
         try {
             if (scannerId == null) scannerId = "";
             JSONObject properties = new JSONObject();
             properties.put(EVENT_BLUETOOTH, status);
             properties.put("ScannerId",scannerId);
-            properties.put("Vin",vin);
+            if (status.equals(BT_RTC_GOT)){
+                properties.put("Rtc",data);
+            }
+            else{
+                properties.put("Vin",data);
+            }
             properties.put("DeviceVerified",deviceVerified);
             properties.put("ConnectionState",deviceConnState);
             properties.put("TerminalRtcTime",terminalRtcTime);
