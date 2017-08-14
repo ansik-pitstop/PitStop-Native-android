@@ -3,7 +3,6 @@ package com.pitstop.ui.main_activity;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;

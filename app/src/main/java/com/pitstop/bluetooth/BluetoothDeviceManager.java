@@ -293,15 +293,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return deviceInterface.getDeviceName();
     }
 
-    private void trackBluetoothEvent(String event){
-        if (deviceInterface == null){
-            mixpanelHelper.trackBluetoothEvent(event);
-        }
-        else{
-            mixpanelHelper.trackBluetoothEvent(event,deviceInterface.getDeviceName());
-        }
-    }
-
     private boolean nonUrgentScanInProgress = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
@@ -336,6 +327,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        mixpanelHelper.trackFoundDevices(foundDevices);
                         Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
                         mBluetoothAdapter.cancelDiscovery();
                         connectToNextDevice();
@@ -347,13 +339,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 },16000);
             }
 
-
-            if (urgent){
-                trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
-            }
-            else{
-                trackBluetoothEvent(MixpanelHelper.BT_SCAN_NOT_URGENT);
-            }
             return true;
         }
         else{
@@ -454,7 +439,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    private Map<BluetoothDevice, Short> foundDevices = new HashMap<>();
+    private Map<BluetoothDevice, Short> foundDevices = new HashMap<>(); //Devices found by receiver
     private boolean rssiScan = false;
 
     // for classic discovery

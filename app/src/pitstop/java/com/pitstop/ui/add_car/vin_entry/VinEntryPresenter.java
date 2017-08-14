@@ -76,7 +76,8 @@ public class VinEntryPresenter {
                     @Override
                     public void onCarAlreadyAdded(Car car){
                         Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
-                        addingCar = false;
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_CAR_EXISTS);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -87,7 +88,8 @@ public class VinEntryPresenter {
                     @Override
                     public void onCarAddedWithBackendShop(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
-                        addingCar = false;
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -98,7 +100,8 @@ public class VinEntryPresenter {
                     @Override
                     public void onCarAdded(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
-                        addingCar = false;
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -109,7 +112,8 @@ public class VinEntryPresenter {
                     @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
-                        addingCar = false;
+                        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
+                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);

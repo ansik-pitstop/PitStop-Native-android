@@ -130,7 +130,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"searchForVehicleClicked()");
 
         if (presenter == null) return;
-        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_YES_HARDWARE_ADD_VEHICLE
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SEARCH_TAPPED
                 , MixpanelHelper.ADD_CAR_VIEW);
         presenter.startSearch();
     }
