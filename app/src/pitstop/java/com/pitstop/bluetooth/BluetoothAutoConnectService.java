@@ -591,10 +591,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
-            currentDeviceId = responsePackageInfo.deviceId;
-            saveSyncedDevice(responsePackageInfo.deviceId);
-        }
+            if (responsePackageInfo.deviceId != null && !responsePackageInfo.deviceId.isEmpty()){
+                currentDeviceId = responsePackageInfo.deviceId;
+                saveSyncedDevice(responsePackageInfo.deviceId);
+            }
 
+        }
         Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
     }
 
@@ -671,6 +673,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             LogUtils.debugLogD(TAG, "Trip start received: " + tripInfoPackage.toString()
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
+        }
+
+        //Set TripInfo deviceId if its not set, but we have it someplace else
+        if (tripInfoPackage.deviceId == null || tripInfoPackage.deviceId.isEmpty()
+                && readyDevice != null && readyDevice.getScannerId() != null
+                && !readyDevice.getScannerId().isEmpty()){
+
+            tripInfoPackage.deviceId = readyDevice.getScannerId();
+
         }
 
         /*Code for handling 212 trip logic, moved to private method since its being
@@ -1157,6 +1168,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         boolean deviceIdMissing = (pidPackage.deviceId == null
                 || pidPackage.deviceId.isEmpty());
 
+        //Set device id if we didn't retrieve it from parameterData() and we have it here
+        if (readyDevice != null && !readyDevice.getScannerId().isEmpty()
+                && readyDevice.getScannerId().isEmpty() && !deviceIdMissing){
+            readyDevice.setScannerId(pidPackage.deviceId);
+        }
+
         if (!deviceIsVerified || deviceIdMissing){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified " +
                     "OR device id is missing.", true, DebugMessage.TYPE_BLUETOOTH
@@ -1203,6 +1220,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
             currentDeviceId = pidPackage.deviceId;
+        }
+        else if (readyDevice != null && readyDevice.getScannerId() != null
+                && !readyDevice.getScannerId().isEmpty()){
+            currentDeviceId = readyDevice.getScannerId();
         }
 
         // if trip id is different, start a new trip
