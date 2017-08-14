@@ -1,11 +1,15 @@
 package com.pitstop.utils;
 
+import android.bluetooth.BluetoothDevice;
+
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 /**
  * Created by Ben Wu on 2016-05-13.
@@ -223,6 +227,8 @@ public class MixpanelHelper {
     public static final String BT_TRIP_START_RECEIVED = "Trip Start Received";
     public static final String BT_TRIP_NOT_PROCESSED = "Trip Not Processed";
     public static final String BT_TRIP_END = "Trip End Processing";
+    public static final String BT_FOUND_DEVICES = "Found Bluetooth Devices";
+    public static final String BT_VERIFICATION_ERROR = "Error Verifying Device";
     public static final String BT_DTC_REQUESTED = "Requested DTC";
     public static final String BT_VIN_GOT = "Received VIN";
     public static final String BT_DTC_GOT = "Received DTC";
@@ -428,6 +434,38 @@ public class MixpanelHelper {
             JSONObject properties = new JSONObject();
             properties.put(UNRECOGNIZED_MODULE_STATUS, status);
             trackCustom(EVENT_PAIR_UNRECOGNIZED_MODULE, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackFoundDevices(Map<BluetoothDevice,Short> devices){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(EVENT_BLUETOOTH, BT_FOUND_DEVICES);
+
+            String deviceInfo = "";
+
+            for (Map.Entry<BluetoothDevice,Short> entry: devices.entrySet()){
+
+                String name = entry.getKey().getName();
+                if (name == null) name = "";
+
+                short rssi;
+                if (entry.getValue() == null){
+                    rssi = Short.MIN_VALUE;
+                }
+                else{
+                    rssi = entry.getValue();
+                }
+
+                deviceInfo += "( Name: "+name+", RSSI: "+rssi+" ), ";
+            }
+
+            properties.put("FoundDevices",deviceInfo);
+
+            trackCustom(EVENT_BLUETOOTH, properties);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

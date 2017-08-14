@@ -327,6 +327,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        mixpanelHelper.trackFoundDevices(foundDevices);
                         Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
                         mBluetoothAdapter.cancelDiscovery();
                         connectToNextDevice();
