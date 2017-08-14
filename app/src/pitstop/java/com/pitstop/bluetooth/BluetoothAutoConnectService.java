@@ -388,6 +388,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+
             /**
              * Set device connection state for connected car indicator,
              * once bluetooth connection is lost.
@@ -396,25 +397,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Only notify that device disonnected if a verified connection was established previously
             if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
+
+                if (currentDeviceId != null && lastData != null && !localPidResult4.getAllPidDataEntries().isEmpty()) {
+                    sendPidDataResult4ToServer(lastData);
+                }
+
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
                 cancelConnectedNotification();
             }
-
-            /**
-             * Save current trip data when bluetooth gets disconnected from device
-             * @see #processResultFourData(DataPackageInfo)
-             */
-
-            if (currentDeviceId != null && lastData != null && !localPidResult4.getAllPidDataEntries().isEmpty()) {
-                sendPidDataResult4ToServer(lastData);
-            }
-
+            currentDeviceId = null;
         }
-
-        Log.i(TAG, "Calling service callbacks to getBluetooth State - auto connect service");
-
     }
 
     private List<Observer> observerList = new ArrayList<>();
