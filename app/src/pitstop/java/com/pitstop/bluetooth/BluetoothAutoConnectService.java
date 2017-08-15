@@ -39,9 +39,6 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalPidResult4Adapter;
-import com.pitstop.database.LocalScannerAdapter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -52,13 +49,10 @@ import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.models.Dtc;
-import com.pitstop.models.Pid;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -116,37 +110,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String currentDeviceId = null;
     private DataPackageInfo lastData = null;
 
-    private int counter = 1;
-    private int status5counter = 0;
-
     private NetworkHelper networkHelper;
     private MixpanelHelper mixpanelHelper;
 
-    private String[] pids = new String[0];
-    private int pidI = 0;
-
-    private LocalPidAdapter localPid;
-    private LocalPidResult4Adapter localPidResult4;
-    private static final int PID_CHUNK_SIZE = 15;
-
-    private String lastDataNum = "";
-
     private SharedPreferences sharedPreferences;
     private LocalCarAdapter carAdapter;
-    private LocalScannerAdapter scannerAdapter;
-
     private UseCaseComponent useCaseComponent;
-
-    private ArrayList<Pid> pidsWithNoTripId = new ArrayList<>();
 
     private int lastDeviceTripId = -1; // from device
     private final String pfDeviceTripId = "lastDeviceTripId";
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
-    private int lastTripMileage = 0;
     private final String pfTripMileage = "lastTripMileage";
-
-    private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
 
     // queue for sending trip flags
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
@@ -160,6 +135,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
     private PidDataHandler pidDataHandler;
+    DtcDataHandler dtcDataHandler;
 
     /**
      * for periodic bluetooth scans
@@ -200,22 +176,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager.setBluetoothDataListener(this);
         }
 
-        localPid = new LocalPidAdapter(application);
-        localPidResult4 = new LocalPidResult4Adapter(application);
         carAdapter = new LocalCarAdapter(application);
-        scannerAdapter = new LocalScannerAdapter(application);
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         lastTripId = sharedPreferences.getInt(pfTripId, -1);
         lastDeviceTripId = sharedPreferences.getInt(pfDeviceTripId, -1);
-        lastTripMileage = sharedPreferences.getInt(pfTripMileage, 0);
 
         initPidPriorityList();
 
         registerBroadcastReceiver();
 
         this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
+        this.dtcDataHandler = new DtcDataHandler(this,getApplicationContext());
 
         Runnable periodScanRunnable = new Runnable() { // start background search
             @Override
@@ -1139,9 +1111,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     //Remove data that was acquired from the wrong device during the VIN verification process
     private void clearInvalidDeviceData(){
-        pendingPidPackages.clear();
+        pidDataHandler.clearPendingData();
         pendingTripInfoPackages.clear();
-        pendingDtcPackages.clear();
+        dtcDataHandler.clearPendingData();
     }
 
     //Queue up the pid packages that arrive before VIN is verified
@@ -1156,54 +1128,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataHandler.handlePidData(pidPackage);
     }
 
-    private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
-    private List<DtcPackage> processedDtcPackages = new ArrayList<>();
-
     /**
      * Process dtc data from obd
      * @param dtcPackage
      */
     @Override
     public void dtcData(DtcPackage dtcPackage) {
-        LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString(), true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        boolean deviceIdMissing = dtcPackage.deviceId == null
-                || dtcPackage.deviceId.isEmpty();
-
-        if (!deviceIsVerified || deviceIdMissing){
-            LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            pendingDtcPackages.add(dtcPackage);
-            return;
-        }
-
-        if (!pendingDtcPackages.contains(dtcPackage) && pendingDtcPackages.size() > 0){
-            LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
-                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-            for (DtcPackage p: pendingDtcPackages){
-
-                //Set device id if it is missing
-                if (p.deviceId == null || p.deviceId.isEmpty()){
-
-                    //Must be present otherwise we would've returned due to deviceIdMissing flag
-                    p.deviceId = dtcPackage.deviceId;
-                }
-
-                processedDtcPackages.add(p);
-                dtcData(p);
-            }
-            pendingDtcPackages.removeAll(processedDtcPackages);
-            LogUtils.debugLogD(TAG, "Pending dtc packages list length after removal: "
-                    +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-        }
-
-        if(dtcPackage.dtcNumber > 0) {
-            saveDtcs(dtcPackage);
-            getFreezeData();
-        }
-
+        LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
+                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        dtcDataHandler.handleDtcData(dtcPackage);
         notifyDtcData(dtcPackage);
     }
 
@@ -1251,83 +1184,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void scanFinished() {
 
-        Log.d(TAG,"scanFinished(), deviceConnState: "+deviceConnState
-                +", deviceManager.moreDevicesLeft?"+deviceManager.moreDevicesLeft());
+        Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
+                + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
 
-        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()){
+        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()) {
             deviceConnState = State.DISCONNECTED;
             notifyDeviceDisconnected();
         }
 
-    }
-
-    private void saveDtcs(final DtcPackage dtcPackage) {
-        Car car = carAdapter.getCarByScanner(dtcPackage.deviceId);
-
-        if(NetworkHelper.isConnected(this)) {
-            if (car != null) {
-                networkHelper.getCarsById(car.getId(), new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            try {
-                                Car car = Car.createCar(response);
-
-                                HashSet<String> dtcNames = new HashSet<>();
-                                for (CarIssue issue : car.getActiveIssues()) {
-                                    dtcNames.add(issue.getItem());
-                                }
-
-                                List<String> dtcList = new ArrayList<String>();
-                                for (String dtc: dtcPackage.dtcs){
-                                    dtcList.add(dtc);
-                                }
-                                List<String> toRemove = new ArrayList<>();
-                                for (String dtc: dtcList){
-                                    if (dtcNames.contains(dtc)){
-                                        toRemove.add(dtc);
-                                    }
-                                }
-                                dtcList.removeAll(toRemove);
-
-                                for (final String dtc: dtcList) {
-                                    final int dtcListSize = dtcList.size();
-                                    final List<String> dtcListReference = dtcList;
-
-                                    networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                            dtcPackage.rtcTime, dtc, dtcPackage.isPending,
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    Log.i(TAG, "DTC added: " + dtc);
-
-                                                    //INCLUDE THIS INSIDE USE CASE WHEN REFACTORING
-                                                    //Notify that dtcs have been updated once
-                                                    // the last one has been sent successfully
-                                                    if (dtcListReference.indexOf(dtc)
-                                                            == dtcListReference.size()-1){
-
-                                                        notifyEventBus(new EventTypeImpl(
-                                                                EventType.EVENT_DTC_NEW));
-                                                    }
-                                                }
-                                            });
-                                }
-                                carAdapter.updateCar(car);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-            }
-        } else if(car != null) {
-            Log.i(TAG, "Saving dtcs offline");
-            for (final String dtc : dtcPackage.dtcs) {
-                dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dtcPackage.rtcTime,
-                        dtc, dtcPackage.isPending));
-            }
-        }
     }
 
     private void notifyEventBus(EventType eventType){
@@ -1610,25 +1474,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
-        executeTripRequests();
-        for (final Dtc dtc : dtcsToSend) {
-            networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
-                    dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(),
-                    new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            Log.i(TAG, "DTC added: " + dtc);
-
-                            //INCLUDE THIS IN USE CASE IN LATER REFACTOR
-                            //Send notification that dtcs have been updated
-                            // after last one has been sent
-                            if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
-                                notifyEventBus(new EventTypeImpl(EventType
-                                        .EVENT_DTC_NEW));
-                            }
-                        }
-                    });
-        }
+//        TODO
+//        executeTripRequests();
+//        for (final Dtc dtc : dtcsToSend) {
+//            networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
+//                    dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(),
+//                    new RequestCallback() {
+//                        @Override
+//                        public void done(String response, RequestError requestError) {
+//                            Log.i(TAG, "DTC added: " + dtc);
+//
+//                            //INCLUDE THIS IN USE CASE IN LATER REFACTOR
+//                            //Send notification that dtcs have been updated
+//                            // after last one has been sent
+//                            if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
+//                                notifyEventBus(new EventTypeImpl(EventType
+//                                        .EVENT_DTC_NEW));
+//                            }
+//                        }
+//                    });
+//        }
     }
 
     public int getLastTripId() {

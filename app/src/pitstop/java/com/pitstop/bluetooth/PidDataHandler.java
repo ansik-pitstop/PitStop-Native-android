@@ -55,7 +55,6 @@ public class PidDataHandler {
     private File databasePath;
 
     private boolean isSendingPids = false;
-    private boolean isSendingTripRequest = false;
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
 
@@ -76,6 +75,10 @@ public class PidDataHandler {
         this.databasePath = context.getDatabasePath(LocalDatabaseHelper.DATABASE_NAME);
         this.lastTripId = sharedPreferences.getInt(pfTripId, -1);
 
+    }
+
+    public void clearPendingData(){
+        pendingPidPackages.clear();
     }
 
     public void handlePidData(PidPackage pidPackage){
