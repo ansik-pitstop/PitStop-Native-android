@@ -1,23 +1,18 @@
 package com.pitstop.bluetooth;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
@@ -29,7 +24,6 @@ import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -42,8 +36,6 @@ import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestCallback;
@@ -62,8 +54,6 @@ import com.pitstop.utils.NetworkHelper;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,7 +62,8 @@ import java.util.List;
  * Created by Paul Soladoye on 11/04/2016.
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
-        , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothMixpanelTracker {
+        , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothMixpanelTracker
+        , DeviceVerificationObserver{
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
     private static final EventSource EVENT_SOURCE
@@ -87,8 +78,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private GlobalApplication application;
 
-    private boolean gettingPIDs = false;
-    private boolean gettingPID = false;
     private String deviceConnState = State.DISCONNECTED;
 
     public static int notifID = 1360119;
@@ -101,11 +90,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private LocalCarAdapter carAdapter;
     private UseCaseComponent useCaseComponent;
 
-    private final String pfDeviceTripId = "lastDeviceTripId";
     private int lastTripId = -1; // from backend
 
     // queue for sending trip flags
-    private boolean isSendingTripRequest = false;
     private boolean deviceIsVerified = false;
     private boolean ignoreVerification = false; //Whether to begin verifying device by VIN or not
     private ReadyDevice readyDevice = null;
@@ -117,6 +104,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private PidDataHandler pidDataHandler;
     private DtcDataHandler dtcDataHandler;
     private TripDataHandler tripDataHandler;
+    private ParameterDataHandler parameterDataHandler;
 
     /**
      * for periodic bluetooth scans
@@ -167,6 +155,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
         this.dtcDataHandler = new DtcDataHandler(this,getApplicationContext());
         this.tripDataHandler = new TripDataHandler(this,this,getApplicationContext(), handler);
+        this.parameterDataHandler = new ParameterDataHandler(this,this,this);
 
         Runnable periodScanRunnable = new Runnable() { // start background search
             @Override
@@ -256,43 +245,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
-
-    private void sendConnectedNotification(){
-
-        //show a custom notification
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
-
-        final Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
-
-        String carName = connectedCar == null ? "Click here to find out more" :
-                connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setLargeIcon(icon)
-                        .setColor(getResources().getColor(R.color.highlight))
-                        .setContentTitle("Car is Connected")
-                        .setContentText(carName);
-
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-        stackBuilder.addParentStack(MainActivity.class);
-
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(notifID, mBuilder.build());
     }
 
     private void cancelConnectedNotification(){
@@ -480,6 +432,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyVin(String vin) {
+        if (!vinRequested) return;
+
         vinRequested = false;
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
@@ -563,317 +517,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
-        if (parameterPackage == null) return;
-
-        //Change null to empty
-        if (parameterPackage.value == null){
-            parameterPackage.value = "";
-        }
-
-        final String TAG = getClass().getSimpleName() + ".parameterData()";
-
-        LogUtils.debugLogD(TAG, "parameterData() parameterPackage: " + parameterPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        if (parameterPackage.paramType == ParameterPackage.ParamType.VIN){
-            trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT,parameterPackage.deviceId
-                    ,parameterPackage.value);
-        }
-        else if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME){
-            trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,parameterPackage.deviceId
-                    ,parameterPackage.value);
-        }
-
-        if (parameterPackage.paramType == ParameterPackage.ParamType.VIN && vinRequested){
-            notifyVin(parameterPackage.value);
-        }
-
-        //Get terminal RTC time
-        if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
-                && terminalRTCTime == -1 && !ignoreVerification){
-            terminalRTCTime = Long.valueOf(parameterPackage.value);
-
-            //Check if device needs to sync rtc time
-            final long YEAR = 32000000;
-            long currentTime = System.currentTimeMillis() / 1000;
-            long deviceRtcTime = Long.valueOf(parameterPackage.value);
-            long diff = currentTime - deviceRtcTime;
-
-            //Sync if difference is greater than a year
-            if (diff > YEAR){
-                notifySyncingDevice();
-                syncObdDevice();
-            }
-            trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
-        }
-
-        //If adding car connect to first recognized device
-        else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && ignoreVerification && !deviceIsVerified){
-            LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            deviceIsVerified = true;
-            verificationInProgress = false;
-            deviceConnState = State.CONNECTED;
-            readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
-                    ,parameterPackage.deviceId);
-            notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
-                    ,parameterPackage.deviceId);
-            getSupportedPids();
-        }
-        //Check to see if VIN is correct, unless adding a car then no comparison is needed
-        else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !ignoreVerification && !verificationInProgress && !deviceConnState.equals(State.DISCONNECTED)
-                && !deviceIsVerified){
-
-            //Device verification starting
-            notifyVerifyingDevice();
-
-            verificationInProgress = true;
-            deviceConnState = State.VERIFYING;
-
-            useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
-                @Override
-                public void onSuccess() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    deviceIsVerified = true;
-                    verificationInProgress = false;
-                    deviceManager.onConnectDeviceValid();
-                    deviceConnState = State.CONNECTED;
-                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
-                            ,parameterPackage.deviceId);
-                    notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
-                            ,parameterPackage.deviceId);
-                    sendConnectedNotification();
-                    getSupportedPids(); //Get supported pids once verified
-                }
-
-                @Override
-                public void onDeviceBrokenAndCarMissingScanner() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
-                                    +"ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    MainActivity.allowDeviceOverwrite = true;
-                    deviceIsVerified = true;
-                    verificationInProgress = false;
-                    deviceConnState = State.CONNECTED;
-                    deviceManager.onConnectDeviceValid();
-                    notifyDeviceNeedsOverwrite();
-                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
-                            ,parameterPackage.deviceId);
-                    notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
-                            ,parameterPackage.deviceId);
-                    sendConnectedNotification();
-                    getSupportedPids(); //Get supported pids once verified
-                }
-
-                @Override
-                public void onDeviceBrokenAndCarHasScanner(String scannerId) {
-                    LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
-                            ", overwriting scanner id to "+scannerId+", ignoreVerification: "
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    trackBluetoothEvent(MixpanelHelper.BT_DEVICE_BROKEN);
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    setDeviceNameAndId(scannerId);
-                    deviceIdOverwriteInProgress = true;
-                    deviceIsVerified = true;
-                    verificationInProgress = false;
-                    deviceConnState = State.CONNECTED;
-                    deviceManager.onConnectDeviceValid();
-                    readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
-                            ,parameterPackage.deviceId);
-                    notifyDeviceReady(parameterPackage.value,scannerId, scannerId);
-                    sendConnectedNotification();
-                    getSupportedPids(); //Get supported pids once verified
-                }
-
-                @Override
-                public void onDeviceInvalid() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid." +
-                                    " ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    deviceIsVerified = false;
-                    verificationInProgress = false;
-
-                    deviceManager.onConnectedDeviceInvalid();
-
-                    if (deviceManager.moreDevicesLeft()){
-                        deviceConnState = State.SEARCHING;
-                        notifySearchingForDevice();
-                    }
-                    else{
-                        deviceConnState = State.DISCONNECTED;
-                        notifyDeviceDisconnected();
-                    }
-
-                }
-
-                @Override
-                public void onDeviceAlreadyActive() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    deviceIsVerified = false;
-                    verificationInProgress = false;
-                    deviceManager.onConnectedDeviceInvalid();
-
-                    if (deviceManager.moreDevicesLeft()){
-                        deviceConnState = State.SEARCHING;
-                        notifySearchingForDevice();
-                    }
-                    else{
-                        deviceConnState = State.DISCONNECTED;
-                        notifyDeviceDisconnected();
-                    }
-
-
-                }
-
-                @Override
-                public void onError(RequestError error) {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                    trackBluetoothEvent(MixpanelHelper.BT_VERIFICATION_ERROR);
-
-                    //ignore result if verification state changed mid use-case execution
-                    if (deviceConnState.equals(State.CONNECTED)){
-                        verificationInProgress = false;
-                        return;
-                    }
-                    //Connected to device mid use-case execution, return
-                    else if (ignoreVerification){
-                        verificationInProgress = false;
-                        if (deviceConnState.equals(State.VERIFYING)){
-                            deviceConnState = State.SEARCHING;
-                        }
-                        return;
-                    }
-
-                    deviceIsVerified = false;
-                    verificationInProgress = false;
-                    deviceManager.onConnectedDeviceInvalid();
-
-                    if (deviceManager.moreDevicesLeft()){
-                        deviceConnState = State.SEARCHING;
-                        notifySearchingForDevice();
-                    }
-                    else{
-                        deviceConnState = State.DISCONNECTED;
-                        notifyDeviceDisconnected();
-                    }
-
-                }
-            });
-
-        }
-
-        if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
-            Log.d(TAG, "parameterData: " + parameterPackage.toString());
-            Log.i(TAG, "Supported pids returned");
-            String[] pids = parameterPackage.value.split(","); // pids returned separated by commas
-            HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
-            StringBuilder sb = new StringBuilder();
-            int pidCount = 0;
-            // go through the priority list and get the first 10 pids that are supported
-            for(String dataType : PID_PRIORITY) {
-                if(pidCount >= 10) {
-                    break;
-                }
-                if(supportedPidsSet.contains(dataType)) {
-                    sb.append(dataType);
-                    sb.append(",");
-                    ++pidCount;
-                }
-            }
-            if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
-                supportedPids = sb.substring(0, sb.length() - 1);
-            } else {
-                supportedPids = DEFAULT_PIDS;
-            }
-            deviceManager.setPidsToSend(supportedPids);
-        }
+        parameterDataHandler.handleParameterData(parameterPackage
+                , terminalRTCTime, ignoreVerification);
     }
 
     //Remove data that was acquired from the wrong device during the VIN verification process
@@ -996,6 +641,54 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    @Override
+    public void onVerificationSuccess() {
+        deviceIsVerified = true;
+        verificationInProgress = false;
+        deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
+        readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                ,parameterPackage.deviceId);
+        notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                ,parameterPackage.deviceId);
+        getSupportedPids();
+    }
+
+    @Override
+    public void onVerificationDeviceBrokenAndCarMissingScanner() {
+        MainActivity.allowDeviceOverwrite = true;
+        deviceIsVerified = true;
+        verificationInProgress = false;
+        deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
+        deviceManager.onConnectDeviceValid();
+        notifyDeviceNeedsOverwrite();
+        readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
+                ,parameterPackage.deviceId);
+        notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
+                ,parameterPackage.deviceId);
+        sendConnectedNotification();
+        getSupportedPids(); //Get supported pids once verified
+    }
+
+    @Override
+    public void onVerificationDeviceBrokenAndCarHasScanner(String scannerId) {
+
+    }
+
+    @Override
+    public void onVerificationDeviceInvalid() {
+
+    }
+
+    @Override
+    public void onVerificationDeviceAlreadyActive() {
+
+    }
+
+    @Override
+    public void onVerificationError() {
+
+    }
+
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
             return BluetoothAutoConnectService.this;
@@ -1115,7 +808,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void getSupportedPids(){ // supported pids
         LogUtils.debugLogI(TAG, "getting supported PIDs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getSupportedPids();
-        gettingPID = true;
     }
 
     /**
