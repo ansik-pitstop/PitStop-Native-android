@@ -39,7 +39,6 @@ import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalPidAdapter;
 import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.database.LocalScannerAdapter;
@@ -74,7 +73,6 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,7 +81,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -162,6 +159,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String supportedPids = "";
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
 
+    private PidDataHandler pidDataHandler;
+
     /**
      * for periodic bluetooth scans
      */
@@ -215,6 +214,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         initPidPriorityList();
 
         registerBroadcastReceiver();
+
+        this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
 
         Runnable periodScanRunnable = new Runnable() { // start background search
             @Override
@@ -395,11 +396,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Only notify that device disonnected if a verified connection was established previously
             if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
-
-                if (currentDeviceId != null && lastData != null && !localPidResult4.getAllPidDataEntries().isEmpty()) {
-                    sendPidDataResult4ToServer(lastData);
-                }
-
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
@@ -1156,111 +1152,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void pidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
         deviceManager.requestData();
-
-        boolean deviceIdMissing = (pidPackage.deviceId == null
-                || pidPackage.deviceId.isEmpty());
-
-        if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
-            currentDeviceId = pidPackage.deviceId;
-        }
-
-        //set pid device id if we got it in parameter data but not here
-        if (deviceIdMissing && readyDevice != null && readyDevice.getScannerId() != null
-                && !readyDevice.getScannerId().isEmpty()){
-            pidPackage.deviceId = readyDevice.getScannerId();
-            currentDeviceId = readyDevice.getScannerId();
-            deviceIdMissing = false;
-        }
-
-        //Set device id if we didn't retrieve it from parameterData() and we have it here
-        if (readyDevice != null && readyDevice.getScannerId().isEmpty()
-                && !deviceIdMissing){
-            readyDevice.setScannerId(pidPackage.deviceId);
-        }
-
-        if (!deviceIsVerified){
-            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
-                    , true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
-            pendingPidPackages.add(pidPackage);
-
-            return;
-        }
-
-        for (PidPackage p: pendingPidPackages){
-            if (p.deviceId == null || p.deviceId.isEmpty()){
-                //pidPackage must have device id otherwise we would've returned
-                p.deviceId = pidPackage.deviceId;
-            }
-
-            //Send pid data through to server
-            Pid pidDataObject = getPidDataObject(pidPackage);
-
-            if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
-                localPid.createPIDData(pidDataObject);
-            }
-
-            if(localPid.getPidDataEntryCount() >= PID_CHUNK_SIZE && localPid.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-                sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
-            }
-
-        }
-
-        pendingPidPackages.removeAll(processedPidPackages);
-
-    }
-
-    private Pid getPidDataObject(PidPackage pidPackage){
-
-        Pid pidDataObject = new Pid();
-        JSONArray pids = new JSONArray();
-
-        Car car = carAdapter.getCarByScanner(pidPackage.deviceId);
-
-        double mileage;
-        double calculatedMileage;
-
-        if(pidPackage.tripMileage != null && !pidPackage.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(pidPackage.tripMileage) / 1000;
-            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-        } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(lastData.tripMileage)/1000;
-            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-        } else {
-            mileage = 0;
-            calculatedMileage = 0;
-        }
-
-        pidDataObject.setMileage(mileage); // trip mileage from device
-        pidDataObject.setCalculatedMileage(calculatedMileage);
-        pidDataObject.setDataNumber(lastDataNum == null ? "" : lastDataNum);
-        pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
-        pidDataObject.setRtcTime(pidPackage.rtcTime);
-        pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
-
-        StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, String> pidEntry : pidPackage.pids.entrySet()) {
-            sb.append(pidEntry.getKey());
-            sb.append(": ");
-            sb.append(pidEntry.getValue());
-            sb.append(" / ");
-            try {
-                JSONObject pid = new JSONObject();
-                pid.put("id", pidEntry.getKey());
-                pid.put("data", pidEntry.getValue());
-                pids.put(pid);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Log.d(TAG, "PIDs received: " + sb.toString());
-
-        pidDataObject.setPids(pids.toString());
-
-        return pidDataObject;
+        pidDataHandler.handlePidData(pidPackage);
     }
 
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
@@ -1689,74 +1582,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private boolean isSendingPids = false;
-
-    private void sendPidDataToServer(final String rtcTime, final String deviceId, final String tripId) {
-        if(isSendingPids) {
-            Log.i(TAG, "Already sending pids");
-            return;
-        }
-        isSendingPids = true;
-        Log.i(TAG, "sending PID data");
-        List<Pid> pidDataEntries = localPid.getAllPidDataEntries();
-
-        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
-        JSONArray[] pidArrays = new JSONArray[chunks];
-
-        try {
-            for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
-                JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
-                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
-                        continue;
-                    }
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                    jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripIdRaw", pidDataObject.getTripId());
-                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                    pidArray.put(jsonObject);
-                }
-                pidArrays[chunkNumber] = pidArray;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if(lastTripId != -1) {
-            for(JSONArray pids : pidArrays) {
-                if(pids.length() == 0) {
-                    isSendingPids = false;
-                    continue;
-                }
-                networkHelper.savePids(lastTripId, deviceId, pids,
-                        new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                isSendingPids = false;
-                                if (requestError == null) {
-                                    Log.i(TAG, "PIDS saved");
-                                    localPid.deleteAllPidDataEntries();
-                                } else {
-                                    Log.e(TAG, "save pid error: " + requestError.getMessage());
-                                    if (getDatabasePath(LocalDatabaseHelper.DATABASE_NAME).length() > 10000000L) { // delete pids if db size > 10MB
-                                        localPid.deleteAllPidDataEntries();
-                                        localPidResult4.deleteAllPidDataEntries();
-                                    }
-                                }
-                            }
-                        });
-            }
-        } else {
-            isSendingPids = false;
-            tripRequestQueue.add(new TripStart(Integer.parseInt(tripId), rtcTime, deviceId));
-            executeTripRequests();
-        }
-    }
-
     @Override
     public void onBluetoothOn() {
         if (deviceManager != null) {
@@ -1786,9 +1611,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
         executeTripRequests();
-        if (lastData != null) {
-            sendPidDataResult4ToServer(lastData);
-        }
         for (final Dtc dtc : dtcsToSend) {
             networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
                     dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(),
@@ -1806,76 +1628,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             }
                         }
                     });
-        }
-    }
-
-    /**
-     * Send pid data on result 4 to server on 50 data points received
-     *
-     * @param data
-     */
-    public void sendPidDataResult4ToServer(DataPackageInfo data) { // TODO: Replace all usages with sendPidDataToServer
-        if(isSendingPids) {
-            Log.i(TAG, "Already sending pids");
-            return;
-        }
-        isSendingPids = true;
-        Log.i(TAG, "sending PID result 4 data");
-        List<Pid> pidDataEntries = localPidResult4.getAllPidDataEntries();
-
-        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
-        JSONArray[] pidArrays = new JSONArray[chunks];
-
-        try {
-            for (int chunkNumber = 0; chunkNumber < chunks; chunkNumber++) {
-                JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
-                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
-                        continue;
-                    }
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                    jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripId", pidDataObject.getTripId());
-                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                    pidArray.put(jsonObject);
-                }
-                pidArrays[chunkNumber] = pidArray;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (lastTripId != -1) {
-            for (JSONArray pids : pidArrays) {
-                if (pids.length() == 0) {
-                    isSendingPids = false;
-                    continue;
-                }
-                networkHelper.savePids(lastTripId, currentDeviceId, pids,
-                        new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null) {
-                                    Log.i(TAG, "PIDS result 4 saved");
-                                    localPidResult4.deleteAllPidDataEntries();
-                                } else {
-                                    Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
-                                    if (getDatabasePath(LocalDatabaseHelper.DATABASE_NAME).length() > 10000000L) { // delete pids if db size > 10MB
-                                        localPidResult4.deleteAllPidDataEntries();
-                                    }
-                                }
-                                isSendingPids = false;
-                            }
-                        });
-            }
-        } else {
-            isSendingPids = false;
-            tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, currentDeviceId));
-            executeTripRequests();
         }
     }
 
