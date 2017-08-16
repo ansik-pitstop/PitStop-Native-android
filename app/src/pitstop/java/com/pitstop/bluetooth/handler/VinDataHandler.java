@@ -50,7 +50,7 @@ public class VinDataHandler{
         if (ignoreVerification && !deviceIsVerified){
             LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            deviceVerificationObserver.onVerificationSuccess(vin,deviceId);
+            deviceVerificationObserver.onVerificationSuccess(vin);
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(!ignoreVerification && !verificationInProgress && !deviceIsVerified){
@@ -67,7 +67,7 @@ public class VinDataHandler{
                                     +ignoreVerification
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     verificationInProgress = false;
-                    deviceVerificationObserver.onVerificationSuccess(vin,deviceId);
+                    deviceVerificationObserver.onVerificationSuccess(vin);
                 }
 
                 @Override
@@ -77,8 +77,7 @@ public class VinDataHandler{
                                     +ignoreVerification
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     verificationInProgress = false;
-                    deviceVerificationObserver.onVerificationDeviceBrokenAndCarMissingScanner(
-                            vin,deviceId);
+                    deviceVerificationObserver.onVerificationDeviceBrokenAndCarMissingScanner(vin);
                 }
 
                 @Override

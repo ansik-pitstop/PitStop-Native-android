@@ -5,8 +5,8 @@ package com.pitstop.observer;
  */
 
 public interface DeviceVerificationObserver {
-    void onVerificationSuccess(String vin, String deviceId);
-    void onVerificationDeviceBrokenAndCarMissingScanner(String vin, String deviceId);
+    void onVerificationSuccess(String vin);
+    void onVerificationDeviceBrokenAndCarMissingScanner(String vin);
     void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId);
     void onVerificationDeviceInvalid();
     void onVerificationDeviceAlreadyActive();

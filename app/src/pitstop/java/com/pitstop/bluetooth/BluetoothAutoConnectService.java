@@ -681,8 +681,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void onVerificationSuccess(String vin, String deviceId) {
-        Log.d(TAG,"onVerificationSuccess() vin: "+vin+", deviceId:"+deviceId);
+    public void onVerificationSuccess(String vin) {
+        Log.d(TAG,"onVerificationSuccess() vin: "+vin+", deviceId:"+currentDeviceId);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
@@ -697,20 +697,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        if (deviceId != null && !deviceId.isEmpty()){
-            currentDeviceId = deviceId;
-        }
         deviceIsVerified = true;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
-        readyDevice = new ReadyDevice(vin, deviceId, deviceId);
-        notifyDeviceReady(vin,deviceId,deviceId);
+        readyDevice = new ReadyDevice(vin, currentDeviceId, currentDeviceId);
+        notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
         getSupportedPids();
     }
 
     @Override
-    public void onVerificationDeviceBrokenAndCarMissingScanner(String vin, String deviceId) {
+    public void onVerificationDeviceBrokenAndCarMissingScanner(String vin) {
         Log.d(TAG,"onVerificationDeviceBrokenAndCarMissingScanner() vin: "
-                +vin+", deviceId:"+deviceId);
+                +vin+", deviceId:"+currentDeviceId);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
@@ -730,8 +727,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
         deviceManager.onConnectDeviceValid();
         notifyDeviceNeedsOverwrite();
-        readyDevice = new ReadyDevice(vin,deviceId,deviceId);
-        notifyDeviceReady(vin,deviceId,deviceId);
+        readyDevice = new ReadyDevice(vin,currentDeviceId,currentDeviceId);
+        notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
         sendConnectedNotification();
         getSupportedPids(); //Get supported pids once verified
     }
@@ -754,10 +751,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        if (deviceId != null && !deviceId.isEmpty()){
-            currentDeviceId = deviceId;
-        }
-
+        currentDeviceId = deviceId; //Set it to the device id found on back-end
         setDeviceNameAndId(deviceId);
         deviceIdOverwriteInProgress = true;
         deviceIsVerified = true;
