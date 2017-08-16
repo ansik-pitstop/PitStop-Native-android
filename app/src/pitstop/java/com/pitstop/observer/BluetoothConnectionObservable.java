@@ -59,4 +59,6 @@ public interface BluetoothConnectionObservable extends Subject{
 
     void setPidsToBeSent(String pids);
 
+    void requestFreezeData();
+
 }

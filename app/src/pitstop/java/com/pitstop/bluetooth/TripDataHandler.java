@@ -317,7 +317,7 @@ public class TripDataHandler {
         }
     }
 
-    private void executeTripRequests() {
+    public void executeTripRequests() {
         if (!isSendingTripRequest && !tripRequestQueue.isEmpty() && networkHelper.isConnected()) {
             Log.i(TAG, "Executing trip request");
             isSendingTripRequest = true;

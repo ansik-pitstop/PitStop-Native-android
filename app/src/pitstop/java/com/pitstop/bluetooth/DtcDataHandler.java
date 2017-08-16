@@ -98,7 +98,7 @@ public class DtcDataHandler {
 
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
-            //getFreezeData(); TODO
+            bluetoothConnectionObservable.requestFreezeData();
         }
 
     }
@@ -175,6 +175,27 @@ public class DtcDataHandler {
                 dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dtcPackage.rtcTime,
                         dtc, dtcPackage.isPending));
             }
+        }
+    }
+
+    public void sendLocalDtcs(){
+        for (final Dtc dtc : dtcsToSend) {
+            networkHelper.addNewDtc(dtc.getCarId(), dtc.getMileage(),
+                    dtc.getRtcTime(), dtc.getDtcCode(), dtc.isPending(),
+                    new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            Log.i(TAG, "DTC added: " + dtc);
+
+                            //INCLUDE THIS IN USE CASE IN LATER REFACTOR
+                            //Send notification that dtcs have been updated
+                            // after last one has been sent
+                            if (dtcsToSend.indexOf(dtc) == dtcsToSend.size()-1){
+                                notifyEventBus(new EventTypeImpl(EventType
+                                        .EVENT_DTC_NEW));
+                            }
+                        }
+                    });
         }
     }
 
