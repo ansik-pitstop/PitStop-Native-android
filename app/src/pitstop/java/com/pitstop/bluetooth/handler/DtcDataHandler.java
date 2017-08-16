@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth;
+package com.pitstop.bluetooth.handler;
 
 import android.content.Context;
 import android.util.Log;

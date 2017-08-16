@@ -1,5 +1,6 @@
-package com.pitstop.bluetooth;
+package com.pitstop.bluetooth.handler;
 
+import com.pitstop.bluetooth.BluetoothMixpanelTracker;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.MixpanelHelper;
 

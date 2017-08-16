@@ -1,7 +1,9 @@
-package com.pitstop.bluetooth;
+package com.pitstop.bluetooth.handler;
 
 import android.content.Context;
 
+import com.pitstop.bluetooth.BluetoothMixpanelTracker;
+import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;

@@ -26,6 +26,12 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.handler.DtcDataHandler;
+import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
+import com.pitstop.bluetooth.handler.PidDataHandler;
+import com.pitstop.bluetooth.handler.RtcDataHandler;
+import com.pitstop.bluetooth.handler.TripDataHandler;
+import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -38,7 +44,9 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
+import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.observer.Device215BreakingObserver;
+import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
@@ -54,7 +62,7 @@ import java.util.List;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothMixpanelTracker
-        , DeviceVerificationObserver{
+        , DeviceVerificationObserver {
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
 

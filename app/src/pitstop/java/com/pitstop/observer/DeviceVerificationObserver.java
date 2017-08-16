@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth;
+package com.pitstop.observer;
 
 /**
  * Created by Karol Zdebel on 8/15/2017.

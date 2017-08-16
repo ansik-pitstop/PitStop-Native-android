@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.utils.NetworkHelper;
 
 /**
