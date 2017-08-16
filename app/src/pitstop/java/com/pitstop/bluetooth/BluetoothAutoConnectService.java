@@ -511,7 +511,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             if (responsePackageInfo.deviceId != null && !responsePackageInfo.deviceId.isEmpty()){
-                if (!responsePackageInfo.deviceId.isEmpty()){
+                if (responsePackageInfo.deviceId != null
+                        && !responsePackageInfo.deviceId.isEmpty()){
                     currentDeviceId = responsePackageInfo.deviceId;
                 }
                 saveSyncedDevice(responsePackageInfo.deviceId);
@@ -694,7 +695,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        currentDeviceId = deviceId;
+        if (deviceId != null && !deviceId.isEmpty()){
+            currentDeviceId = deviceId;
+        }
         deviceIsVerified = true;
         verificationInProgress = false;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
@@ -748,7 +751,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        currentDeviceId = deviceId;
+        if (deviceId != null && !deviceId.isEmpty()){
+            currentDeviceId = deviceId;
+        }
+
         setDeviceNameAndId(deviceId);
         deviceIdOverwriteInProgress = true;
         deviceIsVerified = true;
