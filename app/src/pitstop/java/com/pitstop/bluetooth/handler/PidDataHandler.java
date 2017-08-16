@@ -50,7 +50,6 @@ public class PidDataHandler {
     private LocalCarAdapter localCarStorage;
     private NetworkHelper networkHelper;
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
-    private List<PidPackage> processedPidPackages = new ArrayList<>();
     private File databasePath;
 
     private String supportedPids = "";
@@ -87,7 +86,6 @@ public class PidDataHandler {
         }
 
         for (PidPackage p: pendingPidPackages){
-
             //Send pid data through to server
             Pid pidDataObject = getPidDataObject(p, deviceId);
 
@@ -101,8 +99,7 @@ public class PidDataHandler {
             }
 
         }
-
-        pendingPidPackages.removeAll(processedPidPackages);
+        pendingPidPackages.clear();
     }
 
     private void sendPidDataToServer(final String deviceId, final String tripId) {

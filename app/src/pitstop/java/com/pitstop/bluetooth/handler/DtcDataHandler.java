@@ -43,7 +43,6 @@ public class DtcDataHandler{
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
-    private List<DtcPackage> processedDtcPackages = new ArrayList<>();
     private LocalCarAdapter localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
@@ -69,27 +68,14 @@ public class DtcDataHandler{
             return;
         }
 
-        if (!pendingDtcPackages.contains(dtcPackage) && pendingDtcPackages.size() > 0){
-            LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
-                            +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
+        for (DtcPackage p: pendingDtcPackages){
 
-            for (DtcPackage p: pendingDtcPackages){
-                processedDtcPackages.add(p);
-                handleDtcData(p, deviceId);
+            if(dtcPackage.dtcNumber > 0) {
+                saveDtcs(p);
+                bluetoothDataHandlerManager.requestFreezeData();
             }
-
-            pendingDtcPackages.removeAll(processedDtcPackages);
-            LogUtils.debugLogD(TAG, "Pending dtc packages list length after removal: "
-                            +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
         }
-
-        if(dtcPackage.dtcNumber > 0) {
-            saveDtcs(dtcPackage);
-            bluetoothDataHandlerManager.requestFreezeData();
-        }
-
+        pendingDtcPackages.clear();
     }
 
     private void notifyEventBus(EventType eventType){
@@ -98,6 +84,7 @@ public class DtcDataHandler{
         EventBus.getDefault().post(carDataChangedEvent);
     }
 
+    //TODO: Re-do method below.
     private void saveDtcs(final DtcPackage dtcPackage) {
         Car car = localCarStorage.getCarByScanner(dtcPackage.deviceId);
 

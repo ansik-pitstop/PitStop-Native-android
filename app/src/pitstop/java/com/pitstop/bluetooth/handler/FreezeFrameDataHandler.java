@@ -30,7 +30,6 @@ public class FreezeFrameDataHandler {
     private BluetoothConnectionObservable bluetoothConnectionObservable;
 
     private List<FreezeFramePackage> pendingFreezeFrames = new ArrayList<>();
-    private List<FreezeFramePackage> processedFreezeFrames = new ArrayList<>();
 
     public FreezeFrameDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
             , Context context){
@@ -53,21 +52,11 @@ public class FreezeFrameDataHandler {
             return;
         }
 
-        if (!pendingFreezeFrames.contains(freezeFramePackage) && pendingFreezeFrames.size() > 0){
-            LogUtils.debugLogD(TAG, "Going through pending freeze frames"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            for (FreezeFramePackage p: pendingFreezeFrames){
-                processedFreezeFrames.add(p);
-                handleFreezeFrameData(p);
-            }
-            pendingFreezeFrames.removeAll(processedFreezeFrames);
-            LogUtils.debugLogD(TAG, "Pending freeze frames size() after removal: "
-                            + pendingFreezeFrames.size(), true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
+        for (FreezeFramePackage p: pendingFreezeFrames){
+            saveFreezeFrame(p);
 
         }
-
-        saveFreezeFrame(freezeFramePackage);
+        pendingFreezeFrames.clear();
     }
 
     private void saveFreezeFrame(FreezeFramePackage ffPackage){
