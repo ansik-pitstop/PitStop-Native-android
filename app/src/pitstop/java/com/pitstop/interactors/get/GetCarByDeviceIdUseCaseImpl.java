@@ -38,34 +38,38 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
     @Override
     public void run() {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
+
             @Override
             public void onSuccess(User user) {
                 scannerRepository.getScanner(deviceId, new Repository.Callback<ObdScanner>() {
+
                     @Override
                     public void onSuccess(ObdScanner obdScanner) {
                         carRepository.get(obdScanner.getCarId(), user.getId(), new Repository.Callback<Car>() {
+
                             @Override
                             public void onSuccess(Car car) {
-                                callback.onGotCar(car);
+                                if (car == null) callback.onNoCarFound();
+                                else callback.onGotCar(car);
                             }
 
                             @Override
                             public void onError(RequestError error) {
-
+                                callback.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-
+                        callback.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-
+                callback.onError(error);
             }
         });
     }

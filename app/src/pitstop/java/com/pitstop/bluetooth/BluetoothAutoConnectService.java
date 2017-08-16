@@ -1,23 +1,18 @@
 package com.pitstop.bluetooth;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.castel.obd.bluetooth.BluetoothCommunicator;
@@ -27,17 +22,20 @@ import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
+import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
@@ -47,7 +45,7 @@ import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
+import com.pitstop.utils.NotificationsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +74,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String currentDeviceId = null;
 
     private MixpanelHelper mixpanelHelper;
+    private SharedPreferences sharedPreferences;
 
     private int lastTripId = -1; // from backend
 
@@ -96,6 +95,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private RtcDataHandler rtcDataHandler;
     private FreezeFrameDataHandler freezeFrameDataHandler;
 
+    private UseCaseComponent useCaseComponent;
+
     /**
      * for periodic bluetooth scans
      */
@@ -110,7 +111,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getApplicationContext()))
+                .build();
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
+        sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
 
         if (BluetoothAdapter.getDefaultAdapter() != null) {
 
@@ -550,39 +556,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void sendConnectedNotification(){
 
-        //show a custom notification
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push);
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                String carName = "Click here to find out more" +
+                        car.getYear() + " " + car.getMake() + " " + car.getModel();
+                NotificationsHelper.sendNotification(getApplicationContext()
+                        ,carName, "Car is Connected");
+            }
 
-        final Car connectedCar = carAdapter.getCarByScanner(getCurrentDeviceId());
+            @Override
+            public void onNoCarSet() {
+                NotificationsHelper.sendNotification(getApplicationContext()
+                        ,"Click here to find out more", "Car is Connected");
+            }
 
-        String carName = connectedCar == null ? "Click here to find out more" :
-                connectedCar.getYear() + " " + connectedCar.getMake() + " " + connectedCar.getModel();
+            @Override
+            public void onError(RequestError error) {
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setLargeIcon(icon)
-                        .setColor(getResources().getColor(R.color.highlight))
-                        .setContentTitle("Car is Connected")
-                        .setContentText(carName);
-
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-        stackBuilder.addParentStack(MainActivity.class);
-
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(notifID, mBuilder.build());
+            }
+        });
     }
 
     @Override
