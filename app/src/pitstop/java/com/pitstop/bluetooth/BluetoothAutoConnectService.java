@@ -225,13 +225,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         return mBinder;
     }
 
-    private void cancelConnectedNotification(){
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(notifID);
-
-    }
-
     @Override
     public void getBluetoothState(int state) {
         Log.d(TAG,"getBluetoothState: "+state);
@@ -271,7 +264,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
-                cancelConnectedNotification();
+                NotificationsHelper.cancelConnectedNotification(getApplicationContext());
             }
             currentDeviceId = null;
         }
@@ -279,6 +272,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void subscribe(Observer observer) {
+        Log.d(TAG,"subscribe()");
         if (!observerList.contains(observer)){
             observerList.add(observer);
         }
@@ -286,6 +280,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void unsubscribe(Observer observer) {
+        Log.d(TAG,"unsubscribe()");
         if (observerList.contains(observer)){
             observerList.remove(observer);
         }
@@ -293,6 +288,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyDeviceNeedsOverwrite() {
+        Log.d(TAG,"notifyDeviceNeedsOverwrite()");
         for (Observer o : observerList) {
             if (o instanceof Device215BreakingObserver) {
                 ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
@@ -324,6 +320,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void trackBluetoothEvent(String event, String scannerId, String vin){
+        Log.d(TAG,"trackBluetoothEvent() event: "+event);
+
         if (scannerId == null) scannerId = "";
         if (vin == null) vin = "";
 
@@ -333,6 +331,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void trackBluetoothEvent(String event){
+        Log.d(TAG,"trackBluetoothEvent() event: "+event);
         if (readyDevice == null){
             mixpanelHelper.trackBluetoothEvent(event,deviceIsVerified,deviceConnState
                     ,rtcDataHandler.getTerminalRtcTime());
@@ -345,21 +344,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onHandlerReadVin(String vin) {
+        Log.d(TAG,"onHandlersReadVin() vin: "+vin);
         notifyVin(vin);
     }
 
     @Override
     public String getDeviceId() {
+        Log.d(TAG,"getDeviceId()");
         return readDeviceId;
     }
 
     @Override
     public long getRtcTime() {
+        Log.d(TAG,"getRtcTime()");
         return rtcDataHandler.getTerminalRtcTime();
     }
 
     @Override
     public void onHandlerVerifyingDevice() {
+        Log.d(TAG,"onHandlerVerifyingDevice()");
         deviceConnState = State.VERIFYING;
         notifyVerifyingDevice();
     }
@@ -388,11 +391,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public String getDeviceState() {
+        Log.d(TAG,"getDeviceState()");
         return deviceConnState;
     }
 
     @Override
     public ReadyDevice getReadyDevice() {
+        Log.d(TAG,"getReadyDevie()");
         if (deviceConnState.equals(State.CONNECTED)){
             return readyDevice;
         }
@@ -401,8 +406,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDeviceSync() {
-        LogUtils.debugLogI(TAG, "Resetting RTC time"
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"requestDeviceSync()");
         deviceManager.setRtc(System.currentTimeMillis());
         notifySyncingDevice();
     }
@@ -435,6 +439,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyVin(String vin) {
+        Log.d(TAG,"notifyVin() vin: "+vin);
         if (!vinRequested) return;
 
         vinRequested = false;
@@ -447,12 +452,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDtcData() {
+        Log.d(TAG,"requestDtcData()");
         trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
     }
 
     @Override
     public void requestVin() {
+        Log.d(TAG,"requestVin()");
         vinRequested = true;
         deviceManager.getVin();
     }

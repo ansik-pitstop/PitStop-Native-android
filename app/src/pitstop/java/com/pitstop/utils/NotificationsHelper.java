@@ -20,6 +20,13 @@ import static com.pitstop.bluetooth.BluetoothAutoConnectService.notifID;
 
 public class NotificationsHelper {
 
+    public static void cancelConnectedNotification(Context context){
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(notifID);
+
+    }
+
     public static void sendNotification(Context context, String message, String title){
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_push);
 
