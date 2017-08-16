@@ -14,12 +14,10 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Car;
-import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -29,14 +27,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
-import static io.fabric.sdk.android.Fabric.TAG;
-
 /**
  * Created by Karol Zdebel on 8/15/2017.
  */
 
 public class DtcDataHandler{
+
+    private final String TAG = getClass().getSimpleName();
 
     private static final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT);
@@ -63,8 +60,7 @@ public class DtcDataHandler{
 
         pendingDtcPackages.add(dtcPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified() || deviceId.isEmpty()){
-            LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            Log.d(TAG, "Dtc data added to pending list, device not verified!");
             return;
         }
 

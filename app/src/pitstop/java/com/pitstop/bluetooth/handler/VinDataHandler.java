@@ -7,13 +7,9 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
-import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.DeviceVerificationObserver;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Karol Zdebel on 8/16/2017.
@@ -63,30 +59,27 @@ public class VinDataHandler{
                     , new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success" +
+                    Log.d(TAG, "handleVinOnConnect: Success" +
                                     ", ignoreVerification?"
-                                    +ignoreVerification
-                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +ignoreVerification);
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationSuccess(vin);
                 }
 
                 @Override
                 public void onDeviceBrokenAndCarMissingScanner() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
+                    Log.d(TAG, "handleVinOnConnect Device ID needs to be overriden"
                                     +"ignoreVerification?"
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +ignoreVerification);
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarMissingScanner(vin);
                 }
 
                 @Override
                 public void onDeviceBrokenAndCarHasScanner(String scannerId) {
-                    LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
+                    Log.d(TAG, "Device missing id but user car has a scanner" +
                                     ", overwriting scanner id to "+scannerId+", ignoreVerification: "
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +ignoreVerification);
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarHasScanner(
                             vin,scannerId);
@@ -94,20 +87,18 @@ public class VinDataHandler{
 
                 @Override
                 public void onDeviceInvalid() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid." +
+                    Log.d(TAG, "handleVinOnConnect Device is invalid." +
                                     " ignoreVerification?"
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +ignoreVerification);
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceInvalid();
                 }
 
                 @Override
                 public void onDeviceAlreadyActive() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active" +
+                    Log.d(TAG, "handleVinOnConnect Device is already active" +
                                     ", ignoreVerification?"
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                                    +ignoreVerification);
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceAlreadyActive();
 
@@ -115,10 +106,8 @@ public class VinDataHandler{
 
                 @Override
                 public void onError(RequestError error) {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred" +
-                                    ", ignoreVerification?"
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    Log.d(TAG, "handleVinOnConnect error occurred" +
+                                    ", ignoreVerification?");
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationError();
 

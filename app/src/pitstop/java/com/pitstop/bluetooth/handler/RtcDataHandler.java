@@ -1,5 +1,7 @@
 package com.pitstop.bluetooth.handler;
 
+import android.util.Log;
+
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -7,6 +9,7 @@ import com.pitstop.utils.MixpanelHelper;
  */
 
 public class RtcDataHandler{
+    private final String TAG = getClass().getSimpleName();
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private long terminalRtcTime = -1;
@@ -17,6 +20,8 @@ public class RtcDataHandler{
     }
 
     public void handleRtcData(long rtc, String deviceId){
+
+        Log.d(TAG,"handleRtcData() rtc:"+rtc+", deviceId:"+deviceId);
 
         bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,deviceId
                 ,String.valueOf(rtc));

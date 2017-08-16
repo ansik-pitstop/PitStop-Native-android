@@ -32,13 +32,14 @@ import java.util.List;
 import java.util.Map;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
-import static io.fabric.sdk.android.Fabric.TAG;
 
 /**
  * Created by Karol Zdebel on 8/15/2017.
  */
 
 public class PidDataHandler {
+
+    private final String TAG = getClass().getSimpleName();
 
     private static final int PID_CHUNK_SIZE = 15;
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
@@ -76,6 +77,8 @@ public class PidDataHandler {
     }
 
     public void handlePidData(PidPackage pidPackage, String deviceId){
+
+        Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){

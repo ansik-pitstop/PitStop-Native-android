@@ -6,17 +6,13 @@ import android.util.Log;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
-import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Karol Zdebel on 8/15/2017.
@@ -47,8 +43,6 @@ public class FreezeFrameDataHandler {
         pendingFreezeFrames.add(freezeFramePackage);
         if (!bluetoothConnectionObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED)){
-            LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             return;
         }
 
