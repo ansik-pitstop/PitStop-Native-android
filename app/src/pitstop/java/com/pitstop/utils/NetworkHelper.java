@@ -429,10 +429,12 @@ public class NetworkHelper {
         JSONObject body = new JSONObject();
 
         try {
-            body.put("tripId", tripId);
+            body.put("tripId", Integer.valueOf(tripId));
             body.put("scannerId", scannerId);
             body.put("pidArray", pidArr);
         } catch (JSONException e) {
+            e.printStackTrace();
+        }catch (Exception e){
             e.printStackTrace();
         }
 
