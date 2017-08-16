@@ -688,14 +688,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
             return;
         }
-        //Connected to device mid use-case execution, return
-        else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
-            return;
-        }
 
         deviceIsVerified = true;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;

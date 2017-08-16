@@ -1,6 +1,7 @@
 package com.pitstop.bluetooth.handler;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -39,6 +40,8 @@ public class VinDataHandler{
     }
 
     public void handleVinData(String vin, String deviceId, boolean ignoreVerification){
+        Log.d(TAG,"handleVinData() vin:"+vin+", deviceId:"+deviceId
+                +", ignoreVerification?"+ignoreVerification);
 
         bluetoothDataHandlerManager.onHandlerReadVin(vin);
 
@@ -48,8 +51,6 @@ public class VinDataHandler{
 
         //If adding car connect to first recognized device
         if (ignoreVerification && !deviceIsVerified){
-            LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             deviceVerificationObserver.onVerificationSuccess(vin);
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
