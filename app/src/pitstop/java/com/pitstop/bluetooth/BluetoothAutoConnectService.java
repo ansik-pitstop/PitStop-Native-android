@@ -444,7 +444,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         vinRequested = false;
         for (Observer observer : observerList) {
-            if (observer instanceof BluetoothDtcObserver) {
+            if (observer instanceof BluetoothVinObserver) {
                 ((BluetoothVinObserver)observer).onGotVin(vin);
             }
         }
