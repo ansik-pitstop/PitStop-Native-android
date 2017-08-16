@@ -57,4 +57,6 @@ public interface BluetoothConnectionObservable extends Subject{
 
     void requestDeviceSync();
 
+    void setPidsToBeSent(String pids);
+
 }

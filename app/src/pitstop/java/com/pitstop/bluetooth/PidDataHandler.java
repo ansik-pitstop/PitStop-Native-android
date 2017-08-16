@@ -29,6 +29,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +45,8 @@ import static io.fabric.sdk.android.Fabric.TAG;
 public class PidDataHandler {
 
     private static final int PID_CHUNK_SIZE = 15;
+    private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
+    private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
     private String deviceId = null;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
@@ -54,6 +59,7 @@ public class PidDataHandler {
     private List<PidPackage> processedPidPackages = new ArrayList<>();
     private File databasePath;
 
+    private String supportedPids = "";
     private boolean isSendingPids = false;
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
@@ -64,17 +70,16 @@ public class PidDataHandler {
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         this.localPidStorage = new LocalPidAdapter(context);
         this.localPidResult4 = new LocalPidResult4Adapter(context);
-
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
-
         this.networkHelper = tempNetworkComponent.networkHelper();
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.localCarStorage = new LocalCarAdapter(context);
         this.databasePath = context.getDatabasePath(LocalDatabaseHelper.DATABASE_NAME);
         this.lastTripId = sharedPreferences.getInt(pfTripId, -1);
 
+        initPidPriorityList();
     }
 
     public void clearPendingData(){
@@ -323,6 +328,53 @@ public class PidDataHandler {
             //tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, currentDeviceId));
             //executeTripRequests();
         }
+    }
+
+
+    // hardcoded linked list that is in the order of priority
+    private void initPidPriorityList() {
+        PID_PRIORITY.add("210C");
+        PID_PRIORITY.add("210D");
+        PID_PRIORITY.add("2106");
+        PID_PRIORITY.add("2107");
+        PID_PRIORITY.add("2110");
+        PID_PRIORITY.add("2124");
+        PID_PRIORITY.add("2105");
+        PID_PRIORITY.add("210E");
+        PID_PRIORITY.add("210F");
+        PID_PRIORITY.add("2142");
+        PID_PRIORITY.add("210A");
+        PID_PRIORITY.add("210B");
+        PID_PRIORITY.add("2104");
+        PID_PRIORITY.add("2111");
+        PID_PRIORITY.add("212C");
+        PID_PRIORITY.add("212D");
+        PID_PRIORITY.add("215C");
+        PID_PRIORITY.add("2103");
+        PID_PRIORITY.add("212E");
+    }
+
+    public void handleSupportedPidResult(String[] pids){
+        HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
+        StringBuilder sb = new StringBuilder();
+        int pidCount = 0;
+        // go through the priority list and get the first 10 pids that are supported
+        for(String dataType : PID_PRIORITY) {
+            if(pidCount >= 10) {
+                break;
+            }
+            if(supportedPidsSet.contains(dataType)) {
+                sb.append(dataType);
+                sb.append(",");
+                ++pidCount;
+            }
+        }
+        if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
+            supportedPids = sb.substring(0, sb.length() - 1);
+        } else {
+            supportedPids = DEFAULT_PIDS;
+        }
+        bluetoothConnectionObservable.setPidsToBeSent(supportedPids);
     }
 
 }

@@ -412,6 +412,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public void setPidsToBeSent(String pids) {
+        deviceManager.setPidsToSend(pids);
+    }
+
+    @Override
     public void notifySyncingDevice() {
         Log.d(TAG,"notifySyncingDevice()");
         for (Observer observer: observerList){
@@ -514,6 +519,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+        if (parameterPackage == null) return;
+        else if (parameterPackage.value == null) parameterPackage.value = "";
+
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
                 rtcDataHandler.handleRtcData(Long.valueOf(parameterPackage.value)
@@ -527,6 +535,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
             vinDataHandler.handleVinData(parameterPackage.value,parameterPackage.deviceId
                     ,ignoreVerification);
+        }
+        else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
+            pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
         }
     }
 
