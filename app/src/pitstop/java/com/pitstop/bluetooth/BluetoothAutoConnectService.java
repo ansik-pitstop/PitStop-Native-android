@@ -877,7 +877,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean isDeviceVerified() {
-        return isDeviceVerified();
+        return deviceIsVerified;
     }
 
     /**
