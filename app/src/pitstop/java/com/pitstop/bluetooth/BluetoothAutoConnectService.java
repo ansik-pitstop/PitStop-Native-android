@@ -76,7 +76,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String deviceConnState = State.DISCONNECTED;
 
     public static int notifID = 1360119;
-    private String currentDeviceId = null;
+    private String currentDeviceId = "";
 
     private MixpanelHelper mixpanelHelper;
     private SharedPreferences sharedPreferences;
@@ -541,6 +541,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void parameterData(ParameterPackage parameterPackage) {
         if (parameterPackage == null) return;
         else if (parameterPackage.value == null) parameterPackage.value = "";
+
+        if (parameterPackage.deviceId != null && !parameterPackage.deviceId.isEmpty()){
+            currentDeviceId = parameterPackage.deviceId;
+        }
 
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
