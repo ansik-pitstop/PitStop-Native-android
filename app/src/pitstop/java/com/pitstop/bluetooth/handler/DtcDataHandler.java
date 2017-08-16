@@ -36,7 +36,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class DtcDataHandler implements BluetoothDataHandler{
+public class DtcDataHandler{
 
     private static final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT);
@@ -47,7 +47,6 @@ public class DtcDataHandler implements BluetoothDataHandler{
     private LocalCarAdapter localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
-    private String deviceId = "";
 
     public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -61,14 +60,12 @@ public class DtcDataHandler implements BluetoothDataHandler{
 
     }
 
-    public void handleDtcData(DtcPackage dtcPackage){
-        boolean deviceIdMissing = dtcPackage.deviceId == null
-                || dtcPackage.deviceId.isEmpty();
+    public void handleDtcData(DtcPackage dtcPackage, String deviceId){
 
-        if (!bluetoothDataHandlerManager.isDeviceVerified() || deviceIdMissing){
+        pendingDtcPackages.add(dtcPackage);
+        if (!bluetoothDataHandlerManager.isDeviceVerified() || deviceId.isEmpty()){
             LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            pendingDtcPackages.add(dtcPackage);
             return;
         }
 
@@ -79,7 +76,7 @@ public class DtcDataHandler implements BluetoothDataHandler{
 
             for (DtcPackage p: pendingDtcPackages){
                 processedDtcPackages.add(p);
-                handleDtcData(p);
+                handleDtcData(p, deviceId);
             }
 
             pendingDtcPackages.removeAll(processedDtcPackages);
@@ -195,8 +192,4 @@ public class DtcDataHandler implements BluetoothDataHandler{
         pendingDtcPackages.clear();
     }
 
-    @Override
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
 }

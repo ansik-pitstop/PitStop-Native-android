@@ -22,7 +22,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class FreezeFrameDataHandler implements BluetoothDataHandler {
+public class FreezeFrameDataHandler {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -31,7 +31,6 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
 
     private List<FreezeFramePackage> pendingFreezeFrames = new ArrayList<>();
     private List<FreezeFramePackage> processedFreezeFrames = new ArrayList<>();
-    private String deviceId = "";
 
     public FreezeFrameDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
             , Context context){
@@ -46,11 +45,11 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
     public void handleFreezeFrameData(FreezeFramePackage freezeFramePackage){
 
         //Queue freeze frames until device is verified
+        pendingFreezeFrames.add(freezeFramePackage);
         if (!bluetoothConnectionObservable.getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED)){
             LogUtils.debugLogD(TAG, "FreezeFrane added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            pendingFreezeFrames.add(freezeFramePackage);
             return;
         }
 
@@ -81,10 +80,5 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
                 }
             }
         });
-    }
-
-    @Override
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
     }
 }

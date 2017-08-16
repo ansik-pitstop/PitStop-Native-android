@@ -526,7 +526,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
 
-        tripDataHandler.handleTripData(tripInfoPackage);
+        if (tripInfoPackage.deviceId != null && !tripInfoPackage.deviceId.isEmpty()){
+            currentDeviceId = tripInfoPackage.deviceId;
+        }
+
+        tripDataHandler.handleTripData(tripInfoPackage,currentDeviceId);
     }
 
     /**
@@ -549,7 +553,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            vinDataHandler.handleVinData(parameterPackage.value);
+            vinDataHandler.handleVinData(parameterPackage.value,currentDeviceId);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
             pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
@@ -567,8 +571,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void pidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+
+        //Set device id if its found in pid package
+        if (pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
+            currentDeviceId = pidPackage.deviceId;
+        }
+
         deviceManager.requestData();
-        pidDataHandler.handlePidData(pidPackage);
+        pidDataHandler.handlePidData(pidPackage,currentDeviceId);
     }
 
     /**
@@ -579,12 +589,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        dtcDataHandler.handleDtcData(dtcPackage);
+
+        //Set device id if its found in dtc package
+        if (dtcPackage.deviceId != null && !dtcPackage.deviceId.isEmpty()){
+            currentDeviceId = dtcPackage.deviceId;
+        }
+
+        dtcDataHandler.handleDtcData(dtcPackage,currentDeviceId);
         notifyDtcData(dtcPackage);
     }
 
     @Override
     public void ffData(FreezeFramePackage ffPackage) {
+
+        //Set device id if its found in freeze frame package
+        if (ffPackage.deviceId != null && !ffPackage.deviceId.isEmpty()){
+            currentDeviceId = ffPackage.deviceId;
+        }
+
         freezeFrameDataHandler.handleFreezeFrameData(ffPackage);
     }
 
@@ -642,7 +664,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             sharedPreferences.edit().putString("loginInstruction", loginPackageInfo.instruction).apply();
 
-            currentDeviceId = loginPackageInfo.deviceId;
+            if (loginPackageInfo.deviceId != null && !loginPackageInfo.deviceId.isEmpty()){
+                currentDeviceId = loginPackageInfo.deviceId;
+            }
+
             deviceManager.bluetoothStateChanged(IBluetoothCommunicator.CONNECTED);
 
         } else if(loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGOUT_FLAG))) {
@@ -667,6 +692,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
+        currentDeviceId = deviceId;
         deviceIsVerified = true;
         verificationInProgress = false;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
@@ -706,7 +732,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId) {
-
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
             verificationInProgress = false;
@@ -721,6 +746,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
+        currentDeviceId = deviceId;
         setDeviceNameAndId(deviceId);
         deviceIdOverwriteInProgress = true;
         deviceIsVerified = true;

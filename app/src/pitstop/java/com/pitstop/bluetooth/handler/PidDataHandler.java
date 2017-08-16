@@ -38,7 +38,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class PidDataHandler implements BluetoothDataHandler{
+public class PidDataHandler {
 
     private static final int PID_CHUNK_SIZE = 15;
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
@@ -55,7 +55,6 @@ public class PidDataHandler implements BluetoothDataHandler{
 
     private String supportedPids = "";
     private boolean isSendingPids = false;
-    private String deviceId = "";
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
@@ -77,7 +76,7 @@ public class PidDataHandler implements BluetoothDataHandler{
         pendingPidPackages.clear();
     }
 
-    public void handlePidData(PidPackage pidPackage){
+    public void handlePidData(PidPackage pidPackage, String deviceId){
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
@@ -90,7 +89,7 @@ public class PidDataHandler implements BluetoothDataHandler{
         for (PidPackage p: pendingPidPackages){
 
             //Send pid data through to server
-            Pid pidDataObject = getPidDataObject(p);
+            Pid pidDataObject = getPidDataObject(p, deviceId);
 
             if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
                 localPidStorage.createPIDData(pidDataObject);
@@ -166,12 +165,12 @@ public class PidDataHandler implements BluetoothDataHandler{
         }
     }
 
-    private Pid getPidDataObject(PidPackage pidPackage){
+    private Pid getPidDataObject(PidPackage pidPackage, String deviceId){
 
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
-        Car car = localCarStorage.getCarByScanner(pidPackage.deviceId);
+        Car car = localCarStorage.getCarByScanner(deviceId);
 
         double mileage;
         double calculatedMileage;
@@ -267,8 +266,4 @@ public class PidDataHandler implements BluetoothDataHandler{
         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids);
     }
 
-    @Override
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
 }

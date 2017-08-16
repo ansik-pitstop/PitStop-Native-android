@@ -45,7 +45,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class TripDataHandler implements BluetoothDataHandler{
+public class TripDataHandler{
 
     private final String TAG = getClass().getSimpleName();
     private final String pfTripId = "lastTripId";
@@ -66,7 +66,6 @@ public class TripDataHandler implements BluetoothDataHandler{
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
     private int lastTripId;
     private boolean isSendingTripRequest;
-    private String deviceId = "";
 
     public TripDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -89,7 +88,7 @@ public class TripDataHandler implements BluetoothDataHandler{
         pendingTripInfoPackages.clear();
     }
 
-    public void handleTripData(TripInfoPackage tripInfoPackage){
+    public void handleTripData(TripInfoPackage tripInfoPackage, String deviceId){
 
         boolean deviceIsVerified
                 = bluetoothDataHandlerManager.isDeviceVerified();
@@ -121,7 +120,7 @@ public class TripDataHandler implements BluetoothDataHandler{
 
             LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
-            handle212Trip(tripInfoPackage);
+            handle212Trip(tripInfoPackage, deviceId);
             return;
         }
 
@@ -262,7 +261,7 @@ public class TripDataHandler implements BluetoothDataHandler{
     }
 
     //212 trip logic, no longer maintained
-    private void handle212Trip(TripInfoPackage tripInfoPackage){
+    private void handle212Trip(TripInfoPackage tripInfoPackage, String deviceId){
 
         if(tripInfoPackage.tripId != 0) {
             lastTripId = tripInfoPackage.tripId;
@@ -305,6 +304,7 @@ public class TripDataHandler implements BluetoothDataHandler{
     }
 
     public void executeTripRequests() {
+
         if (!isSendingTripRequest && !tripRequestQueue.isEmpty() && networkHelper.isConnected()) {
             Log.i(TAG, "Executing trip request");
             isSendingTripRequest = true;
@@ -370,10 +370,5 @@ public class TripDataHandler implements BluetoothDataHandler{
             }
             nextAction.execute(context, callback);
         }
-    }
-
-    @Override
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
     }
 }
