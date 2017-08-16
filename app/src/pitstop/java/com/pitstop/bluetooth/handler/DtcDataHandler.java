@@ -36,7 +36,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class DtcDataHandler {
+public class DtcDataHandler implements BluetoothDataHandler{
 
     private static final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT);
@@ -47,6 +47,7 @@ public class DtcDataHandler {
     private LocalCarAdapter localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
+    private String currentDeviceId = "";
 
     public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -198,5 +199,10 @@ public class DtcDataHandler {
 
     public void clearPendingData(){
         pendingDtcPackages.clear();
+    }
+
+    @Override
+    public void setDeviceId(String deviceId) {
+        this.currentDeviceId = deviceId;
     }
 }

@@ -41,7 +41,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class PidDataHandler {
+public class PidDataHandler implements BluetoothDataHandler{
 
     private static final int PID_CHUNK_SIZE = 15;
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
@@ -62,6 +62,7 @@ public class PidDataHandler {
     private boolean isSendingPids = false;
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
+    private String currentDeviceId = "";
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
@@ -359,4 +360,8 @@ public class PidDataHandler {
         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids);
     }
 
+    @Override
+    public void setDeviceId(String deviceId) {
+        this.currentDeviceId = deviceId;
+    }
 }

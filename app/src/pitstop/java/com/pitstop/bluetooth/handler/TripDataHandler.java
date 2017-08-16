@@ -45,7 +45,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Karol Zdebel on 8/15/2017.
  */
 
-public class TripDataHandler {
+public class TripDataHandler implements BluetoothDataHandler{
 
     private final String TAG = getClass().getSimpleName();
     private final String pfTripId = "lastTripId";
@@ -66,6 +66,7 @@ public class TripDataHandler {
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
     private int lastTripId;
     private boolean isSendingTripRequest;
+    private String currentDeviceId = "";
 
     public TripDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -378,5 +379,10 @@ public class TripDataHandler {
             }
             nextAction.execute(context, callback);
         }
+    }
+
+    @Override
+    public void setDeviceId(String deviceId) {
+        this.currentDeviceId = deviceId;
     }
 }

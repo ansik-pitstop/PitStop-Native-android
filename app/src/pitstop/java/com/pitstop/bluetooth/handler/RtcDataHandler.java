@@ -6,10 +6,11 @@ import com.pitstop.utils.MixpanelHelper;
  * Created by Karol Zdebel on 8/16/2017.
  */
 
-public class RtcDataHandler {
+public class RtcDataHandler implements BluetoothDataHandler{
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private long terminalRtcTime = -1;
+    private String currentDeviceId = "";
 
     public RtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager){
 
@@ -39,4 +40,10 @@ public class RtcDataHandler {
     public long getTerminalRtcTime(){
         return terminalRtcTime;
     }
+
+    @Override
+    public void setDeviceId(String deviceId) {
+        this.currentDeviceId = deviceId;
+    }
+
 }

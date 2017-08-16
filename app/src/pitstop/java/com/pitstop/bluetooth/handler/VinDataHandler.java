@@ -18,7 +18,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Karol Zdebel on 8/16/2017.
  */
 
-public class VinDataHandler {
+public class VinDataHandler implements BluetoothDataHandler{
 
     private final String TAG = getClass().getSimpleName();
 
@@ -28,6 +28,7 @@ public class VinDataHandler {
     private UseCaseComponent useCaseComponent;
 
     private boolean verificationInProgress = false;
+    private String currentDeviceId = "";
 
     public VinDataHandler(Context context, BluetoothDataHandlerManager bluetoothDataHandlerManager
             , DeviceVerificationObserver deviceVerificationObserver){
@@ -123,5 +124,10 @@ public class VinDataHandler {
             });
 
         }
+    }
+
+    @Override
+    public void setDeviceId(String deviceId) {
+        currentDeviceId = deviceId;
     }
 }
