@@ -84,6 +84,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private int lastTripId = -1; // from backend
 
     // queue for sending trip flags
+    private boolean vinRequested = false;
     private boolean deviceIsVerified = false;
     private boolean ignoreVerification = false; //Whether to begin verifying device by VIN or not
     boolean verificationInProgress = false;
@@ -461,8 +462,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.getDtcs();
     }
 
-
-    private boolean vinRequested = false;
     @Override
     public void requestVin() {
         vinRequested = true;
@@ -873,7 +872,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean isVerificationInProgress() {
-        return isVerificationInProgress();
+        return verificationInProgress;
     }
 
     /**
