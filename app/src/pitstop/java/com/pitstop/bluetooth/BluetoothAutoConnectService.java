@@ -87,13 +87,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean vinRequested = false;
     private boolean deviceIsVerified = false;
     private boolean ignoreVerification = false; //Whether to begin verifying device by VIN or not
-    boolean verificationInProgress = false;
     boolean deviceIdOverwriteInProgress= false;
     private ReadyDevice readyDevice = null;
     private String readDeviceId = "";
 
     private List<Observer> observerList = new ArrayList<>();
 
+    //Data is passed down to these fellas so they can deal with it
     private PidDataHandler pidDataHandler;
     private DtcDataHandler dtcDataHandler;
     private TripDataHandler tripDataHandler;
@@ -370,7 +370,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onHandlerVerifyingDevice() {
-        verificationInProgress = true;
         deviceConnState = State.VERIFYING;
         notifyVerifyingDevice();
     }
@@ -683,12 +682,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -699,7 +696,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = deviceId;
         }
         deviceIsVerified = true;
-        verificationInProgress = false;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
         readyDevice = new ReadyDevice(vin, deviceId, deviceId);
         notifyDeviceReady(vin,deviceId,deviceId);
@@ -711,12 +707,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -725,7 +719,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         MainActivity.allowDeviceOverwrite = true;
         deviceIsVerified = true;
-        verificationInProgress = false;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
         deviceManager.onConnectDeviceValid();
         notifyDeviceNeedsOverwrite();
@@ -739,12 +732,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId) {
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -758,7 +749,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         setDeviceNameAndId(deviceId);
         deviceIdOverwriteInProgress = true;
         deviceIsVerified = true;
-        verificationInProgress = false;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
         deviceManager.onConnectDeviceValid();
         readyDevice = new ReadyDevice(vin,deviceId,deviceId);
@@ -772,12 +762,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -786,7 +774,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
-        verificationInProgress = false;
 
         deviceManager.onConnectedDeviceInvalid();
 
@@ -805,12 +792,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -819,7 +804,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
-        verificationInProgress = false;
         deviceManager.onConnectedDeviceInvalid();
 
         if (deviceManager.moreDevicesLeft()){
@@ -837,12 +821,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED)){
-            verificationInProgress = false;
             return;
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            verificationInProgress = false;
             if (deviceConnState.equals(State.VERIFYING)){
                 deviceConnState = State.SEARCHING;
             }
@@ -851,7 +833,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
-        verificationInProgress = false;
         deviceManager.onConnectedDeviceInvalid();
 
         if (deviceManager.moreDevicesLeft()){
@@ -906,11 +887,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean isDeviceVerified() {
         return isDeviceVerified();
-    }
-
-    @Override
-    public boolean isVerificationInProgress() {
-        return verificationInProgress;
     }
 
     /**

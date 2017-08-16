@@ -22,7 +22,6 @@ public class VinDataHandler{
 
     private final String TAG = getClass().getSimpleName();
 
-    private Context context;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private DeviceVerificationObserver deviceVerificationObserver;
     private UseCaseComponent useCaseComponent;
@@ -32,7 +31,6 @@ public class VinDataHandler{
     public VinDataHandler(Context context, BluetoothDataHandlerManager bluetoothDataHandlerManager
             , DeviceVerificationObserver deviceVerificationObserver){
 
-        this.context = context;
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
         this.deviceVerificationObserver = deviceVerificationObserver;
         this.useCaseComponent = DaggerUseCaseComponent.builder()
@@ -61,6 +59,7 @@ public class VinDataHandler{
 
             //Device verification starting
             bluetoothDataHandlerManager.onHandlerVerifyingDevice();
+            verificationInProgress = true;
 
             useCaseComponent.handleVinOnConnectUseCase().execute(vin,deviceId
                     , new HandleVinOnConnectUseCase.Callback() {
@@ -70,6 +69,7 @@ public class VinDataHandler{
                                     ", ignoreVerification?"
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationSuccess(vin,deviceId);
                 }
 
@@ -79,6 +79,7 @@ public class VinDataHandler{
                                     +"ignoreVerification?"
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarMissingScanner(
                             vin,deviceId);
                 }
@@ -89,6 +90,7 @@ public class VinDataHandler{
                                     ", overwriting scanner id to "+scannerId+", ignoreVerification: "
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarHasScanner(
                             vin,scannerId);
                 }
@@ -99,6 +101,7 @@ public class VinDataHandler{
                                     " ignoreVerification?"
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceInvalid();
                 }
 
@@ -108,6 +111,7 @@ public class VinDataHandler{
                                     ", ignoreVerification?"
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceAlreadyActive();
 
                 }
@@ -118,6 +122,7 @@ public class VinDataHandler{
                                     ", ignoreVerification?"
                                     +bluetoothDataHandlerManager.isVerificationIgnored()
                             ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    verificationInProgress = false;
                     deviceVerificationObserver.onVerificationError();
 
                 }

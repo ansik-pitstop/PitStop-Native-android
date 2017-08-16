@@ -9,10 +9,8 @@ public interface BluetoothDataHandlerManager{
     boolean isConnectionInProgress();
     boolean isVerificationIgnored();
     boolean isDeviceVerified();
-    boolean isVerificationInProgress();
     void trackBluetoothEvent(String event, String scannerId, String vin);
     void trackBluetoothEvent(String event);
-    void onReadDeviceId(String deviceId);
     String getDeviceId();
 
     //Methods below are invoked by Trip data handler
