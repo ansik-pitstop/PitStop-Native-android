@@ -1,32 +1,24 @@
 package com.pitstop.bluetooth;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.pitstop.R;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
-import static com.pitstop.bluetooth.BluetoothAutoConnectService.notifID;
 
 /**
  * Created by Karol Zdebel on 8/15/2017.
@@ -38,19 +30,27 @@ public class ParameterDataHandler {
     private BluetoothConnectionObservable bluetoothConnectionObservable;
     private BluetoothMixpanelTracker bluetoothMixpanelTracker;
     private DeviceVerificationObserver deviceVerificationObserver;
+    private UseCaseComponent useCaseComponent;
+
+    private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
+    private String supportedPids = "";
 
     public ParameterDataHandler(Context context, BluetoothConnectionObservable bluetoothConnectionObservable
             , BluetoothMixpanelTracker bluetoothMixpanelTracker
             , DeviceVerificationObserver deviceVerificationObserver) {
 
         this.context = context;
+        this.useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(context))
+                .build();
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         this.bluetoothMixpanelTracker = bluetoothMixpanelTracker;
         this.deviceVerificationObserver = deviceVerificationObserver;
+        initPidPriorityList();
     }
 
     public void handleParameterData(ParameterPackage parameterPackage, long terminalRTCTime
-            , boolean ignoreVerification, boolean deviceIsVerified){
+            , boolean ignoreVerification, boolean deviceIsVerified, boolean verificationInProgress){
         if (parameterPackage == null) return;
 
         //Change null to empty
@@ -60,119 +60,8 @@ public class ParameterDataHandler {
 
         final String TAG = getClass().getSimpleName() + ".parameterData()";
 
-        LogUtils.debugLogD(TAG, "parameterData() parameterPackage: " + parameterPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        if (parameterPackage.paramType == ParameterPackage.ParamType.VIN){
-            bluetoothMixpanelTracker.trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT,parameterPackage.deviceId
-                    ,parameterPackage.value);
-        }
-        else if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME){
-            bluetoothMixpanelTracker.trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,parameterPackage.deviceId
-                    ,parameterPackage.value);
-        }
-
         if (parameterPackage.paramType == ParameterPackage.ParamType.VIN){
             bluetoothConnectionObservable.notifyVin(parameterPackage.value);
-        }
-
-        //Get terminal RTC time
-        if (parameterPackage.paramType == ParameterPackage.ParamType.RTC_TIME
-                && terminalRTCTime == -1 && !ignoreVerification){
-            terminalRTCTime = Long.valueOf(parameterPackage.value);
-
-            //Check if device needs to sync rtc time
-            final long YEAR = 32000000;
-            long currentTime = System.currentTimeMillis() / 1000;
-            long deviceRtcTime = Long.valueOf(parameterPackage.value);
-            long diff = currentTime - deviceRtcTime;
-
-            //Sync if difference is greater than a year
-            if (diff > YEAR){
-                notifySyncingDevice();
-                syncObdDevice();
-            }
-            trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
-        }
-
-        //If adding car connect to first recognized device
-        else if (parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && ignoreVerification && !deviceIsVerified){
-            LogUtils.debugLogD(TAG, "ignoreVerification = true, setting deviceConState to CONNECTED"
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-            deviceVerificationObserver.onVerificationSuccess();
-
-            deviceIsVerified = true;
-            verificationInProgress = false;
-            deviceConnState = BluetoothConnectionObservable.State.CONNECTED;
-            readyDevice = new ReadyDevice(parameterPackage.value,parameterPackage.deviceId
-                    ,parameterPackage.deviceId);
-            notifyDeviceReady(parameterPackage.value,parameterPackage.deviceId
-                    ,parameterPackage.deviceId);
-            getSupportedPids();
-        }
-        //Check to see if VIN is correct, unless adding a car then no comparison is needed
-        else if(parameterPackage.paramType == ParameterPackage.ParamType.VIN
-                && !ignoreVerification && !verificationInProgress && !deviceConnState.equals(BluetoothConnectionObservable.State.DISCONNECTED)
-                && !deviceIsVerified){
-
-            //Device verification starting
-            notifyVerifyingDevice();
-
-            verificationInProgress = true;
-            deviceConnState = State.VERIFYING;
-
-            useCaseComponent.handleVinOnConnectUseCase().execute(parameterPackage, new HandleVinOnConnectUseCase.Callback() {
-                @Override
-                public void onSuccess() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect: Success" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                }
-
-                @Override
-                public void onDeviceBrokenAndCarMissingScanner() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device ID needs to be overriden"
-                                    +"ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-                }
-
-                @Override
-                public void onDeviceBrokenAndCarHasScanner(String scannerId) {
-                    LogUtils.debugLogD(TAG, "Device missing id but user car has a scanner" +
-                                    ", overwriting scanner id to "+scannerId+", ignoreVerification: "
-                                    +ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                }
-
-                @Override
-                public void onDeviceInvalid() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is invalid." +
-                                    " ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                }
-
-                @Override
-                public void onDeviceAlreadyActive() {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect Device is already active" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-
-                }
-
-                @Override
-                public void onError(RequestError error) {
-                    LogUtils.debugLogD(TAG, "handleVinOnConnect error occurred" +
-                                    ", ignoreVerification?"+ignoreVerification
-                            ,true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-                }
-            });
-
         }
 
         if(parameterPackage.paramType == ParameterPackage.ParamType.SUPPORTED_PIDS) {
@@ -200,6 +89,29 @@ public class ParameterDataHandler {
             }
             deviceManager.setPidsToSend(supportedPids);
         }
+    }
+
+    // hardcoded linked list that is in the order of priority
+    private void initPidPriorityList() {
+        PID_PRIORITY.add("210C");
+        PID_PRIORITY.add("210D");
+        PID_PRIORITY.add("2106");
+        PID_PRIORITY.add("2107");
+        PID_PRIORITY.add("2110");
+        PID_PRIORITY.add("2124");
+        PID_PRIORITY.add("2105");
+        PID_PRIORITY.add("210E");
+        PID_PRIORITY.add("210F");
+        PID_PRIORITY.add("2142");
+        PID_PRIORITY.add("210A");
+        PID_PRIORITY.add("210B");
+        PID_PRIORITY.add("2104");
+        PID_PRIORITY.add("2111");
+        PID_PRIORITY.add("212C");
+        PID_PRIORITY.add("212D");
+        PID_PRIORITY.add("215C");
+        PID_PRIORITY.add("2103");
+        PID_PRIORITY.add("212E");
     }
 
 

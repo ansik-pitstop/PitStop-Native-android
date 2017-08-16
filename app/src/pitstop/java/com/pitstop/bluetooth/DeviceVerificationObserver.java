@@ -5,9 +5,9 @@ package com.pitstop.bluetooth;
  */
 
 public interface DeviceVerificationObserver {
-    void onVerificationSuccess();
-    void onVerificationDeviceBrokenAndCarMissingScanner();
-    void onVerificationDeviceBrokenAndCarHasScanner(String scannerId);
+    void onVerificationSuccess(String vin, String deviceId);
+    void onVerificationDeviceBrokenAndCarMissingScanner(String vin, String deviceId);
+    void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId);
     void onVerificationDeviceInvalid();
     void onVerificationDeviceAlreadyActive();
     void onVerificationError();
