@@ -26,6 +26,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
 import com.pitstop.bluetooth.handler.PidDataHandler;
@@ -61,7 +62,7 @@ import java.util.List;
  * Created by Paul Soladoye on 11/04/2016.
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
-        , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothMixpanelTracker
+        , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
         , DeviceVerificationObserver {
 
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
@@ -88,6 +89,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     boolean verificationInProgress = false;
     boolean deviceIdOverwriteInProgress= false;
     private ReadyDevice readyDevice = null;
+    private String readDeviceId = "";
 
 
     private List<Observer> observerList = new ArrayList<>();
@@ -143,9 +145,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
         this.dtcDataHandler = new DtcDataHandler(this,getApplicationContext());
-        this.tripDataHandler = new TripDataHandler(this,this,getApplicationContext(), handler);
-        this.vinDataHandler = new VinDataHandler(this,this,this,this);
-        this.rtcDataHandler = new RtcDataHandler(this,this);
+        this.tripDataHandler = new TripDataHandler(this,this);
+        this.vinDataHandler = new VinDataHandler(this,this,this);
+        this.rtcDataHandler = new RtcDataHandler(this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
 
         Runnable periodScanRunnable = new Runnable() { // start background search
@@ -342,6 +344,33 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public void onHandlerReadVin(String vin) {
+        notifyVin(vin);
+    }
+
+    @Override
+    public String getDeviceId() {
+        return readDeviceId;
+    }
+
+    @Override
+    public boolean isConnectionInProgress() {
+        return !getDeviceState().equals(State.DISCONNECTED);
+    }
+
+    @Override
+    public boolean isVerificationIgnored() {
+        return ignoreVerification;
+    }
+
+    @Override
+    public void onHandlerVerifyingDevice() {
+        verificationInProgress = true;
+        deviceConnState = State.VERIFYING;
+        notifyVerifyingDevice();
+    }
+
+    @Override
     public void notifyDeviceDisconnected() {
         Log.d(TAG,"notifyDeviceDisconnected()");
         trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
@@ -355,7 +384,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void notifyVerifyingDevice() {
         Log.d(TAG,"notifyVerifyingDevice()");
-        deviceConnState = State.VERIFYING;
         trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
@@ -519,8 +547,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            vinDataHandler.handleVinData(parameterPackage.value,parameterPackage.deviceId
-                    ,ignoreVerification);
+            vinDataHandler.handleVinData(parameterPackage.value,parameterPackage.deviceId);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
             pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
@@ -594,6 +621,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             }
         });
+    }
+
+
+    public void onReadDeviceId(String deviceId){
+        if (readDeviceId.isEmpty() && deviceId != null
+                && !deviceId.isEmpty()){
+            readDeviceId = deviceId;
+        }
     }
 
     @Override
@@ -826,6 +861,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void requestFreezeData() {
         LogUtils.debugLogI(TAG, "Getting freeze data", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         deviceManager.getFreezeFrame();
+    }
+
+    @Override
+    public boolean isDeviceVerified() {
+        return isDeviceVerified();
+    }
+
+    @Override
+    public boolean isVerificationInProgress() {
+        return isVerificationInProgress();
     }
 
     /**

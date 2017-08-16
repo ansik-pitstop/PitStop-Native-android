@@ -1,7 +1,5 @@
 package com.pitstop.bluetooth.handler;
 
-import com.pitstop.bluetooth.BluetoothMixpanelTracker;
-import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -10,20 +8,17 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class RtcDataHandler {
 
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private BluetoothMixpanelTracker bluetoothMixpanelTracker;
+    private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private long terminalRtcTime = -1;
 
-    public RtcDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
-            , BluetoothMixpanelTracker bluetoothMixpanelTracker){
+    public RtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager){
 
-        this.bluetoothConnectionObservable = bluetoothConnectionObservable;
-        this.bluetoothMixpanelTracker = bluetoothMixpanelTracker;
+        this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
     }
 
     public void handleRtcData(long rtc, String deviceId){
 
-        bluetoothMixpanelTracker.trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,deviceId
+        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,deviceId
                 ,String.valueOf(rtc));
 
         terminalRtcTime = rtc;
@@ -35,9 +30,9 @@ public class RtcDataHandler {
 
         //Sync if difference is greater than a year
         if (diff > YEAR){
-            bluetoothConnectionObservable.requestDeviceSync();
+            bluetoothDataHandlerManager.requestDeviceSync();
             terminalRtcTime = currentTimeInMillis;
-            bluetoothMixpanelTracker.trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
+            bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
         }
     }
 

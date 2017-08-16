@@ -19,7 +19,6 @@ import com.pitstop.models.Dtc;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
 
@@ -46,13 +45,12 @@ public class DtcDataHandler {
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
     private List<DtcPackage> processedDtcPackages = new ArrayList<>();
     private LocalCarAdapter localCarStorage;
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
+    private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
 
-    public DtcDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
-            , Context context){
+    public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
-        this.bluetoothConnectionObservable = bluetoothConnectionObservable;
+        this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
         this.localCarStorage = new LocalCarAdapter(context);
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
@@ -66,8 +64,7 @@ public class DtcDataHandler {
         boolean deviceIdMissing = dtcPackage.deviceId == null
                 || dtcPackage.deviceId.isEmpty();
 
-        if (!bluetoothConnectionObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED) || deviceIdMissing){
+        if (!bluetoothDataHandlerManager.isDeviceVerified() || deviceIdMissing){
             LogUtils.debugLogD(TAG, "Dtc data added to pending list, device not verified!"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             pendingDtcPackages.add(dtcPackage);
@@ -98,7 +95,7 @@ public class DtcDataHandler {
 
         if(dtcPackage.dtcNumber > 0) {
             saveDtcs(dtcPackage);
-            bluetoothConnectionObservable.requestFreezeData();
+            bluetoothDataHandlerManager.requestFreezeData();
         }
 
     }

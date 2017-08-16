@@ -55,10 +55,4 @@ public interface BluetoothConnectionObservable extends Subject{
     //Returns the already connected device, NULL if not connected
     ReadyDevice getReadyDevice();
 
-    void requestDeviceSync();
-
-    void setPidsToBeSent(String pids);
-
-    void requestFreezeData();
-
 }

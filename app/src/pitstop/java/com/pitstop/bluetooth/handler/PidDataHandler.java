@@ -19,7 +19,6 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Pid;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
 
@@ -49,7 +48,7 @@ public class PidDataHandler {
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
     private String deviceId = null;
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
+    private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private LocalPidAdapter localPidStorage;
     private LocalPidResult4Adapter localPidResult4;
     private LocalCarAdapter localCarStorage;
@@ -64,10 +63,10 @@ public class PidDataHandler {
     private int lastTripId = -1; // from backend
     private final String pfTripId = "lastTripId";
 
-    public PidDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
+    public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
 
-        this.bluetoothConnectionObservable = bluetoothConnectionObservable;
+        this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
         this.localPidStorage = new LocalPidAdapter(context);
         this.localPidResult4 = new LocalPidResult4Adapter(context);
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
@@ -87,29 +86,12 @@ public class PidDataHandler {
     }
 
     public void handlePidData(PidPackage pidPackage){
-        boolean deviceIdMissing = (pidPackage.deviceId == null
-                || pidPackage.deviceId.isEmpty());
 
         if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
             deviceId = pidPackage.deviceId;
         }
 
-//        //set pid device id if we got it in parameter data but not here
-//        if (deviceIdMissing && readyDevice != null && readyDevice.getScannerId() != null
-//                && !readyDevice.getScannerId().isEmpty()){
-//            pidPackage.deviceId = readyDevice.getScannerId();
-//            currentDeviceId = readyDevice.getScannerId();
-//            deviceIdMissing = false;
-//        }
-
-        //Set device id if we didn't retrieve it from parameterData() and we have it here
-//        if (readyDevice != null && readyDevice.getScannerId().isEmpty()
-//                && !deviceIdMissing){
-//            readyDevice.setScannerId(pidPackage.deviceId);
-//        }
-
-        if (!bluetoothConnectionObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED)){
+        if (!bluetoothDataHandlerManager.isDeviceVerified()){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
                     , true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
@@ -119,7 +101,7 @@ public class PidDataHandler {
         }
 
         for (PidPackage p: pendingPidPackages){
-            if (p.deviceId == null || p.deviceId.isEmpty()){
+            if (deviceId != null){
                 //pidPackage must have device id otherwise we would've returned
                 p.deviceId = pidPackage.deviceId;
             }
@@ -374,7 +356,7 @@ public class PidDataHandler {
         } else {
             supportedPids = DEFAULT_PIDS;
         }
-        bluetoothConnectionObservable.setPidsToBeSent(supportedPids);
+        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids);
     }
 
 }
