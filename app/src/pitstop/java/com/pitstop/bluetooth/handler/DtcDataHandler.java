@@ -87,6 +87,7 @@ public class DtcDataHandler{
     //TODO: Re-do method below.
     private void saveDtcs(final DtcPackage dtcPackage) {
         Car car = localCarStorage.getCarByScanner(dtcPackage.deviceId);
+        Log.d(TAG,"saveDtcs() called, car retrieved from local storage: "+car);
 
         if(networkHelper.isConnected()) {
             if (car != null) {
@@ -115,7 +116,6 @@ public class DtcDataHandler{
                                 dtcList.removeAll(toRemove);
 
                                 for (final String dtc: dtcList) {
-                                    final int dtcListSize = dtcList.size();
                                     final List<String> dtcListReference = dtcList;
 
                                     networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),

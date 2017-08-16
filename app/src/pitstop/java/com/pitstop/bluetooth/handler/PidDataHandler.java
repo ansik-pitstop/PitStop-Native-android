@@ -85,6 +85,7 @@ public class PidDataHandler {
             return;
         }
 
+        Log.d(TAG,"Going through pending pid packages, size: "+pendingPidPackages.size());
         for (PidPackage p: pendingPidPackages){
             //Send pid data through to server
             Pid pidDataObject = getPidDataObject(p, deviceId);
@@ -108,7 +109,8 @@ public class PidDataHandler {
             return;
         }
         isSendingPids = true;
-        Log.i(TAG, "sending PID data");
+        Log.i(TAG, "sending PID data tripId: "+tripId+", pids stored loally: "
+                +localPidStorage.getAllPidDataEntries().size());
         List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
 
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
@@ -172,6 +174,7 @@ public class PidDataHandler {
         double mileage;
         double calculatedMileage;
 
+        //TODO: Ask Nitish what's going on below
         if(pidPackage.tripMileage != null && !pidPackage.tripMileage.isEmpty()) {
             mileage = Double.parseDouble(pidPackage.tripMileage) / 1000;
             calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
