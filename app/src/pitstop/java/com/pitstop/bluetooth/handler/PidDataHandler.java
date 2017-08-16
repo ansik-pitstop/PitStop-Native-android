@@ -88,7 +88,8 @@ public class PidDataHandler {
             return;
         }
 
-        Log.d(TAG,"Going through pending pid packages, size: "+pendingPidPackages.size());
+        Log.d(TAG,"Going through pending pid packages, size: "+pendingPidPackages.size()
+                +", local storage pids size: "+localPidStorage.getAllPidDataEntries().size());
         for (PidPackage p: pendingPidPackages){
             //Send pid data through to server
             Pid pidDataObject = getPidDataObject(p, deviceId);
