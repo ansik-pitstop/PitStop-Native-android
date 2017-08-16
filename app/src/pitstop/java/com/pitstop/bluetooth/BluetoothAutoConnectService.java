@@ -470,7 +470,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 +", ignoreVerification: "+ignoreVerification);
         this.ignoreVerification = ignoreVerification;
 
-        if (deviceConnState.equals(State.CONNECTED)) return;
+        if (deviceConnState.equals(State.CONNECTED)
+                || deviceConnState.equals(State.VERIFYING)) return;
 
         if (deviceManager.startScan(urgent,ignoreVerification)){
 
