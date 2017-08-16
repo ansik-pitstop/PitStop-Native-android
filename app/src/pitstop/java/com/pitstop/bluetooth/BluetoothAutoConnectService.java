@@ -776,6 +776,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
+        currentDeviceId = null;
         deviceIsVerified = false;
         verificationInProgress = false;
 
@@ -808,6 +809,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
+        currentDeviceId = null;
         deviceIsVerified = false;
         verificationInProgress = false;
         deviceManager.onConnectedDeviceInvalid();
@@ -839,6 +841,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
+        currentDeviceId = null;
         deviceIsVerified = false;
         verificationInProgress = false;
         deviceManager.onConnectedDeviceInvalid();
@@ -871,6 +874,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOff() {
+        currentDeviceId = null;
         deviceManager.bluetoothStateChanged(BluetoothAdapter.STATE_OFF); //CONTINUE HERE
         deviceManager.close();
         NotificationManager mNotificationManager =
