@@ -28,7 +28,7 @@ public class VinDataHandler implements BluetoothDataHandler{
     private UseCaseComponent useCaseComponent;
 
     private boolean verificationInProgress = false;
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public VinDataHandler(Context context, BluetoothDataHandlerManager bluetoothDataHandlerManager
             , DeviceVerificationObserver deviceVerificationObserver){
@@ -41,7 +41,7 @@ public class VinDataHandler implements BluetoothDataHandler{
                 .build();
     }
 
-    public void handleVinData(String vin, String deviceId){
+    public void handleVinData(String vin){
 
         bluetoothDataHandlerManager.onHandlerReadVin(vin);
         bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT,deviceId
@@ -128,6 +128,6 @@ public class VinDataHandler implements BluetoothDataHandler{
 
     @Override
     public void setDeviceId(String deviceId) {
-        currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 }

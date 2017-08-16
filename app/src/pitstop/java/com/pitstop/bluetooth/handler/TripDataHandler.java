@@ -66,7 +66,7 @@ public class TripDataHandler implements BluetoothDataHandler{
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
     private int lastTripId;
     private boolean isSendingTripRequest;
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public TripDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -89,11 +89,14 @@ public class TripDataHandler implements BluetoothDataHandler{
         pendingTripInfoPackages.clear();
     }
 
-    public void handleTripData(TripInfoPackage tripInfoPackage, boolean connectedTo215
-            , long terminalRTCTime){
+    public void handleTripData(TripInfoPackage tripInfoPackage){
 
         boolean deviceIsVerified
                 = bluetoothDataHandlerManager.isDeviceVerified();
+        long terminalRtcTime
+                = bluetoothDataHandlerManager.getRtcTime();
+        boolean isConnected215
+                = bluetoothDataHandlerManager.isConnectedTo215();
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
@@ -111,18 +114,9 @@ public class TripDataHandler implements BluetoothDataHandler{
             bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
         }
 
-        //Set TripInfo deviceId if its not set, but we have it someplace else
-        if ((tripInfoPackage.deviceId == null || tripInfoPackage.deviceId.isEmpty())
-                && deviceIsVerified
-                && !bluetoothDataHandlerManager.getDeviceId().isEmpty()){
-
-            tripInfoPackage.deviceId = bluetoothDataHandlerManager.getDeviceId();
-
-        }
-
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
-        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE) && connectedTo215
+        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE) && isConnected215
                 && deviceIsVerified){
 
             LogUtils.debugLogD(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime, true, DebugMessage.TYPE_BLUETOOTH
@@ -131,20 +125,17 @@ public class TripDataHandler implements BluetoothDataHandler{
             return;
         }
 
-        boolean deviceIdMissing = (tripInfoPackage.deviceId == null
-                || tripInfoPackage.deviceId.isEmpty());
-
         //Check to see if we received current RTC time from device upon the app detecting device
         //If not received yet store the trip for once it is received
         if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
             Log.d(TAG,"Adding pending trip.");
             pendingTripInfoPackages.add(tripInfoPackage);
         }
-        if (terminalRTCTime == -1 || !deviceIsVerified || deviceIdMissing){
+        if (terminalRtcTime == -1 || !deviceIsVerified || deviceId.isEmpty()){
 
             LogUtils.debugLogD(TAG, "Cannot process pending trips yet, terminalRtcSet?"
-                            +(terminalRTCTime != -1)+", deviceVerified?"+deviceIsVerified
-                            +", deviceIdMissing?"+deviceIdMissing
+                            +(terminalRtcTime != -1)+", deviceVerified?"+deviceIsVerified
+                            +", deviceIdMissing?"+deviceId.isEmpty()
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
             //Only send mixpanel event for non-update trip events
@@ -163,15 +154,15 @@ public class TripDataHandler implements BluetoothDataHandler{
             boolean tripHasNoId = trip.deviceId == null || trip.deviceId.isEmpty();
             if (tripHasNoId){
                 //TripInfoPackage must have trip id or it would have returned due to deviceIdMissing flag
-                trip.deviceId = tripInfoPackage.deviceId;
+                trip.deviceId = deviceId;
             }
 
-            if (trip.flag.equals(TripInfoPackage.TripFlag.END) && connectedTo215){
+            if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnected215){
 
                 LogUtils.debugLogD(TAG, "Executing trip end use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                useCaseComponent.trip215EndUseCase().execute(trip, terminalRTCTime
+                useCaseComponent.trip215EndUseCase().execute(trip, terminalRtcTime
                         , new Trip215EndUseCase.Callback() {
                             @Override
                             public void onHistoricalTripEndSuccess() {
@@ -214,12 +205,12 @@ public class TripDataHandler implements BluetoothDataHandler{
                         });
 
             }
-            else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && connectedTo215){
+            else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnected215){
 
                 LogUtils.debugLogD(TAG, "Executing trip start use case", true
                         , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-                useCaseComponent.trip215StartUseCase().execute(trip, terminalRTCTime
+                useCaseComponent.trip215StartUseCase().execute(trip, terminalRtcTime
                         , new Trip215StartUseCase.Callback() {
                             @Override
                             public void onRealTimeTripStartSuccess() {
@@ -282,7 +273,7 @@ public class TripDataHandler implements BluetoothDataHandler{
             } else if(tripInfoPackage.flag == TripInfoPackage.TripFlag.END) {
                 LogUtils.debugLogI(TAG, "Trip end flag received", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                 if(lastTripId == -1) {
-                    networkHelper.getLatestTrip(tripInfoPackage.deviceId, new RequestCallback() {
+                    networkHelper.getLatestTrip(deviceId, new RequestCallback() {
                         @Override
                         public void done(String response, RequestError requestError) {
                             if(requestError == null && !response.equals("{}")) {
@@ -303,7 +294,7 @@ public class TripDataHandler implements BluetoothDataHandler{
                             String.valueOf(tripInfoPackage.mileage)));
                     executeTripRequests();
                 }
-                Car car = localCarStorage.getCarByScanner(tripInfoPackage.deviceId);
+                Car car = localCarStorage.getCarByScanner(deviceId);
                 if(car != null) {
                     double newMileage = car.getTotalMileage() + tripInfoPackage.mileage;
                     car.setTotalMileage(newMileage);
@@ -383,6 +374,6 @@ public class TripDataHandler implements BluetoothDataHandler{
 
     @Override
     public void setDeviceId(String deviceId) {
-        this.currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 }

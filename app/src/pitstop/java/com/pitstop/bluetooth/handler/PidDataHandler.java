@@ -1,11 +1,8 @@
 package com.pitstop.bluetooth.handler;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.castel.obd.info.DataPackageInfo;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalCarAdapter;
 import com.pitstop.database.LocalDatabaseHelper;
@@ -47,22 +44,18 @@ public class PidDataHandler implements BluetoothDataHandler{
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
-    private String deviceId = null;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private LocalPidAdapter localPidStorage;
     private LocalPidResult4Adapter localPidResult4;
     private LocalCarAdapter localCarStorage;
     private NetworkHelper networkHelper;
-    private SharedPreferences sharedPreferences;
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
     private List<PidPackage> processedPidPackages = new ArrayList<>();
     private File databasePath;
 
     private String supportedPids = "";
     private boolean isSendingPids = false;
-    private int lastTripId = -1; // from backend
-    private final String pfTripId = "lastTripId";
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
@@ -74,10 +67,8 @@ public class PidDataHandler implements BluetoothDataHandler{
                 .contextModule(new ContextModule(context))
                 .build();
         this.networkHelper = tempNetworkComponent.networkHelper();
-        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.localCarStorage = new LocalCarAdapter(context);
         this.databasePath = context.getDatabasePath(LocalDatabaseHelper.DATABASE_NAME);
-        this.lastTripId = sharedPreferences.getInt(pfTripId, -1);
 
         initPidPriorityList();
     }
@@ -88,27 +79,18 @@ public class PidDataHandler implements BluetoothDataHandler{
 
     public void handlePidData(PidPackage pidPackage){
 
-        if(pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()) {
-            deviceId = pidPackage.deviceId;
-        }
-
+        pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
                     , true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
-            pendingPidPackages.add(pidPackage);
-
             return;
         }
 
         for (PidPackage p: pendingPidPackages){
-            if (deviceId != null){
-                //pidPackage must have device id otherwise we would've returned
-                p.deviceId = pidPackage.deviceId;
-            }
 
             //Send pid data through to server
-            Pid pidDataObject = getPidDataObject(pidPackage);
+            Pid pidDataObject = getPidDataObject(p);
 
             if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
                 localPidStorage.createPIDData(pidDataObject);
@@ -116,7 +98,7 @@ public class PidDataHandler implements BluetoothDataHandler{
 
             if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
                     && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-                sendPidDataToServer(pidPackage.rtcTime, pidPackage.deviceId, pidPackage.tripId);
+                sendPidDataToServer(deviceId, pidPackage.tripId);
             }
 
         }
@@ -124,7 +106,7 @@ public class PidDataHandler implements BluetoothDataHandler{
         pendingPidPackages.removeAll(processedPidPackages);
     }
 
-    private void sendPidDataToServer(final String rtcTime, final String deviceId, final String tripId) {
+    private void sendPidDataToServer(final String deviceId, final String tripId) {
         if(isSendingPids) {
             Log.i(TAG, "Already sending pids");
             return;
@@ -159,32 +141,28 @@ public class PidDataHandler implements BluetoothDataHandler{
             e.printStackTrace();
         }
 
-        if(lastTripId != -1) {
-            for(JSONArray pids : pidArrays) {
-                if(pids.length() == 0) {
-                    isSendingPids = false;
-                    continue;
-                }
-                networkHelper.savePids(lastTripId, deviceId, pids,
-                        new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                isSendingPids = false;
-                                if (requestError == null) {
-                                    Log.i(TAG, "PIDS saved");
+        for(JSONArray pids : pidArrays) {
+            if(pids.length() == 0) {
+                isSendingPids = false;
+                continue;
+            }
+            networkHelper.savePids(tripId, deviceId, pids,
+                    new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            isSendingPids = false;
+                            if (requestError == null) {
+                                Log.i(TAG, "PIDS saved");
+                                localPidStorage.deleteAllPidDataEntries();
+                            } else {
+                                Log.e(TAG, "save pid error: " + requestError.getMessage());
+                                if (databasePath.length() > 10000000L) { // delete pids if db size > 10MB
                                     localPidStorage.deleteAllPidDataEntries();
-                                } else {
-                                    Log.e(TAG, "save pid error: " + requestError.getMessage());
-                                    if (databasePath.length() > 10000000L) { // delete pids if db size > 10MB
-                                        localPidStorage.deleteAllPidDataEntries();
-                                        localPidResult4.deleteAllPidDataEntries();
-                                    }
+                                    localPidResult4.deleteAllPidDataEntries();
                                 }
                             }
-                        });
-            }
-        } else {
-            isSendingPids = false;
+                        }
+                    });
         }
     }
 
@@ -243,77 +221,6 @@ public class PidDataHandler implements BluetoothDataHandler{
         return pidDataObject;
     }
 
-    /**
-     * Send pid data on result 4 to server on 50 data points received
-     *
-     * @param data
-     */
-    public void sendPidDataResult4ToServer(DataPackageInfo data) { // TODO: Replace all usages with sendPidDataToServer
-        if(isSendingPids) {
-            Log.i(TAG, "Already sending pids");
-            return;
-        }
-        isSendingPids = true;
-        Log.i(TAG, "sending PID result 4 data");
-        List<Pid> pidDataEntries = localPidResult4.getAllPidDataEntries();
-
-        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
-        JSONArray[] pidArrays = new JSONArray[chunks];
-
-        try {
-            for (int chunkNumber = 0; chunkNumber < chunks; chunkNumber++) {
-                JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
-                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
-                        continue;
-                    }
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                    jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripId", pidDataObject.getTripId());
-                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                    pidArray.put(jsonObject);
-                }
-                pidArrays[chunkNumber] = pidArray;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (lastTripId != -1) {
-            for (JSONArray pids : pidArrays) {
-                if (pids.length() == 0) {
-                    isSendingPids = false;
-                    continue;
-                }
-                networkHelper.savePids(lastTripId, deviceId, pids,
-                        new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null) {
-                                    Log.i(TAG, "PIDS result 4 saved");
-                                    localPidResult4.deleteAllPidDataEntries();
-                                } else {
-                                    Log.e(TAG, "save pid result 4 error: " + requestError.getMessage());
-                                    if (databasePath.length() > 10000000L) { // delete pids if db size > 10MB
-                                        localPidResult4.deleteAllPidDataEntries();
-                                    }
-                                }
-                                isSendingPids = false;
-                            }
-                        });
-            }
-        } else {
-            isSendingPids = false;
-            //tripRequestQueue.add(new TripStart(lastDeviceTripId, data.rtcTime, currentDeviceId));
-            //executeTripRequests();
-        }
-    }
-
-
     // hardcoded linked list that is in the order of priority
     private void initPidPriorityList() {
         PID_PRIORITY.add("210C");
@@ -362,6 +269,6 @@ public class PidDataHandler implements BluetoothDataHandler{
 
     @Override
     public void setDeviceId(String deviceId) {
-        this.currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 }

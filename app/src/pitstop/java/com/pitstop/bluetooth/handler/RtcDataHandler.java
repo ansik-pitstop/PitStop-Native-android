@@ -10,7 +10,7 @@ public class RtcDataHandler implements BluetoothDataHandler{
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private long terminalRtcTime = -1;
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public RtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager){
 
@@ -43,7 +43,7 @@ public class RtcDataHandler implements BluetoothDataHandler{
 
     @Override
     public void setDeviceId(String deviceId) {
-        this.currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 
 }

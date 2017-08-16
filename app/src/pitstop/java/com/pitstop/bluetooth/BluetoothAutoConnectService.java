@@ -91,7 +91,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ReadyDevice readyDevice = null;
     private String readDeviceId = "";
 
-
     private List<Observer> observerList = new ArrayList<>();
 
     private PidDataHandler pidDataHandler;
@@ -354,6 +353,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public long getRtcTime() {
+        return rtcDataHandler.getTerminalRtcTime();
+    }
+
+    @Override
     public boolean isConnectionInProgress() {
         return !getDeviceState().equals(State.DISCONNECTED);
     }
@@ -523,8 +527,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
 
-        tripDataHandler.handleTripData(tripInfoPackage,isConnectedTo215()
-                , rtcDataHandler.getTerminalRtcTime());
+        tripDataHandler.handleTripData(tripInfoPackage);
     }
 
     /**
@@ -547,7 +550,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            vinDataHandler.handleVinData(parameterPackage.value,parameterPackage.deviceId);
+            vinDataHandler.handleVinData(parameterPackage.value);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
             pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
@@ -956,8 +959,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         unregisterReceiver(connectionReceiver);
     }
 
-    //Null means not connected
-    public Boolean isConnectedTo215(){
+    @Override
+    public boolean isConnectedTo215(){
         if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
             return deviceManager.isConnectedTo215();
         else

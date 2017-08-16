@@ -31,7 +31,7 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
 
     private List<FreezeFramePackage> pendingFreezeFrames = new ArrayList<>();
     private List<FreezeFramePackage> processedFreezeFrames = new ArrayList<>();
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public FreezeFrameDataHandler(BluetoothConnectionObservable bluetoothConnectionObservable
             , Context context){
@@ -58,13 +58,6 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
             LogUtils.debugLogD(TAG, "Going through pending freeze frames"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
             for (FreezeFramePackage p: pendingFreezeFrames){
-
-                //Set device id if it is missing
-                if (p.deviceId == null || p.deviceId.isEmpty()){
-                    //ffPackage must have device id otherwise we wouldve returned
-                    p.deviceId = freezeFramePackage.deviceId;
-                }
-
                 processedFreezeFrames.add(p);
                 handleFreezeFrameData(p);
             }
@@ -92,6 +85,6 @@ public class FreezeFrameDataHandler implements BluetoothDataHandler {
 
     @Override
     public void setDeviceId(String deviceId) {
-        this.currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 }

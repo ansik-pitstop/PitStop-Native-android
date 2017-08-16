@@ -422,7 +422,7 @@ public class NetworkHelper {
         putNoAuth("scan/trip", callback, tripBody);
     }
 
-    public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
+    public void savePids(String tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
         LOGI(TAG, "savePids to " + scannerId);
         LOGV(TAG, "pidArr: " + pidArr.toString());
 

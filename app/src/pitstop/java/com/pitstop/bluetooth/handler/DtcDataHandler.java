@@ -47,7 +47,7 @@ public class DtcDataHandler implements BluetoothDataHandler{
     private LocalCarAdapter localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
-    private String currentDeviceId = "";
+    private String deviceId = "";
 
     public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
@@ -76,18 +76,12 @@ public class DtcDataHandler implements BluetoothDataHandler{
             LogUtils.debugLogD(TAG, "Going through pending dtc packages, length: "
                             +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
                     , getApplicationContext());
+
             for (DtcPackage p: pendingDtcPackages){
-
-                //Set device id if it is missing
-                if (p.deviceId == null || p.deviceId.isEmpty()){
-
-                    //Must be present otherwise we would've returned due to deviceIdMissing flag
-                    p.deviceId = dtcPackage.deviceId;
-                }
-
                 processedDtcPackages.add(p);
                 handleDtcData(p);
             }
+
             pendingDtcPackages.removeAll(processedDtcPackages);
             LogUtils.debugLogD(TAG, "Pending dtc packages list length after removal: "
                             +pendingDtcPackages.size(), true, DebugMessage.TYPE_BLUETOOTH
@@ -203,6 +197,6 @@ public class DtcDataHandler implements BluetoothDataHandler{
 
     @Override
     public void setDeviceId(String deviceId) {
-        this.currentDeviceId = deviceId;
+        this.deviceId = deviceId;
     }
 }

@@ -15,6 +15,10 @@ public interface BluetoothDataHandlerManager{
     void onReadDeviceId(String deviceId);
     String getDeviceId();
 
+    //Methods below are invoked by Trip data handler
+    long getRtcTime();
+    boolean isConnectedTo215();
+
     //Methods below are invoked by PID data handler
     void setPidsToBeSent(String pids);
 
