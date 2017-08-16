@@ -359,16 +359,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public boolean isConnectionInProgress() {
-        return !getDeviceState().equals(State.DISCONNECTED);
-    }
-
-    @Override
-    public boolean isVerificationIgnored() {
-        return ignoreVerification;
-    }
-
-    @Override
     public void onHandlerVerifyingDevice() {
         deviceConnState = State.VERIFYING;
         notifyVerifyingDevice();
@@ -555,7 +545,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            vinDataHandler.handleVinData(parameterPackage.value,currentDeviceId);
+            vinDataHandler.handleVinData(parameterPackage.value
+                    ,currentDeviceId,ignoreVerification);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
             pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));

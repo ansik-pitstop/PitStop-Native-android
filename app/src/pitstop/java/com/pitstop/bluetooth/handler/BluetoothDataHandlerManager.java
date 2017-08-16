@@ -6,8 +6,6 @@ package com.pitstop.bluetooth.handler;
 
 public interface BluetoothDataHandlerManager{
     //Methods below are invoked by all data handlers
-    boolean isConnectionInProgress();
-    boolean isVerificationIgnored();
     boolean isDeviceVerified();
     void trackBluetoothEvent(String event, String scannerId, String vin);
     void trackBluetoothEvent(String event);
