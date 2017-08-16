@@ -150,11 +150,6 @@ public class TripDataHandler{
 
             /*Set the device id for any trips that were received while a device was broken
             /** prior to an overwrite*/
-            boolean tripHasNoId = trip.deviceId == null || trip.deviceId.isEmpty();
-            if (tripHasNoId){
-                //TripInfoPackage must have trip id or it would have returned due to deviceIdMissing flag
-                trip.deviceId = deviceId;
-            }
 
             if (trip.flag.equals(TripInfoPackage.TripFlag.END) && isConnected215){
 

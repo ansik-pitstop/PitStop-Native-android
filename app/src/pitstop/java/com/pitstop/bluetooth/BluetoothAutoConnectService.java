@@ -511,7 +511,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
             if (responsePackageInfo.deviceId != null && !responsePackageInfo.deviceId.isEmpty()){
-                currentDeviceId = responsePackageInfo.deviceId;
+                if (!responsePackageInfo.deviceId.isEmpty()){
+                    currentDeviceId = responsePackageInfo.deviceId;
+                }
                 saveSyncedDevice(responsePackageInfo.deviceId);
             }
 
