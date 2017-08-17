@@ -37,6 +37,8 @@ public class PidRepository implements Repository{
     }
 
     public void insertPid(PidPackage pid, Callback<Object> callback){
+        Log.d(TAG,"insertPid() locally stored pid count: "+localPidStorage.getPidDataEntryCount()
+                +", pid: "+pid);
         localPidStorage.createPIDData(getPidDataObject(pid));
         if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
                 && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
@@ -145,6 +147,8 @@ public class PidRepository implements Repository{
 
       //  pidDataObject.setMileage(mileage); // trip mileage from device
       //  pidDataObject.setCalculatedMileage(calculatedMileage);
+        pidDataObject.setCalculatedMileage(Double.parseDouble(pidPackage.tripMileage));
+        pidDataObject.setMileage(Double.parseDouble(pidPackage.tripMileage));
         pidDataObject.setDataNumber("");  //FIX OR LOOK INTO
         pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
         pidDataObject.setRtcTime(pidPackage.rtcTime);
