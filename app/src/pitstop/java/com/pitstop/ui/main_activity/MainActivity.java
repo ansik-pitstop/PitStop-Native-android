@@ -114,6 +114,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
             autoConnectService.subscribe(MainActivity.this);
+            autoConnectService.requestDeviceSearch(false, false);
             displayDeviceState(autoConnectService.getDeviceState());
 
             checkPermissions();
