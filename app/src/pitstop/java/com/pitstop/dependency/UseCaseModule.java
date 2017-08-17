@@ -273,8 +273,8 @@ public class UseCaseModule {
     }
 
     @Provides
-    HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository, Handler handler){
-        return new HandlePidDataUseCaseImpl(pidRepository, handler);
+    HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository
+            , Device215TripRepository device215TripRepository, Handler handler){
+        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, handler);
     }
-
 }

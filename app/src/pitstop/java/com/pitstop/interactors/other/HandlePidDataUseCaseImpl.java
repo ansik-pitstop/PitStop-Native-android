@@ -1,9 +1,12 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
 
@@ -13,13 +16,18 @@ import com.pitstop.repositories.Repository;
 
 public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private PidRepository pidRepository;
+    private Device215TripRepository tripRepository;
     private Handler handler;
     private PidPackage pidPackage;
     private Callback callback;
 
-    public HandlePidDataUseCaseImpl(PidRepository pidRepository, Handler handler) {
+    public HandlePidDataUseCaseImpl(PidRepository pidRepository
+            , Device215TripRepository tripRepository, Handler handler) {
         this.pidRepository = pidRepository;
+        this.tripRepository = tripRepository;
         this.handler = handler;
     }
 
@@ -40,8 +48,69 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
             @Override
             public void onError(RequestError error){
-                callback.onError(error);
+
+                //Check whether its a "trip not found" error
+                if (error.getMessage().contains("not found")){
+                    tripRepository.storeTripStart(pidPackageToTrip215Start(pidPackage)
+                            , new Repository.Callback<Trip215>() {
+
+                        @Override
+                        public void onSuccess(Trip215 data) {
+
+                            Log.d(TAG,"Stored trip start using PID. Attempting to store pid again!");
+                            pidRepository.insertPid(pidPackage, new Repository.Callback<Object>() {
+
+                                @Override
+                                public void onSuccess(Object response){
+                                    Log.d(TAG,"Success storing PID after trip start was stored.");
+                                    callback.onSuccess();
+                                }
+
+                                @Override
+                                public void onError(RequestError error){
+                                    Log.d(TAG,"Error storing PID even after trip start was saved.");
+                                    callback.onError(error);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            Log.d(TAG,"Error saving trip start using PID!");
+                            callback.onError(error);
+                        }
+                    });
+                }
+                else{
+                    callback.onError(error);
+                }
             }
         });
+    }
+
+    private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
+        int tripId;
+        try{
+             tripId = Integer.valueOf(pidPackage.tripId);
+        }catch(NumberFormatException e){
+            e.printStackTrace();
+            tripId = -1;
+        }
+        double mileage;
+        try{
+            mileage = Double.valueOf(pidPackage.tripMileage);
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            mileage = 0;
+        }
+        long rtcTime;
+        try{
+            rtcTime = Long.valueOf(pidPackage.rtcTime);
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            rtcTime = 0;
+        }
+
+        return new Trip215(tripId,mileage,rtcTime,pidPackage.deviceId);
     }
 }
