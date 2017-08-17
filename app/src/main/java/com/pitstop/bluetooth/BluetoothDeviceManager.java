@@ -220,7 +220,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        bannedDeviceList.add(connectedDevice);
+        if (!ignoreVerification){
+            bannedDeviceList.add(connectedDevice);
+        }
         communicator.disconnect(connectedDevice);
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
@@ -333,6 +335,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         connectToNextDevice();
                         if (!moreDevicesLeft()){
                             dataListener.scanFinished();
+                            bannedDeviceList.clear();
                         }
                         rssiScan = false;
                     }
@@ -550,6 +553,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids) {
+        Log.d(TAG,"setPidsToSend: "+pids);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }

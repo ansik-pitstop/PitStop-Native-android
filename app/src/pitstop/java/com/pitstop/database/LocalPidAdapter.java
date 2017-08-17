@@ -23,6 +23,8 @@ public class LocalPidAdapter {
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
             + TABLES.PID.KEY_TRIP_ID + " INTEGER,"
+            + TABLES.PID.KEY_TRIP_ID_RAW +" INTEGER,"
+            + TABLES.PID.KEY_DEVICE_ID +" TEXT,"
             + TABLES.PID.KEY_MILEAGE + " REAL,"
             + TABLES.PID.KEY_CALCULATED_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
@@ -44,10 +46,12 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_DATANUM, pidData.getDataNumber());
         values.put(TABLES.PID.KEY_RTCTIME, pidData.getRtcTime());
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
+        values.put(TABLES.PID.KEY_TRIP_ID_RAW, pidData.getTripIdRaw());
         values.put(TABLES.PID.KEY_TRIP_ID, pidData.getTripId());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
         values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
         values.put(TABLES.PID.KEY_CALCULATED_MILEAGE, pidData.getCalculatedMileage());
+        values.put(TABLES.PID.KEY_DEVICE_ID, pidData.getDeviceId());
 
         db.insert(TABLES.PID.TABLE_NAME, null, values);
 
@@ -71,10 +75,12 @@ public class LocalPidAdapter {
                 pidData.setDataNumber(c.getString(c.getColumnIndex(TABLES.PID.KEY_DATANUM)));
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
-                pidData.setTripId(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
+                pidData.setTripIdRaw(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID_RAW)));
+                pidData.setTripId(c.getInt(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
                 pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
+                pidData.setDeviceId(c.getString(c.getColumnIndex(TABLES.PID.KEY_DEVICE_ID)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());

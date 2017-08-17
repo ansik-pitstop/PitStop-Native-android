@@ -20,7 +20,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     private static LocalDatabaseHelper instance;
 
 
-    private static final int DATABASE_VERSION = 32;
+    private static final int DATABASE_VERSION = 36;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private BriteDatabase mBriteDatabase;

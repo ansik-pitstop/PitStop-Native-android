@@ -266,7 +266,11 @@ public class CarRepository implements Repository{
                         networkHelper.getUserSettingsById(userId, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
-                                if(response != null){
+                                if (requestError == null
+                                        && (response == null || response.equals("{}"))){
+                                    callback.onSuccess(null);
+                                }
+                                else if(requestError == null){
                                     try{
                                         JSONObject responseJson = new JSONObject(response);
                                         JSONArray customShops;

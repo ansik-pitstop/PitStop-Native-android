@@ -1,6 +1,5 @@
 package com.pitstop.interactors.other;
 
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.network.RequestError;
 
@@ -24,5 +23,5 @@ public interface HandleVinOnConnectUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(ParameterPackage parameterPackage, Callback callback);
+    void execute(String vin, String deviceId, Callback callback);
 }

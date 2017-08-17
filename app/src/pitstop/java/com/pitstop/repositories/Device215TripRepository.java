@@ -20,6 +20,8 @@ public class Device215TripRepository implements Repository{
     private final String LATEST_TRIP_QUERY = "/?scannerId=%s&latest=true&active=true";
     private NetworkHelper networkHelper;
 
+    public static int localLatestTripId = -1;
+
     public Device215TripRepository(NetworkHelper networkHelper){
         this.networkHelper = networkHelper;
     }
@@ -45,6 +47,12 @@ public class Device215TripRepository implements Repository{
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
                     callback.onSuccess(null);
+                    try {
+                        JSONObject data = new JSONObject(response);
+                        localLatestTripId = data.getInt("id");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else{
                     callback.onError(requestError);
@@ -104,6 +112,7 @@ public class Device215TripRepository implements Repository{
                             return;
                         }
                         int id = data.getInt("id");
+                        localLatestTripId = id;
                         long tripIdRaw = data.getLong("tripIdRaw");
                         double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");
