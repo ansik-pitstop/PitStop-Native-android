@@ -139,7 +139,6 @@ public class DtcDataHandler{
 
                                             });
                                 }
-                                localCarStorage.updateCar(car);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

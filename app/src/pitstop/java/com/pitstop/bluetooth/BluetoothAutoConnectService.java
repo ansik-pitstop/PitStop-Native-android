@@ -615,7 +615,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void ffData(FreezeFramePackage ffPackage) {
-
+        Log.d(TAG,"ffData()");
         //Set device id if its found in freeze frame package
         if (ffPackage.deviceId != null && !ffPackage.deviceId.isEmpty()){
             currentDeviceId = ffPackage.deviceId;
@@ -886,7 +886,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestFreezeData() {
-        LogUtils.debugLogI(TAG, "Getting freeze data", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"requestFreezeData()");
         deviceManager.getFreezeFrame();
     }
 
