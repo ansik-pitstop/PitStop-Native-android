@@ -530,7 +530,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = tripInfoPackage.deviceId;
         }
 
-        tripDataHandler.handleTripData(tripInfoPackage,currentDeviceId);
+        tripInfoPackage.deviceId = currentDeviceId;
+        tripDataHandler.handleTripData(tripInfoPackage);
     }
 
     /**
@@ -582,8 +583,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = pidPackage.deviceId;
         }
 
+        pidPackage.deviceId = currentDeviceId;
         deviceManager.requestData();
-        pidDataHandler.handlePidData(pidPackage,currentDeviceId);
+        pidDataHandler.handlePidData(pidPackage);
     }
 
     /**
@@ -600,7 +602,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = dtcPackage.deviceId;
         }
 
-        dtcDataHandler.handleDtcData(dtcPackage,currentDeviceId);
+        dtcPackage.deviceId = currentDeviceId;
+        dtcDataHandler.handleDtcData(dtcPackage);
         notifyDtcData(dtcPackage);
     }
 
@@ -612,6 +615,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = ffPackage.deviceId;
         }
 
+        ffPackage.deviceId = currentDeviceId;
         freezeFrameDataHandler.handleFreezeFrameData(ffPackage);
     }
 
@@ -650,14 +654,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             }
         });
-    }
-
-
-    public void onReadDeviceId(String deviceId){
-        if (readDeviceId.isEmpty() && deviceId != null
-                && !deviceId.isEmpty()){
-            readDeviceId = deviceId;
-        }
     }
 
     @Override

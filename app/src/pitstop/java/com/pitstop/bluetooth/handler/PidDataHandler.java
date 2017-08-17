@@ -52,11 +52,9 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
-    public void handlePidData(PidPackage pidPackage, String deviceId){
-
+    public void handlePidData(PidPackage pidPackage){
+        String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
-
-        pidPackage.deviceId = deviceId;
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){

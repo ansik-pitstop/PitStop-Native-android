@@ -83,7 +83,9 @@ public class TripDataHandler{
         pendingTripInfoPackages.clear();
     }
 
-    public void handleTripData(TripInfoPackage tripInfoPackage, String deviceId){
+    public void handleTripData(TripInfoPackage tripInfoPackage){
+
+        String deviceId = tripInfoPackage.deviceId;
 
         boolean deviceIsVerified
                 = bluetoothDataHandlerManager.isDeviceVerified();

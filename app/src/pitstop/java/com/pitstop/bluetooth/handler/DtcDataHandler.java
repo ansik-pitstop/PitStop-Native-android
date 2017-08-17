@@ -56,7 +56,9 @@ public class DtcDataHandler{
 
     }
 
-    public void handleDtcData(DtcPackage dtcPackage, String deviceId){
+    public void handleDtcData(DtcPackage dtcPackage){
+
+        String deviceId = dtcPackage.deviceId;
 
         pendingDtcPackages.add(dtcPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified() || deviceId.isEmpty()){
