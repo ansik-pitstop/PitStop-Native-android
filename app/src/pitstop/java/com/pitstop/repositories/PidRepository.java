@@ -34,10 +34,10 @@ public class PidRepository implements Repository{
         this.localPidStorage = localPidStorage;
     }
 
-    public void insertPid(PidPackage pid, Callback<Object> callback){
+    public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
         Log.d(TAG,"insertPid() locally stored pid count: "+localPidStorage.getPidDataEntryCount()
                 +", pid: "+pid);
-        localPidStorage.createPIDData(getPidDataObject(pid));
+        localPidStorage.createPIDData(getPidDataObject(pid,tripId));
         if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
                 && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
             sendPidDataToServer(callback);
@@ -61,13 +61,13 @@ public class PidRepository implements Repository{
                     }
 
                     Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
-                    tripIdList.add((int)pidDataObject.getTripId());
+                    tripIdList.add(pidDataObject.getTripId());
                     deviceIdList.add(pidDataObject.getDeviceId());
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("dataNum", pidDataObject.getDataNumber());
                     jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
                     jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripIdRaw", pidDataObject.getTripId());
+                    jsonObject.put("tripIdRaw", pidDataObject.getTripIdRaw());
                     jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
                     jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                     pidArray.put(jsonObject);
@@ -117,7 +117,7 @@ public class PidRepository implements Repository{
         }
     }
 
-    private Pid getPidDataObject(PidPackage pidPackage){
+    private Pid getPidDataObject(PidPackage pidPackage, int tripId){
 
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
@@ -128,8 +128,9 @@ public class PidRepository implements Repository{
         }catch(NumberFormatException e){
             pidDataObject.setMileage(0);
         }
-        pidDataObject.setDataNumber("");  //FIX OR LOOK INTO
-        pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
+        pidDataObject.setDataNumber("");  //FIX OR LOOK INTO TODO
+        pidDataObject.setTripIdRaw(Long.parseLong(pidPackage.tripId));
+        pidDataObject.setTripId(tripId);
         pidDataObject.setRtcTime(pidPackage.rtcTime);
         pidDataObject.setDeviceId(pidPackage.deviceId);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));

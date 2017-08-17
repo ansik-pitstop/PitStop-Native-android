@@ -11,13 +11,22 @@ public class Pid {
     private String dataNumber;
     private String rtcTime;
     private String timeStamp;
-    private long tripId;
+    private long tripIdRaw;
     private String pids;
     private double mileage;
     private double calculatedMileage;
     private String deviceId;
+    private int tripId;
 
     public Pid() {}
+
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
+    }
+
+    public int getTripId() {
+        return tripId;
+    }
 
     public String getDeviceId() {
         return deviceId;
@@ -51,12 +60,12 @@ public class Pid {
         this.timeStamp = timeStamp;
     }
 
-    public long getTripId() {
-        return tripId;
+    public long getTripIdRaw() {
+        return tripIdRaw;
     }
 
-    public void setTripId(long tripId) {
-        this.tripId = tripId;
+    public void setTripIdRaw(long tripIdRaw) {
+        this.tripIdRaw = tripIdRaw;
     }
 
     public String getPids() {
@@ -92,7 +101,7 @@ public class Pid {
     }
 
     public String toString() {
-        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp + ", tripId: " + tripId
+        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp + ", tripIdRaw: " + tripIdRaw
                 + ", mileage: " + mileage + ", calculatedMileage: " + calculatedMileage + ", pids: " + pids;
     }
 }

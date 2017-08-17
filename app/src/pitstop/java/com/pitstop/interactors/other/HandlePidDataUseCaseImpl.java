@@ -46,30 +46,32 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                 @Override
                 public void onSuccess(Trip215 data) {
                     Log.d(TAG,"Got latest trip id from server, id: "+pidPackage.tripId);
-                    pidPackage.tripId = String.valueOf(data.getTripId());
-                    insertPid();
+                    insertPid(data.getTripId());
                 }
 
                 @Override
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error getting latest trip id from server, creating trip using pid");
-                    createTripUsingPid();
-                    callback.onError(error);
+                    if (!error.getError().equals(RequestError.ERR_OFFLINE)){
+                        createTripUsingPid();
+                    }
+                    else{
+                        callback.onError(error);
+                    }
                 }
             });
         }
         else{
             Log.d(TAG,"Repository latest trip id is "+Device215TripRepository.localLatestTripId
                     +", inserting PID");
-            pidPackage.tripId = String.valueOf(Device215TripRepository.localLatestTripId);
-            insertPid();
+            insertPid(Device215TripRepository.localLatestTripId);
         }
 
 
     }
 
-    private void insertPid(){
-        pidRepository.insertPid(pidPackage, new Repository.Callback<Object>() {
+    private void insertPid(int tripId){
+        pidRepository.insertPid(pidPackage, tripId, new Repository.Callback<Object>() {
             @Override
             public void onSuccess(Object response){
                 Log.d(TAG,"successfully added pids");
@@ -98,7 +100,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     public void onSuccess(Trip215 data) {
 
                         Log.d(TAG,"Stored trip start using PID. Attempting to store pid again!");
-                        pidRepository.insertPid(pidPackage, new Repository.Callback<Object>() {
+                        pidRepository.insertPid(pidPackage,data.getTripId(), new Repository.Callback<Object>() {
 
                             @Override
                             public void onSuccess(Object response){
@@ -123,12 +125,12 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
-        int tripId;
+        int tripIdRaw;
         try{
-             tripId = Integer.valueOf(pidPackage.tripId);
+             tripIdRaw = Integer.valueOf(pidPackage.tripId);
         }catch(NumberFormatException e){
             e.printStackTrace();
-            tripId = -1;
+            tripIdRaw = -1;
         }
         double mileage;
         try{
@@ -145,6 +147,6 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             rtcTime = 0;
         }
 
-        return new Trip215(tripId,mileage,rtcTime,pidPackage.deviceId);
+        return new Trip215(tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
     }
 }

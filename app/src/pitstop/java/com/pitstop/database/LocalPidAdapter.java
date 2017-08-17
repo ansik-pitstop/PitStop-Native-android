@@ -45,6 +45,7 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_DATANUM, pidData.getDataNumber());
         values.put(TABLES.PID.KEY_RTCTIME, pidData.getRtcTime());
         values.put(TABLES.PID.KEY_TIMESTAMP, pidData.getTimeStamp());
+        values.put(TABLES.PID.KEY_TRIP_ID_RAW, pidData.getTripIdRaw());
         values.put(TABLES.PID.KEY_TRIP_ID, pidData.getTripId());
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
         values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
@@ -73,7 +74,7 @@ public class LocalPidAdapter {
                 pidData.setDataNumber(c.getString(c.getColumnIndex(TABLES.PID.KEY_DATANUM)));
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
-                pidData.setTripId(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
+                pidData.setTripIdRaw(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
                 pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
