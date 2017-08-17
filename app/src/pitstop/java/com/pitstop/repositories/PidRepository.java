@@ -24,9 +24,7 @@ import java.util.Map;
 public class PidRepository implements Repository{
 
     private final String TAG = getClass().getSimpleName();
-    private static final int PID_CHUNK_SIZE = 15;
-
-    private final String ERR_NO_TRIP_FOUND = "error_no_trip_exists";
+    private static final int PID_CHUNK_SIZE = 5;
 
     private NetworkHelper networkHelper;
     private LocalPidAdapter localPidStorage;
@@ -124,31 +122,12 @@ public class PidRepository implements Repository{
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
-        //Car car = localCarStorage.getCarByScanner(deviceId);
-
-        double mileage;
-        double calculatedMileage;
-
-//        //TODO: Ask Nitish what's going on below
-//        if(pidPackage.tripMileage != null && !pidPackage.tripMileage.isEmpty()) {
-//            mileage = Double.parseDouble(pidPackage.tripMileage) / 1000;
-//            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-//        }
-//
-//        //FIX OR LOOK INTO
-//// } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
-////            mileage = Double.parseDouble(lastData.tripMileage)/1000;
-////            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-////        }
-//        else {
-//            mileage = 0;
-//            calculatedMileage = 0;
-//        }
-
-      //  pidDataObject.setMileage(mileage); // trip mileage from device
-      //  pidDataObject.setCalculatedMileage(calculatedMileage);
-        pidDataObject.setCalculatedMileage(Double.parseDouble(pidPackage.tripMileage));
-        pidDataObject.setMileage(Double.parseDouble(pidPackage.tripMileage));
+        pidDataObject.setCalculatedMileage(0);
+        try{
+            pidDataObject.setMileage(Double.parseDouble(pidPackage.tripMileage));
+        }catch(NumberFormatException e){
+            pidDataObject.setMileage(0);
+        }
         pidDataObject.setDataNumber("");  //FIX OR LOOK INTO
         pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
         pidDataObject.setRtcTime(pidPackage.rtcTime);
