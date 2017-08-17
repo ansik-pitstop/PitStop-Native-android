@@ -24,7 +24,7 @@ import java.util.Map;
 public class PidRepository implements Repository{
 
     private final String TAG = getClass().getSimpleName();
-    private static final int PID_CHUNK_SIZE = 5;
+    private static final int PID_CHUNK_SIZE = 10;
 
     private NetworkHelper networkHelper;
     private LocalPidAdapter localPidStorage;
