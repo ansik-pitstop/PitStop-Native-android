@@ -150,17 +150,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.rtcDataHandler = new RtcDataHandler(this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
 
-        Runnable periodScanRunnable = new Runnable() { // start background search
-            @Override
-            public void run() { // this is for auto connect for bluetooth classic
-                if(deviceConnState.equals(State.DISCONNECTED)) {
-                    Log.d(TAG, "Running periodic scan");
-                    requestDeviceSearch(false,false); // periodic scan
-                }
-                handler.postDelayed(this, 300000); //Evert 5 minutes
-            }
-        };
-
         //Sometimes terminal time might not be returned
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
             @Override
@@ -191,8 +180,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         };
 
-        handler.post(periodScanRunnable);
-       // handler.post(periodicGetSupportedPidsRunnable);
         handler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         handler.postDelayed(periodicGetVinRunnable,5000);
 
