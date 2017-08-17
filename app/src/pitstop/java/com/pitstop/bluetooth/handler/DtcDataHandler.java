@@ -57,7 +57,7 @@ public class DtcDataHandler{
     }
 
     public void handleDtcData(DtcPackage dtcPackage){
-
+        Log.d(TAG,"handleDtcData() dtcPackage: "+dtcPackage);
         String deviceId = dtcPackage.deviceId;
 
         pendingDtcPackages.add(dtcPackage);
@@ -112,7 +112,7 @@ public class DtcDataHandler{
                                     }
                                 }
                                 dtcList.removeAll(toRemove);
-
+                                Log.d(TAG,"dtc list size after removing duplicates: "+dtcList.size());
                                 for (final String dtc: dtcList) {
                                     final List<String> dtcListReference = dtcList;
 
@@ -122,7 +122,10 @@ public class DtcDataHandler{
                                                 @Override
                                                 public void done(String response, RequestError requestError) {
                                                     Log.i(TAG, "DTC added: " + dtc);
-
+                                                    if (requestError != null){
+                                                        Log.d(TAG,"Error adding new dtc, error: "+requestError.getMessage());
+                                                        return;
+                                                    }
                                                     //INCLUDE THIS INSIDE USE CASE WHEN REFACTORING
                                                     //Notify that dtcs have been updated once
                                                     // the last one has been sent successfully
@@ -133,12 +136,16 @@ public class DtcDataHandler{
                                                                 EventType.EVENT_DTC_NEW));
                                                     }
                                                 }
+
                                             });
                                 }
                                 localCarStorage.updateCar(car);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                        }
+                        else{
+                            Log.d(TAG,"Error saving dtcs, message: "+requestError.getMessage());
                         }
                     }
                 });
