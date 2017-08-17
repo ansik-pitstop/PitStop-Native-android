@@ -109,7 +109,7 @@ public class TripDataHandler{
 
         /*Code for handling 212 trip logic, moved to private method since its being
           phased out and won't be maintained*/
-        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE) && isConnected215
+        if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE) && !isConnected215
                 && deviceIsVerified){
 
             Log.d(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime);

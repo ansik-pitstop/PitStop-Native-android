@@ -403,8 +403,6 @@ public class Device215B implements AbstractDevice {
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
 
-                    boolean ignoreIdr = false;
-
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
@@ -416,37 +414,12 @@ public class Device215B implements AbstractDevice {
                             , getApplicationContext());
 
                     if (idrInfo.alarmEvents.equals("2")){
-
-                        //Check whether this trip end was already sent
-                        boolean tripEndNotSent = lastSentTripEnd == -1
-                                || lastSentTripEnd != tripInfoPackage.tripId;
-
-                        if (tripEndNotSent){
-                            tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-                            lastSentTripEnd = tripInfoPackage.tripId;
-                        }
-                        else{
-                            ignoreIdr = true;
-                        }
+                        tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
                     }
                     /*Trip start detected by ignition time changing or alarm, if both occur
                     /* , one will be sent as an update*/
                     else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
-
-                        //Check whether this trip start was already sent
-                        boolean tripStartNotSent = lastSentTripStart == -1
-                                || lastSentTripStart != tripInfoPackage.tripId;
-
-                        Log.d(TAG,"AlarmEvent is 1 OR ignition time changed signaling trip start," +
-                                " tripStartNotSent? "+tripStartNotSent);
-                        if (tripStartNotSent){
-                            Log.d(TAG,"Trip start flag set.");
-                            tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-                            lastSentTripStart = tripInfoPackage.tripId;
-                        }
-                        else{
-                            ignoreIdr = true;
-                        }
+                        tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
                     }
                     else{
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
@@ -454,9 +427,7 @@ public class Device215B implements AbstractDevice {
 
                     tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
 
-                    if (!ignoreIdr){
-                        dataListener.tripData(tripInfoPackage);
-                    }
+                    dataListener.tripData(tripInfoPackage);
                 }
 
                 if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {

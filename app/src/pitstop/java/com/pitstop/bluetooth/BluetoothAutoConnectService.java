@@ -525,6 +525,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void tripData(final TripInfoPackage tripInfoPackage) {
+        Log.d(TAG,"tripData()");
+
+        deviceManager.requestData();
 
         if (tripInfoPackage.deviceId != null && !tripInfoPackage.deviceId.isEmpty()){
             currentDeviceId = tripInfoPackage.deviceId;
