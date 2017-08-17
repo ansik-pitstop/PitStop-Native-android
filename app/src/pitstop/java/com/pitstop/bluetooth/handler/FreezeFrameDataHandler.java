@@ -39,6 +39,8 @@ public class FreezeFrameDataHandler {
 
     public void handleFreezeFrameData(FreezeFramePackage freezeFramePackage){
 
+        Log.d(TAG,"handleFreezeFrameData() ff: "+freezeFramePackage);
+
         //Queue freeze frames until device is verified
         pendingFreezeFrames.add(freezeFramePackage);
         if (!bluetoothConnectionObservable.getDeviceState()
@@ -54,12 +56,14 @@ public class FreezeFrameDataHandler {
     }
 
     private void saveFreezeFrame(FreezeFramePackage ffPackage){
+        Log.d(TAG,"saveFreezeFrame()");
         networkHelper.postFreezeFrame(ffPackage, new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError != null) {
-                    Log.d("Save FF", requestError.getError());
-                    Log.d("Save FF", requestError.getMessage());
+                    Log.d(TAG,"Freeze frame save error!"+ requestError.getMessage());
+                }else{
+                    Log.d(TAG,"Freeze frame saved successfully!");
                 }
             }
         });

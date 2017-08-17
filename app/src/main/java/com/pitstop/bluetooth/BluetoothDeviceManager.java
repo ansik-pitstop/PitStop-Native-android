@@ -335,6 +335,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         connectToNextDevice();
                         if (!moreDevicesLeft()){
                             dataListener.scanFinished();
+                            bannedDeviceList.clear();
                         }
                         rssiScan = false;
                     }
