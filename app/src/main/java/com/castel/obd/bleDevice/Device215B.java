@@ -453,6 +453,9 @@ public class Device215B implements AbstractDevice {
 
                     dataListener.pidData(pidPackage);
                 }
+                else{
+                    dataListener.pidData(null);
+                }
 
                 if(idrInfo.dtc != null && !idrInfo.dtc.isEmpty()) {
                     // dtc example: "0/07470107/07470207/07470307/07474307"

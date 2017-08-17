@@ -544,7 +544,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
         if (parameterPackage == null) return;
-        else if (parameterPackage.value == null) parameterPackage.value = "";
+        if (parameterPackage.paramType == null) return;
+        if (parameterPackage.value == null) parameterPackage.value = "";
 
         if (parameterPackage.deviceId != null && !parameterPackage.deviceId.isEmpty()){
             currentDeviceId = parameterPackage.deviceId;
@@ -581,13 +582,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
+        deviceManager.requestData();
+        if (pidPackage == null) return;
+
         //Set device id if its found in pid package
         if (pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
             currentDeviceId = pidPackage.deviceId;
         }
 
         pidPackage.deviceId = currentDeviceId;
-        deviceManager.requestData();
         pidDataHandler.handlePidData(pidPackage);
     }
 
