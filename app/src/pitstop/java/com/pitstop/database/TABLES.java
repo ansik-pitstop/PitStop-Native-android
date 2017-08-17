@@ -24,10 +24,11 @@ public final class TABLES {
     public interface PID {
         String TABLE_NAME = "pidData";
         String TABLE_NAME_RESULT_4 = "pidResult4";
-
         String KEY_DATANUM = "dataNum";
+        String KEY_DEVICE_ID = "deviceId";
         String KEY_RTCTIME = "rtcTime";
         String KEY_TIMESTAMP = "timestamp";
+        String KEY_TRIP_ID_RAW = "tripIdRaw";
         String KEY_TRIP_ID = "tripId";
         String KEY_PIDS = "pids";
         String KEY_MILEAGE = "mileage";

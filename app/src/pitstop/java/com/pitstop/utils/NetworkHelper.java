@@ -434,6 +434,8 @@ public class NetworkHelper {
             body.put("pidArray", pidArr);
         } catch (JSONException e) {
             e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         postNoAuth("scan/pids", callback, body);

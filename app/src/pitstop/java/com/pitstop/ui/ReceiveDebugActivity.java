@@ -264,9 +264,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getDTC(View view) {
         if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
-            service.startBluetoothSearch(false);
+            service.requestDeviceSearch(false,false);
         }else {
-            service.getDTCs();
+            service.requestDtcData();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
@@ -274,7 +274,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
         if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
-            service.startBluetoothSearch(false);
+            service.requestDeviceSearch(false,false);
         }else {
             service.getSupportedPids();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -287,7 +287,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getVin(View view) {
-        service.getVinFromCar();
+        service.requestVin();
     }
 
     public void getRtc(View view) {
@@ -295,7 +295,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void setRtc(View view) {
-        service.syncObdDevice();
+        service.requestDeviceSync();
     }
 
     public void resetRtc(View view) {
@@ -308,7 +308,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void setParam(View view) {
-        service.setFixedUpload();
+       // service.setFixedUpload();
     }
 
     public void initialize(View view) {

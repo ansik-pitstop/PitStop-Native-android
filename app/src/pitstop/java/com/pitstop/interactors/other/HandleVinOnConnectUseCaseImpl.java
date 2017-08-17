@@ -3,7 +3,6 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 import android.util.Log;
 
-import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.Settings;
@@ -26,7 +25,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     private CarRepository carRepository;
     private Handler handler;
     private Callback callback;
-    private ParameterPackage parameterPackage;
+    private String vin;
+    private String deviceId;
 
     public HandleVinOnConnectUseCaseImpl(ScannerRepository scannerRepository
             ,CarRepository carRepository, UserRepository userRepository, Handler handler){
@@ -38,8 +38,9 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     }
 
     @Override
-    public void execute(ParameterPackage parameterPackage, Callback callback) {
-        this.parameterPackage = parameterPackage;
+    public void execute(String vin, String deviceId, Callback callback) {
+        this.vin = vin;
+        this.deviceId = deviceId;
         this.callback = callback;
         handler.post(this);
     }
@@ -50,18 +51,6 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
     @Override
     public void run() {
-        //ADD LOGS
-        //Log.d(TAG,"")
-
-        //ADDRESS NULL VALUE CASE
-
-        if (!parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            callback.onError(RequestError.getUnknownError());
-            return;
-        }
-
-        final String deviceVin = parameterPackage.value;
-        final String deviceId = parameterPackage.deviceId;
 
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
@@ -78,8 +67,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     @Override
                     public void onSuccess(Car car) {
 
-                        boolean deviceVinValid = deviceVin != null
-                                && (deviceVin.length() == 17);
+                        boolean deviceVinValid = vin != null
+                                && (vin.length() == 17);
                         boolean carScannerValid = car.getScannerId() != null
                                 && !car.getScannerId().isEmpty()
                                 && car.getScannerId().equals(deviceId);
@@ -103,7 +92,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             return;
                         }
 
-                        if (deviceVinValid && !car.getVin().equals(deviceVin)){
+                        if (deviceVinValid && !car.getVin().equals(vin)){
                             Log.d(TAG,"Device vin is valid but does not match car VIN");
                             callback.onDeviceInvalid();
                             return;

@@ -40,6 +40,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
+import com.pitstop.interactors.other.HandlePidDataUseCase;
+import com.pitstop.interactors.other.HandlePidDataUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -69,6 +71,7 @@ import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
+import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
@@ -269,4 +272,9 @@ public class UseCaseModule {
         return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, handler);
     }
 
+    @Provides
+    HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository
+            , Device215TripRepository device215TripRepository, Handler handler){
+        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, handler);
+    }
 }
