@@ -23,6 +23,7 @@ public class LocalPidAdapter {
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
             + TABLES.PID.KEY_TRIP_ID + " INTEGER,"
+            + TABLES.PID.KEY_TRIP_ID_RAW +" INTEGER,"
             + TABLES.PID.KEY_DEVICE_ID +" TEXT,"
             + TABLES.PID.KEY_MILEAGE + " REAL,"
             + TABLES.PID.KEY_CALCULATED_MILEAGE + " REAL,"
@@ -74,7 +75,8 @@ public class LocalPidAdapter {
                 pidData.setDataNumber(c.getString(c.getColumnIndex(TABLES.PID.KEY_DATANUM)));
                 pidData.setRtcTime(c.getString(c.getColumnIndex(TABLES.PID.KEY_RTCTIME)));
                 pidData.setTimeStamp(c.getString(c.getColumnIndex(TABLES.PID.KEY_TIMESTAMP)));
-                pidData.setTripIdRaw(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
+                pidData.setTripIdRaw(c.getLong(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID_RAW)));
+                pidData.setTripId(c.getInt(c.getColumnIndex(TABLES.PID.KEY_TRIP_ID)));
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
                 pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));

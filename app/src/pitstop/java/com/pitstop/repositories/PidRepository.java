@@ -42,6 +42,9 @@ public class PidRepository implements Repository{
                 && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
             sendPidDataToServer(callback);
         }
+        else{
+            callback.onSuccess(null);
+        }
     }
 
     private void sendPidDataToServer(Callback callback){

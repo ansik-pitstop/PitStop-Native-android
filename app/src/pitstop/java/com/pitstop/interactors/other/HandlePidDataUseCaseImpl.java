@@ -71,6 +71,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private void insertPid(int tripId){
+        Log.d(TAG,"insertPid()");
         pidRepository.insertPid(pidPackage, tripId, new Repository.Callback<Object>() {
             @Override
             public void onSuccess(Object response){
@@ -80,7 +81,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
             @Override
             public void onError(RequestError error){
-
+                Log.d(TAG,"insertPid() onError, message: "+error.getMessage());
                 //Check whether its a "trip not found" error
                 if (error.getMessage().contains("not found")){
                     createTripUsingPid();
@@ -93,6 +94,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private void createTripUsingPid(){
+        Log.d(TAG,"createTripUsingPid()");
         tripRepository.storeTripStart(pidPackageToTrip215Start(pidPackage)
                 , new Repository.Callback<Trip215>() {
 
