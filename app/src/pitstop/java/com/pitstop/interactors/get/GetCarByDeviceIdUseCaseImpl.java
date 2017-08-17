@@ -1,5 +1,7 @@
 package com.pitstop.interactors.get;
 
+import android.os.Handler;
+
 import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
@@ -18,21 +20,24 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
     private UserRepository userRepository;
     private CarRepository carRepository;
     private ScannerRepository scannerRepository;
+    private Handler handler;
     private String deviceId;
     private Callback callback;
 
     public GetCarByDeviceIdUseCaseImpl(UserRepository userRepository
-            , CarRepository carRepository, ScannerRepository scannerRepository){
+            , CarRepository carRepository, ScannerRepository scannerRepository, Handler handler){
 
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.scannerRepository = scannerRepository;
+        this.handler = handler;
     }
 
     @Override
     public void execute(String deviceId, Callback callback) {
         this.deviceId = deviceId;
         this.callback = callback;
+        handler.post(this);
     }
 
     @Override

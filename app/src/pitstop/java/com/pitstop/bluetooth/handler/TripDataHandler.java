@@ -137,7 +137,7 @@ public class TripDataHandler{
         //Go through all pending trip info packages including the one just passed in parameter
         List<TripInfoPackage> toRemove = new ArrayList<>();
         for (TripInfoPackage trip: pendingTripInfoPackages){
-
+            trip.deviceId = deviceId;
             /*Set the device id for any trips that were received while a device was broken
             /** prior to an overwrite*/
 

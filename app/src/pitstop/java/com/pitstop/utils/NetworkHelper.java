@@ -422,14 +422,14 @@ public class NetworkHelper {
         putNoAuth("scan/trip", callback, tripBody);
     }
 
-    public void savePids(String tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
+    public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
         LOGI(TAG, "savePids to " + scannerId);
         LOGV(TAG, "pidArr: " + pidArr.toString());
 
         JSONObject body = new JSONObject();
 
         try {
-            body.put("tripId", Integer.valueOf(tripId));
+            body.put("tripId", tripId);
             body.put("scannerId", scannerId);
             body.put("pidArray", pidArr);
         } catch (JSONException e) {

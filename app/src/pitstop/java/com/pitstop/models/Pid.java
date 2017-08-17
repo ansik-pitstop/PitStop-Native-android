@@ -15,8 +15,17 @@ public class Pid {
     private String pids;
     private double mileage;
     private double calculatedMileage;
+    private String deviceId;
 
     public Pid() {}
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
 
     public int getId() {
         return id;

@@ -4,32 +4,19 @@ import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalDatabaseHelper;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalPidResult4Adapter;
 import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerTempNetworkComponent;
-import com.pitstop.dependency.TempNetworkComponent;
-import com.pitstop.models.Car;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.models.Pid;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.LogUtils;
-import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -46,28 +33,17 @@ public class PidDataHandler {
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
-    private LocalPidAdapter localPidStorage;
-    private LocalPidResult4Adapter localPidResult4;
-    private LocalCarAdapter localCarStorage;
-    private NetworkHelper networkHelper;
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
-    private File databasePath;
-
+    private UseCaseComponent useCaseComponent;
     private String supportedPids = "";
-    private boolean isSendingPids = false;
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
 
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
-        this.localPidStorage = new LocalPidAdapter(context);
-        this.localPidResult4 = new LocalPidResult4Adapter(context);
-        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
+        useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
-        this.networkHelper = tempNetworkComponent.networkHelper();
-        this.localCarStorage = new LocalCarAdapter(context);
-        this.databasePath = context.getDatabasePath(LocalDatabaseHelper.DATABASE_NAME);
 
         initPidPriorityList();
     }
@@ -80,6 +56,8 @@ public class PidDataHandler {
 
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
 
+        pidPackage.deviceId = deviceId;
+
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
@@ -88,140 +66,23 @@ public class PidDataHandler {
             return;
         }
 
-        Log.d(TAG,"Going through pending pid packages, size: "+pendingPidPackages.size()
-                +", local storage pids size: "+localPidStorage.getAllPidDataEntries().size());
         for (PidPackage p: pendingPidPackages){
-            //Send pid data through to server
-            Pid pidDataObject = getPidDataObject(p, deviceId);
+            useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
+                @Override
+                public void onSuccess() {
+                    Log.d(TAG,"Successfully handled pids.");
+                }
 
-            if(pidDataObject.getMileage() >= 0 && pidDataObject.getCalculatedMileage() >= 0) {
-                localPidStorage.createPIDData(pidDataObject);
-            }
-
-            if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
-                    && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
-                sendPidDataToServer(deviceId, pidPackage.tripId);
-            }
-
+                @Override
+                public void onError(RequestError error) {
+                    Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
+                    if (error.getMessage().contains("not found")){
+                        //Let trip handler know to get his shit together
+                    }
+                }
+            });
         }
         pendingPidPackages.clear();
-    }
-
-    private void sendPidDataToServer(final String deviceId, final String tripId) {
-        if(isSendingPids) {
-            Log.i(TAG, "Already sending pids");
-            return;
-        }
-        isSendingPids = true;
-        Log.i(TAG, "sending PID data tripId: "+tripId+", pids stored loally: "
-                +localPidStorage.getAllPidDataEntries().size());
-        List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
-
-        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
-        JSONArray[] pidArrays = new JSONArray[chunks];
-
-        try {
-            for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
-                JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
-                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
-                        continue;
-                    }
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                    jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripIdRaw", pidDataObject.getTripId());
-                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                    pidArray.put(jsonObject);
-                }
-                pidArrays[chunkNumber] = pidArray;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        for(JSONArray pids : pidArrays) {
-            if(pids.length() == 0) {
-                isSendingPids = false;
-                continue;
-            }
-            networkHelper.savePids(tripId, deviceId, pids,
-                    new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            isSendingPids = false;
-                            if (requestError == null) {
-                                Log.i(TAG, "PIDS saved");
-                                localPidStorage.deleteAllPidDataEntries();
-                            } else {
-                                Log.e(TAG, "save pid error: " + requestError.getMessage());
-                                if (databasePath.length() > 10000000L) { // delete pids if db size > 10MB
-                                    localPidStorage.deleteAllPidDataEntries();
-                                    localPidResult4.deleteAllPidDataEntries();
-                                }
-                            }
-                        }
-                    });
-        }
-    }
-
-    private Pid getPidDataObject(PidPackage pidPackage, String deviceId){
-
-        Pid pidDataObject = new Pid();
-        JSONArray pids = new JSONArray();
-
-        Car car = localCarStorage.getCarByScanner(deviceId);
-
-        double mileage;
-        double calculatedMileage;
-
-        //TODO: Ask Nitish what's going on below
-        if(pidPackage.tripMileage != null && !pidPackage.tripMileage.isEmpty()) {
-            mileage = Double.parseDouble(pidPackage.tripMileage) / 1000;
-            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-        }
-
-        //FIX OR LOOK INTO
-// } else if(lastData != null && lastData.tripMileage != null && !lastData.tripMileage.isEmpty()) {
-//            mileage = Double.parseDouble(lastData.tripMileage)/1000;
-//            calculatedMileage = car == null ? 0 : mileage + car.getTotalMileage();
-//        }
-         else {
-            mileage = 0;
-            calculatedMileage = 0;
-         }
-
-        pidDataObject.setMileage(mileage); // trip mileage from device
-        pidDataObject.setCalculatedMileage(calculatedMileage);
-        pidDataObject.setDataNumber("");  //FIX OR LOOK INTO
-        pidDataObject.setTripId(Long.parseLong(pidPackage.tripId));
-        pidDataObject.setRtcTime(pidPackage.rtcTime);
-        pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
-
-        StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, String> pidEntry : pidPackage.pids.entrySet()) {
-            sb.append(pidEntry.getKey());
-            sb.append(": ");
-            sb.append(pidEntry.getValue());
-            sb.append(" / ");
-            try {
-                JSONObject pid = new JSONObject();
-                pid.put("id", pidEntry.getKey());
-                pid.put("data", pidEntry.getValue());
-                pids.put(pid);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Log.d(TAG, "PIDs received: " + sb.toString());
-
-        pidDataObject.setPids(pids.toString());
-
-        return pidDataObject;
     }
 
     // hardcoded linked list that is in the order of priority

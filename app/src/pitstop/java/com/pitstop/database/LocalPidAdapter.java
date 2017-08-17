@@ -23,6 +23,7 @@ public class LocalPidAdapter {
             + TABLES.PID.KEY_RTCTIME + " TEXT,"
             + TABLES.PID.KEY_PIDS + " TEXT,"
             + TABLES.PID.KEY_TRIP_ID + " INTEGER,"
+            + TABLES.PID.KEY_DEVICE_ID +" TEXT,"
             + TABLES.PID.KEY_MILEAGE + " REAL,"
             + TABLES.PID.KEY_CALCULATED_MILEAGE + " REAL,"
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
@@ -48,6 +49,7 @@ public class LocalPidAdapter {
         values.put(TABLES.PID.KEY_PIDS, pidData.getPids());
         values.put(TABLES.PID.KEY_MILEAGE, pidData.getMileage());
         values.put(TABLES.PID.KEY_CALCULATED_MILEAGE, pidData.getCalculatedMileage());
+        values.put(TABLES.PID.KEY_DEVICE_ID, pidData.getDeviceId());
 
         db.insert(TABLES.PID.TABLE_NAME, null, values);
 
@@ -75,6 +77,7 @@ public class LocalPidAdapter {
                 pidData.setPids(c.getString(c.getColumnIndex(TABLES.PID.KEY_PIDS)));
                 pidData.setMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_MILEAGE)));
                 pidData.setCalculatedMileage(c.getDouble(c.getColumnIndex(TABLES.PID.KEY_CALCULATED_MILEAGE)));
+                pidData.setDeviceId(c.getString(c.getColumnIndex(TABLES.PID.KEY_DEVICE_ID)));
 
                 pidDataEntries.add(pidData);
             } while (c.moveToNext());
