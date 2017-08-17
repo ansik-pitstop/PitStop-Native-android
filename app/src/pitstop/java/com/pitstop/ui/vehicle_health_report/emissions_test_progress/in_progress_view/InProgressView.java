@@ -5,4 +5,11 @@ package com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress
  */
 
 public interface InProgressView {
+    void switchToProgress();
+    void setReady();
+    void bounceCards();
+    void changeStep(String step);
+    int getCardNumber();
+    void back();
+    void next();
 }

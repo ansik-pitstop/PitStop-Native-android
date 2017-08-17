@@ -271,12 +271,12 @@
 
 
 
-        <activity android:name=".ui.vehicle_health_report.health_report_progress.ReportProgressActivity"
+        <activity android:name=".ui.vehicle_health_report.health_report_progress.ReportActivity"
           android:label="Vehicle Health Report"
             android:screenOrientation="portrait" />
 
         <activity android:name=".ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity"
-            android:label="Emissions Test In Progress"
+            android:label="Emissions Test"
             android:screenOrientation="portrait" />
 
         <activity

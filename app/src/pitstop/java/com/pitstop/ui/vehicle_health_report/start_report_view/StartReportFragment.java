@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportProgressActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
@@ -71,7 +71,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
                     startActivity(intent);
                 }else{
-                    Intent intent = new Intent(getActivity(), ReportProgressActivity.class);
+                    Intent intent = new Intent(getActivity(), ReportActivity.class);
                     startActivity(intent);
                 }
             }
@@ -93,9 +93,14 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public void onResume() {
         super.onResume();
-        presenter.subscirbe(this);
+        presenter.subscribe(this);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.unsubscribe();
+    }
 
     @Override
     public void setModeEmissions() {

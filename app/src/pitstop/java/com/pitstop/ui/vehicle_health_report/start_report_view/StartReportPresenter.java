@@ -9,11 +9,16 @@ public class StartReportPresenter {
     private StartReportView view;
 
 
-    public void subscirbe(StartReportView view){
+    public void subscribe(StartReportView view){
         this.view = view;
     }
 
+    public void unsubscribe(){
+        this.view = null;
+    }
+
     void onSwitchClicked(boolean b){
+        if(view == null){return;}
         if(b){
             view.setModeEmissions();
         }else{

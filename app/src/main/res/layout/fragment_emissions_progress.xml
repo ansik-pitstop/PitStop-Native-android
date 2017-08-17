@@ -1,32 +1,394 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/emissions_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:id="@+id/step_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/emissions_progress_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/step_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="5dp"
+            android:text="Step 1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/highlight" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/report_progress_animation"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentBottom="true"
+                android:visibility="visible"
+                app:indicatorColor="@color/highlight"
+                app:indicatorName="BallPulseIndicator" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <com.daimajia.numberprogressbar.NumberProgressBar
+        android:id="@+id/emissions_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/start_report_button_holder"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:progress_reached_color="@color/highlight"
+        app:progress_text_color="@color/highlight" />
+
+    <RelativeLayout
+        android:id="@+id/emissions_progress_lower"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/start_report_button_holder"
+        android:layout_alignParentBottom="true">
+
+        <ViewAnimator
+            android:id="@+id/emissions_card_switcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/emissions_button_holder"
+            android:inAnimation="@anim/activity_slide_left_in"
+            android:outAnimation="@anim/activity_slide_left_out">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/vin_check_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Step 1 : Vin Check"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="In this step we will check your VIN with Drive Clean Ontario to see if you are eligible for an official emissions test"
+                        android:textColor="@color/white_text" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/eligible_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Result: eligible"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="That means this test will be officially counted including fails. Carefull you only have 4 fails."
+                        android:textColor="@color/white_text" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/not_eligible_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Result: not eligible"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="That means that this test will not be officially recorded."
+                        android:textColor="@color/white_text" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/fuel_type_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView40"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Step 3 : Fuel Type"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:id="@+id/textView43"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Please enter your fuel type and tap next"
+                        android:textColor="@color/white_text" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <RadioGroup
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginRight="5dp"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/radioButton2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Gas"
+                                android:textColor="@color/white_text"
+                                app:buttonTint="@color/white_text" />
+
+                            <RadioButton
+                                android:id="@+id/radioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Diesel"
+                                android:textColor="@color/white_text"
+                                app:buttonTint="@color/white_text" />
+                        </RadioGroup>
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/licence_plate_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Step 2 : Licence Plate"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Please enter your license plate and tap next"
+                        android:textColor="@color/white_text" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <EditText
+                            android:id="@+id/editText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginRight="5dp"
+                            android:background="@color/white"
+                            android:ems="10"
+                            android:hint="   Licence Plate"
+                            android:inputType="textPersonName" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/ready_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                app:cardBackgroundColor="@color/highlight"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Ready to begin"
+                        android:textColor="@color/white_text" />
+
+                    <TextView
+                        android:id="@+id/textView44"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Tap the button above to start your emissions test"
+                        android:textColor="@color/white_text" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </ViewAnimator>
+
+        <LinearLayout
+            android:id="@+id/emissions_button_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/emissions_back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:background="@color/red"
+                android:text="Back"
+                android:textColor="@color/white_text" />
+
+            <Button
+                android:id="@+id/emissions_next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:background="@color/highlight"
+                android:text="Next"
+                android:textColor="@color/white_text" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
     <FrameLayout
         android:id="@+id/start_report_button_holder"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-
-        android:layout_gravity="center|top">
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerHorizontal="true">
 
 
         <ImageView
             android:id="@+id/imageView37"
-            app:srcCompat="@drawable/grey_circular_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="58dp" />
+            android:layout_margin="58dp"
+            app:srcCompat="@drawable/grey_circular_background" />
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/start_report_animation"
-            app:indicatorColor="@color/highlight"
-            app:indicatorName="SemiCircleSpinIndicator"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            app:indicatorColor="@color/highlight"
+            app:indicatorName="BallScaleIndicator" />
 
+
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/progress_report_animation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            app:indicatorColor="@color/highlight"
+            app:indicatorName="BallClipRotatePulseIndicator" />
 
         <Button
             android:id="@+id/start_report_button"
@@ -39,12 +401,24 @@
             android:textColor="@color/white_text" />
 
         <ImageView
-            android:id="@+id/imageView41"
-            app:srcCompat="@drawable/pitstop_p3x"
+            android:id="@+id/emissions_pitstop_logo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="80dp"
-            android:elevation="20dp" />
+            android:elevation="20dp"
+            app:srcCompat="@drawable/pitstop_p3x" />
+
+        <TextView
+            android:id="@+id/emissions_start_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="20dp"
+            android:text="START"
+            android:textColor="@color/white_text"
+            android:textSize="50dp"
+            android:visibility="invisible" />
 
     </FrameLayout>
-</LinearLayout>
+
+</RelativeLayout>
