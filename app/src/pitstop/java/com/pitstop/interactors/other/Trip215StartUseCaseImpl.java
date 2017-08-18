@@ -15,7 +15,7 @@ import com.pitstop.repositories.Repository;
 public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
     private final String TAG = getClass().getSimpleName();
-    private final int HISTORICAL_OFFSET = 100;
+    private final int HISTORICAL_OFFSET = 100; //Terminal rtc time takes some time to retrieve
 
     private Device215TripRepository device215TripRepository;
     private Handler handler;

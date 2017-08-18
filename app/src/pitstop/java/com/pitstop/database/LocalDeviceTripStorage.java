@@ -86,6 +86,7 @@ public class LocalDeviceTripStorage {
     }
 
     public void deleteAllRows(){
+        Log.d(TAG,"deleteAllRows()");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.TRIP_DEVICE.TABLE_NAME, null, null);
