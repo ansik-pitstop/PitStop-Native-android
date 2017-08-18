@@ -126,6 +126,11 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
+    public String requestSnapshot() {
+        return null; //Not supported
+    }
+
+    @Override
     public String getDtcs() {
         return OBD.setMonitor(TYPE_DTC, "");
     }
@@ -384,7 +389,7 @@ public class Device212B implements AbstractDevice {
                     PidPackage pidPackage = new PidPackage(templatePidPackage);
                     pidPackage.rtcTime = String.valueOf(Long.parseLong(pidPackage.rtcTime) - 2 * (numberOfDataPoints - i - 1));
                     pidPackage.pids = pidMapList.get(i);
-                    dataListener.pidData(pidPackage);
+                    dataListener.idrPidData(pidPackage);
                 }
             }
 

@@ -73,6 +73,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
         if (isDeviceConnected()){
             mCallback.onScanStarted();
+            bluetoothObservable.requestAllPid();
             getServicesAndRecalls();
             getEngineCodes();
         }
@@ -314,5 +315,10 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             isAskingForDtcs = false;
             checkEngineIssuesTimer.cancel();
         }
+    }
+
+    @Override
+    public void onHistoricalDataStateChanged(boolean historicalEnabled) {
+
     }
 }

@@ -32,6 +32,7 @@ public interface AbstractDevice {
     String getPids(String pids);
     String getSupportedPids();
     String setPidsToSend(String pids);
+    String requestSnapshot();
 
     // monitor
     String getDtcs(); // stored
