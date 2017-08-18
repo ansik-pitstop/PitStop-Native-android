@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Ben Wu on 2016-08-04.
  */
-public class LocalScannerAdapter {
+public class LocalScannerStorage {
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
             + TABLES.SCANNER.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.SCANNER.KEY_CAR_ID + " INTEGER, "
@@ -23,7 +23,7 @@ public class LocalScannerAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalScannerAdapter(Context context) {
+    public LocalScannerStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

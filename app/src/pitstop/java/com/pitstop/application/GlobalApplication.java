@@ -23,14 +23,14 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.database.LocalAppointmentAdapter;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.LocalTripAdapter;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalAppointmentStorage;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalTripStorage;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
@@ -64,14 +64,14 @@ public class GlobalApplication extends Application {
     /**
      * Database open helper
      */
-    private UserAdapter mUserAdapter;
-    private LocalScannerAdapter mLocalScannerAdapter;
-    private LocalCarAdapter mLocalCarAdapter;
-    private LocalCarIssueAdapter mLocalCarIssueAdapter;
-    private LocalAppointmentAdapter mLocalAppointmentAdapter;
-    private LocalTripAdapter mLocalTripAdapter;
-    private LocalPidAdapter mLocalPidAdapter;
-    private LocalShopAdapter mLocalShopAdapter;
+    private LocalUserStorage mLocalUserStorage;
+    private LocalScannerStorage mLocalScannerStorage;
+    private LocalCarStorage mLocalCarStorage;
+    private LocalCarIssueStorage mLocalCarIssueStorage;
+    private LocalAppointmentStorage mLocalAppointmentStorage;
+    private LocalTripStorage mLocalTripStorage;
+    private LocalPidStorage mLocalPidStorage;
+    private LocalShopStorage mLocalShopStorage;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -162,7 +162,7 @@ public class GlobalApplication extends Application {
     }
 
     public void setUpMixPanel(){
-        User user = mUserAdapter.getUser();
+        User user = mLocalUserStorage.getUser();
         if(user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
@@ -258,13 +258,13 @@ public class GlobalApplication extends Application {
     }
 
     public User getCurrentUser() {
-        return mUserAdapter.getUser();
+        return mLocalUserStorage.getUser();
     }
 
     public Car getCurrentCar(){
 
         //Get most recent version of car list
-        List<Car> carList = mLocalCarAdapter.getAllCars();
+        List<Car> carList = mLocalCarStorage.getAllCars();
 
         //Set car list to what it was initially
         if (carList.size() == 0)
@@ -290,7 +290,7 @@ public class GlobalApplication extends Application {
         editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
         editor.apply();
 
-        mUserAdapter.storeUserData(user);
+        mLocalUserStorage.storeUserData(user);
     }
 
     public void setTokens(String accessToken, String refreshToken) {
@@ -341,28 +341,28 @@ public class GlobalApplication extends Application {
      * Initiate database open helper when the app start
      */
     private void initiateDatabase(){
-        mUserAdapter = new UserAdapter(this);
-        mLocalScannerAdapter = new LocalScannerAdapter(this);
-        mLocalCarAdapter = new LocalCarAdapter(this);
-        mLocalAppointmentAdapter = new LocalAppointmentAdapter(this);
-        mLocalTripAdapter = new LocalTripAdapter(this);
-        mLocalCarIssueAdapter = new LocalCarIssueAdapter(this);
-        mLocalPidAdapter = new LocalPidAdapter(this);
-        mLocalShopAdapter = new LocalShopAdapter(this);
+        mLocalUserStorage = new LocalUserStorage(this);
+        mLocalScannerStorage = new LocalScannerStorage(this);
+        mLocalCarStorage = new LocalCarStorage(this);
+        mLocalAppointmentStorage = new LocalAppointmentStorage(this);
+        mLocalTripStorage = new LocalTripStorage(this);
+        mLocalCarIssueStorage = new LocalCarIssueStorage(this);
+        mLocalPidStorage = new LocalPidStorage(this);
+        mLocalShopStorage = new LocalShopStorage(this);
     }
 
     /**
      * Delete all rows in database
      */
     private void cleanUpDatabase(){
-        mUserAdapter.deleteAllUsers();
-        mLocalScannerAdapter.deleteAllRows();
-        mLocalPidAdapter.deleteAllRows();
-        mLocalCarAdapter.deleteAllRows();
-        mLocalAppointmentAdapter.deleteAllRows();
-        mLocalTripAdapter.deleteAllRows();
-        mLocalCarIssueAdapter.deleteAllRows();
-        mLocalShopAdapter.deleteAllRows();
+        mLocalUserStorage.deleteAllUsers();
+        mLocalScannerStorage.deleteAllRows();
+        mLocalPidStorage.deleteAllRows();
+        mLocalCarStorage.deleteAllRows();
+        mLocalAppointmentStorage.deleteAllRows();
+        mLocalTripStorage.deleteAllRows();
+        mLocalCarIssueStorage.deleteAllRows();
+        mLocalShopStorage.deleteAllRows();
     }
 
 }

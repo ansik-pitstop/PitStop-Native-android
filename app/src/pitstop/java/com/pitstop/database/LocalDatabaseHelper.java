@@ -39,17 +39,17 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(LocalPidAdapter.CREATE_TABLE_PID_DATA);
-        db.execSQL(LocalPidResult4Adapter.CREATE_TABLE_PID_DATA);
-        db.execSQL(LocalCarAdapter.CREATE_TABLE_CAR);
-        db.execSQL(LocalCarIssueAdapter.CREATE_TABLE_CAR_ISSUES);
-        db.execSQL(LocalAppointmentAdapter.CREATE_TABLE_APPOINTMENT);
-        db.execSQL(LocalTripAdapter.CREATE_TABLE_APPOINTMENT);
-        db.execSQL(LocalShopAdapter.CREATE_TABLE_DEALERSHIP);
-        db.execSQL(ParseNotificationStore.CREATE_TABLE_NOTIFICATION);
-        db.execSQL(UserAdapter.CREATE_TABLE_USER);
-        db.execSQL(LocalScannerAdapter.CREATE_TABLE_CAR_ISSUES);
-        db.execSQL(LocalDebugMessageAdapter.CREATE_TABLE_DEBUG_MESSAGE);
+        db.execSQL(LocalPidStorage.CREATE_TABLE_PID_DATA);
+        db.execSQL(LocalPidResult4Storage.CREATE_TABLE_PID_DATA);
+        db.execSQL(LocalCarStorage.CREATE_TABLE_CAR);
+        db.execSQL(LocalCarIssueStorage.CREATE_TABLE_CAR_ISSUES);
+        db.execSQL(LocalAppointmentStorage.CREATE_TABLE_APPOINTMENT);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_APPOINTMENT);
+        db.execSQL(LocalShopStorage.CREATE_TABLE_DEALERSHIP);
+        db.execSQL(LocalParseNotificationStorage.CREATE_TABLE_NOTIFICATION);
+        db.execSQL(LocalUserStorage.CREATE_TABLE_USER);
+        db.execSQL(LocalScannerStorage.CREATE_TABLE_CAR_ISSUES);
+        db.execSQL(LocalDebugMessageStorage.CREATE_TABLE_DEBUG_MESSAGE);
     }
 
     @Override

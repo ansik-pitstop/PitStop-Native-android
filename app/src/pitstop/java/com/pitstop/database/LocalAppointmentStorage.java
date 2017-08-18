@@ -14,7 +14,7 @@ import java.util.List;
  * Created by Matthew on 2017-05-05.
  */
 
-public class LocalAppointmentAdapter {
+public class LocalAppointmentStorage {
     // APPOINTMENT table create statement
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.APPOINTMENT.TABLE_NAME + "("
@@ -28,7 +28,7 @@ public class LocalAppointmentAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalAppointmentAdapter(Context context) {
+    public LocalAppointmentStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

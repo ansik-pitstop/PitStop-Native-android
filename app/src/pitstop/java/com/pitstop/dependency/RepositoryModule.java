@@ -1,11 +1,11 @@
 package com.pitstop.dependency;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.PidRepository;
@@ -29,38 +29,38 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public ShopRepository getShopRepository(LocalShopAdapter localShopAdapter
+    public ShopRepository getShopRepository(LocalShopStorage localShopStorage
             , NetworkHelper networkHelper){
-        return new ShopRepository(localShopAdapter,networkHelper);
+        return new ShopRepository(localShopStorage,networkHelper);
     }
 
     @Provides
     @Singleton
-    public UserRepository getUserRepository(UserAdapter userAdapter
+    public UserRepository getUserRepository(LocalUserStorage localUserStorage
             , NetworkHelper networkHelper){
-        return new UserRepository(userAdapter,networkHelper);
+        return new UserRepository(localUserStorage,networkHelper);
     }
 
     @Provides
     @Singleton
-    public CarRepository getCarRepository(LocalCarAdapter localCarAdapter
+    public CarRepository getCarRepository(LocalCarStorage localCarStorage
             , NetworkHelper networkHelper){
-        return new CarRepository(localCarAdapter,networkHelper);
+        return new CarRepository(localCarStorage,networkHelper);
     }
 
     @Provides
     @Singleton
-    public CarIssueRepository getCarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter
+    public CarIssueRepository getCarIssueRepository(LocalCarIssueStorage localCarIssueStorage
             , NetworkHelper networkHelper){
-        return new CarIssueRepository(localCarIssueAdapter,networkHelper);
+        return new CarIssueRepository(localCarIssueStorage,networkHelper);
     }
 
     @Provides
     @Singleton
     ScannerRepository getScannerRepository(NetworkHelper networkHelper
-            , LocalScannerAdapter localScannerAdapter){
+            , LocalScannerStorage localScannerStorage){
 
-        return new ScannerRepository(networkHelper,localScannerAdapter);
+        return new ScannerRepository(networkHelper, localScannerStorage);
     }
 
     @Provides
@@ -71,7 +71,7 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    PidRepository getPidRepository(NetworkHelper networkHelper, LocalPidAdapter localPidStorage){
+    PidRepository getPidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage){
         return new PidRepository(networkHelper,localPidStorage);
     }
 }

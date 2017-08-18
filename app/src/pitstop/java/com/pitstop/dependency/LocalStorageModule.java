@@ -2,12 +2,12 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalCarIssueAdapter;
-import com.pitstop.database.LocalPidAdapter;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.database.LocalShopAdapter;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalUserStorage;
 
 import javax.inject.Singleton;
 
@@ -23,37 +23,37 @@ public class LocalStorageModule {
 
     @Singleton
     @Provides
-    public LocalShopAdapter localShopAdapter(Context context){
-        return new LocalShopAdapter(context);
+    public LocalShopStorage localShopAdapter(Context context){
+        return new LocalShopStorage(context);
     }
 
     @Singleton
     @Provides
-    public LocalCarAdapter localCarAdapter(Context context){
-        return new LocalCarAdapter(context);
+    public LocalCarStorage localCarAdapter(Context context){
+        return new LocalCarStorage(context);
     }
 
     @Singleton
     @Provides
-    public LocalCarIssueAdapter localCarIssueAdapter(Context context){
-        return new LocalCarIssueAdapter(context);
+    public LocalCarIssueStorage localCarIssueAdapter(Context context){
+        return new LocalCarIssueStorage(context);
     }
 
     @Singleton
     @Provides
-    public UserAdapter userAdapter(Context context){
-        return new UserAdapter(context);
+    public LocalUserStorage userAdapter(Context context){
+        return new LocalUserStorage(context);
     }
 
     @Singleton
     @Provides
-    LocalScannerAdapter localScannerAdapter(Context context){
-        return new LocalScannerAdapter(context);
+    LocalScannerStorage localScannerAdapter(Context context){
+        return new LocalScannerStorage(context);
     }
 
     @Singleton
     @Provides
-    LocalPidAdapter localPidStorage(Context context){
-        return new LocalPidAdapter(context);
+    LocalPidStorage localPidStorage(Context context){
+        return new LocalPidStorage(context);
     }
 }

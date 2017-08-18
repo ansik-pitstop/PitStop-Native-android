@@ -40,9 +40,9 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.database.LocalCarAdapter;
-import com.pitstop.database.LocalScannerAdapter;
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalShopStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -128,9 +128,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     };
 
     // Database accesses
-    private LocalCarAdapter carLocalStore;
-    private LocalShopAdapter shopLocalStore;
-    private LocalScannerAdapter scannerLocalStore;
+    private LocalCarStorage carLocalStore;
+    private LocalShopStorage shopLocalStore;
+    private LocalScannerStorage scannerLocalStore;
 
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
@@ -237,9 +237,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         progressDialog.setCanceledOnTouchOutside(false);
 
         // Local db adapters
-        carLocalStore = new LocalCarAdapter(application);
-        shopLocalStore = new LocalShopAdapter(application);
-        scannerLocalStore = new LocalScannerAdapter(application);
+        carLocalStore = new LocalCarStorage(application);
+        shopLocalStore = new LocalShopStorage(application);
+        scannerLocalStore = new LocalScannerStorage(application);
 
         logAuthInfo();
 

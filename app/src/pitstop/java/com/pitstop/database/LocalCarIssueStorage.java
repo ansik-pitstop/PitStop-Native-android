@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 04/04/2016.
  */
-public class LocalCarIssueAdapter {
+public class LocalCarIssueStorage {
     // CAR_ISSUES table create statement
     public static final String CREATE_TABLE_CAR_ISSUES = "CREATE TABLE "
             + TABLES.CAR_ISSUES.TABLE_NAME + "("
@@ -34,7 +34,7 @@ public class LocalCarIssueAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalCarIssueAdapter(Context context) {
+    public LocalCarIssueStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

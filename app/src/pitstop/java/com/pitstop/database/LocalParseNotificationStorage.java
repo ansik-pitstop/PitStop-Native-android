@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 26/04/2016.
  */
-public class ParseNotificationStore {
+public class LocalParseNotificationStorage {
     // NOTIFICATION table create statement
     public static final String CREATE_TABLE_NOTIFICATION = "CREATE TABLE IF NOT EXISTS "
             + TABLES.NOTIFICATION.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
@@ -24,7 +24,7 @@ public class ParseNotificationStore {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public ParseNotificationStore(Context context) {
+    public LocalParseNotificationStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

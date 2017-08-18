@@ -10,7 +10,7 @@ import com.pitstop.models.User;
 /**
  * Created by Ben Wu on 2016-06-07.
  */
-public class UserAdapter  {
+public class LocalUserStorage {
 
     // USER table create statement
     public static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
@@ -24,7 +24,7 @@ public class UserAdapter  {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public UserAdapter(Context context) {
+    public LocalUserStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

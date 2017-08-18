@@ -12,7 +12,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -54,7 +54,7 @@ public class TripDataHandler{
     private NetworkHelper networkHelper;
     private Handler handler;
     private SharedPreferences sharedPreferences;
-    private LocalCarAdapter localCarStorage;
+    private LocalCarStorage localCarStorage;
     private Context context;
 
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
@@ -75,7 +75,7 @@ public class TripDataHandler{
                 .build();
         networkHelper = tempNetworkComponent.networkHelper();
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.localCarStorage = new LocalCarAdapter(context);
+        this.localCarStorage = new LocalCarStorage(context);
         this.context = context;
     }
 

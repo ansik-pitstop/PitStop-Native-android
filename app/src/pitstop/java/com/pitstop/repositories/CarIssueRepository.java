@@ -2,7 +2,7 @@ package com.pitstop.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
-import com.pitstop.database.LocalCarIssueAdapter;
+import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.CarIssue;
@@ -37,19 +37,19 @@ public class CarIssueRepository implements Repository{
     private static final int DEALERSHIP_ISSUES = 0;
 
     private static CarIssueRepository INSTANCE;
-    private LocalCarIssueAdapter carIssueAdapter; //To be integrated once refactored
+    private LocalCarIssueStorage carIssueAdapter; //To be integrated once refactored
     private NetworkHelper networkHelper;
 
-    public static synchronized CarIssueRepository getInstance(LocalCarIssueAdapter localCarIssueAdapter
+    public static synchronized CarIssueRepository getInstance(LocalCarIssueStorage localCarIssueStorage
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new CarIssueRepository(localCarIssueAdapter,networkHelper);
+            INSTANCE = new CarIssueRepository(localCarIssueStorage,networkHelper);
         }
         return INSTANCE;
     }
 
-    public CarIssueRepository(LocalCarIssueAdapter localCarIssueAdapter, NetworkHelper networkHelper){
-        this.carIssueAdapter = localCarIssueAdapter;
+    public CarIssueRepository(LocalCarIssueStorage localCarIssueStorage, NetworkHelper networkHelper){
+        this.carIssueAdapter = localCarIssueStorage;
         this.networkHelper = networkHelper;
     }
 

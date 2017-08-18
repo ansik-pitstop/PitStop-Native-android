@@ -1,7 +1,7 @@
 package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
-import com.pitstop.database.UserAdapter;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
@@ -24,19 +24,19 @@ public class UserRepository implements Repository{
     private final String END_POINT_USER = "user/";
 
     private static UserRepository INSTANCE;
-    private UserAdapter userAdapter;
+    private LocalUserStorage localUserStorage;
     private NetworkHelper networkHelper;
 
-    public static synchronized UserRepository getInstance(UserAdapter userAdapter
+    public static synchronized UserRepository getInstance(LocalUserStorage localUserStorage
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new UserRepository(userAdapter, networkHelper);
+            INSTANCE = new UserRepository(localUserStorage, networkHelper);
         }
         return INSTANCE;
     }
 
-    public UserRepository(UserAdapter userAdapter, NetworkHelper networkHelper){
-        this.userAdapter = userAdapter;
+    public UserRepository(LocalUserStorage localUserStorage, NetworkHelper networkHelper){
+        this.localUserStorage = localUserStorage;
         this.networkHelper = networkHelper;
         return;
     }
@@ -48,7 +48,7 @@ public class UserRepository implements Repository{
             return;
         }
 
-        userAdapter.storeUserData(model);
+        localUserStorage.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getInsertUserRequestCallback(callback));
     }
@@ -77,7 +77,7 @@ public class UserRepository implements Repository{
     }
 
     public void update(User model, Callback<Object> callback) {
-        userAdapter.storeUserData(model);
+        localUserStorage.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getUserUpdateRequestCallback(callback));
     }
@@ -106,11 +106,11 @@ public class UserRepository implements Repository{
     }
 
     public void getCurrentUser(Callback<User> callback){
-        if (userAdapter.getUser() == null){
+        if (localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
         }
-        networkHelper.get(END_POINT_USER+userAdapter.getUser().getId()
+        networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
                 ,getUserGetRequestCallback(callback));
     }
 
@@ -188,7 +188,7 @@ public class UserRepository implements Repository{
     public void setFirstCarAdded(final boolean added
             , final Callback<Object> callback){
 
-        final int userId = userAdapter.getUser().getId();
+        final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, new RequestCallback() {
             @Override
@@ -244,12 +244,12 @@ public class UserRepository implements Repository{
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 
-        if(userAdapter.getUser() == null){
+        if(localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
         }
 
-        final int userId = userAdapter.getUser().getId();
+        final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, new RequestCallback() {
             @Override

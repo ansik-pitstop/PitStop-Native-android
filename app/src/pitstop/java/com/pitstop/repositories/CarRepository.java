@@ -1,7 +1,7 @@
 package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -25,19 +25,19 @@ import java.util.List;
 public class CarRepository implements Repository{
 
     private static CarRepository INSTANCE;
-    private LocalCarAdapter localCarAdapter;
+    private LocalCarStorage localCarStorage;
     private NetworkHelper networkHelper;
 
-    public static synchronized CarRepository getInstance(LocalCarAdapter localCarAdapter
+    public static synchronized CarRepository getInstance(LocalCarStorage localCarStorage
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
-            INSTANCE = new CarRepository(localCarAdapter, networkHelper);
+            INSTANCE = new CarRepository(localCarStorage, networkHelper);
         }
         return INSTANCE;
     }
 
-    public CarRepository(LocalCarAdapter localCarAdapter, NetworkHelper networkHelper){
-        this.localCarAdapter = localCarAdapter;
+    public CarRepository(LocalCarStorage localCarStorage, NetworkHelper networkHelper){
+        this.localCarStorage = localCarStorage;
         this.networkHelper = networkHelper;
     }
 
@@ -107,8 +107,8 @@ public class CarRepository implements Repository{
                             callback.onError(RequestError.getUnknownError());
                         }
 
-                        localCarAdapter.deleteCar(car.getId());
-                        localCarAdapter.storeCarData(car);
+                        localCarStorage.deleteCar(car.getId());
+                        localCarStorage.storeCarData(car);
                         callback.onSuccess(car);
                     }
                     else{
@@ -138,7 +138,7 @@ public class CarRepository implements Repository{
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
-                    localCarAdapter.updateCar(car);
+                    localCarStorage.updateCar(car);
                     callback.onSuccess(response);
                 }
                 else{
@@ -230,8 +230,8 @@ public class CarRepository implements Repository{
                                                 }
                                             }
                                         }
-                                        localCarAdapter.deleteAllCars();
-                                        localCarAdapter.storeCars(cars);
+                                        localCarStorage.deleteAllCars();
+                                        localCarStorage.storeCars(cars);
                                         callback.onSuccess(cars);
                                     }catch (JSONException e){
                                         callback.onError(RequestError.getUnknownError());
@@ -303,8 +303,8 @@ public class CarRepository implements Repository{
                                                 car.setDealership(noDealer);
                                             }
                                         }
-                                        localCarAdapter.deleteCar(car.getId());
-                                        localCarAdapter.storeCarData(car);
+                                        localCarStorage.deleteCar(car.getId());
+                                        localCarStorage.storeCarData(car);
                                         callback.onSuccess(car);
                                     }catch (JSONException e){
                                         callback.onError(RequestError.getUnknownError());
@@ -341,7 +341,7 @@ public class CarRepository implements Repository{
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
-                        localCarAdapter.deleteCar(carId);
+                        localCarStorage.deleteCar(carId);
                         callback.onSuccess(response);
                     }
                     else{
