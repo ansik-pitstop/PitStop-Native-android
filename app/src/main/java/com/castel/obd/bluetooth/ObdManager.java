@@ -315,6 +315,8 @@ public class ObdManager {
 
         void parameterData(ParameterPackage parameterPackage);
 
+        void idrPidData(PidPackage pidPackage);
+
         void pidData(PidPackage pidPackage);
 
         void dtcData(DtcPackage dtcPackage);

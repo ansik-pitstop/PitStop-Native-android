@@ -569,6 +569,15 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.requestData());
     }
 
+    public void requestSnapshot(){
+        Log.d(TAG,"requestSnapshot()");
+        if (deviceInterface instanceof Device215B
+                && btConnectionState == BluetoothCommunicator.CONNECTED){
+            Log.d(TAG,"executing writeToOBD requestSnapshot()");
+            writeToObd(deviceInterface.requestSnapshot());
+        }
+    }
+
     public void getRtcAndMileage(){
         if (isConnectedTo215()){
             writeToObd(((Device215B) deviceInterface).getRtcAndMileage());

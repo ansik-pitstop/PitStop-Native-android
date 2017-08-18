@@ -44,6 +44,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
+import com.pitstop.observer.BluetoothPidObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.observer.Device215BreakingObserver;
@@ -74,6 +75,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private BluetoothDeviceManager deviceManager;
 
     private String deviceConnState = State.DISCONNECTED;
+    private boolean snapshotRequested = false;
 
     public static int notifID = 1360119;
     private String currentDeviceId = "";
@@ -223,6 +225,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Check to make sure were not overriding the state once
             // its already verified and connected
             clearInvalidDeviceData();
+            snapshotRequested = false;
             if (deviceConnState.equals(State.SEARCHING)
                     || deviceConnState.equals(State.DISCONNECTED)){
 
@@ -364,13 +367,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestHistoricalDataStateChange(boolean on) {
+    public void requestHistoricalDataStateChange(boolean historicalEnabled) {
         //TODO
     }
 
     @Override
     public void requestAllPid() {
         //TODO
+        Log.d(TAG,"requestAllPid()");
+        snapshotRequested = true;
+        deviceManager.requestSnapshot();
     }
 
     @Override
@@ -480,8 +486,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void pidData(PidPackage pidPackage) {
-        LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
+    public void idrPidData(PidPackage pidPackage) {
+        LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         deviceManager.requestData();
@@ -494,6 +500,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         pidPackage.deviceId = currentDeviceId;
         pidDataHandler.handlePidData(pidPackage);
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+        Log.d(TAG,"Received snapshot() pidPackage: "+pidPackage);
+        notifyGotAllPid(pidPackage);
     }
 
     /**
@@ -731,6 +743,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOn() {
+        Log.d(TAG,"onBluetoothOn()");
         if (deviceManager != null) {
             deviceManager.close();
         }
@@ -747,6 +760,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOff() {
+        Log.d(TAG,"onBluetoothOff()");
         currentDeviceId = null;
         deviceManager.bluetoothStateChanged(BluetoothAdapter.STATE_OFF); //CONTINUE HERE
         deviceManager.close();
@@ -769,11 +783,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean isDeviceVerified() {
+        Log.d(TAG,"isDeviceVerified()");
         return deviceIsVerified;
     }
 
     @Override
     public boolean isConnectedTo215(){
+        Log.d(TAG,"isConnectedTo215()");
         if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
             return deviceManager.isConnectedTo215();
         else
@@ -786,30 +802,27 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * by obd device.
      */
     public void getObdDeviceTime() {
-        LogUtils.debugLogI(TAG, "Getting device time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"getObdDeviceTime()");
         deviceManager.getRtc();
     }
 
     public void setDeviceNameAndId(String name){
-        LogUtils.debugLogI(TAG, "Setting device name and id to "+name, true
-                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"setDeviceNameAndId() name: "+name);
         deviceManager.setDeviceNameAndId(name);
     }
 
     public void setDeviceId(String id){
-        LogUtils.debugLogI(TAG, "Setting device id to ["+id+"]", true
-                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"setDeviceId() id: "+id);
         deviceManager.setDeviceId(id);
     }
 
     public void resetObdDeviceTime() {
-        LogUtils.debugLogI(TAG, "Setting RTC time to 200x", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"resetObdDeviceTime()");
         deviceManager.setRtc(1088804101);
     }
 
     public void changeSetting(String param, String value){
-        LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,
-                true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"changeSettings() param: "+param+", value: "+value);
         deviceManager.setParam(param, value);
     }
 
@@ -820,6 +833,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @param deviceId The device id of the currently connected obd device
      */
     public void saveSyncedDevice(String deviceId) {
+        Log.d(TAG,"saveSyncedDevice() deviceId: "+deviceId);
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -828,12 +842,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void getSupportedPids(){ // supported pids
-        LogUtils.debugLogI(TAG, "getting supported PIDs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"getSupportedPids()");
         deviceManager.getSupportedPids();
     }
 
     public void getPids(String pids) {
-        LogUtils.debugLogI(TAG, "getting pids", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"getPids()");
         deviceManager.getPids(pids);
     }
 
@@ -844,6 +858,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public int getLastTripId() {
+        Log.d(TAG,"getLastTripId()");
         return lastTripId;
     }
 
@@ -939,6 +954,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothVinObserver) {
                 ((BluetoothVinObserver)observer).onGotVin(vin);
+            }
+        }
+    }
+
+    private void notifyGotAllPid(PidPackage pidPackage){
+        Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
+        if (!snapshotRequested) return;
+        snapshotRequested = false;
+
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothPidObserver){
+                ((BluetoothPidObserver)observer).onGotAllPid(pidPackage);
             }
         }
     }
