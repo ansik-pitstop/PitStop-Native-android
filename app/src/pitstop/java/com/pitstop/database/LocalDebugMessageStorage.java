@@ -5,7 +5,7 @@ import android.content.Context;
 import com.pitstop.models.DebugMessage;
 import com.squareup.sqlbrite.QueryObservable;
 
-public class LocalDebugMessageAdapter implements TABLES.DEBUG_MESSAGES {
+public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     public static final String CREATE_TABLE_DEBUG_MESSAGE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + COLUMN_TYPE + " INTEGER,"
@@ -16,7 +16,7 @@ public class LocalDebugMessageAdapter implements TABLES.DEBUG_MESSAGES {
 
     private LocalDatabaseHelper mDatabaseHelper;
 
-    public LocalDebugMessageAdapter(Context context) {
+    public LocalDebugMessageStorage(Context context) {
         mDatabaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

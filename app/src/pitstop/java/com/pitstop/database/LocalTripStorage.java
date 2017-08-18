@@ -4,25 +4,21 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
-
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.pitstop.models.Appointment;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 /**
  * Created by Matthew on 2017-05-16.
  */
 
-public class LocalTripAdapter {
+public class LocalTripStorage {
    // public static Semaphore semaphore = new Semaphore(1);
     // APPOINTMENT table create statement
 
@@ -41,7 +37,7 @@ public class LocalTripAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalTripAdapter(Context context) {
+    public LocalTripStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

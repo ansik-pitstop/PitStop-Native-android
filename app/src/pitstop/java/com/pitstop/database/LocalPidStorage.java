@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 4/1/2016.
  */
-public class LocalPidAdapter {
+public class LocalPidStorage {
 
     // PID_DATA table create statement
     public static final String CREATE_TABLE_PID_DATA = "CREATE TABLE IF NOT EXISTS "
@@ -32,7 +32,7 @@ public class LocalPidAdapter {
     private LocalDatabaseHelper databaseHelper;
 
 
-    public LocalPidAdapter(Context context) {
+    public LocalPidStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

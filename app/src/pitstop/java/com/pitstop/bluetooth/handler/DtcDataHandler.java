@@ -9,7 +9,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.database.LocalCarAdapter;
+import com.pitstop.database.LocalCarStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -40,14 +40,14 @@ public class DtcDataHandler{
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
-    private LocalCarAdapter localCarStorage;
+    private LocalCarStorage localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private NetworkHelper networkHelper;
 
     public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
-        this.localCarStorage = new LocalCarAdapter(context);
+        this.localCarStorage = new LocalCarStorage(context);
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(context))
