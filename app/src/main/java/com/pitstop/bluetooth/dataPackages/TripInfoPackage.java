@@ -13,6 +13,7 @@ public class TripInfoPackage {
     public double mileage; // in kilometres
     public long rtcTime; // unix time in seconds
     public TripFlag flag;
+    public long terminalRtcTime = -1; //For use inside local db
 
     @Override
     public String toString() {

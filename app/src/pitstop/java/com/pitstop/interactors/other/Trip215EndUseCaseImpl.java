@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Trip215;
@@ -14,23 +15,24 @@ import com.pitstop.repositories.Repository;
 
 public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+    private final int HISTORICAL_OFFSET = 100; //Terminal rtc time takes some time to retrieve
+
     private Device215TripRepository device215TripRepository;
     private Handler handler;
     private TripInfoPackage tripInfoPackage;
-    private long terminalRTCTime;       //RTC time recorded upon connecting to device
     private Callback callback;
 
-    public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository, Handler handler) {
+    public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository
+            , Handler handler) {
         this.device215TripRepository = device215TripRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(TripInfoPackage tripInfoPackage, long terminalRTCTime, Callback callback) {
+    public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
-        this.terminalRTCTime = terminalRTCTime;
-
         handler.post(this);
     }
 
@@ -63,7 +65,8 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                     public void onSuccess(Object data) {
 
                         //Send notification if a real time update occurred
-                        if (tripInfoPackage.rtcTime > terminalRTCTime){
+                        if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime
+                                - HISTORICAL_OFFSET){
                             callback.onRealTimeTripEndSuccess();
 
                         }
@@ -74,6 +77,11 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
                     @Override
                     public void onError(RequestError error) {
+                        Log.d(TAG,"onError() error: "+error.getMessage());
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                            Log.d(TAG,"Storing trip locally due to error.");
+                            device215TripRepository.storeTripLocally(tripInfoPackage);
+                        }
                         callback.onError(error);
                     }
                 });
@@ -82,15 +90,21 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"onError() error: "+error.getMessage());
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    Log.d(TAG,"Storing trip locally due to error.");
+                    device215TripRepository.storeTripLocally(tripInfoPackage);
+                }
                 callback.onError(error);
             }
         });
     }
 
+    //If latest trip succeeded
     private Trip215 convertToTrip215End(TripInfoPackage tripInfoPackage, Trip215 tripStart){
         double tripMileage = tripInfoPackage.mileage - tripStart.getMileage();
 
-        return new Trip215(tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
+        return new Trip215(Trip215.TRIP_END,tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
                 ,tripInfoPackage.deviceId);
     }
 }

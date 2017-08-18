@@ -59,6 +59,7 @@ public class TripDataHandler{
 
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+    private List<Integer> processedTripStartIds = new ArrayList<>(); //Sometimes two start trips are sent for the same trip
     private int lastTripId;
     private boolean isSendingTripRequest;
 
@@ -69,7 +70,7 @@ public class TripDataHandler{
         this.useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
-
+        useCaseComponent.periodicCachedTripSendUseCase().execute(useCaseComponent); //Sends locally stored trips to server
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
@@ -104,6 +105,11 @@ public class TripDataHandler{
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.START)){
             Log.d(TAG, "Trip start received: " + tripInfoPackage.toString());
+            if (processedTripStartIds.contains(tripInfoPackage.rtcTime)){
+                Log.d(TAG,"Duplictate Start! Returning!");
+                return; //Duplicate start, return;
+            }
+            processedTripStartIds.add(tripInfoPackage.tripId); //Store for later comparison for duplicates
             bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
         }
 
@@ -140,6 +146,7 @@ public class TripDataHandler{
         List<TripInfoPackage> toRemove = new ArrayList<>();
         for (TripInfoPackage trip: pendingTripInfoPackages){
             trip.deviceId = deviceId;
+            trip.terminalRtcTime = terminalRtcTime;
             /*Set the device id for any trips that were received while a device was broken
             /** prior to an overwrite*/
 
@@ -147,8 +154,7 @@ public class TripDataHandler{
 
                 Log.d(TAG, "Executing trip end use case");
 
-                useCaseComponent.trip215EndUseCase().execute(trip, terminalRtcTime
-                        , new Trip215EndUseCase.Callback() {
+                useCaseComponent.trip215EndUseCase().execute(trip, new Trip215EndUseCase.Callback() {
                             @Override
                             public void onHistoricalTripEndSuccess() {
                                 bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
@@ -189,8 +195,7 @@ public class TripDataHandler{
 
                Log.d(TAG, "Executing trip start use case");
 
-                useCaseComponent.trip215StartUseCase().execute(trip, terminalRtcTime
-                        , new Trip215StartUseCase.Callback() {
+                useCaseComponent.trip215StartUseCase().execute(trip, new Trip215StartUseCase.Callback() {
                             @Override
                             public void onRealTimeTripStartSuccess() {
                                 bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RT_SUCCESS);

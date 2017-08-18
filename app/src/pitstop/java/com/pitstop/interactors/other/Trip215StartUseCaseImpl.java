@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Trip215;
@@ -14,23 +15,24 @@ import com.pitstop.repositories.Repository;
 
 public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+    private final int HISTORICAL_OFFSET = 100; //Terminal rtc time takes some time to retrieve
+
     private Device215TripRepository device215TripRepository;
     private Handler handler;
     private TripInfoPackage tripInfoPackage;
-    private long terminalRTCTime;
     private Callback callback;
 
-
-    public Trip215StartUseCaseImpl(Device215TripRepository device215TripRepository, Handler handler){
+    public Trip215StartUseCaseImpl(Device215TripRepository device215TripRepository
+            , Handler handler){
 
         this.device215TripRepository = device215TripRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(TripInfoPackage tripInfoPackage,long terminalRTCTime, Callback callback) {
+    public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         this.callback = callback;
-        this.terminalRTCTime = terminalRTCTime;
         this.tripInfoPackage = tripInfoPackage;
         handler.post(this);
     }
@@ -41,7 +43,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
         device215TripRepository.storeTripStart(tripStart, new Repository.Callback<Trip215>() {
             @Override
             public void onSuccess(Trip215 data) {
-                if (tripStart.getRtcTime() > terminalRTCTime){
+                if (tripStart.getRtcTime() > tripInfoPackage.terminalRtcTime - HISTORICAL_OFFSET){
                     callback.onRealTimeTripStartSuccess();
                 }
                 else{
@@ -51,13 +53,19 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
             @Override
             public void onError(RequestError error) {
+
+                Log.d(TAG,"onError! error:"+error.getMessage());
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    Log.d(TAG,"Storing trip start locally due to error!");
+                    device215TripRepository.storeTripLocally(tripInfoPackage);
+                }
                 callback.onError(error);
             }
         });
     }
 
     private Trip215 convertToTrip215(TripInfoPackage tripInfoPackage){
-        return new Trip215(tripInfoPackage.tripId,tripInfoPackage.mileage
+        return new Trip215(Trip215.TRIP_START,tripInfoPackage.tripId,tripInfoPackage.mileage
                 ,tripInfoPackage.rtcTime,tripInfoPackage.deviceId);
     }
 }

@@ -34,7 +34,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -214,30 +213,16 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // on device connected?
     }
 
-    private List<BluetoothDevice> bannedDeviceList = new ArrayList<>();
     //Disconnect from device, add it to invalid device list, reset scan
     public void onConnectedDeviceInvalid(){
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        if (!ignoreVerification){
-            bannedDeviceList.add(connectedDevice);
-        }
         communicator.disconnect(connectedDevice);
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
             dataListener.scanFinished();
         }
-    }
-
-    private boolean isBanned(BluetoothDevice device){
-        for (BluetoothDevice d: bannedDeviceList){
-            if (d.getAddress().equals(device.getAddress())
-                    && d.getName().equals(device.getName())){
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -335,7 +320,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         connectToNextDevice();
                         if (!moreDevicesLeft()){
                             dataListener.scanFinished();
-                            bannedDeviceList.clear();
                         }
                         rssiScan = false;
                     }
@@ -460,8 +444,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
-                        && !foundDevices.containsKey(device)
-                        && (ignoreVerification || !isBanned(device))){
+                        && !foundDevices.containsKey(device)){
                     Log.d(TAG,"foundDevices.put()");
                     foundDevices.put(device,rssi);
                 }
