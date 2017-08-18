@@ -22,7 +22,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestVin();
 
     //Invoked when an observers wants to turn the historical data OFF/ON
-    void requestHistoricalDataStateChange(boolean on);
+    void requestHistoricalDataStateChange(boolean historicalEnabled);
 
     //Invoked when an observer wants to retrieve all the supported pids along with their values
     void requestAllPid();
