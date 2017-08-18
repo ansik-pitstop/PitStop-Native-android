@@ -1,6 +1,5 @@
 package com.pitstop.observer;
 
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.models.ReadyDevice;
 
 /**
@@ -18,35 +17,17 @@ public interface BluetoothConnectionObservable extends Subject{
         String CONNECTED_VERIFIED = "state_connected_verified"; //Established trusted connection with device
     }
 
-    //Invoked if device recognized as broken and requires id overwrite
-    void notifyDeviceNeedsOverwrite();
-
-    //Invoked if observable is in the process of searching for a device
-    void notifySearchingForDevice();
-
-    //Invoked if device has been successfully paired and is ready for use, this includes
-    //  syncing rtc time
-    void notifyDeviceReady(String vin, String scannerId, String scannerName);
-
-    //Invoked if the currently used scanner has disconnected
-    void notifyDeviceDisconnected();
-
-    //Invoked when the device is connected and now being verified
-    void notifyVerifyingDevice();
-
-    //Invoked when the device is verified and now being synced
-    void notifySyncingDevice();
-
-    //Invoked if dtc data has been received from the device
-    void notifyDtcData(DtcPackage dtcPackage);
-
-    void notifyVin(String vin);
-
     //Invoked when a observer needs the dtc data
     void requestDtcData();
 
     //Invoked when an observer needs the device VIN
     boolean requestVin();
+
+    //Invoked when an observers wants to turn the historical data OFF/ON
+    void requestHistoricalDataStateChange(boolean on);
+
+    //Invoked when an observer wants to retrieve all the supported pids along with their values
+    void requestAllPid();
 
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);
