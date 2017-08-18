@@ -38,13 +38,13 @@ public class PeriodicCachedTripSendUseCaseImpl implements PeriodicCachedTripSend
         this.useCaseComponent = useCaseComponent;
         //Don't allow more than one instance
         if (!cachedTripSenderActive){
+            cachedTripSenderActive = true;
             handler.post(this);
         }
     }
 
     @Override
     public void run() {
-        cachedTripSenderActive = true;
         Log.d(TAG,"periodicCachedTripSender executing. Connection Status: "
                 +connectionChecker.isConnected()+", locally stored trips size: "
                 +device215TripRepository.getLocallyStoredTrips().size());
