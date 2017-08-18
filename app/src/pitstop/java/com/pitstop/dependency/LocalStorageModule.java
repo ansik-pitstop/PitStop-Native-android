@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
@@ -55,5 +56,11 @@ public class LocalStorageModule {
     @Provides
     LocalPidStorage localPidStorage(Context context){
         return new LocalPidStorage(context);
+    }
+
+    @Singleton
+    @Provides
+    LocalDeviceTripStorage localDeviceTripStorage(Context context){
+        return new LocalDeviceTripStorage(context);
     }
 }

@@ -2,6 +2,7 @@ package com.pitstop.dependency;
 
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
@@ -65,8 +66,10 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper){
-        return new Device215TripRepository(networkHelper);
+    Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper
+            , LocalDeviceTripStorage localDeviceTripStorage){
+
+        return new Device215TripRepository(networkHelper,localDeviceTripStorage);
     }
 
     @Provides

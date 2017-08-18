@@ -1,5 +1,8 @@
 package com.pitstop.repositories;
 
+import android.os.Handler;
+
+import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -19,11 +22,36 @@ public class Device215TripRepository implements Repository{
     private final String SCAN_END_POINT = "scan/trip";
     private final String LATEST_TRIP_QUERY = "/?scannerId=%s&latest=true&active=true";
     private NetworkHelper networkHelper;
+    private LocalDeviceTripStorage localDeviceTripStorage;
+
+    private Handler handler = new Handler();
+    private final int SEND_CACHED_TRIP_INTERVAL = 60000; //Send trips once a minute
+    private Runnable periodicCachedTripSender = new Runnable() {
+        @Override
+        public void run() {
+            if (!networkHelper.isConnected()) return;
+
+            for (Trip215 trip215: localDeviceTripStorage.getAllTrips()){
+                if (trip215.getTripId() == -1){
+                    storeTripStart(trip215,null);
+                }
+                else{
+                    storeTripEnd(trip215,null);
+                }
+            }
+            localDeviceTripStorage.removeAllTrips();
+            handler.postDelayed(this,SEND_CACHED_TRIP_INTERVAL);
+        }
+    };
 
     public static int localLatestTripId = -1;
 
-    public Device215TripRepository(NetworkHelper networkHelper){
+    public Device215TripRepository(NetworkHelper networkHelper
+            , LocalDeviceTripStorage localDeviceTripStorage){
+
         this.networkHelper = networkHelper;
+        this.localDeviceTripStorage = localDeviceTripStorage;
+        handler.post(periodicCachedTripSender);
     }
 
     public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
@@ -38,10 +66,13 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(callback), body);
+        networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(
+                callback,tripStart), body);
     }
 
-    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback){
+    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback
+            , Trip215 trip215){
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -55,6 +86,9 @@ public class Device215TripRepository implements Repository{
                     }
                 }
                 else{
+                    if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
+                        localDeviceTripStorage.storeDeviceTrip(trip215);
+                    }
                     callback.onError(requestError);
                 }
             }
@@ -75,10 +109,11 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(callback), body);
+        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(
+                callback,tripEnd), body);
     }
 
-    private RequestCallback getStoreTripEndRequestCallback(Callback callback){
+    private RequestCallback getStoreTripEndRequestCallback(Callback callback, Trip215 trip){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -86,6 +121,9 @@ public class Device215TripRepository implements Repository{
                     callback.onSuccess(null);
                 }
                 else{
+                    if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
+                        localDeviceTripStorage.storeDeviceTrip(trip);
+                    }
                     callback.onError(requestError);
                 }
             }

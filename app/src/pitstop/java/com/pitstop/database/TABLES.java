@@ -71,6 +71,15 @@ public final class TABLES {
         String KEY_PATH = "path";
     }
 
+    public interface TRIP_DEVICE{
+        String TABLE_NAME = "tripsDevice";
+        String KEY_TRIP_ID_RAW = "tripIdRaw";
+        String KEY_TRIP_ID = "tripId";
+        String KEY_MILEAGE = "mileage";
+        String KEY_RTC = "rtc";
+        String KEY_DEVICE_ID = "deviceId";
+    }
+
     public interface CAR_ISSUES {
         String TABLE_NAME = "carIssues";
 
