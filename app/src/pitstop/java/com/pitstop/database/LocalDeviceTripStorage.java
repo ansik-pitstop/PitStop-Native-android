@@ -19,8 +19,8 @@ public class LocalDeviceTripStorage {
 
     private final String TAG = getClass().getSimpleName();
 
-    public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
-            + TABLES.TRIP.TABLE_NAME + "("
+    public static final String CREATE_TABLE_DEVICE_TRIP = "CREATE TABLE IF NOT EXISTS "
+            + TABLES.TRIP_DEVICE.TABLE_NAME + "("
             + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
             + TABLES.TRIP_DEVICE.KEY_TRIP_ID + " INTEGER, "
             + TABLES.TRIP_DEVICE.KEY_MILEAGE + " DOUBLE, "
@@ -75,6 +75,14 @@ public class LocalDeviceTripStorage {
         } catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void deleteAllRows(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        db.delete(TABLES.TRIP_DEVICE.TABLE_NAME, null, null);
+
+
     }
 
     private ContentValues tripObjectToContentValues(Trip215 trip) {
