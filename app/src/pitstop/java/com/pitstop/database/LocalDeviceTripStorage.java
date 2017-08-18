@@ -71,6 +71,7 @@ public class LocalDeviceTripStorage {
                 trips.add(tripInfoPackage);
             } while (c.moveToNext());
         }
+        c.close();
         return trips;
     }
 
