@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Trip215;
@@ -76,6 +77,11 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
                     @Override
                     public void onError(RequestError error) {
+                        Log.d(TAG,"onError() error: "+error.getMessage());
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                            Log.d(TAG,"Storing trip locally due to error.");
+                            device215TripRepository.storeTripLocally(tripInfoPackage);
+                        }
                         callback.onError(error);
                     }
                 });
@@ -84,7 +90,9 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"onError() error: "+error.getMessage());
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    Log.d(TAG,"Storing trip locally due to error.");
                     device215TripRepository.storeTripLocally(tripInfoPackage);
                 }
                 callback.onError(error);

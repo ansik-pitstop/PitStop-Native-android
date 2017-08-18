@@ -48,7 +48,10 @@ public class PeriodicCachedTripSendUseCaseImpl implements PeriodicCachedTripSend
         Log.d(TAG,"periodicCachedTripSender executing. Connection Status: "
                 +connectionChecker.isConnected()+", locally stored trips size: "
                 +device215TripRepository.getLocallyStoredTrips().size());
-        if (!connectionChecker.isConnected()) return;
+        if (!connectionChecker.isConnected()){
+            handler.postDelayed(this,SEND_CACHED_TRIP_INTERVAL);
+            return;
+        }
 
         for (TripInfoPackage trip215: device215TripRepository.getLocallyStoredTrips()){
             if (trip215.flag == TripInfoPackage.TripFlag.START){
