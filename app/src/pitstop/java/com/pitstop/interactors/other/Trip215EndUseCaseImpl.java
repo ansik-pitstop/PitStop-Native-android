@@ -15,6 +15,7 @@ import com.pitstop.repositories.Repository;
 public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
     private final String TAG = getClass().getSimpleName();
+    private final int HISTORICAL_OFFSET = 100;
 
     private Device215TripRepository device215TripRepository;
     private Handler handler;
@@ -63,7 +64,8 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                     public void onSuccess(Object data) {
 
                         //Send notification if a real time update occurred
-                        if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime){
+                        if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime
+                                - HISTORICAL_OFFSET){
                             callback.onRealTimeTripEndSuccess();
 
                         }

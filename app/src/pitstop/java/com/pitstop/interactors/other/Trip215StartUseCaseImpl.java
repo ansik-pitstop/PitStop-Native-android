@@ -15,6 +15,7 @@ import com.pitstop.repositories.Repository;
 public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
     private final String TAG = getClass().getSimpleName();
+    private final int HISTORICAL_OFFSET = 100;
 
     private Device215TripRepository device215TripRepository;
     private Handler handler;
@@ -41,7 +42,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
         device215TripRepository.storeTripStart(tripStart, new Repository.Callback<Trip215>() {
             @Override
             public void onSuccess(Trip215 data) {
-                if (tripStart.getRtcTime() > tripInfoPackage.terminalRtcTime){
+                if (tripStart.getRtcTime() > tripInfoPackage.terminalRtcTime - HISTORICAL_OFFSET){
                     callback.onRealTimeTripStartSuccess();
                 }
                 else{
