@@ -15,5 +15,5 @@ public interface Trip215StartUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(TripInfoPackage tripInfoPackage, long terminalRTCTime, Callback callback);
+    void execute(TripInfoPackage tripInfoPackage, Callback callback);
 }

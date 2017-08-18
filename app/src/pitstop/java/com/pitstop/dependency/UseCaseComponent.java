@@ -21,6 +21,7 @@ import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
+import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.add.AddServiceUseCase;
@@ -114,5 +115,7 @@ public interface UseCaseComponent {
     GetPrevIgnitionTimeUseCase getPrevIgnitionTimeUseCase();
 
     HandlePidDataUseCase handlePidDataUseCase();
+
+    PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase();
 
 }

@@ -14,23 +14,23 @@ import com.pitstop.repositories.Repository;
 
 public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private Device215TripRepository device215TripRepository;
     private Handler handler;
     private TripInfoPackage tripInfoPackage;
-    private long terminalRTCTime;       //RTC time recorded upon connecting to device
     private Callback callback;
 
-    public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository, Handler handler) {
+    public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository
+            , Handler handler) {
         this.device215TripRepository = device215TripRepository;
         this.handler = handler;
     }
 
     @Override
-    public void execute(TripInfoPackage tripInfoPackage, long terminalRTCTime, Callback callback) {
+    public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
-        this.terminalRTCTime = terminalRTCTime;
-
         handler.post(this);
     }
 
@@ -63,7 +63,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                     public void onSuccess(Object data) {
 
                         //Send notification if a real time update occurred
-                        if (tripInfoPackage.rtcTime > terminalRTCTime){
+                        if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime){
                             callback.onRealTimeTripEndSuccess();
 
                         }
@@ -82,15 +82,19 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
             @Override
             public void onError(RequestError error) {
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    device215TripRepository.storeTripLocally(tripInfoPackage);
+                }
                 callback.onError(error);
             }
         });
     }
 
+    //If latest trip succeeded
     private Trip215 convertToTrip215End(TripInfoPackage tripInfoPackage, Trip215 tripStart){
         double tripMileage = tripInfoPackage.mileage - tripStart.getMileage();
 
-        return new Trip215(tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
+        return new Trip215(Trip215.TRIP_END,tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
                 ,tripInfoPackage.deviceId);
     }
 }

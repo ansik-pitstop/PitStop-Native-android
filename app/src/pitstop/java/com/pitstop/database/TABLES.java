@@ -74,10 +74,11 @@ public final class TABLES {
     public interface TRIP_DEVICE{
         String TABLE_NAME = "tripsDevice";
         String KEY_TRIP_ID_RAW = "tripIdRaw";
-        String KEY_TRIP_ID = "tripId";
         String KEY_MILEAGE = "mileage";
         String KEY_RTC = "rtc";
+        String KEY_TERMINAL_RTC = "terminalRtcTime";
         String KEY_DEVICE_ID = "deviceId";
+        String KEY_TRIP_TYPE = "tripType";
     }
 
     public interface CAR_ISSUES {

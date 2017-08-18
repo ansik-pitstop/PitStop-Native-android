@@ -1,8 +1,6 @@
 package com.pitstop.repositories;
 
-import android.os.Handler;
-import android.util.Log;
-
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestCallback;
@@ -11,6 +9,8 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Stores/Retrieves device trip start/end remotely
@@ -26,51 +26,6 @@ public class Device215TripRepository implements Repository{
     private NetworkHelper networkHelper;
     private LocalDeviceTripStorage localDeviceTripStorage;
 
-    private Handler handler = new Handler();
-    private final int SEND_CACHED_TRIP_INTERVAL = 60000; //Send trips once a minute
-    private Runnable periodicCachedTripSender = new Runnable() {
-        @Override
-        public void run() {
-            Log.d(TAG,"periodicCachedTripSender executing. Connection Status: "
-                    +networkHelper.isConnected()+", locally stored trips size: "
-                    +localDeviceTripStorage.getAllTrips().size());
-            if (!networkHelper.isConnected()) return;
-
-            for (Trip215 trip215: localDeviceTripStorage.getAllTrips()){
-                if (trip215.getTripId() == -1){
-                    storeTripStart(trip215, new Callback<Trip215>() {
-                        @Override
-                        public void onSuccess(Trip215 data) {
-                            Log.d(TAG,"successfully sent trip START to server from local storage!");
-                        }
-
-                        @Override
-                        public void onError(RequestError error) {
-                            Log.d(TAG,"failed to send trip START to server from local storage!");
-                        }
-                    });
-                }
-                else{
-                    storeTripEnd(trip215,new Callback<Trip215>() {
-                        @Override
-                        public void onSuccess(Trip215 data) {
-                            Log.d(TAG,"successfully sent trip END to server from local storage!");
-                        }
-
-                        @Override
-                        public void onError(RequestError error) {
-                            Log.d(TAG,"failed to send trip END to server from local storage!");
-                        }
-                    });
-                }
-            }
-            localDeviceTripStorage.removeAllTrips();
-            Log.d(TAG,"Removing all trips from local trip storage, size after removal: "
-                    +localDeviceTripStorage.getAllTrips().size());
-            handler.postDelayed(this,SEND_CACHED_TRIP_INTERVAL);
-        }
-    };
-
     public static int localLatestTripId = -1;
 
     public Device215TripRepository(NetworkHelper networkHelper
@@ -78,8 +33,20 @@ public class Device215TripRepository implements Repository{
 
         this.networkHelper = networkHelper;
         this.localDeviceTripStorage = localDeviceTripStorage;
-        handler.post(periodicCachedTripSender);
     }
+
+    public void storeTripLocally(TripInfoPackage trip){
+        localDeviceTripStorage.storeDeviceTrip(trip);
+    }
+
+    public List<TripInfoPackage> getLocallyStoredTrips(){
+        return localDeviceTripStorage.getAllTrips();
+    }
+
+    public void removeLocallyStoredTrips(){
+        localDeviceTripStorage.removeAllTrips();
+    }
+
 
     public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
 
@@ -113,13 +80,6 @@ public class Device215TripRepository implements Repository{
                     }
                 }
                 else{
-                    Log.d(TAG,"Error storing trip start, message: "+requestError.getMessage());
-                    if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
-                        Log.d(TAG,"Storing trip locally due to OFFLINE error");
-                        localDeviceTripStorage.storeDeviceTrip(trip215);
-                        Log.d(TAG,"Local storage size after adding trip: "
-                                +localDeviceTripStorage.getAllTrips().size());
-                    }
                     callback.onError(requestError);
                 }
             }
@@ -152,13 +112,6 @@ public class Device215TripRepository implements Repository{
                     callback.onSuccess(null);
                 }
                 else{
-                    Log.d(TAG,"Error storing trip end, message: "+requestError.getMessage());
-                    if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
-                        Log.d(TAG,"Storing trip locally due to OFFLINE error");
-                        localDeviceTripStorage.storeDeviceTrip(trip);
-                        Log.d(TAG,"Local storage size after adding trip: "
-                                +localDeviceTripStorage.getAllTrips().size());
-                    }
                     callback.onError(requestError);
                 }
             }
@@ -189,7 +142,8 @@ public class Device215TripRepository implements Repository{
                         long tripIdRaw = data.getLong("tripIdRaw");
                         double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");
-                        Trip215 trip = new Trip215(id,tripIdRaw,mileage,rtcTime,scannerName);
+                        Trip215 trip = new Trip215(Trip215.TRIP_START,id,tripIdRaw,mileage
+                                ,rtcTime,scannerName);
                         callback.onSuccess(trip);
                     }
                     catch(JSONException e){

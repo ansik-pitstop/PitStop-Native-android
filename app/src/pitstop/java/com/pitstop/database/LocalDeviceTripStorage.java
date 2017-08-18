@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.models.Trip215;
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +19,18 @@ public class LocalDeviceTripStorage {
 
     private final String TAG = getClass().getSimpleName();
 
+    private final String TYPE_START = "type_start";
+    private final String TYPE_END = "type_end";
+
     public static final String CREATE_TABLE_DEVICE_TRIP = "CREATE TABLE IF NOT EXISTS "
             + TABLES.TRIP_DEVICE.TABLE_NAME + "("
             + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-            + TABLES.TRIP_DEVICE.KEY_TRIP_ID + " INTEGER, "
             + TABLES.TRIP_DEVICE.KEY_MILEAGE + " DOUBLE, "
             + TABLES.TRIP_DEVICE.KEY_RTC + " INTEGER, "
+            + TABLES.TRIP_DEVICE.KEY_TERMINAL_RTC + " INTEGER, "
             + TABLES.TRIP_DEVICE.KEY_DEVICE_ID + " TEXT, "
             + TABLES.TRIP_DEVICE.KEY_TRIP_ID_RAW + " INTEGER, "
+            + TABLES.TRIP_DEVICE.KEY_TRIP_TYPE + " TEXT, "
             + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
@@ -36,31 +40,36 @@ public class LocalDeviceTripStorage {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
-    public void storeDeviceTrip(Trip215 trip215){
-        Log.d(TAG,"storeDeviceTrip() tripIdRaw:"+trip215.getTripIdRaw());
+    public void storeDeviceTrip(TripInfoPackage trip){
+        Log.d(TAG,"storeDeviceTripEnd() tripIdRaw:"+trip.tripId);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        ContentValues values = tripObjectToContentValues(trip215);
+        ContentValues values = tripObjectToContentValues(trip);
 
-        db.insert(TABLES.TRIP.TABLE_NAME, null, values);
+        db.insert(TABLES.TRIP_DEVICE.TABLE_NAME, null, values);
     }
 
-    public List<Trip215> getAllTrips(){
+    public List<TripInfoPackage> getAllTrips(){
         Log.d(TAG,"getAllTrips()");
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         String selectQuery = "SELECT * FROM " + TABLES.TRIP_DEVICE.TABLE_NAME;
 
         Cursor c = db.rawQuery(selectQuery,null);
-        List<Trip215> trips = new ArrayList<>();
+        List<TripInfoPackage> trips = new ArrayList<>();
         if(c.moveToFirst()) {
             do {
-                int tripId = c.getInt(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_ID));
-                long tripIdRaw = c.getLong(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_ID_RAW));
-                double mileage = c.getDouble(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_MILEAGE));
-                long rtc = c.getLong(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_RTC));
-                String deviceId = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_DEVICE_ID));
-                trips.add(new Trip215(tripId, tripIdRaw, mileage, rtc, deviceId));
+                TripInfoPackage tripInfoPackage = new TripInfoPackage();
+                tripInfoPackage.tripId = c.getInt(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_ID_RAW));
+                tripInfoPackage.mileage = c.getDouble(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_MILEAGE));
+                tripInfoPackage.rtcTime = c.getLong(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_RTC));
+                tripInfoPackage.deviceId = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_DEVICE_ID));
+                tripInfoPackage.terminalRtcTime = c.getInt(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TERMINAL_RTC));
+                TripInfoPackage.TripFlag flag = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_TYPE))
+                        .equals(TYPE_START) ? TripInfoPackage.TripFlag.START : TripInfoPackage.TripFlag.END;
+                tripInfoPackage.flag = flag;
+
+                trips.add(tripInfoPackage);
             } while (c.moveToNext());
         }
         return trips;
@@ -81,18 +90,24 @@ public class LocalDeviceTripStorage {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.TRIP_DEVICE.TABLE_NAME, null, null);
-
-
     }
 
-    private ContentValues tripObjectToContentValues(Trip215 trip) {
+    private ContentValues tripObjectToContentValues(TripInfoPackage trip) {
         ContentValues values = new ContentValues();
 
-        values.put(TABLES.TRIP_DEVICE.KEY_TRIP_ID,trip.getTripId());
-        values.put(TABLES.TRIP_DEVICE.KEY_MILEAGE,trip.getMileage());
-        values.put(TABLES.TRIP_DEVICE.KEY_RTC,trip.getRtcTime());
-        values.put(TABLES.TRIP_DEVICE.KEY_DEVICE_ID,trip.getScannerName());
-        values.put(TABLES.TRIP_DEVICE.KEY_TRIP_ID_RAW,trip.getTripIdRaw());
+        values.put(TABLES.TRIP_DEVICE.KEY_MILEAGE,trip.mileage);
+        values.put(TABLES.TRIP_DEVICE.KEY_RTC,trip.rtcTime);
+        values.put(TABLES.TRIP_DEVICE.KEY_DEVICE_ID,trip.deviceId);
+        values.put(TABLES.TRIP_DEVICE.KEY_TRIP_ID_RAW,trip.tripId);
+        values.put(TABLES.TRIP_DEVICE.KEY_TERMINAL_RTC, trip.terminalRtcTime);
+
+        if (trip.flag == TripInfoPackage.TripFlag.START){
+            values.put(TABLES.TRIP_DEVICE.KEY_TRIP_TYPE, TYPE_START);
+        }
+        else if (trip.flag == TripInfoPackage.TripFlag.END){
+            values.put(TABLES.TRIP_DEVICE.KEY_TRIP_TYPE, TYPE_END);
+        }
+
 
         return values;
     }
