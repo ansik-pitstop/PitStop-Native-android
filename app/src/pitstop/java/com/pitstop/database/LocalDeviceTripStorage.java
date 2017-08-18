@@ -65,9 +65,8 @@ public class LocalDeviceTripStorage {
                 tripInfoPackage.rtcTime = c.getLong(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_RTC));
                 tripInfoPackage.deviceId = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_DEVICE_ID));
                 tripInfoPackage.terminalRtcTime = c.getInt(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TERMINAL_RTC));
-                TripInfoPackage.TripFlag flag = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_TYPE))
+                tripInfoPackage.flag = c.getString(c.getColumnIndex(TABLES.TRIP_DEVICE.KEY_TRIP_TYPE))
                         .equals(TYPE_START) ? TripInfoPackage.TripFlag.START : TripInfoPackage.TripFlag.END;
-                tripInfoPackage.flag = flag;
 
                 trips.add(tripInfoPackage);
             } while (c.moveToNext());
