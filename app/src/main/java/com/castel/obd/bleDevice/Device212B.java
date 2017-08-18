@@ -4,25 +4,23 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd.info.PIDInfo;
-import com.castel.obd.util.ObdDataUtil;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
+import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.JsonUtil;
+import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +123,11 @@ public class Device212B implements AbstractDevice {
     @Override
     public String setPidsToSend(String pids) {
         return OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids);
+    }
+
+    @Override
+    public String requestSnapshot() {
+        return null; //Not supported
     }
 
     @Override
@@ -342,7 +345,7 @@ public class Device212B implements AbstractDevice {
                 PidPackage pidPackage = new PidPackage();
                 pidPackage.deviceId = dataPackageInfo.deviceId;
                 pidPackage.realTime = true;
-                dataListener.pidData(pidPackage);
+                dataListener.idrPidData(pidPackage);
             }
 
             // fixed upload pids
@@ -389,7 +392,7 @@ public class Device212B implements AbstractDevice {
                     PidPackage pidPackage = new PidPackage(templatePidPackage);
                     pidPackage.rtcTime = String.valueOf(Long.parseLong(pidPackage.rtcTime) - 2 * (numberOfDataPoints - i - 1));
                     pidPackage.pids = pidMapList.get(i);
-                    dataListener.pidData(pidPackage);
+                    dataListener.idrPidData(pidPackage);
                 }
             }
 
