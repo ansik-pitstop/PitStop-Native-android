@@ -2,7 +2,7 @@ package com.pitstop.repositories;
 
 import android.util.Log;
 
-import com.pitstop.database.LocalScannerAdapter;
+import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -21,9 +21,9 @@ public class ScannerRepository implements Repository {
     private final String TAG = getClass().getSimpleName();
 
     private NetworkHelper networkHelper;
-    private LocalScannerAdapter localScannerStorage;
+    private LocalScannerStorage localScannerStorage;
 
-    public ScannerRepository(NetworkHelper networkHelper, LocalScannerAdapter localScannerStorage){
+    public ScannerRepository(NetworkHelper networkHelper, LocalScannerStorage localScannerStorage){
         this.networkHelper = networkHelper;
         this.localScannerStorage = localScannerStorage;
     }

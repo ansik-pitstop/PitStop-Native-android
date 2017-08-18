@@ -1,6 +1,6 @@
 package com.pitstop.repositories;
 
-import com.pitstop.database.LocalShopAdapter;
+import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -25,27 +25,27 @@ public class ShopRepository implements Repository{
     private final String END_POINT_SHOP = "shop";
 
     private static ShopRepository INSTANCE;
-    private LocalShopAdapter localShopAdapter;
+    private LocalShopStorage localShopStorage;
     private NetworkHelper networkHelper;
     private boolean removeLocalShop;
 
-    public static synchronized ShopRepository getInstance(LocalShopAdapter localShopAdapter, NetworkHelper networkHelper){
+    public static synchronized ShopRepository getInstance(LocalShopStorage localShopStorage, NetworkHelper networkHelper){
         if(INSTANCE == null){
-            INSTANCE = new ShopRepository(localShopAdapter, networkHelper);
+            INSTANCE = new ShopRepository(localShopStorage, networkHelper);
         }
         return INSTANCE;
     }
 
-    public ShopRepository(LocalShopAdapter localShopAdapter, NetworkHelper networkHelper){
-        this.localShopAdapter = localShopAdapter;
+    public ShopRepository(LocalShopStorage localShopStorage, NetworkHelper networkHelper){
+        this.localShopStorage = localShopStorage;
         this.networkHelper = networkHelper;
     }
 
     public boolean insertPitstopShop(Dealership dealership, Callback<Object> callback ){
-        if(localShopAdapter.getDealership(dealership.getId()) != null){
+        if(localShopStorage.getDealership(dealership.getId()) != null){
             return false;
         }
-        localShopAdapter.storeDealership(dealership);
+        localShopStorage.storeDealership(dealership);
         return true;
     }
 
@@ -53,7 +53,7 @@ public class ShopRepository implements Repository{
         networkHelper.get(END_POINT_SHOP_PITSTOP,getGetPitstopShopsRequestCallback(callback));
 
         //Offline logic below, not being used as of n
-        List<Dealership> dealerships = localShopAdapter.getAllDealerships();
+        List<Dealership> dealerships = localShopStorage.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
             Dealership d = iterator.next();
@@ -70,7 +70,7 @@ public class ShopRepository implements Repository{
                 if(response != null){
                     try{
                         List<Dealership> dealerships = Dealership.createDealershipList(response);
-                        localShopAdapter.storeDealerships(dealerships);
+                        localShopStorage.storeDealerships(dealerships);
                         callback.onSuccess(dealerships);
                     }catch(JSONException e){
                         callback.onError(RequestError.getUnknownError());
@@ -150,9 +150,9 @@ public class ShopRepository implements Repository{
                                             public void done(String response, RequestError requestError) {
                                                 if(response!=null){
                                                     if(removeLocalShop){
-                                                        localShopAdapter.removeById(dealership.getId());
+                                                        localShopStorage.removeById(dealership.getId());
                                                     }
-                                                    localShopAdapter.storeCustom(dealership);
+                                                    localShopStorage.storeCustom(dealership);
                                                     callback.onSuccess(response);
                                                 }else{
                                                     callback.onError(requestError);
@@ -186,7 +186,7 @@ public class ShopRepository implements Repository{
         networkHelper.getUserSettingsById(userId,getGetShopsRequestCallback(callback));
 
         //Offline logic below, not being used for now
-        List<Dealership> dealerships = localShopAdapter.getAllDealerships();
+        List<Dealership> dealerships = localShopStorage.getAllDealerships();
         Iterator<Dealership> iterator = dealerships.iterator();
         while(iterator.hasNext()){
             Dealership d = iterator.next();
@@ -219,8 +219,8 @@ public class ShopRepository implements Repository{
                              dealership.setPhoneNumber(shop.getString("phone_number"));
                              dealership.setCustom(true);
                              dealershipArray.add(dealership);
-                             localShopAdapter.removeById(dealership.getId());
-                             localShopAdapter.storeCustom(dealership);
+                             localShopStorage.removeById(dealership.getId());
+                             localShopStorage.storeCustom(dealership);
                          }
                          callback.onSuccess(dealershipArray);
                      }
@@ -273,8 +273,8 @@ public class ShopRepository implements Repository{
                             public void done(String response, RequestError requestError) {
                                 if(response != null){
                                     callback.onSuccess(response);
-                                    localShopAdapter.removeById(dealership.getId());
-                                    localShopAdapter.storeCustom(dealership);
+                                    localShopStorage.removeById(dealership.getId());
+                                    localShopStorage.storeCustom(dealership);
                                 }else{
                                     callback.onError(requestError);
                                 }
@@ -364,8 +364,8 @@ public class ShopRepository implements Repository{
                                 dealership.setEmail(shop.getString("email"));
                                 dealership.setPhoneNumber(shop.getString("phone_number"));
                                 dealership.setCustom(true);
-                                localShopAdapter.removeById(dealership.getId());
-                                localShopAdapter.storeCustom(dealership);
+                                localShopStorage.removeById(dealership.getId());
+                                localShopStorage.storeCustom(dealership);
                                 callback.onSuccess(dealership);
                                 break;
                             }

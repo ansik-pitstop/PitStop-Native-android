@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class LocalCarAdapter {
+public class LocalCarStorage {
 
     // CAR table create statement
     public static final String CREATE_TABLE_CAR = "CREATE TABLE IF NOT EXISTS "
@@ -36,7 +36,7 @@ public class LocalCarAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalCarAdapter(Context context) {
+    public LocalCarStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 

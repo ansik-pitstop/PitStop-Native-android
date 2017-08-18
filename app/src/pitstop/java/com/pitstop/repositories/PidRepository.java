@@ -3,7 +3,7 @@ package com.pitstop.repositories;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.database.LocalPidAdapter;
+import com.pitstop.database.LocalPidStorage;
 import com.pitstop.models.Pid;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -27,9 +27,9 @@ public class PidRepository implements Repository{
     private static final int PID_CHUNK_SIZE = 10;
 
     private NetworkHelper networkHelper;
-    private LocalPidAdapter localPidStorage;
+    private LocalPidStorage localPidStorage;
 
-    public PidRepository(NetworkHelper networkHelper, LocalPidAdapter localPidStorage) {
+    public PidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage) {
         this.networkHelper = networkHelper;
         this.localPidStorage = localPidStorage;
     }

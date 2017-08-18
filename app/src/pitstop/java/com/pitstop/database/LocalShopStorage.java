@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-public class LocalShopAdapter {
+public class LocalShopStorage {
 
     //SHOP table create statement
     public static final String CREATE_TABLE_DEALERSHIP = "CREATE TABLE IF NOT EXISTS "
@@ -29,7 +29,7 @@ public class LocalShopAdapter {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalShopAdapter(Context context) {
+    public LocalShopStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
 
