@@ -528,7 +528,7 @@ public class Device215B implements AbstractDevice {
                 }
 
                 if (idrInfo.snapshot != null && !idrInfo.snapshot.isEmpty()){
-                    Log.i("SnapShot", idrInfo.snapshot);
+                    Log.d(TAG,"SnapShot"+ idrInfo.snapshot);
                 }
 
                 Log.d(TAG, idrInfo.toString());
