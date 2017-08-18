@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Trip215;
 
@@ -15,6 +16,8 @@ import java.util.List;
  */
 
 public class LocalDeviceTripStorage {
+
+    private final String TAG = getClass().getSimpleName();
 
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.TRIP.TABLE_NAME + "("
@@ -34,6 +37,7 @@ public class LocalDeviceTripStorage {
     }
 
     public void storeDeviceTrip(Trip215 trip215){
+        Log.d(TAG,"storeDeviceTrip() tripIdRaw:"+trip215.getTripIdRaw());
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = tripObjectToContentValues(trip215);
@@ -42,6 +46,7 @@ public class LocalDeviceTripStorage {
     }
 
     public List<Trip215> getAllTrips(){
+        Log.d(TAG,"getAllTrips()");
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         String selectQuery = "SELECT * FROM " + TABLES.TRIP_DEVICE.TABLE_NAME;
@@ -62,6 +67,7 @@ public class LocalDeviceTripStorage {
     }
 
     public void removeAllTrips(){
+        Log.d(TAG,"removeAllTrips()");
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         try{

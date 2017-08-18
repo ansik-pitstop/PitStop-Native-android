@@ -1,6 +1,7 @@
 package com.pitstop.repositories;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.models.Trip215;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 
 public class Device215TripRepository implements Repository{
 
+    private final String TAG = getClass().getSimpleName();
     private final String SCAN_END_POINT = "scan/trip";
     private final String LATEST_TRIP_QUERY = "/?scannerId=%s&latest=true&active=true";
     private NetworkHelper networkHelper;
@@ -29,17 +31,42 @@ public class Device215TripRepository implements Repository{
     private Runnable periodicCachedTripSender = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG,"periodicCachedTripSender executing. Connection Status: "
+                    +networkHelper.isConnected()+", locally stored trips size: "
+                    +localDeviceTripStorage.getAllTrips().size());
             if (!networkHelper.isConnected()) return;
 
             for (Trip215 trip215: localDeviceTripStorage.getAllTrips()){
                 if (trip215.getTripId() == -1){
-                    storeTripStart(trip215,null);
+                    storeTripStart(trip215, new Callback<Trip215>() {
+                        @Override
+                        public void onSuccess(Trip215 data) {
+                            Log.d(TAG,"successfully sent trip START to server from local storage!");
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            Log.d(TAG,"failed to send trip START to server from local storage!");
+                        }
+                    });
                 }
                 else{
-                    storeTripEnd(trip215,null);
+                    storeTripEnd(trip215,new Callback<Trip215>() {
+                        @Override
+                        public void onSuccess(Trip215 data) {
+                            Log.d(TAG,"successfully sent trip END to server from local storage!");
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            Log.d(TAG,"failed to send trip END to server from local storage!");
+                        }
+                    });
                 }
             }
             localDeviceTripStorage.removeAllTrips();
+            Log.d(TAG,"Removing all trips from local trip storage, size after removal: "
+                    +localDeviceTripStorage.getAllTrips().size());
             handler.postDelayed(this,SEND_CACHED_TRIP_INTERVAL);
         }
     };
@@ -86,8 +113,12 @@ public class Device215TripRepository implements Repository{
                     }
                 }
                 else{
+                    Log.d(TAG,"Error storing trip start, message: "+requestError.getMessage());
                     if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
+                        Log.d(TAG,"Storing trip locally due to OFFLINE error");
                         localDeviceTripStorage.storeDeviceTrip(trip215);
+                        Log.d(TAG,"Local storage size after adding trip: "
+                                +localDeviceTripStorage.getAllTrips().size());
                     }
                     callback.onError(requestError);
                 }
@@ -121,8 +152,12 @@ public class Device215TripRepository implements Repository{
                     callback.onSuccess(null);
                 }
                 else{
+                    Log.d(TAG,"Error storing trip end, message: "+requestError.getMessage());
                     if (requestError.getError().equals(RequestError.ERR_OFFLINE)){
+                        Log.d(TAG,"Storing trip locally due to OFFLINE error");
                         localDeviceTripStorage.storeDeviceTrip(trip);
+                        Log.d(TAG,"Local storage size after adding trip: "
+                                +localDeviceTripStorage.getAllTrips().size());
                     }
                     callback.onError(requestError);
                 }

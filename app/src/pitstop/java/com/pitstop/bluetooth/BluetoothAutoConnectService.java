@@ -867,7 +867,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
-        tripDataHandler.executeTripRequests();
         dtcDataHandler.sendLocalDtcs();
     }
 
