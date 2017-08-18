@@ -59,6 +59,7 @@ public class TripDataHandler{
 
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
+    private List<Integer> processedTripStartIds = new ArrayList<>(); //Sometimes two start trips are sent for the same trip
     private int lastTripId;
     private boolean isSendingTripRequest;
 
@@ -104,6 +105,11 @@ public class TripDataHandler{
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.START)){
             Log.d(TAG, "Trip start received: " + tripInfoPackage.toString());
+            if (processedTripStartIds.contains(tripInfoPackage.rtcTime)){
+                Log.d(TAG,"Duplictate Start! Returning!");
+                return; //Duplicate start, return;
+            }
+            processedTripStartIds.add(tripInfoPackage.tripId); //Store for later comparison for duplicates
             bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
         }
 
