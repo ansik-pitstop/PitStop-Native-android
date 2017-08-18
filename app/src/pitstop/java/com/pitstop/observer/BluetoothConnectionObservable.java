@@ -37,6 +37,12 @@ public interface BluetoothConnectionObservable extends Subject{
     //Invoked when an observer wants to retrieve the device rtc time
     boolean requestDeviceTime();
 
+    //Invoked when an observers wants to turn the historical data OFF/ON
+    void requestHistoricalDataStateChange(boolean on);
+
+    //Invoked when an observer wants to retrieve all the supported pids along with their values
+    void requestAllPid();
+
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);
 
