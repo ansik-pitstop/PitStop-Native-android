@@ -149,6 +149,6 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             rtcTime = 0;
         }
 
-        return new Trip215(tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
+        return new Trip215(Trip215.TRIP_START,tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
     }
 }

@@ -7,20 +7,30 @@ package com.pitstop.models;
  */
 
 public class Trip215 {
+
+    public static final String TRIP_START = "trip_start";
+    public static final String TRIP_END = "trip_end";
+
     private int tripId = -1;
     private double mileage;
     private long rtcTime;
     private String scannerName;
     private long tripIdRaw = -1;
+    private String type;
 
-    public Trip215(int tripIdRaw, double mileage, long rtcTime, String scannerName) {
+    public Trip215(String type, int tripIdRaw, double mileage, long rtcTime, String scannerName) {
+        if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
+            throw new IllegalArgumentException();
         this.tripIdRaw = tripIdRaw;
         this.mileage = mileage;
         this.rtcTime = rtcTime;
         this.scannerName = scannerName;
     }
 
-    public Trip215(int id, long tripIdRaw, double mileage, long rtcTime, String scannerName) {
+    public Trip215(String type, int id, long tripIdRaw, double mileage, long rtcTime
+            , String scannerName) {
+        if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
+            throw new IllegalArgumentException();
         this.tripId = id;
         this.tripIdRaw = tripIdRaw;
         this.mileage = mileage;
@@ -28,6 +38,13 @@ public class Trip215 {
         this.scannerName = scannerName;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
     public long getTripIdRaw() {
         return tripIdRaw;
     }

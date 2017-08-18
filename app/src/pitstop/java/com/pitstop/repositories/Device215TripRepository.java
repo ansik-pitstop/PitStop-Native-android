@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -7,6 +9,8 @@ import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Stores/Retrieves device trip start/end remotely
@@ -16,15 +20,33 @@ import org.json.JSONObject;
 
 public class Device215TripRepository implements Repository{
 
+    private final String TAG = getClass().getSimpleName();
     private final String SCAN_END_POINT = "scan/trip";
     private final String LATEST_TRIP_QUERY = "/?scannerId=%s&latest=true&active=true";
     private NetworkHelper networkHelper;
+    private LocalDeviceTripStorage localDeviceTripStorage;
 
     public static int localLatestTripId = -1;
 
-    public Device215TripRepository(NetworkHelper networkHelper){
+    public Device215TripRepository(NetworkHelper networkHelper
+            , LocalDeviceTripStorage localDeviceTripStorage){
+
         this.networkHelper = networkHelper;
+        this.localDeviceTripStorage = localDeviceTripStorage;
     }
+
+    public void storeTripLocally(TripInfoPackage trip){
+        localDeviceTripStorage.storeDeviceTrip(trip);
+    }
+
+    public List<TripInfoPackage> getLocallyStoredTrips(){
+        return localDeviceTripStorage.getAllTrips();
+    }
+
+    public void removeLocallyStoredTrips(){
+        localDeviceTripStorage.removeAllTrips();
+    }
+
 
     public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
 
@@ -38,10 +60,13 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(callback), body);
+        networkHelper.postNoAuth(SCAN_END_POINT, getStoreTripStartRequestCallback(
+                callback,tripStart), body);
     }
 
-    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback){
+    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback
+            , Trip215 trip215){
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -75,10 +100,11 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(callback), body);
+        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(
+                callback,tripEnd), body);
     }
 
-    private RequestCallback getStoreTripEndRequestCallback(Callback callback){
+    private RequestCallback getStoreTripEndRequestCallback(Callback callback, Trip215 trip){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -116,7 +142,8 @@ public class Device215TripRepository implements Repository{
                         long tripIdRaw = data.getLong("tripIdRaw");
                         double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");
-                        Trip215 trip = new Trip215(id,tripIdRaw,mileage,rtcTime,scannerName);
+                        Trip215 trip = new Trip215(Trip215.TRIP_START,id,tripIdRaw,mileage
+                                ,rtcTime,scannerName);
                         callback.onSuccess(trip);
                     }
                     catch(JSONException e){

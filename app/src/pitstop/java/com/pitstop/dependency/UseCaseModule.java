@@ -46,6 +46,8 @@ import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
+import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
+import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
@@ -75,6 +77,7 @@ import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.ConnectionChecker;
 import com.pitstop.utils.NetworkHelper;
 
 import dagger.Module;
@@ -84,7 +87,7 @@ import dagger.Provides;
  * Created by Karol Zdebel on 6/5/2017.
  */
 
-@Module(includes = {RepositoryModule.class, HandlerModule.class} )
+@Module(includes = {RepositoryModule.class, ConnectionCheckerModule.class, HandlerModule.class} )
 public class UseCaseModule {
 
     @Provides
@@ -245,16 +248,24 @@ public class UseCaseModule {
 
     @Provides
     Trip215StartUseCase trip215StartUseCase(Device215TripRepository device215TripRepository
-            , UserRepository userRepository, Handler handler){
+            , Handler handler){
 
         return new Trip215StartUseCaseImpl(device215TripRepository, handler);
     }
 
     @Provides
     Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
-            , UserRepository userRepository, Handler handler){
+            , Handler handler){
 
         return new Trip215EndUseCaseImpl(device215TripRepository, handler);
+    }
+
+    @Provides
+    PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase(Device215TripRepository device215TripRepository
+            , ConnectionChecker connectionChecker, Handler handler){
+
+        return new PeriodicCachedTripSendUseCaseImpl(device215TripRepository
+                , connectionChecker, handler);
     }
 
     @Provides
