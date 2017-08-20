@@ -247,8 +247,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
 
             //Only notify that device disonnected if a verified connection was established previously
-            if (deviceConnState.equals(State.CONNECTED) || deviceConnState.equals(State.VERIFYING)
-                    || !deviceManager.moreDevicesLeft()){
+            if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                 deviceConnState = State.DISCONNECTED;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
