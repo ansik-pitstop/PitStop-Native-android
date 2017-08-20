@@ -14,6 +14,7 @@ public abstract class TimeoutTimer extends CountDownTimer {
     private int retriesLeft;
     private int retryTime;
     private int progress = 0;
+    private boolean isRunning = false;
 
     /**
      * @param seconds The number of seconds in the future from the call
@@ -47,8 +48,18 @@ public abstract class TimeoutTimer extends CountDownTimer {
             retriesLeft = totalRetries; // refresh number of totalRetries
             onTimeout();
             cancel();
+            isRunning = false;
             progress = 0;
         }
+    }
+
+    public void startTimer(){
+        start();
+        isRunning = true;
+    }
+
+    public boolean isRunning(){
+        return isRunning;
     }
 
     public int getProgress(){

@@ -53,6 +53,7 @@ import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
+import com.pitstop.utils.TimeoutTimer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,6 +103,28 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private FreezeFrameDataHandler freezeFrameDataHandler;
 
     private UseCaseComponent useCaseComponent;
+
+    //For when VIN isn't returned from device(usually means ignition isn't ON
+    private final int VERIFICATION_TIMEOUT = 30;
+    private TimeoutTimer getVinTimeoutTimer = new TimeoutTimer(VERIFICATION_TIMEOUT,0) {
+        @Override
+        public void onRetry() {}
+
+        @Override
+        public void onTimeout() {
+            if (deviceConnState.equals(State.VERIFYING)){
+                if (deviceManager.moreDevicesLeft()){
+                    deviceConnState = State.SEARCHING;
+                }
+                else{
+                    deviceConnState = State.DISCONNECTED;
+                }
+            }
+        }
+
+        @Override
+        public void onTimeTicked(int progress) {}
+    };
 
     /**
      * for periodic bluetooth scans
@@ -176,7 +199,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                             , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
                     deviceManager.getVin();
                 }
-                handler.postDelayed(this, 15000);
+                handler.postDelayed(this, 10000);
             }
         };
 
@@ -234,6 +257,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             //Get VIN to validate car
             requestVin();
+            if (getVinTimeoutTimer.isRunning()){
+                getVinTimeoutTimer.cancel();
+            }
+            getVinTimeoutTimer.startTimer();
 
             //Get RTC and mileage once connected
             getObdDeviceTime();
@@ -244,7 +271,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
             LogUtils.debugLogI(TAG, "getBluetoothState() received NOT CONNECTED"
                     , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
 
             //Only notify that device disonnected if a verified connection was established previously
             if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
