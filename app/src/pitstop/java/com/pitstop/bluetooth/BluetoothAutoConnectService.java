@@ -54,6 +54,7 @@ import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
+import com.pitstop.utils.TimeoutTimer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private BluetoothDeviceManager deviceManager;
 
     private String deviceConnState = State.DISCONNECTED;
-    private boolean snapshotRequested = false;
+    private boolean allPidRequested = false;
     private boolean dtcRequested = false;
 
     public static int notifID = 1360119;
@@ -119,6 +120,47 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return BluetoothAutoConnectService.this;
         }
     }
+
+    /**Request DTC Data **/
+    private DtcPackage requestedDtc;
+    private final int DTC_RETRY_LEN = 5;
+    private final int DTC_RETRY_COUNT = 4;
+    private TimeoutTimer dtcTimeoutTimer = new TimeoutTimer(DTC_RETRY_LEN,DTC_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"dtcTimeoutTimer.onRetry() dtcRequested? "+dtcRequested);
+            if (!dtcRequested) return;
+            deviceManager.requestData();
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"dtcTimeoutTimer.onTimeout() dtcRequested? "+dtcRequested
+                    +" found dtc: "+requestedDtc);
+            if (!dtcRequested) return;
+            if (requestedDtc == null) notifyErrorGettingDtcData();
+            else notifyDtcData(requestedDtc);
+        }
+    };
+
+    /**Request All PID Data **/
+    private final int PID_RETRY_LEN = 20;
+    private final int PID_RETRY_COUNT = 0;
+    private TimeoutTimer pidTimeoutTimer = new TimeoutTimer(PID_RETRY_LEN,PID_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
+            if (!dtcRequested) return;
+            deviceManager.requestData();
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"dtcTimeoutTimer.onTimeout() allPidRequested?"+allPidRequested);
+            //Pid data wasn't sent before timer is done
+            if (allPidRequested) notifyErrorGettingAllPid();
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -226,7 +268,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Check to make sure were not overriding the state once
             // its already verified and connected
             clearInvalidDeviceData();
-            snapshotRequested = false;
+            allPidRequested = false;
             if (deviceConnState.equals(State.SEARCHING)
                     || deviceConnState.equals(State.DISCONNECTED)){
 
@@ -359,6 +401,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dtcRequested) return false;
 
         dtcRequested = true;
+        requestedDtc = null;
+        dtcTimeoutTimer.start();
         trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
         return true;
@@ -378,9 +422,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean requestAllPid() {
-        Log.d(TAG,"requestAllPid(), snapshotRequested? "+snapshotRequested);
-        if (snapshotRequested) return false;
-        snapshotRequested = true;
+        Log.d(TAG,"requestAllPid(), allPidRequested? "+ allPidRequested);
+        if (allPidRequested) return false;
+
+        allPidRequested = true;
+        pidTimeoutTimer.start();
         deviceManager.requestSnapshot();
         return true;
     }
@@ -511,6 +557,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void pidData(PidPackage pidPackage) {
         Log.d(TAG,"Received snapshot() pidPackage: "+pidPackage);
+        pidTimeoutTimer.cancel();
         notifyGotAllPid(pidPackage);
     }
 
@@ -530,7 +577,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcPackage.deviceId = currentDeviceId;
         dtcDataHandler.handleDtcData(dtcPackage);
-        notifyDtcData(dtcPackage);
+        appendDtc(dtcPackage);
+
+    }
+
+    private void appendDtc(DtcPackage dtcPackage){
+        if (requestedDtc == null) requestedDtc = dtcPackage;
+        else if (dtcPackage.dtcNumber > 0){
+            int totalDtc = dtcPackage.dtcNumber+requestedDtc.dtcNumber;
+            String[] dtcs = new String[totalDtc];
+            for (int i=0;i<dtcPackage.dtcNumber;i++){
+                dtcs[i] = dtcPackage.dtcs[i];
+            }
+            for (int i=dtcPackage.dtcNumber;i<totalDtc;i++){
+                dtcs[i] = requestedDtc.dtcs[i-dtcPackage.dtcNumber];
+            }
+            requestedDtc.dtcs = dtcs;
+            requestedDtc.dtcNumber = dtcs.length;
+        }
     }
 
     @Override
@@ -982,8 +1046,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyGotAllPid(PidPackage pidPackage){
         Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
-        if (!snapshotRequested) return;
-        snapshotRequested = false;
+        if (!allPidRequested) return;
+        allPidRequested = false;
 
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
@@ -994,8 +1058,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyErrorGettingAllPid(){
         Log.d(TAG,"notifyErrorGettingAllPid()");
-        if (!snapshotRequested) return;
-        snapshotRequested = false;
+        if (!allPidRequested) return;
+        allPidRequested = false;
 
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
