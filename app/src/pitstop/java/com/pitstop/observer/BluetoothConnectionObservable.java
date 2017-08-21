@@ -41,7 +41,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestHistoricalDataStateChange(boolean historicalEnabled);
 
     //Invoked when an observer wants to retrieve all the supported pids along with their values
-    void requestAllPid();
+    boolean requestAllPid();
 
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);
