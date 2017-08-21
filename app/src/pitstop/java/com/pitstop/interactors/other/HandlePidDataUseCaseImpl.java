@@ -10,6 +10,8 @@ import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
 
+import static android.R.attr.data;
+
 /**
  * Created by Karol Zdebel on 8/17/2017.
  */

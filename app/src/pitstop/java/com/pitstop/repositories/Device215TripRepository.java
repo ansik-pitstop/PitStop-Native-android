@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.models.Trip215;
@@ -65,18 +67,28 @@ public class Device215TripRepository implements Repository{
     }
 
     private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback
-            , Trip215 trip215){
+            , Trip215 trip){
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
-                    callback.onSuccess(null);
                     try {
                         JSONObject data = new JSONObject(response);
+
                         localLatestTripId = data.getInt("id");
+                        int tripId = data.getInt("id");
+                        double mileage = data.getDouble("mileage_start");
+                        long rtc = data.getLong("rtc_time_start");
+                        String scannerName = trip.getScannerName();
+                        long tripIdRaw = data.getLong("trip_id_raw");
+
+                        Trip215 start = new Trip215(Trip215.TRIP_START,tripId,tripIdRaw,mileage,rtc,scannerName);
+                        Log.d(TAG,"returning trip start: "+start);
+                        callback.onSuccess(start);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        callback.onError(RequestError.getUnknownError());
                     }
                 }
                 else{
