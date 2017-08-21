@@ -8,4 +8,5 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 
 public interface BluetoothPidObserver extends Observer {
     void onGotAllPid(PidPackage pidPackage);
+    void onErrorGettingAllPid();
 }

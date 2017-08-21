@@ -40,7 +40,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             , GET_VIN_RETRY_AMOUNT) {
         @Override
         public void onRetry() {
-            Log.d(TAG,"getVinTimer.onRetry(), loading progress: "+getVinTimer.getProgress());
+            Log.d(TAG,"getVinTimer.onRetry()");
 
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
@@ -49,7 +49,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
-            Log.d(TAG,"getVinTimer.onTimeout(), loading progress: "+getVinTimer.getProgress());
+            Log.d(TAG,"getVinTimer.onTimeout()");
 
             if (view == null) return;
 
@@ -65,10 +65,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
 
         }
-
-        @Override
-        public void onTimeTicked(int progress){
-        }
     };
 
     private final int FIND_DEVICE_RETRY_TIME = 17;
@@ -77,7 +73,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
         public void onRetry() {
-            Log.d(TAG,"onRetry(), timer progress: "+findDeviceTimer.getProgress());
+            Log.d(TAG,"onRetry()");
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     ,MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
             if (bluetoothConnectionObservable != null){
@@ -87,8 +83,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
-            Log.d(TAG,"findDeviceTimer.onTimeout() timer progress: "
-                    +findDeviceTimer.getProgress());
+            Log.d(TAG,"findDeviceTimer.onTimeout()");
 
             if (view == null) return;
 
@@ -98,10 +93,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);
 
-        }
-
-        @Override
-        public void onTimeTicked(int progress){
         }
 
     };

@@ -8,12 +8,8 @@ import android.os.CountDownTimer;
 
 public abstract class TimeoutTimer extends CountDownTimer {
 
-    private final String TAG = getClass().getSimpleName();
-
     private final int totalRetries;
     private int retriesLeft;
-    private int retryTime;
-    private int progress = 0;
 
     /**
      * @param seconds The number of seconds in the future from the call
@@ -25,17 +21,6 @@ public abstract class TimeoutTimer extends CountDownTimer {
         super(seconds * 1000, 500);
         retriesLeft = retries;
         this.totalRetries = retries;
-        this.retryTime = seconds*1000;
-    }
-
-    @Override
-    public void onTick(long millisUntilFinished) {
-        if (millisUntilFinished <= 0) return;
-        long otherRetriesTime = (retriesLeft-1)*retryTime;
-        long totalTimeLeft = otherRetriesTime+millisUntilFinished;
-        long totalTime = totalRetries*retryTime;
-        progress = 100-(int)(100*totalTimeLeft/totalTime);
-        onTimeTicked(progress);
     }
 
     @Override
@@ -47,12 +32,11 @@ public abstract class TimeoutTimer extends CountDownTimer {
             retriesLeft = totalRetries; // refresh number of totalRetries
             onTimeout();
             cancel();
-            progress = 0;
         }
     }
 
-    public int getProgress(){
-        return progress;
+    @Override
+    public void onTick(long time){
     }
 
     /**
@@ -66,7 +50,4 @@ public abstract class TimeoutTimer extends CountDownTimer {
      * After this method call the timer will get cancel itself
      */
     public abstract void onTimeout();
-
-    //Progress between 0-100
-    public abstract void onTimeTicked(int progress);
 }

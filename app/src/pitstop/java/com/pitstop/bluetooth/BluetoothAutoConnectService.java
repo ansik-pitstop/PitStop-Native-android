@@ -76,6 +76,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private String deviceConnState = State.DISCONNECTED;
     private boolean snapshotRequested = false;
+    private boolean dtcRequested = false;
 
     public static int notifID = 1360119;
     private String currentDeviceId = "";
@@ -353,10 +354,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestDtcData() {
-        Log.d(TAG,"requestDtcData()");
+    public boolean requestDtcData() {
+        Log.d(TAG,"requestDtcData() dtcRequested? "+dtcRequested);
+        if (dtcRequested) return false;
+
+        dtcRequested = true;
         trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
+        return true;
     }
 
     @Override
@@ -372,11 +377,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestAllPid() {
-        //TODO
-        Log.d(TAG,"requestAllPid()");
+    public boolean requestAllPid() {
+        Log.d(TAG,"requestAllPid(), snapshotRequested? "+snapshotRequested);
+        if (snapshotRequested) return false;
         snapshotRequested = true;
         deviceManager.requestSnapshot();
+        return true;
     }
 
     @Override
@@ -938,10 +944,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyDtcData(DtcPackage dtcPackage) {
         Log.d(TAG,"notifyDtcData() "+dtcPackage);
+        if (!dtcRequested) return;
+        dtcRequested = false;
+
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
                 ((BluetoothDtcObserver) observer).onGotDtc(dtcPackage);
+            }
+        }
+    }
+
+    private void notifyErrorGettingDtcData() {
+        Log.d(TAG,"notifyErrorGettingDtcData()");
+        if (!dtcRequested) return;
+        dtcRequested = false;
+
+        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothDtcObserver) {
+                ((BluetoothDtcObserver) observer).onErrorGettingDtc();
             }
         }
     }
@@ -966,6 +988,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
                 ((BluetoothPidObserver)observer).onGotAllPid(pidPackage);
+            }
+        }
+    }
+
+    private void notifyErrorGettingAllPid(){
+        Log.d(TAG,"notifyErrorGettingAllPid()");
+        if (!snapshotRequested) return;
+        snapshotRequested = false;
+
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothPidObserver){
+                ((BluetoothPidObserver)observer).onErrorGettingAllPid();
             }
         }
     }
