@@ -5,6 +5,7 @@ import android.util.Log;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -58,7 +59,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     private boolean isDeviceConnected(){
         if (bluetoothObservable == null) return false;
         return bluetoothObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED);
+                .equals(BluetoothConnectionObservable.State.CONNECTED);
     }
 
     private boolean isDisconnected(){
@@ -69,6 +70,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void startScan() {
+        Log.d(TAG,"startScan()");
         if (mCallback == null || bluetoothObservable == null) return;
 
         if (isDeviceConnected()){
@@ -205,6 +207,16 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         mCallback.onScanInterrupted(errorMessage);
     }
 
+    @Override
+    public void onGotAllPid(PidPackage pidPackage){
+        Log.d(TAG,"All pids received, pidPackage:"+pidPackage);
+    }
+
+    @Override
+    public void onErrorGettingAllPid() {
+        Log.d(TAG,"onErrorGettingAllPid()");
+    }
+
     private void cancelAllTimers() {
         checkEngineIssuesTimer.cancel();
         checkRealTimeTimer.cancel();
@@ -228,7 +240,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             isAskingForDtcs = false;
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
-
     };
 
     private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
@@ -315,6 +326,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             isAskingForDtcs = false;
             checkEngineIssuesTimer.cancel();
         }
+    }
+
+    @Override
+    public void onErrorGettingDtc() {
+        Log.d(TAG,"onErrorGettingDtc()");
     }
 
     @Override

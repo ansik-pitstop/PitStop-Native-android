@@ -10,7 +10,6 @@ public abstract class TimeoutTimer extends CountDownTimer {
 
     private final int totalRetries;
     private int retriesLeft;
-    private boolean isRunning = false;
 
     /**
      * @param seconds The number of seconds in the future from the call
@@ -25,10 +24,6 @@ public abstract class TimeoutTimer extends CountDownTimer {
     }
 
     @Override
-    public void onTick(long millisUntilFinished) {
-    }
-
-    @Override
     public void onFinish() {
         if (retriesLeft-- > 0) {
             onRetry();
@@ -37,17 +32,11 @@ public abstract class TimeoutTimer extends CountDownTimer {
             retriesLeft = totalRetries; // refresh number of totalRetries
             onTimeout();
             cancel();
-            isRunning = false;
         }
     }
 
-    public void startTimer(){
-        start();
-        isRunning = true;
-    }
-
-    public boolean isRunning(){
-        return isRunning;
+    @Override
+    public void onTick(long time){
     }
 
     /**
@@ -61,5 +50,4 @@ public abstract class TimeoutTimer extends CountDownTimer {
      * After this method call the timer will get cancel itself
      */
     public abstract void onTimeout();
-
 }

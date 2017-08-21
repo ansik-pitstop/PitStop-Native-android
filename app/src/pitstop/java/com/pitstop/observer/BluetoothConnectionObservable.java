@@ -8,6 +8,12 @@ import com.pitstop.models.ReadyDevice;
 
 public interface BluetoothConnectionObservable extends Subject{
 
+    //Number of seconds before an error or success response occurs with pid data
+    double RETRIEVAL_LEN_ALL_PID = 5.0;
+
+    //Number of seconds before an error or success response occurs with dtc data
+    double RETRIEVAL_LEN_DTC = 20.0;
+
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
         String SEARCHING = "state_searching"; //Searching for bluetooth device
@@ -18,7 +24,7 @@ public interface BluetoothConnectionObservable extends Subject{
     }
 
     //Invoked when a observer needs the dtc data
-    void requestDtcData();
+    boolean requestDtcData();
 
     //Invoked when an observer needs the device VIN
     boolean requestVin();
@@ -27,7 +33,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestHistoricalDataStateChange(boolean historicalEnabled);
 
     //Invoked when an observer wants to retrieve all the supported pids along with their values
-    void requestAllPid();
+    boolean requestAllPid();
 
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);

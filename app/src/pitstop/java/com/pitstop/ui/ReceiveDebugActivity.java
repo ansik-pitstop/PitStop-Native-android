@@ -178,6 +178,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
+    public void pidData(PidPackage pidPackage) {
+
+    }
+
+    @Override
     public void dtcData(final DtcPackage dtcPackage) {
         runOnUiThread(new Runnable() {
             @Override
