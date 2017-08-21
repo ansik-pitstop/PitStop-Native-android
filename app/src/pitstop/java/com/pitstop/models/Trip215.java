@@ -21,6 +21,7 @@ public class Trip215 {
     public Trip215(String type, int tripIdRaw, double mileage, long rtcTime, String scannerName) {
         if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
             throw new IllegalArgumentException();
+        this.type = type;
         this.tripIdRaw = tripIdRaw;
         this.mileage = mileage;
         this.rtcTime = rtcTime;
@@ -31,6 +32,7 @@ public class Trip215 {
             , String scannerName) {
         if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
             throw new IllegalArgumentException();
+        this.type = type;
         this.tripId = id;
         this.tripIdRaw = tripIdRaw;
         this.mileage = mileage;
@@ -83,5 +85,11 @@ public class Trip215 {
 
     public void setScannerName(String scannerName) {
         this.scannerName = scannerName;
+    }
+
+    @Override
+    public String toString(){
+        return type+ ", tripId: "+tripId+", tripIdRaw:"+tripIdRaw+", scannerName: "+scannerName+", mileage: "+mileage
+                +", rtcTime: "+rtcTime;
     }
 }
