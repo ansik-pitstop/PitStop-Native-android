@@ -51,7 +51,7 @@ public class Device215TripRepository implements Repository{
 
 
     public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
-
+        Log.d(TAG,"storeTripStart trip:"+tripStart);
         JSONObject body = new JSONObject();
         try {
             body.put("scannerId", tripStart.getScannerName());
@@ -101,6 +101,7 @@ public class Device215TripRepository implements Repository{
     }
 
     public void storeTripEnd(Trip215 tripEnd, Callback callback){
+        Log.d(TAG,"storeTripEnd trip:"+tripEnd);
 
         JSONObject body = new JSONObject();
 

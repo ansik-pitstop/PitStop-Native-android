@@ -89,7 +89,7 @@ public class Trip215 {
 
     @Override
     public String toString(){
-        return type+", tripIdRaw:"+tripIdRaw+", scannerName: "+scannerName+", mileage: "+mileage
+        return type+ ", tripId: "+tripId+", tripIdRaw:"+tripIdRaw+", scannerName: "+scannerName+", mileage: "+mileage
                 +", rtcTime: "+rtcTime;
     }
 }
