@@ -17,7 +17,7 @@ public class EmissionsProgressPresenter {
         this.view = view;
         if(view == null){return;}
         view.setColors();
-        view.setViewReport();
+        view.setViewProgress();
     }
 
     public void unsubscribe(){

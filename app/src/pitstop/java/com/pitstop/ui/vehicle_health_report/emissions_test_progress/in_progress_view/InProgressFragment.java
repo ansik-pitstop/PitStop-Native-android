@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.DragEvent;
@@ -24,6 +25,8 @@ import com.github.florent37.viewanimator.AnimationListener;
 import com.pitstop.R;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressCallback;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import java.util.Timer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -232,5 +235,22 @@ public class InProgressFragment extends Fragment implements InProgressView{
                 })
                 .start();
 
+    }
+
+    @Override
+    public void startTimer() {
+
+        new CountDownTimer(10000,100){
+            @Override
+            public void onTick(long l) {
+                int tick = 10000-((int)l);
+                emissionsProgressBar.setProgress(tick/100);
+            }
+
+            @Override
+            public void onFinish() {
+                presenter.showReport();
+            }
+        }.start();
     }
 }

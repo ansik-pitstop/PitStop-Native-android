@@ -79,7 +79,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
         modeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                System.out.println("Testing "+b);
                 presenter.onSwitchClicked(b);
             }
         });

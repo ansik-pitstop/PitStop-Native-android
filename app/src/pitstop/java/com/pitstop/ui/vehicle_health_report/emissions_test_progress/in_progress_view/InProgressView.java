@@ -12,4 +12,5 @@ public interface InProgressView {
     int getCardNumber();
     void back();
     void next();
+    void startTimer();
 }

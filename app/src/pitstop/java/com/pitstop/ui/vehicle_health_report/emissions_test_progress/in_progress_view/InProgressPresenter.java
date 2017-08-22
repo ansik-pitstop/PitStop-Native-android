@@ -51,8 +51,12 @@ public class InProgressPresenter {
         if(view == null){return;}
         if (readyToStart){
             view.switchToProgress();
+            view.startTimer();
         }else {
             view.bounceCards();
         }
+    }
+    public void showReport(){
+        callback.setViewReport();
     }
 }

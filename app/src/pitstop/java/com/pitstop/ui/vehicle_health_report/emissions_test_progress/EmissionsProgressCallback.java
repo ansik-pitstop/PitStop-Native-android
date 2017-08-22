@@ -6,4 +6,5 @@ package com.pitstop.ui.vehicle_health_report.emissions_test_progress;
 
 public interface EmissionsProgressCallback {
      void end();
+     void setViewReport();
 }
