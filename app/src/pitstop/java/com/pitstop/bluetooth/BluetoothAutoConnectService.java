@@ -57,9 +57,8 @@ import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -122,7 +121,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     /**Request DTC Data **/
-    private Set<String> requestedDtc;
+    private HashMap<Boolean,String> requestedDtc;
     private final int DTC_RETRY_LEN = 5;
     private final int DTC_RETRY_COUNT = 4;
     private TimeoutTimer dtcTimeoutTimer = new TimeoutTimer(DTC_RETRY_LEN,DTC_RETRY_COUNT) {
@@ -572,14 +571,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void appendDtc(DtcPackage dtcPackage){
         //This needs to be called before a return is made otherwise error will be thrown
-        if (requestedDtc == null) requestedDtc = new HashSet<>();
+        if (requestedDtc == null) requestedDtc = new HashMap<>();
 
         if (dtcPackage == null) return;
 
         Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
         for (String d: dtcPackage.dtcs){
-            if (!requestedDtc.contains(d)){
-                requestedDtc.add(d);
+            if (!requestedDtc.values().contains(d)){
+                requestedDtc.put(false,d);
             }
         }
         Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtc);
@@ -989,7 +988,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcData(Set<String> dtc) {
+    private void notifyDtcData(HashMap<Boolean,String> dtc) {
         Log.d(TAG,"notifyDtcData() "+dtc);
         if (!dtcRequested) return;
         dtcRequested = false;
