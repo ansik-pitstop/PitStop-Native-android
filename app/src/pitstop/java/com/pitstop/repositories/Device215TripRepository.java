@@ -147,7 +147,7 @@ public class Device215TripRepository implements Repository{
                         JSONObject data = new JSONObject(response);
                         //Trip start didn't make it to backend
                         if (!data.has("id")){
-                            callback.onSuccess(null);
+                            callback.onError(RequestError.getUnknownError());
                             return;
                         }
                         int id = data.getInt("id");
