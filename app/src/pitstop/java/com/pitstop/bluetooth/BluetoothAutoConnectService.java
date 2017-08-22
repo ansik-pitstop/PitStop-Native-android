@@ -57,7 +57,9 @@ import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -122,7 +124,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     /**Request DTC Data **/
-    private DtcPackage requestedDtc;
+    private Set<String> requestedDtc;
     private final int DTC_RETRY_LEN = 5;
     private final int DTC_RETRY_COUNT = 4;
     private TimeoutTimer dtcTimeoutTimer = new TimeoutTimer(DTC_RETRY_LEN,DTC_RETRY_COUNT) {
@@ -582,19 +584,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void appendDtc(DtcPackage dtcPackage){
+        //This needs to be called before a return is made otherwise error will be thrown
+        if (requestedDtc == null) requestedDtc = new HashSet<>();
+
+        if (dtcPackage == null) return;
+
         Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
-        if (requestedDtc == null) requestedDtc = dtcPackage;
-        else if (dtcPackage.dtcNumber > 0){
-            int totalDtc = dtcPackage.dtcNumber+requestedDtc.dtcNumber;
-            String[] dtcs = new String[totalDtc];;
-            for (int i=0;i<dtcPackage.dtcNumber;i++){
-                dtcs[i] = dtcPackage.dtcs[i];
+        for (String d: dtcPackage.dtcs){
+            if (!requestedDtc.contains(d)){
+                requestedDtc.add(d);
             }
-            for (int i=dtcPackage.dtcNumber;i<totalDtc;i++){
-                dtcs[i] = requestedDtc.dtcs[i-dtcPackage.dtcNumber];
-            }
-            requestedDtc.dtcs = dtcs;
-            requestedDtc.dtcNumber = dtcs.length;
         }
         Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtc);
     }
@@ -1008,15 +1007,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcData(DtcPackage dtcPackage) {
-        Log.d(TAG,"notifyDtcData() "+dtcPackage);
+    private void notifyDtcData(Set<String> dtc) {
+        Log.d(TAG,"notifyDtcData() "+dtc);
         if (!dtcRequested) return;
         dtcRequested = false;
 
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
-                ((BluetoothDtcObserver) observer).onGotDtc(dtcPackage);
+                ((BluetoothDtcObserver) observer).onGotDtc(dtc);
             }
         }
     }
