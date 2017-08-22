@@ -124,9 +124,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 vinRequested = false;
             }
         }
-
-        @Override
-        public void onTimeTicked(int progress) {}
     };
 
     /**
@@ -588,8 +585,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
-            vinDataHandler.handleVinData(parameterPackage.value
-                    ,currentDeviceId,ignoreVerification);
+//            vinDataHandler.handleVinData(parameterPackage.value
+//                    ,currentDeviceId,ignoreVerification);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
             pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));

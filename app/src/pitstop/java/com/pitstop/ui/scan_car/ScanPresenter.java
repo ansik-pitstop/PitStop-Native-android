@@ -228,10 +228,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             mCallback.onEngineCodesRetrieved(retrievedDtcs);
         }
 
-        @Override
-        public void onTimeTicked(int progress) {
-
-        }
     };
 
     private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
@@ -247,10 +243,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
             mCallback.onGetRealTimeDataTimeout();
         }
 
-        @Override
-        public void onTimeTicked(int progress) {
-
-        }
     };
 
 
