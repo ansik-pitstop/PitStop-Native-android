@@ -87,8 +87,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private MixpanelHelper mixpanelHelper;
     private SharedPreferences sharedPreferences;
 
-    private int lastTripId = -1; // from backend
-
     // queue for sending trip flags
     private boolean vinRequested = false;
     private boolean deviceIsVerified = false;
@@ -556,10 +554,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         notifyGotAllPid(pidPackage);
     }
 
-    /**
-     * Process dtc data from obd
-     * @param dtcPackage
-     */
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
@@ -919,11 +913,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void get215RtcAndMileage(){
         Log.i(TAG, "getting RTC and Mileage - ONLY if connected to 215");
         deviceManager.getRtcAndMileage();
-    }
-
-    public int getLastTripId() {
-        Log.d(TAG,"getLastTripId()");
-        return lastTripId;
     }
 
     /**

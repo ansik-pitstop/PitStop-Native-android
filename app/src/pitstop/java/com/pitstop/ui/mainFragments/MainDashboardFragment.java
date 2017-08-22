@@ -812,14 +812,6 @@ public class MainDashboardFragment extends CarDataFragment {
                                             return;
                                         }
 
-                                        /*
-                                        * Ask Ben why this updateMileageStart is being called here
-                                        * */
-                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)
-                                                && ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId() != -1){
-                                            networkHelper.updateMileageStart(mileage, ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId(), null);
-                                        }
-
                                         dashboardCar.setTotalMileage(mileage);
                                         carLocalStore.updateCar(dashboardCar);
 
