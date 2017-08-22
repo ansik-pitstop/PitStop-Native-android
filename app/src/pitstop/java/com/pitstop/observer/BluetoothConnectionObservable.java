@@ -12,6 +12,7 @@ public interface BluetoothConnectionObservable extends Subject{
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
         String SEARCHING = "state_searching"; //Searching for bluetooth device
+        String CONNECTING = "state_connecting"; //Connecting to bluetooth device
         String VERIFYING = "state_verifying"; //Verifying currently connected device
         String CONNECTED = "state_connected"; //Established trusted connection with device
     }
@@ -44,7 +45,7 @@ public interface BluetoothConnectionObservable extends Subject{
     void requestDtcData();
 
     //Invoked when an observer needs the device VIN
-    void requestVin();
+    boolean requestVin();
 
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);

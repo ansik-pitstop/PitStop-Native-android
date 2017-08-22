@@ -207,6 +207,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void connectionStateChange(int state) {
+        Log.d(TAG,"connectionStateChange() state:"+state);
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 

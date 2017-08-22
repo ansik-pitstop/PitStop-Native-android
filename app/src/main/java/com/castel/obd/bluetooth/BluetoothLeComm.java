@@ -2,7 +2,6 @@ package com.castel.obd.bluetooth;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,17 +11,10 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -170,35 +162,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         mCommandLock.release();
     }
 
-    private void showConnectingNotification() {
-        Bitmap icon = BitmapFactory.decodeResource(mContext.getResources(),
-                R.mipmap.ic_push);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mContext)
-                        .setLargeIcon(icon)
-                        .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
-                        .setProgress(100, 100, true)
-                        .setContentTitle("Connecting to car");
-
-        Intent resultIntent = new Intent(mContext, MainActivity.class);
-        resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
-
-        stackBuilder.addParentStack(MainActivity.class);
-
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(BluetoothAutoConnectService.notifID, mBuilder.build());
-    }
-
     public void bluetoothStateChanged(int state) {
         if(state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = DISCONNECTED;
@@ -215,6 +178,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 case BluetoothProfile.STATE_CONNECTING:
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
+                    deviceManager.connectionStateChange(btConnectionState);
                     break;
 
 
