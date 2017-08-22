@@ -790,6 +790,7 @@ public class MainDashboardFragment extends CarDataFragment {
                     updateMileageDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if (dashboardCar == null) return;
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
                             // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
                             final double mileage = Double.parseDouble(input.getText().toString());

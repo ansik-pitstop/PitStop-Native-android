@@ -305,6 +305,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         if (recalls == null){
             this.recalls = new HashSet<>();
+            recalls = new HashSet<>();
         }
         else{
             this.recalls = recalls;
