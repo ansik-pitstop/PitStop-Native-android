@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -259,11 +258,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onGotDtc(DtcPackage dtcPackage) {
-        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+    public void onGotDtc(Set<String> dtc) {
+        Log.i(TAG, "DTC data received: " + dtc);
 
         if (!isAskingForDtcs) return;
-        mCallback.onEngineCodesRetrieved(dtcPackage.getDtcAsSet());
+        mCallback.onEngineCodesRetrieved(dtc);
     }
 
     @Override
