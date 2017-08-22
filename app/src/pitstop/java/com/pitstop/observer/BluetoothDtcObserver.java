@@ -1,6 +1,6 @@
 package com.pitstop.observer;
 
-import java.util.Set;
+import java.util.HashMap;
 
 /**
  * Created by Karol Zdebel on 7/21/2017.
@@ -9,6 +9,6 @@ import java.util.Set;
 public interface BluetoothDtcObserver extends Observer {
 
     //DTC data retrieved from the device that is currently being used
-    void onGotDtc(Set<String> dtc);
+    void onGotDtc(HashMap<Boolean,String> dtc);
     void onErrorGettingDtc();
 }
