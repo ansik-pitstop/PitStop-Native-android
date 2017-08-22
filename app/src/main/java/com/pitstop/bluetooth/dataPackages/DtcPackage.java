@@ -1,6 +1,9 @@
 package com.pitstop.bluetooth.dataPackages;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Ben Wu on 2016-09-02.
@@ -11,6 +14,16 @@ public class DtcPackage {
     public int dtcNumber;
     public String[] dtcs;
     public String rtcTime;
+
+    public Set<String> getDtcAsSet(){
+
+        Set<String> dtcSet = new HashSet<>();
+        if (dtcs != null){
+            Collections.addAll(dtcSet, dtcs);
+        }
+        return dtcSet;
+
+    }
 
     @Override
     public String toString() {
