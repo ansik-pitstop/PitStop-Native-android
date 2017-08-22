@@ -132,7 +132,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         public void onRetry() {
             Log.d(TAG,"dtcTimeoutTimer.onRetry() dtcRequested? "+dtcRequested);
             if (!dtcRequested) return;
-            deviceManager.requestData();
+            deviceManager.getDtcs();
         }
 
         @Override
@@ -152,8 +152,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onRetry() {
             Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
-            if (!dtcRequested) return;
-            deviceManager.requestData();
         }
 
         @Override
@@ -1052,7 +1050,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
-                ((BluetoothPidObserver)observer).onGotAllPid(pidPackage);
+                ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids);
             }
         }
     }
