@@ -45,6 +45,10 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<Trip215>() {
                 @Override
                 public void onSuccess(Trip215 data) {
+                    if (data == null){
+                        createTripUsingPid();
+                        return;
+                    }
                     Log.d(TAG,"Got latest trip id from server, id: "+pidPackage.tripId);
                     insertPid(data.getTripId());
                 }
