@@ -151,7 +151,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         //Check if already connected to device
         if (bluetoothConnectionObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED)){
+                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
 
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);

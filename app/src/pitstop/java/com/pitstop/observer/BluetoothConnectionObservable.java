@@ -13,8 +13,9 @@ public interface BluetoothConnectionObservable extends Subject{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
         String SEARCHING = "state_searching"; //Searching for bluetooth device
         String CONNECTING = "state_connecting"; //Connecting to bluetooth device
+        String CONNECTED_UNVERIFIED = "state_connected_unverified"; //Established not yet trusted connection
         String VERIFYING = "state_verifying"; //Verifying currently connected device
-        String CONNECTED = "state_connected"; //Established trusted connection with device
+        String CONNECTED_VERIFIED = "state_connected_verified"; //Established trusted connection with device
     }
 
     //Invoked if device recognized as broken and requires id overwrite
