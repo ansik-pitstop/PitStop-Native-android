@@ -11,5 +11,4 @@ public interface BluetoothDtcObserver extends Observer {
     //DTC data retrieved from the device that is currently being used
     void onGotDtc(Set<String> dtc);
     void onErrorGettingDtc();
-    void onHistoricalDataStateChanged(boolean historicalEnabled);
 }

@@ -272,8 +272,4 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         mCallback.onScanInterrupted("Error retrieving DTC from device");
     }
 
-    @Override
-    public void onHistoricalDataStateChanged(boolean historicalEnabled) {
-
-    }
 }

@@ -416,11 +416,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void requestHistoricalDataStateChange(boolean historicalEnabled) {
-        //TODO
-    }
-
-    @Override
     public boolean requestAllPid() {
         Log.d(TAG,"requestAllPid(), allPidRequested? "+ allPidRequested);
         if (allPidRequested) return false;
