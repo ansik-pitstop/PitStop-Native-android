@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -22,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -192,8 +192,9 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onGotAllPid(PidPackage pidPackage){
-        Log.d(TAG,"All pids received, pidPackage:"+pidPackage);
+    public void onGotAllPid(HashMap<String,String> pid){
+        Log.d(TAG,"All pids received, pidPackage:"+pid);
+        mCallback.onScanInterrupted("Error getting all pid from device");
     }
 
     @Override
