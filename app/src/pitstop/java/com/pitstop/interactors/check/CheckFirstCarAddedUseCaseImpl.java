@@ -54,36 +54,38 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
                     @Override
                     public void onSuccess(List<Car> cars) {
-                        if (!cars.isEmpty()){
-
-                            //First car is added, fix the settings because they must be corrupted
-
-                            //Step 1: Set firstCarAdded=true
-                            userRepository.setFirstCarAdded(true, new Repository.Callback<Object>() {
-                                @Override
-                                public void onSuccess(Object response){
-
-                                    //Step 2: Set mainCar=cars[0].carId
-                                    userRepository.setUserCar(userSettings.getUserId()
-                                            , cars.get(0).getId(), new Repository.Callback<Object>() {
-
-                                            @Override
-                                            public void onSuccess(Object response){
-                                                callback.onFirstCarAddedChecked(true);
-                                            }
-
-                                            @Override
-                                            public void onError(RequestError error){
-                                                callback.onError(error);
-                                            }
-                                    });
-                                }
-                                @Override
-                                public void onError(RequestError error){
-                                    callback.onError(error);
-                                }
-                            });
+                        if (cars.isEmpty()){
+                            callback.onFirstCarAddedChecked(false);
+                            return;
                         }
+
+                        //First car is added, fix the settings because they must be corrupted
+
+                        //Step 1: Set firstCarAdded=true
+                        userRepository.setFirstCarAdded(true, new Repository.Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object response){
+
+                                //Step 2: Set mainCar=cars[0].carId
+                                userRepository.setUserCar(userSettings.getUserId()
+                                        , cars.get(0).getId(), new Repository.Callback<Object>() {
+
+                                        @Override
+                                        public void onSuccess(Object response){
+                                            callback.onFirstCarAddedChecked(true);
+                                        }
+
+                                        @Override
+                                        public void onError(RequestError error){
+                                            callback.onError(error);
+                                        }
+                                });
+                            }
+                            @Override
+                            public void onError(RequestError error){
+                                callback.onError(error);
+                            }
+                        });
                     }
 
                     @Override

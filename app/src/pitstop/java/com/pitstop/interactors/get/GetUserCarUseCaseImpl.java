@@ -74,9 +74,13 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
                                     , new Repository.Callback<Object>() {
                                 @Override
-                                public void onSuccess(Object response){}
+                                public void onSuccess(Object response){
+                                    //Successfully fixed corrupted settings
+                                }
                                 @Override
-                                public void onError(RequestError error){}
+                                public void onError(RequestError error){
+                                    //Error fixing corrupted settings
+                                }
                             });
                         }
                     }
