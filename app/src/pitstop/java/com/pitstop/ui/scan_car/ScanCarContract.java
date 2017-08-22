@@ -84,13 +84,6 @@ public interface ScanCarContract {
         void update();
 
         /**
-         * Check if OBD device is uploading the real time data to the app <br>
-         * The reason we should check this prior to getting engine codes is that
-         * for IDD-212B devices, engine codes will not be returned if it is still uploading non-realtime data. <br>
-         */
-        void checkRealTime();
-
-        /**
          * Ask BluetoothAutoConnectService to get engine codes from the device <br>
          * The callback for this method is dtcData(DtcPackage) <br>
          */

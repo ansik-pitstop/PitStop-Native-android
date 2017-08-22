@@ -582,10 +582,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void appendDtc(DtcPackage dtcPackage){
+        Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
         if (requestedDtc == null) requestedDtc = dtcPackage;
         else if (dtcPackage.dtcNumber > 0){
             int totalDtc = dtcPackage.dtcNumber+requestedDtc.dtcNumber;
-            String[] dtcs = new String[totalDtc];
+            String[] dtcs = new String[totalDtc];;
             for (int i=0;i<dtcPackage.dtcNumber;i++){
                 dtcs[i] = dtcPackage.dtcs[i];
             }
@@ -595,6 +596,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             requestedDtc.dtcs = dtcs;
             requestedDtc.dtcNumber = dtcs.length;
         }
+        Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtc);
     }
 
     @Override
