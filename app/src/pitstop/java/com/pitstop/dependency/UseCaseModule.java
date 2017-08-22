@@ -186,8 +186,8 @@ public class UseCaseModule {
 
     @Provides
     CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserRepository userRepository
-            , Handler handler){
-        return new CheckFirstCarAddedUseCaseImpl(userRepository, handler);
+            , CarRepository carRepository, Handler handler){
+        return new CheckFirstCarAddedUseCaseImpl(userRepository, carRepository, handler);
     }
 
     @Provides

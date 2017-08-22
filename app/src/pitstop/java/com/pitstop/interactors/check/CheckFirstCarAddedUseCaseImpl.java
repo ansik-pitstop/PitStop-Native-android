@@ -24,8 +24,10 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
     private Callback callback;
 
 
-    public CheckFirstCarAddedUseCaseImpl(UserRepository userRepository, Handler handler) {
+    public CheckFirstCarAddedUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+            , Handler handler) {
         this.userRepository = userRepository;
+        this.carRepository = carRepository;
         this.handler = handler;
     }
 
