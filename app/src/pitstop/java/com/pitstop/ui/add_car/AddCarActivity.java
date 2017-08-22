@@ -37,6 +37,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     public static final int ADD_CAR_SUCCESS_HAS_DEALER = 53;
     public static final int ADD_CAR_FAILED = 56;
     public static final int RC_PENDING_ADD_CAR = 1043;
+    public static final int RC_SELECT_DEALERSHIP = 57;
 
     private AskHasDeviceFragment askHasDeviceFragment;
     private DeviceSearchFragment deviceSearchFragment;
@@ -163,6 +164,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         currentFragment = null;
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);
+
         //Go back to previous activity
         if (hasDealership){
             setResult(ADD_CAR_SUCCESS_HAS_DEALER, data);
@@ -173,9 +175,20 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
             Intent intent = new Intent(this, CustomShopActivity.class);
             intent.putExtra(CustomShopActivity.CAR_EXTRA,car);
             intent.putExtra(CustomShopActivity.START_SOURCE_EXTRA,getClass().getName());
-            startActivity(intent);
+            startActivityForResult(intent,RC_SELECT_DEALERSHIP);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        //Dealership has been selected, pass down the result
+        if (requestCode == RC_SELECT_DEALERSHIP){
+            setResult(resultCode,data);
             finish();
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
