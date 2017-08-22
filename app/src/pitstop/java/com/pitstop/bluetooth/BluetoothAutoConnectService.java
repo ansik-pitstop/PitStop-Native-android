@@ -146,7 +146,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     };
 
     /**Request All PID Data **/
-    private final int PID_RETRY_LEN = 20;
+    private final int PID_RETRY_LEN = 5;
     private final int PID_RETRY_COUNT = 0;
     private TimeoutTimer pidTimeoutTimer = new TimeoutTimer(PID_RETRY_LEN,PID_RETRY_COUNT) {
         @Override
