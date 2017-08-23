@@ -44,6 +44,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
+import com.pitstop.observer.BluetoothPidObserver;
+import com.pitstop.observer.BluetoothRtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.observer.Device215BreakingObserver;
@@ -75,14 +77,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private BluetoothDeviceManager deviceManager;
 
     private String deviceConnState = State.DISCONNECTED;
+    private boolean allPidRequested = false;
+    private boolean dtcRequested = false;
 
     public static int notifID = 1360119;
     private String currentDeviceId = "";
 
     private MixpanelHelper mixpanelHelper;
     private SharedPreferences sharedPreferences;
-
-    private int lastTripId = -1; // from backend
 
     // queue for sending trip flags
     private boolean vinRequested = false;
@@ -91,6 +93,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     boolean deviceIdOverwriteInProgress= false;
     private ReadyDevice readyDevice = null;
     private String readDeviceId = "";
+    private long terminalRtcTime = -1;
 
     private List<Observer> observerList = new ArrayList<>();
 
@@ -134,12 +137,69 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private BluetoothServiceBroadcastReceiver connectionReceiver
             = new BluetoothServiceBroadcastReceiver(this);
+    private boolean rtcTimeRequested = false;
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
             return BluetoothAutoConnectService.this;
         }
     }
+
+    /**Request DTC Data **/
+    private HashMap<String ,Boolean> requestedDtc;
+    private final int DTC_RETRY_LEN = 5;
+    private final int DTC_RETRY_COUNT = 4;
+    private TimeoutTimer dtcTimeoutTimer = new TimeoutTimer(DTC_RETRY_LEN,DTC_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"dtcTimeoutTimer.onRetry() dtcRequested? "+dtcRequested);
+            if (!dtcRequested) return;
+            deviceManager.getDtcs();
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"dtcTimeoutTimer.onTimeout() dtcRequested? "+dtcRequested
+                    +" found dtc: "+requestedDtc);
+            if (!dtcRequested) return;
+            if (requestedDtc == null) notifyErrorGettingDtcData();
+            else notifyDtcData(requestedDtc);
+        }
+    };
+
+    /**Request All PID Data **/
+    private final int PID_RETRY_LEN = 5;
+    private final int PID_RETRY_COUNT = 0;
+    private TimeoutTimer pidTimeoutTimer = new TimeoutTimer(PID_RETRY_LEN,PID_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"rtcTimeoutTimer.onTimeout() allPidRequested?"+allPidRequested);
+            //Pid data wasn't sent before timer is done
+            if (allPidRequested) notifyErrorGettingAllPid();
+        }
+    };
+
+    /**Request Device Time **/
+    private final int RTC_RETRY_LEN = 5;
+    private final int RTC_RETRY_COUNT = 0;
+    private TimeoutTimer rtcTimeoutTimer = new TimeoutTimer(RTC_RETRY_LEN,RTC_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"rtcTimeoutTimer.onRetry() rtcTimeRequested? "+rtcTimeRequested);
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"rtcTimeoutTimer.onTimeout() rtcTimeRequested?"+rtcTimeRequested);
+            //Rtc data wasn't sent before timer is done
+            if (rtcTimeRequested) notifyErrorGettingRtcTime();
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -178,11 +238,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (rtcDataHandler.getTerminalRtcTime() == -1
+                if (terminalRtcTime == -1
                         && deviceConnState.equals(State.CONNECTED_VERIFIED)){
                     Log.d(TAG,"Periodic get terminal time request executing");
 
-                    getObdDeviceTime();
+                    requestDeviceTime();
                 }
                 handler.postDelayed(this, 60000);
             }
@@ -256,6 +316,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 /*Check to make sure were not overriding the state once
                 ** its already verified and connected */
                 clearInvalidDeviceData();
+                terminalRtcTime = -1;
+                allPidRequested = false;
+                rtcTimeRequested = false;
+                dtcRequested = false;
                 if (!deviceConnState.equals(State.VERIFYING)
                         && !deviceConnState.equals(State.CONNECTED_VERIFIED)){
                     deviceConnState = State.CONNECTED_UNVERIFIED;
@@ -300,38 +364,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void notifyDeviceNeedsOverwrite() {
-        Log.d(TAG,"notifyDeviceNeedsOverwrite()");
-        for (Observer o : observerList) {
-            if (o instanceof Device215BreakingObserver) {
-                ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
-            }
-        }
-    }
-
-    @Override
-    public void notifySearchingForDevice() {
-        Log.d(TAG,"notifySearchingForDevice()");
-        trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onSearchingForDevice();
-            }
-        }
-    }
-
-    @Override
-    public void notifyDeviceReady(String vin, String scannerId, String scannerName) {
-        Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
-                +", scannerName: "+scannerName);
-        trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
-        for (Observer observer: observerList){
-            ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
-        }
-    }
-
-    @Override
     public void trackBluetoothEvent(String event, String scannerId, String vin){
         Log.d(TAG,"trackBluetoothEvent() event: "+event);
 
@@ -339,7 +371,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (vin == null) vin = "";
 
         mixpanelHelper.trackBluetoothEvent(event,scannerId,vin,deviceIsVerified,deviceConnState
-                ,rtcDataHandler.getTerminalRtcTime());
+                ,terminalRtcTime);
     }
 
     @Override
@@ -347,7 +379,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"trackBluetoothEvent() event: "+event);
         if (readyDevice == null){
             mixpanelHelper.trackBluetoothEvent(event,deviceIsVerified,deviceConnState
-                    ,rtcDataHandler.getTerminalRtcTime());
+                    ,terminalRtcTime);
         }
         else{
             trackBluetoothEvent(event,readyDevice.getScannerId()
@@ -370,35 +402,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public long getRtcTime() {
         Log.d(TAG,"getRtcTime()");
-        return rtcDataHandler.getTerminalRtcTime();
+        return terminalRtcTime;
     }
 
     @Override
     public void onHandlerVerifyingDevice() {
         Log.d(TAG,"onHandlerVerifyingDevice()");
         deviceConnState = State.VERIFYING;
-    }
-
-    @Override
-    public void notifyDeviceDisconnected() {
-        Log.d(TAG,"notifyDeviceDisconnected()");
-        trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
-            }
-        }
-    }
-
-    @Override
-    public void notifyVerifyingDevice() {
-        Log.d(TAG,"notifyVerifyingDevice()");
-        trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
-            }
-        }
+        notifyVerifyingDevice();
     }
 
     @Override
@@ -429,45 +440,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void notifySyncingDevice() {
-        Log.d(TAG,"notifySyncingDevice()");
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceSyncing();
-            }
-        }
-    }
+    public boolean requestDtcData() {
+        Log.d(TAG,"requestDtcData() dtcRequested? "+dtcRequested);
+        if (dtcRequested) return false;
 
-    @Override
-    public void notifyDtcData(DtcPackage dtcPackage) {
-        Log.d(TAG,"notifyDtcData() "+dtcPackage);
-        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
-        for (Observer observer : observerList) {
-            if (observer instanceof BluetoothDtcObserver) {
-                ((BluetoothDtcObserver) observer).onGotDtc(dtcPackage);
-            }
-        }
-    }
-
-    @Override
-    public void notifyVin(String vin) {
-        Log.d(TAG,"notifyVin() vin: "+vin);
-
-        if (!vinRequested) return;
-        vinRequested = false;
-        getVinTimeoutTimer.cancel();
-        for (Observer observer : observerList) {
-            if (observer instanceof BluetoothVinObserver) {
-                ((BluetoothVinObserver)observer).onGotVin(vin);
-            }
-        }
-    }
-
-    @Override
-    public void requestDtcData() {
-        Log.d(TAG,"requestDtcData()");
+        dtcRequested = true;
+        requestedDtc = null;
+        dtcTimeoutTimer.start();
         trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
+        return true;
     }
 
     @Override
@@ -482,6 +464,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         getVinTimeoutTimer.startTimer();
 
         deviceManager.getVin();
+    }
+
+    @Override
+    public boolean requestAllPid() {
+        Log.d(TAG,"requestAllPid(), allPidRequested? "+ allPidRequested);
+        if (allPidRequested) return false;
+
+        allPidRequested = true;
+        pidTimeoutTimer.start();
+        deviceManager.requestSnapshot();
+        return true;
+    }
+
+    @Override
+    public boolean requestDeviceTime() {
+        Log.d(TAG,"requestDeviceTime() rtcTimeRequested? "+rtcTimeRequested);
+        if (rtcTimeRequested) return false;
+
+        deviceManager.getRtc();
         return true;
     }
 
@@ -574,8 +575,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
-                rtcDataHandler.handleRtcData(Long.valueOf(parameterPackage.value)
-                        ,parameterPackage.deviceId);
+                long rtcTime = Long.valueOf(parameterPackage.value);
+                if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
+                rtcDataHandler.handleRtcData(rtcTime,currentDeviceId);
+                notifyRtc(rtcTime);
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -591,16 +594,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    //Remove data that was acquired from the wrong device during the VIN verification process
-    private void clearInvalidDeviceData(){
-        pidDataHandler.clearPendingData();
-        tripDataHandler.clearPendingData();
-        dtcDataHandler.clearPendingData();
-    }
-
     @Override
-    public void pidData(PidPackage pidPackage) {
-        LogUtils.debugLogD(TAG, "Received pid data: "+pidPackage
+    public void idrPidData(PidPackage pidPackage) {
+        LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         deviceManager.requestData();
@@ -615,10 +611,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataHandler.handlePidData(pidPackage);
     }
 
-    /**
-     * Process dtc data from obd
-     * @param dtcPackage
-     */
+    @Override
+    public void pidData(PidPackage pidPackage) {
+        Log.d(TAG,"Received snapshot() pidPackage: "+pidPackage);
+        pidTimeoutTimer.cancel();
+        notifyGotAllPid(pidPackage);
+    }
+
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
@@ -631,7 +630,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcPackage.deviceId = currentDeviceId;
         dtcDataHandler.handleDtcData(dtcPackage);
-        notifyDtcData(dtcPackage);
+        appendDtc(dtcPackage);
+
+    }
+
+    private void appendDtc(DtcPackage dtcPackage){
+        //This needs to be called before a return is made otherwise error will be thrown
+        if (requestedDtc == null) requestedDtc = new HashMap<>();
+
+        if (dtcPackage == null) return;
+
+        Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
+        for (String d: dtcPackage.dtcs){
+            if (!requestedDtc.containsKey(d) && !requestedDtc.get(d) == dtcPackage.isPending){
+                requestedDtc.put(d,dtcPackage.isPending);
+            }
+        }
+        Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtc);
     }
 
     @Override
@@ -659,30 +674,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             notifyDeviceDisconnected();
         }
 
-    }
-
-    private void sendConnectedNotification(){
-
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                String carName = "Click here to find out more" +
-                        car.getYear() + " " + car.getMake() + " " + car.getModel();
-                NotificationsHelper.sendNotification(getApplicationContext()
-                        ,carName, "Car is Connected");
-            }
-
-            @Override
-            public void onNoCarSet() {
-                NotificationsHelper.sendNotification(getApplicationContext()
-                        ,"Click here to find out more", "Car is Connected");
-            }
-
-            @Override
-            public void onError(RequestError error) {
-
-            }
-        });
     }
 
     @Override
@@ -876,6 +867,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOn() {
+        Log.d(TAG,"onBluetoothOn()");
         if (deviceManager != null) {
             deviceManager.close();
         }
@@ -892,6 +884,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOff() {
+        Log.d(TAG,"onBluetoothOff()");
         currentDeviceId = null;
         deviceManager.bluetoothStateChanged(BluetoothAdapter.STATE_OFF); //CONTINUE HERE
         deviceManager.close();
@@ -914,39 +907,36 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean isDeviceVerified() {
+        Log.d(TAG,"isDeviceVerified()");
         return deviceIsVerified;
     }
 
-    /**
-     * Send command to obd device to retrieve the current device time.
-     * @see #parameterData(ParameterPackage) for device time returned
-     * by obd device.
-     */
-    public void getObdDeviceTime() {
-        LogUtils.debugLogI(TAG, "Getting device time", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        deviceManager.getRtc();
+    @Override
+    public boolean isConnectedTo215(){
+        Log.d(TAG,"isConnectedTo215()");
+        if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
+            return deviceManager.isConnectedTo215();
+        else
+            return false;
     }
 
     public void setDeviceNameAndId(String name){
-        LogUtils.debugLogI(TAG, "Setting device name and id to "+name, true
-                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"setDeviceNameAndId() name: "+name);
         deviceManager.setDeviceNameAndId(name);
     }
 
     public void setDeviceId(String id){
-        LogUtils.debugLogI(TAG, "Setting device id to ["+id+"]", true
-                , DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"setDeviceId() id: "+id);
         deviceManager.setDeviceId(id);
     }
 
     public void resetObdDeviceTime() {
-        LogUtils.debugLogI(TAG, "Setting RTC time to 200x", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"resetObdDeviceTime()");
         deviceManager.setRtc(1088804101);
     }
 
     public void changeSetting(String param, String value){
-        LogUtils.debugLogI(TAG, "Changing setting with param: " + param + ", value: " + value,
-                true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"changeSettings() param: "+param+", value: "+value);
         deviceManager.setParam(param, value);
     }
 
@@ -957,6 +947,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      * @param deviceId The device id of the currently connected obd device
      */
     public void saveSyncedDevice(String deviceId) {
+        Log.d(TAG,"saveSyncedDevice() deviceId: "+deviceId);
         SharedPreferences sharedPreferences = this.getSharedPreferences(SYNCED_DEVICE,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -965,12 +956,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     public void getSupportedPids(){ // supported pids
-        LogUtils.debugLogI(TAG, "getting supported PIDs", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"getSupportedPids()");
         deviceManager.getSupportedPids();
     }
 
     public void getPids(String pids) {
-        LogUtils.debugLogI(TAG, "getting pids", true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        Log.d(TAG,"getPids()");
         deviceManager.getPids(pids);
     }
 
@@ -978,10 +969,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void get215RtcAndMileage(){
         Log.i(TAG, "getting RTC and Mileage - ONLY if connected to 215");
         deviceManager.getRtcAndMileage();
-    }
-
-    public int getLastTripId() {
-        return lastTripId;
     }
 
     /**
@@ -1000,12 +987,179 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         unregisterReceiver(connectionReceiver);
     }
 
-    @Override
-    public boolean isConnectedTo215(){
-        if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
-            return deviceManager.isConnectedTo215();
-        else
-            return false;
+    private void notifyDeviceNeedsOverwrite() {
+        Log.d(TAG,"notifyDeviceNeedsOverwrite()");
+        for (Observer o : observerList) {
+            if (o instanceof Device215BreakingObserver) {
+                ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
+            }
+        }
     }
 
+    private void notifySearchingForDevice() {
+        Log.d(TAG,"notifySearchingForDevice()");
+        trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onSearchingForDevice();
+            }
+        }
+    }
+
+    private void notifyDeviceReady(String vin, String scannerId, String scannerName) {
+        Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
+                +", scannerName: "+scannerName);
+        trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
+        for (Observer observer: observerList){
+            ((BluetoothConnectionObserver)observer)
+                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
+        }
+    }
+
+    private void notifyDeviceDisconnected() {
+        Log.d(TAG,"notifyDeviceDisconnected()");
+        trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
+            }
+        }
+    }
+
+    private void notifyVerifyingDevice() {
+        Log.d(TAG,"notifyVerifyingDevice()");
+        trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
+            }
+        }
+    }
+
+    private void notifySyncingDevice() {
+        Log.d(TAG,"notifySyncingDevice()");
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)observer).onDeviceSyncing();
+            }
+        }
+    }
+
+    private void notifyDtcData(HashMap<String, Boolean> dtc) {
+        Log.d(TAG,"notifyDtcData() "+dtc);
+        if (!dtcRequested) return;
+        dtcRequested = false;
+
+        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothDtcObserver) {
+                ((BluetoothDtcObserver) observer).onGotDtc(dtc);
+            }
+        }
+    }
+
+    private void notifyErrorGettingDtcData() {
+        Log.d(TAG,"notifyErrorGettingDtcData()");
+        if (!dtcRequested) return;
+        dtcRequested = false;
+
+        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothDtcObserver) {
+                ((BluetoothDtcObserver) observer).onErrorGettingDtc();
+            }
+        }
+    }
+
+    private void notifyVin(String vin) {
+        Log.d(TAG,"notifyVin() vin: "+vin);
+        if (!vinRequested) return;
+
+        vinRequested = false;
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothVinObserver) {
+                ((BluetoothVinObserver)observer).onGotVin(vin);
+            }
+        }
+    }
+
+    private void notifyRtc(Long rtc) {
+        Log.d(TAG,"notifyRtc() rtc: "+rtc);
+        if (!rtcTimeRequested) return;
+
+        rtcTimeRequested = false;
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothRtcObserver) {
+                ((BluetoothRtcObserver)observer).onGotDeviceTime(rtc);
+            }
+        }
+    }
+
+    private void notifyErrorGettingRtcTime(){
+        Log.d(TAG,"notifyErrorGettingRtcTime()");
+        if (!rtcTimeRequested) return;
+        rtcTimeRequested = false;
+
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothRtcObserver) {
+                ((BluetoothRtcObserver)observer).onErrorGettingDeviceTime();
+            }
+        }
+
+    }
+
+    private void notifyGotAllPid(PidPackage pidPackage){
+        Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
+        if (!allPidRequested) return;
+        allPidRequested = false;
+
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothPidObserver){
+                ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids);
+            }
+        }
+    }
+
+    private void notifyErrorGettingAllPid(){
+        Log.d(TAG,"notifyErrorGettingAllPid()");
+        if (!allPidRequested) return;
+        allPidRequested = false;
+
+        for (Observer observer: observerList){
+            if (observer instanceof BluetoothPidObserver){
+                ((BluetoothPidObserver)observer).onErrorGettingAllPid();
+            }
+        }
+    }
+
+    private void sendConnectedNotification(){
+
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                String carName = "Click here to find out more" +
+                        car.getYear() + " " + car.getMake() + " " + car.getModel();
+                NotificationsHelper.sendNotification(getApplicationContext()
+                        ,carName, "Car is Connected");
+            }
+
+            @Override
+            public void onNoCarSet() {
+                NotificationsHelper.sendNotification(getApplicationContext()
+                        ,"Click here to find out more", "Car is Connected");
+            }
+
+            @Override
+            public void onError(RequestError error) {
+
+            }
+        });
+    }
+
+    //Remove data that was acquired from the wrong device during the VIN verification process
+    private void clearInvalidDeviceData(){
+        pidDataHandler.clearPendingData();
+        tripDataHandler.clearPendingData();
+        dtcDataHandler.clearPendingData();
+    }
 }
