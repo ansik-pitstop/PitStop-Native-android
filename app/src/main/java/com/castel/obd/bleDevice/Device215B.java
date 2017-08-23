@@ -109,6 +109,12 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
+    public String requestSnapshot(){
+        Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"0"));
+        return pidPackage("0",0,null,"0");
+    }
+
+    @Override
     public String getDeviceName() {
         return deviceName;
     }
@@ -451,10 +457,10 @@ public class Device215B implements AbstractDevice {
                         pidPackage.tripId = "0";
                     }
 
-                    dataListener.pidData(pidPackage);
+                    dataListener.idrPidData(pidPackage);
                 }
                 else{
-                    dataListener.pidData(null);
+                    dataListener.idrPidData(null);
                 }
 
                 if(idrInfo.dtc != null && !idrInfo.dtc.isEmpty()) {
@@ -522,7 +528,7 @@ public class Device215B implements AbstractDevice {
                 }
 
                 if (idrInfo.snapshot != null && !idrInfo.snapshot.isEmpty()){
-                    Log.i("SnapShot", idrInfo.snapshot);
+                    Log.d(TAG,"SnapShot"+ idrInfo.snapshot);
                 }
 
                 Log.d(TAG, idrInfo.toString());

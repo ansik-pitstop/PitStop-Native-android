@@ -152,7 +152,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void pidData(PidPackage pidPackage) {
+    public void idrPidData(PidPackage pidPackage) {
         if(pidPackage.pids == null) {
             return;
         }
@@ -175,6 +175,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
                 ((TextView) findViewById(R.id.debug_log)).setText(pidList.toString());
             }
         });
+    }
+
+    @Override
+    public void pidData(PidPackage pidPackage) {
+
     }
 
     @Override
