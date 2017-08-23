@@ -45,6 +45,7 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothPidObserver;
+import com.pitstop.observer.BluetoothRtcObserver;
 import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.observer.Device215BreakingObserver;
@@ -155,9 +156,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         @Override
         public void onTimeout() {
-            Log.d(TAG,"dtcTimeoutTimer.onTimeout() allPidRequested?"+allPidRequested);
+            Log.d(TAG,"rtcTimeoutTimer.onTimeout() allPidRequested?"+allPidRequested);
             //Pid data wasn't sent before timer is done
             if (allPidRequested) notifyErrorGettingAllPid();
+        }
+    };
+
+    /**Request Device Time **/
+    private final int RTC_RETRY_LEN = 5;
+    private final int RTC_RETRY_COUNT = 0;
+    private TimeoutTimer rtcTimeoutTimer = new TimeoutTimer(RTC_RETRY_LEN,RTC_RETRY_COUNT) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG,"rtcTimeoutTimer.onRetry() rtcTimeRequested? "+rtcTimeRequested);
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"rtcTimeoutTimer.onTimeout() rtcTimeRequested?"+rtcTimeRequested);
+            //Rtc data wasn't sent before timer is done
+            if (rtcTimeRequested) notifyErrorGettingRtcTime();
         }
     };
 
@@ -527,6 +545,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 long rtcTime = Long.valueOf(parameterPackage.value);
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
                 rtcDataHandler.handleRtcData(rtcTime,currentDeviceId);
+                notifyRtc(rtcTime);
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -1027,6 +1046,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 ((BluetoothVinObserver)observer).onGotVin(vin);
             }
         }
+    }
+
+    private void notifyRtc(Long rtc) {
+        Log.d(TAG,"notifyRtc() rtc: "+rtc);
+        if (!rtcTimeRequested) return;
+
+        rtcTimeRequested = false;
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothRtcObserver) {
+                ((BluetoothRtcObserver)observer).onGotDeviceTime(rtc);
+            }
+        }
+    }
+
+    private void notifyErrorGettingRtcTime(){
+        Log.d(TAG,"notifyErrorGettingRtcTime()");
+        if (!rtcTimeRequested) return;
+        rtcTimeRequested = false;
+
+        for (Observer observer : observerList) {
+            if (observer instanceof BluetoothRtcObserver) {
+                ((BluetoothRtcObserver)observer).onErrorGettingDeviceTime();
+            }
+        }
+
     }
 
     private void notifyGotAllPid(PidPackage pidPackage){
