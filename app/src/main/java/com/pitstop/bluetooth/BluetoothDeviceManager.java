@@ -248,12 +248,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to LE device");
+                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to Classic device");
+                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothClassicComm(mContext, this);
                 break;
         }

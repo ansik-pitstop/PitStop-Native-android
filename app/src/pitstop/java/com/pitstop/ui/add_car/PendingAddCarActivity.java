@@ -87,7 +87,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         Intent intent = new Intent(PendingAddCarActivity.this, com.pitstop.ui.add_car.AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
         intent.putExtra(ADD_CAR_SCANNER,settings.getString(ADD_CAR_SCANNER,""));
-        intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,""));
+        intent.putExtra(ADD_CAR_MILEAGE,settings.getString(ADD_CAR_MILEAGE,"0"));
         setResult(MainActivity.RESULT_OK,intent);
 
         SharedPreferences.Editor editor = settings.edit();
