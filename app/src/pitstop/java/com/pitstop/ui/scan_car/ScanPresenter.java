@@ -38,9 +38,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     private BluetoothConnectionObservable bluetoothObservable;
 
     private boolean isAskingForDtcs = false;
-    private boolean realTimeDataRetrieved = true;
 
-    private Set<String> retrievedDtcs;
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
@@ -125,7 +123,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     public void getEngineCodes() {
         if (!isDeviceConnected()) return;
 
-        retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
         bluetoothObservable.requestDtcData();
     }
