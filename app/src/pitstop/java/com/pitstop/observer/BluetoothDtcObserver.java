@@ -9,6 +9,6 @@ import java.util.HashMap;
 public interface BluetoothDtcObserver extends Observer {
 
     //DTC data retrieved from the device that is currently being used
-    void onGotDtc(HashMap<Boolean,String> dtc);
+    void onGotDtc(HashMap<String ,Boolean> dtc);
     void onErrorGettingDtc();
 }

@@ -121,7 +121,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     /**Request DTC Data **/
-    private HashMap<Boolean,String> requestedDtc;
+    private HashMap<String ,Boolean> requestedDtc;
     private final int DTC_RETRY_LEN = 5;
     private final int DTC_RETRY_COUNT = 4;
     private TimeoutTimer dtcTimeoutTimer = new TimeoutTimer(DTC_RETRY_LEN,DTC_RETRY_COUNT) {
@@ -577,8 +577,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
         for (String d: dtcPackage.dtcs){
-            if (!requestedDtc.values().contains(d)){
-                requestedDtc.put(false,d);
+            if (!requestedDtc.keySet().contains(d)){
+                requestedDtc.put(d,dtcPackage.isPending);
             }
         }
         Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtc);
@@ -988,7 +988,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcData(HashMap<Boolean,String> dtc) {
+    private void notifyDtcData(HashMap<String, Boolean> dtc) {
         Log.d(TAG,"notifyDtcData() "+dtc);
         if (!dtcRequested) return;
         dtcRequested = false;
