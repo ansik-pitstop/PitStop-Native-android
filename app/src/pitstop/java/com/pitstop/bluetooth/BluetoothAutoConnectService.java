@@ -524,9 +524,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
-                if (terminalRtcTime == -1) terminalRtcTime = Long.valueOf(parameterPackage.value);
-                rtcDataHandler.handleRtcData(Long.valueOf(parameterPackage.value)
-                        ,parameterPackage.deviceId);
+                long rtcTime = Long.valueOf(parameterPackage.value);
+                if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
+                rtcDataHandler.handleRtcData(rtcTime,currentDeviceId);
             }
             catch(Exception e){
                 e.printStackTrace();
