@@ -304,6 +304,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (mBluetoothAdapter.startDiscovery()){
             Log.i(TAG, "BluetoothAdapter starts discovery");
 
+            foundDevices.clear(); //Reset found devices map
             if (!rssiScan){
                 Log.d(TAG,"Bonded Devices:");
                 for (BluetoothDevice d: mBluetoothAdapter.getBondedDevices()){
@@ -405,7 +406,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
-            foundDevices = new HashMap<>();
+            foundDevices.clear();
             return;
 
         }
