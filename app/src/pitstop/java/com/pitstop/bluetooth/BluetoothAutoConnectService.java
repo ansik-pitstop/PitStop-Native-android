@@ -118,6 +118,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         public void onTimeout() {
             Log.d(TAG,"getVinTimeoutTimer().onTimeout() deviceConnState: "+deviceConnState
                     +", vinRequested? "+vinRequested);
+            if (!vinRequested) return;
+
+            //For observer
+            notifyErrorGettingRtcTime();
+
+            //For verification progress
             if (deviceConnState.equals(State.CONNECTED_UNVERIFIED)){
                 if (deviceManager.moreDevicesLeft()){
                     deviceConnState = State.SEARCHING;
@@ -125,7 +131,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 else{
                     deviceConnState = State.DISCONNECTED;
                 }
-                vinRequested = false;
                 deviceManager.onConnectedDeviceInvalid();
             }
         }
