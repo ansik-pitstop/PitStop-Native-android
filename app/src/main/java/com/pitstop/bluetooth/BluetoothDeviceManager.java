@@ -301,10 +301,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        if (mBluetoothAdapter.startDiscovery() && !rssiScan){
-            Log.i(TAG, "BluetoothAdapter starts discovery");
+        //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
+        if (!rssiScan && mBluetoothAdapter.startDiscovery()){
             rssiScan = true;
-
+            Log.i(TAG, "BluetoothAdapter starts discovery");
             foundDevices.clear(); //Reset found devices map from previous scan
 
             //After about 11 seconds connect to the device with the strongest signal
