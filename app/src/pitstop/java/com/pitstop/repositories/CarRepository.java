@@ -163,6 +163,12 @@ public class CarRepository implements Repository{
                     if (requestError == null && response != null){
                         List<Car> cars = new ArrayList<>();
 
+                        //Return empty list if no cars returned
+                        if (response.equals("{}")){
+                            callback.onSuccess(cars);
+                            return;
+                        }
+
                         JSONArray carsJson = new JSONArray();
                         try{
                             carsJson  = new JSONArray(response);

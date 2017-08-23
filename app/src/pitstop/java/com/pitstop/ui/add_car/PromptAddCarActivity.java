@@ -10,6 +10,12 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.LoginActivity;
 
 import butterknife.BindView;
@@ -26,11 +32,17 @@ public class PromptAddCarActivity extends AppCompatActivity {
     @BindView(R.id.support_button)
     TextView supportButton;
 
+    private UseCaseComponent useCaseComponent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prompt_add_car);
         ButterKnife.bind(this);
+
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
 
         AppCompatActivity activity = this;
 
@@ -60,9 +72,22 @@ public class PromptAddCarActivity extends AppCompatActivity {
         startActivityForResult(intent, RC_ADD_CAR);
     }
 
-    @Override
-    public void finish() {
-        super.finish();
+    //Maybe the car was added on the back-end or logic error somewhere
+    private void checkCarWasAdded(){
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                finish();
+            }
+
+            @Override
+            public void onNoCarSet() {
+                //Everything is just right
+            }
+
+            @Override
+            public void onError(RequestError error) {}
+        });
     }
 
     @Override
@@ -73,6 +98,10 @@ public class PromptAddCarActivity extends AppCompatActivity {
         if (data != null) {
             setResult(resultCode, data);
             finish();
+        }
+        //Double check whether car was somehow still added
+        else{
+            checkCarWasAdded();
         }
     }
 
