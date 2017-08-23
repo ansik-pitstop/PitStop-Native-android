@@ -159,6 +159,7 @@ public class BluetoothChat {
 
 						if (-1 == count) {
 							Log.i(TAG, "read exception");
+							closeConnect();
 							mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 							break;
 						}
