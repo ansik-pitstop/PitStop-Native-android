@@ -815,7 +815,7 @@ public class MainDashboardFragment extends CarDataFragment {
                                         /*
                                         * Ask Ben why this updateMileageStart is being called here
                                         * */
-                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)
+                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)
                                                 && ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId() != -1){
                                             networkHelper.updateMileageStart(mileage, ((MainActivity)getActivity()).getBluetoothConnectService().getLastTripId(), null);
                                         }
@@ -827,11 +827,11 @@ public class MainDashboardFragment extends CarDataFragment {
                                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                 ,EVENT_SOURCE));
 
-                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)) {
+                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
                                             mMileageText.setText(String.format("%.2f km", mileage));
                                             ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
                                         } else {
-                                            if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED))
+                                            if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED))
                                                 ((MainActivity)getActivity())
                                                         .getBluetoothConnectService()
                                                         .requestDeviceSearch(false,false);

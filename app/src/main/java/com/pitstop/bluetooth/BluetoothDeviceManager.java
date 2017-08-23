@@ -207,6 +207,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void connectionStateChange(int state) {
+        Log.d(TAG,"connectionStateChange() state:"+state);
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 
@@ -300,31 +301,26 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        if (mBluetoothAdapter.startDiscovery()){
+        //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
+        if (!rssiScan && mBluetoothAdapter.startDiscovery()){
+            rssiScan = true;
             Log.i(TAG, "BluetoothAdapter starts discovery");
+            foundDevices.clear(); //Reset found devices map from previous scan
 
-            if (!rssiScan){
-                Log.d(TAG,"Bonded Devices:");
-                for (BluetoothDevice d: mBluetoothAdapter.getBondedDevices()){
-                    Log.d(TAG,"device: "+d.getName()+", address: "+d.getAddress());
-                }
-
-                //After about 11 seconds connect to the device with the strongest signal
-                rssiScan = true;
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mixpanelHelper.trackFoundDevices(foundDevices);
-                        Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                        mBluetoothAdapter.cancelDiscovery();
-                        connectToNextDevice();
-                        if (!moreDevicesLeft()){
-                            dataListener.scanFinished();
-                        }
-                        rssiScan = false;
+            //After about 11 seconds connect to the device with the strongest signal
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mixpanelHelper.trackFoundDevices(foundDevices);
+                    Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                    mBluetoothAdapter.cancelDiscovery();
+                    connectToNextDevice();
+                    if (!moreDevicesLeft()){
+                        dataListener.scanFinished();
                     }
-                },16000);
-            }
+                    rssiScan = false;
+                }
+            },16000);
 
             return true;
         }
@@ -404,7 +400,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
-            foundDevices = new HashMap<>();
+            foundDevices.clear();
             return;
 
         }

@@ -44,7 +44,7 @@ public class FreezeFrameDataHandler {
         //Queue freeze frames until device is verified
         pendingFreezeFrames.add(freezeFramePackage);
         if (!bluetoothConnectionObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED)){
+                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
             return;
         }
 

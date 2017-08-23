@@ -306,7 +306,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void run() {
 
-                if (state.equals(BluetoothConnectionObservable.State.CONNECTED)){
+                if (state.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
                     getSupportActionBar().setSubtitle("Device connected");
                 }
                 else if(state.equals(BluetoothConnectionObservable.State.VERIFYING)){
@@ -1171,7 +1171,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     public void onDeviceReady(ReadyDevice device) {
-        displayDeviceState(BluetoothConnectionObservable.State.CONNECTED);
+        displayDeviceState(BluetoothConnectionObservable.State.CONNECTED_VERIFIED);
     }
 
     @Override
