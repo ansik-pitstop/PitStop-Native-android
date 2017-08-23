@@ -58,6 +58,7 @@ import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -1089,6 +1090,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (!rtcTimeRequested) return;
 
         rtcTimeRequested = false;
+        rtcTimeoutTimer.cancel();
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothRtcObserver) {
                 ((BluetoothRtcObserver)observer).onGotDeviceTime(rtc);
