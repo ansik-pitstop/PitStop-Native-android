@@ -37,7 +37,7 @@ public class PidRepository implements Repository{
     public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
         Log.d(TAG,"insertPid() locally stored pid count: "+localPidStorage.getPidDataEntryCount()
                 +", pid: "+pid);
-        if (pid.tripMileage == null) pid.tripMileage = "0";
+
         localPidStorage.createPIDData(getPidDataObject(pid,tripId));
         if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
                 && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
