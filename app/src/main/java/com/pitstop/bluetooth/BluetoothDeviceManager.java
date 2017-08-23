@@ -301,28 +301,26 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return false;
         }
 
-        if (mBluetoothAdapter.startDiscovery()){
+        if (mBluetoothAdapter.startDiscovery() && !rssiScan){
             Log.i(TAG, "BluetoothAdapter starts discovery");
-            if (!rssiScan){
-                rssiScan = true;
+            rssiScan = true;
 
-                foundDevices.clear(); //Reset found devices map from previous scan
+            foundDevices.clear(); //Reset found devices map from previous scan
 
-                //After about 11 seconds connect to the device with the strongest signal
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mixpanelHelper.trackFoundDevices(foundDevices);
-                        Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                        mBluetoothAdapter.cancelDiscovery();
-                        connectToNextDevice();
-                        if (!moreDevicesLeft()){
-                            dataListener.scanFinished();
-                        }
-                        rssiScan = false;
+            //After about 11 seconds connect to the device with the strongest signal
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mixpanelHelper.trackFoundDevices(foundDevices);
+                    Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
+                    mBluetoothAdapter.cancelDiscovery();
+                    connectToNextDevice();
+                    if (!moreDevicesLeft()){
+                        dataListener.scanFinished();
                     }
-                },16000);
-            }
+                    rssiScan = false;
+                }
+            },16000);
 
             return true;
         }
