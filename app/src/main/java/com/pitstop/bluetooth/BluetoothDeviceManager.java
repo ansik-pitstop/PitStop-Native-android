@@ -447,9 +447,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     mBluetoothAdapter.cancelDiscovery();
                     connectToNextDevice();
                     if (!moreDevicesLeft()){
-                        dataListener.scanFinished();
+
+                        //Notify scan finished after 0.5 seconds due to delay
+                        // in receiving CONNECTING notification
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                dataListener.scanFinished();
+                                rssiScan = false;
+                            }
+                        },500);
                     }
-                    rssiScan = false;
+
                 }
 
             }
