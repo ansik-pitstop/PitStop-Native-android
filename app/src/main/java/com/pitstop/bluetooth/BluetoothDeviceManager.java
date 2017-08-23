@@ -303,16 +303,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (mBluetoothAdapter.startDiscovery()){
             Log.i(TAG, "BluetoothAdapter starts discovery");
-
-            foundDevices.clear(); //Reset found devices map
             if (!rssiScan){
-                Log.d(TAG,"Bonded Devices:");
-                for (BluetoothDevice d: mBluetoothAdapter.getBondedDevices()){
-                    Log.d(TAG,"device: "+d.getName()+", address: "+d.getAddress());
-                }
+                rssiScan = true;
+
+                foundDevices.clear(); //Reset found devices map from previous scan
 
                 //After about 11 seconds connect to the device with the strongest signal
-                rssiScan = true;
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
