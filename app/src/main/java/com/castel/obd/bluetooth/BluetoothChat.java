@@ -152,31 +152,29 @@ public class BluetoothChat {
 			byte[] buffer = new byte[1024];
 			int count;
 
-			while (true) {
-				if (null != mmInStream) {
-					try {
-						count = mmInStream.read(buffer);
+			while (true && mmInStream != null) {
+				try {
+					count = mmInStream.read(buffer);
 
-						if (-1 == count) {
-							Log.i(TAG, "read exception");
-							closeConnect();
-							mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
-							break;
-						}
-
-						byte[] data = new byte[count];
-						System.arraycopy(buffer, 0, data, 0, count);
-
-						Log.d("Reading Raw Data", Utils.bytesToHexString(data));
-
-						mHandler.sendMessage(mHandler.obtainMessage(
-								IBluetoothCommunicator.BLUETOOTH_READ_DATA, data));
-					} catch (IOException e) {
+					if (-1 == count) {
 						Log.i(TAG, "read exception");
 						closeConnect();
 						mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
 						break;
 					}
+
+					byte[] data = new byte[count];
+					System.arraycopy(buffer, 0, data, 0, count);
+
+					Log.d("Reading Raw Data", Utils.bytesToHexString(data));
+
+					mHandler.sendMessage(mHandler.obtainMessage(
+							IBluetoothCommunicator.BLUETOOTH_READ_DATA, data));
+				} catch (IOException e) {
+					Log.i(TAG, "read exception");
+					closeConnect();
+					mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
+					break;
 				}
 			}
 		}
