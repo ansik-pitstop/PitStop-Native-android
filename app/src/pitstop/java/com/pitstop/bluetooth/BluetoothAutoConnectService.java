@@ -93,6 +93,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     boolean deviceIdOverwriteInProgress= false;
     private ReadyDevice readyDevice = null;
     private String readDeviceId = "";
+    private long terminalRtcTime = -1;
 
     private List<Observer> observerList = new ArrayList<>();
 
@@ -113,6 +114,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private BluetoothServiceBroadcastReceiver connectionReceiver
             = new BluetoothServiceBroadcastReceiver(this);
+    private boolean rtcTimeRequested = false;
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -196,11 +198,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Runnable periodicGetTerminalTimeRunnable = new Runnable() { // start background search
             @Override
             public void run() { // this is for auto connect for bluetooth classic
-                if (rtcDataHandler.getTerminalRtcTime() == -1
+                if (terminalRtcTime == -1
                         && deviceConnState.equals(State.CONNECTED)){
                     Log.d(TAG,"Periodic get terminal time request executing");
 
-                    getObdDeviceTime();
+                    requestDeviceTime();
                 }
                 handler.postDelayed(this, 60000);
             }
@@ -279,7 +281,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             requestVin();
 
             //Get RTC and mileage once connected
-            getObdDeviceTime();
+            requestDeviceTime();
 
             deviceManager.requestData(); //Request data upon connecting
 
@@ -292,6 +294,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Only notify that device disonnected if a verified connection was established previously
             if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                 deviceConnState = State.DISCONNECTED;
+                terminalRtcTime = -1;
                 notifyDeviceDisconnected();
                 deviceIsVerified = false;
                 NotificationsHelper.cancelConnectedNotification(getApplicationContext());
@@ -324,7 +327,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (vin == null) vin = "";
 
         mixpanelHelper.trackBluetoothEvent(event,scannerId,vin,deviceIsVerified,deviceConnState
-                ,rtcDataHandler.getTerminalRtcTime());
+                ,terminalRtcTime);
     }
 
     @Override
@@ -332,7 +335,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"trackBluetoothEvent() event: "+event);
         if (readyDevice == null){
             mixpanelHelper.trackBluetoothEvent(event,deviceIsVerified,deviceConnState
-                    ,rtcDataHandler.getTerminalRtcTime());
+                    ,terminalRtcTime);
         }
         else{
             trackBluetoothEvent(event,readyDevice.getScannerId()
@@ -355,7 +358,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public long getRtcTime() {
         Log.d(TAG,"getRtcTime()");
-        return rtcDataHandler.getTerminalRtcTime();
+        return terminalRtcTime;
     }
 
     @Override
@@ -420,6 +423,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         allPidRequested = true;
         pidTimeoutTimer.start();
         deviceManager.requestSnapshot();
+        return true;
+    }
+
+    @Override
+    public boolean requestDeviceTime() {
+        Log.d(TAG,"requestDeviceTime() rtcTimeRequested? "+rtcTimeRequested);
+        if (rtcTimeRequested) return false;
+
+        deviceManager.getRtc();
         return true;
     }
 
@@ -512,6 +524,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
+                if (terminalRtcTime == -1) terminalRtcTime = Long.valueOf(parameterPackage.value);
                 rtcDataHandler.handleRtcData(Long.valueOf(parameterPackage.value)
                         ,parameterPackage.deviceId);
             }
@@ -851,16 +864,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return deviceManager.isConnectedTo215();
         else
             return false;
-    }
-
-    /**
-     * Send command to obd device to retrieve the current device time.
-     * @see #parameterData(ParameterPackage) for device time returned
-     * by obd device.
-     */
-    public void getObdDeviceTime() {
-        Log.d(TAG,"getObdDeviceTime()");
-        deviceManager.getRtc();
     }
 
     public void setDeviceNameAndId(String name){
