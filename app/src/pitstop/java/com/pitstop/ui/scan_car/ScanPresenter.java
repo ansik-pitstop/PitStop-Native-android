@@ -259,11 +259,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onGotDtc(HashMap<Boolean,String> dtc) {
+    public void onGotDtc(HashMap<String ,Boolean> dtc) {
         Log.i(TAG, "DTC data received: " + dtc);
 
         if (!isAskingForDtcs) return;
-        mCallback.onEngineCodesRetrieved(new HashSet<String>(dtc.values()));
+        mCallback.onEngineCodesRetrieved(new HashSet<String>(dtc.keySet()));
     }
 
     @Override
