@@ -67,6 +67,14 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                 .contextModule(new ContextModule(application))
                 .build();
         presenter = new ReportProgressPresenter(callback,component);
+
+        bigButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                presenter.setViewReport();
+            }
+        });
+
         return view;
     }
 
