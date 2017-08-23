@@ -328,7 +328,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 requestVin();                //Get VIN to validate car
                 notifyVerifyingDevice();     //Verification in progress
-                getObdDeviceTime();          //Get RTC and mileage once connected
+                requestDeviceTime();          //Get RTC and mileage once connected
                 deviceManager.requestData(); //Request data upon connecting
 
                 break;
@@ -465,6 +465,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         getVinTimeoutTimer.startTimer();
 
         deviceManager.getVin();
+        return true;
     }
 
     @Override

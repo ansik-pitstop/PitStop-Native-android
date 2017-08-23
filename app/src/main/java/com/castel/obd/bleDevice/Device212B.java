@@ -126,6 +126,11 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
+    public String requestSnapshot() {
+        return null;
+    }
+
+    @Override
     public String getDtcs() {
         return OBD.setMonitor(TYPE_DTC, "");
     }

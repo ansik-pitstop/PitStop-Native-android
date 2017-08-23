@@ -296,7 +296,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getRtc(View view) {
-        service.getObdDeviceTime();
     }
 
     public void setRtc(View view) {
