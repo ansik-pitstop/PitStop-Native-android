@@ -577,7 +577,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG,"appendDtc() dtc before appending: "+requestedDtc);
         for (String d: dtcPackage.dtcs){
-            if (!requestedDtc.keySet().contains(d)){
+            if (!requestedDtc.containsKey(d) && !requestedDtc.get(d) == dtcPackage.isPending){
                 requestedDtc.put(d,dtcPackage.isPending);
             }
         }
