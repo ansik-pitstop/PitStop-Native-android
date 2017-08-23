@@ -101,6 +101,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     public void setReportView(List<CarIssue> issues, List<CarIssue> recalls) {
         healthReportFragment.inputCarIssues(issues,recalls);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
         fragmentTransaction.commit();
     }

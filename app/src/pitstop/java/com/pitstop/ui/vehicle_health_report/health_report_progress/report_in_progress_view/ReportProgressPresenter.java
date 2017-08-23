@@ -52,7 +52,7 @@ public class ReportProgressPresenter {
 
             @Override
             public void onServiceError() {
-                
+
             }
 
             @Override
