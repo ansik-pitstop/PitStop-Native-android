@@ -89,6 +89,22 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     @BindView(R.id.report_services_loading)
     ProgressBar servicesLoading;
 
+    private List<CarIssue> issues;
+    private List<CarIssue> recalls;
+
+    public void inputCarIssues(List<CarIssue> issues, List<CarIssue> recalls){
+        this.issues = issues;
+        this.recalls = recalls;
+    }
+
+    public List<CarIssue> getIssues() {
+        return issues;
+    }
+
+    public List<CarIssue> getRecalls() {
+        return recalls;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
@@ -161,6 +177,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         super.onDestroy();
         presenter.unsubscribe();
     }
+
 
     @Override
     public void setServicesList(List<CarIssue> issues) {

@@ -28,8 +28,8 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
     public void subscribe(HealthReportView view){
         this.view = view;
         if(view == null){return;}
-        getCurrentServices();
         getDashboardCar();
+        setLists();
     }
     private void getDashboardCar(){
         component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
@@ -50,36 +50,16 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
         });
     }
 
+    public void setLists(){
+        view.setServicesList(view.getIssues());
+        view.setRecallList(view.getRecalls());
+        view.setEngineList(new ArrayList<CarIssue>());
+    }
+
     public void unsubscribe(){
         this.view = null;
     }
 
-    public void getCurrentServices(){
-        view.servicesLoading(true);
-        component.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
-            @Override
-            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
-                List<CarIssue> recalls = new ArrayList<CarIssue>();
-                for(CarIssue c: currentServices){
-                    if(c.getIssueType().equals(CarIssue.RECALL)){
-                        recalls.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.DTC)){
-                        currentServices.remove(c);
-                    }
-                }
-                currentServices.addAll(customIssues);
-                view.setServicesList(currentServices);
-                view.setRecallList(recalls);
-                view.setEngineList(new ArrayList<CarIssue>());
-                view.servicesLoading(false);
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                view.servicesLoading(false);
-            }
-        });
-    }
     public void serviceButtonClicked(){
         view.toggleServiceList();
     }

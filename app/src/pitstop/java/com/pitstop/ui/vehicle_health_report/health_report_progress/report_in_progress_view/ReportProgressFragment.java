@@ -1,6 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,12 @@ import android.widget.TextView;
 import com.github.florent37.viewanimator.AnimationListener;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportPresenter;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,16 +40,38 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     @BindView(R.id.start_report_button)
     Button bigButton;
 
+    private ReportCallback callback;
+
+    private Context context;
+    private GlobalApplication application;
+
+    private BluetoothConnectionObservable bluetooth;
+
+
+    public void setCallback(ReportCallback callback){
+        this.callback = callback;
+    }
+
+    public void setBluetooth(BluetoothConnectionObservable bluetooth){
+        this.bluetooth = bluetooth;
+        presenter.setBluetooth(bluetooth);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        context = getActivity().getApplicationContext();
+        application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragement_report_progress,container,false);
         ButterKnife.bind(this,view);
-        presenter = new ReportProgressPresenter();
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        presenter = new ReportProgressPresenter(callback,component);
 
         bigButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                presenter.changeStep("Step 2");
+                presenter.setViewReport();
             }
         });
 
@@ -53,7 +81,13 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     @Override
     public void onResume() {
         super.onResume();
-        presenter.subscirbe(this);
+        presenter.subscribe(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.unsubscribe();
     }
 
     @Override

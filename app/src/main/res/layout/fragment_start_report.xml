@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:background="@drawable/color_button_primary"
+            android:background="@drawable/color_button_rectangle_primary"
             android:text="Past Reports" />
 
     </LinearLayout>

@@ -107,7 +107,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.highlight));
         healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.highlight));
-        pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_green_highlight));
+        pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_highlight));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_green_highlight));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.highlight));
         modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.highlight), PorterDuff.Mode.MULTIPLY);
@@ -120,7 +120,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
         healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.primary));
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.primary));
-        pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
+        pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_primary));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.primary));
         modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);

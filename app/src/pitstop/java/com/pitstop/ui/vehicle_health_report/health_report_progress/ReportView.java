@@ -6,6 +6,5 @@ package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
 public interface ReportView {
     void setReportProgressView();
-    void setReportView();
 
 }
