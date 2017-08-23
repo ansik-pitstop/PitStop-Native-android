@@ -439,6 +439,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             //Finished scanning
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
 
+                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan);
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     mixpanelHelper.trackFoundDevices(foundDevices);
