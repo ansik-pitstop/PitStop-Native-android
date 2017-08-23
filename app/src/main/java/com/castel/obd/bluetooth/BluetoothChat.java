@@ -152,7 +152,7 @@ public class BluetoothChat {
 			byte[] buffer = new byte[1024];
 			int count;
 
-			while (true && mmInStream != null) {
+			while (mmInStream != null) {
 				try {
 					count = mmInStream.read(buffer);
 
