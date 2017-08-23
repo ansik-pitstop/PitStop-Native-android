@@ -4,25 +4,23 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.castel.obd.info.PIDInfo;
-import com.castel.obd.util.ObdDataUtil;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
+import com.castel.obd.info.PIDInfo;
 import com.castel.obd.info.ParameterPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.castel.obd.util.JsonUtil;
+import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -339,10 +337,7 @@ public class Device212B implements AbstractDevice {
 
             if(dataPackageInfo.result == 5) {
                 Log.d(TAG, "Result 5 PIDs");
-                PidPackage pidPackage = new PidPackage();
-                pidPackage.deviceId = dataPackageInfo.deviceId;
-                pidPackage.realTime = true;
-                dataListener.pidData(pidPackage);
+                dataListener.pidData(null);
             }
 
             // fixed upload pids
