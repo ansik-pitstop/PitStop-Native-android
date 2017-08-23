@@ -447,7 +447,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcRequested = true;
         requestedDtc = null;
-        dtcTimeoutTimer.start();
+        if (dtcTimeoutTimer.isRunning())
+            dtcTimeoutTimer.cancel();
+        dtcTimeoutTimer.startTimer();
         trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
         return true;
@@ -474,7 +476,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (allPidRequested) return false;
 
         allPidRequested = true;
-        pidTimeoutTimer.start();
+        if (pidTimeoutTimer.isRunning()){
+            pidTimeoutTimer.cancel();
+        }
+        pidTimeoutTimer.startTimer();
         deviceManager.requestSnapshot();
         return true;
     }
@@ -484,6 +489,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"requestDeviceTime() rtcTimeRequested? "+rtcTimeRequested);
         if (rtcTimeRequested) return false;
 
+        if (rtcTimeoutTimer.isRunning()){
+            rtcTimeoutTimer.cancel();
+        }
+        rtcTimeoutTimer.startTimer();
         deviceManager.getRtc();
         return true;
     }
@@ -616,7 +625,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void pidData(PidPackage pidPackage) {
         Log.d(TAG,"Received snapshot() pidPackage: "+pidPackage);
-        pidTimeoutTimer.cancel();
         notifyGotAllPid(pidPackage);
     }
 
@@ -1078,6 +1086,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (!vinRequested) return;
 
         vinRequested = false;
+        getVinTimeoutTimer.cancel();
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothVinObserver) {
                 ((BluetoothVinObserver)observer).onGotVin(vin);
@@ -1116,6 +1125,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (!allPidRequested) return;
         allPidRequested = false;
 
+        pidTimeoutTimer.cancel();
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
                 ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids);
