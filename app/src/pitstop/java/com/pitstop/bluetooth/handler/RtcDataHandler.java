@@ -12,7 +12,6 @@ public class RtcDataHandler{
     private final String TAG = getClass().getSimpleName();
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
-    private long terminalRtcTime = -1;
 
     public RtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager){
 
@@ -26,7 +25,6 @@ public class RtcDataHandler{
         bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,deviceId
                 ,String.valueOf(rtc));
 
-        terminalRtcTime = rtc;
         //Check if device needs to sync rtc time
         final long YEAR = 32000000;
         long currentTimeInMillis = System.currentTimeMillis();
@@ -36,12 +34,8 @@ public class RtcDataHandler{
         //Sync if difference is greater than a year
         if (diff > YEAR){
             bluetoothDataHandlerManager.requestDeviceSync();
-            terminalRtcTime = currentTimeInMillis;
             bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_SYNCING);
         }
     }
 
-    public long getTerminalRtcTime(){
-        return terminalRtcTime;
-    }
 }
