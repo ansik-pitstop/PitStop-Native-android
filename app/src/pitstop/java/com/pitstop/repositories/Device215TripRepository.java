@@ -28,8 +28,12 @@ public class Device215TripRepository implements Repository{
     private NetworkHelper networkHelper;
     private LocalDeviceTripStorage localDeviceTripStorage;
 
-    public static int localLatestTripId = -1;
+    private static int localLatestTripId = -1; //Do not make this public use static method instead
     private String storedDeviceId = "";
+
+    public static int getLocalLatestTripId(){
+        return localLatestTripId;
+    }
 
     public Device215TripRepository(NetworkHelper networkHelper
             , LocalDeviceTripStorage localDeviceTripStorage){
