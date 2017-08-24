@@ -50,6 +50,7 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.DeviceDataUtils;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
@@ -275,6 +276,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
+
+                    //Attempt to end trip using latest pid
+                    if (pidDataHandler.getLatestPidPackage() != null && tripNotEnded){
+                        TripInfoPackage tripEnd
+                                = DeviceDataUtils.pidPackageToTripInfoPackage(pidDataHandler.getLatestPidPackage());
+                        tripDataHandler.handleTripData(tripEnd);
+                    }
+
                     deviceIsVerified = false;
                     NotificationsHelper.cancelConnectedNotification(getApplicationContext());
                 }
