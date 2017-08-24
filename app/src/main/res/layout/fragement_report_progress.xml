@@ -17,9 +17,9 @@
             android:id="@+id/step_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
             android:layout_marginBottom="2dp"
-            android:text="Step 1"
+            android:layout_marginRight="5dp"
+            android:text="Starting"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/primary" />
 

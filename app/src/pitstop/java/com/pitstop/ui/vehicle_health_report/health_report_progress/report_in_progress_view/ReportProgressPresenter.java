@@ -37,57 +37,12 @@ public class ReportProgressPresenter {
     public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component){
         this. callback = callback;
         this.component = component;
-        vhrMacroUseCase = new VHRMacroUseCase(component, new VHRMacroUseCase.Callback() {
-
-            @Override
-            public void onStartGetServices() {
-                changeStep("Getting services and recalls");
-            }
-
-            @Override
-            public void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls) {
-                issueList = issues;
-                recallList = recalls;
-            }
-
-            @Override
-            public void onServiceError() {
-
-            }
-
-            @Override
-            public void onStartGetDTC() {
-
-            }
-
-            @Override
-            public void onGotDTC() {
-
-            }
-
-            @Override
-            public void onStartPID() {
-
-            }
-
-            @Override
-            public void onGotPID() {
-
-            }
-
-            @Override
-            public void onFinish() {
-                callback.setReportView(issueList,recallList);
-            }
-        });
     }
 
 
 
     public void subscribe(ReportProgressView view){
         this.view = view;
-        if(this.view == null){return;}
-        start();
     }
 
     public void unsubscribe(){
@@ -95,6 +50,7 @@ public class ReportProgressPresenter {
     }
 
     private void start(){
+        if(view == null || callback == null){return;}
         vhrMacroUseCase.start();
     }
 
@@ -102,13 +58,70 @@ public class ReportProgressPresenter {
 
    public void setBluetooth(BluetoothConnectionObservable bluetooth){
        this.bluetooth = bluetooth;
+       vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
+
+           @Override
+           public void onStartGetServices() {
+               changeStep("Getting services and recalls");
+           }
+
+           @Override
+           public void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls) {
+               issueList = issues;
+               recallList = recalls;
+           }
+
+           @Override
+           public void onServiceError() {
+
+           }
+
+           @Override
+           public void onStartGetDTC() {
+                changeStep("Retrieving engine data");
+           }
+
+           @Override
+           public void onGotDTC() {
+               System.out.println("Testing onGotDTC");
+
+           }
+
+           @Override
+           public void onDTCError() {
+               System.out.println("Testing onDTCError");
+           }
+
+           @Override
+           public void onStartPID() {
+
+           }
+
+           @Override
+           public void onGotPID() {
+
+           }
+
+           @Override
+           public void onPIDError() {
+
+           }
+
+           @Override
+           public void onFinish() {
+              setViewReport();
+           }
+       });
+       start();
    }
 
     public void changeStep(String step){
+        if(view == null || callback == null){return;}
         view.changeStep(step);
     }
 
     public void setViewReport(){
+        if(view == null || callback == null){return;}
         if(issueList == null || recallList == null){return;}
         callback.setReportView(issueList,recallList);
     }
