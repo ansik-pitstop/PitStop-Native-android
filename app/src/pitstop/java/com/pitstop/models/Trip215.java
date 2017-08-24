@@ -18,7 +18,7 @@ public class Trip215 {
     private long tripIdRaw = -1;
     private String type;
 
-    public Trip215(String type, int tripIdRaw, double mileage, long rtcTime, String scannerName) {
+    public Trip215(String type, long tripIdRaw, double mileage, long rtcTime, String scannerName) {
         if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
             throw new IllegalArgumentException();
         this.type = type;

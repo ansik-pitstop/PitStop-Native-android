@@ -406,7 +406,7 @@ public class Device215B implements AbstractDevice {
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
                     tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
-                    tripInfoPackage.tripId = (int) ignitionTime;
+                    tripInfoPackage.tripId = ignitionTime;
 
                     LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
