@@ -278,7 +278,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     notifyDeviceDisconnected();
 
                     //Attempt to end trip using latest pid
-                    if (pidDataHandler.getLatestPidPackage() != null && tripNotEnded){
+                    if (pidDataHandler.getLatestPidPackage() != null && tripNotEnded){ //TODO: we should not be ending trip twice
                         TripInfoPackage tripEnd
                                 = DeviceDataUtils.pidPackageToTripInfoPackage(pidDataHandler.getLatestPidPackage());
                         tripDataHandler.handleTripData(tripEnd);
