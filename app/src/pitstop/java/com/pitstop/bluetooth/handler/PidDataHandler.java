@@ -36,6 +36,7 @@ public class PidDataHandler {
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
     private UseCaseComponent useCaseComponent;
     private String supportedPids = "";
+    private PidPackage latestPidPackage;
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
@@ -52,10 +53,13 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
+    public PidPackage getLatestPidPackage(){ return latestPidPackage; }
+
     public void handlePidData(PidPackage pidPackage){
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
 
+        latestPidPackage = pidPackage;
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
             LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
