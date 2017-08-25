@@ -1,6 +1,9 @@
 package com.pitstop.interactors.check;
 
 import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.pitstop.models.RetrievedTrip215;
 import com.pitstop.network.RequestError;
@@ -13,6 +16,8 @@ import com.pitstop.repositories.Repository;
 
 public class CheckTripEndedUseCaseImpl implements CheckTripEndedUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private Device215TripRepository tripRepository;
     private Callback callback;
     private Handler handler;
@@ -24,8 +29,7 @@ public class CheckTripEndedUseCaseImpl implements CheckTripEndedUseCase {
     }
 
     @Override
-    public void execute(String deviceId, Callback callback) {
-        if (deviceId == null) callback.onError(RequestError.getUnknownError());
+    public void execute(@NonNull String deviceId, Callback callback) {
         this.deviceId = deviceId;
         this.callback = callback;
         handler.post(this);
@@ -33,6 +37,7 @@ public class CheckTripEndedUseCaseImpl implements CheckTripEndedUseCase {
 
     @Override
     public void run() {
+        Log.d(TAG,"run()");
         tripRepository.retrieveLatestTrip(deviceId, new Repository.Callback<RetrievedTrip215>() {
             @Override
             public void onSuccess(RetrievedTrip215 data) {
@@ -50,5 +55,6 @@ public class CheckTripEndedUseCaseImpl implements CheckTripEndedUseCase {
                 callback.onError(error);
             }
         });
+        Looper.loop();
     }
 }
