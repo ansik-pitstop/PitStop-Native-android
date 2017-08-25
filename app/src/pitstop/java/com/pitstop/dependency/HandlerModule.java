@@ -1,8 +1,7 @@
 package com.pitstop.dependency;
 
 import android.os.Handler;
-
-import javax.inject.Singleton;
+import android.os.Looper;
 
 import dagger.Module;
 import dagger.Provides;
@@ -14,10 +13,15 @@ import dagger.Provides;
 @Module
 public class HandlerModule {
 
-    @Singleton
     @Provides
     Handler handler(){
-        return new Handler();
+        //Handler cannot be instantiated without an associated Looper
+        if (Looper.myLooper() == null){
+            Looper.prepare();
+            Looper.loop();
+        }
+
+        return new Handler(Looper.myLooper());
     }
 
 }

@@ -91,6 +91,11 @@ public class PeriodicCachedTripSendUseCaseImpl implements PeriodicCachedTripSend
                     }
 
                     @Override
+                    public void onTripAlreadyEnded() {
+                        Log.d(TAG,"onTripAlreadyEnded()");
+                    }
+
+                    @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"Error uploading trip from local DB: "+error.getMessage());
                     }

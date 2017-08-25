@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -277,35 +278,48 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
 
-                    //Attempt to end trip using latest pid if current trip has not been ended yet
-                    if (pidDataHandler.getLatestPidPackage() != null){
-                        useCaseComponent.checkTripEndedUseCase().execute(currentDeviceId
-                                , new CheckTripEndedUseCase.Callback() {
-                            @Override
-                            public void onGotLatestTripStatus(boolean ended, long rtcTime) {
-                                Log.d(TAG,"checkTripEndedUseCase().onGotLatestTripStatus: "+ended);
-                                TripInfoPackage tripEnd
-                                        = DeviceDataUtils.pidPackageToTripInfoPackage(
-                                        pidDataHandler.getLatestPidPackage());
-                                final long MAX_TIME_DIFF = 24 * 60 * 60; //24 hours
-                                if (!ended && tripEnd.rtcTime - rtcTime < MAX_TIME_DIFF){
+                    final String deviceIdFinal = currentDeviceId;
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Attempt to end trip using latest pid if current trip has not been ended yet
+                            if (pidDataHandler.getLatestPidPackage() != null){
+                                Log.d(TAG,"Got latest pid, pid: "+pidDataHandler.getLatestPidPackage()
+                                        +", checking if trip ended");
+                                useCaseComponent.checkTripEndedUseCase().execute(deviceIdFinal
+                                        , new CheckTripEndedUseCase.Callback() {
+                                            @Override
+                                            public void onGotLatestTripStatus(boolean ended, long rtcTime) {
 
-                                    tripDataHandler.handleTripData(tripEnd);
-                                }
+                                                TripInfoPackage tripEnd
+                                                        = DeviceDataUtils.pidPackageToTripInfoPackage(
+                                                        pidDataHandler.getLatestPidPackage());
+                                                Log.d(TAG,"checkTripEndedUseCase().onGotLatestTripStatus: "+ended
+                                                        +", rtc: "+rtcTime+", time diffrence: "
+                                                        +(tripEnd.rtcTime - rtcTime));
+                                                final long MAX_TIME_DIFF = 24 * 60 * 60; //24 hours
+                                                if (!ended && tripEnd.rtcTime - rtcTime < MAX_TIME_DIFF){
+                                                    Log.d(TAG,"Passing trip to data handler, trip: "+tripEnd);
+                                                    tripDataHandler.handleTripData(tripEnd);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onNoLatestTripExists(){
+                                                Log.d(TAG,"checkTripEndedUseCase().onNoLatestTripExists");
+
+                                            }
+
+                                            @Override
+                                            public void onError(RequestError error) {
+                                                Log.d(TAG,"onError() error: "+error.getMessage());
+                                            }
+                                        });
                             }
+                            else Log.d(TAG,"No latest pid package could be retrieved, cannot end trip.");
+                        }
+                    });
 
-                            @Override
-                            public void onNoLatestTripExists(){
-                                Log.d(TAG,"checkTripEndedUseCase().onNoLatestTripExists");
-
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                Log.d(TAG,"onError() error: "+error.getMessage());
-                            }
-                        });
-                    }
 
                     deviceIsVerified = false;
                     NotificationsHelper.cancelConnectedNotification(getApplicationContext());
