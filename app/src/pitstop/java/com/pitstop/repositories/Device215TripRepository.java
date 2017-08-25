@@ -84,16 +84,16 @@ public class Device215TripRepository implements Repository{
                 try {
                     JSONObject data = new JSONObject(response);
 
-                        localLatestTripId = data.getInt("id");
-                        int tripId = data.getInt("id");
-                        double mileage = data.getDouble("mileage_start");
-                        long rtc = data.getLong("rtc_time_start");
-                        long tripIdRaw = data.getLong("tripIdRaw");
-                        String scannerName = trip.getScannerName();
+                    localLatestTripId = data.getInt("id");
+                    int tripId = data.getInt("id");
+                    double mileage = data.getDouble("mileage_start");
+                    long rtc = data.getLong("rtc_time_start");
+                    long tripIdRaw = data.getLong("tripIdRaw");
+                    String scannerName = trip.getScannerName();
 
-                        RetrievedTrip215 start = new RetrievedTrip215(tripId,tripIdRaw,scannerName,mileage,rtc,false);
-                        Log.d(TAG,"returning trip start: "+start);
-                        callback.onSuccess(start);
+                    RetrievedTrip215 start = new RetrievedTrip215(tripId,tripIdRaw,scannerName,mileage,rtc,false);
+                    Log.d(TAG,"returning trip start: "+start);
+                    callback.onSuccess(start);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         callback.onError(RequestError.getUnknownError());
@@ -102,7 +102,6 @@ public class Device215TripRepository implements Repository{
                 else{
                     callback.onError(requestError);
                 }
-            }
         };
     }
 
@@ -119,8 +118,7 @@ public class Device215TripRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(
-                callback,tripEnd), body);
+        networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(callback), body);
     }
 
     private RequestCallback getStoreTripEndRequestCallback(Callback callback){
