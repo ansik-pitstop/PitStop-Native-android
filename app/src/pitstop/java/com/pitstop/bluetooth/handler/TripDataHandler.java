@@ -156,41 +156,48 @@ public class TripDataHandler{
 
                 Log.d(TAG, "Executing trip end use case");
 
-                useCaseComponent.trip215EndUseCase().execute(trip, new Trip215EndUseCase.Callback() {
+                useCaseComponent.trip215EndUseCase().execute(trip
+                        , new Trip215EndUseCase.Callback() {
+                    @Override
+                    public void onHistoricalTripEndSuccess() {
+                        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
+                        Log.d(TAG, "Historical trip END saved successfully");
+                    }
+
+                    @Override
+                    public void onRealTimeTripEndSuccess() {
+                        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
+
+                        Log.d(TAG, "Real-time END trip end saved successfully");
+
+                        //Send update mileage notification after 5 seconds to allow back-end to process mileage
+                        handler.postDelayed(new Runnable() {
                             @Override
-                            public void onHistoricalTripEndSuccess() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
-                                Log.d(TAG, "Historical trip END saved successfully");
+                            public void run() {
+                                notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
                             }
+                        },TRIP_END_DELAY);
 
-                            @Override
-                            public void onRealTimeTripEndSuccess() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
+                    }
 
-                                Log.d(TAG, "Real-time END trip end saved successfully");
+                    @Override
+                    public void onStartTripNotFound() {
+                        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
+                        Log.d(TAG, "Trip start not found, mileage will update on " +"next trip start");
+                    }
 
-                                //Send update mileage notification after 5 seconds to allow back-end to process mileage
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        notifyEventBus(new EventTypeImpl(EventType.EVENT_MILEAGE));
-                                    }
-                                },TRIP_END_DELAY);
+                    @Override
+                    public void onTripAlreadyEnded() {
+                        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_ALREADY_ENDED);
+                        Log.d(TAG, "Trip has already been ended.");
+                    }
 
-                            }
-
-                            @Override
-                            public void onStartTripNotFound() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
-                                Log.d(TAG, "Trip start not found, mileage will update on " +"next trip start");
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
-                                Log.d(TAG,"TRIP END Use case returned error");
-                            }
-                        });
+                    @Override
+                    public void onError(RequestError error) {
+                        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
+                        Log.d(TAG,"TRIP END Use case returned error");
+                    }
+                });
 
             }
             else if (trip.flag.equals(TripInfoPackage.TripFlag.START) && isConnected215){

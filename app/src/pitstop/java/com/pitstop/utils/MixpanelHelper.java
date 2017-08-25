@@ -224,6 +224,7 @@ public class MixpanelHelper {
     public static final String BT_TRIP_END_RECEIVED = "Trip End Received";
     public static final String BT_TRIP_START_RECEIVED = "Trip Start Received";
     public static final String BT_TRIP_NOT_PROCESSED = "Trip Not Processed";
+    public static final String BT_TRIP_ALREADY_ENDED = "Trip Has Already Been Ended";
     public static final String BT_TRIP_END = "Trip End Processing";
     public static final String BT_FOUND_DEVICES = "Found Bluetooth Devices";
     public static final String BT_VERIFICATION_ERROR = "Error Verifying Device";
