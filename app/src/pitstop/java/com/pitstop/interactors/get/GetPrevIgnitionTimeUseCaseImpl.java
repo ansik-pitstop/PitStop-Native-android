@@ -2,7 +2,7 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-import com.pitstop.models.Trip215;
+import com.pitstop.models.RetrievedTrip215;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
@@ -41,10 +41,10 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
 
         String scannerName = getScannerName(device215FullName); //Convert device name to scanner name
 
-        device215TripRepository.retrieveLatestTrip(scannerName, new Repository.Callback<Trip215>() {
+        device215TripRepository.retrieveLatestTrip(scannerName, new Repository.Callback<RetrievedTrip215>() {
 
             @Override
-            public void onSuccess(Trip215 data) {
+            public void onSuccess(RetrievedTrip215 data) {
 
                 if (data == null){
                     callback.onNoneExists();

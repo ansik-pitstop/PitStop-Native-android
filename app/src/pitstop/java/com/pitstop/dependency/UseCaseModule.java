@@ -14,6 +14,8 @@ import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.check.CheckTripEndedUseCase;
+import com.pitstop.interactors.check.CheckTripEndedUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
@@ -336,5 +338,11 @@ public class UseCaseModule {
             , Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
         return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, useCaseHandler);
+    }
+
+    @Provides
+    CheckTripEndedUseCase checkTripEndedUseCase(Device215TripRepository device215TripRepository
+            , Handler handler){
+        return new CheckTripEndedUseCaseImpl(device215TripRepository, handler);
     }
 }

@@ -14,6 +14,7 @@ public interface Trip215EndUseCase extends Interactor {
         void onHistoricalTripEndSuccess();
         void onRealTimeTripEndSuccess();
         void onStartTripNotFound();
+        void onTripAlreadyEnded();
         void onError(RequestError error);
     }
 

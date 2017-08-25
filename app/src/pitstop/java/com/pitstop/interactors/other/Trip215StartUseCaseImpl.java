@@ -4,7 +4,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.models.Trip215;
+import com.pitstop.models.RetrievedTrip215;
+import com.pitstop.models.Trip215Start;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
@@ -39,10 +40,10 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
     @Override
     public void run() {
-        Trip215 tripStart = convertToTrip215(tripInfoPackage);
-        device215TripRepository.storeTripStart(tripStart, new Repository.Callback<Trip215>() {
+        Trip215Start tripStart = convertToTrip215(tripInfoPackage);
+        device215TripRepository.storeTripStart(tripStart, new Repository.Callback<RetrievedTrip215>() {
             @Override
-            public void onSuccess(Trip215 data) {
+            public void onSuccess(RetrievedTrip215 data) {
                 if (tripStart.getRtcTime() > tripInfoPackage.terminalRtcTime - HISTORICAL_OFFSET){
                     callback.onRealTimeTripStartSuccess();
                 }
@@ -64,8 +65,8 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
         });
     }
 
-    private Trip215 convertToTrip215(TripInfoPackage tripInfoPackage){
-        return new Trip215(Trip215.TRIP_START,tripInfoPackage.tripId,tripInfoPackage.mileage
-                ,tripInfoPackage.rtcTime,tripInfoPackage.deviceId);
+    private Trip215Start convertToTrip215(TripInfoPackage tripInfoPackage){
+        return new Trip215Start(tripInfoPackage.tripId,tripInfoPackage.deviceId, tripInfoPackage.mileage
+                ,tripInfoPackage.rtcTime);
     }
 }

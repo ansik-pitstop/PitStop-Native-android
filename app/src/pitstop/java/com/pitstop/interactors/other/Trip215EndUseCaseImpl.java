@@ -4,7 +4,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.models.Trip215;
+import com.pitstop.models.RetrievedTrip215;
+import com.pitstop.models.Trip215End;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
@@ -40,24 +41,28 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     public void run() {
 
         //Get latest trip
-        device215TripRepository.retrieveLatestTrip(tripInfoPackage.deviceId, new Repository.Callback<Trip215>() {
+        device215TripRepository.retrieveLatestTrip(tripInfoPackage.deviceId, new Repository.Callback<RetrievedTrip215>() {
             @Override
-            public void onSuccess(Trip215 data) {
+            public void onSuccess(RetrievedTrip215 data) {
 
                 //Latest trip does not exist, don't store trip end
                 if (data == null || data.getTripIdRaw() != tripInfoPackage.tripId){
                     callback.onStartTripNotFound();
                     return;
                 }
-
+                //This trip has already has a trip end stored
+                else if (data.isEnded()){
+                    callback.onTripAlreadyEnded();
+                    return;
+                }
                 //Another trip start got posted before onSuccess called, ignore trip end
                 //Back-end should have the logic implemented to take care of this case
-                if (data.getMileage() > tripInfoPackage.mileage){
+                else if (data.getMileage() > tripInfoPackage.mileage){
                     callback.onRealTimeTripEndSuccess();
                     return;
                 }
 
-                Trip215 tripEnd = convertToTrip215End(tripInfoPackage,data);
+                Trip215End tripEnd = convertToTrip215End(tripInfoPackage,data);
 
                 //Store trip end
                 device215TripRepository.storeTripEnd(tripEnd, new Repository.Callback() {
@@ -101,10 +106,10 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     }
 
     //If latest trip succeeded
-    private Trip215 convertToTrip215End(TripInfoPackage tripInfoPackage, Trip215 tripStart){
+    private Trip215End convertToTrip215End(TripInfoPackage tripInfoPackage, RetrievedTrip215 tripStart){
         double tripMileage = tripInfoPackage.mileage - tripStart.getMileage();
 
-        return new Trip215(Trip215.TRIP_END,tripStart.getTripId(), tripInfoPackage.tripId,tripMileage,tripInfoPackage.rtcTime
-                ,tripInfoPackage.deviceId);
+        return new Trip215End(tripStart.getTripId(), tripInfoPackage.tripId
+                , tripInfoPackage.deviceId, tripInfoPackage.rtcTime, tripMileage);
     }
 }
