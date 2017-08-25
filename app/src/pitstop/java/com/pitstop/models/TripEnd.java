@@ -15,7 +15,7 @@ public class TripEnd extends TripIndicator {
 
     private String mileage;
 
-    public TripEnd(int tripId, String rtcTime, String mileage) {
+    public TripEnd(long tripId, String rtcTime, String mileage) {
         super(tripId, rtcTime);
         this.mileage = mileage;
     }

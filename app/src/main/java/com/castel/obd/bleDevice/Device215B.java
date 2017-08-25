@@ -387,8 +387,8 @@ public class Device215B implements AbstractDevice {
 
                 long ignitionTime; // ignition time parsed as unix time seconds
                 try {
-                    ignitionTime = parseRtcTime(idrInfo.ignitionTime);
-                } catch (ParseException e) {
+                    ignitionTime = Long.parseLong(idrInfo.ignitionTime);
+                } catch (NumberFormatException e) {
                     e.printStackTrace();
                     ignitionTime = 0;
                 }
@@ -405,8 +405,11 @@ public class Device215B implements AbstractDevice {
 
                     TripInfoPackage tripInfoPackage = new TripInfoPackage();
                     tripInfoPackage.deviceId = idrInfo.terminalSN;
-                    tripInfoPackage.rtcTime = ignitionTime + Long.parseLong(idrInfo.runTime);
-                    tripInfoPackage.tripId = (int) ignitionTime;
+                    tripInfoPackage.rtcTime = parseRtcTime(String.valueOf(ignitionTime))
+                            + Long.parseLong(idrInfo.runTime);
+                    tripInfoPackage.tripId = ignitionTime;
+                    Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
+                            +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
                     LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
@@ -444,13 +447,9 @@ public class Device215B implements AbstractDevice {
                     pidPackage.deviceId = idrInfo.terminalSN;
                     pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
                     pidPackage.realTime = true;
-                    try {
-                        pidPackage.tripId = String.valueOf(parseRtcTime(idrInfo.ignitionTime));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        pidPackage.tripId = "0";
-                    }
-
+                    if (idrInfo.ignitionTime != null)
+                        pidPackage.tripId = idrInfo.ignitionTime;
+                    else pidPackage.tripId = "";
                     dataListener.pidData(pidPackage);
                 }
                 else{
@@ -661,6 +660,7 @@ public class Device215B implements AbstractDevice {
     }
 
     private long parseRtcTime(String rtcTime) throws ParseException {
+        Log.d(TAG,"parseRtcTime() rtc: "+rtcTime);
         return new SimpleDateFormat("yyMMddHHmmss").parse(rtcTime).getTime() / 1000;
     }
 

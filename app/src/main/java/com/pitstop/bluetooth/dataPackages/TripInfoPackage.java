@@ -9,7 +9,7 @@ public class TripInfoPackage {
     }
 
     public String deviceId;
-    public int tripId; // device specific
+    public long tripId; // device specific
     public double mileage; // in kilometres
     public long rtcTime; // unix time in seconds
     public TripFlag flag;

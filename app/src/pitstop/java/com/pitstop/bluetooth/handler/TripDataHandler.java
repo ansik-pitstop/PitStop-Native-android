@@ -59,8 +59,8 @@ public class TripDataHandler{
 
     final private LinkedList<TripIndicator> tripRequestQueue = new LinkedList<>();
     private List<TripInfoPackage> pendingTripInfoPackages = new ArrayList<>();
-    private List<Integer> processedTripStartIds = new ArrayList<>(); //Sometimes two start trips are sent for the same trip
-    private int lastTripId;
+    private List<Long> processedTripStartIds = new ArrayList<>(); //Sometimes two start trips are sent for the same trip
+    private long lastTripId;
     private boolean isSendingTripRequest;
 
     public TripDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
@@ -246,7 +246,7 @@ public class TripDataHandler{
 
         if(tripInfoPackage.tripId != 0) {
             lastTripId = tripInfoPackage.tripId;
-            sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+            sharedPreferences.edit().putLong(pfTripId, lastTripId).apply();
 
             if(tripInfoPackage.flag == TripInfoPackage.TripFlag.START) {
                 Log.d(TAG, "Trip start flag received");
@@ -259,7 +259,7 @@ public class TripDataHandler{
                             if(requestError == null && !response.equals("{}")) {
                                 try {
                                     lastTripId = new JSONObject(response).getInt("id");
-                                    sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+                                    sharedPreferences.edit().putLong(pfTripId, lastTripId).apply();
                                     tripRequestQueue.add(new TripEnd(lastTripId, String.valueOf(tripInfoPackage.rtcTime),
                                             String.valueOf(tripInfoPackage.mileage)));
                                     executeTripRequests();
@@ -304,8 +304,8 @@ public class TripDataHandler{
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
                             try {
-                                lastTripId = new JSONObject(response).getInt("id");
-                                sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+                                lastTripId = new JSONObject(response).getLong("id");
+                                sharedPreferences.edit().putLong(pfTripId, lastTripId).apply();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -318,8 +318,8 @@ public class TripDataHandler{
                                 public void done(String response, RequestError requestError) {
                                     if (requestError == null) {
                                         try {
-                                            lastTripId = new JSONObject(response).getInt("id");
-                                            sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+                                            lastTripId = new JSONObject(response).getLong("id");
+                                            sharedPreferences.edit().putLong(pfTripId, lastTripId).apply();
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -344,7 +344,7 @@ public class TripDataHandler{
                         tripRequestQueue.pop();
                         isSendingTripRequest = false;
                         lastTripId = -1;
-                        sharedPreferences.edit().putInt(pfTripId, lastTripId).apply();
+                        sharedPreferences.edit().putLong(pfTripId, lastTripId).apply();
                         executeTripRequests();
                     }
                 };

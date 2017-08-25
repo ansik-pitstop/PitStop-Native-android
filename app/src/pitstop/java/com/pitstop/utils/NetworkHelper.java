@@ -405,7 +405,7 @@ public class NetworkHelper {
     }
 
 
-    public void saveTripMileage(int tripId, String mileage, String rtcTime, RequestCallback callback) {
+    public void saveTripMileage(long tripId, String mileage, String rtcTime, RequestCallback callback) {
         LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
                 " mileage: %s, rtcTime: %s", tripId, mileage, rtcTime));
 
