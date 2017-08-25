@@ -40,7 +40,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     @Override
     public void run() {
-        if (Device215TripRepository.localLatestTripId == -1){
+        if (Device215TripRepository.getLocalLatestTripId() == -1){
             Log.d(TAG,"Repository latest trip id is -1, getting latest trip id from server.");
             tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<Trip215>() {
                 @Override
@@ -66,11 +66,10 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             });
         }
         else{
-            Log.d(TAG,"Repository latest trip id is "+Device215TripRepository.localLatestTripId
+            Log.d(TAG,"Repository latest trip id is "+Device215TripRepository.getLocalLatestTripId()
                     +", inserting PID");
-            insertPid(Device215TripRepository.localLatestTripId);
+            insertPid(Device215TripRepository.getLocalLatestTripId());
         }
-
 
     }
 
@@ -124,8 +123,13 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        Log.d(TAG,"Error saving trip start using PID!");
-                        callback.onError(error);
+                        Log.d(TAG,"Error saving trip start using PID! error: "+error);
+                        if (!error.getError().equals(RequestError.ERR_OFFLINE)){
+                            run(); //Try again, it seems that trip start exists
+                        }
+                        else{
+                            callback.onError(error);
+                        }
                     }
                 });
     }

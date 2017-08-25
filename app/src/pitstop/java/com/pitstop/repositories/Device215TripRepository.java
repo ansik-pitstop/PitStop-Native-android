@@ -28,7 +28,12 @@ public class Device215TripRepository implements Repository{
     private NetworkHelper networkHelper;
     private LocalDeviceTripStorage localDeviceTripStorage;
 
-    public static int localLatestTripId = -1;
+    private static int localLatestTripId = -1; //Do not make this public use static method instead
+    private String storedDeviceId = "";
+
+    public static int getLocalLatestTripId(){
+        return localLatestTripId;
+    }
 
     public Device215TripRepository(NetworkHelper networkHelper
             , LocalDeviceTripStorage localDeviceTripStorage){
@@ -52,6 +57,8 @@ public class Device215TripRepository implements Repository{
 
     public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
         Log.d(TAG,"storeTripStart trip:"+tripStart);
+        checkLatestTripIdNeedsReset(tripStart.getScannerName());
+
         JSONObject body = new JSONObject();
         try {
             body.put("scannerId", tripStart.getScannerName());
@@ -69,40 +76,35 @@ public class Device215TripRepository implements Repository{
     private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback
             , Trip215 trip){
 
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    try {
-                        JSONObject data = new JSONObject(response);
+        return (response, requestError) -> {
+            if (requestError == null){
+                try {
+                    JSONObject data = new JSONObject(response);
 
-                        localLatestTripId = data.getInt("id");
-                        int tripId = data.getInt("id");
-                        double mileage = data.getDouble("mileage_start");
-                        long rtc = data.getLong("rtc_time_start");
-                        String scannerName = trip.getScannerName();
-                        long tripIdRaw = data.getLong("trip_id_raw");
+                    localLatestTripId = data.getInt("id");
+                    int tripId = data.getInt("id");
+                    double mileage = data.getDouble("mileage_start");
+                    long rtc = data.getLong("rtc_time_start");
+                    String scannerName = trip.getScannerName();
+                    long tripIdRaw = data.getLong("trip_id_raw");
 
-                        Trip215 start = new Trip215(Trip215.TRIP_START,tripId,tripIdRaw,mileage,rtc,scannerName);
-                        Log.d(TAG,"returning trip start: "+start);
-                        callback.onSuccess(start);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        callback.onError(RequestError.getUnknownError());
-                    }
-                }
-                else{
-                    callback.onError(requestError);
+                    Trip215 start = new Trip215(Trip215.TRIP_START,tripId,tripIdRaw,mileage,rtc,scannerName);
+                    Log.d(TAG,"returning trip start: "+start);
+                    callback.onSuccess(start);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
+            else{
+                callback.onError(requestError);
+            }
         };
-
-        return requestCallback;
     }
 
     public void storeTripEnd(Trip215 tripEnd, Callback callback){
         Log.d(TAG,"storeTripEnd trip:"+tripEnd);
-
+        checkLatestTripIdNeedsReset(tripEnd.getScannerName());
         JSONObject body = new JSONObject();
 
         try {
@@ -114,61 +116,65 @@ public class Device215TripRepository implements Repository{
         }
 
         networkHelper.putNoAuth(SCAN_END_POINT, getStoreTripEndRequestCallback(
-                callback,tripEnd), body);
+                callback), body);
     }
 
-    private RequestCallback getStoreTripEndRequestCallback(Callback callback, Trip215 trip){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    callback.onSuccess(null);
-                }
-                else{
-                    callback.onError(requestError);
-                }
+    private RequestCallback getStoreTripEndRequestCallback(Callback callback){
+        return (response, requestError) -> {
+            if (requestError == null){
+                callback.onSuccess(null);
+            }
+            else{
+                callback.onError(requestError);
             }
         };
-
-        return requestCallback;
     }
 
     public void retrieveLatestTrip(String scannerName, Callback<Trip215> callback){
+        checkLatestTripIdNeedsReset(scannerName);
         networkHelper.get(String.format(SCAN_END_POINT+LATEST_TRIP_QUERY,scannerName)
                 ,getRetrieveLatestTripCallback(callback,scannerName));
     }
 
     private RequestCallback getRetrieveLatestTripCallback(Callback<Trip215> callback, String scannerName){
-        return new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    try{
-                        JSONObject data = new JSONObject(response);
-                        //Trip start didn't make it to backend
-                        if (!data.has("id")){
-                            callback.onSuccess(null);
-                            return;
-                        }
-                        int id = data.getInt("id");
-                        localLatestTripId = id;
-                        long tripIdRaw = data.getLong("tripIdRaw");
-                        double mileage = data.getDouble("mileageStart");
-                        int rtcTime = data.getInt("rtcTimeStart");
-                        Trip215 trip = new Trip215(Trip215.TRIP_START,id,tripIdRaw,mileage
-                                ,rtcTime,scannerName);
-                        callback.onSuccess(trip);
+        return (response, requestError) -> {
+            if (requestError == null){
+                try{
+                    JSONObject data = new JSONObject(response);
+                    //Trip start didn't make it to backend
+                    if (!data.has("id")){
+                        callback.onSuccess(null);
+                        return;
                     }
-                    catch(JSONException e){
-                        callback.onError(requestError);
-                        e.printStackTrace();
-                    }
+                    int id = data.getInt("id");
+                    localLatestTripId = id;
+                    long tripIdRaw = data.getLong("tripIdRaw");
+                    double mileage = data.getDouble("mileageStart");
+                    int rtcTime = data.getInt("rtcTimeStart");
+                    Trip215 trip = new Trip215(Trip215.TRIP_START,id,tripIdRaw,mileage
+                            ,rtcTime,scannerName);
+                    callback.onSuccess(trip);
+                }
+                catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
+                }
 
-                }
-                else{
-                    callback.onError(requestError);
-                }
+            }
+            else{
+                callback.onError(requestError);
             }
         };
+    }
+
+    /*Reset localLatestTripId if the scanner name changed, this should ideally be moved to
+     someplace else where we can be certain a device change occurred*/
+    private void checkLatestTripIdNeedsReset(String scannerName){
+        if (!storedDeviceId.isEmpty() && scannerName != null && !scannerName.isEmpty()
+                && !scannerName.equals(storedDeviceId)){
+            Log.d(TAG,"Resetting local latest trip id!");
+            storedDeviceId = scannerName;
+            localLatestTripId = -1;
+        }
     }
 }
