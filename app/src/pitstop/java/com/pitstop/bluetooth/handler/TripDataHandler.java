@@ -62,6 +62,7 @@ public class TripDataHandler{
     private List<Long> processedTripStartIds = new ArrayList<>(); //Sometimes two start trips are sent for the same trip
     private long lastTripId;
     private boolean isSendingTripRequest;
+    private boolean tripInProgress = false;
 
     public TripDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
 
