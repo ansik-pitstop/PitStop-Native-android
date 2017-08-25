@@ -4,7 +4,10 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.models.RetrievedTrip215;
 import com.pitstop.models.Trip215;
+import com.pitstop.models.Trip215End;
+import com.pitstop.models.Trip215Start;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
@@ -50,7 +53,7 @@ public class Device215TripRepository implements Repository{
     }
 
 
-    public void storeTripStart(Trip215 tripStart, Callback<Trip215> callback){
+    public void storeTripStart(Trip215Start tripStart, Callback<RetrievedTrip215> callback){
         Log.d(TAG,"storeTripStart trip:"+tripStart);
         JSONObject body = new JSONObject();
         try {
@@ -66,7 +69,7 @@ public class Device215TripRepository implements Repository{
                 callback,tripStart), body);
     }
 
-    private RequestCallback getStoreTripStartRequestCallback(Callback<Trip215> callback
+    private RequestCallback getStoreTripStartRequestCallback(Callback<RetrievedTrip215> callback
             , Trip215 trip){
 
         RequestCallback requestCallback = new RequestCallback() {
@@ -80,10 +83,10 @@ public class Device215TripRepository implements Repository{
                         int tripId = data.getInt("id");
                         double mileage = data.getDouble("mileage_start");
                         long rtc = data.getLong("rtc_time_start");
+                        long tripIdRaw = data.getLong("tripIdRaw");
                         String scannerName = trip.getScannerName();
-                        long tripIdRaw = data.getLong("trip_id_raw");
 
-                        Trip215 start = new Trip215(Trip215.TRIP_START,tripId,tripIdRaw,mileage,rtc,scannerName);
+                        RetrievedTrip215 start = new RetrievedTrip215(tripId,tripIdRaw,scannerName,mileage,rtc,false);
                         Log.d(TAG,"returning trip start: "+start);
                         callback.onSuccess(start);
                     } catch (JSONException e) {
@@ -100,7 +103,7 @@ public class Device215TripRepository implements Repository{
         return requestCallback;
     }
 
-    public void storeTripEnd(Trip215 tripEnd, Callback callback){
+    public void storeTripEnd(Trip215End tripEnd, Callback callback){
         Log.d(TAG,"storeTripEnd trip:"+tripEnd);
 
         JSONObject body = new JSONObject();
@@ -133,12 +136,12 @@ public class Device215TripRepository implements Repository{
         return requestCallback;
     }
 
-    public void retrieveLatestTrip(String scannerName, Callback<Trip215> callback){
+    public void retrieveLatestTrip(String scannerName, Callback<RetrievedTrip215> callback){
         networkHelper.get(String.format(SCAN_END_POINT+LATEST_TRIP_QUERY,scannerName)
                 ,getRetrieveLatestTripCallback(callback,scannerName));
     }
 
-    private RequestCallback getRetrieveLatestTripCallback(Callback<Trip215> callback, String scannerName){
+    private RequestCallback getRetrieveLatestTripCallback(Callback<RetrievedTrip215> callback, String scannerName){
         return new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -155,8 +158,9 @@ public class Device215TripRepository implements Repository{
                         long tripIdRaw = data.getLong("tripIdRaw");
                         double mileage = data.getDouble("mileageStart");
                         int rtcTime = data.getInt("rtcTimeStart");
-                        Trip215 trip = new Trip215(Trip215.TRIP_START,id,tripIdRaw,mileage
-                                ,rtcTime,scannerName);
+                        boolean isEnded = !data.isNull("rtcTimeEnd");
+                        RetrievedTrip215 trip = new RetrievedTrip215(id,tripIdRaw, scannerName, mileage
+                                ,rtcTime, isEnded);
                         callback.onSuccess(trip);
                     }
                     catch(JSONException e){

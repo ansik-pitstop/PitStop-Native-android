@@ -4,7 +4,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.models.Trip215;
+import com.pitstop.models.RetrievedTrip215;
+import com.pitstop.models.Trip215Start;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
@@ -42,9 +43,9 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     public void run() {
         if (Device215TripRepository.localLatestTripId == -1){
             Log.d(TAG,"Repository latest trip id is -1, getting latest trip id from server.");
-            tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<Trip215>() {
+            tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<RetrievedTrip215>() {
                 @Override
-                public void onSuccess(Trip215 data) {
+                public void onSuccess(RetrievedTrip215 data) {
                     if (data == null){
                         createTripUsingPid();
                         return;
@@ -100,10 +101,10 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     private void createTripUsingPid(){
         Log.d(TAG,"createTripUsingPid()");
         tripRepository.storeTripStart(pidPackageToTrip215Start(pidPackage)
-                , new Repository.Callback<Trip215>() {
+                , new Repository.Callback<RetrievedTrip215>() {
 
                     @Override
-                    public void onSuccess(Trip215 data) {
+                    public void onSuccess(RetrievedTrip215 data) {
 
                         Log.d(TAG,"Stored trip start using PID. Attempting to store pid again!");
                         pidRepository.insertPid(pidPackage,data.getTripId(), new Repository.Callback<Object>() {
@@ -130,7 +131,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                 });
     }
 
-    private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
+    private Trip215Start pidPackageToTrip215Start(PidPackage pidPackage){
         int tripIdRaw;
         try{
              tripIdRaw = Integer.valueOf(pidPackage.tripId);
@@ -153,6 +154,6 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             rtcTime = 0;
         }
 
-        return new Trip215(Trip215.TRIP_START,tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
+        return new Trip215Start(tripIdRaw,pidPackage.deviceId,mileage,rtcTime);
     }
 }
