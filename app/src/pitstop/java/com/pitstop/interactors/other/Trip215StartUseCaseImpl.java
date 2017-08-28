@@ -19,22 +19,51 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
     private final int HISTORICAL_OFFSET = 100; //Terminal rtc time takes some time to retrieve
 
     private Device215TripRepository device215TripRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private TripInfoPackage tripInfoPackage;
     private Callback callback;
 
     public Trip215StartUseCaseImpl(Device215TripRepository device215TripRepository
-            , Handler handler){
+            , Handler useCaseHandler, Handler mainHandler){
 
         this.device215TripRepository = device215TripRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onRealTimeTripStartSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onRealTimeTripStartSuccess();
+            }
+        });
+    }
+
+    private void onHistoricalTripStartSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onHistoricalTripStartSuccess();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -44,10 +73,10 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
             @Override
             public void onSuccess(Trip215 data) {
                 if (tripStart.getRtcTime() > tripInfoPackage.terminalRtcTime - HISTORICAL_OFFSET){
-                    callback.onRealTimeTripStartSuccess();
+                    Trip215StartUseCaseImpl.this.onRealTimeTripStartSuccess();
                 }
                 else{
-                    callback.onHistoricalTripStartSuccess();
+                    Trip215StartUseCaseImpl.this.onHistoricalTripStartSuccess();
                 }
             }
 
@@ -59,7 +88,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
                     Log.d(TAG,"Storing trip start locally due to error!");
                     device215TripRepository.storeTripLocally(tripInfoPackage);
                 }
-                callback.onError(error);
+                Trip215StartUseCaseImpl.this.onError(error);
             }
         });
     }
