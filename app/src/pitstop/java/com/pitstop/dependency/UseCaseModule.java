@@ -342,19 +342,8 @@ public class UseCaseModule {
 
     @Provides
     CheckTripEndedUseCase checkTripEndedUseCase(Device215TripRepository device215TripRepository
-            , Handler handler){
-        return new CheckTripEndedUseCaseImpl(device215TripRepository, handler);
+            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
+        return new CheckTripEndedUseCaseImpl(device215TripRepository, useCaseHandler);
     }
 
-    @Provides
-    CheckTripEndedUseCase checkTripEndedUseCase(Device215TripRepository device215TripRepository
-            , Handler handler){
-        return new CheckTripEndedUseCaseImpl(device215TripRepository, handler);
-    }
-
-    @Provides
-    CheckTripEndedUseCase checkTripEndedUseCase(Device215TripRepository device215TripRepository
-            , Handler handler){
-        return new CheckTripEndedUseCaseImpl(device215TripRepository, handler);
-    }
 }
