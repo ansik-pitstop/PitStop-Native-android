@@ -268,7 +268,7 @@ public class UseCaseModule {
     MarkServiceDoneUseCase markServiceDoneUseCase(CarIssueRepository carIssueRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new MarkServiceDoneUseCaseImpl(carIssueRepository, useCaseHandler);
+        return new MarkServiceDoneUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

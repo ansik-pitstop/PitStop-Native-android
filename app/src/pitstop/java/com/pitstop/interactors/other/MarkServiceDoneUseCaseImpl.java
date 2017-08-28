@@ -15,11 +15,32 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public MarkServiceDoneUseCaseImpl(CarIssueRepository carIssueRepository, Handler handler){
+    public MarkServiceDoneUseCaseImpl(CarIssueRepository carIssueRepository
+            , Handler useCaseHandler, Handler mainHandler){
         this.carIssueRepository = carIssueRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onServiceMarkedAsDone(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onServiceMarkedAsDone();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -28,12 +49,12 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
         carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<Object>() {
             @Override
             public void onSuccess(Object response) {
-                callback.onServiceMarkedAsDone();
+                MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone();
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                MarkServiceDoneUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -42,6 +63,6 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     public void execute(CarIssue carIssue, Callback callback) {
         this.carIssue = carIssue;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }
