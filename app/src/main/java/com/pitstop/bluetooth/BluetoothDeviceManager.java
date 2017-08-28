@@ -219,7 +219,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        communicator.disconnect(connectedDevice);
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
             dataListener.scanFinished();
@@ -239,23 +238,20 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // Le can be used for 212 but it doesn't work properly on all versions of Android
         // scanLeDevice(false);// will stop after first device detection
 
-        if (communicator != null) {
-            communicator.close();
-            communicator = null;
+        if (communicator != null && connectedDevice != null){
+            communicator.disconnect(connectedDevice);
         }
 
         switch (deviceInterface.commType()) {
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to LE device");
-                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to Classic device");
-                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothClassicComm(mContext, this);
                 break;
         }

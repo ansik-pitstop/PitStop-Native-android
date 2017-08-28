@@ -86,6 +86,7 @@ public class TripDataHandler{
 
     public void handleTripData(TripInfoPackage tripInfoPackage){
 
+        if (tripInfoPackage.deviceId == null) tripInfoPackage.deviceId = "";
         String deviceId = tripInfoPackage.deviceId;
 
         boolean deviceIsVerified
