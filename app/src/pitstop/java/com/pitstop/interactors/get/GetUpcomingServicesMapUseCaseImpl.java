@@ -28,19 +28,39 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     public GetUpcomingServicesMapUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, Handler handler) {
+            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onGotUpcomingServicesMap(serviceMap);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -53,7 +73,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                 if (!data.hasMainCar()){
                     Map<Integer,List<UpcomingService>> map = new LinkedHashMap<Integer, List<UpcomingService>>();
-                    callback.onGotUpcomingServicesMap(map);
+                    GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
                     return;
                 }
 
@@ -68,12 +88,12 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                                 List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
                                 Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
 
-                                callback.onGotUpcomingServicesMap(map);
+                                GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError(error);
+                                GetUpcomingServicesMapUseCaseImpl.this.onError(error);
                             }
 
                         });
@@ -81,7 +101,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetUpcomingServicesMapUseCaseImpl.this.onError(error);
             }
         });
 

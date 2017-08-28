@@ -255,7 +255,8 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
