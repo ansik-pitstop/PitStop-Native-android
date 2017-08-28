@@ -320,7 +320,7 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
         return new HandleVinOnConnectUseCaseImpl(scannerRepository, carRepository
-                , userRepository,  useCaseHandler);
+                , userRepository,  useCaseHandler, mainHandler);
     }
 
     @Provides
