@@ -4,8 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.observer.BluetoothDtcObserver;
+import com.pitstop.observer.BluetoothPidObserver;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.ui.ILoadingActivity;
@@ -69,7 +70,8 @@ public interface ScanCarContract {
 
     }
 
-    interface Presenter extends BasePresenter, BluetoothConnectionObserver, BluetoothDtcObserver {
+    interface Presenter extends BasePresenter, BluetoothConnectionObserver
+            , BluetoothDtcObserver, BluetoothPidObserver {
 
         String ERR_INTERRUPT_GEN = "Scan was interrupted, please try again.";
         String ERR_INTERRUPT_DC = "Your device disconnected during the scan"
@@ -80,13 +82,6 @@ public interface ScanCarContract {
         void startScan();
 
         void update();
-
-        /**
-         * Check if OBD device is uploading the real time data to the app <br>
-         * The reason we should check this prior to getting engine codes is that
-         * for IDD-212B devices, engine codes will not be returned if it is still uploading non-realtime data. <br>
-         */
-        void checkRealTime();
 
         /**
          * Ask BluetoothAutoConnectService to get engine codes from the device <br>

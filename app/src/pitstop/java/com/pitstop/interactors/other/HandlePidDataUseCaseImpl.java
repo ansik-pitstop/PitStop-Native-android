@@ -135,9 +135,9 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
-        int tripIdRaw;
+        long tripIdRaw;
         try{
-             tripIdRaw = Integer.valueOf(pidPackage.tripId);
+             tripIdRaw = Long.valueOf(pidPackage.tripId);
         }catch(NumberFormatException e){
             e.printStackTrace();
             tripIdRaw = -1;

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -16,14 +15,13 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.TimeoutTimer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,9 +38,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     private BluetoothConnectionObservable bluetoothObservable;
 
     private boolean isAskingForDtcs = false;
-    private boolean realTimeDataRetrieved = true;
 
-    private Set<String> retrievedDtcs;
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
@@ -69,10 +65,12 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void startScan() {
+        Log.d(TAG,"startScan()");
         if (mCallback == null || bluetoothObservable == null) return;
 
         if (isDeviceConnected()){
             mCallback.onScanStarted();
+            bluetoothObservable.requestAllPid();
             getServicesAndRecalls();
             getEngineCodes();
         }
@@ -124,21 +122,11 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void checkRealTime() {
-        realTimeDataRetrieved = false;
-        checkRealTimeTimer.cancel();
-        checkRealTimeTimer.start();
-    }
-
-    @Override
     public void getEngineCodes() {
         if (!isDeviceConnected()) return;
 
-        retrievedDtcs = new HashSet<>(); // clear previous result
         isAskingForDtcs = true;
         bluetoothObservable.requestDtcData();
-        checkEngineIssuesTimer.cancel();
-        checkEngineIssuesTimer.start();
     }
 
     @Override
@@ -200,51 +188,18 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         if (mCallback == null) return;
         if (!mCallback.isScanning()) return;
 
-        cancelAllTimers();
         mCallback.onScanInterrupted(errorMessage);
     }
 
-    private void cancelAllTimers() {
-        checkEngineIssuesTimer.cancel();
-        checkRealTimeTimer.cancel();
+    @Override
+    public void onGotAllPid(HashMap<String,String> pid){
+        Log.d(TAG,"All pids received, pidPackage:"+pid);
     }
-    /**
-     * If after 20 seconds we are still unable to retrieve any DTCs, we consider it as there
-     * is no DTCs currently.
-     */
-    private final TimeoutTimer checkEngineIssuesTimer = new TimeoutTimer(5, 4) {
-        @Override
-        public void onRetry() {
-            if (retrievedDtcs.isEmpty() && bluetoothObservable != null){
-                bluetoothObservable.requestDtcData();
-            }
-        }
 
-        @Override
-        public void onTimeout() {
-            if (mCallback == null || !isAskingForDtcs ) return;
-
-            isAskingForDtcs = false;
-            mCallback.onEngineCodesRetrieved(retrievedDtcs);
-        }
-
-    };
-
-    private final TimeoutTimer checkRealTimeTimer = new TimeoutTimer(30, 0) {
-        @Override
-        public void onRetry() {
-            // do nothing
-        }
-
-        @Override
-        public void onTimeout() {
-            if (mCallback == null) return;
-            if (realTimeDataRetrieved || !mCallback.isScanning()) return;
-            mCallback.onGetRealTimeDataTimeout();
-        }
-
-    };
-
+    @Override
+    public void onErrorGettingAllPid() {
+        Log.d(TAG,"onErrorGettingAllPid()");
+    }
 
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
@@ -303,16 +258,17 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     }
 
     @Override
-    public void onGotDtc(DtcPackage dtcPackage) {
-        Log.i(TAG, "DTC data received: " + dtcPackage.dtcNumber);
+    public void onGotDtc(HashMap<String ,Boolean> dtc) {
+        Log.i(TAG, "DTC data received: " + dtc);
 
         if (!isAskingForDtcs) return;
-        //Got DTC
-        if (dtcPackage.dtcs != null && dtcPackage.dtcs.length > 0) {
-            retrievedDtcs.addAll(Arrays.asList(dtcPackage.dtcs));
-            mCallback.onEngineCodesRetrieved(retrievedDtcs);
-            isAskingForDtcs = false;
-            checkEngineIssuesTimer.cancel();
-        }
+        mCallback.onEngineCodesRetrieved(new HashSet<String>(dtc.keySet()));
     }
+
+    @Override
+    public void onErrorGettingDtc() {
+        Log.d(TAG,"onErrorGettingDtc()");
+        mCallback.onScanInterrupted("Error retrieving DTC from device");
+    }
+
 }
