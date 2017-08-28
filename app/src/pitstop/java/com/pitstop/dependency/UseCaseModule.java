@@ -216,7 +216,8 @@ public class UseCaseModule {
     GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,useCaseHandler);
+        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
