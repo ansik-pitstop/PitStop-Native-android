@@ -219,7 +219,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
-        communicator.disconnect(connectedDevice);
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
             dataListener.scanFinished();
