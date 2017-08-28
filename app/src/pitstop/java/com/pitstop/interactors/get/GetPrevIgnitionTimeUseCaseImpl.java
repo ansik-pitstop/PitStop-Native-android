@@ -16,12 +16,14 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
     private Device215TripRepository device215TripRepository;
     private String device215FullName;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     public GetPrevIgnitionTimeUseCaseImpl(Device215TripRepository device215TripRepository
-            , Handler handler){
+            , Handler useCaseHandler, Handler mainHandler){
         this.device215TripRepository = device215TripRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
@@ -29,7 +31,32 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
         this.device215FullName = device215Fullname;
         this.callback = callback;
 
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onGotIgnitionTime(long ignitionTime){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onGotIgnitionTime(ignitionTime);
+            }
+        });
+    }
+    private void onNoneExists(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onNoneExists();
+            }
+        });
+    }
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     private String getScannerName(String device215FullName){
@@ -47,18 +74,18 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
             public void onSuccess(Trip215 data) {
 
                 if (data == null){
-                    callback.onNoneExists();
+                    onNoneExists();
                     return;
                 }
 
                 //TripIdRaw = IgnitionTime just different names
                 // , this probably isn't the best way of doing this
-                callback.onGotIgnitionTime(data.getTripIdRaw());
+                onGotIgnitionTime(data.getTripIdRaw());
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetPrevIgnitionTimeUseCaseImpl.this.onError(error);
             }
         });
     }

@@ -328,7 +328,7 @@ public class UseCaseModule {
             Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler);
+        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
