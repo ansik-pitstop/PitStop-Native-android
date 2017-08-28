@@ -194,7 +194,7 @@ public class UseCaseModule {
     @Provides
     AddShopUseCase addShopUseCase(ShopRepository shopRepository, UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new AddShopUseCaseImpl(shopRepository,userRepository,useCaseHandler);
+        return new AddShopUseCaseImpl(shopRepository,userRepository,useCaseHandler, mainHandler);
     }
 
 
