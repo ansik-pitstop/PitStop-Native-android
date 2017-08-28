@@ -302,7 +302,7 @@ public class UseCaseModule {
     Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new Trip215EndUseCaseImpl(device215TripRepository, useCaseHandler);
+        return new Trip215EndUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
     }
 
     @Provides

@@ -19,21 +19,56 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     private final int HISTORICAL_OFFSET = 100; //Terminal rtc time takes some time to retrieve
 
     private Device215TripRepository device215TripRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private TripInfoPackage tripInfoPackage;
     private Callback callback;
 
     public Trip215EndUseCaseImpl(Device215TripRepository device215TripRepository
-            , Handler handler) {
+            , Handler useCaseHandler, Handler mainHandler) {
         this.device215TripRepository = device215TripRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onHistoricalTripEndSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onHistoricalTripEndSuccess();
+            }
+        });
+    }
+    private void onRealTimeTripEndSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onRealTimeTripEndSuccess();
+            }
+        });
+    }
+    private void onStartTripNotFound(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onStartTripNotFound();
+            }
+        });
+    }
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -46,14 +81,14 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
                 //Latest trip does not exist, don't store trip end
                 if (data == null || data.getTripIdRaw() != tripInfoPackage.tripId){
-                    callback.onStartTripNotFound();
+                    Trip215EndUseCaseImpl.this.onStartTripNotFound();
                     return;
                 }
 
                 //Another trip start got posted before onSuccess called, ignore trip end
                 //Back-end should have the logic implemented to take care of this case
                 if (data.getMileage() > tripInfoPackage.mileage){
-                    callback.onRealTimeTripEndSuccess();
+                    Trip215EndUseCaseImpl.this.onRealTimeTripEndSuccess();
                     return;
                 }
 
@@ -67,11 +102,11 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                         //Send notification if a real time update occurred
                         if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime
                                 - HISTORICAL_OFFSET){
-                            callback.onRealTimeTripEndSuccess();
+                            Trip215EndUseCaseImpl.this.onRealTimeTripEndSuccess();
 
                         }
                         else{
-                            callback.onHistoricalTripEndSuccess();
+                            Trip215EndUseCaseImpl.this.onHistoricalTripEndSuccess();
                         }
                     }
 
@@ -82,7 +117,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                             Log.d(TAG,"Storing trip locally due to error.");
                             device215TripRepository.storeTripLocally(tripInfoPackage);
                         }
-                        callback.onError(error);
+                        Trip215EndUseCaseImpl.this.onError(error);
                     }
                 });
 
@@ -95,7 +130,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                     Log.d(TAG,"Storing trip locally due to error.");
                     device215TripRepository.storeTripLocally(tripInfoPackage);
                 }
-                callback.onError(error);
+                Trip215EndUseCaseImpl.this.onError(error);
             }
         });
     }
