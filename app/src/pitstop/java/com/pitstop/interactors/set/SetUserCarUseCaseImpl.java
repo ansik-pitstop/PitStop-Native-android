@@ -23,13 +23,42 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
     private UserRepository userRepository;
     private int carId;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private EventSource eventSource;
 
-    public SetUserCarUseCaseImpl(UserRepository userRepository, Handler handler) {
+    public SetUserCarUseCaseImpl(UserRepository userRepository, Handler useCaseHandler
+            , Handler mainHandler) {
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onUserCarSet(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onUserCarSet();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    }
+
+    @Override
+    public void execute(int carId,String eventSource, Callback callback) {
+        this.eventSource = new EventSourceImpl(eventSource);
+        this.callback = callback;
+        this.carId = carId;
+        useCaseHandler.post(this);
     }
 
     @Override
@@ -43,29 +72,21 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
-                        callback.onUserCarSet();
+                        SetUserCarUseCaseImpl.this.onUserCarSet();
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        SetUserCarUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                SetUserCarUseCaseImpl.this.onError(error);
             }
         });
 
-    }
-
-    @Override
-    public void execute(int carId,String eventSource, Callback callback) {
-        this.eventSource = new EventSourceImpl(eventSource);
-        this.callback = callback;
-        this.carId = carId;
-        handler.post(this);
     }
 }
