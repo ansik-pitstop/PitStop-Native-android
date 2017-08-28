@@ -68,6 +68,9 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
         setDealer(dashCar);
         setIssues();
+        if(callback.getIssue()!=null){
+            onIssueClicked(callback.getIssue());
+        }
     }
 
     public void unsubscribe(){
@@ -190,6 +193,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             @Override
             public void onServicesRequested() {
                 if(view == null || callback == null){return;}
+                if(callback.getIssue()!= null){return;}
                component.getAddServicesUseCase().execute(issues, EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                    @Override
                    public void onServicesAdded() {

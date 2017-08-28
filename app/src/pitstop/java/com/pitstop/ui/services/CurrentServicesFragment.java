@@ -68,17 +68,42 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
 
+    @BindView(R.id.engine_list_view)
+    RecyclerView engineListView;
+
+    @BindView(R.id.potential_list_view)
+    RecyclerView potentialListView;
+
+    @BindView(R.id.recall_list_view)
+    RecyclerView recallListView;
+
+
+    @BindView(R.id.engine_issue_list_holder)
+    LinearLayout engineIssueHolder;
+
+    @BindView(R.id.potential_engine_issue_list)
+    LinearLayout potentialEngineList;
+
+    @BindView(R.id.recall_list_holder)
+    LinearLayout recallListHolder;
+
+    @BindView(R.id.routine_list_holder)
+    LinearLayout routineListHolder;
+
 
 
     private CurrentServicesAdapter carIssuesAdapter;
-
     private CurrentServicesAdapter customIssueAdapter;
+    private CurrentServicesAdapter engineIssueAdapter;
+    private CurrentServicesAdapter potentialEngineIssueAdapter;
+    private CurrentServicesAdapter recallAdapter;
+
 
     private List<CarIssue> carIssueList = new ArrayList<>();
-
     private List<CarIssue> customIssueList = new ArrayList<>();
-
-
+    private List<CarIssue> engineIssueList = new ArrayList<>();
+    private List<CarIssue> potentialEngineIssues = new ArrayList<>();
+    private List<CarIssue> recallList = new ArrayList<>();
 
     private final EventType[] ignoredEvents = {
             new EventTypeImpl(EVENT_SERVICES_HISTORY),
@@ -137,30 +162,36 @@ public class CurrentServicesFragment extends CarDataFragment {
         }
 
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        //customLoading.setVisibility(View.VISIBLE);
-        carIssueListView.setVisibility(View.INVISIBLE);
-        customIssueListRecyclerView.setVisibility(View.GONE);
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> custom) {
-                if(custom.isEmpty()){
-                    customIssueListRecyclerView.setVisibility(View.GONE);
-                }else{
-                    customIssueListRecyclerView.setVisibility(View.VISIBLE);
-                }
-
+                engineIssueList.clear();
+                potentialEngineIssues.clear();
+                recallList.clear();
                 carIssueList.clear();
-                carIssueList.addAll(currentServices);
-                carIssuesAdapter.notifyDataSetChanged();
-
                 customIssueList.clear();
+
+                for(CarIssue c:currentServices){
+                    if(c.getIssueType().equals(CarIssue.DTC)){
+                        engineIssueList.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.PENDING_DTC)){
+                        potentialEngineIssues.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.RECALL)){
+                        recallList.add(c);
+                    }else{
+                        carIssueList.add(c);
+                    }
+                }
                 customIssueList.addAll(custom);
+
+                carIssuesAdapter.notifyDataSetChanged();
                 customIssueAdapter.notifyDataSetChanged();
+                engineIssueAdapter.notifyDataSetChanged();
+                potentialEngineIssueAdapter.notifyDataSetChanged();
+                recallAdapter.notifyDataSetChanged();
 
                 mLoadingSpinner.setVisibility(View.INVISIBLE);
-               // customLoading.setVisibility(View.INVISIBLE);
-                carIssueListView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -201,11 +232,78 @@ public class CurrentServicesFragment extends CarDataFragment {
                     }
                 });
 
+
                 carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
                         ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
                         ,notifier);
                 carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
                 carIssueListView.setAdapter(carIssuesAdapter);
+                carIssuesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        if(carIssueList.isEmpty()){
+                            routineListHolder.setVisibility(View.GONE);
+                        }else{
+                            routineListHolder.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+
+                engineIssueAdapter = new CurrentServicesAdapter(car,engineIssueList
+                        ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
+                        ,notifier);
+                engineListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                engineListView.setAdapter(engineIssueAdapter);
+                engineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        if(engineIssueList.isEmpty()){
+                            engineIssueHolder.setVisibility(View.GONE);
+                        }else{
+                            engineIssueHolder.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+                potentialEngineIssueAdapter = new CurrentServicesAdapter(car,potentialEngineIssues
+                        ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
+                        ,notifier);
+                potentialListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                potentialListView.setAdapter(potentialEngineIssueAdapter);
+                potentialEngineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        if(potentialEngineIssues.isEmpty()){
+                            potentialEngineList.setVisibility(View.GONE);
+                        }else{
+                            potentialEngineList.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+
+                recallAdapter = new CurrentServicesAdapter(car,recallList
+                        ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
+                        ,notifier);
+                recallListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+                recallListView.setAdapter(recallAdapter);
+                recallAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onChanged() {
+                        super.onChanged();
+                        if(recallList.isEmpty()){
+                            recallListHolder.setVisibility(View.GONE);
+                        }else{
+                            recallListHolder.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+
                 uiInitialized = true;
                 updateUI();
             }

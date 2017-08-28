@@ -107,7 +107,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.description.setEllipsize(TextUtils.TruncateAt.END);
             if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
                 holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(context, R.drawable.ic_error_red_600_24dp));
+                        .getDrawable(context, R.drawable.recall_yellow3x));
 
             } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
                 holder.imageView.setImageDrawable(ContextCompat
