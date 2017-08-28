@@ -1,5 +1,5 @@
-package com.pitstop.bluetooth;
 
+package com.pitstop.bluetooth;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -165,6 +165,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager = new BluetoothDeviceManager(this);
 
             deviceManager.setBluetoothDataListener(this);
+
         }
 
         registerBroadcastReceiver();
