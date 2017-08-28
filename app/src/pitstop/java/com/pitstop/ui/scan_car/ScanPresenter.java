@@ -194,7 +194,6 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void onGotAllPid(HashMap<String,String> pid){
         Log.d(TAG,"All pids received, pidPackage:"+pid);
-        mCallback.onScanInterrupted("Error getting all pid from device");
     }
 
     @Override
