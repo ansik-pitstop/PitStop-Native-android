@@ -202,14 +202,16 @@ public class UseCaseModule {
     UpdateCarDealershipUseCase updateCarDealershipUseCase(CarRepository carRepository
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new UpdateCarDealershipUseCaseImpl(carRepository,userRepository,useCaseHandler);
+        return new UpdateCarDealershipUseCaseImpl(carRepository,userRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     GetPitstopShopsUseCase getPitstopShopsUseCase(ShopRepository shopRepository
             , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetPitstopShopsUseCaseImpl(shopRepository,networkHelper,useCaseHandler);
+        return new GetPitstopShopsUseCaseImpl(shopRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides

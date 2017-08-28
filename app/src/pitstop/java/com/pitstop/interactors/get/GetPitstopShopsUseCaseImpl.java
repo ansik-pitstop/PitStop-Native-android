@@ -18,12 +18,33 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
     private ShopRepository shopRepository;
     private NetworkHelper networkHelper;
     private GetPitstopShopsUseCase.Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public GetPitstopShopsUseCaseImpl(ShopRepository shopRepository, NetworkHelper networkHelper, Handler handler){
+    public GetPitstopShopsUseCaseImpl(ShopRepository shopRepository, NetworkHelper networkHelper
+            , Handler useCaseHandler, Handler mainHandler){
         this.shopRepository = shopRepository;
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onShopsGot(List<Dealership> dealerships){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopsGot(dealerships);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -31,12 +52,12 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
         shopRepository.getPitstopShops(new Repository.Callback<List<Dealership>>() {
             @Override
             public void onSuccess(List<Dealership> dealershipList) {
-                callback.onShopsGot(dealershipList);
+                GetPitstopShopsUseCaseImpl.this.onShopsGot(dealershipList);
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetPitstopShopsUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -44,6 +65,6 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
     @Override
     public void execute(GetPitstopShopsUseCase.Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }
