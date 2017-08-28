@@ -275,14 +275,15 @@ public class UseCaseModule {
     RemoveCarUseCase removeCarUseCase(UserRepository userRepository, CarRepository carRepository
             ,NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper,useCaseHandler);
+        return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
 
     @Provides
     SetUserCarUseCase setUseCarUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new SetUserCarUseCaseImpl(userRepository, useCaseHandler);
+        return new SetUserCarUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

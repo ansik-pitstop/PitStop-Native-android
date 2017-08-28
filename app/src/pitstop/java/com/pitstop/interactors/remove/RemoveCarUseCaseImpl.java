@@ -36,15 +36,18 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private UserRepository userRepository;
     private int carToDeleteId;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private NetworkHelper networkHelper;
 
     private EventSource eventSource;
 
-    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, NetworkHelper networkHelper, Handler handler){
+    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+            , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
         this.networkHelper = networkHelper;
     }
 
@@ -53,7 +56,25 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
         this.eventSource = new EventSourceImpl(eventSource);
         this.carToDeleteId = carToDeleteId;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onCarRemoved(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarRemoved();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -84,12 +105,12 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                                 ,eventSource));
-                                                        callback.onCarRemoved();
+                                                        RemoveCarUseCaseImpl.this.onCarRemoved();
                                                     }
 
                                                     @Override
                                                     public void onError(RequestError error) {
-                                                        callback.onError(error);
+                                                        RemoveCarUseCaseImpl.this.onError(error);
                                                     }
                                                 });
                                             }else{//user doesn't have another car
@@ -100,9 +121,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                             EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                             EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                                                     ,eventSource));
-                                                            callback.onCarRemoved();
+                                                            RemoveCarUseCaseImpl.this.onCarRemoved();
                                                         }else{
-                                                            callback.onError(requestError);
+                                                            RemoveCarUseCaseImpl.this.onError(requestError);
                                                         }
                                                     }
                                                 });
@@ -111,31 +132,31 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            callback.onError(error);
+                                            RemoveCarUseCaseImpl.this.onError(error);
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    callback.onError(error);
+                                    RemoveCarUseCaseImpl.this.onError(error);
                                 }
                             });
                         }else{
-                            callback.onCarRemoved();
+                            RemoveCarUseCaseImpl.this.onCarRemoved();
                         }
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        RemoveCarUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                RemoveCarUseCaseImpl.this.onError(error);
             }
         });
     }
