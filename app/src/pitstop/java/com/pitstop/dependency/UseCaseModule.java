@@ -239,7 +239,8 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -247,7 +248,8 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides

@@ -20,19 +20,39 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     public GetDoneServicesUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, Handler handler) {
+            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onGotDoneServices(List<CarIssue> doneServices){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onGotDoneServices(doneServices);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -44,7 +64,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    callback.onGotDoneServices(new ArrayList<CarIssue>());
+                    GetDoneServicesUseCaseImpl.this.onGotDoneServices(new ArrayList<CarIssue>());
                     return;
                 }
 
@@ -54,19 +74,19 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                             @Override
                             public void onSuccess(List<CarIssue> carIssueDone) {
-                                callback.onGotDoneServices(carIssueDone);
+                                GetDoneServicesUseCaseImpl.this.onGotDoneServices(carIssueDone);
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError(error);
+                                GetDoneServicesUseCaseImpl.this.onError(error);
                             }
                         });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetDoneServicesUseCaseImpl.this.onError(error);
             }
         });
     }
