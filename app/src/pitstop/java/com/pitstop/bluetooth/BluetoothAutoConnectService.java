@@ -672,7 +672,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onVoltageLow() {
         Log.d(TAG,"onVoltageLow()");
-        attemptTripEnd(currentDeviceId);
+        if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
+            attemptTripEnd(currentDeviceId);
+            deviceManager.onConnectedDeviceOffline();
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+            deviceIsVerified = false;
+            clearInvalidDeviceData();
+            currentDeviceId = null;
+        }
     }
 
     private void sendConnectedNotification(){
