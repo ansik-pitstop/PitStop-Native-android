@@ -204,6 +204,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     }
 
+    @Override
+    public void onVoltageLow() {
+
+    }
+
 //    @Override
 //    public void getIOData(final DataPackageInfo dataPackageInfo) {
 //        Log.i(TAG, "getIOData");

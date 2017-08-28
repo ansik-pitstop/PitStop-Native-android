@@ -400,6 +400,19 @@ public class Device215B implements AbstractDevice {
                     prevIgnitionTime = ignitionTime;
                 }
 
+                // Check for low voltage, ignition likely off
+                Log.d(TAG,"read voltage: "+idrInfo.vehicleVoltage);
+                double voltage;
+                try{
+                    voltage = Double.parseDouble(idrInfo.vehicleVoltage);
+                }catch(NumberFormatException e){
+                    e.printStackTrace();
+                    voltage = 0;
+                }
+                if (voltage < 12){
+                    dataListener.onVoltageLow();
+                }
+
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
 

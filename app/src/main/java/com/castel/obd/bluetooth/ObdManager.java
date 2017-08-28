@@ -323,6 +323,8 @@ public class ObdManager {
 
         void scanFinished();
 
+        void onVoltageLow();
+
     }
 
 
