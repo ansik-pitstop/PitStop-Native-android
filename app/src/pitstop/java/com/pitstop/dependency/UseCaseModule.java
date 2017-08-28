@@ -223,7 +223,8 @@ public class UseCaseModule {
     CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new CheckFirstCarAddedUseCaseImpl(userRepository, carRepository, useCaseHandler);
+        return new CheckFirstCarAddedUseCaseImpl(userRepository, carRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
