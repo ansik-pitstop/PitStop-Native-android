@@ -25,18 +25,21 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     private CarIssueRepository carIssueRepository;
     private CarRepository carRepository;
     private UserRepository userRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private Callback callback;
 
     private CarIssue issue;
 
     private EventSource eventSource;
 
-    public AddCustomServiceUseCaseImpl(CarRepository carRepository,UserRepository userRepository, CarIssueRepository carIssueRepository, Handler handler){
+    public AddCustomServiceUseCaseImpl(CarRepository carRepository,UserRepository userRepository
+            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler){
         this.carIssueRepository = carIssueRepository;
         this.userRepository = userRepository;
         this.carRepository = carRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
@@ -44,7 +47,25 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
         this.eventSource = new EventSourceImpl(eventSource);
         this.issue = issue;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onIssueAdded(CarIssue data){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onIssueAdded(data);
+            }
+        });
+    }
+
+    private void onError(RequestError requestError){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(requestError);
+            }
+        });
     }
 
     @Override
@@ -59,19 +80,19 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
-                        callback.onIssueAdded(data);
+                        onIssueAdded(data);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                onError(error);
 
             }
         });
