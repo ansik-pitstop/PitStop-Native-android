@@ -231,7 +231,8 @@ public class UseCaseModule {
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new AddCarUseCaseImpl(carRepository, scannerRepository, userRepository, useCaseHandler);
+        return new AddCarUseCaseImpl(carRepository, scannerRepository, userRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
