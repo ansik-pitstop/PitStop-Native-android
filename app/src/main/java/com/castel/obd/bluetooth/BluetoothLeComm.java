@@ -101,7 +101,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         if (mGatt == null) {
             return;
         }
-        mGatt.disconnect();
         mGatt.close();
         mGatt = null;
     }
@@ -112,7 +111,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
         mCommandQueue.clear();
         mGatt.disconnect();
-        mGatt.close();
         btConnectionState = DISCONNECTED;
     }
 

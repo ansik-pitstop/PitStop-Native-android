@@ -239,23 +239,16 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // Le can be used for 212 but it doesn't work properly on all versions of Android
         // scanLeDevice(false);// will stop after first device detection
 
-        if (communicator != null) {
-            communicator.close();
-            communicator = null;
-        }
-
         switch (deviceInterface.commType()) {
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to LE device");
-                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
                         deviceInterface.getWriteChar(), deviceInterface.getReadChar());
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 Log.i(TAG, "Connecting to Classic device");
-                if (communicator != null) communicator.close(); //Close previous communicator
                 communicator = new BluetoothClassicComm(mContext, this);
                 break;
         }
