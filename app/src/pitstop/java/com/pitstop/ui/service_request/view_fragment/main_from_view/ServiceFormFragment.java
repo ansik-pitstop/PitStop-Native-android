@@ -125,6 +125,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
         this.dashCar = car;
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();

@@ -169,6 +169,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
         final Intent intent = new Intent(this, RequestServiceActivity.class);
         intent.putExtra(RequestServiceActivity.EXTRA_CAR, dashboardCar);
         intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
+        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA,carIssue);
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
     }
 

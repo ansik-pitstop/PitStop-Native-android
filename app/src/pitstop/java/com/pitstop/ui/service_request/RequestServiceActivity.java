@@ -2,6 +2,7 @@ package com.pitstop.ui.service_request;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -10,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
+import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.view_fragment.main_from_view.ServiceFormFragment;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -33,8 +36,14 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
     private FragmentManager fragmentManager;
 
     private Car dashCar;
+    private CarIssue issue;
 
     private boolean isFirstBooking;
+
+    @Override
+    public CarIssue getIssue() {
+        return issue;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +51,13 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         setContentView(R.layout.activity_request_service);
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
 
+        Intent intent = getIntent();
 
-        dashCar = getIntent().getParcelableExtra(EXTRA_CAR);
+
+        dashCar = intent.getParcelableExtra(EXTRA_CAR);
+        if(intent.hasExtra(MainActivity.CAR_ISSUE_EXTRA)){
+            issue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+        }
 
 
         fragmentManager = getFragmentManager();
