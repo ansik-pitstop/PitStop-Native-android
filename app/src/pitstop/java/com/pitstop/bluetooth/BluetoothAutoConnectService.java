@@ -1,5 +1,5 @@
-package com.pitstop.bluetooth;
 
+package com.pitstop.bluetooth;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -36,6 +36,7 @@ import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.check.CheckTripEndedUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
@@ -50,6 +51,7 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.DeviceDataUtils;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
@@ -163,6 +165,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             deviceManager = new BluetoothDeviceManager(this);
 
             deviceManager.setBluetoothDataListener(this);
+
         }
 
         registerBroadcastReceiver();
@@ -275,6 +278,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
+
+                    attemptTripEnd(currentDeviceId);
+
+
                     deviceIsVerified = false;
                     NotificationsHelper.cancelConnectedNotification(getApplicationContext());
                 }
@@ -662,6 +669,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     }
 
+    @Override
+    public void onVoltageLow() {
+        Log.d(TAG,"onVoltageLow()");
+        if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
+            attemptTripEnd(currentDeviceId);
+            deviceManager.onConnectedDeviceOffline();
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+            deviceIsVerified = false;
+            clearInvalidDeviceData();
+            currentDeviceId = null;
+        }
+    }
+
     private void sendConnectedNotification(){
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
@@ -1007,6 +1028,44 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return deviceManager.isConnectedTo215();
         else
             return false;
+    }
+
+    private void attemptTripEnd(final String deviceIdFinal){
+        //Attempt to end trip using latest pid if current trip has not been ended yet
+        if (pidDataHandler.getLatestPidPackage() != null){
+            Log.d(TAG,"Got latest pid, pid: "+pidDataHandler.getLatestPidPackage()
+                    +", checking if trip ended");
+            useCaseComponent.checkTripEndedUseCase().execute(deviceIdFinal
+                    , new CheckTripEndedUseCase.Callback() {
+                        @Override
+                        public void onGotLatestTripStatus(boolean ended, long rtcTime) {
+
+                            TripInfoPackage tripEnd
+                                    = DeviceDataUtils.pidPackageToTripInfoPackage(
+                                    pidDataHandler.getLatestPidPackage());
+                            Log.d(TAG,"checkTripEndedUseCase().onGotLatestTripStatus: "+ended
+                                    +", rtc: "+rtcTime+", time diffrence: "
+                                    +(tripEnd.rtcTime - rtcTime));
+                            final long MAX_TIME_DIFF = 24 * 60 * 60; //24 hours
+                            if (!ended && tripEnd.rtcTime - rtcTime < MAX_TIME_DIFF){
+                                Log.d(TAG,"Passing trip to data handler, trip: "+tripEnd);
+                                tripDataHandler.handleTripData(tripEnd);
+                            }
+                        }
+
+                        @Override
+                        public void onNoLatestTripExists(){
+                            Log.d(TAG,"checkTripEndedUseCase().onNoLatestTripExists");
+
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            Log.d(TAG,"onError() error: "+error.getMessage());
+                        }
+                    });
+        }
+        else Log.d(TAG,"No latest pid package could be retrieved, cannot end trip.");
     }
 
 }

@@ -6,61 +6,18 @@ package com.pitstop.models;
  * Created by Karol Zdebel on 7/6/2017.
  */
 
-public class Trip215 {
+public abstract class Trip215 {
 
-    public static final String TRIP_START = "trip_start";
-    public static final String TRIP_END = "trip_end";
-
-    private int tripId = -1;
     private double mileage;
     private long rtcTime;
     private String scannerName;
     private long tripIdRaw = -1;
-    private String type;
 
-    public Trip215(String type, long tripIdRaw, double mileage, long rtcTime, String scannerName) {
-        if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
-            throw new IllegalArgumentException();
-        this.type = type;
-        this.tripIdRaw = tripIdRaw;
+    public Trip215(double mileage, long rtcTime, String scannerName, long tripIdRaw) {
         this.mileage = mileage;
         this.rtcTime = rtcTime;
         this.scannerName = scannerName;
-    }
-
-    public Trip215(String type, int id, long tripIdRaw, double mileage, long rtcTime
-            , String scannerName) {
-        if (!type.equals(TRIP_START) && !type.equals(TRIP_END))
-            throw new IllegalArgumentException();
-        this.type = type;
-        this.tripId = id;
         this.tripIdRaw = tripIdRaw;
-        this.mileage = mileage;
-        this.rtcTime = rtcTime;
-        this.scannerName = scannerName;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-    public long getTripIdRaw() {
-        return tripIdRaw;
-    }
-
-    public void setTripIdRaw(long tripIdRaw) {
-        this.tripIdRaw = tripIdRaw;
-    }
-
-    public int getTripId() {
-        return tripId;
-    }
-
-    public void setTripId(int tripId) {
-        this.tripId = tripId;
     }
 
     public double getMileage() {
@@ -87,9 +44,11 @@ public class Trip215 {
         this.scannerName = scannerName;
     }
 
-    @Override
-    public String toString(){
-        return type+ ", tripId: "+tripId+", tripIdRaw:"+tripIdRaw+", scannerName: "+scannerName+", mileage: "+mileage
-                +", rtcTime: "+rtcTime;
+    public long getTripIdRaw() {
+        return tripIdRaw;
+    }
+
+    public void setTripIdRaw(long tripIdRaw) {
+        this.tripIdRaw = tripIdRaw;
     }
 }

@@ -225,6 +225,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
+    public void onConnectedDeviceOffline(){
+        if (connectedDevice != null){
+            communicator.disconnect(connectedDevice);
+        }
+    }
+
     /**
      * @param device
      */

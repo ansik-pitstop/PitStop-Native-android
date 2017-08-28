@@ -5,6 +5,7 @@ import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.check.CheckTripEndedUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
@@ -117,5 +118,7 @@ public interface UseCaseComponent {
     HandlePidDataUseCase handlePidDataUseCase();
 
     PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase();
+
+    CheckTripEndedUseCase checkTripEndedUseCase();
 
 }
