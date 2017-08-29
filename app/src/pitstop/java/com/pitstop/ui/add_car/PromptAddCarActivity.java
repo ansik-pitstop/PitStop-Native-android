@@ -3,7 +3,9 @@ package com.pitstop.ui.add_car;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,6 +27,8 @@ import io.smooch.ui.ConversationActivity;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 public class PromptAddCarActivity extends AppCompatActivity {
+
+    private final String TAG = getClass().getSimpleName();
 
     @BindView(R.id.logout_button)
     Button logoutButton;
@@ -74,6 +78,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
 
     //Maybe the car was added on the back-end or logic error somewhere
     private void checkCarWasAdded(){
+        Log.d(TAG,"checkCarWasAdded()");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
@@ -91,8 +96,23 @@ public class PromptAddCarActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG,"onResume()");
+        //Check if car was added, after waiting a second for onActivityResult() to be processed
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkCarWasAdded();
+            }
+        }, 1000);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG,"onActivityResult, data is null? "+(data == null));
 
         //Pass results to MainActivity and finish();
         if (data != null) {
