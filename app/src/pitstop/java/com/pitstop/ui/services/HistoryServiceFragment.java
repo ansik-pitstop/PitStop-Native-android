@@ -60,6 +60,9 @@ public class HistoryServiceFragment extends CarDataFragment {
     @BindView(R.id.service_launch_custom)
     LinearLayout customServiceButton;
 
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_MILEAGE)};

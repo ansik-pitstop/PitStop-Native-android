@@ -86,6 +86,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     NetworkHelper mNetworkHelper;
     MixpanelHelper mMixPanelHelper;
+
     Car mCar;
     Timeline mTimelineData;
     Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
