@@ -3,12 +3,10 @@ package com.pitstop.ui.main_activity;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
-import com.pitstop.ui.RefreshableFragment;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -18,7 +16,7 @@ import butterknife.ButterKnife;
  * Created by Karol Zdebel on 6/23/2017.
  */
 
-public class TabMenu {
+public class TabFragmentManager {
 
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
@@ -36,14 +34,11 @@ public class TabMenu {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
-    @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout mSwipeRefreshLayout;
-
     private TabViewPagerAdapter tabViewPagerAdapter;
     private FragmentActivity mActivity;
     private MixpanelHelper mMixpanelHelper;
 
-    public TabMenu(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
+    public TabFragmentManager(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
@@ -62,22 +57,6 @@ public class TabMenu {
         setupActionBar();
         setupTabIcons();
         setupTabTappable();
-        setupRefreshFragment();
-    }
-
-    private void setupRefreshFragment(){
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                try{
-                    ((RefreshableFragment)tabViewPagerAdapter.getItem(mViewPager.getCurrentItem()))
-                            .onRefresh();
-                }catch(ClassCastException e){
-                    e.printStackTrace();
-                }
-
-            }
-        });
     }
 
     private void setupSwitchActions(){

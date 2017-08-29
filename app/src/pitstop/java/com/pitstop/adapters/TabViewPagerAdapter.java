@@ -2,11 +2,11 @@ package com.pitstop.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.mainFragments.MainDashboardFragment;
-import com.pitstop.ui.main_activity.TabMenu;
+import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 
@@ -17,7 +17,7 @@ import com.pitstop.ui.services.MainServicesFragment;
  * Created by Karol Zdebel on 5/4/2017.
  */
 
-public class TabViewPagerAdapter extends FragmentPagerAdapter {
+public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
     public TabViewPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -29,16 +29,16 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
 
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
-            case TabMenu.TAB_DASHBOARD:
+            case TabFragmentManager.TAB_DASHBOARD:
                 return MainDashboardFragment.newInstance();
 
-            case TabMenu.TAB_SERVICES:
+            case TabFragmentManager.TAB_SERVICES:
                 return MainServicesFragment.newInstance();
 
-            case TabMenu.TAB_SCAN:
+            case TabFragmentManager.TAB_SCAN:
                 return ScanCarFragment.newInstance();
 
-            case TabMenu.TAB_NOTIF:
+            case TabFragmentManager.TAB_NOTIF:
                 return NotificationsFragment.newInstance();
         }
 
@@ -54,13 +54,13 @@ public class TabViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch(position){
-            case TabMenu.TAB_DASHBOARD:
+            case TabFragmentManager.TAB_DASHBOARD:
                 return "Dashboard";
-            case TabMenu.TAB_NOTIF:
+            case TabFragmentManager.TAB_NOTIF:
                 return "Notifications";
-            case TabMenu.TAB_SCAN:
+            case TabFragmentManager.TAB_SCAN:
                 return "Scan";
-            case TabMenu.TAB_SERVICES:
+            case TabFragmentManager.TAB_SERVICES:
                 return "Services";
         }
         return "";

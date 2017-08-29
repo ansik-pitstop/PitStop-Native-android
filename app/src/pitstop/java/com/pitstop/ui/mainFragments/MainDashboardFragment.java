@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -70,7 +71,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainDashboardFragment extends CarDataFragment {
+public class MainDashboardFragment extends CarDataFragment{
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
@@ -135,6 +136,9 @@ public class MainDashboardFragment extends CarDataFragment {
     @BindView(R.id.loading)
     View loading;
 
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     // Models
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -172,10 +176,9 @@ public class MainDashboardFragment extends CarDataFragment {
                 .contextModule(new ContextModule(getContext()))
                 .build();
 
-        this.context = getContext().getApplicationContext();
-        application = (GlobalApplication)context;
+        this.context = getActivity();
         networkHelper = tempNetworkComponent.networkHelper();
-        mixpanelHelper = new MixpanelHelper((GlobalApplication)context);
+        mixpanelHelper = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // Local db adapters
@@ -183,11 +186,18 @@ public class MainDashboardFragment extends CarDataFragment {
         shopLocalStore = new LocalShopStorage(context);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(application))
+                .contextModule(new ContextModule(getActivity()))
                 .build();
 
         setStaticUI();
         updateUI();
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateUI();
+            }
+        });
 
         return rootview;
     }
@@ -273,6 +283,7 @@ public class MainDashboardFragment extends CarDataFragment {
                 hideLoading(null);
             }
         });
+
     }
 
     @Override
@@ -840,13 +851,19 @@ public class MainDashboardFragment extends CarDataFragment {
     }
 
     private void showLoading() {
+        if (mSwipeRefreshLayout.isRefreshing()) return;
         loading.setVisibility(View.VISIBLE);
     }
 
     private void hideLoading(String toastMessage) {
+        if (mSwipeRefreshLayout.isRefreshing()){
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         loading.setVisibility(View.GONE);
         if (getUserVisibleHint() && toastMessage != null){
             Toast.makeText(getContext(),toastMessage,Toast.LENGTH_LONG).show();
         }
+
     }
 }
