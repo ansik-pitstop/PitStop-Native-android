@@ -40,6 +40,7 @@ public class MainServicesFragment extends Fragment{
         super.onActivityCreated(savedInstanceState);
 
         mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
+        mServicesPager.setOffscreenPageLimit(2);
 
         //Create tab layout
         tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
