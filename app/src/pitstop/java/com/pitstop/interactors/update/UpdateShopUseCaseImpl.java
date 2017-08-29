@@ -22,7 +22,8 @@ import org.greenrobot.eventbus.EventBus;
  */
 
 public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private ShopRepository shopRepository;
     private UserRepository userRepository;
     private CarRepository carRepository;
@@ -33,11 +34,13 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     private Dealership dealership;
 
 
-    public UpdateShopUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository, CarRepository carRepository, Handler handler) {
+    public UpdateShopUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository
+            , CarRepository carRepository, Handler useCaseHandler, Handler mainHandler) {
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.carRepository = carRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
@@ -45,7 +48,25 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.dealership = dealership;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onShopUpdated(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopUpdated();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -59,18 +80,18 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
                       EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
                       EventBus.getDefault().post(new CarDataChangedEvent(eventType
                               ,eventSource));
-                      callback.onShopUpdated();
+                      UpdateShopUseCaseImpl.this.onShopUpdated();
                   }
 
                   @Override
                   public void onError(RequestError error) {
-                      callback.onError(error);
+                      UpdateShopUseCaseImpl.this.onError(error);
                   }
               });
           }
           @Override
           public void onError(RequestError error) {
-              callback.onError(error);
+              UpdateShopUseCaseImpl.this.onError(error);
           }
       });
     }
