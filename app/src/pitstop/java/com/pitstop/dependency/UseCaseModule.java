@@ -154,7 +154,7 @@ public class UseCaseModule {
     @Provides
     GetCurrentUserUseCase getCurrentUserUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetCurrentUserUseCaseImpl(userRepository,useCaseHandler);
+        return new GetCurrentUserUseCaseImpl(userRepository,useCaseHandler,mainHandler);
     }
 
 
@@ -162,7 +162,8 @@ public class UseCaseModule {
     GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository, useCaseHandler);
+        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides

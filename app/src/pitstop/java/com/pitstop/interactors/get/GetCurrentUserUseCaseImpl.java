@@ -12,22 +12,42 @@ import com.pitstop.repositories.UserRepository;
  */
 
 public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private UserRepository userRepository;
 
     private GetCurrentUserUseCase.Callback callback;
 
 
-    public GetCurrentUserUseCaseImpl(UserRepository userRepository, Handler handler) {
+    public GetCurrentUserUseCaseImpl(UserRepository userRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
 
+    private void onUserRetrieved(User user){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onUserRetrieved(user);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
     public void execute(GetCurrentUserUseCase.Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 
     @Override
@@ -35,11 +55,11 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>(){
             @Override
             public void onSuccess(User user) {
-                callback.onUserRetrieved(user);
+                GetCurrentUserUseCaseImpl.this.onUserRetrieved(user);
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetCurrentUserUseCaseImpl.this.onError(error);
             }
         });
 
