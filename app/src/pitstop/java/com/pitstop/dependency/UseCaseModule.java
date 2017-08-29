@@ -134,13 +134,14 @@ public class UseCaseModule {
     RemoveShopUseCase removeShopUseCase(ShopRepository shopRepository,CarRepository carRepository
             ,UserRepository userRepository,NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new RemoveShopUseCaseImpl(shopRepository,carRepository,userRepository,networkHelper,useCaseHandler);
+        return new RemoveShopUseCaseImpl(shopRepository,carRepository,userRepository
+                ,networkHelper,useCaseHandler);
     }
 
     @Provides
     UpdateUserPhoneUseCase updateUserPhoneUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new UpdateUserPhoneUseCaseImpl(userRepository, useCaseHandler);
+        return new UpdateUserPhoneUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
 
