@@ -78,7 +78,6 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.recall_list_view)
     RecyclerView recallListView;
 
-
     @BindView(R.id.engine_issue_list_holder)
     LinearLayout engineIssueHolder;
 
