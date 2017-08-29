@@ -80,19 +80,19 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
-                        onIssueAdded(data);
+                        AddCustomServiceUseCaseImpl.this.onIssueAdded(data);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        onError(error);
+                        AddCustomServiceUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                onError(error);
+                AddCustomServiceUseCaseImpl.this.onError(error);
 
             }
         });
