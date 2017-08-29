@@ -50,7 +50,6 @@ public class TabMenu {
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
 
         mViewPager.setAdapter(tabViewPagerAdapter);
-        mViewPager.setOffscreenPageLimit(5);
 
         setupSwitchActions();
         setupActionBar();
