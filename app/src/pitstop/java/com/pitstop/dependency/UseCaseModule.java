@@ -127,7 +127,8 @@ public class UseCaseModule {
     AddServicesUseCase addServicesUseCase(CarIssueRepository carIssueRepository
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new AddServicesUseCaseImpl(carIssueRepository,userRepository,useCaseHandler);
+        return new AddServicesUseCaseImpl(carIssueRepository,userRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -135,7 +136,7 @@ public class UseCaseModule {
             ,UserRepository userRepository,NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
         return new RemoveShopUseCaseImpl(shopRepository,carRepository,userRepository
-                ,networkHelper,useCaseHandler);
+                ,networkHelper,useCaseHandler, mainHandler);
     }
 
     @Provides
