@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothPidObserver;
@@ -17,6 +18,8 @@ import java.util.Set;
 public interface ScanCarContract {
 
     interface View extends BaseView<Presenter>, ILoadingActivity{
+
+        BluetoothConnectionObservable getBluetoothObservable();
 
         void resetUI();
 

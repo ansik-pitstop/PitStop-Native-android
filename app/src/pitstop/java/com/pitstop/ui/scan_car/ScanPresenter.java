@@ -66,6 +66,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void startScan() {
         Log.d(TAG,"startScan()");
+        bluetoothObservable = mCallback.getBluetoothObservable();
         if (mCallback == null || bluetoothObservable == null) return;
 
         if (isDeviceConnected()){
