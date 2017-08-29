@@ -147,7 +147,7 @@ public class UseCaseModule {
     @Provides
     UpdateUserNameUseCase updateUserNameUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new UpdateUserNameUseCaseImpl(userRepository, useCaseHandler);
+        return new UpdateUserNameUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
 

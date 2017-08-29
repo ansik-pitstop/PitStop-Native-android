@@ -12,24 +12,45 @@ import com.pitstop.repositories.UserRepository;
  */
 
 public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private UserRepository userRepository;
     private UpdateUserNameUseCase.Callback callback;
     private String name;
 
 
-    public UpdateUserNameUseCaseImpl(UserRepository userRepository, Handler handler) {
+    public UpdateUserNameUseCaseImpl(UserRepository userRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
-        this.handler = handler;
-
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(String name, UpdateUserNameUseCase.Callback callback) {
         this.callback = callback;
         this.name = name;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
+
+    private void onUserNameUpdated(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onUserNameUpdated();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    }
+
     private User parseName(User user, String name){
         String f,l;
         String[] nameFL= name.split(" ");
@@ -56,11 +77,11 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
                 userRepository.update(parseName(user, name), new Repository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object object) {
-                        callback.onUserNameUpdated();
+                        UpdateUserNameUseCaseImpl.this.onUserNameUpdated();
                     }
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        UpdateUserNameUseCaseImpl.this.onError(error);
 
                     }
                 });
@@ -69,7 +90,7 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                UpdateUserNameUseCaseImpl.this.onError(error);
             }
         });
 
