@@ -135,7 +135,7 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
                 .build();
 
         mixpanelHelper = new MixpanelHelper((GlobalApplication) getApplicationContext());
-        bluetoothObservable = (BluetoothConnectionObservable)(((MainActivity)getActivity()).autoConnectService);
+        bluetoothObservable = (((MainActivity)getActivity()).autoConnectService);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
@@ -262,6 +262,11 @@ public class ScanCarFragment extends CarDataFragment implements ScanCarContract.
 
         noDeviceFoundDialog.setMessage(errorMessage);
         noDeviceFoundDialog.show();
+    }
+
+    @Override
+    public BluetoothConnectionObservable getBluetoothObservable() {
+        return (((MainActivity)getActivity()).autoConnectService);
     }
 
     @Override
