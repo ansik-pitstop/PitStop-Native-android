@@ -4,7 +4,6 @@ package com.pitstop.ui.services;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -64,7 +63,6 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @BindView(R.id.service_launch_custom)
     LinearLayout customSeerviceButton;
-
 
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;

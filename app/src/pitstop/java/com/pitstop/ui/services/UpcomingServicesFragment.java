@@ -86,7 +86,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
     @BindView(R.id.severity_text)
     TextView mIssueSeverityText;
 
-    @BindView(R.id.swiperefresh)
+    @BindView(R.id.activity_timeline)
     SwipeRefreshLayout swipeRefreshLayout;
 
     MixpanelHelper mMixPanelHelper;
@@ -146,6 +146,7 @@ public class UpcomingServicesFragment extends CarDataFragment {
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mTimeLineRecyclerView.setNestedScrollingEnabled(true);
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
         updateUI();
     }
