@@ -120,7 +120,7 @@ public class UseCaseModule {
             , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
         return new RequestServiceUseCaseImpl(carIssueRepository,userRepository,carRepository
-                ,useCaseHandler);
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides

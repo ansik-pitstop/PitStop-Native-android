@@ -28,14 +28,35 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     private UserRepository userRepository;
     private Callback callback;
     private List<CarIssue> carIssues;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private EventSource eventSource;
 
-    public AddServicesUseCaseImpl(CarIssueRepository carIssueRepository, UserRepository userRepository, Handler handler) {
+    public AddServicesUseCaseImpl(CarIssueRepository carIssueRepository, UserRepository userRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.carIssueRepository = carIssueRepository;
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onServicesAdded(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onServicesAdded();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -50,19 +71,19 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
                         EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
-                        callback.onServicesAdded();
+                        AddServicesUseCaseImpl.this.onServicesAdded();
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        AddServicesUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                AddServicesUseCaseImpl.this.onError(error);
             }
         });
 
@@ -73,6 +94,6 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carIssues = carIssues;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }
