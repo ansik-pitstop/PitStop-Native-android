@@ -115,7 +115,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
         Log.d(TAG,"onActivityResult, data is null? "+(data == null));
 
         //Pass results to MainActivity and finish();
-        if (data != null) {
+        if (data != null && requestCode == RC_ADD_CAR) {
             setResult(resultCode, data);
             finish();
         }
