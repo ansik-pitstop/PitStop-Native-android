@@ -177,6 +177,7 @@ public class MainDashboardFragment extends CarDataFragment{
                 .build();
 
         this.context = getActivity();
+        application = (GlobalApplication)getActivity().getApplicationContext();
         networkHelper = tempNetworkComponent.networkHelper();
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
