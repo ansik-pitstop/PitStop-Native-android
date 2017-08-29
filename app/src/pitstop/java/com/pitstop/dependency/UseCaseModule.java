@@ -106,7 +106,8 @@ public class UseCaseModule {
     GetShopHoursUseCase getShopHoursUseCase(ShopRepository shopRepository, UserRepository userRepository
             , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetShopHoursUseCaseImpl(shopRepository,userRepository,networkHelper,useCaseHandler);
+        return new GetShopHoursUseCaseImpl(shopRepository,userRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
