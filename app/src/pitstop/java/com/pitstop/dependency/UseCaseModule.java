@@ -168,13 +168,13 @@ public class UseCaseModule {
     @Provides
     GetPlaceDetailsUseCase getPlaceDetailsUseCase(NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-       return new GetPlaceDetailsUseCaseImpl(networkHelper, useCaseHandler);
+       return new GetPlaceDetailsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 
     @Provides
     GetGooglePlacesShopsUseCase getGooglePlacesShopsUseCase(NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler);
+        return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 
     @Provides

@@ -22,14 +22,17 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
 
     private NetworkHelper networkHelper;
     private GetPlaceDetailsUseCase.Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private Dealership dealership;
 
 
-    public GetPlaceDetailsUseCaseImpl(NetworkHelper networkHelper,Handler handler) {
+    public GetPlaceDetailsUseCaseImpl(NetworkHelper networkHelper
+            ,Handler useCaseHandler, Handler mainHandler) {
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     public String addressFormat(String address){
@@ -48,7 +51,25 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
     public void execute(Dealership dealership, GetPlaceDetailsUseCase.Callback callback) {
         this.dealership = dealership;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onDetailsGot(Dealership dealership){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDetailsGot(dealership);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -63,19 +84,19 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
                         JSONObject responseJson = new JSONObject(response);
                         JSONObject results = responseJson.getJSONObject("result");
                         dealership.setPhoneNumber(results.getString("formatted_phone_number"));
-                        callback.onDetailsGot(dealership);
+                        GetPlaceDetailsUseCaseImpl.this.onDetailsGot(dealership);
                         }else{
-                            callback.onError(requestError);
+                            GetPlaceDetailsUseCaseImpl.this.onError(requestError);
                         }
 
                     }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
+                        GetPlaceDetailsUseCaseImpl.this.onError(RequestError.getUnknownError());
                     }
 
                 }
             });
         }else {
-            callback.onError(RequestError.getUnknownError());
+            GetPlaceDetailsUseCaseImpl.this.onError(RequestError.getUnknownError());
         }
     }
 }
