@@ -18,21 +18,42 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
     private UserRepository userRepository;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private int carId;
 
-    public GetCarByCarIdUseCaseImpl(CarRepository carRepository, UserRepository userRepository, Handler handler) {
-        this.handler = handler;
+    public GetCarByCarIdUseCaseImpl(CarRepository carRepository, UserRepository userRepository
+            , Handler useCaseHandler, Handler mainHandler) {
+        this.useCaseHandler = useCaseHandler;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(int carId,Callback callback) {
         this.callback = callback;
         this.carId = carId;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
+
+    private void onCarGot(Car car){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarGot(car);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    };
 
     @Override
     public void run() {
@@ -42,18 +63,18 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                 carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
-                        callback.onCarGot(car);
+                        GetCarByCarIdUseCaseImpl.this.onCarGot(car);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        GetCarByCarIdUseCaseImpl.this.onError(error);
                     }
                 });
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetCarByCarIdUseCaseImpl.this.onError(error);
             }
         });
     }
