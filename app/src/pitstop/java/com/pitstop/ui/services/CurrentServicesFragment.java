@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -90,7 +91,8 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.routine_list_holder)
     LinearLayout routineListHolder;
 
-
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
@@ -161,7 +163,9 @@ public class CurrentServicesFragment extends CarDataFragment {
             return;
         }
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
@@ -191,12 +195,20 @@ public class CurrentServicesFragment extends CarDataFragment {
                 potentialEngineIssueAdapter.notifyDataSetChanged();
                 recallAdapter.notifyDataSetChanged();
 
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
             @Override
             public void onError(RequestError error) {
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                 //customLoading.setVisibility(View.INVISIBLE);
             }
         });
@@ -212,6 +224,14 @@ public class CurrentServicesFragment extends CarDataFragment {
         Log.d(TAG,"initUI() called.");
         final Activity activity = this.getActivity();
         final CarDataChangedNotifier notifier = this;
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateUI();
+            }
+        });
+
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
