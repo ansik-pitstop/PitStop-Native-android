@@ -67,6 +67,7 @@ public class HistoryServiceFragment extends CarDataFragment {
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_MILEAGE)};
+    private boolean updating = false;
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
@@ -104,6 +105,13 @@ public class HistoryServiceFragment extends CarDataFragment {
                 Intent intent = new Intent(getActivity(), CustomServiceActivity.class);
                 intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
                 startActivity(intent);
+            }
+        });
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (updating) swipeRefreshLayout.setRefreshing(false);
+                else updateUI();
             }
         });
         setNoUpdateOnEventTypes(ignoredEvents);
@@ -151,8 +159,12 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     @Override
     public void updateUI(){
+        if (updating) return;
+        updating = true;
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
 
         useCaseComponent.getDoneServicesUseCase().execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -187,13 +199,23 @@ public class HistoryServiceFragment extends CarDataFragment {
                 issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
                 issueGroup.setAdapter(issueGroupAdapter);
 
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else{
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }
+                updating = false;
 
             }
 
             @Override
             public void onError(RequestError error) {
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else{
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }
+                updating = false;
             }
         });
 

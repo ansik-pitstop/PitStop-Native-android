@@ -232,7 +232,8 @@ public class CurrentServicesFragment extends CarDataFragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateUI();
+                if (isUpdating) swipeRefreshLayout.setRefreshing(false);
+                else updateUI();
             }
         });
 

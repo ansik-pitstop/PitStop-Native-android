@@ -140,7 +140,8 @@ public class UpcomingServicesFragment extends CarDataFragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateUI();
+                if (updating) swipeRefreshLayout.setRefreshing(false);
+                else updateUI();
             }
         });
         mTimeLineMap = new HashMap<>();
