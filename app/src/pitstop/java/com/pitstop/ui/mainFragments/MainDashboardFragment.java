@@ -160,6 +160,7 @@ public class MainDashboardFragment extends CarDataFragment{
     private UseCaseComponent useCaseComponent;
 
     private boolean askForCar = true; // do not ask for car if user presses cancel
+    private boolean isUpdating = false;
 
     public static MainDashboardFragment newInstance() {
         MainDashboardFragment fragment = new MainDashboardFragment();
@@ -212,8 +213,9 @@ public class MainDashboardFragment extends CarDataFragment{
 
     @Override
     public void updateUI(){
+        if (isUpdating) return;
         showLoading();
-
+        isUpdating = true;
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
@@ -272,16 +274,19 @@ public class MainDashboardFragment extends CarDataFragment{
                 mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
 
                 hideLoading(null);
+                isUpdating = false;
             }
 
             @Override
             public void onNoCarSet() {
                 hideLoading(null);
+                isUpdating = false;
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading(null);
+                isUpdating = false;
             }
         });
 

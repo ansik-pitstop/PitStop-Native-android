@@ -107,6 +107,8 @@ public class CurrentServicesFragment extends CarDataFragment {
     private List<CarIssue> potentialEngineIssues = new ArrayList<>();
     private List<CarIssue> recallList = new ArrayList<>();
 
+    private boolean isUpdating = false;
+
     private final EventType[] ignoredEvents = {
             new EventTypeImpl(EVENT_SERVICES_HISTORY),
     };
@@ -157,11 +159,14 @@ public class CurrentServicesFragment extends CarDataFragment {
     public void updateUI(){
         Log.d(TAG,"Update UI Called()");
 
+        if (isUpdating) return;
+
         //Create ui from scratch
         if (!uiInitialized){
             initUI();
             return;
         }
+        isUpdating = true;
 
         if (!swipeRefreshLayout.isRefreshing()){
             mLoadingSpinner.setVisibility(View.VISIBLE);
@@ -200,10 +205,12 @@ public class CurrentServicesFragment extends CarDataFragment {
                 }else{
                     swipeRefreshLayout.setRefreshing(false);
                 }
+                isUpdating = false;
             }
 
             @Override
             public void onError(RequestError error) {
+                isUpdating = false;
                 if (!swipeRefreshLayout.isRefreshing()){
                     mLoadingSpinner.setVisibility(View.INVISIBLE);
                 }else{
