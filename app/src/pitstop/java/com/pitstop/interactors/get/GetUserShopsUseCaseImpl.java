@@ -21,13 +21,34 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
     private UserRepository userRepository;
     private ShopRepository shopRepository;
     private GetUserShopsUseCase.Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public GetUserShopsUseCaseImpl(ShopRepository shopRepository,UserRepository userRepository, NetworkHelper networkHelper, Handler handler){
+    public GetUserShopsUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository
+            , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onShopGot(List<Dealership> dealerships){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopGot(dealerships);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -38,19 +59,19 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
                 shopRepository.getShopsByUserId(user.getId(), new Repository.Callback<List<Dealership>>() {
                     @Override
                     public void onSuccess(List<Dealership> dealerships) {
-                        callback.onShopGot(dealerships);
+                        GetUserShopsUseCaseImpl.this.onShopGot(dealerships);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        GetUserShopsUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetUserShopsUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -58,6 +79,6 @@ public class GetUserShopsUseCaseImpl implements GetUserShopsUseCase {
     @Override
     public void execute(GetUserShopsUseCase.Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }

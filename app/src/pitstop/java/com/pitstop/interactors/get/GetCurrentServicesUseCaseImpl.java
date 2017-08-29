@@ -20,12 +20,14 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     public GetCurrentServicesUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, Handler handler) {
+            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler) {
 
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
     }
@@ -33,7 +35,25 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onGotCurrentServices(currentServices,customIssues);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -45,7 +65,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    callback.onGotCurrentServices(new ArrayList<>(),new ArrayList<>());
+                    GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(new ArrayList<>(),new ArrayList<>());
                     return;
                 }
 
@@ -63,19 +83,19 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                                 preset.add(c);
                             }
                         }
-                        callback.onGotCurrentServices(preset,custom);
+                        GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        GetCurrentServicesUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetCurrentServicesUseCaseImpl.this.onError(error);
             }
         });
     }

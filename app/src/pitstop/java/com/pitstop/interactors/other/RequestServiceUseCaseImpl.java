@@ -20,19 +20,41 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private CarIssueRepository carIssueRepository;
     private UserRepository userRepository;
     private CarRepository carRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private String state;
     private String timeStamp;
     private String comments;
     private Callback callback;
 
-    public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository, UserRepository userRepository, CarRepository carRepository, Handler handler){
+    public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository
+            , UserRepository userRepository, CarRepository carRepository
+            , Handler useCaseHandler, Handler mainHandler){
         this.carIssueRepository = carIssueRepository;
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onServicesRequested(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onServicesRequested();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -53,32 +75,32 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
                                     @Override
                                     public void onSuccess(Object object) {
-                                        callback.onServicesRequested();
+                                        RequestServiceUseCaseImpl.this.onServicesRequested();
                                     }
 
                                     @Override
                                     public void onError(RequestError error){
-                                        callback.onError(error);
+                                        RequestServiceUseCaseImpl.this.onError(error);
                                     }
                                 });
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError(error);
+                                RequestServiceUseCaseImpl.this.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        RequestServiceUseCaseImpl.this.onError(error);
                     }
                 });
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                RequestServiceUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -89,6 +111,6 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
         this.timeStamp = timeStamp;
         this.comments = comments;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }

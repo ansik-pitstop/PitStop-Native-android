@@ -31,21 +31,21 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
 
     private NetworkHelper networkHelper;
     private GetGooglePlacesShopsUseCase.CallbackShops callback;
-    private Handler handler;
-
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private String query;
-
 
     private String latitude;
     private String longitude;
 
 
-    public GetGooglePlacesShopsUseCaseImpl(NetworkHelper networkHelper,Handler handler) {
-
+    public GetGooglePlacesShopsUseCaseImpl(NetworkHelper networkHelper
+            ,Handler useCaseHandler, Handler mainHandler) {
 
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     public String addressFormat(String address){
@@ -60,13 +60,31 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
         return address;
     }
 
+    private void onShopsGot(List<Dealership> dealerships){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopsGot(dealerships);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    }
+
     @Override
     public void execute(double latitude, double longitude, String query, GetGooglePlacesShopsUseCase.CallbackShops callback) {
         this.longitude = Double.toString(longitude);
         this.latitude = Double.toString(latitude);
         this.query = query;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 
     @Override
@@ -91,18 +109,18 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
                                 dealership.setRating(shop.getDouble("rating"));
                                 dealerships.add(dealership);
                             }
-                            callback.onShopsGot(dealerships);
+                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(dealerships);
                         }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
-                            callback.onShopsGot(new ArrayList<Dealership>());
+                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(new ArrayList<Dealership>());
                         }else{
-                            callback.onError(RequestError.getUnknownError());
+                            GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                         }
                     }catch (JSONException e){
-                        callback.onError(RequestError.getUnknownError());
+                        GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                     }
                 }
                 else{
-                    callback.onError(requestError);
+                    GetGooglePlacesShopsUseCaseImpl.this.onError(requestError);
                 }
             }
         });

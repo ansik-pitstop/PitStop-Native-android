@@ -15,16 +15,38 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
     private UserRepository userRepository;
     private Callback callback;
     private boolean sent;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public SetFirstCarAddedUseCaseImpl(UserRepository userRepository) {
+    public SetFirstCarAddedUseCaseImpl(UserRepository userRepository, Handler useCaseHandler
+            , Handler mainHandler) {
         this.userRepository = userRepository;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(boolean sent, Callback callback) {
         this.sent = sent;
         this.callback = callback;
-        new Handler().post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onFirstCarAddedSet(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onFirstCarAddedSet();
+            }
+        });
+    }
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -34,12 +56,12 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
             @Override
             public void onSuccess(Object object) {
-                callback.onFirstCarAddedSet();
+                SetFirstCarAddedUseCaseImpl.this.onFirstCarAddedSet();
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                SetFirstCarAddedUseCaseImpl.this.onError(error);
             }
         });
     }

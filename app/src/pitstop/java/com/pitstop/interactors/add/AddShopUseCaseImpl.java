@@ -17,21 +17,41 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
     private UserRepository userRepository;
     private ShopRepository shopRepository;
     private AddShopUseCase.Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private Dealership dealership;
 
-    public AddShopUseCaseImpl(ShopRepository shopRepository,UserRepository userRepository, Handler handler) {
-        this.handler = handler;
+    public AddShopUseCaseImpl(ShopRepository shopRepository,UserRepository userRepository
+            , Handler useCaseHandler, Handler mainHandler) {
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
         this.userRepository = userRepository;
         this.shopRepository = shopRepository;
     }
 
+    private void onShopAdded(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopAdded();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    }
 
     @Override
     public void execute(Dealership dealership, AddShopUseCase.Callback callback) {
         this.callback = callback;
         this.dealership = dealership;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 
     @Override
@@ -42,12 +62,12 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
                 shopRepository.insert(dealership, user.getId(), new ShopRepository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object response) {
-                        callback.onShopAdded();
+                        AddShopUseCaseImpl.this.onShopAdded();
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        AddShopUseCaseImpl.this.onError(error);
 
                     }
                 });
@@ -55,7 +75,7 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                AddShopUseCaseImpl.this.onError(error);
             }
         });
 

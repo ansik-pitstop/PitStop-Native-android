@@ -23,18 +23,21 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     private ScannerRepository scannerRepository;
     private UserRepository userRepository;
     private CarRepository carRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private Callback callback;
     private String vin;
     private String deviceId;
 
     public HandleVinOnConnectUseCaseImpl(ScannerRepository scannerRepository
-            ,CarRepository carRepository, UserRepository userRepository, Handler handler){
+            ,CarRepository carRepository, UserRepository userRepository, Handler useCaseHandler
+            , Handler mainHandler){
 
         this.scannerRepository = scannerRepository;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
@@ -42,7 +45,61 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         this.vin = vin;
         this.deviceId = deviceId;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onSuccess();
+            }
+        });
+    }
+
+    private void onDeviceBrokenAndCarMissingScanner(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDeviceBrokenAndCarMissingScanner();
+            }
+        });
+    }
+
+    private void onDeviceBrokenAndCarHasScanner(String scannerId){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDeviceBrokenAndCarHasScanner(scannerId);
+            }
+        });
+    }
+
+    private void onDeviceInvalid(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDeviceInvalid();
+            }
+        });
+    }
+
+    private void onDeviceAlreadyActive(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDeviceAlreadyActive();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     private boolean isValidVin(final String vin) {
@@ -58,7 +115,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                 //user has no car set
                 if (!data.hasMainCar()){
-                    callback.onError(RequestError.getUnknownError());
+                    HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
 
@@ -80,7 +137,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         //Car has a valid scanner so nothing needs to be done
                         if (carScannerValid){
                             Log.d(TAG,"Car scanner matches, onSuccess()");
-                            callback.onSuccess();
+                            HandleVinOnConnectUseCaseImpl.this.onSuccess();
                             return;
                         }
 
@@ -88,13 +145,13 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         *since there is no way to verify it, and most users have one device*/
                         if (!deviceIdValid && !deviceVinValid){
                             Log.d(TAG,"No device id and no VIN, onSuccess()");
-                            callback.onSuccess();
+                            HandleVinOnConnectUseCaseImpl.this.onSuccess();
                             return;
                         }
 
                         if (deviceVinValid && !car.getVin().equals(vin)){
                             Log.d(TAG,"Device vin is valid but does not match car VIN");
-                            callback.onDeviceInvalid();
+                            HandleVinOnConnectUseCaseImpl.this.onDeviceInvalid();
                             return;
                         }
 
@@ -110,7 +167,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                         //Case 3, use car scanner id as the device id
                         if (carScannerExists && !deviceIdValid){
-                            callback.onDeviceBrokenAndCarHasScanner(car.getScannerId());
+                            HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarHasScanner(car.getScannerId());
                             return;
                         }
 
@@ -119,7 +176,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             Log.d(TAG,"No car scanner and device id invalid, onDeviceBrokenAndCarMissingScanner()");
 
                             //Check if car has a scanner id, if so use that one
-                            callback.onDeviceBrokenAndCarMissingScanner();
+                            HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarMissingScanner();
                             return;
                         }
                         //Anything below is case 1
@@ -145,25 +202,25 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                         public void onDeviceAlreadyActive() {
                                             //Another user has this scanner
                                             Log.d(TAG,"Adding scanner that is already active, onDeviceAlreadyActive()");
-                                            callback.onDeviceAlreadyActive();
+                                            HandleVinOnConnectUseCaseImpl.this.onDeviceAlreadyActive();
                                         }
 
                                         @Override
                                         public void onScannerCreated() {
                                             Log.d(TAG,"Overwrote scanner id, onSuccess()");
-                                            callback.onSuccess();
+                                            HandleVinOnConnectUseCaseImpl.this.onSuccess();
                                         }
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            callback.onError(error);
+                                            HandleVinOnConnectUseCaseImpl.this.onError(error);
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    callback.onError(error);
+                                    HandleVinOnConnectUseCaseImpl.this.onError(error);
                                 }
                             });
 
@@ -175,19 +232,19 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 @Override
                                 public void onDeviceAlreadyActive() {
                                     //Another user has this scanner
-                                    callback.onDeviceAlreadyActive();
+                                    HandleVinOnConnectUseCaseImpl.this.onDeviceAlreadyActive();
                                 }
 
                                 @Override
                                 public void onScannerCreated() {
                                     //Scanner created
                                     Log.d(TAG,"Created new scanner, onSuccess()");
-                                    callback.onSuccess();
+                                    HandleVinOnConnectUseCaseImpl.this.onSuccess();
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    callback.onError(error);
+                                    HandleVinOnConnectUseCaseImpl.this.onError(error);
                                 }
                             });
                         }
@@ -196,14 +253,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        HandleVinOnConnectUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                HandleVinOnConnectUseCaseImpl.this.onError(error);
             }
         });
     }

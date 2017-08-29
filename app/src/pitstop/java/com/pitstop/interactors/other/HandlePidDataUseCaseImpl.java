@@ -20,22 +20,42 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     private PidRepository pidRepository;
     private Device215TripRepository tripRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private PidPackage pidPackage;
     private Callback callback;
 
     public HandlePidDataUseCaseImpl(PidRepository pidRepository
-            , Device215TripRepository tripRepository, Handler handler) {
+            , Device215TripRepository tripRepository, Handler useCaseHandler, Handler mainHandler) {
         this.pidRepository = pidRepository;
         this.tripRepository = tripRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(PidPackage pidPackage, Callback callback) {
         this.callback = callback;
         this.pidPackage = pidPackage;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onSuccess(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onSuccess();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -60,7 +80,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                         createTripUsingPid();
                     }
                     else{
-                        callback.onError(error);
+                        HandlePidDataUseCaseImpl.this.onError(error);
                     }
                 }
             });
@@ -79,7 +99,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             @Override
             public void onSuccess(Object response){
                 Log.d(TAG,"successfully added pids");
-                callback.onSuccess();
+                HandlePidDataUseCaseImpl.this.onSuccess();
             }
 
             @Override
@@ -90,7 +110,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     createTripUsingPid();
                 }
                 else{
-                    callback.onError(error);
+                    HandlePidDataUseCaseImpl.this.onError(error);
                 }
             }
         });
@@ -110,13 +130,13 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                             @Override
                             public void onSuccess(Object response){
                                 Log.d(TAG,"Success storing PID after trip start was stored.");
-                                callback.onSuccess();
+                                HandlePidDataUseCaseImpl.this.onSuccess();
                             }
 
                             @Override
                             public void onError(RequestError error){
                                 Log.d(TAG,"Error storing PID even after trip start was saved.");
-                                callback.onError(error);
+                                HandlePidDataUseCaseImpl.this.onError(error);
                             }
                         });
                     }
@@ -128,7 +148,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                             run(); //Try again, it seems that trip start exists
                         }
                         else{
-                            callback.onError(error);
+                            HandlePidDataUseCaseImpl.this.onError(error);
                         }
                     }
                 });

@@ -12,23 +12,43 @@ import com.pitstop.repositories.UserRepository;
  */
 
 public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private UserRepository userRepository;
     private UpdateUserPhoneUseCase.Callback callback;
     private String phone;
 
 
-    public UpdateUserPhoneUseCaseImpl(UserRepository userRepository, Handler handler) {
+    public UpdateUserPhoneUseCaseImpl(UserRepository userRepository, Handler useCaseHandler
+            , Handler mainHandler) {
         this.userRepository = userRepository;
-        this.handler = handler;
-
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(String phone, UpdateUserPhoneUseCase.Callback callback) {
         this.callback = callback;
         this.phone = phone;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onUserPhoneUpdated(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onUserPhoneUpdated();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -40,11 +60,11 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
                 userRepository.update(user, new Repository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object object) {
-                        callback.onUserPhoneUpdated();
+                        UpdateUserPhoneUseCaseImpl.this.onUserPhoneUpdated();
                     }
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        UpdateUserPhoneUseCaseImpl.this.onError(error);
 
                     }
                 });
@@ -53,7 +73,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                UpdateUserPhoneUseCaseImpl.this.onError(error);
             }
         });
 

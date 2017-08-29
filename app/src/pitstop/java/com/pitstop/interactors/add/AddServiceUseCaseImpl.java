@@ -15,11 +15,32 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public AddServiceUseCaseImpl(CarIssueRepository carIssueRepository, Handler handler) {
+    public AddServiceUseCaseImpl(CarIssueRepository carIssueRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.carIssueRepository = carIssueRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onServiceRequested(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onServiceRequested();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -28,12 +49,12 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
 
                 @Override
                 public void onSuccess(Object response) {
-                    callback.onServiceRequested();
+                    AddServiceUseCaseImpl.this.onServiceRequested();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    callback.onError(error);
+                    AddServiceUseCaseImpl.this.onError(error);
                 }
             });
     }
@@ -42,6 +63,6 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
     public void execute(CarIssue carIssue, Callback callback) {
         this.callback = callback;
         this.carIssue = carIssue;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }

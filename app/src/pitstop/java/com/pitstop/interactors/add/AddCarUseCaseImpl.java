@@ -31,7 +31,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     private CarRepository carRepository;
     private UserRepository userRepository;
     private ScannerRepository scannerRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private Callback callback;
 
     private EventSource eventSource;
@@ -43,11 +44,12 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
 
     public AddCarUseCaseImpl(CarRepository carRepository, ScannerRepository scannerRepository
-            , UserRepository userRepository, Handler handler){
+            , UserRepository userRepository, Handler useCaseHandler, Handler mainHandler){
         this.carRepository = carRepository;
         this.scannerRepository = scannerRepository;
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
@@ -63,7 +65,43 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.scannerName = scannerName;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onCarAddedWithBackendShop(Car car){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarAddedWithBackendShop(car);
+            }
+        });
+    }
+
+    private void onCarAdded(Car car){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarAdded(car);
+            }
+        });
+    }
+
+    private void onCarAlreadyAdded(Car car){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarAlreadyAdded(car);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -90,7 +128,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                             //If car exists and has user
                             if (carExists && hasUser){
                                 Log.d(TAG,"carExists && hasUser, calling callback.onCarAlreadyAdded()");
-                                callback.onCarAlreadyAdded(car);
+                                AddCarUseCaseImpl.this.onCarAlreadyAdded(car);
                             }
 
                             //If car exists and does not have user but scanner not active/ active
@@ -122,7 +160,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                 public void onError(RequestError error){
                                                     Log.d(TAG,"updateScanner().onError() error: "
                                                             +error.getMessage());
-                                                    callback.onError(error);
+                                                    AddCarUseCaseImpl.this.onError(error);
                                                 }
                                             });
                                         }
@@ -138,7 +176,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                         Log.d(TAG,"getScanner().onError() error: "
                                                 +error.getMessage());
 
-                                        callback.onError(error);
+                                        AddCarUseCaseImpl.this.onError(error);
                                     }
                                 });
                             }
@@ -156,7 +194,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                             //Unknown case that is never reached
                             else{
-                                callback.onError(RequestError.getUnknownError());
+                                AddCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                             }
 
 
@@ -164,14 +202,14 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                         @Override
                         public void onError(RequestError error) {
-                            callback.onError(error);
+                            AddCarUseCaseImpl.this.onError(error);
                         }
                     });
 
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                AddCarUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -203,23 +241,23 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                         && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
 
                                 if (!carHasShop) {
-                                    callback.onCarAdded(car);
+                                    AddCarUseCaseImpl.this.onCarAdded(car);
                                 }
                                 else{
-                                    callback.onCarAddedWithBackendShop(car);
+                                    AddCarUseCaseImpl.this.onCarAddedWithBackendShop(car);
                                 }
                             }
 
                             @Override
                             public void onError(RequestError error) {
                                 Log.d(TAG,"setUserCar.onError() error: "+error.getMessage());
-                                callback.onError(error);
+                                AddCarUseCaseImpl.this.onError(error);
                             }
                         });
                     }
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        AddCarUseCaseImpl.this.onError(error);
                     }});
     }
 }

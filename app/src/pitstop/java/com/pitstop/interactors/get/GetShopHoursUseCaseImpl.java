@@ -39,8 +39,8 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
     private UserRepository userRepository;
     private NetworkHelper networkHelper;
     private Callback callback;
-    private Handler handler;
-
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     private int shopId;
     private int dayInWeek;
@@ -48,11 +48,49 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
     private int month;
     private int year;
 
-    public GetShopHoursUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository, NetworkHelper networkHelper, Handler handler){
+    public GetShopHoursUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository
+            , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onHoursGot(List<String> hours){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onHoursGot(hours);
+            }
+        });
+    }
+
+    private void onNoHoursAvailable(List<String> defaultHours){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onNoHoursAvailable(defaultHours);
+            }
+        });
+    }
+
+    private void onNotOpen(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onNotOpen();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -82,21 +120,21 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
 
                            @Override
                            public void onError(RequestError error) {
-                                callback.onError(error);
+                                GetShopHoursUseCaseImpl.this.onError(error);
                            }
                        });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                         callback.onError(error);
+                        GetShopHoursUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetShopHoursUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -113,12 +151,13 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
                         timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
                     }catch (JSONException e){
-                        callback.onError(RequestError.getUnknownError());
+                        GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
                     }
                 }
 
                 if(dealership.getHours() == null){
-                    callback.onNoHoursAvailable(makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR,timesToRemove));
+                    GetShopHoursUseCaseImpl.this.onNoHoursAvailable(
+                            makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR,timesToRemove));
                     return;
                 }
                 JSONArray hours = dealership.getHours();
@@ -127,12 +166,14 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                     String open =  hour.getString("open");
                     String close = hour.getString("close");
                     if(open.equals("") || close.equals("")){
-                        callback.onNotOpen();
+                        GetShopHoursUseCaseImpl.this.onNotOpen();
                         return;
                     }
-                    callback.onHoursGot(makeTimes(Integer.parseInt(hour.getString("open")),Integer.parseInt(hour.getString("close")),timesToRemove));
+                    GetShopHoursUseCaseImpl.this
+                            .onHoursGot(makeTimes(Integer.parseInt(hour.getString("open"))
+                                    ,Integer.parseInt(hour.getString("close")),timesToRemove));
                 }catch (JSONException e){
-                    callback.onError(RequestError.getUnknownError());
+                    GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
                 }
             }
         });
@@ -175,7 +216,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                     datesToRemove.add(currentDate.substring(11,13)+currentDate.substring(14,16));
                 }
             }catch (JSONException e){
-                callback.onError(RequestError.getUnknownError());
+                GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         }
         return datesToRemove;
@@ -225,6 +266,6 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                 this.dayInWeek = 0;
                 break;
         }
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 }

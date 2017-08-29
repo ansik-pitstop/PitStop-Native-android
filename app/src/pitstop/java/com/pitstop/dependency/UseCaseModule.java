@@ -106,13 +106,14 @@ public class UseCaseModule {
     GetShopHoursUseCase getShopHoursUseCase(ShopRepository shopRepository, UserRepository userRepository
             , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetShopHoursUseCaseImpl(shopRepository,userRepository,networkHelper,useCaseHandler);
+        return new GetShopHoursUseCaseImpl(shopRepository,userRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     AddServiceUseCase addServiceUseCase(CarIssueRepository carIssueRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new AddServiceUseCaseImpl(carIssueRepository, useCaseHandler);
+        return new AddServiceUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -120,41 +121,43 @@ public class UseCaseModule {
             , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
         return new RequestServiceUseCaseImpl(carIssueRepository,userRepository,carRepository
-                ,useCaseHandler);
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     AddServicesUseCase addServicesUseCase(CarIssueRepository carIssueRepository
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new AddServicesUseCaseImpl(carIssueRepository,userRepository,useCaseHandler);
+        return new AddServicesUseCaseImpl(carIssueRepository,userRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     RemoveShopUseCase removeShopUseCase(ShopRepository shopRepository,CarRepository carRepository
             ,UserRepository userRepository,NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new RemoveShopUseCaseImpl(shopRepository,carRepository,userRepository,networkHelper,useCaseHandler);
+        return new RemoveShopUseCaseImpl(shopRepository,carRepository,userRepository
+                ,networkHelper,useCaseHandler, mainHandler);
     }
 
     @Provides
     UpdateUserPhoneUseCase updateUserPhoneUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new UpdateUserPhoneUseCaseImpl(userRepository, useCaseHandler);
+        return new UpdateUserPhoneUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
 
     @Provides
     UpdateUserNameUseCase updateUserNameUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new UpdateUserNameUseCaseImpl(userRepository, useCaseHandler);
+        return new UpdateUserNameUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
 
     @Provides
     GetCurrentUserUseCase getCurrentUserUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetCurrentUserUseCaseImpl(userRepository,useCaseHandler);
+        return new GetCurrentUserUseCaseImpl(userRepository,useCaseHandler,mainHandler);
     }
 
 
@@ -162,39 +165,42 @@ public class UseCaseModule {
     GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository, useCaseHandler);
+        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
     GetPlaceDetailsUseCase getPlaceDetailsUseCase(NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-       return new GetPlaceDetailsUseCaseImpl(networkHelper, useCaseHandler);
+       return new GetPlaceDetailsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 
     @Provides
     GetGooglePlacesShopsUseCase getGooglePlacesShopsUseCase(NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler);
+        return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 
     @Provides
     GetUserShopsUseCase getUserShopsUseCase(ShopRepository shopRepository
             ,UserRepository userRepository,NetworkHelper networkHelper
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetUserShopsUseCaseImpl(shopRepository,userRepository,networkHelper,useCaseHandler);
+        return new GetUserShopsUseCaseImpl(shopRepository,userRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     UpdateShopUseCase updateShopUseCase(ShopRepository shopRepository,UserRepository userRepository
             ,CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new UpdateShopUseCaseImpl(shopRepository,userRepository,carRepository,useCaseHandler);
+        return new UpdateShopUseCaseImpl(shopRepository,userRepository,carRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     AddShopUseCase addShopUseCase(ShopRepository shopRepository, UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new AddShopUseCaseImpl(shopRepository,userRepository,useCaseHandler);
+        return new AddShopUseCaseImpl(shopRepository,userRepository,useCaseHandler, mainHandler);
     }
 
 
@@ -202,28 +208,32 @@ public class UseCaseModule {
     UpdateCarDealershipUseCase updateCarDealershipUseCase(CarRepository carRepository
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new UpdateCarDealershipUseCaseImpl(carRepository,userRepository,useCaseHandler);
+        return new UpdateCarDealershipUseCaseImpl(carRepository,userRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     GetPitstopShopsUseCase getPitstopShopsUseCase(ShopRepository shopRepository
             , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetPitstopShopsUseCaseImpl(shopRepository,networkHelper,useCaseHandler);
+        return new GetPitstopShopsUseCaseImpl(shopRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     GetCarsByUserIdUseCase getCarsByUserIdUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository,useCaseHandler);
+        return new GetCarsByUserIdUseCaseImpl(userRepository, carRepository
+                ,useCaseHandler, mainHandler);
     }
 
     @Provides
     CheckFirstCarAddedUseCase getCheckFirstCarAddedUseCase(UserRepository userRepository
             , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new CheckFirstCarAddedUseCaseImpl(userRepository, carRepository, useCaseHandler);
+        return new CheckFirstCarAddedUseCaseImpl(userRepository, carRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -231,7 +241,8 @@ public class UseCaseModule {
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new AddCarUseCaseImpl(carRepository, scannerRepository, userRepository, useCaseHandler);
+        return new AddCarUseCaseImpl(carRepository, scannerRepository, userRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -239,7 +250,8 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -247,7 +259,8 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -255,54 +268,56 @@ public class UseCaseModule {
             , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository, useCaseHandler);
+        return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
     GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetUserCarUseCaseImpl(userRepository,carRepository, useCaseHandler);
+        return new GetUserCarUseCaseImpl(userRepository,carRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
     MarkServiceDoneUseCase markServiceDoneUseCase(CarIssueRepository carIssueRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new MarkServiceDoneUseCaseImpl(carIssueRepository, useCaseHandler);
+        return new MarkServiceDoneUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
     RemoveCarUseCase removeCarUseCase(UserRepository userRepository, CarRepository carRepository
             ,NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper,useCaseHandler);
+        return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper
+                ,useCaseHandler, mainHandler);
     }
 
 
     @Provides
     SetUserCarUseCase setUseCarUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new SetUserCarUseCaseImpl(userRepository, useCaseHandler);
+        return new SetUserCarUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
     SetFirstCarAddedUseCase setFirstCarAddedUseCase(UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new SetFirstCarAddedUseCaseImpl(userRepository);
+        return new SetFirstCarAddedUseCaseImpl(userRepository,useCaseHandler,mainHandler);
     }
 
     @Provides
     Trip215StartUseCase trip215StartUseCase(Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new Trip215StartUseCaseImpl(device215TripRepository, useCaseHandler);
+        return new Trip215StartUseCaseImpl(device215TripRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
     Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new Trip215EndUseCaseImpl(device215TripRepository, useCaseHandler);
+        return new Trip215EndUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
@@ -320,7 +335,7 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
         return new HandleVinOnConnectUseCaseImpl(scannerRepository, carRepository
-                , userRepository,  useCaseHandler);
+                , userRepository,  useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -328,13 +343,14 @@ public class UseCaseModule {
             Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler);
+        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
     HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository
             , Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, useCaseHandler);
+        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, useCaseHandler
+                , mainHandler);
     }
 }

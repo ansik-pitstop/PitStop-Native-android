@@ -25,14 +25,45 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     private CarRepository carRepository;
     private RemoveShopUseCase.Callback callback;
     private Dealership dealership;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
-    public RemoveShopUseCaseImpl(ShopRepository shopRepository,CarRepository carRepository, UserRepository userRepository, NetworkHelper networkHelper, Handler handler){
+    public RemoveShopUseCaseImpl(ShopRepository shopRepository, CarRepository carRepository
+            , UserRepository userRepository, NetworkHelper networkHelper
+            , Handler useCaseHandler, Handler mainHandler){
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.networkHelper = networkHelper;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onShopRemoved(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onShopRemoved();
+            }
+        });
+    }
+
+    private void onCantRemoveShop(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCantRemoveShop();
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -45,33 +76,33 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                     public void onSuccess(List<Car> cars) {
                         for(Car c : cars){
                             if(c.getDealership().getId() == dealership.getId()){
-                                callback.onCantRemoveShop();
+                                RemoveShopUseCaseImpl.this.onCantRemoveShop();
                                 return;
                             }
                         }
                         shopRepository.delete(dealership.getId(), user.getId(), new Repository.Callback<Object>() {
                             @Override
                             public void onSuccess(Object response) {
-                                callback.onShopRemoved();
+                                RemoveShopUseCaseImpl.this.onShopRemoved();
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError(error);
+                                RemoveShopUseCaseImpl.this.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        RemoveShopUseCaseImpl.this.onError(error);
                     }
 
                 });
             }
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                RemoveShopUseCaseImpl.this.onError(error);
             }
         });
     }
@@ -80,7 +111,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     public void execute(Dealership dealership, RemoveShopUseCase.Callback callback) {
         this.dealership = dealership;
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 
 }

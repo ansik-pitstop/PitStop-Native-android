@@ -20,20 +20,47 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private UserRepository userRepository;
     private CarRepository carRepository;
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
-            , Handler handler) {
+            , Handler useCaseHandler, Handler mainHandler) {
 
         this.userRepository = userRepository;
         this.carRepository = carRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onCarRetrieved(Car car){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarRetrieved(car);
+            }
+        });
+    }
+    private void onNoCarSet(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onNoCarSet();
+            }
+        });
+    }
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -47,12 +74,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     carRepository.get(userSettings.getCarId(), userSettings.getUserId(), new CarRepository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
-                            callback.onCarRetrieved(car);
+                            GetUserCarUseCaseImpl.this.onCarRetrieved(car);
                         }
 
                         @Override
                         public void onError(RequestError error) {
-                            callback.onError(error);
+                            GetUserCarUseCaseImpl.this.onError(error);
                         }
                     });
                     return;
@@ -65,10 +92,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     @Override
                     public void onSuccess(List<Car> carList) {
                         if (carList.isEmpty()){
-                            callback.onNoCarSet();
+                            GetUserCarUseCaseImpl.this.onNoCarSet();
                         }
                         else{
-                            callback.onCarRetrieved(carList.get(0));
+                            GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0));
 
                             //Fix corrupted user settings
                             userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
@@ -87,14 +114,14 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        GetUserCarUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetUserCarUseCaseImpl.this.onError(error);
             }
         });
     }

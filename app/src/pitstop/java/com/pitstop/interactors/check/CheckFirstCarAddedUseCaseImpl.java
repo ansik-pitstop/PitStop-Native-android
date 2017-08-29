@@ -20,21 +20,41 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
     private UserRepository userRepository;
     private CarRepository carRepository;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private Callback callback;
 
 
     public CheckFirstCarAddedUseCaseImpl(UserRepository userRepository, CarRepository carRepository
-            , Handler handler) {
+            , Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
         this.carRepository = carRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onFirstCarAddedChecked(boolean added){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onFirstCarAddedChecked(added);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -45,7 +65,7 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
                 //If everything went right during the add car process, this should return true
                 if (userSettings.isFirstCarAdded()){
-                    callback.onFirstCarAddedChecked(true);
+                    CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
                     return;
                 }
 
@@ -55,7 +75,7 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
                     @Override
                     public void onSuccess(List<Car> cars) {
                         if (cars.isEmpty()){
-                            callback.onFirstCarAddedChecked(false);
+                            CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(false);
                             return;
                         }
 
@@ -72,32 +92,32 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
                                         @Override
                                         public void onSuccess(Object response){
-                                            callback.onFirstCarAddedChecked(true);
+                                            CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
                                         }
 
                                         @Override
                                         public void onError(RequestError error){
-                                            callback.onError(error);
+                                            CheckFirstCarAddedUseCaseImpl.this.onError(error);
                                         }
                                 });
                             }
                             @Override
                             public void onError(RequestError error){
-                                callback.onError(error);
+                                CheckFirstCarAddedUseCaseImpl.this.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        CheckFirstCarAddedUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                CheckFirstCarAddedUseCaseImpl.this.onError(error);
             }
         });
     }

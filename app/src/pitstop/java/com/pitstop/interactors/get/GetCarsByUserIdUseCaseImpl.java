@@ -18,24 +18,44 @@ import java.util.List;
  */
 
 public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private CarRepository carRepository;
     private UserRepository userRepository;
 
     private GetCarsByUserIdUseCase.Callback callback;
 
 
-    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository, Handler handler) {
+    public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.useCaseHandler = useCaseHandler;
         this.carRepository = carRepository;
-
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(GetCarsByUserIdUseCase.Callback callback) {
         this.callback = callback;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onCarsRetrieved(List<Car> cars){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onCarsRetrieved(cars);
+            }
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
     }
 
     @Override
@@ -45,7 +65,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()) {
-                    callback.onCarsRetrieved(new ArrayList<Car>());
+                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(new ArrayList<Car>());
                     return;
                 }
 
@@ -55,18 +75,18 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                         carRepository.getCarsByUserId(user.getId(),new CarRepository.Callback<List<Car>>() {
                             @Override
                             public void onSuccess(List<Car> cars) {
-                                callback.onCarsRetrieved(cars);
+                                GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(cars);
                             }
                             @Override
                             public void onError(RequestError error) {
-                                callback.onError(error);
+                                GetCarsByUserIdUseCaseImpl.this.onError(error);
                             }
                         });
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        callback.onError(error);
+                        GetCarsByUserIdUseCaseImpl.this.onError(error);
                     }
                 });
 
@@ -74,7 +94,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
             @Override
             public void onError(RequestError error) {
-                callback.onError(error);
+                GetCarsByUserIdUseCaseImpl.this.onError(error);
             }
         });
 
