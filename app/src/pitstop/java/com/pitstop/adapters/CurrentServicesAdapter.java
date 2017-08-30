@@ -45,7 +45,6 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        //Log.i(TAG,"On bind view holder");
 
         int viewType = getItemViewType(position);
 
@@ -69,9 +68,6 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                 @Override
                 public void onClick(View v) {
                     issueHolderListener.onTentativeServiceClicked();
-                    //Todo: Callback here
-                    // removeTutorial();
-                    //mainActivityCallback.prepareAndStartTutorialSequence();
                 }
             });
         } else {
@@ -99,7 +95,6 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
 
             holder.container.setOnClickListener((View view) -> {
-                    //Todo: callback here
                 issueHolderListener.onServiceClicked(carIssue);
 
             });

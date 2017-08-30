@@ -14,4 +14,5 @@ public interface CurrentServicesView{
     void displayStoredEngineIssues(List<CarIssue> storedEngineIssues);
     void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList);
     void displayRecalls(List<CarIssue> displayRecalls);
+    void displayCalendar(CarIssue carIssue);
 }

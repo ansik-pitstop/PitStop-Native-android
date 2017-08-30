@@ -13,19 +13,13 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.EventBus.EventType;
-import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.network.RequestError;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
@@ -98,6 +92,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     private List<CarIssue> potentialEngineIssues = new ArrayList<>();
     private List<CarIssue> recallList = new ArrayList<>();
 
+    private CurrentServicesPresenter presenter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -106,6 +102,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
         //setNoUpdateOnEventTypes(ignoredEvents);
         //initUI();
+        if (presenter == null){
+            presenter = new CurrentServicesPresenter();
+        }
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.onRefresh();
+            }
+        });
 
         return view;
     }
@@ -121,10 +126,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayCarIssues(List<CarIssue> carIssues) {
-        carIssuesAdapter = new CurrentServicesAdapter(car,carIssueList
-                ,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
-                ,notifier);
-        carIssueListView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+        carIssuesAdapter = new CurrentServicesAdapter(carIssues,this);
+        carIssueListView.setLayoutManager(new LinearLayoutManager(
+                getActivity().getApplicationContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
         carIssuesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -141,9 +145,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayCustomIssues(List<CarIssue> customIssueList) {
-        customIssueAdapter = new CurrentServicesAdapter(car,customIssueList,(MainActivityCallback)activity, getContext(),useCaseComponent.markServiceDoneUseCase()
-                ,notifier);
-        customIssueListRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext()));
+        customIssueAdapter = new CurrentServicesAdapter(customIssueList,this);
+        customIssueListRecyclerView.setLayoutManager(
+                new LinearLayoutManager(getActivity().getApplicationContext()));
         customIssueListRecyclerView.setAdapter(customIssueAdapter);
         customIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -160,65 +164,87 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayStoredEngineIssues(List<CarIssue> storedEngineIssues) {
-
+        engineIssueAdapter = new CurrentServicesAdapter(storedEngineIssues,this);
+        engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        engineListView.setAdapter(engineIssueAdapter);
+        engineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if(engineIssueList.isEmpty()){
+                    engineIssueHolder.setVisibility(View.GONE);
+                }else{
+                    engineIssueHolder.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
     public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
-
+        potentialEngineIssueAdapter
+                = new CurrentServicesAdapter(potentialEngineIssueList,this);
+        potentialListView.setLayoutManager(
+                new LinearLayoutManager(getActivity().getApplicationContext()));
+        potentialListView.setAdapter(potentialEngineIssueAdapter);
+        potentialEngineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if(potentialEngineIssues.isEmpty()){
+                    potentialEngineList.setVisibility(View.GONE);
+                }else{
+                    potentialEngineList.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
     public void displayRecalls(List<CarIssue> displayRecalls) {
-
-    }
-
-    @Override
-    public void onServiceClicked(CarIssue carIssue) {
-        new MixpanelHelper((GlobalApplication) getContext().getApplicationContext())
-                .trackButtonTapped(carIssue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carIssue);
-    }
-
-    @Override
-    public void onServiceDoneClicked(CarIssue carIssue) {
-        DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(context
-                , Calendar.getInstance(), new DatePickerDialog.OnDateSetListener() {
+        recallAdapter = new CurrentServicesAdapter(displayRecalls,this);
+        recallListView.setLayoutManager(
+                new LinearLayoutManager(getActivity().getApplicationContext()));
+        recallListView.setAdapter(recallAdapter);
+        recallAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-
-                carIssue.setYear(year);
-                carIssue.setMonth(month);
-                carIssue.setDay(day);
-
-                //When the date is set, update issue to done on that date
-                markServiceDoneUseCase.execute(carIssue, new MarkServiceDoneUseCase.Callback() {
-                    @Override
-                    public void onServiceMarkedAsDone() {
-                        Toast.makeText(context,"Successfully marked service as done"
-                                ,Toast.LENGTH_LONG);
-                        carIssues.remove(carIssue);
-                        notifyDataSetChanged();
-                        EventType event = new EventTypeImpl(EventType
-                                .EVENT_SERVICES_HISTORY);
-                        EventSource source = new EventSourceImpl(EventSource
-                                .SOURCE_SERVICES_CURRENT);
-                        notifier.notifyCarDataChanged(event,source);
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                    }
-                });
+            public void onChanged() {
+                super.onChanged();
+                if(recallList.isEmpty()){
+                    recallListHolder.setVisibility(View.GONE);
+                }else{
+                    recallListHolder.setVisibility(View.VISIBLE);
+                }
             }
+        });
+    }
+
+    @Override
+    public void displayCalendar(CarIssue carIssue) {
+        DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(getContext()
+                , Calendar.getInstance()
+                , (DatePicker datePicker, int year, int month, int day) -> {
+
+                     presenter.onServiceDoneDatePicked(carIssue,year,month,day);
         });
         servicesDatePickerDialog.setTitle("Select when you completed this service.");
         servicesDatePickerDialog.show();
     }
 
     @Override
-    public void onTentativeServiceClicked() {
+    public void onServiceClicked(CarIssue carIssue) {
+        new MixpanelHelper((GlobalApplication) getContext().getApplicationContext())
+                .trackButtonTapped(carIssue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
+        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carIssue);
+    }
 
+    @Override
+    public void onServiceDoneClicked(CarIssue carIssue) {
+        presenter.onServiceMarkedAsDone(carIssue);
+    }
+
+    @Override
+    public void onTentativeServiceClicked() {
+        ((MainActivityCallback)getActivity()).prepareAndStartTutorialSequence();
     }
 }
