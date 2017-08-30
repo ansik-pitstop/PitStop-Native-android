@@ -16,7 +16,7 @@ import butterknife.ButterKnife;
  * Created by Karol Zdebel on 6/23/2017.
  */
 
-public class TabMenu {
+public class TabFragmentManager {
 
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
@@ -34,10 +34,11 @@ public class TabMenu {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
+    private TabViewPagerAdapter tabViewPagerAdapter;
     private FragmentActivity mActivity;
     private MixpanelHelper mMixpanelHelper;
 
-    public TabMenu(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
+    public TabFragmentManager(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
@@ -46,7 +47,7 @@ public class TabMenu {
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
 
-        TabViewPagerAdapter tabViewPagerAdapter
+        tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
 
         mViewPager.setAdapter(tabViewPagerAdapter);
@@ -69,7 +70,7 @@ public class TabMenu {
             public void onPageSelected(int position) {
                 switch(position){
                     case TAB_DASHBOARD:
-                        mMixpanelHelper.trackSwitchedToTab("Dashboard");
+
                         break;
                     case TAB_SERVICES:
                         mMixpanelHelper.trackSwitchedToTab("Services");

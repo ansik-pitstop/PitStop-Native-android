@@ -3,6 +3,7 @@ package com.pitstop.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -62,10 +63,13 @@ public class NotificationsFragment extends Fragment {
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
 
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     NetworkHelper mNetworkHelper;
     List<Notification> mNotificationList;
     MixpanelHelper mMixPanelHelper;
+    private boolean updating;
 
     public static NotificationsFragment newInstance() {
         NotificationsFragment fragment = new NotificationsFragment();
@@ -87,6 +91,14 @@ public class NotificationsFragment extends Fragment {
         mNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mNetworkHelper = tempNetworkComponent.networkHelper();
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (updating) swipeRefreshLayout.setRefreshing(false);
+                else fetchNotifications();
+            }
+        });
+
         fetchNotifications();
         return rootview;
     }
@@ -100,6 +112,7 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void fetchNotifications() {
+        if (updating) return;
         if(!mNetworkHelper.isConnected(getActivity())
                 || ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
@@ -109,7 +122,8 @@ public class NotificationsFragment extends Fragment {
 
         notificationsLoaded = true;
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        updating = true;
+        showLoading();
         mNetworkHelper.getUserInstallationId(((GlobalApplication) getApplicationContext()).getCurrentUserId(), new RequestCallback() {
             @Override
             public void done(final String response, final RequestError requestError) {
@@ -122,9 +136,11 @@ public class NotificationsFragment extends Fragment {
                     parseQuery.findInBackground(new FindCallback<Notification>() {
                         @Override
                         public void done(List<Notification> notificationsList, ParseException e) {
+                            updating = false;
                             if (notificationsList == null) {
                                 showFetchError();
-                                mLoadingSpinner.setVisibility(View.GONE);
+                                hideLoading();
+                                updating = false;
                                 return;
                             }
                             mNotificationList = notificationsList;
@@ -142,17 +158,34 @@ public class NotificationsFragment extends Fragment {
                                 else
                                     showNotifications();
                             }
-                            mLoadingSpinner.setVisibility(View.GONE);
+                            updating = false;
+                            hideLoading();
                         }
                     });
                 }
                 else {
+                    updating = false;
                     showFetchError();
-                    mLoadingSpinner.setVisibility(View.GONE);
+                    hideLoading();
                 }
             }
 
         });
+    }
+
+    private void hideLoading(){
+        if (swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setRefreshing(false);
+        }else{
+            mLoadingSpinner.setVisibility(View.GONE);
+            swipeRefreshLayout.setEnabled(true);
+        }
+    }
+
+    private void showLoading(){
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showNotifications() {

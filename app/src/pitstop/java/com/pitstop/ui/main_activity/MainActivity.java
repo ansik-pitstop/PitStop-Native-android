@@ -166,7 +166,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     private NetworkHelper networkHelper;
 
     private boolean userSignedUp;
-
+    private TabFragmentManager tabFragmentManager;
     private MaterialShowcaseSequence tutorialSequence;
 
     private UseCaseComponent useCaseComponent;
@@ -245,8 +245,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         updateScannerLocalStore();
 
-        TabMenu tabMenu = new TabMenu(this,mixpanelHelper);
-        tabMenu.createTabs();
+        tabFragmentManager = new TabFragmentManager(this,mixpanelHelper);
+        tabFragmentManager.createTabs();
 
         FabMenu fabMenu = new FabMenu(application,this,useCaseComponent
                 ,mixpanelHelper);
@@ -1190,4 +1190,5 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     public void onDeviceSyncing() {
 
     }
+
 }

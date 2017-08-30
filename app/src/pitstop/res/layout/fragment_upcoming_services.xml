@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_timeline"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.upcoming_timeline.TimelineActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/timeline_recyclerview"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/timeline_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/error_view_container"
@@ -53,4 +64,4 @@
         android:id="@+id/issue_details_view"
         android:visibility="gone" />
 
-</RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

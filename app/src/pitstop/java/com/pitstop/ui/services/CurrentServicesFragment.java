@@ -4,9 +4,9 @@ package com.pitstop.ui.services;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -64,7 +64,6 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.service_launch_custom)
     LinearLayout customSeerviceButton;
 
-
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
 
@@ -76,7 +75,6 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     @BindView(R.id.recall_list_view)
     RecyclerView recallListView;
-
 
     @BindView(R.id.engine_issue_list_holder)
     LinearLayout engineIssueHolder;
@@ -90,7 +88,8 @@ public class CurrentServicesFragment extends CarDataFragment {
     @BindView(R.id.routine_list_holder)
     LinearLayout routineListHolder;
 
-
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
@@ -104,6 +103,8 @@ public class CurrentServicesFragment extends CarDataFragment {
     private List<CarIssue> engineIssueList = new ArrayList<>();
     private List<CarIssue> potentialEngineIssues = new ArrayList<>();
     private List<CarIssue> recallList = new ArrayList<>();
+
+    private boolean isUpdating = false;
 
     private final EventType[] ignoredEvents = {
             new EventTypeImpl(EVENT_SERVICES_HISTORY),
@@ -155,13 +156,19 @@ public class CurrentServicesFragment extends CarDataFragment {
     public void updateUI(){
         Log.d(TAG,"Update UI Called()");
 
+        if (isUpdating) return;
+
         //Create ui from scratch
         if (!uiInitialized){
             initUI();
             return;
         }
+        isUpdating = true;
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        if (!swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setEnabled(false);
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
@@ -191,12 +198,24 @@ public class CurrentServicesFragment extends CarDataFragment {
                 potentialEngineIssueAdapter.notifyDataSetChanged();
                 recallAdapter.notifyDataSetChanged();
 
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setEnabled(true);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                isUpdating = false;
             }
 
             @Override
             public void onError(RequestError error) {
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                isUpdating = false;
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setEnabled(true);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                 //customLoading.setVisibility(View.INVISIBLE);
             }
         });
@@ -212,6 +231,15 @@ public class CurrentServicesFragment extends CarDataFragment {
         Log.d(TAG,"initUI() called.");
         final Activity activity = this.getActivity();
         final CarDataChangedNotifier notifier = this;
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (isUpdating) swipeRefreshLayout.setRefreshing(false);
+                else updateUI();
+            }
+        });
+
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {

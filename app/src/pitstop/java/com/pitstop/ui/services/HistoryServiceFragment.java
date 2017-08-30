@@ -4,11 +4,13 @@ package com.pitstop.ui.services;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -60,9 +62,13 @@ public class HistoryServiceFragment extends CarDataFragment {
     @BindView(R.id.service_launch_custom)
     LinearLayout customServiceButton;
 
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
     private final EventType[] ignoredEvents = {new EventTypeImpl(EventType.EVENT_MILEAGE)};
+    private boolean updating = false;
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
 
@@ -101,6 +107,10 @@ public class HistoryServiceFragment extends CarDataFragment {
                 intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
                 startActivity(intent);
             }
+        });
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (updating) swipeRefreshLayout.setRefreshing(false);
+            else updateUI();
         });
         setNoUpdateOnEventTypes(ignoredEvents);
         updateUI();
@@ -147,8 +157,13 @@ public class HistoryServiceFragment extends CarDataFragment {
 
     @Override
     public void updateUI(){
+        if (updating) return;
+        updating = true;
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setEnabled(false);
+        }
 
         useCaseComponent.getDoneServicesUseCase().execute(new GetDoneServicesUseCase.Callback() {
             @Override
@@ -182,14 +197,46 @@ public class HistoryServiceFragment extends CarDataFragment {
 
                 issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
                 issueGroup.setAdapter(issueGroupAdapter);
+                issueGroup.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        boolean allow = false;
+
+                        if(visibleItemCount>0) {
+                            long packedPosition = issueGroup.getExpandableListPosition(firstVisibleItem);
+                            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+                            allow = groupPosition==0 && childPosition==-1 && issueGroup.getChildAt(0).getTop()==0;
+                        }
+
+                        swipeRefreshLayout.setEnabled(allow);
+                    }
+                });
+
+                if (swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else{
+                    swipeRefreshLayout.setEnabled(true);
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }
+                updating = false;
 
             }
 
             @Override
             public void onError(RequestError error) {
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }else{
+                    swipeRefreshLayout.setEnabled(true);
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }
+                updating = false;
             }
         });
 

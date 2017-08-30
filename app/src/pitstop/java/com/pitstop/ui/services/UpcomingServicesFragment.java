@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -35,7 +36,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +86,9 @@ public class UpcomingServicesFragment extends CarDataFragment {
     @BindView(R.id.severity_text)
     TextView mIssueSeverityText;
 
+    @BindView(R.id.activity_timeline)
+    SwipeRefreshLayout swipeRefreshLayout;
+
     MixpanelHelper mMixPanelHelper;
     Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
     List<Object> mTimelineDisplayList;
@@ -134,17 +137,33 @@ public class UpcomingServicesFragment extends CarDataFragment {
 
     public void initUI() {
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (updating) swipeRefreshLayout.setRefreshing(false);
+                else updateUI();
+            }
+        });
         mTimeLineMap = new HashMap<>();
         mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mTimeLineRecyclerView.setNestedScrollingEnabled(true);
         ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
         updateUI();
     }
 
+    private boolean updating = false;
+
     @Override
     public void updateUI() {
+        if (updating) return;
+        updating = true;
 
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }else{
+            swipeRefreshLayout.setRefreshing(false);
+        }
         mTimeLineMap.clear();
         mTimelineDisplayList.clear();
 
@@ -168,13 +187,24 @@ public class UpcomingServicesFragment extends CarDataFragment {
                 timelineAdapter = new TimelineAdapter();
                 mTimeLineRecyclerView.setAdapter(timelineAdapter);
 
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
+                updating = false;
             }
 
             @Override
             public void onError(RequestError error) {
-                mLoadingSpinner.setVisibility(View.INVISIBLE);
+                if (!swipeRefreshLayout.isRefreshing()){
+                    mLoadingSpinner.setVisibility(View.INVISIBLE);
+                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                 showError();
+                updating = false;
             }
         });
 
