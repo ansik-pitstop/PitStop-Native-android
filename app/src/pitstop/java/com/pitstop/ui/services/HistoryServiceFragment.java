@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -107,12 +108,9 @@ public class HistoryServiceFragment extends CarDataFragment {
                 startActivity(intent);
             }
         });
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (updating) swipeRefreshLayout.setRefreshing(false);
-                else updateUI();
-            }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (updating) swipeRefreshLayout.setRefreshing(false);
+            else updateUI();
         });
         setNoUpdateOnEventTypes(ignoredEvents);
         updateUI();
@@ -198,6 +196,26 @@ public class HistoryServiceFragment extends CarDataFragment {
 
                 issueGroupAdapter = new HistoryIssueGroupAdapter(getActivity(),sortedIssues,headers);
                 issueGroup.setAdapter(issueGroupAdapter);
+                issueGroup.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        boolean allow = false;
+
+                        if(visibleItemCount>0) {
+                            long packedPosition = issueGroup.getExpandableListPosition(firstVisibleItem);
+                            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+                            allow = groupPosition==0 && childPosition==-1 && issueGroup.getChildAt(0).getTop()==0;
+                        }
+
+                        swipeRefreshLayout.setEnabled(allow);
+                    }
+                });
 
                 if (swipeRefreshLayout.isRefreshing()){
                     swipeRefreshLayout.setRefreshing(false);
