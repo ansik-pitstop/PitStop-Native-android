@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,6 +90,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
 
@@ -108,11 +110,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @OnClick(R.id.service_launch_custom)
     public void onCustomServiceButtonClicked(){
+        Log.d(TAG,"onCustomServiceButtonClicked()");
         presenter.onCustomServiceButtonClicked();
     }
 
     @Override
     public void startCustomServiceActivity(){
+        Log.d(TAG,"startCustomServiceActivity()");
         Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
         startActivity(intent);
@@ -120,6 +124,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void removeCarIssue(CarIssue issue) {
+        Log.d(TAG,"removeCarIssue() carIssue: "+issue);
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
             recallAdapter.removeIssue(issue);
 
@@ -135,12 +140,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         presenter.unsubscribe();
         super.onDestroyView();
     }
 
     @Override
     public void showLoading() {
+        Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             mLoadingSpinner.setEnabled(true);
         }else{
@@ -150,6 +157,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void hideLoading() {
+        Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             mLoadingSpinner.setEnabled(false);
             swipeRefreshLayout.setEnabled(true);
@@ -161,6 +169,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayCarIssues(List<CarIssue> carIssues) {
+        Log.d(TAG,"displayCarIssues() size(): "+carIssues.size());
         carIssuesAdapter = new CurrentServicesAdapter(carIssues,this);
         carIssueListView.setLayoutManager(new LinearLayoutManager(
                 getActivity().getApplicationContext()));
@@ -180,6 +189,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayCustomIssues(List<CarIssue> customIssueList) {
+        Log.d(TAG,"displayCustomIssues() size(): "+customIssueList.size());
         customIssueAdapter = new CurrentServicesAdapter(customIssueList,this);
         customIssueListRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
@@ -199,6 +209,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayStoredEngineIssues(List<CarIssue> storedEngineIssues) {
+        Log.d(TAG,"displayStoredEngineIssues() size(): "+storedEngineIssues.size());
+
         engineIssueAdapter = new CurrentServicesAdapter(storedEngineIssues,this);
         engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         engineListView.setAdapter(engineIssueAdapter);
@@ -217,6 +229,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
+        Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
         potentialEngineIssueAdapter
                 = new CurrentServicesAdapter(potentialEngineIssueList,this);
         potentialListView.setLayoutManager(
@@ -237,6 +250,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayRecalls(List<CarIssue> displayRecalls) {
+        Log.d(TAG,"displayRecalls() size(): "+displayRecalls.size());
+
         recallAdapter = new CurrentServicesAdapter(displayRecalls,this);
         recallListView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
@@ -256,6 +271,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayCalendar(CarIssue carIssue) {
+        Log.d(TAG,"displayCalendar()");
         DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(getContext()
                 , Calendar.getInstance()
                 , (DatePicker datePicker, int year, int month, int day) -> {
@@ -268,6 +284,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void onServiceClicked(CarIssue carIssue) {
+        Log.d(TAG,"onServiceClicked()");
         new MixpanelHelper((GlobalApplication) getContext().getApplicationContext())
                 .trackButtonTapped(carIssue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
         ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carIssue);
@@ -275,11 +292,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void onServiceDoneClicked(CarIssue carIssue) {
+        Log.d(TAG,"onServiceDoneClicked()");
         presenter.onServiceMarkedAsDone(carIssue);
     }
 
     @Override
     public void onTentativeServiceClicked() {
+        Log.d(TAG,"onTentativeServiceClicked()");
         ((MainActivityCallback)getActivity()).prepareAndStartTutorialSequence();
     }
 }
