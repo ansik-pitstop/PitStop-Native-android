@@ -162,6 +162,7 @@ public class HistoryServiceFragment extends CarDataFragment {
 
         if (!swipeRefreshLayout.isRefreshing()){
             mLoadingSpinner.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setEnabled(false);
         }
 
         useCaseComponent.getDoneServicesUseCase().execute(new GetDoneServicesUseCase.Callback() {
@@ -220,6 +221,7 @@ public class HistoryServiceFragment extends CarDataFragment {
                 if (swipeRefreshLayout.isRefreshing()){
                     swipeRefreshLayout.setRefreshing(false);
                 }else{
+                    swipeRefreshLayout.setEnabled(true);
                     mLoadingSpinner.setVisibility(View.INVISIBLE);
                 }
                 updating = false;
@@ -231,6 +233,7 @@ public class HistoryServiceFragment extends CarDataFragment {
                 if (swipeRefreshLayout.isRefreshing()){
                     swipeRefreshLayout.setRefreshing(false);
                 }else{
+                    swipeRefreshLayout.setEnabled(true);
                     mLoadingSpinner.setVisibility(View.INVISIBLE);
                 }
                 updating = false;
