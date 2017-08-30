@@ -1,5 +1,7 @@
 package com.pitstop.ui.services.current;
 
+import android.util.Log;
+
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -15,6 +17,8 @@ import java.util.List;
 
 public class CurrentServicesPresenter {
 
+    private final String TAG = getClass().getSimpleName();
+
     private UseCaseComponent useCaseComponent;
     private boolean updating = false;
     private CurrentServicesView view;
@@ -24,19 +28,23 @@ public class CurrentServicesPresenter {
     }
 
     public void subscribe(CurrentServicesView view){
+        Log.d(TAG,"subscribe()");
         this.view = view;
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         this.view = null;
     }
 
     public void onCustomServiceButtonClicked(){
+        Log.d(TAG,"onCustomServiceButtonClicked()");
         if (view == null) return;
         view.startCustomServiceActivity();
     }
 
     public void onUpdateNeeded(){
+        Log.d(TAG,"onUpdateNeeded()");
         if (view == null) return;
         if (updating) return;
         else updating = true;
@@ -51,6 +59,8 @@ public class CurrentServicesPresenter {
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+                Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
+
                 if (view == null) return;
                 for(CarIssue c:currentServices){
                     if(c.getIssueType().equals(CarIssue.DTC)){
@@ -77,6 +87,7 @@ public class CurrentServicesPresenter {
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"getCurrentServicesUseCase.onError()");
                 //Todo: error handling
                 view.hideLoading();
                 updating = false;
@@ -86,6 +97,7 @@ public class CurrentServicesPresenter {
     }
 
     public void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
+        Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         carIssue.setYear(year);
         carIssue.setMonth(month);
         carIssue.setDay(day);
@@ -94,18 +106,21 @@ public class CurrentServicesPresenter {
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
+                Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
                 if (view == null) return;
                 view.removeCarIssue(carIssue);
             }
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"markServiceDoneUseCase().onError()");
                 //Todo: error handling
             }
         });
     }
 
     public void onServiceMarkedAsDone(CarIssue carIssue){
+        Log.d(TAG,"onServiceMarkedAsDone()");
         if (view == null) return;
         view.displayCalendar(carIssue);
     }
