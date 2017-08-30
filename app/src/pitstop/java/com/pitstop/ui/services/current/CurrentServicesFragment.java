@@ -19,6 +19,9 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
@@ -96,8 +99,11 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         //setNoUpdateOnEventTypes(ignoredEvents);
         //initUI();
         if (presenter == null){
-            presenter = new CurrentServicesPresenter();
+            UseCaseComponent useCaseComponent = DaggerUseCaseComponent
+                    .builder().contextModule(new ContextModule(getContext())).build();
+            presenter = new CurrentServicesPresenter(useCaseComponent);
         }
+        presenter.subscribe(this);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             presenter.onUpdateNeeded();
         });
@@ -130,6 +136,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         } else {
             customIssueAdapter.removeIssue(issue);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        presenter.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override

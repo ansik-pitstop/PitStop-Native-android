@@ -15,15 +15,29 @@ import java.util.List;
 
 public class CurrentServicesPresenter {
 
-    private CurrentServicesView view;
     private UseCaseComponent useCaseComponent;
     private boolean updating = false;
+    private CurrentServicesView view;
+
+    public CurrentServicesPresenter(UseCaseComponent useCaseComponent) {
+        this.useCaseComponent = useCaseComponent;
+    }
+
+    public void subscribe(CurrentServicesView view){
+        this.view = view;
+    }
+
+    public void unsubscribe(){
+        this.view = null;
+    }
 
     public void onCustomServiceButtonClicked(){
+        if (view == null) return;
         view.startCustomServiceActivity();
     }
 
     public void onUpdateNeeded(){
+        if (view == null) return;
         if (updating) return;
         else updating = true;
         view.showLoading();
@@ -37,6 +51,7 @@ public class CurrentServicesPresenter {
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+                if (view == null) return;
                 for(CarIssue c:currentServices){
                     if(c.getIssueType().equals(CarIssue.DTC)){
                         engineIssueList.add(c);
@@ -78,6 +93,7 @@ public class CurrentServicesPresenter {
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
+                if (view == null) return;
                 view.removeCarIssue(carIssue);
                 //Todo: notify below
 //                        notifyDataSetChanged();
@@ -95,6 +111,7 @@ public class CurrentServicesPresenter {
     }
 
     public void onServiceMarkedAsDone(CarIssue carIssue){
+        if (view == null) return;
         view.displayCalendar(carIssue);
     }
 
