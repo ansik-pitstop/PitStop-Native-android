@@ -166,6 +166,7 @@ public class CurrentServicesFragment extends CarDataFragment {
         isUpdating = true;
 
         if (!swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setEnabled(false);
             mLoadingSpinner.setVisibility(View.VISIBLE);
         }
 
@@ -199,6 +200,7 @@ public class CurrentServicesFragment extends CarDataFragment {
 
                 if (!swipeRefreshLayout.isRefreshing()){
                     mLoadingSpinner.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setEnabled(true);
                 }else{
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -210,6 +212,7 @@ public class CurrentServicesFragment extends CarDataFragment {
                 isUpdating = false;
                 if (!swipeRefreshLayout.isRefreshing()){
                     mLoadingSpinner.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setEnabled(true);
                 }else{
                     swipeRefreshLayout.setRefreshing(false);
                 }
