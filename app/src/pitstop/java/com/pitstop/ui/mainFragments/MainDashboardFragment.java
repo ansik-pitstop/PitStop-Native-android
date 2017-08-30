@@ -197,7 +197,8 @@ public class MainDashboardFragment extends CarDataFragment{
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateUI();
+                if (isUpdating) mSwipeRefreshLayout.setRefreshing(false);
+                else updateUI();
             }
         });
 
@@ -859,6 +860,7 @@ public class MainDashboardFragment extends CarDataFragment{
     private void showLoading() {
         if (mSwipeRefreshLayout.isRefreshing()) return;
         loading.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout.setEnabled(false);
     }
 
     private void hideLoading(String toastMessage) {
@@ -867,6 +869,7 @@ public class MainDashboardFragment extends CarDataFragment{
             return;
         }
         loading.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setEnabled(true);
         if (getUserVisibleHint() && toastMessage != null){
             Toast.makeText(getContext(),toastMessage,Toast.LENGTH_LONG).show();
         }
