@@ -99,7 +99,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             presenter = new CurrentServicesPresenter();
         }
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.onRefresh();
+            presenter.onUpdateNeeded();
         });
 
         return view;
@@ -130,6 +130,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         } else {
             customIssueAdapter.removeIssue(issue);
         }
+    }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
     }
 
 

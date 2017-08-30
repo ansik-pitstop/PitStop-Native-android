@@ -1,9 +1,13 @@
 package com.pitstop.ui.services.current;
 
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Karol Zdebel on 8/30/2017.
@@ -13,13 +17,56 @@ public class CurrentServicesPresenter {
 
     private CurrentServicesView view;
     private UseCaseComponent useCaseComponent;
-
-    public void onRefresh(){
-
-    }
+    private boolean updating = false;
 
     public void onCustomServiceButtonClicked(){
         view.startCustomServiceActivity();
+    }
+
+    public void onUpdateNeeded(){
+        if (updating) return;
+        else updating = true;
+        view.showLoading();
+
+        List<CarIssue> carIssueList = new ArrayList<>();
+        List<CarIssue> customIssueList = new ArrayList<>();
+        List<CarIssue> engineIssueList = new ArrayList<>();
+        List<CarIssue> potentialEngineIssues = new ArrayList<>();
+        List<CarIssue> recallList = new ArrayList<>();
+
+        useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
+            @Override
+            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+                for(CarIssue c:currentServices){
+                    if(c.getIssueType().equals(CarIssue.DTC)){
+                        engineIssueList.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.PENDING_DTC)){
+                        potentialEngineIssues.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.RECALL)){
+                        recallList.add(c);
+                    }else{
+                        carIssueList.add(c);
+                    }
+                }
+                customIssueList.addAll(customIssues);
+
+                view.displayCarIssues(carIssueList);
+                view.displayCustomIssues(customIssueList);
+                view.displayPotentialEngineIssues(potentialEngineIssues);
+                view.displayStoredEngineIssues(engineIssueList);
+                view.displayRecalls(recallList);
+
+                view.hideLoading();
+                updating = false;
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                view.hideLoading();
+                updating = false;
+            }
+        });
+
     }
 
     public void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){

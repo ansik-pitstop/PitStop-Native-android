@@ -20,7 +20,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.services.current.CurrentServicesFragmentOld;
 
 public class MainServicesFragment extends Fragment{
 
