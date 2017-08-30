@@ -14,7 +14,6 @@ public class CurrentServicesPresenter {
     private CurrentServicesView view;
     private UseCaseComponent useCaseComponent;
 
-
     public void onRefresh(){
 
     }
@@ -32,7 +31,8 @@ public class CurrentServicesPresenter {
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
-//                        carIssues.remove(carIssue);
+                view.removeCarIssue(carIssue);
+                //Todo: notify below
 //                        notifyDataSetChanged();
 //                        EventType event = new EventTypeImpl(EventType
 //                                .EVENT_SERVICES_HISTORY);

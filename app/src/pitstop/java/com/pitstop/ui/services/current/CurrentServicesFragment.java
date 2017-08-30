@@ -25,7 +25,6 @@ import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -86,12 +85,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     private CurrentServicesAdapter potentialEngineIssueAdapter;
     private CurrentServicesAdapter recallAdapter;
 
-    private List<CarIssue> carIssueList = new ArrayList<>();
-    private List<CarIssue> customIssueList = new ArrayList<>();
-    private List<CarIssue> engineIssueList = new ArrayList<>();
-    private List<CarIssue> potentialEngineIssues = new ArrayList<>();
-    private List<CarIssue> recallList = new ArrayList<>();
-
     private CurrentServicesPresenter presenter;
 
     @Override
@@ -124,6 +117,21 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         startActivity(intent);
     }
 
+    @Override
+    public void removeCarIssue(CarIssue issue) {
+        if (issue.getIssueType().equals(CarIssue.RECALL)) {
+            recallAdapter.removeIssue(issue);
+
+        } else if (issue.getIssueType().equals(CarIssue.DTC)) {
+            engineIssueAdapter.removeIssue(issue);
+
+        } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+            potentialEngineIssueAdapter.removeIssue(issue);
+        } else {
+            customIssueAdapter.removeIssue(issue);
+        }
+    }
+
 
     @Override
     public void displayCarIssues(List<CarIssue> carIssues) {
@@ -135,7 +143,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             @Override
             public void onChanged() {
                 super.onChanged();
-                if(carIssueList.isEmpty()){
+                if(carIssues.isEmpty()){
                     routineListHolder.setVisibility(View.GONE);
                 }else{
                     routineListHolder.setVisibility(View.VISIBLE);
@@ -172,7 +180,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             @Override
             public void onChanged() {
                 super.onChanged();
-                if(engineIssueList.isEmpty()){
+                if(storedEngineIssues.isEmpty()){
                     engineIssueHolder.setVisibility(View.GONE);
                 }else{
                     engineIssueHolder.setVisibility(View.VISIBLE);
@@ -192,7 +200,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             @Override
             public void onChanged() {
                 super.onChanged();
-                if(potentialEngineIssues.isEmpty()){
+                if(potentialEngineIssueList.isEmpty()){
                     potentialEngineList.setVisibility(View.GONE);
                 }else{
                     potentialEngineList.setVisibility(View.VISIBLE);
@@ -211,7 +219,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             @Override
             public void onChanged() {
                 super.onChanged();
-                if(recallList.isEmpty()){
+                if(displayRecalls.isEmpty()){
                     recallListHolder.setVisibility(View.GONE);
                 }else{
                     recallListHolder.setVisibility(View.VISIBLE);
