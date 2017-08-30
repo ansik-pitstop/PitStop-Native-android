@@ -39,8 +39,8 @@ import butterknife.OnClick;
 public class CurrentServicesFragment extends Fragment implements CurrentServicesView
         , IssueHolderListener{
 
-    public static final String TAG = CurrentServicesFragmentOld.class.getSimpleName();
-    public static final EventSource EVENT_SOURCE
+    public final String TAG = getClass().getSimpleName();
+    public final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
     @BindView(R.id.car_issues_list)
