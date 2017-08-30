@@ -91,7 +91,7 @@ import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
-;
+;import static com.pitstop.R.array.car;
 
 /**
  * Created by David on 6/8/2016.
@@ -1005,11 +1005,27 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     @Override
-    public void startDisplayIssueActivity(Car dashboardCar, CarIssue issue) {
+    public void startDisplayIssueActivity(CarIssue issue) {
         Intent intent = new Intent(this, IssueDetailsActivity.class);
-        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
-        startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                intent.putExtra(MainActivity.CAR_EXTRA, car);
+                intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+                startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+            }
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError(RequestError error) {
+
+            }
+        });
+
     }
 
     @Override

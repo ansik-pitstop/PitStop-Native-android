@@ -1,4 +1,4 @@
-package com.pitstop.ui.services;
+package com.pitstop.ui.services.current;
 
 
 import android.app.Activity;
@@ -46,9 +46,9 @@ import static com.pitstop.EventBus.EventType.EVENT_SERVICES_HISTORY;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CurrentServicesFragment extends CarDataFragment {
+public class CurrentServicesFragmentOld extends CarDataFragment {
 
-    public static final String TAG = CurrentServicesFragment.class.getSimpleName();
+    public static final String TAG = CurrentServicesFragmentOld.class.getSimpleName();
     public static final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
@@ -114,12 +114,12 @@ public class CurrentServicesFragment extends CarDataFragment {
 
     private UseCaseComponent useCaseComponent;
 
-    public static CurrentServicesFragment newInstance(){
-        CurrentServicesFragment fragment = new CurrentServicesFragment();
+    public static CurrentServicesFragmentOld newInstance(){
+        CurrentServicesFragmentOld fragment = new CurrentServicesFragmentOld();
         return fragment;
     }
 
-    public CurrentServicesFragment() {
+    public CurrentServicesFragmentOld() {
     }
 
     @Override
