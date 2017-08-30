@@ -105,11 +105,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         if (presenter == null){
             presenter = new CurrentServicesPresenter();
         }
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.onRefresh();
-            }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            presenter.onRefresh();
         });
 
         return view;
