@@ -77,6 +77,7 @@ public class CurrentServicesPresenter {
 
             @Override
             public void onError(RequestError error) {
+                //Todo: error handling
                 view.hideLoading();
                 updating = false;
             }
@@ -95,17 +96,11 @@ public class CurrentServicesPresenter {
             public void onServiceMarkedAsDone() {
                 if (view == null) return;
                 view.removeCarIssue(carIssue);
-                //Todo: notify below
-//                        notifyDataSetChanged();
-//                        EventType event = new EventTypeImpl(EventType
-//                                .EVENT_SERVICES_HISTORY);
-//                        EventSource source = new EventSourceImpl(EventSource
-//                                .SOURCE_SERVICES_CURRENT);
-//                        notifier.notifyCarDataChanged(event,source);
             }
 
             @Override
             public void onError(RequestError error) {
+                //Todo: error handling
             }
         });
     }

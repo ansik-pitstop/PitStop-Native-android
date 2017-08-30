@@ -14,8 +14,6 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.pitstop.EventBus.EventSource;
-import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -43,8 +41,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         , IssueHolderListener{
 
     public final String TAG = getClass().getSimpleName();
-    public final EventSource EVENT_SOURCE
-            = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
@@ -96,8 +92,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         View view =  inflater.inflate(R.layout.fragment_new_services, container, false);
         ButterKnife.bind(this, view);
 
-        //setNoUpdateOnEventTypes(ignoredEvents);
-        //initUI();
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent
                     .builder().contextModule(new ContextModule(getContext())).build();
@@ -107,6 +101,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         swipeRefreshLayout.setOnRefreshListener(() -> {
             presenter.onUpdateNeeded();
         });
+        presenter.onUpdateNeeded();
 
         return view;
     }
@@ -146,12 +141,21 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void showLoading() {
-
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setEnabled(true);
+        }else{
+            swipeRefreshLayout.setEnabled(false);
+        }
     }
 
     @Override
     public void hideLoading() {
-
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setEnabled(false);
+            swipeRefreshLayout.setEnabled(true);
+        }else{
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 
