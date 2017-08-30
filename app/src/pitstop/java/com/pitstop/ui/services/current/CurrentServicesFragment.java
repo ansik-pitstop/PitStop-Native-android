@@ -159,8 +159,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
-            mLoadingSpinner.setEnabled(false);
             swipeRefreshLayout.setEnabled(true);
+            mLoadingSpinner.setEnabled(false);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
