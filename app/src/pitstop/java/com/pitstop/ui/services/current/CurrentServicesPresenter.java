@@ -19,6 +19,10 @@ public class CurrentServicesPresenter {
 
     }
 
+    public void onCustomServiceButtonClicked(){
+        view.startCustomServiceActivity();
+    }
+
     public void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         carIssue.setYear(year);
         carIssue.setMonth(month);

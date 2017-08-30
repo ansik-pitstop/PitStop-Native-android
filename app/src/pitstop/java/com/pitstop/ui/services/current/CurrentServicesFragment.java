@@ -117,7 +117,11 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @OnClick(R.id.service_launch_custom)
     public void onCustomServiceButtonClicked(){
-        //presenter.onCustomServiceButtonClicked()
+        presenter.onCustomServiceButtonClicked();
+    }
+
+    @Override
+    public void startCustomServiceActivity(){
         Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
         startActivity(intent);

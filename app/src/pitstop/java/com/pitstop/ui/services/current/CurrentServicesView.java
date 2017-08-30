@@ -15,4 +15,5 @@ public interface CurrentServicesView{
     void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList);
     void displayRecalls(List<CarIssue> displayRecalls);
     void displayCalendar(CarIssue carIssue);
+    void startCustomServiceActivity();
 }
