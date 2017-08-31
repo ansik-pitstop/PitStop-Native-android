@@ -23,6 +23,8 @@ public class UpcomingServicesPresenter {
     private UpcomingServicesView view;
     private MixpanelHelper mixpanelHelper;
 
+    private boolean updating = false;
+
     public UpcomingServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
@@ -35,15 +37,19 @@ public class UpcomingServicesPresenter {
 
     void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
+        updating = false;
         this.view = null;
     }
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
-        if (view == null) return;
+        if (view == null || updating) return;
+        updating = true;
+
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
+                updating = false;
                 if (view == null) return;
 
                 if (!serviceMap.isEmpty()){
@@ -56,6 +62,7 @@ public class UpcomingServicesPresenter {
 
             @Override
             public void onError(RequestError error) {
+                updating = false;
                 if (view == null) return;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     if (view.isEmpty()){
@@ -64,13 +71,14 @@ public class UpcomingServicesPresenter {
                     else{
                         view.displayOfflineErrorDialog();
                     }
-                    view.hideLoading();
                 }
+                view.hideLoading();
             }
         });
     }
 
     void onRefresh(){
+        onUpdateNeeded();
         Log.d(TAG,"onRefresh()");
     }
 }

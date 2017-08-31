@@ -72,7 +72,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private UpcomingServicesPresenter presenter;
     private Map<Integer, List<UpcomingService>> upcomingServices;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -113,6 +112,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
         mTimeLineRecyclerView.setVisibility(View.INVISIBLE);
+        offlineView.setVisibility(View.INVISIBLE);
         noServicesView.setVisibility(View.VISIBLE);
     }
 
@@ -194,6 +194,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.INVISIBLE);
         offlineView.setVisibility(View.INVISIBLE);
 
+        mTimelineDisplayList.clear();
         this.upcomingServices = upcomingServices;
 
         for (Integer mileage : upcomingServices.keySet()){
