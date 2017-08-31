@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.pitstop.ui.services.current.CurrentServicesFragmentOld">
+    tools:context="com.pitstop.ui.services.current.CurrentServicesFragment">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
