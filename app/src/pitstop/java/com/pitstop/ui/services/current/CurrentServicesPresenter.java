@@ -43,6 +43,11 @@ class CurrentServicesPresenter {
         view.startCustomServiceActivity();
     }
 
+    void onCustomIssueCreated(CarIssue issue){
+        if (issue == null) return;
+        view.addCustomIssue(issue);
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (view == null) return;

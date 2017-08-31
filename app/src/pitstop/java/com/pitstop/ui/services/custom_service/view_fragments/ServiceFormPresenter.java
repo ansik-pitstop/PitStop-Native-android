@@ -4,7 +4,6 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.CustomIssueListItem;
 import com.pitstop.network.RequestError;
@@ -273,7 +272,7 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     }
 
-    public void datePicked(int year, int month, int day){
+    public void datePicked(CarIssue issue, int year, int month, int day){
         if(issueForLogging == null || view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DatePickerDate",MIX_VIEW);
         issueForLogging.setYear(year);
@@ -284,7 +283,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             @Override
             public void onServiceMarkedAsDone() {
                 if(view == null || callback == null){return;}
-                callback.finishForm();
+                callback.finishForm(issue);
             }
 
             @Override
@@ -303,10 +302,10 @@ public class ServiceFormPresenter implements PresenterCallback {
                 if(callback.getHistorical()){
                     issueForLogging = data;
                     mixpanelHelper.trackViewAppeared("LogCustomServiceDatePicker");
-                    view.showDatePicker();
+                    view.showDatePicker(data);
                     return;
                 }
-                callback.finishForm();
+                callback.finishForm(data);
             }
             @Override
             public void onError(RequestError error) {

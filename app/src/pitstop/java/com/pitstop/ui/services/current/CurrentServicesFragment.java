@@ -43,6 +43,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     public final String TAG = getClass().getSimpleName();
 
+    private final int RC_CUSTOM_ISSUE = 1;
+
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
 
@@ -119,7 +121,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"startCustomServiceActivity()");
         Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
-        startActivity(intent);
+        startActivityForResult(intent,RC_CUSTOM_ISSUE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_CUSTOM_ISSUE){
+            presenter.onCustomIssueCreated(data.getParcelableExtra(CarIssue.class.getName()));
+        }
     }
 
     @Override
@@ -127,15 +138,31 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"removeCarIssue() carIssue: "+issue);
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
             recallAdapter.removeIssue(issue);
-
         } else if (issue.getIssueType().equals(CarIssue.DTC)) {
             engineIssueAdapter.removeIssue(issue);
 
         } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
             potentialEngineIssueAdapter.removeIssue(issue);
-        } else {
+        } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
             customIssueAdapter.removeIssue(issue);
+        } else {
+            carIssuesAdapter.removeIssue(issue);
         }
+    }
+
+    @Override
+    public void displayOfflineError() {
+
+    }
+
+    @Override
+    public void displayUnknownError() {
+
+    }
+
+    @Override
+    public void addCustomIssue(CarIssue issue) {
+        customIssueAdapter.addIssue(issue);
     }
 
     @Override

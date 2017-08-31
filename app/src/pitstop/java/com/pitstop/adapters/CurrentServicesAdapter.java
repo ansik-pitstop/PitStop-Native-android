@@ -48,6 +48,11 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         notifyDataSetChanged();
     }
 
+    public void addIssue(CarIssue carIssue){
+        carIssues.add(carIssue);
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 

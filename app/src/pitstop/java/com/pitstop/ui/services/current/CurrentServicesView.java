@@ -19,6 +19,7 @@ public interface CurrentServicesView{
     void removeCarIssue(CarIssue issue);
     void displayOfflineError();
     void displayUnknownError();
+    void addCustomIssue(CarIssue issue);
     void showLoading();
     void hideLoading();
 }
