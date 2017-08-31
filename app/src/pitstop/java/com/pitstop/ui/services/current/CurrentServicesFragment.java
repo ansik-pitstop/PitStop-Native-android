@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -95,6 +96,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     List<CarIssue> recallList = new ArrayList<>();
 
     private CurrentServicesPresenter presenter;
+    private AlertDialog offlineAlertDialog;
+    private AlertDialog unknownErrorDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -166,7 +169,19 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayOfflineError() {
+        if (offlineAlertDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
 
+        offlineAlertDialog.show();
     }
 
     @Override

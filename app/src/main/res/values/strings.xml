@@ -231,5 +231,8 @@
     <string name="debug_message_bluetooth_toggle">Toggle Bluetooth Logs</string>
     <string name="debug_message_network_toggle">Toggle Network Logs</string>
     <string name="debug_message_other_toggle">Toggle Other Logs</string>
+    <string name="offline_error">Cannot perform this action while offline, please connect to the internet and try again.</string>
+    <string name="offline_error_title">Offline Error</string>
+    <string name="ok">Ok</string>
 
 </resources>
