@@ -71,8 +71,9 @@ class CurrentServicesPresenter {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
-
+                updating = false;
                 if (view == null) return;
+                view.displayOnlineView();
                 for(CarIssue c:currentServices){
                     if(c.getIssueType().equals(CarIssue.DTC)){
                         engineIssueList.add(c);
@@ -93,16 +94,15 @@ class CurrentServicesPresenter {
                 view.displayRecalls(recallList);
 
                 view.hideLoading();
-                updating = false;
             }
 
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"getCurrentServicesUseCase.onError()");
-               if (view == null) return;
+                updating = false;
+                if (view == null) return;
 
                 view.hideLoading();
-                updating = false;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     handleOfflineError();
                 }
@@ -137,8 +137,8 @@ class CurrentServicesPresenter {
             @Override
             public void onServiceMarkedAsDone() {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
-                if (view == null) return;
                 updating = false;
+                if (view == null) return;
                 view.hideLoading();
                 view.removeCarIssue(carIssue);
             }
@@ -146,8 +146,8 @@ class CurrentServicesPresenter {
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"markServiceDoneUseCase().onError() error: "+error.getMessage());
-                if (view == null) return;
                 updating = false;
+                if (view == null) return;
                 view.hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
