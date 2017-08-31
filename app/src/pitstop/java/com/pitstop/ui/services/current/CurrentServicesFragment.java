@@ -168,7 +168,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayOfflineError() {
+    public void displayOfflineErrorDialog() {
         if (offlineAlertDialog == null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(R.string.offline_error_title);
@@ -185,7 +185,24 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayUnknownError() {
+    public void displayUnknownErrorDialog() {
+        if (unknownErrorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
+
+        unknownErrorDialog.show();
+    }
+
+    @Override
+    public void displayOfflineView() {
 
     }
 

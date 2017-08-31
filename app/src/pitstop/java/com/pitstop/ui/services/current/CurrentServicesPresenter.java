@@ -98,10 +98,10 @@ class CurrentServicesPresenter {
                 view.hideLoading();
                 updating = false;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    view.displayOfflineError();
+                    view.displayOfflineErrorDialog();
                 }
                 else{
-                    view.displayUnknownError();
+                    view.displayUnknownErrorDialog();
                 }
 
             }
@@ -136,10 +136,10 @@ class CurrentServicesPresenter {
                 view.hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    view.displayOfflineError();
+                    view.displayOfflineErrorDialog();
                 }
                 else{
-                    view.displayUnknownError();
+                    view.displayUnknownErrorDialog();
                 }
             }
         });

@@ -1,6 +1,8 @@
 package com.pitstop.ui.services.current;
 
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.ErrorHandlingView;
+import com.pitstop.ui.LoadingTabView;
 
 import java.util.List;
 
@@ -8,7 +10,7 @@ import java.util.List;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-public interface CurrentServicesView{
+public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView{
     void displayCarIssues(List<CarIssue> carIssues);
     void displayCustomIssues(List<CarIssue> customIssueList);
     void displayStoredEngineIssues(List<CarIssue> storedEngineIssues);
@@ -17,9 +19,5 @@ public interface CurrentServicesView{
     void displayCalendar(CarIssue carIssue);
     void startCustomServiceActivity();
     void removeCarIssue(CarIssue issue);
-    void displayOfflineError();
-    void displayUnknownError();
     void addCustomIssue(CarIssue issue);
-    void showLoading();
-    void hideLoading();
 }

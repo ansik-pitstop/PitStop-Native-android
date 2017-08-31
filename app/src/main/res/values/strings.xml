@@ -234,5 +234,7 @@
     <string name="offline_error">Cannot perform this action while offline, please connect to the internet and try again.</string>
     <string name="offline_error_title">Offline Error</string>
     <string name="ok">Ok</string>
+    <string name="unknown_error">Unknown error occurred, please try re-starting application and try again</string>
+    <string name="unknown_error_title">Unknown Error</string>
 
 </resources>
