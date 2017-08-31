@@ -50,6 +50,7 @@ public class UpcomingServicesPresenter {
         Log.d(TAG,"onUpdateNeeded()");
         if (view == null || updating) return;
         updating = true;
+        view.showLoading();
 
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
