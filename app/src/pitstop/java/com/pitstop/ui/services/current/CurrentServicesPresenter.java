@@ -50,7 +50,7 @@ class CurrentServicesPresenter {
 
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
-        if (issue == null) return;
+        if (issue == null || view == null) return;
         view.addCustomIssue(issue);
     }
 
@@ -117,7 +117,8 @@ class CurrentServicesPresenter {
 
     private void handleOfflineError(){
         Log.d(TAG,"handleOfflineError()");
-        if (view.isEmpty()){
+        if (view == null) return;
+        else if (view.isEmpty()){
             view.displayOfflineView();
         }else{
             view.displayOfflineErrorDialog();
@@ -126,6 +127,7 @@ class CurrentServicesPresenter {
 
     void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
+        if (view == null) return;
         carIssue.setYear(year);
         carIssue.setMonth(month);
         carIssue.setDay(day);
