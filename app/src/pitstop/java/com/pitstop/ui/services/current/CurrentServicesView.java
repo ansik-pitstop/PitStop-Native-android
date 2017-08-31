@@ -17,6 +17,8 @@ public interface CurrentServicesView{
     void displayCalendar(CarIssue carIssue);
     void startCustomServiceActivity();
     void removeCarIssue(CarIssue issue);
+    void displayOfflineError();
+    void displayUnknownError();
     void showLoading();
     void hideLoading();
 }

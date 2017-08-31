@@ -88,9 +88,17 @@ class CurrentServicesPresenter {
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"getCurrentServicesUseCase.onError()");
-                //Todo: error handling
+               if (view == null) return;
+
                 view.hideLoading();
                 updating = false;
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    view.displayOfflineError();
+                }
+                else{
+                    view.displayUnknownError();
+                }
+
             }
         });
 
@@ -102,26 +110,39 @@ class CurrentServicesPresenter {
         carIssue.setMonth(month);
         carIssue.setDay(day);
 
+        view.showLoading();
+        updating = true;
         //When the date is set, update issue to done on that date
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
                 if (view == null) return;
+                updating = false;
+                view.hideLoading();
                 view.removeCarIssue(carIssue);
             }
 
             @Override
             public void onError(RequestError error) {
-                Log.d(TAG,"markServiceDoneUseCase().onError()");
-                //Todo: error handling
+                Log.d(TAG,"markServiceDoneUseCase().onError() error: "+error.getMessage());
+                if (view == null) return;
+                updating = false;
+                view.hideLoading();
+
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    view.displayOfflineError();
+                }
+                else{
+                    view.displayUnknownError();
+                }
             }
         });
     }
 
     void onServiceMarkedAsDone(CarIssue carIssue){
         Log.d(TAG,"onServiceMarkedAsDone()");
-        if (view == null) return;
+        if (view == null || updating) return;
         view.displayCalendar(carIssue);
     }
 
