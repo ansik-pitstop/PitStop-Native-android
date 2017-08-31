@@ -1,6 +1,5 @@
 package com.pitstop.ui.main_activity;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 
 /**
@@ -10,5 +9,5 @@ import com.pitstop.models.issue.CarIssue;
 public interface MainActivityCallback {
     void prepareAndStartTutorialSequence();
 
-    void startDisplayIssueActivity(Car dashboardCar, CarIssue issue);
+    void startDisplayIssueActivity(CarIssue issue);
 }

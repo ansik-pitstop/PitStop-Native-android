@@ -1,7 +1,6 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
@@ -12,13 +11,11 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -29,6 +26,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.CustomIssueListItem;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
@@ -288,13 +286,11 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     }
 
     @Override
-    public void showDatePicker() {
-        ServicesDatePickerDialog datePickerDialog = new ServicesDatePickerDialog(getActivity(), Calendar.getInstance(), new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {// year month day
-                presenter.datePicked(i,i1,i2);
-            }
-        });
+    public void showDatePicker(CarIssue issue) {
+        ServicesDatePickerDialog datePickerDialog = new ServicesDatePickerDialog(getActivity()
+                , Calendar.getInstance(), (datePicker, i, i1, i2) -> {// year month day
+                    presenter.datePicked(issue, i,i1,i2);
+                });
         datePickerDialog.setTitle("Select when you completed this service.");
         datePickerDialog.show();
     }

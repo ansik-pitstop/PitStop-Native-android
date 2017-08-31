@@ -178,6 +178,7 @@ public class CarIssueRepository implements Repository{
                         issue.setItem(responseJson.getString("item"));
                         issue.setAction(responseJson.getString("action"));
                         issue.setDescription(responseJson.getString("description"));
+                        issue.setIssueType(CarIssue.SERVICE_USER);
                         callback.onSuccess(issue);
                     }catch (JSONException e){
                         callback.onSuccess(new CarIssue());

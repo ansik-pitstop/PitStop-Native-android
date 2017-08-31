@@ -2,12 +2,14 @@ package com.pitstop.ui.services.custom_service;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.pitstop.R;
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.services.custom_service.view_fragments.ServiceFormFragment;
 
 /**
@@ -64,7 +66,10 @@ public class CustomServiceActivity extends AppCompatActivity implements CustomSe
     }
 
     @Override
-    public void finishForm() {
+    public void finishForm(CarIssue issue) {
+        Intent intent = new Intent();
+        intent.putExtra(CarIssue.class.getName(),issue);
+        setResult(0,intent);
         finish();
     }
 }

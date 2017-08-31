@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
+import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.CustomIssueListItem;
 
 import java.util.List;
@@ -26,6 +27,6 @@ public interface ServiceFormView {
     String getPriority();
     String getDescription();
     void showReminder(String message);
-    void showDatePicker();
+    void showDatePicker(CarIssue issue);
 
 }

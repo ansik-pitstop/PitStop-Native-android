@@ -75,9 +75,9 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                         List<CarIssue> preset = new ArrayList<CarIssue>();
                         List<CarIssue> custom = new ArrayList<CarIssue>();
                         for( CarIssue c: carIssueCurrent){
-                            if(c.getIssueType().equals("service_preset")){
+                            if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
                                 preset.add(c);
-                            }else if(c.getIssueType().equals("service_user")){
+                            }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
                                 custom.add(c);
                             }else{
                                 preset.add(c);
