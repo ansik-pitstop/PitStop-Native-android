@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -38,8 +37,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.timeline_recyclerview)
     RecyclerView mTimeLineRecyclerView;
 
-    @BindView(R.id.loading_spinner)
-    ProgressBar mLoadingSpinner;
+    @BindView(R.id.loading_view)
+    View loadingView;
 
     @BindView(R.id.no_services)
     View noServicesView;
@@ -106,7 +105,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -116,7 +115,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            mLoadingSpinner.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.INVISIBLE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
