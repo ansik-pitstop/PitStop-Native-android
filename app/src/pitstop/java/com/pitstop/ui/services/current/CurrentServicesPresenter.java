@@ -102,7 +102,7 @@ class CurrentServicesPresenter {
                 view.hideLoading();
                 updating = false;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    view.displayOfflineErrorDialog();
+                    handleOfflineError();
                 }
                 else{
                     view.displayUnknownErrorDialog();
@@ -111,6 +111,14 @@ class CurrentServicesPresenter {
             }
         });
 
+    }
+
+    private void handleOfflineError(){
+        if (view.isEmpty()){
+            view.displayOfflineView();
+        }else{
+            view.displayOfflineErrorDialog();
+        }
     }
 
     void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
@@ -140,7 +148,7 @@ class CurrentServicesPresenter {
                 view.hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    view.displayOfflineErrorDialog();
+                    handleOfflineError();
                 }
                 else{
                     view.displayUnknownErrorDialog();
