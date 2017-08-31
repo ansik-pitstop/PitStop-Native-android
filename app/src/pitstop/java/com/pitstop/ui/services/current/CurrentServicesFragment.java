@@ -83,6 +83,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
+    @BindView(R.id.offline_view)
+    View offlineView;
+
+    @BindView(R.id.reg_view)
+    View regView;
+
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
     private CurrentServicesAdapter storedEngineIssuesAdapter;
@@ -203,13 +209,32 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayOfflineView() {
+        offlineView.setVisibility(View.VISIBLE);
+        regView.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void displayOnlineView() {
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.offline_try_again)
+    public void onOfflineTryAgainClicked(){
+        presenter.onOfflineTryAgainClicked();
     }
 
     @Override
     public void addCustomIssue(CarIssue issue) {
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return carIssueList.isEmpty() && customIssueList.isEmpty()
+                && storedEngineIssueList.isEmpty() && potentialEngineIssuesList.isEmpty()
+                && recallList.isEmpty();
     }
 
     @Override

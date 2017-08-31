@@ -7,7 +7,12 @@
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.services.current.CurrentServicesFragment">
 
+    <include
+        android:id="@+id/offline_view"
+        android:visibility="gone"
+        layout="@layout/layout_offline"/>
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/reg_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

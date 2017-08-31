@@ -43,6 +43,10 @@ class CurrentServicesPresenter {
         view.startCustomServiceActivity();
     }
 
+    void onOfflineTryAgainClicked(){
+        onUpdateNeeded();
+    }
+
     void onCustomIssueCreated(CarIssue issue){
         if (issue == null) return;
         view.addCustomIssue(issue);

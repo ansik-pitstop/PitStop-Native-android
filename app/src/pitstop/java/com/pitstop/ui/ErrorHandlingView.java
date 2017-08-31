@@ -8,4 +8,5 @@ public interface ErrorHandlingView {
     void displayOfflineErrorDialog();
     void displayUnknownErrorDialog();
     void displayOfflineView();
+    void displayOnlineView();
 }
