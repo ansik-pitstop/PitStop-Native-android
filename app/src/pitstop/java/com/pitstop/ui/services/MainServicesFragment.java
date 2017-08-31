@@ -21,6 +21,7 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.current.CurrentServicesFragment;
+import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
 
 public class MainServicesFragment extends Fragment{
 

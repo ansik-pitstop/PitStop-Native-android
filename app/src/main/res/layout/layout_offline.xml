@@ -1,35 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <TextView
+        style="@style/TextAppearance.AppCompat.Title"
         android:layout_centerInParent="true"
-        android:orientation="vertical"
+        android:textColor="@color/black50"
+        android:text="@string/please_connect_to_the_internet"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" />
+    <Button
+        android:layout_centerInParent="true"
+        android:id="@+id/offline_try_again"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="9dp"
+        android:backgroundTint="@color/primary"
+        android:minWidth="250dp"
+        android:padding="16dp"
+        android:text="Try Again"
+        android:textAllCaps="false"
+        android:textColor="#efefef"
+        android:textSize="18sp" />
 
-        <TextView
-            style="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/black50"
-            android:text="@string/please_connect_to_the_internet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Button
-            android:id="@+id/offline_try_again"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="9dp"
-            android:backgroundTint="@color/primary"
-            android:minWidth="250dp"
-            android:padding="16dp"
-            android:text="Try Again"
-            android:textAllCaps="false"
-            android:textColor="#efefef"
-            android:textSize="18sp" />
-
-    </LinearLayout>
-
-
-</RelativeLayout>
+</LinearLayout>
