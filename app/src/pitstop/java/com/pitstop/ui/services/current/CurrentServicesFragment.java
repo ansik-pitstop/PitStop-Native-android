@@ -212,6 +212,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayCarIssues(List<CarIssue> carIssues) {
         Log.d(TAG,"displayCarIssues() size(): "+carIssues.size());
 
+        this.carIssueList.clear();
         this.carIssueList.addAll(carIssues);
 
         carIssuesAdapter = new CurrentServicesAdapter(this.carIssueList,this);
@@ -230,6 +231,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayCustomIssues(List<CarIssue> customIssueList) {
         Log.d(TAG,"displayCustomIssues() size(): "+customIssueList.size());
 
+        this.customIssueList.clear();
         this.customIssueList.addAll(customIssueList);
         customIssueAdapter = new CurrentServicesAdapter(this.customIssueList,this);
         customIssueListRecyclerView.setLayoutManager(
@@ -249,6 +251,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayStoredEngineIssues(List<CarIssue> storedEngineIssues) {
         Log.d(TAG,"displayStoredEngineIssues() size(): "+storedEngineIssues.size());
 
+        this.storedEngineIssueList.clear();
         this.storedEngineIssueList.addAll(storedEngineIssues);
         storedEngineIssuesAdapter = new CurrentServicesAdapter(this.storedEngineIssueList,this);
         engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
@@ -265,6 +268,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
 
+        this.potentialEngineIssuesList.clear();
         this.potentialEngineIssuesList.addAll(potentialEngineIssueList);
         potentialEngineIssueAdapter
                 = new CurrentServicesAdapter(this.potentialEngineIssuesList,this);
@@ -283,6 +287,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayRecalls(List<CarIssue> displayRecalls) {
         Log.d(TAG,"displayRecalls() size(): "+displayRecalls.size());
 
+        this.recallList.clear();
         this.recallList.addAll(displayRecalls);
         recallAdapter = new CurrentServicesAdapter(this.recallList,this);
         recallListView.setLayoutManager(
