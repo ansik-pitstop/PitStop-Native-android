@@ -256,7 +256,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            mLoadingSpinner.setEnabled(true);
+            mLoadingSpinner.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -266,7 +266,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            mLoadingSpinner.setEnabled(false);
+            mLoadingSpinner.setVisibility(View.INVISIBLE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
