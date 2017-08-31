@@ -69,6 +69,7 @@ public class CustomServiceActivity extends AppCompatActivity implements CustomSe
     public void finishForm(CarIssue issue) {
         Intent intent = new Intent();
         intent.putExtra(CarIssue.class.getName(),issue);
+        setResult(0,intent);
         finish();
     }
 }
