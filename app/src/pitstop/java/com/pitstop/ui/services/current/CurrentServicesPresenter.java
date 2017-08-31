@@ -15,7 +15,7 @@ import java.util.List;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-public class CurrentServicesPresenter {
+class CurrentServicesPresenter {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -23,27 +23,27 @@ public class CurrentServicesPresenter {
     private boolean updating = false;
     private CurrentServicesView view;
 
-    public CurrentServicesPresenter(UseCaseComponent useCaseComponent) {
+    CurrentServicesPresenter(UseCaseComponent useCaseComponent) {
         this.useCaseComponent = useCaseComponent;
     }
 
-    public void subscribe(CurrentServicesView view){
+    void subscribe(CurrentServicesView view){
         Log.d(TAG,"subscribe()");
         this.view = view;
     }
 
-    public void unsubscribe(){
+    void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
         this.view = null;
     }
 
-    public void onCustomServiceButtonClicked(){
+    void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
         if (view == null) return;
         view.startCustomServiceActivity();
     }
 
-    public void onUpdateNeeded(){
+    void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (view == null) return;
         if (updating) return;
@@ -96,7 +96,7 @@ public class CurrentServicesPresenter {
 
     }
 
-    public void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
+    void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         carIssue.setYear(year);
         carIssue.setMonth(month);
@@ -119,7 +119,7 @@ public class CurrentServicesPresenter {
         });
     }
 
-    public void onServiceMarkedAsDone(CarIssue carIssue){
+    void onServiceMarkedAsDone(CarIssue carIssue){
         Log.d(TAG,"onServiceMarkedAsDone()");
         if (view == null) return;
         view.displayCalendar(carIssue);
