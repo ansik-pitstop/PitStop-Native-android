@@ -41,6 +41,11 @@ public class UpcomingServicesPresenter {
         this.view = null;
     }
 
+    void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
+        onUpdateNeeded();
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (view == null || updating) return;

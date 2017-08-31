@@ -161,7 +161,7 @@ public class MainServicesFragment extends Fragment{
             //Return respective fragment and set the variable inside outer class for later callback reference
             switch (position){
                 case FRAGMENT_UPCOMING:
-                    return UpcomingServicesFragment.newInstance();
+                    return new UpcomingServicesFragment();
                 case FRAGMENT_CURRENT:
                     return new CurrentServicesFragment();
                 case FRAGMENT_HISTORY:

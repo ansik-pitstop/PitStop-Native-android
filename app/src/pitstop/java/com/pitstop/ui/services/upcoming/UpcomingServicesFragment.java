@@ -1,6 +1,5 @@
 package com.pitstop.ui.services.upcoming;
 
-import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,22 +10,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
-import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,16 +41,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.loading_spinner)
     ProgressBar mLoadingSpinner;
 
-    @BindView(R.id.)
-
     @BindView(R.id.no_services)
     View noServicesView;
 
     @BindView(R.id.offline_view)
     View offlineView;
-
-    @BindView(R.id.issue_details_view)
-    FrameLayout mIssueDetailsView;
 
     @BindView(R.id.activity_timeline)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -95,8 +83,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         mTimelineDisplayList = new ArrayList<>();
         mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mTimeLineRecyclerView.setNestedScrollingEnabled(true);
-        ObjectAnimator.ofFloat(mIssueDetailsView
-                , View.TRANSLATION_X, 0, UiUtils.getScreenWidth(getActivity())).start();
         presenter.onUpdateNeeded();
         return view;
     }
@@ -211,5 +197,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public boolean isEmpty() {
         Log.d(TAG,"isEmpty() ? "+upcomingServices.isEmpty());
         return upcomingServices.isEmpty();
+    }
+
+    @OnClick(R.id.offline_try_again)
+    public void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
+        presenter.onOfflineTryAgainClicked();
     }
 }

@@ -1,6 +1,5 @@
 package com.pitstop.ui.services.upcoming;
 
-import android.content.res.Resources;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -78,30 +77,24 @@ public class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void bind(String s) {
-            String mileage = s + " " + Resources.getSystem().getString(R.string.kilometers_unit);
+            String mileage = s + " " + "KM";
             mileageTextView.setText(mileage);
         }
     }
 
-    private class IssueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    private class IssueViewHolder extends RecyclerView.ViewHolder{
 
         TextView mTitleTextView;
         UpcomingService upcomingService;
 
         public IssueViewHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
             mTitleTextView = (TextView) itemView.findViewById(R.id.title);
         }
 
         public void bind(UpcomingService upcomingService) {
             this.upcomingService = upcomingService;
             mTitleTextView.setText(upcomingService.getAction() + " " + upcomingService.getItem());
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 }
