@@ -148,9 +148,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
+        if (!swipeRefreshLayout.isRefreshing()) {
             mLoadingSpinner.setEnabled(true);
-        }else{
             swipeRefreshLayout.setEnabled(false);
         }
     }
