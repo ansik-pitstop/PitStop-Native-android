@@ -170,103 +170,82 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void displayCarIssues(List<CarIssue> carIssues) {
         Log.d(TAG,"displayCarIssues() size(): "+carIssues.size());
-        carIssuesAdapter = new CurrentServicesAdapter(carIssues,this);
-        carIssueListView.setLayoutManager(new LinearLayoutManager(
-                getActivity().getApplicationContext()));
-        carIssueListView.setAdapter(carIssuesAdapter);
-        carIssuesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if(carIssues.isEmpty()){
-                    routineListHolder.setVisibility(View.GONE);
-                }else{
-                    routineListHolder.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+
+        if(carIssues.isEmpty()){
+            routineListHolder.setVisibility(View.GONE);
+        }else{
+            routineListHolder.setVisibility(View.VISIBLE);
+
+            carIssuesAdapter = new CurrentServicesAdapter(carIssues,this);
+            carIssueListView.setLayoutManager(new LinearLayoutManager(
+                    getActivity().getApplicationContext()));
+            carIssueListView.setAdapter(carIssuesAdapter);
+        }
     }
 
     @Override
     public void displayCustomIssues(List<CarIssue> customIssueList) {
         Log.d(TAG,"displayCustomIssues() size(): "+customIssueList.size());
-        customIssueAdapter = new CurrentServicesAdapter(customIssueList,this);
-        customIssueListRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        customIssueListRecyclerView.setAdapter(customIssueAdapter);
-        customIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if(customIssueList.isEmpty()){
-                    customIssueListRecyclerView.setVisibility(View.GONE);
-                }else{
-                    customIssueListRecyclerView.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+
+        if(customIssueList.isEmpty()){
+            customIssueListRecyclerView.setVisibility(View.GONE);
+        }else{
+            customIssueListRecyclerView.setVisibility(View.VISIBLE);
+            customIssueAdapter = new CurrentServicesAdapter(customIssueList,this);
+            customIssueListRecyclerView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            customIssueListRecyclerView.setAdapter(customIssueAdapter);
+            customIssueAdapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override
     public void displayStoredEngineIssues(List<CarIssue> storedEngineIssues) {
         Log.d(TAG,"displayStoredEngineIssues() size(): "+storedEngineIssues.size());
 
-        engineIssueAdapter = new CurrentServicesAdapter(storedEngineIssues,this);
-        engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        engineListView.setAdapter(engineIssueAdapter);
-        engineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if(storedEngineIssues.isEmpty()){
-                    engineIssueHolder.setVisibility(View.GONE);
-                }else{
-                    engineIssueHolder.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+        if(storedEngineIssues.isEmpty()){
+            engineIssueHolder.setVisibility(View.GONE);
+        }else{
+            engineIssueHolder.setVisibility(View.VISIBLE);
+
+            engineIssueAdapter = new CurrentServicesAdapter(storedEngineIssues,this);
+            engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+            engineListView.setAdapter(engineIssueAdapter);
+        }
     }
 
     @Override
     public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
-        potentialEngineIssueAdapter
-                = new CurrentServicesAdapter(potentialEngineIssueList,this);
-        potentialListView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        potentialListView.setAdapter(potentialEngineIssueAdapter);
-        potentialEngineIssueAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if(potentialEngineIssueList.isEmpty()){
-                    potentialEngineList.setVisibility(View.GONE);
-                }else{
-                    potentialEngineList.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+
+        if(potentialEngineIssueList.isEmpty()){
+            potentialEngineList.setVisibility(View.GONE);
+        }else{
+            potentialEngineList.setVisibility(View.VISIBLE);
+
+            potentialEngineIssueAdapter
+                    = new CurrentServicesAdapter(potentialEngineIssueList,this);
+            potentialListView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            potentialListView.setAdapter(potentialEngineIssueAdapter);
+        }
     }
 
     @Override
     public void displayRecalls(List<CarIssue> displayRecalls) {
         Log.d(TAG,"displayRecalls() size(): "+displayRecalls.size());
 
-        recallAdapter = new CurrentServicesAdapter(displayRecalls,this);
-        recallListView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        recallListView.setAdapter(recallAdapter);
-        recallAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if(displayRecalls.isEmpty()){
-                    recallListHolder.setVisibility(View.GONE);
-                }else{
-                    recallListHolder.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+        if(displayRecalls.isEmpty()){
+            recallListHolder.setVisibility(View.GONE);
+        }else{
+            recallListHolder.setVisibility(View.VISIBLE);
+
+            recallAdapter = new CurrentServicesAdapter(displayRecalls,this);
+            recallListView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            recallListView.setAdapter(recallAdapter);
+        }
     }
 
     @Override
