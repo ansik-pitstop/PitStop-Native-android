@@ -204,7 +204,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                     .setPositiveButton(R.string.ok, (dialog, id) -> {
                         dialog.dismiss();
                     });
-            offlineAlertDialog = alertDialogBuilder.create();
+            unknownErrorDialog = alertDialogBuilder.create();
         }
 
         unknownErrorDialog.show();
@@ -375,7 +375,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
                      presenter.onServiceDoneDatePicked(carIssue,year,month,day);
         });
-        servicesDatePickerDialog.setTitle("Select when you completed this service.");
+        servicesDatePickerDialog.setTitle(getString(R.string.service_date_picker_title));
         servicesDatePickerDialog.show();
     }
 
