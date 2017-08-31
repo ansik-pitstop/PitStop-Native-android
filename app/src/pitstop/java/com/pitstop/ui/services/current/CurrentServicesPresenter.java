@@ -44,10 +44,12 @@ class CurrentServicesPresenter {
     }
 
     void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
         onUpdateNeeded();
     }
 
     void onCustomIssueCreated(CarIssue issue){
+        Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null) return;
         view.addCustomIssue(issue);
     }
@@ -114,6 +116,7 @@ class CurrentServicesPresenter {
     }
 
     private void handleOfflineError(){
+        Log.d(TAG,"handleOfflineError()");
         if (view.isEmpty()){
             view.displayOfflineView();
         }else{

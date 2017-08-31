@@ -142,6 +142,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG,"onActivityResult()");
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
@@ -175,6 +176,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayOfflineErrorDialog() {
+        Log.d(TAG,"displayOfflineErrorDialog()");
         if (offlineAlertDialog == null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(R.string.offline_error_title);
@@ -192,6 +194,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayUnknownErrorDialog() {
+        Log.d(TAG,"displayUnknownErrorDialog()");
         if (unknownErrorDialog == null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(R.string.unknown_error_title);
@@ -209,29 +212,34 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void displayOfflineView() {
+        Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
         regView.setVisibility(View.GONE);
     }
 
     @Override
     public void displayOnlineView() {
+        Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.offline_try_again)
     public void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
         presenter.onOfflineTryAgainClicked();
     }
 
     @Override
     public void addCustomIssue(CarIssue issue) {
+        Log.d(TAG,"addCustomIssue()");
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
     }
 
     @Override
     public boolean isEmpty() {
+        Log.d(TAG,"isEmpty()");
         return carIssueList.isEmpty() && customIssueList.isEmpty()
                 && storedEngineIssueList.isEmpty() && potentialEngineIssuesList.isEmpty()
                 && recallList.isEmpty();
