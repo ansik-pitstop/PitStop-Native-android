@@ -7,6 +7,7 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +21,13 @@ class CurrentServicesPresenter {
     private final String TAG = getClass().getSimpleName();
 
     private UseCaseComponent useCaseComponent;
+    private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
     private CurrentServicesView view;
 
-    CurrentServicesPresenter(UseCaseComponent useCaseComponent) {
+    CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     void subscribe(CurrentServicesView view){

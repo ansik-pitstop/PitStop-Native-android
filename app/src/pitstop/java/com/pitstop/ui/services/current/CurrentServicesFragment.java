@@ -117,7 +117,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent
                     .builder().contextModule(new ContextModule(getContext())).build();
-            presenter = new CurrentServicesPresenter(useCaseComponent);
+            MixpanelHelper mixpanelHelper = new MixpanelHelper(
+                    (GlobalApplication)getContext().getApplicationContext());
+            presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
         }
         presenter.subscribe(this);
         swipeRefreshLayout.setOnRefreshListener(() -> {
