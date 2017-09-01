@@ -56,6 +56,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     private UpcomingServicesPresenter presenter;
     private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
+    private boolean hasBeenPopulated = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,6 +91,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         presenter.unsubscribe();
+        hasBeenPopulated = false;
         super.onDestroyView();
     }
 
@@ -178,6 +180,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void populateUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
         Log.d(TAG,"populateUpcomingServices() size: "+upcomingServices.size());
+        hasBeenPopulated = true;
         timelineDisplayList.clear();
         this.upcomingServices.clear();
         this.upcomingServices.putAll(upcomingServices);
@@ -192,9 +195,9 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     }
 
     @Override
-    public boolean isEmpty() {
-        Log.d(TAG,"isEmpty() ? "+upcomingServices.isEmpty());
-        return upcomingServices.isEmpty();
+    public boolean hasBeenPopulated() {
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
+        return hasBeenPopulated;
     }
 
     @OnClick(R.id.offline_try_again)

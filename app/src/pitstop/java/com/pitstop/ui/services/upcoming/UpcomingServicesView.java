@@ -14,5 +14,5 @@ import java.util.Map;
 public interface UpcomingServicesView extends LoadingTabView, ErrorHandlingView{
     void populateUpcomingServices(Map<Integer,List<UpcomingService>> upcomingServices);
     void displayNoServices();
-    boolean isEmpty();
+    boolean hasBeenPopulated();
 }

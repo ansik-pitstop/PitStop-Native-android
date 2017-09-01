@@ -75,7 +75,7 @@ public class UpcomingServicesPresenter {
                 view.hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (view.isEmpty()){
+                    if (view.hasBeenPopulated()){
                         view.displayOfflineView();
                     }
                     else{
