@@ -36,7 +36,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
 
-    @BindView(R.id.loading_view)
+    @BindView(R.id.progress)
     View loadingView;
 
     @BindView(R.id.no_services)
@@ -163,6 +163,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        offlineView.bringToFront();
     }
 
     @Override
@@ -171,14 +172,12 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setVisibility(View.VISIBLE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.bringToFront();
     }
 
     @Override
-    public void displayUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
-        Log.d(TAG,"displayUpcomingServices() size: "+upcomingServices.size());
-        noServicesView.setVisibility(View.GONE);
-        offlineView.setVisibility(View.GONE);
-
+    public void populateUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
+        Log.d(TAG,"populateUpcomingServices() size: "+upcomingServices.size());
         timelineDisplayList.clear();
         this.upcomingServices.clear();
         this.upcomingServices.putAll(upcomingServices);

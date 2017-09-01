@@ -12,7 +12,7 @@ import java.util.Map;
  */
 
 public interface UpcomingServicesView extends LoadingTabView, ErrorHandlingView{
-    void displayUpcomingServices(Map<Integer,List<UpcomingService>> upcomingServices);
+    void populateUpcomingServices(Map<Integer,List<UpcomingService>> upcomingServices);
     void displayNoServices();
     boolean isEmpty();
 }

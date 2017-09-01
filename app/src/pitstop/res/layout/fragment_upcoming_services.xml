@@ -54,7 +54,8 @@
         </LinearLayout>
 
         <include
-            android:id="@+id/loading_view"
+            android:id="@+id/progress"
+            android:visibility="gone"
             layout="@layout/layout_load"/>
 
     </RelativeLayout>

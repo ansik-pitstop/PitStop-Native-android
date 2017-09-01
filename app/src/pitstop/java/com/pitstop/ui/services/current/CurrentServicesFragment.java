@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
@@ -50,8 +49,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
 
-    @BindView(R.id.loading_spinner)
-    ProgressBar mLoadingSpinner;
+    @BindView(R.id.progress)
+    View loadingView;
 
     @BindView(R.id.service_launch_custom)
     LinearLayout customServiceButton;
@@ -256,7 +255,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -266,7 +265,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            mLoadingSpinner.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
