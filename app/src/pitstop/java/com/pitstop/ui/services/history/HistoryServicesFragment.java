@@ -130,7 +130,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
             CarIssue carIssue = data.getParcelableExtra(CarIssue.class.getName());
             if (carIssue != null){
-                presenter.onCustomIssueCreated(carIssue);
+                presenter.onCustomServiceCreated(carIssue);
             }
         }
     }
@@ -253,6 +253,12 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Intent intent = new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
         startActivityForResult(intent,RC_CUSTOM_ISSUE);
+    }
+
+    @Override
+    public void addDoneService(CarIssue doneService) {
+        this.doneServices.add(doneService);
+        issueGroupAdapter.notifyDataSetChanged();
     }
 
     @Override

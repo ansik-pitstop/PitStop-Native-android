@@ -75,9 +75,9 @@ public class HistoryServicesPresenter {
 
     }
 
-    void onCustomIssueCreated(CarIssue issue){
+    void onCustomServiceCreated(CarIssue customService){
         if (view == null) return;
-        view.populateDoneServices();
+        view.addDoneService(customService);
     }
 
     void onRefresh(){
