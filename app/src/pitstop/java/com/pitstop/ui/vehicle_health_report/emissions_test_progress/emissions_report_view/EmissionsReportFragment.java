@@ -16,6 +16,9 @@ import com.github.florent37.viewanimator.AnimationListener;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -59,11 +62,41 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.emissions_report_cell_six_details)
     RelativeLayout cellSixDetails;
 
+    @BindView(R.id.egr)
+    TextView egr;
+
+    @BindView(R.id.evap)
+    TextView evap;
+
+    @BindView(R.id.misfire)
+    TextView misfire;
+
+    @BindView(R.id.catalyst)
+    TextView catalyst;
+
+    @BindView(R.id.o2Sensor)
+    TextView o2sensor;
+
+    @BindView(R.id.componetns)
+    TextView components;
+
+
+
+
 
 
     private Context context;
 
+
     private boolean dropDownInProgress;
+
+    private JSONObject emissionsResponse;
+
+    public void setReault(JSONObject response){
+        emissionsResponse = response;
+        System.out.println("Testing ER "+emissionsResponse);
+    }
+
 
 
     @Override
@@ -109,8 +142,34 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 presenter.onCellClicked(cellSixDetails);
             }
         });
+        if(emissionsResponse !=null){
+            if(emissionsResponse.has("data")){
+                try{
+                    JSONObject data = emissionsResponse.getJSONObject("data");
+                    if(data.has("EGR")){
+                        egr.setText(data.getString("EGR"));
+                    }
+                    if(data.has("Evap")){
+                        evap.setText(data.getString("Evap"));
+                    }
+                    if(data.has("Misfire")){
+                        misfire.setText(data.getString("Misfire"));
+                    }
+                    if(data.has("Catalyst")){
+                        catalyst.setText(data.getString("Catalyst"));
+                    }
+                    if(data.has("O2 Sensor")){
+                        o2sensor.setText(data.getString("O2 Sensor"));
+                    }
+                    if(data.has("Components")){
+                        components.setText(data.getString("Components"));
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
 
-
+            }
+        }
         return view;
     }
 

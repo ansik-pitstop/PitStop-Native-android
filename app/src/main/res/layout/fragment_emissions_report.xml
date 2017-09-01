@@ -27,7 +27,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="20dp"
-                android:text="Fail"
+                android:text="Fail/Pass"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@color/red" />
 
@@ -69,11 +69,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/textView66"
+                        android:id="@+id/egr"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView
@@ -145,10 +145,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
+                        android:id="@+id/evap"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView
@@ -217,10 +218,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
+                        android:id="@+id/misfire"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView
@@ -289,10 +291,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
+                        android:id="@+id/catalyst"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView
@@ -361,10 +364,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
+                        android:id="@+id/o2Sensor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView
@@ -433,10 +437,11 @@
                     android:layout_height="match_parent">
 
                     <TextView
+                        android:id="@+id/componetns"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="TextView" />
+                        android:text="N/A" />
                 </RelativeLayout>
 
                 <ImageView

@@ -18,11 +18,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.github.florent37.viewanimator.AnimationListener;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressCallback;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -85,8 +91,11 @@ public class InProgressFragment extends Fragment implements InProgressView{
     private EmissionsProgressCallback callback;
 
     private Context context;
+    private GlobalApplication application;
 
-
+    public void setBluetooth(BluetoothConnectionObservable bluetooth){
+        presenter.setBlueTooth(bluetooth);
+    }
 
     public void setCallback(EmissionsProgressCallback callback){
         this.callback = callback;
@@ -95,9 +104,13 @@ public class InProgressFragment extends Fragment implements InProgressView{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
+        application = (GlobalApplication)context;
         View view = inflater.inflate(R.layout.fragment_emissions_progress,container,false);
         ButterKnife.bind(this,view);
-        presenter = new InProgressPresenter(callback);
+        UseCaseComponent component = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(application))
+                .build();
+        presenter = new InProgressPresenter(callback,component);
         progressAnimation.hide();
 
 
@@ -235,6 +248,11 @@ public class InProgressFragment extends Fragment implements InProgressView{
                 })
                 .start();
 
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_LONG);//Long for testing purposes
     }
 
     @Override

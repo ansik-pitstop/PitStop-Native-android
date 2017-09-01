@@ -13,4 +13,5 @@ public interface InProgressView {
     void back();
     void next();
     void startTimer();
+    void toast(String message);
 }
