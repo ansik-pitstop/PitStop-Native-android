@@ -16,12 +16,10 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,8 +47,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.activity_timeline)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    //Kilometer Section - List of  items in the section
-    private Map<String, List<UpcomingIssue>> timelineMap;
     private List<Object> timelineDisplayList;
     private TimelineAdapter timelineAdapter;
 
@@ -79,7 +75,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         presenter.subscribe(this);
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-        timelineMap = new HashMap<>();
         timelineDisplayList = new ArrayList<>();
         timelineAdapter = new TimelineAdapter(timelineDisplayList);
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
