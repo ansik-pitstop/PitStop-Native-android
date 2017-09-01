@@ -4,8 +4,6 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -13,8 +11,7 @@ import java.util.List;
  */
 
 public interface HistoryServicesView extends LoadingTabView, ErrorHandlingView{
-    void populateDoneServices(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
-            , List<String> headers);
+    void populateDoneServices(List<CarIssue> doneServices);
     boolean hasBeenPopulated();
     void populateEmptyServices();
     void startCustomServiceActivity();

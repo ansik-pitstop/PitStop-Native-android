@@ -3,13 +3,12 @@ package com.pitstop.ui.services.history;
 import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetHistoryServicesSortedByDateUseCase;
+import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created by Karol Zdebel on 9/1/2017.
@@ -36,16 +35,20 @@ public class HistoryServicesPresenter {
         updating = true;
         view.showLoading();
 
-        useCaseComponent.getHistoryServicesSortedByDateUseCase().execute(
-                new GetHistoryServicesSortedByDateUseCase.Callback() {
+        useCaseComponent.getDoneServicesUseCase().execute(
+                new GetDoneServicesUseCase.Callback() {
             @Override
-            public void onGotDoneServices(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
-                    , ArrayList<String> headers) {
+            public void onGotDoneServices(List<CarIssue> doneServices) {
                 updating = false;
                 if (view == null) return;
-
                 view.displayOnlineView();
-                view.populateDoneServices(sortedIssues,headers);
+
+                if (doneServices.isEmpty()){
+                    view.populateEmptyServices();
+                }else{
+                    view.populateDoneServices(doneServices);
+                }
+
                 view.hideLoading();
             }
 
@@ -70,6 +73,11 @@ public class HistoryServicesPresenter {
             }
         });
 
+    }
+
+    void onCustomIssueCreated(CarIssue issue){
+        if (view == null) return;
+        view.populateDoneServices();
     }
 
     void onRefresh(){

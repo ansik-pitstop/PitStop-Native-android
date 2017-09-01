@@ -26,7 +26,6 @@ import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -36,6 +35,7 @@ import butterknife.OnClick;
 public class HistoryServicesFragment extends Fragment implements HistoryServicesView {
 
     private final String TAG = getClass().getSimpleName();
+    private final int RC_CUSTOM_ISSUE = 55;
 
     @BindView(R.id.progress)
     View loadingView;
@@ -59,8 +59,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     private AlertDialog unknownErrorDialog;
 
     private HistoryIssueGroupAdapter issueGroupAdapter;
-    private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
-    private ArrayList<String> headers;
+    private List<CarIssue> doneServices;
 
 
     private HistoryServicesPresenter presenter;
@@ -88,9 +87,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         swipeRefreshLayout.setOnRefreshListener(()
                 -> presenter.onRefresh());
 
-        sortedIssues = new LinkedHashMap<>();
-        headers = new ArrayList<>();
-        issueGroupAdapter = new HistoryIssueGroupAdapter(sortedIssues,headers);
+        doneServices = new ArrayList<>();
+        issueGroupAdapter = new HistoryIssueGroupAdapter(doneServices);
         issueGroup.setAdapter(issueGroupAdapter);
 
         //Allow scrolling inside nested refresh view
@@ -126,9 +124,22 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_CUSTOM_ISSUE && data != null){
+            CarIssue carIssue = data.getParcelableExtra(CarIssue.class.getName());
+            if (carIssue != null){
+                presenter.onCustomIssueCreated(carIssue);
+            }
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
+        hasBeenPopulated = false;
         presenter.unsubscribe();
     }
 
@@ -215,16 +226,14 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     }
 
     @Override
-    public void populateDoneServices(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
-            , List<String> headers) {
+    public void populateDoneServices(List<CarIssue> doneServices) {
         Log.d(TAG,"populateDoneServices()");
 
+        hasBeenPopulated = true;
         messageCard.setVisibility(View.INVISIBLE);
 
-        this.sortedIssues.clear();
-        this.headers.clear();
-        this.sortedIssues.putAll(sortedIssues);
-        this.headers.addAll(headers);
+        this.doneServices.clear();
+        this.doneServices.addAll(doneServices);
 
         issueGroupAdapter.notifyDataSetChanged();
     }
@@ -234,9 +243,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"populateEmptyServices()");
         messageCard.setVisibility(View.VISIBLE);
 
-        this.sortedIssues.clear();
-        this.headers.clear();
-
+        this.doneServices.clear();
         issueGroupAdapter.notifyDataSetChanged();
     }
 
@@ -245,7 +252,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"startCustomServiceActivity()");
         Intent intent = new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
-        startActivity(intent);
+        startActivityForResult(intent,RC_CUSTOM_ISSUE);
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
-import com.pitstop.interactors.get.GetHistoryServicesSortedByDateUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
@@ -94,8 +93,6 @@ public interface UseCaseComponent {
     GetCurrentServicesUseCase getCurrentServicesUseCase();
 
     GetDoneServicesUseCase getDoneServicesUseCase();
-
-    GetHistoryServicesSortedByDateUseCase getHistoryServicesSortedByDateUseCase();
 
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase();
 
