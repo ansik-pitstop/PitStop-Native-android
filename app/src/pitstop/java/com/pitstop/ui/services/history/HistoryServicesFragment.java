@@ -126,6 +126,12 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.unsubscribe();
+    }
+
+    @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {

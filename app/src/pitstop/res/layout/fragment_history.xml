@@ -10,6 +10,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <include
+            android:id="@+id/progress"
+            android:visibility="gone"
+            layout="@layout/layout_load"/>
+
+        <include
+            android:id="@+id/offline_view"
+            layout="@layout/layout_offline"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/service_launch_custom"
             android:layout_width="match_parent"
@@ -107,13 +117,7 @@
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerInParent="true"
-                android:indeterminate="true"
-                android:visibility="gone"/>
+
         </RelativeLayout>
 
     </LinearLayout>
