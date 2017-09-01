@@ -1,5 +1,7 @@
 package com.pitstop.ui.services.history;
 
+import android.util.Log;
+
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetHistoryServicesSortedByDateUseCase;
 import com.pitstop.models.issue.CarIssue;
@@ -15,6 +17,8 @@ import java.util.LinkedHashMap;
 
 public class HistoryServicesPresenter {
 
+    private final String TAG = getClass().getSimpleName();
+
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
 
@@ -27,6 +31,7 @@ public class HistoryServicesPresenter {
     }
 
     void onUpdateNeeded(){
+        Log.d(TAG,"onUpdateNeeded()");
         if (view == null || updating) return;
         updating = true;
         view.showLoading();
@@ -68,24 +73,29 @@ public class HistoryServicesPresenter {
     }
 
     void onRefresh(){
+        Log.d(TAG,"onRefresh()");
         if (view == null) return;
         onUpdateNeeded();
     }
 
     void onCustomServiceButtonClicked(){
+        Log.d(TAG,"onCustomServiceButtonClicked()");
         if (view == null) return;
         view.startCustomServiceActivity();
     }
 
     void subscribe(HistoryServicesView view){
+        Log.d(TAG,"subscribe()");
         this.view = view;
     }
 
     void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         this.view = null;
     }
 
     public void onOfflineTryAgainClicked() {
+        Log.d(TAG,"onOfflineTryAgainClicked()");
         onUpdateNeeded();
     }
 }

@@ -127,6 +127,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
     }
@@ -216,6 +217,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @Override
     public void populateDoneServices(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues
             , List<String> headers) {
+        Log.d(TAG,"populateDoneServices()");
+
         messageCard.setVisibility(View.INVISIBLE);
 
         this.sortedIssues.clear();
@@ -228,6 +231,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void populateEmptyServices(){
+        Log.d(TAG,"populateEmptyServices()");
         messageCard.setVisibility(View.VISIBLE);
 
         this.sortedIssues.clear();
@@ -238,6 +242,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void startCustomServiceActivity() {
+        Log.d(TAG,"startCustomServiceActivity()");
         Intent intent = new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,true);
         startActivity(intent);
@@ -245,6 +250,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public boolean hasBeenPopulated() {
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
     }
 }
