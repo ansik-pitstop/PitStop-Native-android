@@ -66,7 +66,7 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
                     System.out.println("Testing response " + response);
                     try{
                         JSONObject responseJson = new JSONObject(response);
-                        callback.onPIDPosted(responseJson);
+                        callback.onPIDPosted(responseJson);// I know this is bad, but its temporary
                     }catch (JSONException e){
                         callback.onError(RequestError.getUnknownError());
                     }

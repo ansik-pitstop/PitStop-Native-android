@@ -65,7 +65,6 @@ public class EmissionsMacroUseCase {
         Interactor current = interactorQueue.peek();
         interactorQueue.remove(current);
 
-
         if(current instanceof GetPIDUseCaseImpl){
           callback.onStartPID();
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {

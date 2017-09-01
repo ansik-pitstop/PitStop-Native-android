@@ -28,6 +28,8 @@ public class InProgressPresenter {
 
     private JSONObject emissionsResuts;
 
+    private boolean error;
+
 
     public InProgressPresenter(EmissionsProgressCallback callback, UseCaseComponent component){
         readyToStart = false;
@@ -69,6 +71,7 @@ public class InProgressPresenter {
     public void onBigButtonPressed(){
         if(view == null){return;}
         if (readyToStart){
+            error = false;
             view.switchToProgress();
             emissionsMacroUseCase = new EmissionsMacroUseCase(component, bluetooth, new EmissionsMacroUseCase.Callback() {
                 @Override
@@ -78,12 +81,13 @@ public class InProgressPresenter {
 
                 @Override
                 public void onGotPID() {
-                    view.changeStep("Got PIDS");
+                    view.changeStep("Got PIDs");
                 }
 
                 @Override
                 public void onErrorPID() {
-                    view.changeStep("ErrorPID");
+                    error = true;
+                    view.changeStep("Error getting 2141 from device");
                 }
 
                 @Override
@@ -100,7 +104,8 @@ public class InProgressPresenter {
 
                 @Override
                 public void onErrorPort2141() {
-                    view.changeStep("Error2141");
+                    error = true;
+                    view.changeStep("Error decoding 2141");
                 }
 
                 @Override
@@ -114,6 +119,7 @@ public class InProgressPresenter {
         }
     }
     public void showReport(){
+        if(error){return;}
         callback.setViewReport(emissionsResuts);
     }
 }
