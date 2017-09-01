@@ -20,6 +20,7 @@ import com.pitstop.models.service.UpcomingService;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private AlertDialog unknownErrorDialog;
 
     private UpcomingServicesPresenter presenter;
-    private Map<Integer, List<UpcomingService>> upcomingServices;
+    private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -95,8 +96,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
-        timelineRecyclerView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
     }
 
@@ -114,7 +115,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            loadingView.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -159,8 +160,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
-        timelineRecyclerView.setVisibility(View.INVISIBLE);
-        noServicesView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
     }
 
@@ -168,18 +169,19 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         timelineRecyclerView.setVisibility(View.VISIBLE);
-        noServicesView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
+        noServicesView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
     }
 
     @Override
     public void displayUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
         Log.d(TAG,"displayUpcomingServices() size: "+upcomingServices.size());
-        noServicesView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
+        noServicesView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
 
         timelineDisplayList.clear();
-        this.upcomingServices = upcomingServices;
+        this.upcomingServices.clear();
+        this.upcomingServices.putAll(upcomingServices);
 
         for (Integer mileage : upcomingServices.keySet()){
             timelineDisplayList.add(String.valueOf(mileage));
