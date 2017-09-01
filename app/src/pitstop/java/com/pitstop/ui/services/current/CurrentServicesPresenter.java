@@ -120,9 +120,9 @@ class CurrentServicesPresenter {
         Log.d(TAG,"handleOfflineError()");
         if (view == null) return;
         else if (view.hasBeenPopulated()){
-            view.displayOfflineView();
-        }else{
             view.displayOfflineErrorDialog();
+        }else{
+            view.displayOfflineView();
         }
     }
 

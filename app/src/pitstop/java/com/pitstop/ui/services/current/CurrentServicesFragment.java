@@ -88,12 +88,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.reg_view)
     View regView;
 
+    /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
     private CurrentServicesAdapter storedEngineIssuesAdapter;
     private CurrentServicesAdapter potentialEngineIssueAdapter;
     private CurrentServicesAdapter recallAdapter;
 
+    /*Displayed services, these lists are referenced through the adapter*/
     List<CarIssue> carIssueList = new ArrayList<>();
     List<CarIssue> customIssueList = new ArrayList<>();
     List<CarIssue> storedEngineIssueList = new ArrayList<>();

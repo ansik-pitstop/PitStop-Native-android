@@ -76,12 +76,15 @@ public class UpcomingServicesPresenter {
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     if (view.hasBeenPopulated()){
-                        view.displayOfflineView();
-                    }
-                    else{
-                        view.displayOnlineView();
                         view.displayOfflineErrorDialog();
                     }
+                    else{
+                        view.displayOfflineView();
+                    }
+                }
+                else{
+                    view.displayOnlineView();
+                    view.displayUnknownErrorDialog();
                 }
 
             }
