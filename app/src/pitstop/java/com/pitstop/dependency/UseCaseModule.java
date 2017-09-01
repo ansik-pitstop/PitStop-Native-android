@@ -26,6 +26,8 @@ import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetHistoricalServicesSortedByDateUseCaseImpl;
+import com.pitstop.interactors.get.GetHistoryServicesSortedByDateUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
@@ -260,6 +262,16 @@ public class UseCaseModule {
             ,@Named("mainHandler") Handler mainHandler){
 
         return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository
+                , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetHistoryServicesSortedByDateUseCase getHistoryServicesSortedByDateUseCase(
+            UserRepository userRepository, CarIssueRepository carIssueRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new GetHistoricalServicesSortedByDateUseCaseImpl(userRepository, carIssueRepository
                 , useCaseHandler, mainHandler);
     }
 

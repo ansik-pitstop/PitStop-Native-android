@@ -21,16 +21,11 @@ import java.util.LinkedHashMap;
 public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
 
     private LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues;
-    private ArrayList<String> headers;
-    private LayoutInflater inflater;
-    private Context context;
+    private ArrayList<String> headers; //sorted by month
 
-
-    public HistoryIssueGroupAdapter(Context context, LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues, ArrayList<String> headers) {
-        this.context = context;
+    public HistoryIssueGroupAdapter(LinkedHashMap<String, ArrayList<CarIssue>> sortedIssues, ArrayList<String> headers) {
         this.sortedIssues = sortedIssues;
         this.headers = headers;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -71,6 +66,8 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) parent.getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.list_item_issue_group, parent, false);
         }
 
@@ -83,6 +80,8 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) parent.getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.list_item_issue, parent, false);
         }
 
@@ -105,13 +104,13 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         }
 
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
-            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
+            imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
         } else if (issue.getIssueType().equals(CarIssue.DTC)) {
-            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.car_engine_red));
+            imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.car_engine_red));
         } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.car_engine_yellow));
+            imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.car_engine_yellow));
         } else {
-            imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
+            imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
         }
 
         title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
