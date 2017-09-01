@@ -91,7 +91,7 @@ import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
-;import static com.pitstop.R.array.car;
+;
 
 /**
  * Created by David on 6/8/2016.
@@ -184,13 +184,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                 .contextModule(new ContextModule(this))
                 .build();
         networkHelper = tempNetworkComponent.networkHelper();
-
-        //Logout if user is not connected to the internet
-        if (!NetworkHelper.isConnected(this)){
-            application.logOutUser();
-            Toast.makeText(application, "Please connect to the internet.",Toast.LENGTH_LONG);
-            finish();
-        }
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getApplicationContext()))
