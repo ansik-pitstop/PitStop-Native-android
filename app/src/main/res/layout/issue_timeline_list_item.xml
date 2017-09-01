@@ -37,13 +37,13 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/issue_image_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/issue_image_layout"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_alignParentEnd="true">-->
 
             <!--<ImageView-->
                 <!--android:id="@+id/image_icon"-->
@@ -52,7 +52,7 @@
                 <!--android:layout_centerVertical="true"-->
                 <!--android:src="@drawable/right_chevron"-->
                 <!--android:scaleType="centerInside"/>-->
-        </RelativeLayout>
+        <!--</RelativeLayout>-->
 
         <TextView
             android:id="@+id/title"

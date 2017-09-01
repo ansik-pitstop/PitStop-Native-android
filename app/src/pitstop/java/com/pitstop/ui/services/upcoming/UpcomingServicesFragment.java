@@ -35,7 +35,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private final String TAG = getClass().getSimpleName();
 
     @BindView(R.id.timeline_recyclerview)
-    RecyclerView mTimeLineRecyclerView;
+    RecyclerView timelineRecyclerView;
 
     @BindView(R.id.loading_view)
     View loadingView;
@@ -49,9 +49,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.activity_timeline)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    Map<String, List<UpcomingIssue>> mTimeLineMap; //Kilometer Section - List of  items in the section
-    List<Object> mTimelineDisplayList;
-    TimelineAdapter timelineAdapter;
+    //Kilometer Section - List of  items in the section
+    private Map<String, List<UpcomingIssue>> timelineMap;
+    private List<Object> timelineDisplayList;
+    private TimelineAdapter timelineAdapter;
 
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
@@ -78,11 +79,14 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         presenter.subscribe(this);
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-        mTimeLineMap = new HashMap<>();
-        mTimelineDisplayList = new ArrayList<>();
-        mTimeLineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mTimeLineRecyclerView.setNestedScrollingEnabled(true);
+        timelineMap = new HashMap<>();
+        timelineDisplayList = new ArrayList<>();
+        timelineAdapter = new TimelineAdapter(timelineDisplayList);
+        timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        timelineRecyclerView.setNestedScrollingEnabled(true);
+        timelineRecyclerView.setAdapter(timelineAdapter);
         presenter.onUpdateNeeded();
+
         return view;
     }
 
@@ -96,7 +100,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
-        mTimeLineRecyclerView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.INVISIBLE);
         offlineView.setVisibility(View.INVISIBLE);
         noServicesView.setVisibility(View.VISIBLE);
     }
@@ -160,7 +164,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
-        mTimeLineRecyclerView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.INVISIBLE);
         noServicesView.setVisibility(View.INVISIBLE);
         offlineView.setVisibility(View.VISIBLE);
     }
@@ -168,7 +172,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
-        mTimeLineRecyclerView.setVisibility(View.VISIBLE);
+        timelineRecyclerView.setVisibility(View.VISIBLE);
         noServicesView.setVisibility(View.INVISIBLE);
         offlineView.setVisibility(View.INVISIBLE);
     }
@@ -179,16 +183,15 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.INVISIBLE);
         offlineView.setVisibility(View.INVISIBLE);
 
-        mTimelineDisplayList.clear();
+        timelineDisplayList.clear();
         this.upcomingServices = upcomingServices;
 
         for (Integer mileage : upcomingServices.keySet()){
-            mTimelineDisplayList.add(String.valueOf(mileage));
-            mTimelineDisplayList.addAll(upcomingServices.get(mileage));
+            timelineDisplayList.add(String.valueOf(mileage));
+            timelineDisplayList.addAll(upcomingServices.get(mileage));
         }
 
-        timelineAdapter = new TimelineAdapter(mTimelineDisplayList);
-        mTimeLineRecyclerView.setAdapter(timelineAdapter);
+        timelineAdapter.notifyDataSetChanged();
 
     }
 
