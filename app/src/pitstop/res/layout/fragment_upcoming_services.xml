@@ -6,62 +6,57 @@
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.upcoming_timeline.TimelineActivity">
 
-    <android.support.v4.widget.NestedScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
+        <include
+            android:id="@+id/offline_view"
+            layout="@layout/layout_offline"
+            android:visibility="gone" />
+
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/timeline_recyclerview"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent">
 
-        </RelativeLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/timeline_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-    </android.support.v4.widget.NestedScrollView>
+            </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/error_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone">
+        </android.support.v4.widget.NestedScrollView>
 
-        <TextView
-            android:id="@+id/error_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:padding="8dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+        <LinearLayout
+            android:id="@+id/no_services"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
             android:gravity="center"
-            />
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/try_again"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/try_again_button"
-            android:textAllCaps="true"
-            android:textColor="@color/primary"
-            />
-    </LinearLayout>
+            <TextView
+                android:text="@string/no_data_timeline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:gravity="center"
+                />
 
-    <ProgressBar
-        android:id="@+id/loading_spinner"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:visibility="gone"/>
+        </LinearLayout>
 
-    <include layout="@layout/activity_issue_details_item"
-        android:id="@+id/issue_details_view"
-        android:visibility="gone" />
+        <include
+            android:id="@+id/loading_view"
+            layout="@layout/layout_load"/>
+
+    </RelativeLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>
