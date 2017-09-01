@@ -2,17 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:clickable="true"
-    android:gravity="center"
-    android:visibility="gone"
-    android:id="@+id/progress">
+    android:gravity="center">
 
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
-        android:clickable="true"
         android:indeterminate="true"
         android:visibility="visible"/>
 

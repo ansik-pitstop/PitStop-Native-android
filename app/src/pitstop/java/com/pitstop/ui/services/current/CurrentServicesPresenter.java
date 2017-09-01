@@ -107,6 +107,7 @@ class CurrentServicesPresenter {
                     handleOfflineError();
                 }
                 else{
+                    view.displayOnlineView();
                     view.displayUnknownErrorDialog();
                 }
 
@@ -118,10 +119,10 @@ class CurrentServicesPresenter {
     private void handleOfflineError(){
         Log.d(TAG,"handleOfflineError()");
         if (view == null) return;
-        else if (view.isEmpty()){
-            view.displayOfflineView();
-        }else{
+        else if (view.hasBeenPopulated()){
             view.displayOfflineErrorDialog();
+        }else{
+            view.displayOfflineView();
         }
     }
 
@@ -141,6 +142,7 @@ class CurrentServicesPresenter {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
                 updating = false;
                 if (view == null) return;
+                view.displayOnlineView();
                 view.hideLoading();
                 view.removeCarIssue(carIssue);
             }
@@ -156,6 +158,7 @@ class CurrentServicesPresenter {
                     handleOfflineError();
                 }
                 else{
+                    view.displayOnlineView();
                     view.displayUnknownErrorDialog();
                 }
             }

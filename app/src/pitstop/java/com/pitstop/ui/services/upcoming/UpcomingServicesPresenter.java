@@ -58,27 +58,35 @@ public class UpcomingServicesPresenter {
                 updating = false;
                 if (view == null) return;
 
+                view.hideLoading();
+                view.displayOnlineView();
+
                 if (!serviceMap.isEmpty()){
-                    view.displayUpcomingServices(serviceMap);
+                    view.populateUpcomingServices(serviceMap);
                 }else{
                     view.displayNoServices();
                 }
-                view.hideLoading();
             }
 
             @Override
             public void onError(RequestError error) {
                 updating = false;
                 if (view == null) return;
+                view.hideLoading();
+
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (view.isEmpty()){
-                        view.displayOfflineView();
-                    }
-                    else{
+                    if (view.hasBeenPopulated()){
                         view.displayOfflineErrorDialog();
                     }
+                    else{
+                        view.displayOfflineView();
+                    }
                 }
-                view.hideLoading();
+                else{
+                    view.displayOnlineView();
+                    view.displayUnknownErrorDialog();
+                }
+
             }
         });
     }

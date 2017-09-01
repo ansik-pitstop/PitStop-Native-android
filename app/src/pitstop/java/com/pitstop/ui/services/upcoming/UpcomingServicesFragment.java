@@ -20,6 +20,7 @@ import com.pitstop.models.service.UpcomingService;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
 
-    @BindView(R.id.loading_view)
+    @BindView(R.id.progress)
     View loadingView;
 
     @BindView(R.id.no_services)
@@ -54,7 +55,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private AlertDialog unknownErrorDialog;
 
     private UpcomingServicesPresenter presenter;
-    private Map<Integer, List<UpcomingService>> upcomingServices;
+    private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
+    private boolean hasBeenPopulated = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,14 +91,15 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         presenter.unsubscribe();
+        hasBeenPopulated = false;
         super.onDestroyView();
     }
 
     @Override
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
-        timelineRecyclerView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
     }
 
@@ -114,7 +117,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            loadingView.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -159,27 +162,28 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
-        timelineRecyclerView.setVisibility(View.INVISIBLE);
-        noServicesView.setVisibility(View.INVISIBLE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        offlineView.bringToFront();
     }
 
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         timelineRecyclerView.setVisibility(View.VISIBLE);
-        noServicesView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
+        noServicesView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.bringToFront();
     }
 
     @Override
-    public void displayUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
-        Log.d(TAG,"displayUpcomingServices() size: "+upcomingServices.size());
-        noServicesView.setVisibility(View.INVISIBLE);
-        offlineView.setVisibility(View.INVISIBLE);
-
+    public void populateUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
+        Log.d(TAG,"populateUpcomingServices() size: "+upcomingServices.size());
+        hasBeenPopulated = true;
         timelineDisplayList.clear();
-        this.upcomingServices = upcomingServices;
+        this.upcomingServices.clear();
+        this.upcomingServices.putAll(upcomingServices);
 
         for (Integer mileage : upcomingServices.keySet()){
             timelineDisplayList.add(String.valueOf(mileage));
@@ -191,9 +195,9 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     }
 
     @Override
-    public boolean isEmpty() {
-        Log.d(TAG,"isEmpty() ? "+upcomingServices.isEmpty());
-        return upcomingServices.isEmpty();
+    public boolean hasBeenPopulated() {
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
+        return hasBeenPopulated;
     }
 
     @OnClick(R.id.offline_try_again)

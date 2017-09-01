@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
@@ -50,8 +49,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
 
-    @BindView(R.id.loading_spinner)
-    ProgressBar mLoadingSpinner;
+    @BindView(R.id.progress)
+    View loadingView;
 
     @BindView(R.id.service_launch_custom)
     LinearLayout customServiceButton;
@@ -89,12 +88,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.reg_view)
     View regView;
 
+    /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
     private CurrentServicesAdapter storedEngineIssuesAdapter;
     private CurrentServicesAdapter potentialEngineIssueAdapter;
     private CurrentServicesAdapter recallAdapter;
 
+    /*Displayed services, these lists are referenced through the adapter*/
     List<CarIssue> carIssueList = new ArrayList<>();
     List<CarIssue> customIssueList = new ArrayList<>();
     List<CarIssue> storedEngineIssueList = new ArrayList<>();
@@ -104,6 +105,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     private CurrentServicesPresenter presenter;
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
+    private boolean hasBeenPopulated = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -238,17 +240,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public boolean isEmpty() {
-        Log.d(TAG,"isEmpty()");
-        return carIssueList.isEmpty() && customIssueList.isEmpty()
-                && storedEngineIssueList.isEmpty() && potentialEngineIssuesList.isEmpty()
-                && recallList.isEmpty();
+    public boolean hasBeenPopulated() {
+        Log.d(TAG,"hasBeenPopulated()");
+        return hasBeenPopulated;
     }
 
     @Override
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         presenter.unsubscribe();
+        hasBeenPopulated = false;
         super.onDestroyView();
     }
 
@@ -256,7 +257,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -266,7 +267,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
-            mLoadingSpinner.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -277,6 +278,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayCarIssues(List<CarIssue> carIssues) {
         Log.d(TAG,"displayCarIssues() size(): "+carIssues.size());
 
+        hasBeenPopulated = true;
         this.carIssueList.clear();
         this.carIssueList.addAll(carIssues);
 
@@ -296,6 +298,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayCustomIssues(List<CarIssue> customIssueList) {
         Log.d(TAG,"displayCustomIssues() size(): "+customIssueList.size());
 
+        hasBeenPopulated = true;
         this.customIssueList.clear();
         this.customIssueList.addAll(customIssueList);
         customIssueAdapter = new CurrentServicesAdapter(this.customIssueList,this);
@@ -316,6 +319,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayStoredEngineIssues(List<CarIssue> storedEngineIssues) {
         Log.d(TAG,"displayStoredEngineIssues() size(): "+storedEngineIssues.size());
 
+        hasBeenPopulated = true;
         this.storedEngineIssueList.clear();
         this.storedEngineIssueList.addAll(storedEngineIssues);
         storedEngineIssuesAdapter = new CurrentServicesAdapter(this.storedEngineIssueList,this);
@@ -333,6 +337,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
 
+        hasBeenPopulated = true;
         this.potentialEngineIssuesList.clear();
         this.potentialEngineIssuesList.addAll(potentialEngineIssueList);
         potentialEngineIssueAdapter
@@ -352,6 +357,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayRecalls(List<CarIssue> displayRecalls) {
         Log.d(TAG,"displayRecalls() size(): "+displayRecalls.size());
 
+        hasBeenPopulated = true;
         this.recallList.clear();
         this.recallList.addAll(displayRecalls);
         recallAdapter = new CurrentServicesAdapter(this.recallList,this);
