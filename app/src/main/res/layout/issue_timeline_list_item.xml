@@ -45,13 +45,13 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true">
 
-            <ImageView
-                android:id="@+id/image_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/right_chevron"
-                android:scaleType="centerInside"/>
+            <!--<ImageView-->
+                <!--android:id="@+id/image_icon"-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:src="@drawable/right_chevron"-->
+                <!--android:scaleType="centerInside"/>-->
         </RelativeLayout>
 
         <TextView
