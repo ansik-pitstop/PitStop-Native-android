@@ -10,111 +10,123 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <include
+            android:id="@+id/progress"
+            android:visibility="gone"
+            layout="@layout/layout_load"/>
+
+        <include
+            android:id="@+id/offline_view"
+            layout="@layout/layout_offline"
+            android:visibility="gone" />
+
         <LinearLayout
-            android:id="@+id/service_launch_custom"
+            android:id="@+id/reg_view"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/imageView32"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/service_launch_custom"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                app:srcCompat="@drawable/custom_issue3x" />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/imageView33"
-                    app:srcCompat="@drawable/right_chevron"
+                    android:id="@+id/imageView32"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="20dp" />
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    app:srcCompat="@drawable/custom_issue3x" />
 
-                <LinearLayout
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/imageView33"
+                        app:srcCompat="@drawable/right_chevron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="20dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView29"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="5dp"
+                            android:text="Log Service"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                        <TextView
+                            android:id="@+id/textView28"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginRight="5dp"
+                            android:text="Add a service that has occurred"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+            </LinearLayout>
+            <include layout="@layout/divider" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.RecyclerView
+                    android:visibility="invisible"
+                    android:id="@+id/history_recycler_view"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:scrollbars="vertical" />
+
+                <ExpandableListView
+                    android:id="@+id/issue_expandable_list"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical" />
 
-                    <TextView
-                        android:id="@+id/textView29"
+                <android.support.v7.widget.CardView
+                    android:id="@+id/message_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:visibility="gone">
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:text="Log Service"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ic_check_circle_green_400_36dp"/>
+                        <TextView
+                            android:id="@+id/message"
+                            android:text="No History"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="15dp"
+                            android:layout_marginTop="15dp"/>
 
-                    <TextView
-                        android:id="@+id/textView28"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:text="Add a service that has occurred"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-                </LinearLayout>
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+
             </RelativeLayout>
 
         </LinearLayout>
-        <include layout="@layout/divider" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <android.support.v7.widget.RecyclerView
-                android:visibility="invisible"
-                android:id="@+id/history_recycler_view"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:scrollbars="vertical" />
-
-            <ExpandableListView
-                android:id="@+id/issue_expandable_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical" />
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/message_card"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:visibility="gone">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_check_circle_green_400_36dp"/>
-                    <TextView
-                        android:id="@+id/message"
-                        android:text="No History"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="15dp"/>
-
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerInParent="true"
-                android:indeterminate="true"
-                android:visibility="gone"/>
-        </RelativeLayout>
 
     </LinearLayout>
 

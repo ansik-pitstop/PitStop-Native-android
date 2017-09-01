@@ -21,6 +21,7 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.current.CurrentServicesFragment;
+import com.pitstop.ui.services.history.HistoryServicesFragment;
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
 
 public class MainServicesFragment extends Fragment{
@@ -165,7 +166,7 @@ public class MainServicesFragment extends Fragment{
                 case FRAGMENT_CURRENT:
                     return new CurrentServicesFragment();
                 case FRAGMENT_HISTORY:
-                    return HistoryServiceFragment.newInstance();
+                    return new HistoryServicesFragment();
             }
             return null;
         }
