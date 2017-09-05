@@ -145,10 +145,10 @@ public class NotificationsFragment extends Fragment {
                             }
                             mNotificationList = notificationsList;
                             Collections.sort(mNotificationList, new Comparator<Notification>() {
-                                @Override
-                                public int compare(Notification notification1, Notification notification2) {
-                                    return notification2.getCreatedAt().getTime() > notification1.getCreatedAt().getTime() ? 1 : -1;
-                                }
+                                    @Override
+                                    public int compare(Notification notification1, Notification notification2) {
+                                        return notification2.getCreatedAt().getTime() > notification1.getCreatedAt().getTime() ? 1 : -1;
+                                    }
                             });
                             if (requestError != null || e != null)
                                 showFetchError();

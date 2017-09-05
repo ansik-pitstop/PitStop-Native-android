@@ -20,6 +20,7 @@ public abstract class TabPresenter<T> implements Presenter<T> {
 
     final public static String TAG = TabPresenter.class.getSimpleName();
     private List<EventType> updateConstraints = new ArrayList<>();
+    private T view;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarDataChangedEvent(CarDataChangedEvent event){
@@ -40,8 +41,14 @@ public abstract class TabPresenter<T> implements Presenter<T> {
         }
     }
 
+    protected T getView(){
+        return view;
+    }
+
     @Override
     public void subscribe(T view) {
+        this.view = view;
+        setNoUpdateOnEventTypes(getIgnoredEventTypes());
         if (!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
         }
@@ -49,9 +56,11 @@ public abstract class TabPresenter<T> implements Presenter<T> {
 
     @Override
     public void unsubscribe() {
+        this.view = null;
         EventBus.getDefault().unregister(this);
     }
 
+    public abstract EventType[] getIgnoredEventTypes();
     public abstract void onAppStateChanged();
     public abstract EventSource getSourceType();
 

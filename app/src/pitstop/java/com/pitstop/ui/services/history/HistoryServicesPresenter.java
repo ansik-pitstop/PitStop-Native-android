@@ -2,10 +2,15 @@ package com.pitstop.ui.services.history;
 
 import android.util.Log;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -14,14 +19,18 @@ import java.util.List;
  * Created by Karol Zdebel on 9/1/2017.
  */
 
-public class HistoryServicesPresenter {
+public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
 
     private final String TAG = getClass().getSimpleName();
+    public final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
+    public final EventType[] ignoredEvents = {
+            new EventTypeImpl(EventType.EVENT_MILEAGE)
+    };
 
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
 
-    private HistoryServicesView view;
     private boolean updating = false;
 
     public HistoryServicesPresenter(MixpanelHelper mixpanelHelper, UseCaseComponent useCaseComponent) {
@@ -31,44 +40,44 @@ public class HistoryServicesPresenter {
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
-        if (view == null || updating) return;
+        if (getView() == null || updating) return;
         updating = true;
-        view.showLoading();
+        getView().showLoading();
 
         useCaseComponent.getDoneServicesUseCase().execute(
                 new GetDoneServicesUseCase.Callback() {
             @Override
             public void onGotDoneServices(List<CarIssue> doneServices) {
                 updating = false;
-                if (view == null) return;
-                view.displayOnlineView();
+                if (getView() == null) return;
+                getView().displayOnlineView();
 
                 if (doneServices.isEmpty()){
-                    view.populateEmptyServices();
+                    getView().populateEmptyServices();
                 }else{
-                    view.populateDoneServices(doneServices);
+                    getView().populateDoneServices(doneServices);
                 }
 
-                view.hideLoading();
+                getView().hideLoading();
             }
 
             @Override
             public void onError(RequestError error) {
                 updating = false;
-                if (view == null) return;
-                view.hideLoading();
+                if (getView() == null) return;
+                getView().hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (view.hasBeenPopulated()){
-                        view.displayOfflineErrorDialog();
+                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
                     }
                     else{
-                        view.displayOfflineView();
+                        getView().displayOfflineView();
                     }
                 }
                 else{
-                    view.displayOnlineView();
-                    view.displayUnknownErrorDialog();
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
                 }
             }
         });
@@ -76,14 +85,14 @@ public class HistoryServicesPresenter {
     }
 
     void onCustomServiceCreated(CarIssue customService){
-        if (view == null) return;
-        view.addDoneService(customService);
+        if (getView() == null) return;
+        getView().addDoneService(customService);
     }
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
         mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_HISTORY_VIEW);
-        if (view == null) return;
+        if (getView() == null) return;
         onUpdateNeeded();
     }
 
@@ -91,18 +100,32 @@ public class HistoryServicesPresenter {
         Log.d(TAG,"onCustomServiceButtonClicked()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_HISTORY_CREATE_CUSTOM
                 , MixpanelHelper.SERVICE_HISTORY_VIEW);
-        if (view == null) return;
-        view.startCustomServiceActivity();
+        if (getView() == null) return;
+        getView().startCustomServiceActivity();
     }
 
-    void subscribe(HistoryServicesView view){
+    @Override
+    public void subscribe(HistoryServicesView view){
         Log.d(TAG,"subscribe()");
-        this.view = view;
+        updating = false;
+        super.subscribe(view);
     }
 
-    void unsubscribe(){
-        Log.d(TAG,"unsubscribe()");
-        this.view = null;
+    @Override
+    public EventType[] getIgnoredEventTypes() {
+        return ignoredEvents;
+    }
+
+    @Override
+    public void onAppStateChanged() {
+        if (getView() != null){
+            onUpdateNeeded();
+        }
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     public void onOfflineTryAgainClicked() {

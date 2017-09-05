@@ -33,37 +33,36 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
-    private CurrentServicesView view;
 
     CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    void subscribe(CurrentServicesView view){
-        Log.d(TAG,"subscribe()");
-        setNoUpdateOnEventTypes(ignoredEvents);
-        this.view = view;
+    @Override
+    public EventType[] getIgnoredEventTypes() {
+        return ignoredEvents;
     }
 
-    void unsubscribe(){
-        Log.d(TAG,"unsubscribe()");
-        this.view = null;
+    @Override
+    public void subscribe(CurrentServicesView view) {
+        updating = false;
+        super.subscribe(view);
     }
 
     void onServiceClicked(CarIssue issue){
-        if (view == null) return;
+        if (getView() == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_LIST_ITEM
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
-        view.startDisplayIssueActivity(issue);
+        getView().startDisplayIssueActivity(issue);
     }
 
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_CREATE_CUSTOM
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
-        if (view == null) return;
-        view.startCustomServiceActivity();
+        if (getView() == null) return;
+        getView().startCustomServiceActivity();
     }
 
     void onOfflineTryAgainClicked(){
@@ -73,8 +72,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
-        if (issue == null || view == null) return;
-        view.addCustomIssue(issue);
+        if (issue == null || getView() == null) return;
+        getView().addCustomIssue(issue);
     }
 
     void onRefresh(){
@@ -93,10 +92,10 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
-        if (view == null) return;
+        if (getView() == null) return;
         if (updating) return;
         else updating = true;
-        view.showLoading();
+        getView().showLoading();
 
         List<CarIssue> carIssueList = new ArrayList<>();
         List<CarIssue> customIssueList = new ArrayList<>();
@@ -109,8 +108,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
                 updating = false;
-                if (view == null) return;
-                view.displayOnlineView();
+                if (getView() == null) return;
+                getView().displayOnlineView();
                 for(CarIssue c:currentServices){
                     if(c.getIssueType().equals(CarIssue.DTC)){
                         engineIssueList.add(c);
@@ -124,28 +123,28 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 }
                 customIssueList.addAll(customIssues);
 
-                view.displayCarIssues(carIssueList);
-                view.displayCustomIssues(customIssueList);
-                view.displayPotentialEngineIssues(potentialEngineIssues);
-                view.displayStoredEngineIssues(engineIssueList);
-                view.displayRecalls(recallList);
+                getView().displayCarIssues(carIssueList);
+                getView().displayCustomIssues(customIssueList);
+                getView().displayPotentialEngineIssues(potentialEngineIssues);
+                getView().displayStoredEngineIssues(engineIssueList);
+                getView().displayRecalls(recallList);
 
-                view.hideLoading();
+                getView().hideLoading();
             }
 
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"getCurrentServicesUseCase.onError()");
                 updating = false;
-                if (view == null) return;
+                if (getView() == null) return;
 
-                view.hideLoading();
+                getView().hideLoading();
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     handleOfflineError();
                 }
                 else{
-                    view.displayOnlineView();
-                    view.displayUnknownErrorDialog();
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
                 }
 
             }
@@ -155,11 +154,11 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     private void handleOfflineError(){
         Log.d(TAG,"handleOfflineError()");
-        if (view == null) return;
-        else if (view.hasBeenPopulated()){
-            view.displayOfflineErrorDialog();
+        if (getView() == null) return;
+        else if (getView().hasBeenPopulated()){
+            getView().displayOfflineErrorDialog();
         }else{
-            view.displayOfflineView();
+            getView().displayOfflineView();
         }
     }
 
@@ -167,12 +166,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
-        if (view == null) return;
+        if (getView() == null) return;
         carIssue.setYear(year);
         carIssue.setMonth(month);
         carIssue.setDay(day);
 
-        view.showLoading();
+        getView().showLoading();
         updating = true;
         //When the date is set, update issue to done on that date
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, EVENT_SOURCE
@@ -181,25 +180,25 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             public void onServiceMarkedAsDone() {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
                 updating = false;
-                if (view == null) return;
-                view.displayOnlineView();
-                view.hideLoading();
-                view.removeCarIssue(carIssue);
+                if (getView() == null) return;
+                getView().displayOnlineView();
+                getView().hideLoading();
+                getView().removeCarIssue(carIssue);
             }
 
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"markServiceDoneUseCase().onError() error: "+error.getMessage());
                 updating = false;
-                if (view == null) return;
-                view.hideLoading();
+                if (getView() == null) return;
+                getView().hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     handleOfflineError();
                 }
                 else{
-                    view.displayOnlineView();
-                    view.displayUnknownErrorDialog();
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
                 }
             }
         });
@@ -209,8 +208,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         Log.d(TAG,"onServiceMarkedAsDone()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
-        if (view == null || updating) return;
-        view.displayCalendar(carIssue);
+        if (getView() == null || updating) return;
+        getView().displayCalendar(carIssue);
     }
 
 }
