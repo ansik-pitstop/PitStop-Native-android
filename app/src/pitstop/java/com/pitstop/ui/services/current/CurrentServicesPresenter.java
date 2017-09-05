@@ -42,6 +42,8 @@ class CurrentServicesPresenter {
 
     void onServiceClicked(CarIssue issue){
         if (view == null) return;
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_LIST_ITEM
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         view.startDisplayIssueActivity(issue);
     }
 
