@@ -232,7 +232,8 @@ public class CarIssue implements Parcelable, Issue {
             }
         }
 
-        if(carIssue.getIssueType().equals(DTC) && !issueObject.getJSONObject("issueDetail").isNull("isPending")
+        if(issueDetail != null && carIssue.getIssueType().equals(DTC)
+                && !issueObject.getJSONObject("issueDetail").isNull("isPending")
                 && issueObject.getJSONObject("issueDetail").getBoolean("isPending")) {
             carIssue.setIssueType(PENDING_DTC);
             carIssue.setAction("Potential Engine issue: Code");
