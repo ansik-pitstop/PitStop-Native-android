@@ -175,12 +175,12 @@ public class MixpanelHelper {
     public static final String SERVICE_HISTORY_LIST_ITEM = "History Service List Item";
     public static final String SERVICE_HISTORY_CREATE_CUSTOM = "Create Custom History Service";
 
-    /*
+    /**
     * Upcoming Service Tab
      */
     public static final String SERVICE_UPCOMING_VIEW = "Service Upcoming";
 
-    /*
+    /**
     * Refresh
      */
     public static final String REFRESH = "Refresh";
