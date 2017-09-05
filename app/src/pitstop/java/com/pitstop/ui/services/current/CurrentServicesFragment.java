@@ -390,9 +390,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void onServiceClicked(CarIssue carIssue) {
         Log.d(TAG,"onServiceClicked()");
-        new MixpanelHelper((GlobalApplication) getContext().getApplicationContext())
-                .trackButtonTapped(carIssue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carIssue);
+        presenter.onServiceClicked(carIssue);
+
+    }
+
+    @Override
+    public void startDisplayIssueActivity(CarIssue issue){
+        if (getActivity() == null) return;
+        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issue);
     }
 
     @Override

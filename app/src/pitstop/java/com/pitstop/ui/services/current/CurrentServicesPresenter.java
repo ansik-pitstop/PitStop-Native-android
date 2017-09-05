@@ -40,6 +40,11 @@ class CurrentServicesPresenter {
         this.view = null;
     }
 
+    void onServiceClicked(CarIssue issue){
+        if (view == null) return;
+        view.startDisplayIssueActivity(issue);
+    }
+
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_CREATE_CUSTOM
