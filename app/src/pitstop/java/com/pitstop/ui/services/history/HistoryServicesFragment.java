@@ -148,6 +148,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            regView.setVisibility(View.GONE);
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
@@ -158,6 +159,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
+            regView.setVisibility(View.VISIBLE);
             loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);

@@ -50,7 +50,6 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
             public void onGotDoneServices(List<CarIssue> doneServices) {
                 updating = false;
                 if (getView() == null) return;
-                getView().displayOnlineView();
 
                 if (doneServices.isEmpty()){
                     getView().populateEmptyServices();
@@ -59,6 +58,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                 }
 
                 getView().hideLoading();
+                getView().displayOnlineView();
             }
 
             @Override
