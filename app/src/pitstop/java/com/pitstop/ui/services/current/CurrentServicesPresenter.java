@@ -4,11 +4,14 @@ import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -18,11 +21,14 @@ import java.util.List;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-class CurrentServicesPresenter{
+class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
+    public final EventType[] ignoredEvents = {
+            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)
+    };
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
@@ -36,6 +42,7 @@ class CurrentServicesPresenter{
 
     void subscribe(CurrentServicesView view){
         Log.d(TAG,"subscribe()");
+        setNoUpdateOnEventTypes(ignoredEvents);
         this.view = view;
     }
 
@@ -76,9 +83,13 @@ class CurrentServicesPresenter{
         onUpdateNeeded();
     }
 
-    void onAppStateChanged(){
+    @Override
+    public void onAppStateChanged(){
         onUpdateNeeded();
     }
+
+    @Override
+    public EventSource getSourceType() { return EVENT_SOURCE; }
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");

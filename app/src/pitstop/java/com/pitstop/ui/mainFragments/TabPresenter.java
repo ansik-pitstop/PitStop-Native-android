@@ -1,13 +1,9 @@
 package com.pitstop.ui.mainFragments;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.View;
-
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.ui.Presenter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -20,9 +16,9 @@ import java.util.List;
  * Created by Karol Zdebel on 9/5/2017.
  */
 
-public abstract class CarDataFragment extends Fragment {
+public abstract class TabPresenter<T> implements Presenter<T> {
 
-    final public static String TAG = CarDataFragment.class.getSimpleName();
+    final public static String TAG = TabPresenter.class.getSimpleName();
     private List<EventType> updateConstraints = new ArrayList<>();
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -45,16 +41,14 @@ public abstract class CarDataFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void subscribe(T view) {
         if (!EventBus.getDefault().isRegistered(this)){
             EventBus.getDefault().register(this);
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void unsubscribe() {
         EventBus.getDefault().unregister(this);
     }
 

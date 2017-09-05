@@ -3,6 +3,7 @@ package com.pitstop.ui.services.current;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,7 +24,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
@@ -41,7 +41,7 @@ import butterknife.OnClick;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-public class CurrentServicesFragment extends CarDataFragment implements CurrentServicesView
+public class CurrentServicesFragment extends Fragment implements CurrentServicesView
         , IssueHolderListener{
 
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
@@ -411,16 +411,5 @@ public class CurrentServicesFragment extends CarDataFragment implements CurrentS
     public void onTentativeServiceClicked() {
         Log.d(TAG,"onTentativeServiceClicked()");
         ((MainActivityCallback)getActivity()).prepareAndStartTutorialSequence();
-    }
-
-    @Override
-    public EventSource getSourceType() {
-        return EVENT_SOURCE;
-    }
-
-    @Override
-    public void onAppStateChanged() {
-        if (presenter != null)
-            presenter.onAppStateChanged();
     }
 }
