@@ -30,11 +30,11 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
         this.mainHandler = mainHandler;
     }
 
-    private void onServiceMarkedAsDone(){
+    private void onServiceMarkedAsDone(CarIssue carIssue){
         mainHandler.post(() -> {
             EventBusNotifier.notifyCarDataChanged(
                     new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY), eventSource);
-            callback.onServiceMarkedAsDone();
+            callback.onServiceMarkedAsDone(carIssue);
         });
     }
 
@@ -45,10 +45,10 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     @Override
     public void run() {
         carIssue.setStatus(CarIssue.ISSUE_DONE);
-        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<Object>() {
+        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<CarIssue>() {
             @Override
-            public void onSuccess(Object response) {
-                MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone();
+            public void onSuccess(CarIssue carIssue) {
+                MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone(carIssue);
             }
 
             @Override

@@ -15,7 +15,7 @@ import com.pitstop.network.RequestError;
 
 public interface MarkServiceDoneUseCase extends Interactor {
     interface Callback{
-        void onServiceMarkedAsDone();
+        void onServiceMarkedAsDone(CarIssue carIssue);
         void onError(RequestError error);
     }
 

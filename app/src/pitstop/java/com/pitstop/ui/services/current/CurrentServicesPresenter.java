@@ -178,7 +178,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         useCaseComponent.markServiceDoneUseCase().execute(carIssue, EVENT_SOURCE
                 , new MarkServiceDoneUseCase.Callback() {
             @Override
-            public void onServiceMarkedAsDone() {
+            public void onServiceMarkedAsDone(CarIssue carIssue) {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
                 updating = false;
                 if (getView() == null) return;

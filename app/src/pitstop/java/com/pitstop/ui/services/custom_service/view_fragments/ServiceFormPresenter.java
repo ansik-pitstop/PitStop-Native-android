@@ -279,6 +279,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         issue.setYear(year);
         issue.setMonth(month);
         issue.setDay(day);
+        issue.setDoneMileage(10);
         EventSource eventSource;
         if (callback.getHistorical())
             eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
@@ -287,9 +288,9 @@ public class ServiceFormPresenter implements PresenterCallback {
         component.markServiceDoneUseCase().execute(issue,eventSource
                 , new MarkServiceDoneUseCase.Callback() {
             @Override
-            public void onServiceMarkedAsDone() {
-                if(view == null || callback == null){return;}
-                callback.finishForm(issue);
+            public void onServiceMarkedAsDone(CarIssue carIssue) {
+                if(view == null || callback == null || carIssue == null){return;}
+                callback.finishForm(carIssue);
             }
 
             @Override
