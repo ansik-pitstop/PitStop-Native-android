@@ -148,6 +148,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -203,6 +204,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
+        offlineView.bringToFront();
         regView.setVisibility(View.GONE);
     }
 
@@ -211,6 +213,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
+        regView.bringToFront();
     }
 
     @OnClick(R.id.service_launch_custom)

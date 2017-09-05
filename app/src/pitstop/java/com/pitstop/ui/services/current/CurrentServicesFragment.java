@@ -220,6 +220,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
         regView.setVisibility(View.GONE);
+        offlineView.bringToFront();
     }
 
     @Override
@@ -227,6 +228,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
+        regView.bringToFront();
     }
 
     @OnClick(R.id.offline_try_again)
@@ -261,6 +263,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
     }
