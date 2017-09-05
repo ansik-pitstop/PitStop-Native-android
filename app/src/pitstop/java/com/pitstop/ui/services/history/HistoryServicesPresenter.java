@@ -82,12 +82,15 @@ public class HistoryServicesPresenter {
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_HISTORY_VIEW);
         if (view == null) return;
         onUpdateNeeded();
     }
 
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_HISTORY_CREATE_CUSTOM
+                , MixpanelHelper.SERVICE_HISTORY_VIEW);
         if (view == null) return;
         view.startCustomServiceActivity();
     }

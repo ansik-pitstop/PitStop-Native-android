@@ -7,6 +7,7 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +21,13 @@ class CurrentServicesPresenter {
     private final String TAG = getClass().getSimpleName();
 
     private UseCaseComponent useCaseComponent;
+    private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
     private CurrentServicesView view;
 
-    CurrentServicesPresenter(UseCaseComponent useCaseComponent) {
+    CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     void subscribe(CurrentServicesView view){
@@ -37,8 +40,17 @@ class CurrentServicesPresenter {
         this.view = null;
     }
 
+    void onServiceClicked(CarIssue issue){
+        if (view == null) return;
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_LIST_ITEM
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
+        view.startDisplayIssueActivity(issue);
+    }
+
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_CREATE_CUSTOM
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null) return;
         view.startCustomServiceActivity();
     }
@@ -52,6 +64,12 @@ class CurrentServicesPresenter {
         Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null || view == null) return;
         view.addCustomIssue(issue);
+    }
+
+    void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_CURRENT_VIEW);
+        onUpdateNeeded();
     }
 
     void onUpdateNeeded(){
@@ -128,6 +146,8 @@ class CurrentServicesPresenter {
 
     void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null) return;
         carIssue.setYear(year);
         carIssue.setMonth(month);
@@ -167,6 +187,8 @@ class CurrentServicesPresenter {
 
     void onServiceMarkedAsDone(CarIssue carIssue){
         Log.d(TAG,"onServiceMarkedAsDone()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null || updating) return;
         view.displayCalendar(carIssue);
     }

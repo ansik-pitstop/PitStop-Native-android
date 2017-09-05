@@ -160,9 +160,30 @@ public class MixpanelHelper {
     public static final String ISSUE_DETAIL_VIEW = "Issue Detail";
 
     /**
-     * CarService History
+     *  Current Service Tab
+     */
+    public static final String SERVICE_CURRENT_VIEW = "Service Current";
+    public static final String SERVICE_CURRENT_MARK_DONE = "Current Service Marked As Done";
+    public static final String SERVICE_CURRENT_CREATE_CUSTOM = "Create Custom Current Service";
+    public static final String SERVICE_CURRENT_LIST_ITEM = "Current Service List Item";
+    public static final String SERVICE_CURRENT_DONE_DATE_PICKED = "Service Current Done Date Picked";
+
+    /**
+     * History Service Tab
      */
     public static final String SERVICE_HISTORY_VIEW = "Service History";
+    public static final String SERVICE_HISTORY_LIST_ITEM = "History Service List Item";
+    public static final String SERVICE_HISTORY_CREATE_CUSTOM = "Create Custom History Service";
+
+    /**
+    * Upcoming Service Tab
+     */
+    public static final String SERVICE_UPCOMING_VIEW = "Service Upcoming";
+
+    /**
+    * Refresh
+     */
+    public static final String REFRESH = "Refresh";
 
     /**
      * Settings Activity
@@ -349,6 +370,18 @@ public class MixpanelHelper {
         insertUsername(json);
         insertCar(json);
         application.getMixpanelAPI().track(EVENT_SWIPED_TO_TAB, json);
+    }
+
+    public void trackViewRefreshed(String view){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("View", view);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        insertUsername(json);
+        insertCar(json);
+        application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
     public void trackFabClicked(String fab){

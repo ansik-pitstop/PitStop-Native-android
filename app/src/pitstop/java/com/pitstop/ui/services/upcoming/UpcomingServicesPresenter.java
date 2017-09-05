@@ -92,6 +92,7 @@ public class UpcomingServicesPresenter {
     }
 
     void onRefresh(){
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
         onUpdateNeeded();
         Log.d(TAG,"onRefresh()");
     }

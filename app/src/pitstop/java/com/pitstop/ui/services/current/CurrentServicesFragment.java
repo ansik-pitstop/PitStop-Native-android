@@ -117,12 +117,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent
                     .builder().contextModule(new ContextModule(getContext())).build();
-            presenter = new CurrentServicesPresenter(useCaseComponent);
+            MixpanelHelper mixpanelHelper = new MixpanelHelper(
+                    (GlobalApplication)getContext().getApplicationContext());
+            presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
         }
         presenter.subscribe(this);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.onUpdateNeeded();
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
         presenter.onUpdateNeeded();
 
         return view;
@@ -388,9 +388,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void onServiceClicked(CarIssue carIssue) {
         Log.d(TAG,"onServiceClicked()");
-        new MixpanelHelper((GlobalApplication) getContext().getApplicationContext())
-                .trackButtonTapped(carIssue.getItem(), MixpanelHelper.DASHBOARD_VIEW);
-        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carIssue);
+        presenter.onServiceClicked(carIssue);
+
+    }
+
+    @Override
+    public void startDisplayIssueActivity(CarIssue issue){
+        if (getActivity() == null) return;
+        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issue);
     }
 
     @Override
