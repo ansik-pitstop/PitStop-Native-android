@@ -25,7 +25,7 @@ public class ServiceFormPresenter implements PresenterCallback {
     private CustomServiceActivityCallback callback;
     private UseCaseComponent component;
 
-    private CarIssue issueForLogging;
+    private CarIssue issue;
 
     private MixpanelHelper mixpanelHelper;
 
@@ -273,19 +273,18 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     }
 
-    public void datePicked(CarIssue issue, int year, int month, int day){
-        if(issueForLogging == null || view == null || callback == null){return;}
+    public void datePicked (int year, int month, int day){
+        if(issue == null || view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DatePickerDate",MIX_VIEW);
-        issueForLogging.setYear(year);
-        issueForLogging.setMonth(month);
-        issueForLogging.setDay(day);
-        issueForLogging.setDoneMileage(25);
+        issue.setYear(year);
+        issue.setMonth(month);
+        issue.setDay(day);
         EventSource eventSource;
         if (callback.getHistorical())
             eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
         else
             eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
-        component.markServiceDoneUseCase().execute(issueForLogging,eventSource
+        component.markServiceDoneUseCase().execute(issue,eventSource
                 , new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
@@ -307,7 +306,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             public void onIssueAdded(CarIssue data) {
                 if(view == null || callback == null){return;}
                 if(callback.getHistorical()){
-                    issueForLogging = data;
+                    issue = data;
                     mixpanelHelper.trackViewAppeared("LogCustomServiceDatePicker");
                     view.showDatePicker(data);
                     return;

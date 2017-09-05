@@ -125,6 +125,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG,"onActivityResult()");
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
