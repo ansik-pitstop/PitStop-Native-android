@@ -42,6 +42,8 @@ class CurrentServicesPresenter {
 
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_CREATE_CUSTOM
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null) return;
         view.startCustomServiceActivity();
     }
@@ -131,6 +133,8 @@ class CurrentServicesPresenter {
 
     void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null) return;
         carIssue.setYear(year);
         carIssue.setMonth(month);
@@ -170,6 +174,8 @@ class CurrentServicesPresenter {
 
     void onServiceMarkedAsDone(CarIssue carIssue){
         Log.d(TAG,"onServiceMarkedAsDone()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
+                ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (view == null || updating) return;
         view.displayCalendar(carIssue);
     }
