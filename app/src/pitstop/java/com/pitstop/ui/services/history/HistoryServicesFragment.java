@@ -35,7 +35,7 @@ import butterknife.OnClick;
 public class HistoryServicesFragment extends Fragment implements HistoryServicesView {
 
     private final String TAG = getClass().getSimpleName();
-    private final int RC_CUSTOM_ISSUE = 55;
+    private final int RC_CUSTOM_ISSUE = 190;
 
     @BindView(R.id.progress)
     View loadingView;

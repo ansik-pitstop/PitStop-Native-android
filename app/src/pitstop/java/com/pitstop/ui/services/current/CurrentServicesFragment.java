@@ -163,15 +163,23 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"removeCarIssue() carIssue: "+issue.getIssueType());
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
             recallList.remove(issue);
+            if (recallList.isEmpty())
+                recallListHolder.setVisibility(View.GONE);
             recallAdapter.notifyDataSetChanged();
         } else if (issue.getIssueType().equals(CarIssue.DTC)) {
             storedEngineIssueList.remove(issue);
+            if (storedEngineIssueList.isEmpty())
+                engineIssueHolder.setVisibility(View.GONE);
             storedEngineIssuesAdapter.notifyDataSetChanged();
         } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
             potentialEngineIssuesList.remove(issue);
+            if (potentialEngineIssuesList.isEmpty())
+                potentialListView.setVisibility(View.GONE);
             potentialEngineIssueAdapter.notifyDataSetChanged();
         } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
             customIssueList.remove(issue);
+            if (customIssueList.isEmpty())
+                customIssueListRecyclerView.setVisibility(View.GONE);
             customIssueAdapter.notifyDataSetChanged();
         } else {
             carIssueList.remove(issue);
@@ -293,11 +301,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                 getActivity().getApplicationContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
 
-        if(carIssues.isEmpty()){
-            routineListHolder.setVisibility(View.GONE);
-        }else{
-            routineListHolder.setVisibility(View.VISIBLE);
-        }
+        routineListHolder.setVisibility(View.VISIBLE);
     }
 
     @Override

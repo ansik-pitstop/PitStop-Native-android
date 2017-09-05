@@ -20,8 +20,6 @@ import java.util.List;
 
 public class ServiceFormPresenter implements PresenterCallback {
 
-    private static final EventSource EVENT_SOURCE
-            = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
     private ServiceFormView view;
 
     private CustomServiceActivityCallback callback;
@@ -282,7 +280,13 @@ public class ServiceFormPresenter implements PresenterCallback {
         issueForLogging.setMonth(month);
         issueForLogging.setDay(day);
         issueForLogging.setDoneMileage(25);
-        component.markServiceDoneUseCase().execute(issueForLogging,EVENT_SOURCE, new MarkServiceDoneUseCase.Callback() {
+        EventSource eventSource;
+        if (callback.getHistorical())
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
+        else
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
+        component.markServiceDoneUseCase().execute(issueForLogging,eventSource
+                , new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
                 if(view == null || callback == null){return;}

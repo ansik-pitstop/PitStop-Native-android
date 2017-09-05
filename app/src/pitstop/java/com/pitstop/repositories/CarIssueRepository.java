@@ -181,6 +181,7 @@ public class CarIssueRepository implements Repository{
                         issue.setIssueType(CarIssue.SERVICE_USER);
                         callback.onSuccess(issue);
                     }catch (JSONException e){
+                        e.printStackTrace();
                         callback.onSuccess(new CarIssue());
                     }
                 }else{
