@@ -84,7 +84,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     @Override
     public void onAppStateChanged(){
-        onUpdateNeeded();
+        Log.d(TAG,"onAppStateChanged()");
+        if (getView() != null) onUpdateNeeded();
     }
 
     @Override

@@ -118,6 +118,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
 
     @Override
     public void onAppStateChanged() {
+        Log.d(TAG,"onAppStateChanged()");
         if (getView() != null){
             onUpdateNeeded();
         }

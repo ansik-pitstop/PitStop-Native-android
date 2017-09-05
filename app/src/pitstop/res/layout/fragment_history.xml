@@ -13,7 +13,7 @@
         <include
             android:id="@+id/progress"
             android:visibility="gone"
-            layout="@layout/loading_layout"/>
+            layout="@layout/layout_load"/>
 
         <include
             android:id="@+id/offline_view"

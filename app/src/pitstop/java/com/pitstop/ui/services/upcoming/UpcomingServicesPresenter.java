@@ -52,7 +52,8 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
 
     @Override
     public void onAppStateChanged() {
-        onUpdateNeeded();
+        Log.d(TAG,"onAppStateChanged()");
+        if (getView() != null) onUpdateNeeded();
     }
 
     @Override
