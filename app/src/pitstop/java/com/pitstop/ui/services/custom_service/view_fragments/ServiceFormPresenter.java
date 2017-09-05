@@ -1,6 +1,7 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -19,6 +20,8 @@ import java.util.List;
 
 public class ServiceFormPresenter implements PresenterCallback {
 
+    private static final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
     private ServiceFormView view;
 
     private CustomServiceActivityCallback callback;
@@ -279,7 +282,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         issueForLogging.setMonth(month);
         issueForLogging.setDay(day);
         issueForLogging.setDoneMileage(25);
-        component.markServiceDoneUseCase().execute(issueForLogging, new MarkServiceDoneUseCase.Callback() {
+        component.markServiceDoneUseCase().execute(issueForLogging,EVENT_SOURCE, new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
                 if(view == null || callback == null){return;}

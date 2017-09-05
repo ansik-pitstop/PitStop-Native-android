@@ -3,7 +3,6 @@ package com.pitstop.ui.services.current;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -22,6 +23,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.mainFragments.CarDataFragment;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
@@ -39,9 +41,10 @@ import butterknife.OnClick;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-public class CurrentServicesFragment extends Fragment implements CurrentServicesView
+public class CurrentServicesFragment extends CarDataFragment implements CurrentServicesView
         , IssueHolderListener{
 
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
     public final String TAG = getClass().getSimpleName();
 
     private final int RC_CUSTOM_ISSUE = 1;
@@ -408,5 +411,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void onTentativeServiceClicked() {
         Log.d(TAG,"onTentativeServiceClicked()");
         ((MainActivityCallback)getActivity()).prepareAndStartTutorialSequence();
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
+    }
+
+    @Override
+    public void onAppStateChanged() {
+        if (presenter != null)
+            presenter.onAppStateChanged();
     }
 }

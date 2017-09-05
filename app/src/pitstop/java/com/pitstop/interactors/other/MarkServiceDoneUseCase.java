@@ -1,5 +1,6 @@
 package com.pitstop.interactors.other;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
@@ -19,5 +20,5 @@ public interface MarkServiceDoneUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(CarIssue carIssue, Callback callback);
+    void execute(CarIssue carIssue, EventSource eventSource, Callback callback);
 }

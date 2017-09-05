@@ -2,6 +2,8 @@ package com.pitstop.ui.services.current;
 
 import android.util.Log;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -16,9 +18,11 @@ import java.util.List;
  * Created by Karol Zdebel on 8/30/2017.
  */
 
-class CurrentServicesPresenter {
+class CurrentServicesPresenter{
 
     private final String TAG = getClass().getSimpleName();
+    public final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
@@ -69,6 +73,10 @@ class CurrentServicesPresenter {
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
         mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_CURRENT_VIEW);
+        onUpdateNeeded();
+    }
+
+    void onAppStateChanged(){
         onUpdateNeeded();
     }
 
@@ -156,7 +164,8 @@ class CurrentServicesPresenter {
         view.showLoading();
         updating = true;
         //When the date is set, update issue to done on that date
-        useCaseComponent.markServiceDoneUseCase().execute(carIssue, new MarkServiceDoneUseCase.Callback() {
+        useCaseComponent.markServiceDoneUseCase().execute(carIssue, EVENT_SOURCE
+                , new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone() {
                 Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
