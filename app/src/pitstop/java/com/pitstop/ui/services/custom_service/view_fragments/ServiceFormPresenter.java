@@ -309,9 +309,9 @@ public class ServiceFormPresenter implements PresenterCallback {
                     issue = data;
                     mixpanelHelper.trackViewAppeared("LogCustomServiceDatePicker");
                     view.showDatePicker(data);
-                    return;
+                }else{
+                    callback.finishForm(data);
                 }
-                callback.finishForm(data);
             }
             @Override
             public void onError(RequestError error) {
