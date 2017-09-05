@@ -89,6 +89,8 @@ public class HistoryServicesPresenter {
 
     void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_HISTORY_CREATE_CUSTOM
+                , MixpanelHelper.SERVICE_HISTORY_VIEW);
         if (view == null) return;
         view.startCustomServiceActivity();
     }

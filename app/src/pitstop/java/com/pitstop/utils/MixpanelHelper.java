@@ -163,20 +163,23 @@ public class MixpanelHelper {
      *  Current Service Tab
      */
     public static final String SERVICE_CURRENT_VIEW = "Service Current";
-    public static final String SERVICE_CURRENT_MARK_DONE = "Service Marked As Done";
-    public static final String SERVICE_CURRENT_CREATE_CUSTOM = "Create Custom Service";
+    public static final String SERVICE_CURRENT_MARK_DONE = "Current Service Marked As Done";
+    public static final String SERVICE_CURRENT_CREATE_CUSTOM = "Create Custom Current Service";
     public static final String SERVICE_CURRENT_LIST_ITEM = "Current Service List Item";
-    public static final String SERVICE_CURRENT_DONE_DATE_PICKED = "Service Done Date Picked";
-
-    /*
-    * Refresh
-    * */
-    public static final String REFRESH = "Refresh";
+    public static final String SERVICE_CURRENT_DONE_DATE_PICKED = "Service Current Done Date Picked";
 
     /**
      * CarService History
      */
     public static final String SERVICE_HISTORY_VIEW = "Service History";
+    public static final String SERVICE_HISTORY_LIST_ITEM = "History Service List Item";
+    public static final String SERVICE_HISTORY_CREATE_CUSTOM = "Create Custom History Service";
+
+
+    /*
+    * Refresh
+    * */
+    public static final String REFRESH = "Refresh";
 
     /**
      * Settings Activity
