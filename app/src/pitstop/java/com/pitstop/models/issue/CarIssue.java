@@ -203,7 +203,11 @@ public class CarIssue implements Parcelable, Issue {
         CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
         carIssue.setCarId(carId);
 
-        JSONObject issueDetail = issueObject.getJSONObject("issueDetail");
+        JSONObject issueDetail = null;
+
+        if (issueObject.has("issueDetail")){
+            issueDetail = issueObject.getJSONObject("issueDetail");
+        }
         if(issueDetail != null) {
             if(!issueDetail.isNull("item")) {
                 carIssue.setItem(issueDetail.getString("item"));
