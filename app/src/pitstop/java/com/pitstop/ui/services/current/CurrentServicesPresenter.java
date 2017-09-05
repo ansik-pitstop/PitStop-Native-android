@@ -66,6 +66,12 @@ class CurrentServicesPresenter {
         view.addCustomIssue(issue);
     }
 
+    void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_CURRENT_VIEW);
+        onUpdateNeeded();
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (view == null) return;

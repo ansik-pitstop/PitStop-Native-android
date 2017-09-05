@@ -122,9 +122,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
         }
         presenter.subscribe(this);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            presenter.onUpdateNeeded();
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
         presenter.onUpdateNeeded();
 
         return view;

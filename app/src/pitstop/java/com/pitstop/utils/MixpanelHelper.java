@@ -168,6 +168,11 @@ public class MixpanelHelper {
     public static final String SERVICE_CURRENT_LIST_ITEM = "Current Service List Item";
     public static final String SERVICE_CURRENT_DONE_DATE_PICKED = "Service Done Date Picked";
 
+    /*
+    * Refresh
+    * */
+    public static final String REFRESH = "Refresh";
+
     /**
      * CarService History
      */
@@ -358,6 +363,18 @@ public class MixpanelHelper {
         insertUsername(json);
         insertCar(json);
         application.getMixpanelAPI().track(EVENT_SWIPED_TO_TAB, json);
+    }
+
+    public void trackViewRefreshed(String view){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("View", view);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        insertUsername(json);
+        insertCar(json);
+        application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
     public void trackFabClicked(String fab){

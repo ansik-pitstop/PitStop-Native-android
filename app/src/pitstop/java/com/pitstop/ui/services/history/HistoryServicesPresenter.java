@@ -82,6 +82,7 @@ public class HistoryServicesPresenter {
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_HISTORY_VIEW);
         if (view == null) return;
         onUpdateNeeded();
     }
