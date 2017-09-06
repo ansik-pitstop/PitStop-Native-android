@@ -22,6 +22,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
@@ -45,6 +47,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public final String TAG = getClass().getSimpleName();
 
     private final int RC_CUSTOM_ISSUE = 1;
+
+    @BindView(R.id.no_car)
+    View noCarView;
 
     @BindView(R.id.car_issues_list)
     protected RecyclerView carIssueListView;
@@ -234,6 +239,27 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
         regView.bringToFront();
+    }
+
+    @OnClick(R.id.addCarButton)
+    public void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
+        presenter.onAddCarButtonClicked();
+    }
+
+    @Override
+    public void displayNoCarView() {
+        Log.d(TAG,"displayNoCarView()");
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void startAddCarActivity() {
+        Log.d(TAG,"startAddCarActivity()");
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @OnClick(R.id.offline_try_again)
