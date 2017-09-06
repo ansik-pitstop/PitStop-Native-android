@@ -2,6 +2,10 @@ package com.pitstop.interactors.other;
 
 import android.os.Handler;
 
+import com.pitstop.EventBus.EventBusNotifier;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
@@ -15,6 +19,7 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     private CarIssueRepository carIssueRepository;
     private Callback callback;
     private CarIssue carIssue;
+    private EventSource eventSource;
     private Handler useCaseHandler;
     private Handler mainHandler;
 
@@ -25,31 +30,27 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
         this.mainHandler = mainHandler;
     }
 
-    private void onServiceMarkedAsDone(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onServiceMarkedAsDone();
-            }
+    private void onServiceMarkedAsDone(CarIssue carIssue){
+        mainHandler.post(() -> {
+            EventBusNotifier.notifyCarDataChanged(
+                    new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY), eventSource);
+            callback.onServiceMarkedAsDone(carIssue);
         });
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void run() {
         carIssue.setStatus(CarIssue.ISSUE_DONE);
-        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<Object>() {
+        carIssueRepository.updateCarIssue(carIssue, new CarIssueRepository.Callback<CarIssue>() {
             @Override
-            public void onSuccess(Object response) {
-                MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone();
+            public void onSuccess(CarIssue carIssueReturned) {
+                carIssue.setDoneAt(carIssueReturned.getDoneAt());
+                carIssue.setStatus(carIssueReturned.getStatus());
+                MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone(carIssue);
             }
 
             @Override
@@ -60,8 +61,9 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     }
 
     @Override
-    public void execute(CarIssue carIssue, Callback callback) {
+    public void execute(CarIssue carIssue, EventSource eventSource, Callback callback) {
         this.carIssue = carIssue;
+        this.eventSource = eventSource;
         this.callback = callback;
         useCaseHandler.post(this);
     }

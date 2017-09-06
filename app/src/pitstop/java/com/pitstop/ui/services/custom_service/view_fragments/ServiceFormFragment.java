@@ -289,7 +289,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     public void showDatePicker(CarIssue issue) {
         ServicesDatePickerDialog datePickerDialog = new ServicesDatePickerDialog(getActivity()
                 , Calendar.getInstance(), (datePicker, i, i1, i2) -> {// year month day
-                    presenter.datePicked(issue, i,i1,i2);
+                    presenter.datePicked(i,i1,i2);
                 });
         datePickerDialog.setTitle("Select when you completed this service.");
         datePickerDialog.show();

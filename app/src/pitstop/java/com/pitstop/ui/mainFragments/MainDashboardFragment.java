@@ -71,7 +71,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainDashboardFragment extends CarDataFragment{
+public class MainDashboardFragment extends CarDataFragmentOld {
 
     public static String TAG = MainDashboardFragment.class.getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);

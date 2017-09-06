@@ -2,10 +2,15 @@ package com.pitstop.ui.services.upcoming;
 
 import android.util.Log;
 
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -15,12 +20,16 @@ import java.util.Map;
  * Created by Karol Zdebel on 8/31/2017.
  */
 
-public class UpcomingServicesPresenter {
+public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView> {
 
     private final String TAG = getClass().getSimpleName();
+    public final EventSource EVENT_SOURCE
+            = new EventSourceImpl(EventSource.SOURCE_SERVICES_UPCOMING);
+    public final EventType[] ignoredEvents = {
+            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)
+    };
 
     private UseCaseComponent useCaseComponent;
-    private UpcomingServicesView view;
     private MixpanelHelper mixpanelHelper;
 
     private boolean updating = false;
@@ -30,15 +39,26 @@ public class UpcomingServicesPresenter {
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    void subscribe(UpcomingServicesView view){
-        Log.d(TAG,"subscribe()");
-        this.view = view;
+    @Override
+    public void subscribe(UpcomingServicesView view){
+        updating = false;
+        super.subscribe(view);
     }
 
-    void unsubscribe(){
-        Log.d(TAG,"unsubscribe()");
-        updating = false;
-        this.view = null;
+    @Override
+    public EventType[] getIgnoredEventTypes() {
+        return ignoredEvents;
+    }
+
+    @Override
+    public void onAppStateChanged() {
+        Log.d(TAG,"onAppStateChanged()");
+        if (getView() != null) onUpdateNeeded();
+    }
+
+    @Override
+    public EventSource getSourceType() {
+        return EVENT_SOURCE;
     }
 
     void onOfflineTryAgainClicked(){
@@ -48,43 +68,43 @@ public class UpcomingServicesPresenter {
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
-        if (view == null || updating) return;
+        if (getView() == null || updating) return;
         updating = true;
-        view.showLoading();
+        getView().showLoading();
 
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
                 updating = false;
-                if (view == null) return;
+                if (getView() == null) return;
 
-                view.hideLoading();
-                view.displayOnlineView();
+                getView().hideLoading();
+                getView().displayOnlineView();
 
                 if (!serviceMap.isEmpty()){
-                    view.populateUpcomingServices(serviceMap);
+                    getView().populateUpcomingServices(serviceMap);
                 }else{
-                    view.displayNoServices();
+                    getView().displayNoServices();
                 }
             }
 
             @Override
             public void onError(RequestError error) {
                 updating = false;
-                if (view == null) return;
-                view.hideLoading();
+                if (getView() == null) return;
+                getView().hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (view.hasBeenPopulated()){
-                        view.displayOfflineErrorDialog();
+                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
                     }
                     else{
-                        view.displayOfflineView();
+                        getView().displayOfflineView();
                     }
                 }
                 else{
-                    view.displayOnlineView();
-                    view.displayUnknownErrorDialog();
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
                 }
 
             }

@@ -181,6 +181,7 @@ public class CarIssueRepository implements Repository{
                         issue.setIssueType(CarIssue.SERVICE_USER);
                         callback.onSuccess(issue);
                     }catch (JSONException e){
+                        e.printStackTrace();
                         callback.onSuccess(new CarIssue());
                     }
                 }else{
@@ -191,7 +192,7 @@ public class CarIssueRepository implements Repository{
         return requestCallback;
     }
 
-    public void updateCarIssue(CarIssue issue, Callback<Object> callback) {
+    public void updateCarIssue(CarIssue issue, Callback<CarIssue> callback) {
         JSONObject body = new JSONObject();
         try {
             body.put("carId", issue.getCarId());
@@ -211,22 +212,25 @@ public class CarIssueRepository implements Repository{
 
     }
 
-    private RequestCallback getUpdateCarIssueRequestCallback(Callback<Object> callback){
+    private RequestCallback getUpdateCarIssueRequestCallback(Callback<CarIssue> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onSuccess(response);
-                    }
-                    else{
-                        callback.onError(requestError);
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    try{
+                        CarIssue carIssue = CarIssue.createCarIssue(new JSONObject(response), 0);
+                        callback.onSuccess(carIssue);
+                    }catch(JSONException e){
+                        e.printStackTrace();
+                        callback.onError(RequestError.getUnknownError());
                     }
                 }
-                catch(JsonIOException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
+            }
+            catch(JsonIOException e){
+                callback.onError(RequestError.getUnknownError());
             }
         };
 

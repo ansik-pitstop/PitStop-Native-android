@@ -1,6 +1,7 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -23,8 +24,9 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     private CustomServiceActivityCallback callback;
     private UseCaseComponent component;
+    private EventSource eventSource;
 
-    private CarIssue issueForLogging;
+    private CarIssue issue;
 
     private MixpanelHelper mixpanelHelper;
 
@@ -35,6 +37,11 @@ public class ServiceFormPresenter implements PresenterCallback {
         this.component = component;
         this.callback = callback;
         this.mixpanelHelper = mixpanelHelper;
+
+        if (callback.getHistorical())
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
+        else
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
     }
     public void subscribe(ServiceFormView view){
         if(view == null){return;}
@@ -257,6 +264,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         customIssue.setAction(view.getAction());
         customIssue.setDescription(view.getDescription());
         customIssue.setItem(view.getPartName());
+        customIssue.setIssueType(CarIssue.SERVICE_USER);
         String priority = view.getPriority();
         if(priority.contains("Low")){
             customIssue.setPriority(1);
@@ -272,18 +280,20 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     }
 
-    public void datePicked(CarIssue issue, int year, int month, int day){
-        if(issueForLogging == null || view == null || callback == null){return;}
+    public void datePicked (int year, int month, int day){
+        if(issue == null || view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DatePickerDate",MIX_VIEW);
-        issueForLogging.setYear(year);
-        issueForLogging.setMonth(month);
-        issueForLogging.setDay(day);
-        issueForLogging.setDoneMileage(25);
-        component.markServiceDoneUseCase().execute(issueForLogging, new MarkServiceDoneUseCase.Callback() {
+        issue.setYear(year);
+        issue.setMonth(month);
+        issue.setDay(day);
+        issue.setDoneMileage(10);
+
+        component.markServiceDoneUseCase().execute(issue,eventSource
+                , new MarkServiceDoneUseCase.Callback() {
             @Override
-            public void onServiceMarkedAsDone() {
-                if(view == null || callback == null){return;}
-                callback.finishForm(issue);
+            public void onServiceMarkedAsDone(CarIssue carIssue) {
+                if(view == null || callback == null || carIssue == null){return;}
+                callback.finishForm(carIssue);
             }
 
             @Override
@@ -295,17 +305,18 @@ public class ServiceFormPresenter implements PresenterCallback {
     }
     private void postService(CarIssue customIssue){
         if(view == null || callback == null){return;}
-        component.getAddCustomServiceUseCase().execute(customIssue, EventSource.SOURCE_REQUEST_SERVICE, new AddCustomServiceUseCase.Callback() {
+
+        component.getAddCustomServiceUseCase().execute(customIssue, eventSource, new AddCustomServiceUseCase.Callback() {
             @Override
             public void onIssueAdded(CarIssue data) {
                 if(view == null || callback == null){return;}
                 if(callback.getHistorical()){
-                    issueForLogging = data;
+                    issue = data;
                     mixpanelHelper.trackViewAppeared("LogCustomServiceDatePicker");
                     view.showDatePicker(data);
-                    return;
+                }else{
+                    callback.finishForm(data);
                 }
-                callback.finishForm(data);
             }
             @Override
             public void onError(RequestError error) {

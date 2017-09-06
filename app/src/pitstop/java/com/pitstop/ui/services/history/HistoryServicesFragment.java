@@ -35,7 +35,7 @@ import butterknife.OnClick;
 public class HistoryServicesFragment extends Fragment implements HistoryServicesView {
 
     private final String TAG = getClass().getSimpleName();
-    private final int RC_CUSTOM_ISSUE = 55;
+    private final int RC_CUSTOM_ISSUE = 190;
 
     @BindView(R.id.progress)
     View loadingView;
@@ -125,6 +125,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG,"onActivityResult()");
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
@@ -148,6 +149,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            regView.setVisibility(View.GONE);
+            loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -157,6 +160,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
+            regView.setVisibility(View.VISIBLE);
             loadingView.setVisibility(View.GONE);
         }else{
             swipeRefreshLayout.setRefreshing(false);

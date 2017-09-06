@@ -36,7 +36,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.ui.mainFragments.CarDataFragment;
+import com.pitstop.ui.mainFragments.CarDataFragmentOld;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -55,7 +55,7 @@ import butterknife.OnClick;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class ScanCarFragment extends CarDataFragment implements ScanCarContract.View {
+public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContract.View {
 
     private static String TAG = ScanCarFragment.class.getSimpleName();
     public static final EventSource EVENT_SOURCE

@@ -101,6 +101,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
+        noServicesView.bringToFront();
     }
 
     @Override
@@ -108,6 +109,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
     }
@@ -118,6 +120,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
+            timelineRecyclerView.bringToFront();
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }

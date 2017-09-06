@@ -28,9 +28,9 @@ import java.util.List;
  * Created by Karol Zdebel on 5/5/2017.
  */
 
-public abstract class CarDataFragment extends Fragment implements CarDataChangedNotifier {
+public abstract class CarDataFragmentOld extends Fragment implements CarDataChangedNotifier {
 
-    final public static String TAG = CarDataFragment.class.getSimpleName();
+    final public static String TAG = CarDataFragmentOld.class.getSimpleName();
     private boolean uiSynced = false;   //ui is not set yet
     private boolean running = false;    //not running2
     private boolean wasPaused = false;  //pause never occured yet

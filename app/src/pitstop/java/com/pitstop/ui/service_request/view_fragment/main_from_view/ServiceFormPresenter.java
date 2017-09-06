@@ -194,7 +194,8 @@ public class ServiceFormPresenter implements PresenterCallback{
             public void onServicesRequested() {
                 if(view == null || callback == null){return;}
                 if(callback.getIssue()!= null){return;}
-               component.getAddServicesUseCase().execute(issues, EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
+               component.getAddServicesUseCase().execute(issues
+                       , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                    @Override
                    public void onServicesAdded() {
                        if(view == null || callback == null){return;}
@@ -241,8 +242,6 @@ public class ServiceFormPresenter implements PresenterCallback{
         issues.remove(issue);
         view.setupSelectedIssues(issues);
     }
-
-
 
 
     public void setIssues(){
