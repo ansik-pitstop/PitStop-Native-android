@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -81,142 +81,121 @@ public class FabMenu {
 
     private void setupFabMessage(){
 
-        mFabMessage.setOnClickListener(new View.OnClickListener() {
+        mFabMessage.setOnClickListener(view
+                -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
 
             @Override
-            public void onClick(View view) {
-                mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            public void onCarRetrieved(Car car) {
 
-                    @Override
-                    public void onCarRetrieved(Car car) {
+                mMixpanelHelper.trackFabClicked("Message");
+                final HashMap<String, Object> customProperties = new HashMap<>();
+                customProperties.put("VIN", car.getVin());
+                customProperties.put("Car Make", car.getMake());
+                customProperties.put("Car Model", car.getModel());
+                customProperties.put("Car Year", car.getYear());
+                Log.i(TAG, car.getDealership().getEmail());
+                customProperties.put("Email", car.getDealership().getEmail());
+                User.getCurrentUser().addProperties(customProperties);
 
-                        mMixpanelHelper.trackFabClicked("Message");
-                        final HashMap<String, Object> customProperties = new HashMap<>();
-                        customProperties.put("VIN", car.getVin());
-                        customProperties.put("Car Make", car.getMake());
-                        customProperties.put("Car Model", car.getModel());
-                        customProperties.put("Car Year", car.getYear());
-                        Log.i(TAG, car.getDealership().getEmail());
-                        customProperties.put("Email", car.getDealership().getEmail());
-                        User.getCurrentUser().addProperties(customProperties);
-
-                        if (mApplication.getCurrentUser() != null) {
-                            customProperties.put("Phone", mApplication.getCurrentUser().getPhone());
-                            User.getCurrentUser().setFirstName(mApplication.getCurrentUser().getFirstName());
-                            User.getCurrentUser().setEmail(mApplication.getCurrentUser().getEmail());
-                        }
-                        ConversationActivity.show(mActivity);
-                    }
-
-                    @Override
-                    public void onNoCarSet() {
-
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-
-                    }
-                });
+                if (mApplication.getCurrentUser() != null) {
+                    customProperties.put("Phone", mApplication.getCurrentUser().getPhone());
+                    User.getCurrentUser().setFirstName(mApplication.getCurrentUser().getFirstName());
+                    User.getCurrentUser().setEmail(mApplication.getCurrentUser().getEmail());
+                }
+                ConversationActivity.show(mActivity);
             }
-        });
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 
     private void setupFabRequestService(){
 
-        mFabRequestService.setOnClickListener(new View.OnClickListener() {
+        mFabRequestService.setOnClickListener(view
+                -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
 
             @Override
-            public void onClick(View view) {
-                mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-
-                    @Override
-                    public void onCarRetrieved(Car car) {
-                        mMixpanelHelper.trackFabClicked("Request Service");
-                        final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
-                        intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
-                        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
-                        mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
-                    }
-
-                    @Override
-                    public void onNoCarSet() {
-
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-
-                    }
-                });
+            public void onCarRetrieved(Car car) {
+                mMixpanelHelper.trackFabClicked("Request Service");
+                final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
+                intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
+                intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
+                mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
             }
-        });
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 
     private void setupFabCall(){
-        mFabCall.setOnClickListener(new View.OnClickListener() {
+        mFabCall.setOnClickListener(view
+                -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                mMixpanelHelper.trackFabClicked("Call");
+                mMixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                        car.getDealership().getPhone()));
+                mActivity.startActivity(intent);
+            }
 
             @Override
-            public void onClick(View view) {
+            public void onNoCarSet() {
 
-                mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-                    @Override
-                    public void onCarRetrieved(Car car) {
-                        mMixpanelHelper.trackFabClicked("Call");
-                        mMixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
-                                MixpanelHelper.TOOLS_VIEW);
-                        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                                car.getDealership().getPhone()));
-                        mActivity.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onNoCarSet() {
-
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-
-                    }
-                });
             }
-        });
+
+            @Override
+            public void onError(RequestError error) {
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 
     private void setupFabDirections(){
 
-        mDabDirections.setOnClickListener(new View.OnClickListener() {
+        mDabDirections.setOnClickListener(view
+                -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
 
             @Override
-            public void onClick(View view) {
-                mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            public void onCarRetrieved(Car car) {
+                mMixpanelHelper.trackFabClicked("Directions");
+                mMixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
+                        MixpanelHelper.TOOLS_VIEW);
 
-                    @Override
-                    public void onCarRetrieved(Car car) {
-                        mMixpanelHelper.trackFabClicked("Directions");
-                        mMixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
-                                MixpanelHelper.TOOLS_VIEW);
-
-                        String uri = String.format(Locale.ENGLISH,
-                                "http://maps.google.com/maps?daddr=%s",
-                                car.getDealership().getAddress());
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                        mActivity.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onNoCarSet() {
-
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-
-                    }
-                });
+                String uri = String.format(Locale.ENGLISH,
+                        "http://maps.google.com/maps?daddr=%s",
+                        car.getDealership().getAddress());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                mActivity.startActivity(intent);
             }
-        });
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 
     private void setupFabMain(){
@@ -237,45 +216,43 @@ public class FabMenu {
         final Animation rotate_forward = AnimationUtils.loadAnimation(mApplication,R.anim.rotate_forward);
         final Animation rotate_backward = AnimationUtils.loadAnimation(mApplication,R.anim.rotate_backward);
 
-        mFabMain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mMixpanelHelper.trackFabClicked("Main");
-                if(isFabOpen){
+        mFabMain.setOnClickListener(view -> {
+            mMixpanelHelper.trackFabClicked("Main");
 
-                    mFabMain.startAnimation(rotate_backward);
-                    //Begin closing animation
-                    mDabDirections.startAnimation(close_anims.get(0));
-                    mFabCall.startAnimation(close_anims.get(1));
-                    mFabMessage.startAnimation(close_anims.get(2));
-                    mFabRequestService.startAnimation(close_anims.get(3));
+            if(isFabOpen){
 
-                    //Don't let the user click
-                    mFabCall.setClickable(false);
-                    mFabRequestService.setClickable(false);
-                    mDabDirections.setClickable(false);
-                    mFabMessage.setClickable(false);
+                mFabMain.startAnimation(rotate_backward);
+                //Begin closing animation
+                mDabDirections.startAnimation(close_anims.get(0));
+                mFabCall.startAnimation(close_anims.get(1));
+                mFabMessage.startAnimation(close_anims.get(2));
+                mFabRequestService.startAnimation(close_anims.get(3));
 
-                    isFabOpen = false;
+                //Don't let the user click
+                mFabCall.setClickable(false);
+                mFabRequestService.setClickable(false);
+                mDabDirections.setClickable(false);
+                mFabMessage.setClickable(false);
 
-                } else {
+                isFabOpen = false;
 
-                    //Begin opening animation
-                    mFabMain.startAnimation(rotate_forward);
-                    mDabDirections.startAnimation(open_anims.get(0));
-                    mFabCall.startAnimation(open_anims.get(1));
-                    mFabMessage.startAnimation(open_anims.get(2));
-                    mFabRequestService.startAnimation(open_anims.get(3));
+            } else {
 
-                    //Let the user click fab
-                    mFabCall.setClickable(true);
-                    mFabRequestService.setClickable(true);
-                    mDabDirections.setClickable(true);
-                    mFabMessage.setClickable(true);
+                //Begin opening animation
+                mFabMain.startAnimation(rotate_forward);
+                mDabDirections.startAnimation(open_anims.get(0));
+                mFabCall.startAnimation(open_anims.get(1));
+                mFabMessage.startAnimation(open_anims.get(2));
+                mFabRequestService.startAnimation(open_anims.get(3));
 
-                    isFabOpen = true;
+                //Let the user click fab
+                mFabCall.setClickable(true);
+                mFabRequestService.setClickable(true);
+                mDabDirections.setClickable(true);
+                mFabMessage.setClickable(true);
 
-                }
+                isFabOpen = true;
+
             }
         });
     }
