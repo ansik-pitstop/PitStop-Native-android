@@ -37,30 +37,15 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     }
 
     private void onGotDoneServices(List<CarIssue> doneServices){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onGotDoneServices(doneServices);
-            }
-        });
+        mainHandler.post(() -> callback.onGotDoneServices(doneServices));
     }
 
     private void onNoCarAdded(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNoCarAdded();
-            }
-        });
+        mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
