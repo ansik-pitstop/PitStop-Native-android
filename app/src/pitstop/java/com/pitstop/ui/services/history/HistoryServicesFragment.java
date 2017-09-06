@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +40,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     View loadingView;
 
     @BindView(R.id.message_card)
-    protected CardView messageCard;
+    protected View messageCard;
 
     @BindView(R.id.issue_expandable_list)
     protected ExpandableListView issueGroup;
@@ -234,7 +233,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"populateDoneServices()");
 
         hasBeenPopulated = true;
-        messageCard.setVisibility(View.INVISIBLE);
+        messageCard.setVisibility(View.GONE);
+        issueGroup.setVisibility(View.VISIBLE);
 
         this.doneServices.clear();
         this.doneServices.addAll(doneServices);
@@ -246,7 +246,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     public void populateEmptyServices(){
         Log.d(TAG,"populateEmptyServices()");
         messageCard.setVisibility(View.VISIBLE);
-
+        issueGroup.setVisibility(View.GONE);
         this.doneServices.clear();
         issueGroupAdapter.notifyDataSetChanged();
     }
@@ -261,6 +261,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void addDoneService(CarIssue doneService) {
+        messageCard.setVisibility(View.GONE);
+        issueGroup.setVisibility(View.VISIBLE);
         this.doneServices.add(doneService);
         issueGroupAdapter.notifyDataSetChanged();
     }
