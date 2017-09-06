@@ -107,12 +107,12 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-
+                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(RequestError error) {
-                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_SHORT).show();
             }
         }));
     }
@@ -133,12 +133,12 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-
+                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(RequestError error) {
-                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_SHORT).show();
             }
         }));
     }
@@ -158,12 +158,12 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-
+                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(RequestError error) {
-                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_SHORT).show();
             }
         }));
     }
@@ -188,12 +188,12 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-
+                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(RequestError error) {
-                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,error.getMessage(),Toast.LENGTH_SHORT).show();
             }
         }));
     }
