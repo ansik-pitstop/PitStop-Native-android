@@ -17,7 +17,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class ShopTypePresenter {
 
-    private ShopTypeView shopTypeFragment;
+    private ShopTypeView view;
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
 
@@ -31,32 +31,32 @@ public class ShopTypePresenter {
 
     public void subscribe(ShopTypeView shopTypeView){
         mixpanelHelper.trackViewAppeared("ShopTypeSelection");
-        this.shopTypeFragment = shopTypeView;
+        this.view = shopTypeView;
 
     }
 
     public void unsubscribe(){
-        this.shopTypeFragment = null;
+        this.view = null;
     }
     public void setViewShopSearch(){
-        if(shopTypeFragment == null){return;}
+        if(view == null){return;}
         mixpanelHelper.trackButtonTapped("ShopSearch","ShopTypeSelection");
         switcher.setViewSearchShop();
     }
 
     public void setViewPitstopShops(){
-        if(shopTypeFragment == null){return;}
+        if(view == null){return;}
         mixpanelHelper.trackButtonTapped("PitstopShops","ShopTypeSelection");
         switcher.setViewPitstopShops();
     }
     public void showNoShopWarning(){
-        if(shopTypeFragment == null){return;}
+        if(view == null){return;}
         mixpanelHelper.trackButtonTapped("NoShop","ShopTypeSelection");
-        shopTypeFragment.noShopWarning();
+        view.noShopWarning();
     }
 
     public void setCarNoDealer(Car car){
-        if(shopTypeFragment == null){return;}
+        if(view == null){return;}
         mixpanelHelper.trackButtonTapped("NoShopConfirm","ShopTypeSelection");
         if(car == null){
             return;
@@ -70,14 +70,16 @@ public class ShopTypePresenter {
         component.getUpdateCarDealershipUseCase().execute(car.getId(), noDealer, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
-                if(shopTypeFragment != null){
+                if(view != null){
                     switcher.endCustomShops();
                 }
             }
 
             @Override
             public void onError(RequestError error) {
-
+                if (view != null){
+                    view.displayError(error.getMessage());
+                }
             }
         });
 
