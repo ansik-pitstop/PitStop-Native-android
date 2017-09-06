@@ -9,4 +9,5 @@ import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 public interface ShopTypeView {
     void setSwitcher(CustomShopActivityCallback switcher);
     void noShopWarning();
+    void displayError(String message);
 }

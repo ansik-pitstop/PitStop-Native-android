@@ -9,6 +9,7 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -121,5 +122,10 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void displayError(String message) {
+        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
     }
 }

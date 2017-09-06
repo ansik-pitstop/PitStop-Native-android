@@ -179,6 +179,8 @@ public class MainSettingsPresenter {
 
                 @Override
                 public void onError(RequestError error) {
+                    if (mainSettings != null)
+                        mainSettings.toast(error.getMessage());
                 }
             });
         }else if(key.equals(PHONE_PREF_KEY)){
@@ -192,7 +194,8 @@ public class MainSettingsPresenter {
 
                 @Override
                 public void onError(RequestError error) {
-
+                    if (mainSettings != null)
+                        mainSettings.toast(error.getMessage());
                 }
             });
 
