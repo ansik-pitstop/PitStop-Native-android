@@ -38,6 +38,11 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
         this.useCaseComponent = useCaseComponent;
     }
 
+    void onAddCarButtonClicked(){
+        if (getView() != null)
+            getView().startAddCarActivity();
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (getView() == null || updating) return;
@@ -62,6 +67,14 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
             }
 
             @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
+            }
+
+                    @Override
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;

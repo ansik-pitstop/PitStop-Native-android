@@ -21,6 +21,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -35,6 +37,9 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     private final String TAG = getClass().getSimpleName();
     private final int RC_CUSTOM_ISSUE = 190;
+
+    @BindView(R.id.no_car)
+    View noCarView;
 
     @BindView(R.id.progress)
     View loadingView;
@@ -206,6 +211,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
+        noCarView.setVisibility(View.GONE);
         regView.setVisibility(View.GONE);
     }
 
@@ -213,7 +219,29 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void displayNoCarView() {
+        Log.d(TAG,"displayNoCarView()");
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void startAddCarActivity() {
+        Log.d(TAG,"startAddCarActivity()");
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+    }
+
+    @OnClick(R.id.addCarButton)
+    public void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
+        presenter.onAddCarButtonClicked();
     }
 
     @OnClick(R.id.service_launch_custom)

@@ -9,7 +9,6 @@ import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,6 +45,15 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
         });
     }
 
+    private void onNoCarAdded(){
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onNoCarAdded();
+            }
+        });
+    }
+
     private void onError(RequestError error){
         mainHandler.post(new Runnable() {
             @Override
@@ -63,9 +71,8 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
             @Override
             public void onSuccess(Settings data) {
 
-                if (!data.hasMainCar()){
-                    GetDoneServicesUseCaseImpl.this.onGotDoneServices(new ArrayList<CarIssue>());
-                    return;
+                if (!data.hasMainCar()) {
+                    GetDoneServicesUseCaseImpl.this.onNoCarAdded();
                 }
 
                 //Use the current users car to get all the current issues

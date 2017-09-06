@@ -11,6 +11,11 @@
         android:orientation="vertical">
 
         <include
+            android:id="@+id/no_car"
+            android:visibility="gone"
+            layout="@layout/layout_no_car_services"/>
+
+        <include
             android:id="@+id/progress"
             android:visibility="gone"
             layout="@layout/layout_load"/>
