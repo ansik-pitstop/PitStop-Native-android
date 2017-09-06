@@ -15,8 +15,6 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
-import com.pitstop.EventBus.EventSource;
-import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.adapters.CurrentServicesAdapter;
 import com.pitstop.application.GlobalApplication;
@@ -44,7 +42,6 @@ import butterknife.OnClick;
 public class CurrentServicesFragment extends Fragment implements CurrentServicesView
         , IssueHolderListener{
 
-    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
     public final String TAG = getClass().getSimpleName();
 
     private final int RC_CUSTOM_ISSUE = 1;
