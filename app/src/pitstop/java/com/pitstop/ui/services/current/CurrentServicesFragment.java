@@ -248,6 +248,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void addCustomIssue(CarIssue issue) {
         Log.d(TAG,"addCustomIssue()");
+        customIssueListRecyclerView.setVisibility(View.VISIBLE);
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
     }

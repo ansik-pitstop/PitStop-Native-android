@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
-import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Settings;
@@ -43,29 +42,19 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     }
 
     @Override
-    public void execute(CarIssue issue, String eventSource, Callback callback) {
-        this.eventSource = new EventSourceImpl(eventSource);
+    public void execute(CarIssue issue, EventSource eventSource, Callback callback) {
+        this.eventSource = eventSource;
         this.issue = issue;
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onIssueAdded(CarIssue data){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onIssueAdded(data);
-            }
-        });
+        mainHandler.post(() -> callback.onIssueAdded(data));
     }
 
     private void onError(RequestError requestError){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(requestError);
-            }
-        });
+        mainHandler.post(() -> callback.onError(requestError));
     }
 
     @Override
@@ -77,7 +66,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
                     @Override
                     public void onSuccess(CarIssue data) {
 
-                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
                         AddCustomServiceUseCaseImpl.this.onIssueAdded(data);

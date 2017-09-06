@@ -24,6 +24,7 @@ public class ServiceFormPresenter implements PresenterCallback {
 
     private CustomServiceActivityCallback callback;
     private UseCaseComponent component;
+    private EventSource eventSource;
 
     private CarIssue issue;
 
@@ -36,6 +37,11 @@ public class ServiceFormPresenter implements PresenterCallback {
         this.component = component;
         this.callback = callback;
         this.mixpanelHelper = mixpanelHelper;
+
+        if (callback.getHistorical())
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
+        else
+            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
     }
     public void subscribe(ServiceFormView view){
         if(view == null){return;}
@@ -258,6 +264,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         customIssue.setAction(view.getAction());
         customIssue.setDescription(view.getDescription());
         customIssue.setItem(view.getPartName());
+        customIssue.setIssueType(CarIssue.SERVICE_USER);
         String priority = view.getPriority();
         if(priority.contains("Low")){
             customIssue.setPriority(1);
@@ -280,11 +287,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         issue.setMonth(month);
         issue.setDay(day);
         issue.setDoneMileage(10);
-        EventSource eventSource;
-        if (callback.getHistorical())
-            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
-        else
-            eventSource = new EventSourceImpl(EventSource.SOURCE_SERVICES_CURRENT);
+
         component.markServiceDoneUseCase().execute(issue,eventSource
                 , new MarkServiceDoneUseCase.Callback() {
             @Override
@@ -302,7 +305,8 @@ public class ServiceFormPresenter implements PresenterCallback {
     }
     private void postService(CarIssue customIssue){
         if(view == null || callback == null){return;}
-        component.getAddCustomServiceUseCase().execute(customIssue, EventSource.SOURCE_REQUEST_SERVICE, new AddCustomServiceUseCase.Callback() {
+
+        component.getAddCustomServiceUseCase().execute(customIssue, eventSource, new AddCustomServiceUseCase.Callback() {
             @Override
             public void onIssueAdded(CarIssue data) {
                 if(view == null || callback == null){return;}
