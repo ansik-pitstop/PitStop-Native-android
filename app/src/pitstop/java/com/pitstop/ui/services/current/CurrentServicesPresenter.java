@@ -139,6 +139,14 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             }
 
             @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
+            }
+
+            @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"getCurrentServicesUseCase.onError()");
                 updating = false;

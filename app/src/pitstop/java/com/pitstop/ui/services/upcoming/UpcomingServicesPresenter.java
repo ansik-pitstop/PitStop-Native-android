@@ -95,6 +95,14 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
             }
 
             @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
+            }
+
+            @Override
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
