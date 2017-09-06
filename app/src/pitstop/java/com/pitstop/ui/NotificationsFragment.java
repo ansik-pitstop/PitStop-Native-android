@@ -117,6 +117,9 @@ public class NotificationsFragment extends Fragment {
                 || ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
             notificationsLoaded = false;
+            if (swipeRefreshLayout.isRefreshing()){
+                swipeRefreshLayout.setRefreshing(false);
+            }
             return;
         }
 
