@@ -74,7 +74,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                 getView().displayNoCarView();
             }
 
-                    @Override
+            @Override
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;

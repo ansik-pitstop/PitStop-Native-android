@@ -73,6 +73,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                 if (!data.hasMainCar()) {
                     GetDoneServicesUseCaseImpl.this.onNoCarAdded();
+                    return;
                 }
 
                 //Use the current users car to get all the current issues
