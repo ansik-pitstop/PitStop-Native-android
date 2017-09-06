@@ -198,6 +198,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
+        noCarView.bringToFront();
     }
 
     @Override

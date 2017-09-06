@@ -67,6 +67,7 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
     }
 
     void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
         if (getView() != null){
             getView().startAddCarActivity();
         }
