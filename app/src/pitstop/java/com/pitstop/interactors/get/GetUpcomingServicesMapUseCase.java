@@ -14,6 +14,7 @@ import java.util.Map;
 public interface GetUpcomingServicesMapUseCase extends Interactor {
     interface Callback{
         void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap);
+        void onNoCarAdded();
         void onError(RequestError error);
     }
 

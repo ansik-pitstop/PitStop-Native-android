@@ -46,21 +46,15 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     }
 
     private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onGotUpcomingServicesMap(serviceMap);
-            }
-        });
+        mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap));
+    }
+
+    private void onNoCarAdded(){
+        mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -72,8 +66,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    Map<Integer,List<UpcomingService>> map = new LinkedHashMap<Integer, List<UpcomingService>>();
-                    GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
+                    GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
                     return;
                 }
 
