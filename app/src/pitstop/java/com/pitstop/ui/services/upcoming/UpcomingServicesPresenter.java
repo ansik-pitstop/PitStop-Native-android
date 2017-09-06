@@ -66,6 +66,12 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         onUpdateNeeded();
     }
 
+    void onAddCarButtonClicked(){
+        if (getView() != null){
+            getView().startAddCarActivity();
+        }
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (getView() == null || updating) return;
