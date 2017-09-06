@@ -33,9 +33,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.parse.ParseACL;
-import com.parse.ParseException;
 import com.parse.ParseInstallation;
-import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -205,14 +203,11 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.setACL(acl);
         installation.put("userId", String.valueOf(application.getCurrentUserId()));
-        installation.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d(TAG, "Installation saved");
-                } else {
-                    Log.w(TAG, "Error saving installation: " + e.getMessage());
-                }
+        installation.saveInBackground(e -> {
+            if (e == null) {
+                Log.d(TAG, "Installation saved");
+            } else {
+                Log.w(TAG, "Error saving installation: " + e.getMessage());
             }
         });
 
@@ -339,8 +334,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             }
 
             @Override
-            public void onNoCarSet() {
-                startPromptAddCarActivity();
+            public void onNoCarSet(){
+                //startPromptAddCarActivity();
             }
 
             @Override
