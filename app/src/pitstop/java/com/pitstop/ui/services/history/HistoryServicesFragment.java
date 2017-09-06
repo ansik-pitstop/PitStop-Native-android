@@ -261,6 +261,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public void addDoneService(CarIssue doneService) {
+        Log.d(TAG,"addDoneService()");
         messageCard.setVisibility(View.GONE);
         issueGroup.setVisibility(View.VISIBLE);
         this.doneServices.add(doneService);
