@@ -64,6 +64,8 @@ import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCaseImpl;
+import com.pitstop.interactors.update.UpdateCarMileageUseCase;
+import com.pitstop.interactors.update.UpdateCarMileageUseCaseImpl;
 import com.pitstop.interactors.update.UpdateShopUseCase;
 import com.pitstop.interactors.update.UpdateShopUseCaseImpl;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
@@ -351,6 +353,15 @@ public class UseCaseModule {
             , Device215TripRepository device215TripRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
         return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, useCaseHandler
+                , mainHandler);
+    }
+
+    @Provides
+    UpdateCarMileageUseCase updateCarMileageUseCase(CarRepository carRepository
+            , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new UpdateCarMileageUseCaseImpl(carRepository, userRepository, useCaseHandler
                 , mainHandler);
     }
 }

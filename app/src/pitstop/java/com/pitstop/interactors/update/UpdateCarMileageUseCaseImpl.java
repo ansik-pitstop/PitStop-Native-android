@@ -23,9 +23,10 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     private Callback callback;
     private double mileage;
 
-    public UpdateCarMileageUseCaseImpl(CarRepository carRepository
+    public UpdateCarMileageUseCaseImpl(CarRepository carRepository, UserRepository userRepository
             , Handler usecaseHandler, Handler mainHandler) {
         this.carRepository = carRepository;
+        this.userRepository = userRepository;
         this.usecaseHandler = usecaseHandler;
         this.mainHandler = mainHandler;
     }
