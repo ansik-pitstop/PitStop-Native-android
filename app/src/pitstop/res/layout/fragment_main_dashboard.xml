@@ -10,698 +10,719 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <include
+            android:id="@+id/no_car"
+            android:visibility="gone"
+            layout="@layout/layout_no_car_dashboard"/>
 
-        <include layout="@layout/layout_load"
-            android:id="@+id/loading" />
+        <include
+            android:id="@+id/progress"
+            android:visibility="gone"
+            layout="@layout/layout_load"/>
 
-        <RelativeLayout
-            android:id="@+id/no_connect_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/noConnectButton"
-                android:layout_centerHorizontal="true"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:text="We couldn't get your cars"
-                android:textAlignment="center"
-                android:textColor="#aaaaaa"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-
-            <Button
-                android:id="@+id/noConnectButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginTop="18dp"
-                android:background="@drawable/color_button_primary"
-                android:onClick="refreshClicked"
-                android:padding="16dp"
-                android:text="Tap here to try again"
-                android:textAllCaps="false"
-                android:textColor="#efefef"
-                android:textSize="18sp"/>
-
-        </RelativeLayout>
+        <include
+            android:id="@+id/offline_view"
+            layout="@layout/layout_offline"
+            android:visibility="gone" />
 
         <RelativeLayout
-            android:id="@+id/loading_view"
+            android:id="@+id/reg_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#bffeffff"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/loading_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Loading"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#000"/>
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_margin="16dp"
-                    android:indeterminate="true"/>
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true">
-
-        <RelativeLayout
-            android:id="@+id/main_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
+            android:layout_height="match_parent">
 
             <RelativeLayout
-                android:id="@+id/banner_container"
+                android:id="@+id/no_connect_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/dealer_background_imageview"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    tools:src="@drawable/mercedes_brampton"
-                    android:scaleType="centerCrop"
-                    />
+                android:layout_height="match_parent"
+                android:visibility="gone">
 
-                <FrameLayout
-                    android:id="@+id/banner_overlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:background="@color/white"
-                    android:alpha="0.7"
-                    android:visibility="gone"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/noConnectButton"
+                    android:layout_centerHorizontal="true"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:text="We couldn't get your cars"
+                    android:textAlignment="center"
+                    android:textColor="#aaaaaa"
+                    android:textSize="24sp"
+                    android:textStyle="bold"/>
 
-                <RelativeLayout
-                    android:id="@+id/carName"
+                <Button
+                    android:id="@+id/noConnectButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:paddingTop="10dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/color_button_primary"
+                    android:onClick="refreshClicked"
+                    android:padding="16dp"
+                    android:text="Tap here to try again"
+                    android:textAllCaps="false"
+                    android:textColor="#efefef"
+                    android:textSize="18sp"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/loading_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#bffeffff"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
                     android:orientation="vertical">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/car_logo_imageview"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:layout_centerHorizontal="true"
-                        tools:src="@drawable/bmw" />
-
-
-                    <LinearLayout
-                        android:id="@+id/car_name_container"
+                    <TextView
+                        android:id="@+id/loading_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/car_logo_imageview"
-                        android:orientation="horizontal">
+                        android:layout_gravity="center_horizontal"
+                        android:text="Loading"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textColor="#000"/>
 
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_margin="16dp"
+                        android:indeterminate="true"/>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <android.support.v4.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true">
+
+                <RelativeLayout
+                    android:id="@+id/main_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <RelativeLayout
+                        android:id="@+id/banner_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
                         <ImageView
-                            android:id="@+id/car_connected_indicator_layout"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center_vertical"
-                            android:src="@drawable/circle_indicator_stroke"
+                            android:id="@+id/dealer_background_imageview"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            tools:src="@drawable/mercedes_brampton"
+                            android:scaleType="centerCrop"
+                            />
+
+                        <FrameLayout
+                            android:id="@+id/banner_overlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            android:background="@color/white"
+                            android:alpha="0.7"
                             android:visibility="gone"/>
 
-                        <TextView
-                            android:id="@+id/car_name"
+                        <RelativeLayout
+                            android:id="@+id/carName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:textColor="#fff"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            tools:text="Your car"/>
+                            android:layout_centerInParent="true"
+                            android:paddingTop="10dp"
+                            android:orientation="vertical">
 
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/dealership_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/car_name_container"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        tools:text="Dealership"/>
-
-                </RelativeLayout>
-            </RelativeLayout>
-
-            <LinearLayout
-                android:id="@+id/main_info_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_below="@+id/banner_container">
-
-                <LinearLayout
-                    android:id="@+id/mileage_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp">
-                    <ImageView
-                        android:id="@+id/mileage_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_mileage"
-                        android:layout_gravity="center"/>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/mileage_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/mileage_title"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="8dp"/>
-                        <TextView
-                            android:id="@+id/mileage_subtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="12sp"
-                            android:text="@string/mileage_subtitle"/>
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/mileage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="250000.18 km"
-                        android:layout_gravity="center"
-                        android:gravity="end"
-                        />
-
-                </LinearLayout>
-
-                <include layout="@layout/divider"/>
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/car_logo_imageview"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:layout_centerHorizontal="true"
+                                tools:src="@drawable/bmw" />
 
 
-                <LinearLayout
-                    android:id="@+id/engine_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-                    <ImageView
-                        android:id="@+id/engine_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_engine"
-                        android:layout_gravity="center"/>
+                            <LinearLayout
+                                android:id="@+id/car_name_container"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/car_logo_imageview"
+                                android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/engine_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/engine_title"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"
-                        android:layout_gravity="center"
-                        android:gravity="center_vertical"/>
+                                <ImageView
+                                    android:id="@+id/car_connected_indicator_layout"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:src="@drawable/circle_indicator_stroke"
+                                    android:visibility="gone"/>
 
-                    <TextView
-                        android:id="@+id/engine"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="2.3L L4 DOHC 16V TURBO"
-                        android:layout_gravity="center"
-                        android:gravity="end"
-                        />
+                                <TextView
+                                    android:id="@+id/car_name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:maxLines="1"
+                                    android:textColor="#fff"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    tools:text="Your car"/>
 
-                </LinearLayout>
+                            </LinearLayout>
 
+                            <TextView
+                                android:id="@+id/dealership_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/car_name_container"
+                                android:textColor="@color/white"
+                                android:textSize="18sp"
+                                tools:text="Dealership"/>
 
-                <TextView
-                    android:id="@+id/fuel_consumption_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/grey"
-                    android:text="@string/fuel_consumption_header"
-                    android:padding="10dp"
-                    android:textSize="12sp"/>
-
-                <LinearLayout
-                    android:id="@+id/highway_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-                    <ImageView
-                        android:id="@+id/highway_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_h"
-                        android:layout_gravity="center"/>
-
-                    <TextView
-                        android:id="@+id/highway_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/highway_title"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"/>
-
-
-                    <TextView
-                        android:id="@+id/highway_mileage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="250000.18 km"
-                        android:layout_gravity="center"
-                        android:gravity="end"
-                        />
-
-                </LinearLayout>
-
-                <include layout="@layout/divider"/>
-
-
-                <LinearLayout
-                    android:id="@+id/city_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-                    <ImageView
-                        android:id="@+id/city_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_c"
-                        android:layout_gravity="center"/>
-
-                    <TextView
-                        android:id="@+id/city_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/city_title"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"
-                        android:layout_gravity="center_vertical"/>
-
-                    <TextView
-                        android:id="@+id/city_mileage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="2.3L L4 DOHC 16V TURBO"
-                        android:layout_gravity="center"
-                        android:gravity="end"
-                        />
-
-                </LinearLayout>
-
-
-                <TextView
-                    android:id="@+id/tools_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/grey"
-                    android:text="@string/tools_header"
-                    android:padding="10dp"
-                    android:textSize="12sp"/>
-
-                <LinearLayout
-                    android:id="@+id/past_appts_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp"
-                    android:visibility="gone">
-                    <ImageView
-                        android:id="@+id/past_appts_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_mileage"
-                        android:layout_gravity="center"/>
-
-                    <TextView
-                        android:id="@+id/past_appts_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/past_appts_title"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/right_chevron"
-
-                        />
-
-                </LinearLayout>
-
-                <include layout="@layout/divider"/>
-
-                <LinearLayout
-                    android:id="@+id/my_trips_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-
-                    <ImageView
-                        android:id="@+id/my_trips_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_way_2"
-                        android:layout_gravity="center"/>
-
-                    <TextView
-                        android:id="@+id/my_trips_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="My Trips"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"
-                        android:gravity="center_vertical"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/right_chevron"/>
-                </LinearLayout>
-
-                <include layout="@layout/divider" />
-
-                <LinearLayout
-                    android:id="@+id/dashboard_request_service_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-
-                    <ImageView
-                        android:id="@+id/request_appts_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        tools:src="@drawable/mercedes_tentaicon3x"
-                        android:layout_gravity="center"/>
-
-                    <TextView
-                        android:id="@+id/request_appts_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/request_appts_title"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"
-                        android:gravity="center_vertical"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/right_chevron"
-                        />
-
-                </LinearLayout>
-
-                <include layout="@layout/divider" />
-
-                <LinearLayout
-                    android:id="@+id/my_appointments_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-
-                    <ImageView
-                        android:id="@+id/my_appts_icon"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/mercedes_clipboard3x" />
-
-                    <TextView
-                        android:id="@+id/my_appointments_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:gravity="center_vertical"
-                        android:text="My Appointments"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/right_chevron" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/notification_nav_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:visibility="gone">
-
-
-                <RelativeLayout
-                    android:id="@+id/dashboard_chat_dealership"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_margin="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/color_button_grey"
-                    android:elevation="3dp"
-                    android:onClick="startChat"
-                    android:paddingBottom="8dp"
-                    android:paddingTop="8dp">
+                        </RelativeLayout>
+                    </RelativeLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_centerHorizontal="true"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/imageView19"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_message_light_blue_500_24dp"/>
-
-                        <TextView
-                            android:id="@+id/textView48"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentTop="true"
-                            android:layout_marginLeft="4dp"
-                            android:layout_toEndOf="@+id/imageView19"
-                            android:text="Message Dealer"/>
-                    </LinearLayout>
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/dashboard_car_scan_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_margin="6dp"
-                    android:layout_toRightOf="@+id/phone_layout"
-                    android:layout_weight="1"
-                    android:background="@drawable/color_button_grey"
-                    android:elevation="3dp"
-                    android:onClick="scanClicked"
-                    android:paddingBottom="8dp"
-                    android:paddingTop="8dp">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_centerHorizontal="true"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/imageView21"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_search_light_blue_500_24dp"/>
-
-                        <TextView
-                            android:id="@+id/textView49"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentTop="true"
-                            android:layout_marginLeft="4dp"
-                            android:layout_toEndOf="@+id/imageView21"
-                            android:text="Scan Vehicle"/>
-                    </LinearLayout>
-                </RelativeLayout>
-            </LinearLayout>
-
-
-            <RelativeLayout
-                android:id="@+id/car_info_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/notification_nav_container"
-                android:layout_gravity="center"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:id="@+id/dealership_info_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/dealership_name2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginBottom="4dp"
-                        android:layout_toLeftOf="@+id/dealership_action_icons"
-                        android:gravity="center_vertical"
-                        android:text="Dealership"
-                        android:textSize="18sp"/>
-
-                    <LinearLayout
+                        android:id="@+id/main_info_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:layout_below="@+id/banner_container">
 
                         <LinearLayout
-                            android:id="@+id/dealership_action_icons"
-                            android:layout_width="fill_parent"
+                            android:id="@+id/mileage_container"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true">
-
-                            <RelativeLayout
-                                android:id="@+id/phone_layout"
-                                android:layout_width="0dp"
+                            android:orientation="horizontal"
+                            android:paddingTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="8dp">
+                            <ImageView
+                                android:id="@+id/mileage_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_mileage"
+                                android:layout_gravity="center"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_toRightOf="@+id/address_layout"
-                                android:layout_weight="1"
-                                android:paddingBottom="6dp"
-                                android:paddingTop="6dp">
-
-                                <ImageView
-                                    android:id="@+id/imageView20"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentStart="true"
-                                    android:layout_centerVertical="true"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_phone_light_blue_500_24dp"/>
-
+                                android:orientation="vertical">
                                 <TextView
-                                    android:id="@+id/dealership_phone"
+                                    android:id="@+id/mileage_title"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_alignTop="@+id/imageView20"
-                                    android:layout_centerVertical="true"
-                                    android:layout_marginLeft="8dp"
-                                    android:layout_toEndOf="@+id/imageView20"
-                                    android:maxLines="1"
-                                    android:text="New Text"/>
-                            </RelativeLayout>
+                                    android:text="@string/mileage_title"
+                                    android:textStyle="bold"
+                                    android:layout_marginBottom="8dp"/>
+                                <TextView
+                                    android:id="@+id/mileage_subtitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="12sp"
+                                    android:text="@string/mileage_subtitle"/>
 
-                            <RelativeLayout
-                                android:id="@+id/address_layout"
-                                android:layout_width="0dp"
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/mileage"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_toRightOf="@+id/address_layout"
-                                android:layout_weight="1"
-                                android:paddingBottom="6dp"
-                                android:paddingTop="6dp">
-
-                                <ImageView
-                                    android:id="@+id/imageView22"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentStart="true"
-                                    android:layout_centerVertical="true"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_location_on_light_blue_500_24dp"/>
-
-                                <TextView
-                                    android:id="@+id/dealership_address"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignTop="@+id/imageView22"
-                                    android:layout_centerVertical="true"
-                                    android:layout_marginLeft="8dp"
-                                    android:layout_toEndOf="@+id/imageView22"
-                                    android:maxLines="1"
-                                    android:text="New Text"/>
-                            </RelativeLayout>
+                                tools:text="250000.18 km"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                />
 
                         </LinearLayout>
+
+                        <include layout="@layout/divider"/>
+
+
+                        <LinearLayout
+                            android:id="@+id/engine_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+                            <ImageView
+                                android:id="@+id/engine_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_engine"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/engine_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="@string/engine_title"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_gravity="center"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/engine"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                tools:text="2.3L L4 DOHC 16V TURBO"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                />
+
+                        </LinearLayout>
+
+
+                        <TextView
+                            android:id="@+id/fuel_consumption_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/grey"
+                            android:text="@string/fuel_consumption_header"
+                            android:padding="10dp"
+                            android:textSize="12sp"/>
+
+                        <LinearLayout
+                            android:id="@+id/highway_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+                            <ImageView
+                                android:id="@+id/highway_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_h"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/highway_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/highway_title"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"/>
+
+
+                            <TextView
+                                android:id="@+id/highway_mileage"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                tools:text="250000.18 km"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                />
+
+                        </LinearLayout>
+
+                        <include layout="@layout/divider"/>
+
+
+                        <LinearLayout
+                            android:id="@+id/city_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+                            <ImageView
+                                android:id="@+id/city_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_c"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/city_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/city_title"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/city_mileage"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                tools:text="2.3L L4 DOHC 16V TURBO"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                />
+
+                        </LinearLayout>
+
+
+                        <TextView
+                            android:id="@+id/tools_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/grey"
+                            android:text="@string/tools_header"
+                            android:padding="10dp"
+                            android:textSize="12sp"/>
+
+                        <LinearLayout
+                            android:id="@+id/past_appts_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp"
+                            android:visibility="gone">
+                            <ImageView
+                                android:id="@+id/past_appts_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_mileage"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/past_appts_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/past_appts_title"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"/>
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@drawable/right_chevron"
+
+                                />
+
+                        </LinearLayout>
+
+                        <include layout="@layout/divider"/>
+
+                        <LinearLayout
+                            android:id="@+id/my_trips_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+
+                            <ImageView
+                                android:id="@+id/my_trips_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_way_2"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/my_trips_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="My Trips"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:gravity="center_vertical"/>
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@drawable/right_chevron"/>
+                        </LinearLayout>
+
+                        <include layout="@layout/divider" />
+
+                        <LinearLayout
+                            android:id="@+id/dashboard_request_service_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+
+                            <ImageView
+                                android:id="@+id/request_appts_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/mercedes_tentaicon3x"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:id="@+id/request_appts_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="@string/request_appts_title"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:gravity="center_vertical"/>
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@drawable/right_chevron"
+                                />
+
+                        </LinearLayout>
+
+                        <include layout="@layout/divider" />
+
+                        <LinearLayout
+                            android:id="@+id/my_appointments_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+
+                            <ImageView
+                                android:id="@+id/my_appts_icon"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                android:layout_gravity="center"
+                                app:srcCompat="@drawable/mercedes_clipboard3x" />
+
+                            <TextView
+                                android:id="@+id/my_appointments_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="4dp"
+                                android:layout_weight="1"
+                                android:gravity="center_vertical"
+                                android:text="My Appointments"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@drawable/right_chevron" />
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                </LinearLayout>
 
-            </RelativeLayout>
+                    <LinearLayout
+                        android:id="@+id/notification_nav_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        android:visibility="gone">
 
-    </RelativeLayout>
-    </android.support.v4.widget.NestedScrollView>
+
+                        <RelativeLayout
+                            android:id="@+id/dashboard_chat_dealership"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom"
+                            android:layout_margin="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/color_button_grey"
+                            android:elevation="3dp"
+                            android:onClick="startChat"
+                            android:paddingBottom="8dp"
+                            android:paddingTop="8dp">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentTop="true"
+                                android:layout_centerHorizontal="true"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/imageView19"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_message_light_blue_500_24dp"/>
+
+                                <TextView
+                                    android:id="@+id/textView48"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_toEndOf="@+id/imageView19"
+                                    android:text="Message Dealer"/>
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/dashboard_car_scan_btn"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_margin="6dp"
+                            android:layout_toRightOf="@+id/phone_layout"
+                            android:layout_weight="1"
+                            android:background="@drawable/color_button_grey"
+                            android:elevation="3dp"
+                            android:onClick="scanClicked"
+                            android:paddingBottom="8dp"
+                            android:paddingTop="8dp">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentTop="true"
+                                android:layout_centerHorizontal="true"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/imageView21"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_search_light_blue_500_24dp"/>
+
+                                <TextView
+                                    android:id="@+id/textView49"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_toEndOf="@+id/imageView21"
+                                    android:text="Scan Vehicle"/>
+                            </LinearLayout>
+                        </RelativeLayout>
+                    </LinearLayout>
+
+
+                    <RelativeLayout
+                        android:id="@+id/car_info_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/notification_nav_container"
+                        android:layout_gravity="center"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:id="@+id/dealership_info_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/dealership_name2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginBottom="4dp"
+                                android:layout_toLeftOf="@+id/dealership_action_icons"
+                                android:gravity="center_vertical"
+                                android:text="Dealership"
+                                android:textSize="18sp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:id="@+id/dealership_action_icons"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true">
+
+                                    <RelativeLayout
+                                        android:id="@+id/phone_layout"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_toRightOf="@+id/address_layout"
+                                        android:layout_weight="1"
+                                        android:paddingBottom="6dp"
+                                        android:paddingTop="6dp">
+
+                                        <ImageView
+                                            android:id="@+id/imageView20"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_gravity="center"
+                                            android:src="@drawable/ic_phone_light_blue_500_24dp"/>
+
+                                        <TextView
+                                            android:id="@+id/dealership_phone"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignTop="@+id/imageView20"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginLeft="8dp"
+                                            android:layout_toEndOf="@+id/imageView20"
+                                            android:maxLines="1"
+                                            android:text="New Text"/>
+                                    </RelativeLayout>
+
+                                    <RelativeLayout
+                                        android:id="@+id/address_layout"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_toRightOf="@+id/address_layout"
+                                        android:layout_weight="1"
+                                        android:paddingBottom="6dp"
+                                        android:paddingTop="6dp">
+
+                                        <ImageView
+                                            android:id="@+id/imageView22"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_gravity="center"
+                                            android:src="@drawable/ic_location_on_light_blue_500_24dp"/>
+
+                                        <TextView
+                                            android:id="@+id/dealership_address"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignTop="@+id/imageView22"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginLeft="8dp"
+                                            android:layout_toEndOf="@+id/imageView22"
+                                            android:maxLines="1"
+                                            android:text="New Text"/>
+                                    </RelativeLayout>
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
+            </android.support.v4.widget.NestedScrollView>
+
+        </RelativeLayout>
+
     </RelativeLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

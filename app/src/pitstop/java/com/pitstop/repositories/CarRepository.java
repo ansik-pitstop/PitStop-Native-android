@@ -126,10 +126,17 @@ public class CarRepository implements Repository{
     }
 
     public void update(Car car, Callback<Object> callback) {
+        JSONObject body = new JSONObject();
 
-        //Update backend
-        networkHelper.updateCar(car.getId(),car.getTotalMileage()
-                ,car.getShopId(),getUpdateCarRequestCallback(callback,car));
+        try {
+            body.put("carId", car.getId());
+            body.put("totalMileage", car.getTotalMileage());
+            body.put("shopId", car.getDealership().getId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.put("car", getUpdateCarRequestCallback(callback,car), body);
     }
 
     private RequestCallback getUpdateCarRequestCallback(Callback<Object> callback, Car car){

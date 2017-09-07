@@ -31,6 +31,7 @@ import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
+import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.interactors.update.UpdateShopUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
@@ -117,5 +118,7 @@ public interface UseCaseComponent {
     HandlePidDataUseCase handlePidDataUseCase();
 
     PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase();
+
+    UpdateCarMileageUseCase updateCarMileageUseCase();
 
 }
