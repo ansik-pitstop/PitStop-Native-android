@@ -123,6 +123,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
         if (mileage < 0 || mileage > 3000000){
             getView().hideLoading();
+            getView().displayUpdateMileageError();
             updating = false;
             return;
         }
