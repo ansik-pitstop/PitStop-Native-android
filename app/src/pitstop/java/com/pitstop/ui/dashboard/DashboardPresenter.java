@@ -5,6 +5,9 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -19,6 +22,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
 
+    private boolean updating = false;
+
     public DashboardPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
@@ -26,13 +31,61 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onUpdateNeeded(){
-        if (BuildConfig.DEBUG && (dealershipId == 4 || dealershipId == 18)){
-            //Mercedes
-        } else if (!BuildConfig.DEBUG && dealershipId == 14){
-            //Mercedes
-        } else {
-            //Default
-        }
+        if (updating || getView() == null) return;
+        updating = true;
+        getView().showLoading();
+
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                updating = false;
+                if (getView() == null) return;
+                getView().displayOnlineView();
+
+                if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
+                        || car.getDealership().getId() == 18)){
+                    getView().displayMercedesDealershipVisuals(car.getDealership());
+                } else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14){
+                    getView().displayMercedesDealershipVisuals(car.getDealership());
+                } else {
+                    getView().displayDefaultDealershipVisuals(car.getDealership());
+                }
+
+                getView().displayCarDetails(car);
+
+                getView().hideLoading();
+            }
+
+            @Override
+            public void onNoCarSet() {
+                updating = false;
+                if (getView() == null) return;
+                getView().displayNoCarView();
+                getView().hideLoading();
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                updating = false;
+                if (getView() == null) return;
+
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
+                    }
+                    else{
+                        getView().displayOfflineView();
+                    }
+                }
+                else{
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
+                }
+
+                getView().hideLoading();
+            }
+        });
+
     }
 
     void onUpdateMileageDialogConfirmClicked(double mileage){
