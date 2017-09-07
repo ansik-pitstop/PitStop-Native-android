@@ -40,6 +40,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
         if (getView() != null)
             getView().startAddCarActivity();
     }
@@ -163,41 +164,49 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onMileageClicked(){
+        Log.d(TAG,"onMileageClicked()");
         if (getView() != null)
             getView().displayUpdateMileageDialog();
     }
 
     void onRefresh(){
+        Log.d(TAG,"onRefresh()");
         onUpdateNeeded();
     }
 
     void onMyAppointmentsButtonClicked(){
+        Log.d(TAG,"onMyAppointmentsButtonClicked()");
         if (getView() != null)
             getView().startMyAppointmentsActivity();
     }
 
     void onServiceRequestButtonClicked(){
+        Log.d(TAG,"onServiceRequestButtonClicked()");
         if (getView() != null)
             getView().startRequestServiceActivity();
     }
 
     void onMyTripsButtonClicked(){
+        Log.d(TAG,"onMyTripsButtonClicked()");
         if (getView() != null)
             getView().startMyTripsActivity();
     }
 
     @Override
     public EventType[] getIgnoredEventTypes() {
+        Log.d(TAG,"getIgnoredEventTypes()");
         return new EventType[0];
     }
 
     @Override
     public void onAppStateChanged() {
+        Log.d(TAG,"onAppStateChanged()");
         onUpdateNeeded();
     }
 
     @Override
     public EventSource getSourceType() {
+        Log.d(TAG,"getSourceType()");
         return EVENT_SOURCE;
     }
 }

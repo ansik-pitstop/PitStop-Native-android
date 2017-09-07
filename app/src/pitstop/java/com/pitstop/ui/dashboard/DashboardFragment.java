@@ -123,6 +123,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, view);
 
@@ -143,6 +144,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         presenter.onUpdateNeeded();
@@ -150,11 +152,13 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
     }
 
     private int getDealerSpecificBanner(String name) {
+        Log.d(TAG,"getDealerSpecificBanner()");
         if (name.equalsIgnoreCase("Waterloo Dodge")) {
             return R.drawable.waterloo_dodge;
         }else if (name.equalsIgnoreCase("Galt Chrysler")) {
@@ -194,6 +198,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     }
 
     private int getCarSpecificLogo(String make) {
+        Log.d(TAG,"getCarSpecificLogo()");
         if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
             return R.drawable.abarth;
@@ -294,19 +299,23 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @OnClick(R.id.dashboard_request_service_btn)
     protected void onServiceRequestButtonClicked(){
+        Log.d(TAG,"onServiceRequestButtonClicked()");
         presenter.onServiceRequestButtonClicked();
     }
     @OnClick(R.id.my_appointments_btn)
     protected void onMyAppointmentsButtonClicked(){
+        Log.d(TAG,"onMyAppointmentsButtonClicked()");
         presenter.onMyAppointmentsButtonClicked();
     }
     @OnClick(R.id.my_trips_btn)
     protected void onMyTripsButtonClicked(){
+        Log.d(TAG,"onMyTripsButtonClicked()");
         presenter.onMyTripsButtonClicked();
     }
 
     @OnClick(R.id.mileage_container)
     protected void onMileageClicked(){
+        Log.d(TAG,"onMileageClicked()");
         presenter.onMileageClicked();
     }
 
@@ -423,6 +432,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
+        Log.d(TAG,"displayDefaultDealershipVisual()");
+
         dealershipName.setText(dealership.getName());
         dealershipAddress.setText(dealership.getAddress());
         dealershipPhone.setText(dealership.getPhone());
@@ -450,6 +461,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void displayMercedesDealershipVisuals(Dealership dealership) {
+        Log.d(TAG,"displayMercedesDealershipVisuals()");
+
         dealershipName.setText(dealership.getName());
         dealershipAddress.setText(dealership.getAddress());
         dealershipPhone.setText(dealership.getPhone());
@@ -476,6 +489,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void displayCarDetails(Car car){
+        Log.d(TAG,"displayCarDetails() car: "+car);
+
         hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
@@ -489,11 +504,14 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void displayMileage(String mileage) {
+        Log.d(TAG,"displayMileage() mileage: "+mileage);
         mMileageText.setText(String.format("%.2f km",mileage));
     }
 
     @Override
     public void displayUpdateMileageDialog() {
+        Log.d(TAG,"displayUpdateMileageDialog()");
+
         if (updateMileageDialog == null){
             updateMileageDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -509,21 +527,25 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void startRequestServiceActivity() {
+        Log.d(TAG,"startRequestServiceActivity()");
         ((MainActivity)getActivity()).requestMultiService(null);
     }
 
     @Override
     public void startMyAppointmentsActivity() {
+        Log.d(TAG,"startMyAppointmentsActivity()");
         ((MainActivity)getActivity()).myAppointments();
     }
 
     @Override
     public void startMyTripsActivity() {
+        Log.d(TAG,"startMyTripsActivity()");
         ((MainActivity)getActivity()).myTrips();
     }
 
     @Override
     public void displayUpdateMileageError() {
+        Log.d(TAG,"displayUpdateMileageError()");
         if (mileageErrorDialog == null){
             mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
@@ -538,6 +560,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public boolean hasBeenPopulated() {
+        Log.d(TAG,"hasBeenPopulated()");
         return hasBeenPopulated;
     }
 }
