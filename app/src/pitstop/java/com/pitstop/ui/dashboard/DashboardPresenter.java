@@ -1,16 +1,38 @@
 package com.pitstop.ui.dashboard;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.ui.mainFragments.TabPresenter;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Karol Zdebel on 9/7/2017.
  */
 
 public class DashboardPresenter extends TabPresenter<DashboardView>{
-    void onUpdateNeeded(){
 
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
+
+    private UseCaseComponent useCaseComponent;
+    private MixpanelHelper mixpanelHelper;
+
+    public DashboardPresenter(UseCaseComponent useCaseComponent
+            , MixpanelHelper mixpanelHelper){
+        this.useCaseComponent = useCaseComponent;
+        this.mixpanelHelper = mixpanelHelper;
+    }
+
+    void onUpdateNeeded(){
+        if (BuildConfig.DEBUG && (dealershipId == 4 || dealershipId == 18)){
+            //Mercedes
+        } else if (!BuildConfig.DEBUG && dealershipId == 14){
+            //Mercedes
+        } else {
+            //Default
+        }
     }
 
     void onUpdateMileageDialogConfirmClicked(double mileage){
@@ -53,6 +75,6 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     @Override
     public EventSource getSourceType() {
-        return null;
+        return EVENT_SOURCE;
     }
 }

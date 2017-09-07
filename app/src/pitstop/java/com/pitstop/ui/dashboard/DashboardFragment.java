@@ -1,19 +1,13 @@
 
 package com.pitstop.ui.dashboard;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,64 +15,27 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.pitstop.BuildConfig;
-import com.pitstop.EventBus.CarDataChangedEvent;
-import com.pitstop.EventBus.EventSource;
-import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.EventBus.EventType;
-import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarStorage;
-import com.pitstop.database.LocalShopStorage;
 import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
-import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.issue.CarIssue;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
-import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.ui.mainFragments.CarDataFragmentOld;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
-
-import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.R.attr.dialogLayout;
-import static com.pitstop.R.array.car;
 
 public class DashboardFragment extends Fragment implements DashboardView {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
-    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
-
-    public final static String pfName = "com.pitstop.login.name";
-    public final static String pfCurrentCar = "ccom.pitstop.currentcar";
-
-    public final static int MSG_UPDATE_CONNECTED_CAR = 1076;
-
-    private View rootview;
-    private TextView dealershipAddress;
-    private TextView dealershipPhone;
-    private TextView carName, dealershipName;
 
     private DashboardPresenter presenter;
 
@@ -147,123 +104,37 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.dealership_phone)
     TextView dealershipPhone;
 
-    // Models
-    private Car dashboardCar;
-    private List<CarIssue> carIssueList = new ArrayList<>();
-
-
-    // Database accesses
-    private LocalCarStorage carLocalStore;
-    private LocalShopStorage shopLocalStore;
-
-    private GlobalApplication application;
-    private SharedPreferences sharedPreferences;
-
-    // Utils / Helper
-    private NetworkHelper networkHelper;
-    private MixpanelHelper mixpanelHelper;
-
-    private Context context;
-
-    private UseCaseComponent useCaseComponent;
-
-    private boolean askForCar = true; // do not ask for car if user presses cancel
-    private boolean isUpdating = false;
-
-    public static DashboardFragment newInstance() {
-        DashboardFragment fragment = new DashboardFragment();
-        return fragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        rootview = inflater.inflate(R.layout.fragment_main_dashboard, null);
-        ButterKnife.bind(this, rootview);
+        View view = inflater.inflate(R.layout.fragment_main_dashboard, null);
+        ButterKnife.bind(this, view);
 
-        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
-                .contextModule(new ContextModule(getContext()))
-                .build();
+        if (presenter == null){
+            UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(new ContextModule(getActivity()))
+                    .build();
+            MixpanelHelper mixpanelHelper = new MixpanelHelper((GlobalApplication)getContext()
+                    .getApplicationContext());
+            presenter = new DashboardPresenter(useCaseComponent, mixpanelHelper);
 
-        this.context = getActivity();
-        application = (GlobalApplication)getActivity().getApplicationContext();
-        networkHelper = tempNetworkComponent.networkHelper();
-        mixpanelHelper = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        // Local db adapters
-        carLocalStore = new LocalCarStorage(context);
-        shopLocalStore = new LocalShopStorage(context);
-
-        useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getActivity()))
-                .build();
+        }
 
         mSwipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
-        return rootview;
+        return view;
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        hideLoading(null);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.subscribe(this);
     }
 
     @Override
-    public void onPause() {
-        //handler.removeCallbacks(carConnectedRunnable);
-        application.getMixpanelAPI().flush();
-        hideLoading(null);
-        super.onPause();
-    }
-
-    private void setDealerVisuals(int dealershipId, String name) {
-        if (BuildConfig.DEBUG && (dealershipId == 4 || dealershipId == 18)){
-            bindMercedesDealerUI();
-        } else if (!BuildConfig.DEBUG && dealershipId == 14){
-            bindMercedesDealerUI();
-        } else {
-            mDealerBanner.setImageResource(getDealerSpecificBanner(name));
-            mMileageIcon.setImageResource(R.drawable.odometer);
-            mEngineIcon.setImageResource(R.drawable.car_engine);
-            mHighwayIcon.setImageResource(R.drawable.highwaymileage);
-            mCityIcon.setImageResource(R.drawable.citymileage);
-            mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-            mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
-            mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
-            mMyTripsIcon.setImageResource(R.drawable.route_2);
-            if( ((MainActivity)getActivity()) != null){
-                ((MainActivity)getActivity()).changeTheme(false);
-            }
-            mCarLogoImage.setVisibility(View.VISIBLE);
-            dealershipName.setVisibility(View.VISIBLE);
-            carName.setTextColor(Color.BLACK);
-            dealershipName.setTextColor(Color.BLACK);
-            carName.setTypeface(Typeface.DEFAULT_BOLD);
-            carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-            mDealerBannerOverlay.setVisibility(View.VISIBLE);
-
-        }
-    }
-
-    private void bindMercedesDealerUI() {
-        mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
-        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-        mHighwayIcon.setImageResource(R.drawable.mercedes_h);
-        mCityIcon.setImageResource(R.drawable.mercedes_c);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
-        mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
-        mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
-        ((MainActivity)getActivity()).changeTheme(true);
-        mCarLogoImage.setVisibility(View.GONE);
-        dealershipName.setVisibility(View.GONE);
-        carName.setTextColor(Color.WHITE);
-        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/mercedes.otf"));
-        mDealerBannerOverlay.setVisibility(View.GONE);
-        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.unsubscribe();
     }
 
     private int getDealerSpecificBanner(String name) {
