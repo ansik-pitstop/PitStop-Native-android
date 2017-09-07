@@ -198,18 +198,7 @@ public class NetworkHelper {
     }
 
     public void updateCar(int carId, double mileage, int shopId, RequestCallback callback){
-        LOGI(TAG, "updateCar: carId: " + carId + ", mileage: " + mileage +"shopId: "+shopId);
-        JSONObject body = new JSONObject();
 
-        try {
-            body.put("carId", carId);
-            body.put("totalMileage", mileage);
-            body.put("shopId", shopId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("car", callback, body);
     }
 
     public void updateCarMileage(int carId, double mileage, RequestCallback callback) {
