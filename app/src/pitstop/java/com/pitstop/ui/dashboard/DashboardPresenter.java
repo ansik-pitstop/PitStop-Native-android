@@ -125,7 +125,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 getView().hideLoading();
 
                 try{
-                    getView().displayMileage(String.valueOf(mileage));
+                    getView().displayMileage(mileage);
                 }catch(NumberFormatException e){
                     e.printStackTrace();
                     getView().displayUnknownErrorDialog();

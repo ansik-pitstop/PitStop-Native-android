@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.R.attr.dialogLayout;
-import static com.pitstop.R.id.mileage_container;
+import static com.pitstop.R.id.mileage;
 
 public class DashboardFragment extends Fragment implements DashboardView {
 
@@ -53,7 +53,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.mileage_icon)
     ImageView mMileageIcon;
 
-    @BindView(R.id.mileage)
+    @BindView(mileage)
     TextView mMileageText;
 
     @BindView(R.id.engine_icon)
@@ -314,7 +314,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.onMyTripsButtonClicked();
     }
 
-    @OnClick(mileage_container)
+    @OnClick(R.id.mileage_container)
     protected void onMileageClicked(){
         Log.d(TAG,"onMileageClicked()");
         presenter.onMileageClicked();
@@ -504,7 +504,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     }
 
     @Override
-    public void displayMileage(String mileage) {
+    public void displayMileage(double mileage) {
         Log.d(TAG,"displayMileage() mileage: "+mileage);
         mMileageText.setText(String.format("%.2f km",mileage));
     }
@@ -512,8 +512,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Override
     public void displayUpdateMileageDialog() {
         Log.d(TAG,"displayUpdateMileageDialog()");
-
         if (updateMileageDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
             updateMileageDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")

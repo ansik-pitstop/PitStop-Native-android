@@ -13,7 +13,7 @@ public interface DashboardView extends ErrorHandlingView, LoadingTabView {
     void displayDefaultDealershipVisuals(Dealership dealership);
     void displayMercedesDealershipVisuals(Dealership dealership);
     void displayCarDetails(Car car);
-    void displayMileage(String mileage);
+    void displayMileage(double mileage);
     void displayUpdateMileageDialog();
     void startRequestServiceActivity();
     void startMyAppointmentsActivity();
