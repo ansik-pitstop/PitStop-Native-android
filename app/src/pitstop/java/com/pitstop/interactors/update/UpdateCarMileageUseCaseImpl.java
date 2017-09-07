@@ -32,7 +32,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     }
 
     @Override
-    public void execute(Callback callback, double mileage){
+    public void execute(double mileage, Callback callback){
         this.callback = callback;
         this.mileage = mileage;
         usecaseHandler.post(this);

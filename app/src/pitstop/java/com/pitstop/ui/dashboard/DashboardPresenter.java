@@ -1,11 +1,14 @@
 package com.pitstop.ui.dashboard;
 
+import android.util.Log;
+
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
@@ -31,6 +34,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onUpdateNeeded(){
+        Log.d(TAG,"onUpdateNeeded()");
         if (updating || getView() == null) return;
         updating = true;
         getView().showLoading();
@@ -89,8 +93,57 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onUpdateMileageDialogConfirmClicked(double mileage){
-        if (getView() != null)
-            getView().displayUpdateMileageDialog();
+        Log.d(TAG,"onUpdateMileageDialogConfirmClicked()");
+        if (updating) return;
+        updating = true;
+        getView().showLoading();
+
+        useCaseComponent.updateCarMileageUseCase().execute(mileage
+                , new UpdateCarMileageUseCase.Callback() {
+
+                    @Override
+            public void onMileageUpdated() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+
+                try{
+                    getView().displayMileage(String.valueOf(mileage));
+                }catch(NumberFormatException e){
+                    e.printStackTrace();
+                    getView().displayUnknownErrorDialog();
+                }
+            }
+
+            @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                updating = false;
+                if (getView() == null) return;
+
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
+                    }
+                    else{
+                        getView().displayOfflineView();
+                    }
+                }
+                else{
+                    getView().displayOnlineView();
+                    getView().displayUnknownErrorDialog();
+                }
+
+                getView().hideLoading();
+            }
+        });
     }
 
     void onMileageClicked(){
@@ -124,7 +177,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     @Override
     public void onAppStateChanged() {
-
+        onUpdateNeeded();
     }
 
     @Override
