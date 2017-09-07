@@ -1,10 +1,8 @@
 
-package com.pitstop.ui.mainFragments;
+package com.pitstop.ui.dashboard;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -12,17 +10,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,7 +31,6 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.dependency.ContextModule;
@@ -51,7 +45,7 @@ import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.ui.issue_detail.IssueDetailsActivity;
+import com.pitstop.ui.mainFragments.CarDataFragmentOld;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.LogUtils;
@@ -61,19 +55,19 @@ import com.pitstop.utils.NetworkHelper;
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainDashboardFragment extends CarDataFragmentOld {
+import static android.R.attr.dialogLayout;
+import static com.pitstop.R.array.car;
 
-    public static String TAG = MainDashboardFragment.class.getSimpleName();
+public class DashboardFragment extends Fragment implements DashboardView {
+
+    public static String TAG = DashboardFragment.class.getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
 
     public final static String pfName = "com.pitstop.login.name";
@@ -85,6 +79,8 @@ public class MainDashboardFragment extends CarDataFragmentOld {
     private TextView dealershipAddress;
     private TextView dealershipPhone;
     private TextView carName, dealershipName;
+
+    private DashboardPresenter presenter;
 
     private AlertDialog updateMileageDialog;
 
@@ -162,8 +158,8 @@ public class MainDashboardFragment extends CarDataFragmentOld {
     private boolean askForCar = true; // do not ask for car if user presses cancel
     private boolean isUpdating = false;
 
-    public static MainDashboardFragment newInstance() {
-        MainDashboardFragment fragment = new MainDashboardFragment();
+    public static DashboardFragment newInstance() {
+        DashboardFragment fragment = new DashboardFragment();
         return fragment;
     }
 
@@ -335,50 +331,6 @@ public class MainDashboardFragment extends CarDataFragmentOld {
         application.getMixpanelAPI().flush();
         hideLoading(null);
         super.onPause();
-    }
-
-    private void setDealership() {
-        Dealership shop = dashboardCar.getDealership();
-        if (shop == null) {
-            shop = shopLocalStore.getDealership(dashboardCar.getShopId());
-        }
-        dashboardCar.setDealership(shop);
-        if (shop == null) {
-            networkHelper.getShops(new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        try {
-                            List<Dealership> dl = Dealership.createDealershipList(response);
-                            shopLocalStore.deleteAllDealerships();
-                            shopLocalStore.storeDealerships(dl);
-
-                            Dealership d = shopLocalStore.getDealership(dashboardCar.getId());
-
-                            dashboardCar.setDealership(d);
-                            if (dashboardCar.getDealership() != null) {
-                                dealershipName.setText(d.getName());
-                                dealershipAddress.setText(d.getAddress());
-                                dealershipPhone.setText(d.getPhone());
-                                setDealerVisuals(d.getId(),d.getName());
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "Get shops: " + requestError.getMessage());
-                    }
-                }
-            });
-        } else {
-            if (dealershipName != null) {
-                dealershipName.setText(shop.getName());
-                dealershipAddress.setText(shop.getAddress());
-                dealershipPhone.setText(shop.getPhone());
-                setDealerVisuals(shop.getId(),shop.getName());
-            }
-        }
     }
 
     private void setDealerVisuals(int dealershipId, String name) {
@@ -567,221 +519,6 @@ public class MainDashboardFragment extends CarDataFragmentOld {
         }
     }
 
-    private void displayMileage(double mileage){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMileageText.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.mileage_update));
-                mMileageText.setText(String.format("%.2f km", mileage));
-            }
-        });
-    }
-
-    /**
-     * Issues list view
-     */
-    private static class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
-
-        private WeakReference<Activity> activityReference;
-
-        private Car dashboardCar;
-        private List<CarIssue> carIssues;
-        static final int VIEW_TYPE_EMPTY = 100;
-        static final int VIEW_TYPE_TENTATIVE = 101;
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item_issue, parent, false);
-            return new ViewHolder(v);
-        }
-
-        public CarIssue getItem(int position) {
-            return carIssues.get(position);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
-            //Log.i(TAG,"On bind view holder");
-            if (activityReference.get() == null) return;
-            final Activity activity = activityReference.get();
-
-            int viewType = getItemViewType(position);
-
-            holder.date.setVisibility(View.GONE);
-
-            if (viewType == VIEW_TYPE_EMPTY) {
-                holder.description.setMaxLines(2);
-                holder.description.setText("You have no pending Engine Code, Recalls or Services");
-                holder.title.setText("Congrats!");
-                holder.imageView.setImageDrawable(
-                        ContextCompat.getDrawable(activity, R.drawable.ic_check_circle_green_400_36dp));
-            } else if (viewType == VIEW_TYPE_TENTATIVE) {
-                holder.description.setMaxLines(2);
-                holder.description.setText("Tap to start");
-                holder.title.setText("Book your first tentative service");
-                holder.imageView.setImageDrawable(
-                        ContextCompat.getDrawable(activity, R.drawable.ic_announcement_blue_600_24dp));
-                holder.container.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // removeTutorial();
-                        ((MainActivity)activity).prepareAndStartTutorialSequence();
-                    }
-                });
-            } else {
-                final CarIssue carIssue = carIssues.get(position);
-
-                holder.description.setText(carIssue.getDescription());
-                holder.description.setEllipsize(TextUtils.TruncateAt.END);
-                if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                    holder.imageView.setImageDrawable(ContextCompat
-                            .getDrawable(activity, R.drawable.ic_error_red_600_24dp));
-
-                } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
-                    holder.imageView.setImageDrawable(ContextCompat
-                            .getDrawable(activity, R.drawable.car_engine_red));
-
-                } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                    holder.imageView.setImageDrawable(ContextCompat
-                            .getDrawable(activity, R.drawable.car_engine_yellow));
-                } else {
-                    holder.description.setText(carIssue.getDescription());
-                    holder.imageView.setImageDrawable(ContextCompat
-                            .getDrawable(activity, R.drawable.ic_warning_amber_300_24dp));
-                }
-
-                holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
-
-                holder.container.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new MixpanelHelper((GlobalApplication)activity.getApplicationContext())
-                                .trackButtonTapped(carIssues.get(position).getItem(), MixpanelHelper.DASHBOARD_VIEW);
-
-                        Intent intent = new Intent(activity, IssueDetailsActivity.class);
-                        intent.putExtra(MainActivity.CAR_EXTRA, dashboardCar);
-
-                    }
-                });
-            }
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if (carIssues.isEmpty()) {
-                return VIEW_TYPE_EMPTY;
-            } else if (carIssues.get(position).getIssueType().equals(CarIssue.TENTATIVE)) {
-                return VIEW_TYPE_TENTATIVE;
-            }
-            return super.getItemViewType(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            if (carIssues.isEmpty()) {
-                return 1;
-            }
-            return carIssues.size();
-        }
-
-        public void removeTutorial() {
-            if (activityReference.get() == null) return;
-            GlobalApplication application = (GlobalApplication) activityReference.get().getApplicationContext();
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
-            Set<String> carsAwaitTutorial = preferences.getStringSet(application.getString(R.string.pfAwaitTutorial), new HashSet<String>());
-            Set<String> copy = new HashSet<>(); // The set returned by preference is immutable
-            for (String item : carsAwaitTutorial) {
-                if (!item.equals(String.valueOf(dashboardCar.getId()))) {
-                    copy.add(item);
-                }
-            }
-            Log.d(TAG, String.valueOf(dashboardCar.getId()));
-            Log.d(TAG, String.valueOf(copy.size()));
-            preferences.edit().putStringSet(application.getString(R.string.pfAwaitTutorial), copy).apply();
-
-            for (int index = 0; index < carIssues.size(); index++) {
-                CarIssue issue = carIssues.get(index);
-                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
-                    carIssues.remove(index);
-                    new LocalCarIssueStorage(application).deleteCarIssue(issue);
-                    notifyDataSetChanged();
-                }
-            }
-        }
-
-        private void addTutorial() {
-            Log.d(TAG, "Create fsb row");
-            if (activityReference.get() == null) return;
-            GlobalApplication application = (GlobalApplication) activityReference.get().getApplicationContext();
-            if (hasTutorial()) return;
-            CarIssue tutorial = new CarIssue.Builder()
-                    .setId(-1)
-                    .setPriority(99)
-                    .setIssueType(CarIssue.TENTATIVE)
-                    .build();
-            carIssues.add(0, tutorial);
-            new LocalCarIssueStorage(application).storeCarIssue(tutorial);
-            notifyDataSetChanged();
-        }
-
-        private boolean hasTutorial() {
-            for (CarIssue issue : carIssues) {
-                if (issue.getIssueType().equals(CarIssue.TENTATIVE)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public void updateTutorial() {
-            if (activityReference.get() == null) return;
-
-            GlobalApplication application = (GlobalApplication) activityReference.get().getApplicationContext();
-
-            try {
-                Set<String> carsAwaitTutorial = PreferenceManager.getDefaultSharedPreferences(application)
-                        .getStringSet(application.getString(R.string.pfAwaitTutorial), new HashSet<String>());
-                Log.d(TAG, "Update tutorial: dashboard car: " + dashboardCar.getId());
-                for (String item : carsAwaitTutorial) {
-                    Log.d(TAG, "Cars await tutorial set: " + item);
-                }
-                if (carsAwaitTutorial.size() == 0) {
-                    Log.d(TAG, "Cars await tutorial set is empty");
-                }
-                boolean needToShowTutorial = carsAwaitTutorial.contains(String.valueOf(dashboardCar.getId()));
-                Log.d(TAG, "Need to show tutorial: " + needToShowTutorial);
-                if (needToShowTutorial) {
-                    addTutorial();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Provide a reference to the views for each data item
-        // Complex data items may need more than one view per item, and
-        // you provide access to all the views for a data item in a view holder
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-            // each data item is just a string in this case
-            public TextView title;
-            public TextView description;
-            public ImageView imageView;
-            public View container;
-            public View date; // Not used here so it is set to GONE
-
-            public ViewHolder(View v) {
-                super(v);
-                title = (TextView) v.findViewById(R.id.title);
-                description = (TextView) v.findViewById(R.id.description);
-                imageView = (ImageView) v.findViewById(R.id.image_icon);
-                container = v.findViewById(R.id.list_car_item);
-                date = v.findViewById(R.id.date);
-            }
-        }
-    }
-
     @OnClick(R.id.dashboard_request_service_btn)
     protected void onServiceRequestButtonClicked(){
         ((MainActivity)getActivity()).requestMultiService(null);//find
@@ -874,22 +611,143 @@ public class MainDashboardFragment extends CarDataFragmentOld {
         updateMileageDialog.show();
     }
 
-    private void showLoading() {
-        if (mSwipeRefreshLayout.isRefreshing()) return;
-        loading.setVisibility(View.VISIBLE);
-        mSwipeRefreshLayout.setEnabled(false);
+    @Override
+    public void showLoading() {
+
     }
 
-    private void hideLoading(String toastMessage) {
-        if (mSwipeRefreshLayout.isRefreshing()){
-            mSwipeRefreshLayout.setRefreshing(false);
-            return;
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void displayOfflineErrorDialog() {
+
+    }
+
+    @Override
+    public void displayUnknownErrorDialog() {
+
+    }
+
+    @Override
+    public void displayOfflineView() {
+
+    }
+
+    @Override
+    public void displayOnlineView() {
+
+    }
+
+    @Override
+    public void displayNoCarView() {
+
+    }
+
+    @Override
+    public void startAddCarActivity() {
+
+    }
+
+    @Override
+    public void displayDefaultDealershipVisuals(Dealership dealership) {
+        dealershipName.setText(dealership.getName());
+        dealershipAddress.setText(dealership.getAddress());
+        dealershipPhone.setText(dealership.getPhone());
+        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+
+        mMileageIcon.setImageResource(R.drawable.odometer);
+        mEngineIcon.setImageResource(R.drawable.car_engine);
+        mHighwayIcon.setImageResource(R.drawable.highwaymileage);
+        mCityIcon.setImageResource(R.drawable.citymileage);
+        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
+        mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
+        mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
+        mMyTripsIcon.setImageResource(R.drawable.route_2);
+        if( (getActivity()) != null){
+            ((MainActivity)getActivity()).changeTheme(false);
         }
-        loading.setVisibility(View.GONE);
-        mSwipeRefreshLayout.setEnabled(true);
-        if (getUserVisibleHint() && toastMessage != null){
-            Toast.makeText(getContext(),toastMessage,Toast.LENGTH_LONG).show();
+        mCarLogoImage.setVisibility(View.VISIBLE);
+        dealershipName.setVisibility(View.VISIBLE);
+        carName.setTextColor(Color.BLACK);
+        dealershipName.setTextColor(Color.BLACK);
+        carName.setTypeface(Typeface.DEFAULT_BOLD);
+        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        mDealerBannerOverlay.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void displayMercedesDealershipVisuals(Dealership dealership) {
+        dealershipName.setText(dealership.getName());
+        dealershipAddress.setText(dealership.getAddress());
+        dealershipPhone.setText(dealership.getPhone());
+        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+
+        mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
+        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
+        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
+        mHighwayIcon.setImageResource(R.drawable.mercedes_h);
+        mCityIcon.setImageResource(R.drawable.mercedes_c);
+        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
+        mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
+        mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
+        mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
+        ((MainActivity)getActivity()).changeTheme(true);
+        mCarLogoImage.setVisibility(View.GONE);
+        dealershipName.setVisibility(View.GONE);
+        carName.setTextColor(Color.WHITE);
+        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/mercedes.otf"));
+        mDealerBannerOverlay.setVisibility(View.GONE);
+        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
+    }
+
+    @Override
+    public void displayCarDetails(Car car){
+
+        carName.setText(car.getYear() + " " + car.getMake() + " "
+                + car.getModel());
+        mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
+        mEngineText.setText(car.getEngine());
+        mHighwayText.setText(car.getHighwayMileage());
+        mCityText.setText(car.getCityMileage());
+        mCarLogoImage.setVisibility(View.VISIBLE);
+        mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
+    }
+
+    @Override
+    public void displayMileage(String mileage) {
+        mMileageText.setText(String.format("%.2f km",mileage));
+    }
+
+    @Override
+    public void displayUpdateMileageDialog() {
+        if (updateMileageDialog == null){
+            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Update Mileage")
+                    .setView(dialogLayout)
+                    .setPositiveButton("Confirm", (dialog, which)
+                            -> presenter.onUpdateMileageDialogConfirmClicked(0))
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
         }
+
+    }
+
+    @Override
+    public void startRequestServiceActivity() {
+
+    }
+
+    @Override
+    public void startMyAppointmentsActivity() {
+
+    }
+
+    @Override
+    public void startMyTripsActivity() {
 
     }
 }

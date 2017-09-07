@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.ui.NotificationsFragment;
-import com.pitstop.ui.mainFragments.MainDashboardFragment;
+import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -30,7 +30,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return MainDashboardFragment.newInstance();
+                return DashboardFragment.newInstance();
 
             case TabFragmentManager.TAB_SERVICES:
                 return MainServicesFragment.newInstance();
