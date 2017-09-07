@@ -109,13 +109,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.no_car)
     View noCarView;
 
+    @BindView(R.id.reg_view)
+    View regView;
+
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private AlertDialog updateMileageDialog;
     private DashboardPresenter presenter;
 
     private boolean hasBeenPopulated = false;
-
 
     @Nullable
     @Override
@@ -452,14 +454,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
         mCarLogoImage.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
         carName.setTextColor(Color.WHITE);
-        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/mercedes.otf"));
+        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets()
+                , "fonts/mercedes.otf"));
         mDealerBannerOverlay.setVisibility(View.GONE);
         carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
     }
 
     @Override
     public void displayCarDetails(Car car){
-
+        hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
         mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
@@ -503,5 +506,10 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Override
     public void startMyTripsActivity() {
         ((MainActivity)getActivity()).myTrips();
+    }
+
+    @Override
+    public boolean hasBeenPopulated() {
+        return hasBeenPopulated;
     }
 }

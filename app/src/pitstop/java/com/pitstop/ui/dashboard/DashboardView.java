@@ -18,5 +18,6 @@ public interface DashboardView extends ErrorHandlingView, LoadingTabView {
     void startRequestServiceActivity();
     void startMyAppointmentsActivity();
     void startMyTripsActivity();
+    boolean hasBeenPopulated();
 
 }
