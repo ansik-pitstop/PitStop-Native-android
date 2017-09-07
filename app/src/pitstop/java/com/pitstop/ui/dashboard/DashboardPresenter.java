@@ -116,10 +116,14 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
         }catch(NumberFormatException e){
             e.printStackTrace();
             getView().displayUpdateMileageError();
+            getView().hideLoading();
+            updating = false;
             return;
         }
 
         if (mileage < 0 || mileage > 3000000){
+            getView().hideLoading();
+            updating = false;
             return;
         }
 
