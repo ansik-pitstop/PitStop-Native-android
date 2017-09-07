@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.castel.obd.util.Utils;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.NetworkHelper;
 
@@ -23,6 +22,8 @@ import org.json.JSONObject;
  */
 
 public class PendingAddCarActivity extends AppCompatActivity{
+
+    public final static String pfName = "com.pitstop.login.name";
 
     public static String ADD_CAR_VIN = "PENDING_ADD_CAR_VIN";
     public static String ADD_CAR_SCANNER = "PENDING_ADD_CAR_SCANNER_ID";
@@ -37,7 +38,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
         setContentView(R.layout.activity_pending_add_car);
         application = (GlobalApplication) getApplicationContext();
         SharedPreferences settings =
-                getSharedPreferences(DashboardFragment.pfName, MODE_PRIVATE);
+                getSharedPreferences(pfName, MODE_PRIVATE);
         Intent intentFromMainActivity = getIntent();
         if(intentFromMainActivity != null) {
             String vin = intentFromMainActivity.getStringExtra(ADD_CAR_VIN);
@@ -82,7 +83,7 @@ public class PendingAddCarActivity extends AppCompatActivity{
     };
 
     private void goBackToAddCar() {
-        SharedPreferences settings = getSharedPreferences(DashboardFragment.pfName, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(pfName, MODE_PRIVATE);
         // TODO: this stuff might not be needed
         Intent intent = new Intent(PendingAddCarActivity.this, com.pitstop.ui.add_car.AddCarActivity.class);
         intent.putExtra(ADD_CAR_VIN,settings.getString(ADD_CAR_VIN,""));
@@ -98,8 +99,4 @@ public class PendingAddCarActivity extends AppCompatActivity{
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-    }
 }

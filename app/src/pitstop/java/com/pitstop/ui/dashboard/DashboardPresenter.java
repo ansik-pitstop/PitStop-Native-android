@@ -89,7 +89,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     }
 
     void onUpdateMileageDialogConfirmClicked(double mileage){
-
+        if (getView() != null)
+            getView().displayUpdateMileageDialog();
     }
 
     void onMileageClicked(){
