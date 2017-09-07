@@ -105,6 +105,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
         timelineRecyclerView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
         noServicesView.bringToFront();
@@ -172,6 +173,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         timelineRecyclerView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
         offlineView.bringToFront();
@@ -181,6 +183,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         timelineRecyclerView.setVisibility(View.VISIBLE);
+        noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.bringToFront();

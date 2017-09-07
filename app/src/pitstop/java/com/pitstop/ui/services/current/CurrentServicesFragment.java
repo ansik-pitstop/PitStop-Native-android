@@ -230,6 +230,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
         regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         offlineView.bringToFront();
     }
 
@@ -237,6 +238,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
         regView.bringToFront();
     }
