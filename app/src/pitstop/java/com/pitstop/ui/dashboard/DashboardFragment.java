@@ -1,6 +1,7 @@
 
 package com.pitstop.ui.dashboard;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -36,10 +39,6 @@ import static android.R.attr.dialogLayout;
 public class DashboardFragment extends Fragment implements DashboardView {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
-
-    private DashboardPresenter presenter;
-
-    private AlertDialog updateMileageDialog;
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -86,11 +85,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
-    @BindView(R.id.loading)
-    View loading;
-
     @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @BindView(R.id.car_name)
     TextView carName;
@@ -103,6 +99,23 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @BindView(R.id.dealership_phone)
     TextView dealershipPhone;
+
+    @BindView(R.id.offline_view)
+    View offlineView;
+
+    @BindView(R.id.progress)
+    View loadingView;
+
+    @BindView(R.id.no_car)
+    View noCarView;
+
+    private AlertDialog offlineAlertDialog;
+    private AlertDialog unknownErrorDialog;
+    private AlertDialog updateMileageDialog;
+    private DashboardPresenter presenter;
+
+    private boolean hasBeenPopulated = false;
+
 
     @Nullable
     @Override
@@ -120,7 +133,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
         }
 
-        mSwipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;
     }
@@ -295,42 +308,101 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void showLoading() {
-
+        Log.d(TAG,"showLoading()");
+        if (!swipeRefreshLayout.isRefreshing()) {
+            loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+            swipeRefreshLayout.setEnabled(false);
+        }
     }
 
     @Override
     public void hideLoading() {
-
+        Log.d(TAG,"hideLoading()");
+        if (!swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setEnabled(true);
+            loadingView.setVisibility(View.GONE);
+        }else{
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
     public void displayOfflineErrorDialog() {
+        Log.d(TAG,"displayOfflineErrorDialog()");
+        if (offlineAlertDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
 
+        offlineAlertDialog.show();
     }
 
     @Override
     public void displayUnknownErrorDialog() {
+        Log.d(TAG,"displayUnknownErrorDialog()");
+        if (unknownErrorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
 
+        unknownErrorDialog.show();
     }
 
     @Override
     public void displayOfflineView() {
+        Log.d(TAG,"displayOfflineErrorDialog()");
+        if (offlineAlertDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
 
+        offlineAlertDialog.show();
     }
 
     @Override
     public void displayOnlineView() {
-
+        Log.d(TAG,"displayOnlineView()");
+        offlineView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        regView.setVisibility(View.VISIBLE);
+        regView.bringToFront();
     }
 
     @Override
     public void displayNoCarView() {
-
+        Log.d(TAG,"displayNoCarView()");
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void startAddCarActivity() {
-
+        Log.d(TAG,"startAddCarActivity()");
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override
