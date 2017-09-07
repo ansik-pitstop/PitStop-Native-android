@@ -116,11 +116,12 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
             @Override
             public void onNoCarSet() {
+                mCallback.hideLoading(null);
             }
 
             @Override
             public void onError(RequestError error) {
-                mCallback.hideLoading(error.getMessage());
+                mCallback.hideLoading(null);
             }
         });
     }
