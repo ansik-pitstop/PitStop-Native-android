@@ -135,6 +135,18 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+    @BindView(R.id.car_name)
+    TextView carName;
+
+    @BindView(R.id.dealership_name)
+    TextView dealershipName;
+
+    @BindView(R.id.dealership_address)
+    TextView dealershipAddress;
+
+    @BindView(R.id.dealership_phone)
+    TextView dealershipPhone;
+
     // Models
     private Car dashboardCar;
     private List<CarIssue> carIssueList = new ArrayList<>();
@@ -187,142 +199,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
                 .contextModule(new ContextModule(getActivity()))
                 .build();
 
-        setStaticUI();
-        updateUI();
-
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (isUpdating) mSwipeRefreshLayout.setRefreshing(false);
-                else updateUI();
-            }
-        });
+        mSwipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return rootview;
-    }
-
-    private void setStaticUI(){
-        carName = (TextView) rootview.findViewById(R.id.car_name);
-        dealershipName = (TextView) rootview.findViewById(R.id.dealership_name);
-        dealershipAddress = (TextView) rootview.findViewById(R.id.dealership_address);
-        dealershipPhone = (TextView) rootview.findViewById(R.id.dealership_phone);
-    }
-
-    @Override
-    public void updateUI(){
-        if (isUpdating) return;
-        showLoading();
-        isUpdating = true;
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                dashboardCar = car;
-
-                //Setup dealership
-                Dealership shop = dashboardCar.getDealership();
-                if (shop == null) {
-                    shop = shopLocalStore.getDealership(dashboardCar.getShopId());
-                }
-                dashboardCar.setDealership(shop);
-                if (shop == null) {
-                    networkHelper.getShops(new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            if (requestError == null) {
-                                try {
-                                    List<Dealership> dl = Dealership.createDealershipList(response);
-                                    shopLocalStore.deleteAllDealerships();
-                                    shopLocalStore.storeDealerships(dl);
-
-                                    Dealership d = shopLocalStore.getDealership(dashboardCar.getId());
-
-                                    dashboardCar.setDealership(d);
-                                    if (dashboardCar.getDealership() != null) {
-                                        dealershipName.setText(d.getName());
-                                        dealershipAddress.setText(d.getAddress());
-                                        dealershipPhone.setText(d.getPhone());
-                                        setDealerVisuals(d.getId(),d.getName());
-
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                Log.e(TAG, "Get shops: " + requestError.getMessage());
-                            }
-                        }
-                    });
-                } else {
-                    if (dealershipName != null) {
-                        dealershipName.setText(shop.getName());
-                        dealershipAddress.setText(shop.getAddress());
-                        dealershipPhone.setText(shop.getPhone());
-                        setDealerVisuals(shop.getId(),shop.getName());
-                    }
-                }
-
-                if (carName != null) {
-                    carName.setText(car.getYear() + " "
-                            + car.getMake() + " "
-                            + car.getModel());
-                }
-
-                LogUtils.LOGD(TAG,"updating mileage from "+mMileageText.getText()+" to "
-                        + car.getTotalMileage());
-
-                mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
-                mEngineText.setText(car.getEngine());
-                mHighwayText.setText(car.getHighwayMileage());
-                mCityText.setText(car.getCityMileage());
-                mCarLogoImage.setVisibility(View.VISIBLE);
-                mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
-
-                hideLoading(null);
-                isUpdating = false;
-            }
-
-            @Override
-            public void onNoCarSet() {
-                mMileageText.setText("0 km");
-                mEngineText.setText("");
-                mHighwayText.setText("");
-                mCityText.setText("");
-                mCarLogoImage.setVisibility(View.INVISIBLE);
-                carName.setText("No Car Added");
-                dealershipName.setText("");
-                dealershipName.setText("");
-                dealershipAddress.setText("");
-                dealershipPhone.setText("");
-                setDealerVisuals(1,"");
-                hideLoading(null);
-                isUpdating = false;
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                hideLoading(null);
-                isUpdating = false;
-            }
-        });
-
-    }
-
-    @Override
-    public EventSource getSourceType() {
-        return EVENT_SOURCE;
     }
 
     @Override
     public void onStop() {
         super.onStop();
         hideLoading(null);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //updateUI();
-        //handler.postDelayed(carConnectedRunnable, 1000);
     }
 
     @Override
@@ -521,94 +406,20 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @OnClick(R.id.dashboard_request_service_btn)
     protected void onServiceRequestButtonClicked(){
-        ((MainActivity)getActivity()).requestMultiService(null);//find
+        presenter.onServiceRequestButtonClicked();
     }
     @OnClick(R.id.my_appointments_btn)
     protected void onMyAppointmentsButtonClicked(){
-        ((MainActivity)getActivity()).myAppointments();
+        presenter.onMyAppointmentsButtonClicked();
     }
     @OnClick(R.id.my_trips_btn)
-    protected void onMyTripsButtonCllicked(){
-        ((MainActivity)getActivity()).myTrips();
+    protected void onMyTripsButtonClicked(){
+        presenter.onMyTripsButtonClicked();
     }
 
     @OnClick(R.id.mileage_container)
     protected void onMileageClicked(){
-
-        if (updateMileageDialog != null && updateMileageDialog.isShowing())
-            return;
-
-        final View dialogLayout = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_input_mileage, null);
-        final TextInputEditText input = (TextInputEditText) dialogLayout.findViewById(R.id.mileage_input);
-        input.setText(mMileageText.getText().toString().split(" ")[0]);
-
-        if (updateMileageDialog == null) {
-            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Update Mileage")
-                    .setView(dialogLayout)
-                    .setPositiveButton("Confirm", null)
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .create();
-
-            updateMileageDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(final DialogInterface d) {
-                    updateMileageDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (dashboardCar == null) return;
-                            mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_CONFIRM_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
-                            // POST (entered mileage - the trip mileage) so (mileage in backend + trip mileage) = entered mileage
-                            final double mileage = Double.parseDouble(input.getText().toString());
-                            if (mileage > 20000000) {
-                                Toast.makeText(getActivity(), "Please enter valid mileage", Toast.LENGTH_SHORT).show();
-                            } else {
-                                d.dismiss();
-                                showLoading();
-
-                                //Update mileage in the GUI so it doesn't have to be loaded from network
-                                mMileageText.setText(String.format("%.2f km", mileage));
-
-                                networkHelper.updateCarMileage(dashboardCar.getId(), mileage, new RequestCallback() {
-                                    @Override
-                                    public void done(String response, RequestError requestError) {
-                                        hideLoading("Mileage updated!");
-                                        if (requestError != null) {
-                                            hideLoading(requestError.getMessage());
-                                            return;
-                                        }
-
-                                        dashboardCar.setTotalMileage(mileage);
-                                        carLocalStore.updateCar(dashboardCar);
-
-                                        EventType eventType = new EventTypeImpl(EventType.EVENT_MILEAGE);
-                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                ,EVENT_SOURCE));
-
-                                        if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-                                            mMileageText.setText(String.format("%.2f km", mileage));
-                                            ((MainActivity)getActivity()).getBluetoothConnectService().get215RtcAndMileage();
-                                        } else {
-                                            if (((MainActivity)getActivity()).getBluetoothConnectService().getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED))
-                                                ((MainActivity)getActivity())
-                                                        .getBluetoothConnectService()
-                                                        .requestDeviceSearch(false,false);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            });
-        }
-        updateMileageDialog.show();
+        presenter.onMileageClicked();
     }
 
     @Override
@@ -738,16 +549,16 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void startRequestServiceActivity() {
-
+        ((MainActivity)getActivity()).requestMultiService(null);
     }
 
     @Override
     public void startMyAppointmentsActivity() {
-
+        ((MainActivity)getActivity()).myAppointments();
     }
 
     @Override
     public void startMyTripsActivity() {
-
+        ((MainActivity)getActivity()).myTrips();
     }
 }
