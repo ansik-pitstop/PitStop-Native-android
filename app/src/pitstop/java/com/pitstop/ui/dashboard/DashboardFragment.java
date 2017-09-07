@@ -115,6 +115,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private AlertDialog updateMileageDialog;
+    private AlertDialog mileageErrorDialog;
     private DashboardPresenter presenter;
 
     private boolean hasBeenPopulated = false;
@@ -507,6 +508,20 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Override
     public void startMyTripsActivity() {
         ((MainActivity)getActivity()).myTrips();
+    }
+
+    @Override
+    public void displayUpdateMileageError() {
+        if (mileageErrorDialog == null){
+            mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Invalid Mileage")
+                    .setMessage("Please input a valid mileage.")
+                    .setView(dialogLayout)
+                    .setPositiveButton("OK", (dialog, which)
+                            -> dialog.dismiss())
+                    .create();
+        }
     }
 
     @Override
