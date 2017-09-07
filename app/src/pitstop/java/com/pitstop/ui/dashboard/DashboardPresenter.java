@@ -36,7 +36,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     void onOfflineTryAgainClicked(){
         Log.d(TAG,"onOfflineTryAgainClicked()");
         if (getView() != null)
-            getView().displayOfflineView();
+            onUpdateNeeded();
     }
 
     void onAddCarButtonClicked(){
