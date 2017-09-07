@@ -155,6 +155,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
+        hasBeenPopulated = false;
         presenter.unsubscribe();
     }
 
@@ -391,20 +392,11 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public void displayOfflineView() {
-        Log.d(TAG,"displayOfflineErrorDialog()");
-        if (offlineAlertDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.offline_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.offline_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            offlineAlertDialog = alertDialogBuilder.create();
-        }
-
-        offlineAlertDialog.show();
+        Log.d(TAG,"displayOfflineView()");
+        offlineView.setVisibility(View.VISIBLE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        offlineView.bringToFront();
     }
 
     @Override
@@ -568,7 +560,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @Override
     public boolean hasBeenPopulated() {
-        Log.d(TAG,"hasBeenPopulated()");
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
     }
 }
