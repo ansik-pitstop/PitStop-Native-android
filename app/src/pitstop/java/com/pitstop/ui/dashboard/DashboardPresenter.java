@@ -104,14 +104,22 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     }
 
-    void onUpdateMileageDialogConfirmClicked(double mileage){
+    void onUpdateMileageDialogConfirmClicked(String mileageText){
         Log.d(TAG,"onUpdateMileageDialogConfirmClicked()");
         if (updating) return;
         updating = true;
         getView().showLoading();
 
-        if (mileage < 0 || mileage > 3000000){
+        double mileage;
+        try{
+            mileage = Double.valueOf(mileageText);
+        }catch(NumberFormatException e){
+            e.printStackTrace();
             getView().displayUpdateMileageError();
+            return;
+        }
+
+        if (mileage < 0 || mileage > 3000000){
             return;
         }
 

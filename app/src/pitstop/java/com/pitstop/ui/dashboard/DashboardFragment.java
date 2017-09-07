@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -34,7 +35,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static android.R.attr.dialogLayout;
 import static com.pitstop.R.id.mileage;
 
 public class DashboardFragment extends Fragment implements DashboardView {
@@ -515,12 +515,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
         if (updateMileageDialog == null){
             final View dialogLayout = LayoutInflater.from(
                     getActivity()).inflate(R.layout.dialog_input_mileage, null);
+            final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
+                    .findViewById(R.id.mileage_input);
             updateMileageDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update Mileage")
                     .setView(dialogLayout)
                     .setPositiveButton("Confirm", (dialog, which)
-                            -> presenter.onUpdateMileageDialogConfirmClicked(0))
+                            -> presenter.onUpdateMileageDialogConfirmClicked(
+                                    textInputEditText.getText().toString()))
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
                     .create();
         }
@@ -555,7 +558,6 @@ public class DashboardFragment extends Fragment implements DashboardView {
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Invalid Mileage")
                     .setMessage("Please input a valid mileage.")
-                    .setView(dialogLayout)
                     .setPositiveButton("OK", (dialog, which)
                             -> dialog.dismiss())
                     .create();
