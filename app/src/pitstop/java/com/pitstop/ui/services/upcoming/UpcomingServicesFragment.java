@@ -2,6 +2,7 @@ package com.pitstop.ui.services.upcoming;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -80,7 +81,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
                     .build();
             presenter = new UpcomingServicesPresenter(useCaseComponent,mixPanelHelper);
         }
-        presenter.subscribe(this);
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
         timelineDisplayList = new ArrayList<>();
@@ -88,9 +88,17 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
-        presenter.onUpdateNeeded();
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        presenter.subscribe(this);
+        presenter.onUpdateNeeded();
+
     }
 
     @Override

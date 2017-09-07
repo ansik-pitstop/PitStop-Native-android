@@ -30,7 +30,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return DashboardFragment.newInstance();
+                return new DashboardFragment();
 
             case TabFragmentManager.TAB_SERVICES:
                 return MainServicesFragment.newInstance();

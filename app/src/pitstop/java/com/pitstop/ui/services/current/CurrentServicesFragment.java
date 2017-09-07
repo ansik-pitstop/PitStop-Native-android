@@ -3,6 +3,7 @@ package com.pitstop.ui.services.current;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -126,11 +127,17 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                     (GlobalApplication)getContext().getApplicationContext());
             presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
         }
-        presenter.subscribe(this);
+
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-        presenter.onUpdateNeeded();
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.subscribe(this);
+        presenter.onUpdateNeeded();
     }
 
     @OnClick(R.id.service_launch_custom)

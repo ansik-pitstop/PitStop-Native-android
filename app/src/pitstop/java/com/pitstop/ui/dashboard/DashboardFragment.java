@@ -144,6 +144,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.onUpdateNeeded();
     }
 
     @Override
