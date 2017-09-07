@@ -310,6 +310,18 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.onMileageClicked();
     }
 
+    @OnClick(R.id.addCarButton)
+    public void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
+        presenter.onAddCarButtonClicked();
+    }
+
+    @OnClick(R.id.offline_try_again)
+    public void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
+        presenter.onOfflineTryAgainClicked();
+    }
+
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");

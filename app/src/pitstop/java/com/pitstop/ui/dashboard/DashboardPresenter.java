@@ -33,6 +33,17 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
         this.mixpanelHelper = mixpanelHelper;
     }
 
+    void onOfflineTryAgainClicked(){
+        Log.d(TAG,"onOfflineTryAgainClicked()");
+        if (getView() != null)
+            getView().displayOfflineView();
+    }
+
+    void onAddCarButtonClicked(){
+        if (getView() != null)
+            getView().startAddCarActivity();
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (updating || getView() == null) return;
