@@ -39,21 +39,15 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     }
 
     private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onGotCurrentServices(currentServices,customIssues);
-            }
-        });
+        mainHandler.post(() -> callback.onGotCurrentServices(currentServices,customIssues));
+    }
+
+    private void onNoCarAdded(){
+        mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -65,7 +59,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(new ArrayList<>(),new ArrayList<>());
+                    GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
                     return;
                 }
 

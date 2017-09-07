@@ -9,4 +9,6 @@ public interface ErrorHandlingView {
     void displayUnknownErrorDialog();
     void displayOfflineView();
     void displayOnlineView();
+    void displayNoCarView();
+    void startAddCarActivity();
 }

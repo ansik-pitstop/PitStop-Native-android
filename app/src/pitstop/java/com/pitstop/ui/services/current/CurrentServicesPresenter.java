@@ -50,6 +50,11 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         super.subscribe(view);
     }
 
+    void onAddCarButtonClicked(){
+        if (getView() != null)
+            getView().startAddCarActivity();
+    }
+
     void onServiceClicked(CarIssue issue){
         if (getView() == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_LIST_ITEM
@@ -131,6 +136,14 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().displayRecalls(recallList);
 
                 getView().hideLoading();
+            }
+
+            @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
             }
 
             @Override

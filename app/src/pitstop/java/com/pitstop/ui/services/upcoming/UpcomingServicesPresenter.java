@@ -66,6 +66,13 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         onUpdateNeeded();
     }
 
+    void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
+        if (getView() != null){
+            getView().startAddCarActivity();
+        }
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (getView() == null || updating) return;
@@ -86,6 +93,14 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
                 }else{
                     getView().displayNoServices();
                 }
+            }
+
+            @Override
+            public void onNoCarAdded() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoading();
+                getView().displayNoCarView();
             }
 
             @Override

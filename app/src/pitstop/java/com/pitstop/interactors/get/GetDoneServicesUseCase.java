@@ -13,6 +13,7 @@ import java.util.List;
 public interface GetDoneServicesUseCase extends Interactor {
     interface Callback{
         void onGotDoneServices(List<CarIssue> doneServices);
+        void onNoCarAdded();
         void onError(RequestError error);
     }
 

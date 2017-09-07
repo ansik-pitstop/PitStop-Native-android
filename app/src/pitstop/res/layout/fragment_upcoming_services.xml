@@ -11,6 +11,11 @@
         android:layout_height="match_parent">
 
         <include
+            android:id="@+id/no_car"
+            android:visibility="gone"
+            layout="@layout/layout_no_car_services"/>
+
+        <include
             android:id="@+id/offline_view"
             layout="@layout/layout_offline"
             android:visibility="gone" />

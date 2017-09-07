@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.upcoming;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +18,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.service.UpcomingService;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -32,6 +35,9 @@ import butterknife.OnClick;
 public class UpcomingServicesFragment extends Fragment implements UpcomingServicesView {
 
     private final String TAG = getClass().getSimpleName();
+
+    @BindView(R.id.no_car)
+    View noCarView;
 
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
@@ -99,6 +105,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayNoServices() {
         Log.d(TAG,"displayNoServices()");
         timelineRecyclerView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
         noServicesView.bringToFront();
@@ -166,6 +173,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         timelineRecyclerView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
         offlineView.bringToFront();
@@ -175,9 +183,32 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         timelineRecyclerView.setVisibility(View.VISIBLE);
+        noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.bringToFront();
+    }
+
+    @OnClick(R.id.addCarButton)
+    public void onAddCarButtonClicked(){
+        Log.d(TAG,"onAddCarButtonClicked()");
+        presenter.onAddCarButtonClicked();
+    }
+
+    @Override
+    public void displayNoCarView() {
+        Log.d(TAG,"displayNoCarView()");
+        offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
+        noCarView.bringToFront();
+    }
+
+    @Override
+    public void startAddCarActivity() {
+        Log.d(TAG,"startAddCarActivity()");
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override
