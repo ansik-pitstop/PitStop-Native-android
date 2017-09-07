@@ -35,6 +35,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.R.attr.dialogLayout;
+import static com.pitstop.R.id.mileage_container;
 
 public class DashboardFragment extends Fragment implements DashboardView {
 
@@ -313,7 +314,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.onMyTripsButtonClicked();
     }
 
-    @OnClick(R.id.mileage_container)
+    @OnClick(mileage_container)
     protected void onMileageClicked(){
         Log.d(TAG,"onMileageClicked()");
         presenter.onMileageClicked();
@@ -523,6 +524,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
                     .create();
         }
 
+        updateMileageDialog.show();
+
     }
 
     @Override
@@ -556,6 +559,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
                             -> dialog.dismiss())
                     .create();
         }
+
+        mileageErrorDialog.show();
     }
 
     @Override
