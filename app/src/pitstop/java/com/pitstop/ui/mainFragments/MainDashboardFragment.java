@@ -242,7 +242,10 @@ public class MainDashboardFragment extends CarDataFragmentOld {
 
                                     dashboardCar.setDealership(d);
                                     if (dashboardCar.getDealership() != null) {
-                                        bindDealerInfo(d);
+                                        dealershipName.setText(d.getName());
+                                        dealershipAddress.setText(d.getAddress());
+                                        dealershipPhone.setText(d.getPhone());
+                                        setDealerVisuals(d.getId(),d.getName());
 
                                     }
                                 } catch (JSONException e) {
@@ -255,7 +258,10 @@ public class MainDashboardFragment extends CarDataFragmentOld {
                     });
                 } else {
                     if (dealershipName != null) {
-                        bindDealerInfo(shop);
+                        dealershipName.setText(shop.getName());
+                        dealershipAddress.setText(shop.getAddress());
+                        dealershipPhone.setText(shop.getPhone());
+                        setDealerVisuals(shop.getId(),shop.getName());
                     }
                 }
 
@@ -272,6 +278,7 @@ public class MainDashboardFragment extends CarDataFragmentOld {
                 mEngineText.setText(car.getEngine());
                 mHighwayText.setText(car.getHighwayMileage());
                 mCityText.setText(car.getCityMileage());
+                mCarLogoImage.setVisibility(View.VISIBLE);
                 mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
 
                 hideLoading(null);
@@ -280,6 +287,17 @@ public class MainDashboardFragment extends CarDataFragmentOld {
 
             @Override
             public void onNoCarSet() {
+                mMileageText.setText("0 km");
+                mEngineText.setText("");
+                mHighwayText.setText("");
+                mCityText.setText("");
+                mCarLogoImage.setVisibility(View.INVISIBLE);
+                carName.setText("No Car Added");
+                dealershipName.setText("");
+                dealershipName.setText("");
+                dealershipAddress.setText("");
+                dealershipPhone.setText("");
+                setDealerVisuals(1,"");
                 hideLoading(null);
                 isUpdating = false;
             }
@@ -339,7 +357,10 @@ public class MainDashboardFragment extends CarDataFragmentOld {
 
                             dashboardCar.setDealership(d);
                             if (dashboardCar.getDealership() != null) {
-                                bindDealerInfo(d);
+                                dealershipName.setText(d.getName());
+                                dealershipAddress.setText(d.getAddress());
+                                dealershipPhone.setText(d.getPhone());
+                                setDealerVisuals(d.getId(),d.getName());
 
                             }
                         } catch (JSONException e) {
@@ -352,25 +373,21 @@ public class MainDashboardFragment extends CarDataFragmentOld {
             });
         } else {
             if (dealershipName != null) {
-                bindDealerInfo(shop);
+                dealershipName.setText(shop.getName());
+                dealershipAddress.setText(shop.getAddress());
+                dealershipPhone.setText(shop.getPhone());
+                setDealerVisuals(shop.getId(),shop.getName());
             }
         }
     }
 
-    private void bindDealerInfo(Dealership dealership) {
-        dealershipName.setText(dealership.getName());
-        dealershipAddress.setText(dealership.getAddress());
-        dealershipPhone.setText(dealership.getPhone());
-        setDealerVisuals(dealership);
-    }
-
-    private void setDealerVisuals(Dealership dealership) {
-        if (BuildConfig.DEBUG && (dealership.getId() == 4 || dealership.getId() == 18)){
+    private void setDealerVisuals(int dealershipId, String name) {
+        if (BuildConfig.DEBUG && (dealershipId == 4 || dealershipId == 18)){
             bindMercedesDealerUI();
-        } else if (!BuildConfig.DEBUG && dealership.getId() == 14){
+        } else if (!BuildConfig.DEBUG && dealershipId == 14){
             bindMercedesDealerUI();
         } else {
-            mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+            mDealerBanner.setImageResource(getDealerSpecificBanner(name));
             mMileageIcon.setImageResource(R.drawable.odometer);
             mEngineIcon.setImageResource(R.drawable.car_engine);
             mHighwayIcon.setImageResource(R.drawable.highwaymileage);

@@ -751,13 +751,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,"Please set a car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
 
@@ -785,13 +785,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,"Please set a car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
 
@@ -813,13 +813,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,"Please set a car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
 
@@ -981,13 +981,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,"Please set car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Please add car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG);
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
     }
