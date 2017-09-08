@@ -11,4 +11,8 @@ import java.util.List;
 public interface NotificationView {
     void displayNotifications(List<Notification> list);
     void noNotifications();
+
+    void showLoading();
+
+    void hideLoading();
 }

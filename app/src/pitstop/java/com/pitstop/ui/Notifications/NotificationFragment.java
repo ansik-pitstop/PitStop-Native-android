@@ -86,6 +86,8 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
             presenter = new NotificationsPresenter(useCaseComponent, mixpanelHelper);
         }
+
+
         presenter.subscribe(this);
        presenter.onUpdateNeeded();
         Log.d("notificationFragment", "display?");
@@ -99,15 +101,11 @@ public class NotificationFragment extends Fragment implements NotificationView {
         });
         return view;
     }
-
     @Override
     public void noNotifications() {
-
         mNotificationRecyclerView.setVisibility(View.GONE);
         mNotificationsContainer.setVisibility(View.VISIBLE);
         mNoNotificationsTextView.setText("You don't have any Notifications");
-
-
 
     }
 
@@ -123,10 +121,17 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
     public void showLoading(){
 
-
+        if (!swipeRefreshLayout.isRefreshing()){
+            mLoadingSpinner.setVisibility(View.VISIBLE);
+        }
     }
 
     public void hideLoading(){
-
+        if (swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setRefreshing(false);
+        }else{
+            mLoadingSpinner.setVisibility(View.GONE);
+            swipeRefreshLayout.setEnabled(true);
+        }
     }
 }
