@@ -73,7 +73,6 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
     public void onDestroyView() {
 
         Log.d(TAG,"onDestroyView()");
-
         presenter.unsubscribe();
         super.onDestroyView();
     }
