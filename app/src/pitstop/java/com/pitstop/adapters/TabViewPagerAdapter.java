@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
@@ -39,7 +40,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return ScanCarFragment.newInstance();
 
             case TabFragmentManager.TAB_NOTIF:
-                return NotificationsFragment.newInstance();
+                return NotificationFragment.newInstance();
         }
 
         return null;

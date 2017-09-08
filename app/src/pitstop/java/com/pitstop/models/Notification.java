@@ -20,6 +20,7 @@ public class Notification extends ParseObject {
     public static final String CONTENT_KEY = "content";
 
     public Notification() {
+
     }
 
     public String getTitle(){
