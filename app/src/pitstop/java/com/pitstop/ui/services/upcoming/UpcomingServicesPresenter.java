@@ -131,8 +131,14 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
     }
 
     void onRefresh(){
-        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
-        onUpdateNeeded();
         Log.d(TAG,"onRefresh()");
+
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
+        if (getView() != null && getView().isRefreshing() && updating){
+            getView().hideRefreshing();
+        }else{
+            onUpdateNeeded();
+        }
+
     }
 }

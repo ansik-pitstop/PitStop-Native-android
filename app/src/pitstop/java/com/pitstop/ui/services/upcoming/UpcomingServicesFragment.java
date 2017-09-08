@@ -67,6 +67,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private UpcomingServicesPresenter presenter;
     private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
     private boolean hasBeenPopulated = false;
+    private boolean isRefreshing = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -142,6 +143,16 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         }else{
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    @Override
+    public void hideRefreshing() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return swipeRefreshLayout.isRefreshing();
     }
 
     @Override

@@ -108,9 +108,14 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
-        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_HISTORY_VIEW);
-        if (getView() == null) return;
-        onUpdateNeeded();
+
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
+        if (getView() != null && getView().isRefreshing() && updating){
+            getView().hideRefreshing();
+        }else{
+            onUpdateNeeded();
+        }
+
     }
 
     void onCustomServiceButtonClicked(){

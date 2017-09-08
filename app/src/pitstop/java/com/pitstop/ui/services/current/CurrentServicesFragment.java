@@ -342,6 +342,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         }
     }
 
+    @Override
+    public void hideRefreshing() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return swipeRefreshLayout.isRefreshing();
+    }
+
 
     @Override
     public void displayCarIssues(List<CarIssue> carIssues) {

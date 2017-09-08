@@ -7,4 +7,6 @@ package com.pitstop.ui;
 public interface LoadingTabView {
     void showLoading();
     void hideLoading();
+    void hideRefreshing();
+    boolean isRefreshing();
 }
