@@ -103,6 +103,7 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+
         fetchNotifications();
         return rootview;
     }
@@ -124,9 +125,6 @@ public class NotificationsFragment extends Fragment {
                 || ((GlobalApplication) getApplicationContext()).getCurrentUser() == null) {
             showErrorMessage(NO_NETWORK);
             notificationsLoaded = false;
-            if (swipeRefreshLayout.isRefreshing()){
-                swipeRefreshLayout.setRefreshing(false);
-            }
             return;
         }
 
@@ -155,10 +153,10 @@ public class NotificationsFragment extends Fragment {
 
                             mNotificationList = notificationsList;
                             Collections.sort(mNotificationList, new Comparator<Notification>() {
-                                    @Override
-                                    public int compare(Notification notification1, Notification notification2) {
-                                        return notification2.getCreatedAt().getTime() > notification1.getCreatedAt().getTime() ? 1 : -1;
-                                    }
+                                @Override
+                                public int compare(Notification notification1, Notification notification2) {
+                                    return notification2.getCreatedAt().getTime() > notification1.getCreatedAt().getTime() ? 1 : -1;
+                                }
                             });
                             if (requestError != null || e != null)
                                 showFetchError();
@@ -212,7 +210,7 @@ public class NotificationsFragment extends Fragment {
 
     private void showNotifications() {
 
-        mNotificationsRecyclerView.setAdapter( new com.pitstop.adapters.NotificationListAdapter(mNotificationList));
+        mNotificationsRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(mNotificationList));
         mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_DISPLAYED);
 
 

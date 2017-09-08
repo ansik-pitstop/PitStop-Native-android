@@ -22,12 +22,10 @@ class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         descriptionTV = itemView.findViewById(R.id.notificationDescription) as TextView
         dateTV = itemView.findViewById(R.id.dateTV) as TextView
 
-
     }
     fun bind(notification: Notification) {
-        titleTV.text = (notification.title)
-        descriptionTV.text =(notification.content)
-        dateTV.text = (notification.dateCreated)
+        titleTV.text = ("Welcome to Pitstop")
+        descriptionTV.text =("Your first Pitstop notification")
 
     }
 
