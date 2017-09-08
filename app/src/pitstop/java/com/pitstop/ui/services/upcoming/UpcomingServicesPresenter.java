@@ -118,8 +118,7 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
 
             }

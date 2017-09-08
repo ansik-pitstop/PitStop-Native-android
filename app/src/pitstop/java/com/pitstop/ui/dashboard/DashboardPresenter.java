@@ -94,8 +94,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
 
                 getView().hideLoading();

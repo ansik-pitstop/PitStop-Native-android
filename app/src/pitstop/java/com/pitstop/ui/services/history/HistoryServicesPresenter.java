@@ -89,8 +89,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
             }
         });
