@@ -59,6 +59,9 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @BindView(R.id.reg_view)
     View regView;
 
+    @BindView(R.id.unknown_error_view)
+    View unknownErrorView;
+
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
 
@@ -208,16 +211,27 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     }
 
     @Override
+    public void displayUnknownErrorView() {
+        Log.d(TAG,"displayUnknownErrorView()");
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
         noCarView.setVisibility(View.GONE);
         regView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
     }
 
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
@@ -226,6 +240,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @Override
     public void displayNoCarView() {
         Log.d(TAG,"displayNoCarView()");
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);

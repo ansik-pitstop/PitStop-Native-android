@@ -7,6 +7,7 @@ package com.pitstop.ui;
 public interface ErrorHandlingView {
     void displayOfflineErrorDialog();
     void displayUnknownErrorDialog();
+    void displayUnknownErrorView();
     void displayOfflineView();
     void displayOnlineView();
     void displayNoCarView();

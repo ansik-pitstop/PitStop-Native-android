@@ -113,6 +113,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.reg_view)
     View regView;
 
+    @BindView(R.id.unknown_error_view)
+    View unknownErrorView;
+
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private AlertDialog updateMileageDialog;
@@ -391,10 +394,21 @@ public class DashboardFragment extends Fragment implements DashboardView {
     }
 
     @Override
+    public void displayUnknownErrorView() {
+        Log.d(TAG,"displayUnknownErrorView()");
+        offlineView.setVisibility(View.GONE);
+        regView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.VISIBLE);
+        unknownErrorView.bringToFront();
+    }
+
+    @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         offlineView.setVisibility(View.VISIBLE);
         regView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         offlineView.bringToFront();
     }
@@ -404,6 +418,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         Log.d(TAG,"displayOnlineView()");
         offlineView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         regView.setVisibility(View.VISIBLE);
         regView.bringToFront();
     }
@@ -413,6 +428,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         Log.d(TAG,"displayNoCarView()");
         offlineView.setVisibility(View.GONE);
         regView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
     }
 
