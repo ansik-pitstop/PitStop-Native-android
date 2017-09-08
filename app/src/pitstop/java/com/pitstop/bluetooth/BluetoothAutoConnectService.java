@@ -616,7 +616,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     /***************** Temporary code used for debugging specific customer issue *****************************/
     private boolean allowPidTracking = true;
-    TimeoutTimer pidTrackTimeoutTimer = new TimeoutTimer(120,0) {
+    TimeoutTimer pidTrackTimeoutTimer = new TimeoutTimer(240,0) {
         @Override
         public void onRetry() {}
 
