@@ -188,7 +188,14 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
-        onUpdateNeeded();
+
+        mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
+        if (getView() != null && getView().isRefreshing() && updating){
+            getView().hideRefreshing();
+        }else{
+            onUpdateNeeded();
+        }
+
     }
 
     void onMyAppointmentsButtonClicked(){

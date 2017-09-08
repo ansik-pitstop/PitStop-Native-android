@@ -175,6 +175,16 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     }
 
     @Override
+    public void hideRefreshing() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return swipeRefreshLayout.isRefreshing();
+    }
+
+    @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG,"displayOfflineErrorDialog()");
         if (offlineAlertDialog == null){
