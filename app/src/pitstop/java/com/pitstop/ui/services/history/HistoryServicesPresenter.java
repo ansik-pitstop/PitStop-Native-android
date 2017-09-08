@@ -89,8 +89,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
             }
         });
@@ -100,6 +99,11 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
     void onCustomServiceCreated(CarIssue customService){
         if (getView() == null) return;
         getView().addDoneService(customService);
+    }
+
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
     }
 
     void onRefresh(){

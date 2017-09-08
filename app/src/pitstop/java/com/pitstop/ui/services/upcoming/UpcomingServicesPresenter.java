@@ -66,6 +66,11 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         onUpdateNeeded();
     }
 
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
+    }
+
     void onAddCarButtonClicked(){
         Log.d(TAG,"onAddCarButtonClicked()");
         if (getView() != null){
@@ -118,8 +123,7 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
 
             }

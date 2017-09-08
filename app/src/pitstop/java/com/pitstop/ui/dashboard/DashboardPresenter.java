@@ -45,6 +45,11 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             getView().startAddCarActivity();
     }
 
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (updating || getView() == null) return;
@@ -94,8 +99,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                     }
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
 
                 getView().hideLoading();

@@ -157,13 +157,17 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     handleOfflineError();
                 }
                 else{
-                    getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    getView().displayUnknownErrorView();
                 }
 
             }
         });
 
+    }
+
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
     }
 
     private void handleOfflineError(){

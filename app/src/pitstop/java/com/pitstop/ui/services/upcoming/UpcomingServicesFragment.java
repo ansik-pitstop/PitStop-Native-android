@@ -55,6 +55,9 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.activity_timeline)
     SwipeRefreshLayout swipeRefreshLayout;
 
+    @BindView(R.id.unknown_error_view)
+    View unknownErrorView;
+
     private List<Object> timelineDisplayList;
     private TimelineAdapter timelineAdapter;
 
@@ -178,11 +181,23 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     }
 
     @Override
+    public void displayUnknownErrorView() {
+        Log.d(TAG,"displayUnknownErrorView()");
+        offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.setVisibility(View.GONE);
+        noServicesView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.VISIBLE);
+        unknownErrorView.bringToFront();
+    }
+
+    @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
         offlineView.bringToFront();
     }
@@ -193,6 +208,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setVisibility(View.VISIBLE);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.bringToFront();
     }
@@ -203,11 +219,19 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         presenter.onAddCarButtonClicked();
     }
 
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        presenter.onUnknownErrorTryAgainClicked();
+    }
+
     @Override
     public void displayNoCarView() {
         Log.d(TAG,"displayNoCarView()");
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.setVisibility(View.GONE);
+        noServicesView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
         noCarView.bringToFront();
     }
