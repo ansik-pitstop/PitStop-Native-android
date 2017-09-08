@@ -635,19 +635,26 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         deviceManager.requestData();
-        if (pidPackage == null) return;
 
-
-        /***************** Temporary code used for debugging specific customer issue ************************/
+        /***************** Temporary code used for debugging specific customer issue *********************/
         if (allowPidTracking){
             allowPidTracking = false;
             Log.d(TAG,"Tracking idr pid received in mixpanel!");
             try{
                 JSONObject properties = new JSONObject();
-                properties.put("deviceId",pidPackage.deviceId);
-                properties.put("pids",pidPackage.pids.toString());
-                properties.put("tripId",pidPackage.tripId);
-                properties.put("rtcTime",pidPackage.rtcTime);
+                if (pidPackage == null){
+                    properties.put("pids","null");
+                }
+                else{
+                    if (pidPackage.deviceId == null) pidPackage.deviceId = "";
+                    if (pidPackage.pids == null) pidPackage.pids = new HashMap<>();
+                    if (pidPackage.tripId == null) pidPackage.tripId = "";
+                    if (pidPackage.rtcTime == null) pidPackage.rtcTime = "";
+                    properties.put("deviceId",pidPackage.deviceId);
+                    properties.put("pids",pidPackage.pids.toString());
+                    properties.put("tripId",pidPackage.tripId);
+                    properties.put("rtcTime",pidPackage.rtcTime);
+                }
                 mixpanelHelper.trackCustom(MixpanelHelper.BT_PID_GOT,properties);
             }catch(JSONException e){
                 e.printStackTrace();
@@ -656,6 +663,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         /***************************************************************************************************/
 
+
+        if (pidPackage == null) return;
 
         //Set device id if its found in pid package
         if (pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
