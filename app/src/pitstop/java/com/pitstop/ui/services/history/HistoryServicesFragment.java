@@ -273,6 +273,8 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @Override
     public void populateEmptyServices(){
         Log.d(TAG,"populateEmptyServices()");
+
+        hasBeenPopulated = true;
         messageCard.setVisibility(View.VISIBLE);
         issueGroup.setVisibility(View.GONE);
         this.doneServices.clear();
