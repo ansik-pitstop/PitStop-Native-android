@@ -10,8 +10,6 @@ import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
 
-import static com.pitstop.R.id.view;
-
 /**
  * Created by ishan on 2017-09-08.
  */
@@ -41,18 +39,16 @@ public class NotificationsPresenter {
     }
 
     public void onRefresh(){
-        Log.d(TAG, "refreshed");
+        Log.d("notification Presenter", "refreshed");
         onUpdateNeeded();
 
     }
 
     public void onUpdateNeeded(){
-       notificationView.showLoading();
         Log.d(TAG, "onUpdateNeeded");
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
-                notificationView.hideLoading();
                 if (list.size() == 0)
                     notificationView.noNotifications();
                 else {
@@ -63,9 +59,13 @@ public class NotificationsPresenter {
             }
             @Override
             public void onError(RequestError error) {
-                notificationView.hideLoading();
                 Log.d("NotificationsError", "Error");
+
             }
         });
+
+
     }
+
+
 }

@@ -103,7 +103,6 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
-
         fetchNotifications();
         return rootview;
     }
@@ -210,7 +209,7 @@ public class NotificationsFragment extends Fragment {
 
     private void showNotifications() {
 
-        mNotificationsRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(mNotificationList));
+        mNotificationsRecyclerView.setAdapter( new com.pitstop.adapters.NotificationListAdapter(mNotificationList));
         mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_DISPLAYED);
 
 
