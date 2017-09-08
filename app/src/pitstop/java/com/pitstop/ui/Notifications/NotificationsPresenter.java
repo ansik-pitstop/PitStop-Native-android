@@ -10,8 +10,6 @@ import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
 
-import static com.pitstop.R.id.view;
-
 /**
  * Created by ishan on 2017-09-08.
  */
@@ -41,49 +39,33 @@ public class NotificationsPresenter {
     }
 
     public void onRefresh(){
-        Log.d(TAG, "refreshed");
+        Log.d("notification Presenter", "refreshed");
         onUpdateNeeded();
-
 
     }
 
     public void onUpdateNeeded(){
-       notificationView.showLoading();
         Log.d(TAG, "onUpdateNeeded");
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
-                notificationView.hideLoading();
                 if (list.size() == 0)
                     notificationView.noNotifications();
                 else {
                     notificationView.displayNotifications(list);
                     Log.d("NotificationsRetrieved", Integer.toString(list.size()));
+                    Log.d("NotificationsRetrieved", list.get(0).getTitle());
                 }
-
             }
             @Override
             public void onError(RequestError error) {
-
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (notificationView.hasBeenPoppulated()){
-                        notificationView.displayOfflineErrorDialog();
-                    }
-                    else {
-                        notificationView.displayOfflineErrorView();
-                    }
-                }
-                else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
-                    if (notificationView.hasBeenPoppulated()){
-                        notificationView.displayUnknownErrorDialog();
-                    }
-                    else {
-                        notificationView.displayUnknownErrorView();
-                    }
-                }
-                notificationView.hideLoading();
                 Log.d("NotificationsError", "Error");
+
             }
         });
+
+
     }
+
+
 }

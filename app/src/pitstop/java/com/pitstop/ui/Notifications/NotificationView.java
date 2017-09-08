@@ -11,15 +11,4 @@ import java.util.List;
 public interface NotificationView {
     void displayNotifications(List<Notification> list);
     void noNotifications();
-    void showLoading();
-    void hideLoading();
-    void displayOfflineErrorDialog();
-    void displayOfflineErrorView();
-    void displayUnknownErrorDialog();
-    void displayUnknownErrorView();
-
-    boolean hasBeenPoppulated();
-    void onNotificationClicked(String title );
-
-
 }
