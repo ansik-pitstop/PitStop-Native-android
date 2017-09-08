@@ -23,6 +23,7 @@ public class Notification extends ParseObject {
     }
 
     public String getTitle(){
+
         return getString(TITLE_KEY);
     }
 

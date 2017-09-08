@@ -2,12 +2,14 @@ package com.pitstop.repositories;
 
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.models.Notification;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -219,6 +221,9 @@ public class UserRepository implements Repository{
         });
     }
 
+
+
+
     private RequestCallback getSetFirstCarAddedCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
@@ -241,6 +246,8 @@ public class UserRepository implements Repository{
 
         return requestCallback;
     }
+
+
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 

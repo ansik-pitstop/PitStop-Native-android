@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.pitstop.R;
+import com.pitstop.adapters.NotificationListAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -66,6 +68,7 @@ public class NotificationsFragment extends Fragment {
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
+
     NetworkHelper mNetworkHelper;
     List<Notification> mNotificationList;
     MixpanelHelper mMixPanelHelper;
@@ -75,6 +78,7 @@ public class NotificationsFragment extends Fragment {
         NotificationsFragment fragment = new NotificationsFragment();
         return fragment;
     }
+
 
     @Nullable
     @Override
@@ -99,9 +103,11 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+
         fetchNotifications();
         return rootview;
     }
+
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -110,6 +116,8 @@ public class NotificationsFragment extends Fragment {
             fetchNotifications();
         }
     }
+
+
 
     private void fetchNotifications() {
         if (updating) return;
@@ -124,7 +132,6 @@ public class NotificationsFragment extends Fragment {
         }
 
         notificationsLoaded = true;
-
         updating = true;
         showLoading();
         mNetworkHelper.getUserInstallationId(((GlobalApplication) getApplicationContext()).getCurrentUserId(), new RequestCallback() {
@@ -146,6 +153,7 @@ public class NotificationsFragment extends Fragment {
                                 updating = false;
                                 return;
                             }
+
                             mNotificationList = notificationsList;
                             Collections.sort(mNotificationList, new Comparator<Notification>() {
                                     @Override
@@ -157,11 +165,23 @@ public class NotificationsFragment extends Fragment {
                                 showFetchError();
                             else if (response != null) {
                                 if (mNotificationList.size() == 0)
-                                    showEmptyListView();
+
+                                {
+                                    Notification notification  = new Notification();
+                                    Notification newNot = new Notification();
+                                    mNotificationList.add(newNot);
+                                    mNotificationList.add(notification);
+
+
+                                    showNotifications();
+                                    //showEmptyListView();
+                                }
+
                                 else
                                     showNotifications();
                             }
                             updating = false;
+
                             hideLoading();
                         }
                     });
@@ -192,9 +212,13 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void showNotifications() {
-        mNotificationsRecyclerView.setAdapter(new NotificationListAdapter());
+
+        mNotificationsRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(mNotificationList));
         mMixPanelHelper.trackViewAppeared(MixpanelHelper.NOTIFICATION_DISPLAYED);
+
+
     }
+
 
     private void showEmptyListView() {
         showErrorMessage(NO_NOTIFICATION);
