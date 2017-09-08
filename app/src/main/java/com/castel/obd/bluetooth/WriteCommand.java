@@ -57,7 +57,7 @@ public class WriteCommand {
 
             BluetoothGattCharacteristic obdReadCharacteristic =
                     mainObdGattService.getCharacteristic(readChar);
-
+            if (obdReadCharacteristic == null) return;
             Log.i("WriteCommandDebug", "Setting notification on: " + obdReadCharacteristic.getUuid());
 
             // Enable local notification
