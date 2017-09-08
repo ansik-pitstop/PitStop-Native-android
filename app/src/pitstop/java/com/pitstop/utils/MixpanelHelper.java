@@ -253,6 +253,7 @@ public class MixpanelHelper {
     public static final String BT_DTC_GOT = "Received DTC";
     public static final String BT_RTC_GOT = "Received RTC";
     public static final String BT_SYNCING = "Syncing RTC";
+    public static final String BT_PID_GOT = "Received IDR PID";
     public static final String BT_CONNECTED = "Connected to Verified Device";
     public static final String BT_VERIFYING = "Verifying Device";
     public static final String BT_SEARCHING = "Searching for Device";

@@ -57,6 +57,9 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -611,12 +614,56 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    /***************** Temporary code used for debugging specific customer issue *****************************/
+    private boolean allowPidTracking = true;
+    TimeoutTimer pidTrackTimeoutTimer = new TimeoutTimer(240,0) {
+        @Override
+        public void onRetry() {}
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"pidTrackTimeoutTimer.onTimeout()");
+            allowPidTracking = true;
+        }
+    };
+    /*********************************************************************************************************/
+
+
     @Override
     public void idrPidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
 
         deviceManager.requestData();
+
+        /***************** Temporary code used for debugging specific customer issue *********************/
+        if (allowPidTracking){
+            allowPidTracking = false;
+            Log.d(TAG,"Tracking idr pid received in mixpanel!");
+            try{
+                JSONObject properties = new JSONObject();
+                if (pidPackage == null){
+                    properties.put("pids","null");
+                }
+                else{
+                    if (pidPackage.deviceId == null) pidPackage.deviceId = "";
+                    if (pidPackage.pids == null) pidPackage.pids = new HashMap<>();
+                    if (pidPackage.tripId == null) pidPackage.tripId = "";
+                    if (pidPackage.rtcTime == null) pidPackage.rtcTime = "";
+                    properties.put("deviceId",pidPackage.deviceId);
+                    properties.put("pids",pidPackage.pids.toString());
+                    properties.put("tripId",pidPackage.tripId);
+                    properties.put("rtcTime",pidPackage.rtcTime);
+                }
+                mixpanelHelper.trackCustom(MixpanelHelper.BT_PID_GOT,properties);
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+            pidTrackTimeoutTimer.start();
+        }
+        /***************************************************************************************************/
+
+
         if (pidPackage == null) return;
 
         //Set device id if its found in pid package
