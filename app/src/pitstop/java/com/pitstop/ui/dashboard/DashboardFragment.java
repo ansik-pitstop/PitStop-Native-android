@@ -336,6 +336,12 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.onOfflineTryAgainClicked();
     }
 
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        presenter.onUnknownErrorTryAgainClicked();
+    }
+
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");

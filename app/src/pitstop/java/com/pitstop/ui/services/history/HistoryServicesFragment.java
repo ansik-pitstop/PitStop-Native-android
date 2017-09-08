@@ -271,6 +271,12 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         presenter.onOfflineTryAgainClicked();
     }
 
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        presenter.onUnknownErrorTryAgainClicked();
+    }
+
     @Override
     public void populateDoneServices(List<CarIssue> doneServices) {
         Log.d(TAG,"populateDoneServices()");

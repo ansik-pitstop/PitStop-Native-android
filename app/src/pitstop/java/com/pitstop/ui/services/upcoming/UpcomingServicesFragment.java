@@ -219,6 +219,12 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         presenter.onAddCarButtonClicked();
     }
 
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        presenter.onUnknownErrorTryAgainClicked();
+    }
+
     @Override
     public void displayNoCarView() {
         Log.d(TAG,"displayNoCarView()");

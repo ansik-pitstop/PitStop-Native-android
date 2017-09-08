@@ -165,6 +165,11 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     }
 
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
+    }
+
     private void handleOfflineError(){
         Log.d(TAG,"handleOfflineError()");
         if (getView() == null) return;

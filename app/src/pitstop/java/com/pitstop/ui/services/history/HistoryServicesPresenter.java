@@ -101,6 +101,11 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
         getView().addDoneService(customService);
     }
 
+    void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
+        onUpdateNeeded();
+    }
+
     void onRefresh(){
         Log.d(TAG,"onRefresh()");
         mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_HISTORY_VIEW);
