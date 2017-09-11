@@ -51,7 +51,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     private boolean emissionsMode;
 
-
     private StartReportPresenter presenter;
 
     private Context context;

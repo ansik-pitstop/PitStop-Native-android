@@ -6,15 +6,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
@@ -113,7 +109,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void setViewReport(JSONObject emissionsResults) {
-        emissionsReportFragment.setReault(emissionsResults);
+        emissionsReportFragment.setResult(emissionsResults);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,emissionsReportFragment);
         transaction.commit();

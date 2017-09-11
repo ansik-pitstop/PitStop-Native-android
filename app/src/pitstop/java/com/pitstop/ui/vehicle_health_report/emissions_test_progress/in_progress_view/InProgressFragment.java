@@ -4,13 +4,10 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.view.DragEvent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -22,7 +19,6 @@ import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.daimajia.numberprogressbar.NumberProgressBar;
-import com.github.florent37.viewanimator.AnimationListener;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -32,8 +28,6 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressCallback;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import java.util.Timer;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -42,8 +36,8 @@ import butterknife.ButterKnife;
  */
 
 public class InProgressFragment extends Fragment implements InProgressView{
-    private InProgressPresenter presenter;
 
+    private final String TAG = getClass().getSimpleName();
     private final String WAITING_ANIMATION = "BallScaleIndicator";
     private final String INPROGRESS_ANIMATION = "BallClipRotatePulseIndicator";
 
@@ -89,20 +83,23 @@ public class InProgressFragment extends Fragment implements InProgressView{
     TextView stepText;
 
     private EmissionsProgressCallback callback;
-
+    private InProgressPresenter presenter;
     private Context context;
     private GlobalApplication application;
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
+        Log.d(TAG,"setBluetooth()");
         presenter.setBlueTooth(bluetooth);
     }
 
     public void setCallback(EmissionsProgressCallback callback){
+        Log.d(TAG,"setCallback()");
         this.callback = callback;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         context = getActivity().getApplicationContext();
         application = (GlobalApplication)context;
         View view = inflater.inflate(R.layout.fragment_emissions_progress,container,false);
@@ -114,41 +111,29 @@ public class InProgressFragment extends Fragment implements InProgressView{
         progressAnimation.hide();
 
 
-        bigButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onBigButtonPressed();
-            }
-        });
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              presenter.onBackPressed();
-            }
-        });
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              presenter.onNextPressed();
-            }
-        });
+        bigButton.setOnClickListener(view1 -> presenter.onBigButtonPressed());
+        backButton.setOnClickListener(view12 -> presenter.onBackPressed());
+        nextButton.setOnClickListener(view13 -> presenter.onNextPressed());
         return view;
     }
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         presenter.subscribe(this);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
     public void back() {
+        Log.d(TAG,"back()");
         cardSwitcher.setInAnimation(AnimationUtils.loadAnimation(context, R.anim.activity_slide_right_in));
         cardSwitcher.setOutAnimation(AnimationUtils.loadAnimation(context,R.anim.activity_slide_right_out));
         cardSwitcher.showPrevious();
@@ -156,6 +141,7 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     @Override
     public void next() {
+        Log.d(TAG,"next()");
         cardSwitcher.setInAnimation(AnimationUtils.loadAnimation(context,R.anim.activity_slide_left_in));
         cardSwitcher.setOutAnimation(AnimationUtils.loadAnimation(context,R.anim.activity_slide_left_out));
         cardSwitcher.showNext();
@@ -163,11 +149,13 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     @Override
     public int getCardNumber() {
+        Log.d(TAG,"getCardNumber()");
         return cardSwitcher.getDisplayedChild();
     }
 
     @Override
     public void setReady() {
+        Log.d(TAG,"setReady()");
         loadingAnimation.setVisibility(View.VISIBLE);
         loadingAnimation.smoothToShow();
         startText.setVisibility(View.VISIBLE);
@@ -184,6 +172,7 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     @Override
     public void bounceCards() {
+        Log.d(TAG,"bounceCards()");
         com.github.florent37.viewanimator.ViewAnimator
                 .animate(cardSwitcher.getCurrentView())
                 .bounce()
@@ -193,23 +182,22 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     @Override
     public void changeStep(String step) {
+        Log.d(TAG,"changeStep() step: "+step);
         com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
-                .onStop(new AnimationListener.Stop() {
-                    @Override
-                    public void onStop() {
-                        stepText.setText(step);
-                        com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
-                                .fadeIn()
-                                .duration(500L)
-                                .start();
-                    }
+                .onStop(() -> {
+                    stepText.setText(step);
+                    com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
+                            .fadeIn()
+                            .duration(500L)
+                            .start();
                 }).start();
     }
 
     @Override
     public void switchToProgress() {
+        Log.d(TAG,"switchToProgress()");
         bigButton.setEnabled(false);
 
         loadingAnimation.hide();
@@ -231,20 +219,17 @@ public class InProgressFragment extends Fragment implements InProgressView{
                 .animate(bigButtonHolder)
                 .dp().translationY(0,50)
                 .duration(500L)
-                .onStop(new AnimationListener.Stop() {
-                    @Override
-                    public void onStop() {
-                        emissionsProgressBar.setVisibility(View.VISIBLE);
-                        stepHolder.setVisibility(View.VISIBLE);
-                        com.github.florent37.viewanimator.ViewAnimator
-                                .animate(emissionsProgressBar)
-                                .fadeIn()
-                                .duration(500L)
-                                .andAnimate(stepHolder)
-                                .fadeIn()
-                                .duration(500L)
-                                .start();
-                    }
+                .onStop(() -> {
+                    emissionsProgressBar.setVisibility(View.VISIBLE);
+                    stepHolder.setVisibility(View.VISIBLE);
+                    com.github.florent37.viewanimator.ViewAnimator
+                            .animate(emissionsProgressBar)
+                            .fadeIn()
+                            .duration(500L)
+                            .andAnimate(stepHolder)
+                            .fadeIn()
+                            .duration(500L)
+                            .start();
                 })
                 .start();
 
@@ -252,12 +237,13 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     @Override
     public void toast(String message) {
+        Log.d(TAG,"toast() message: "+message);
         Toast.makeText(context,message,Toast.LENGTH_LONG);//Long for testing purposes
     }
 
     @Override
     public void startTimer() {
-
+        Log.d(TAG,"startTimer()");
         new CountDownTimer(10000,100){
             @Override
             public void onTick(long l) {

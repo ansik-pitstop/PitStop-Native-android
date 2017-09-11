@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.emissions_test_progress.emissions_r
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,8 @@ import butterknife.ButterKnife;
 
 public class EmissionsReportFragment extends Fragment implements EmissionsReportView {
 
-    private EmissionsReportPresenter presenter;
+    private final String TAG = getClass().getSimpleName();
+
     @BindView(R.id.emissions_report_cell_one)
     RelativeLayout cellOne;
     @BindView(R.id.emissions_report_cell_one_details)
@@ -78,14 +80,17 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private Context context;
     private boolean dropDownInProgress;
     private JSONObject emissionsResponse;
+    private EmissionsReportPresenter presenter;
 
-    public void setReault(JSONObject response){
+    public void setResult(JSONObject response){
+        Log.d(TAG,"setResult() response: "+response);
         emissionsResponse = response;
         System.out.println("Testing ER "+emissionsResponse);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         context = getActivity().getApplicationContext();
         View view = inflater.inflate(R.layout.fragment_emissions_report,container,false);
         dropDownInProgress = false;
@@ -130,18 +135,21 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
-        presenter.subscirebe(this);
+        presenter.subscribe(this);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
     public void toggleCellDetails(View cell) {
+        Log.d(TAG,"toggleCellDetails()");
         if(dropDownInProgress){return;}
         if(cell.getHeight() == 0){//open
             ViewAnimator.animate(cell)

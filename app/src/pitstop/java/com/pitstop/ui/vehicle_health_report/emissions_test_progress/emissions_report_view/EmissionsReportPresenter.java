@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.emissions_test_progress.emissions_report_view;
 
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -8,18 +9,22 @@ import android.view.View;
 
 public class EmissionsReportPresenter {
 
+    private final String TAG = getClass().getSimpleName();
     private EmissionsReportView view;
 
 
-    public void subscirebe(EmissionsReportView view){
+    public void subscribe(EmissionsReportView view) {
+        Log.d(TAG,"subscribe()");
         this.view = view;
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         this.view = null;
     }
 
     public void onCellClicked(View cell){
+        Log.d(TAG,"onCellClicked()");
         view.toggleCellDetails(cell);
     }
 
