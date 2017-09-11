@@ -42,8 +42,7 @@ public class PidRepository implements Repository{
                 +", pid: "+pid);
 
         localPidStorage.createPIDData(getPidDataObject(pid,tripId));
-        if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE
-                && localPidStorage.getPidDataEntryCount() % PID_CHUNK_SIZE == 0) {
+        if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE) {
             sendPidDataToServer(callback);
         }
         else{
