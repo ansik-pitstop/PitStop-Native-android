@@ -1,18 +1,14 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view;
 
 import android.os.CountDownTimer;
+import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
-import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,6 +16,9 @@ import java.util.List;
  */
 
 public class ReportProgressPresenter {
+
+    private final String TAG = getClass().getSimpleName();
+
     private ReportProgressView view;
 
     private ReportCallback callback;
@@ -50,6 +49,7 @@ public class ReportProgressPresenter {
     }
 
     private void start(){
+        Log.d(TAG,"start()");
         if(view == null || callback == null){return;}
         vhrMacroUseCase.start();
     }
@@ -62,65 +62,70 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartGetServices() {
+               Log.d(TAG,"VHRMacroUseCase.onStartGetServices()");
                changeStep("Getting services and recalls");
            }
 
            @Override
            public void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls) {
+               Log.d(TAG,"VHRMacrouseCase.onServicesGot()");
                issueList = issues;
                recallList = recalls;
            }
 
            @Override
            public void onServiceError() {
-
+                Log.d(TAG,"VHRMacrouseCase.onServiceError()");
            }
 
            @Override
            public void onStartGetDTC() {
-                changeStep("Retrieving engine data");
+               changeStep("Retrieving engine data");
+               Log.d(TAG,"VHRMacrouseCase.onStartGetDTC()");
            }
 
            @Override
            public void onGotDTC() {
-               System.out.println("Testing onGotDTC");
-
+               Log.d(TAG,"VHRMacrouseCase.onGotDTC()");
            }
 
            @Override
            public void onDTCError() {
-               System.out.println("Testing onDTCError");
+               Log.d(TAG,"VHRMacrouseCase.onDTCError()");
            }
 
            @Override
            public void onStartPID() {
-
+               Log.d(TAG,"VHRMacrouseCase.onStartPid()");
            }
 
            @Override
            public void onGotPID() {
-
+               Log.d(TAG,"VHRMacrouseCase.onGotPid()");
            }
 
            @Override
            public void onPIDError() {
-
+               Log.d(TAG,"VHRMacrouseCase.onPidError()");
            }
 
            @Override
            public void onFinish() {
-              setViewReport();
+               Log.d(TAG,"VHRMacrouseCase.onFinish()");
+               setViewReport();
            }
        });
        start();
    }
 
     public void changeStep(String step){
+        Log.d(TAG,"changeStep() step: "+step);
         if(view == null || callback == null){return;}
         view.changeStep(step);
     }
 
     public void setViewReport(){
+        Log.d(TAG,"setViewReport()");
         if(view == null || callback == null){return;}
         if(issueList == null || recallList == null){return;}
         callback.setReportView(issueList,recallList);
