@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -116,49 +115,24 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
                 .build();
         presenter = new HealthReportPresenter(component);
 
-        serviceListHolder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if(serviceListHolder.getHeight() >= serviceListHolderHeight){
-                    serviceListHolderHeight = serviceListHolder.getHeight();
-                }
+        serviceListHolder.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if(serviceListHolder.getHeight() >= serviceListHolderHeight){
+                serviceListHolderHeight = serviceListHolder.getHeight();
             }
         });
-        serviceListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.serviceButtonClicked();
+        serviceListButton.setOnClickListener(view1 -> presenter.serviceButtonClicked());
 
+        recallListHolder.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if(recallListHolder.getHeight() >= recallListHolderHeight){
+                recallListHolderHeight = recallListHolder.getHeight();
             }
         });
+        recallListButton.setOnClickListener(view12 -> presenter.recallButtonClicked());
 
-        recallListHolder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if(recallListHolder.getHeight() >= recallListHolderHeight){
-                    recallListHolderHeight = recallListHolder.getHeight();
-                }
-            }
-        });
-        recallListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.recallButtonClicked();
-            }
-        });
-
-        engineListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.engineButtonClicked();
-            }
-        });
-        engineListHolder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if(engineListHolder.getHeight() >= engineListHolderHeight){
-                    engineListHolderHeight = engineListHolder.getHeight();
-                }
+        engineListButton.setOnClickListener(view13 -> presenter.engineButtonClicked());
+        engineListHolder.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if(engineListHolder.getHeight() >= engineListHolderHeight){
+                engineListHolderHeight = engineListHolder.getHeight();
             }
         });
 
