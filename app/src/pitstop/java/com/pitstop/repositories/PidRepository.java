@@ -25,7 +25,7 @@ public class PidRepository implements Repository{
 
     private final String TAG = getClass().getSimpleName();
     private static final int PID_CHUNK_SIZE = 10;
-    private static final int SEND_INTERVAL = 300000;
+    private static final int SEND_INTERVAL = 10000; //Todo: change back to 5 minutes
 
     private NetworkHelper networkHelper;
     private LocalPidStorage localPidStorage;
@@ -34,7 +34,10 @@ public class PidRepository implements Repository{
         this.networkHelper = networkHelper;
         this.localPidStorage = localPidStorage;
         //Send pid data every 5 minutes regardless of chunk size
-        new Handler().postDelayed(() -> sendPidDataToServer(null),SEND_INTERVAL);
+        new Handler().postDelayed(() -> {
+            Log.d(TAG,"Sending pid data to server periodically.");
+            sendPidDataToServer(null);
+        },SEND_INTERVAL);
     }
 
     public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
@@ -53,42 +56,44 @@ public class PidRepository implements Repository{
     private void sendPidDataToServer(@Nullable Callback callback){
 
         List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
-        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
+        int chunks = pidDataEntries.size() / PID_CHUNK_SIZE; // sending pids in size PID_CHUNK_SIZE chunks
         JSONArray[] pidArrays = new JSONArray[chunks+1];
         List<Integer> tripIdList = new ArrayList<>();
         List<String> deviceIdList = new ArrayList<>();
 
         int counter = 0;
         int arrCounter = 0;
+        JSONArray pidArray = new JSONArray();
         for (Pid pidDataObject: pidDataEntries){
-            JSONArray pidArray = new JSONArray();
-            while (counter < PID_CHUNK_SIZE){
 
-                try{
-                    tripIdList.add(pidDataObject.getTripId());
-                    deviceIdList.add(pidDataObject.getDeviceId());
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("dataNum", pidDataObject.getDataNumber());
-                    jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
-                    jsonObject.put("tripMileage", pidDataObject.getMileage());
-                    jsonObject.put("tripIdRaw", pidDataObject.getTripIdRaw());
-                    jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
-                    jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
-                    pidArray.put(jsonObject);
-                }catch(JSONException e){
-                    e.printStackTrace();
-                }
-
-                counter++;
+            try{
+                tripIdList.add(pidDataObject.getTripId());
+                deviceIdList.add(pidDataObject.getDeviceId());
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("dataNum", pidDataObject.getDataNumber());
+                jsonObject.put("rtcTime", Long.parseLong(pidDataObject.getRtcTime()));
+                jsonObject.put("tripMileage", pidDataObject.getMileage());
+                jsonObject.put("tripIdRaw", pidDataObject.getTripIdRaw());
+                jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
+                jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
+                pidArray.put(jsonObject);
+            }catch(JSONException e){
+                e.printStackTrace();
             }
-            counter = 0;
-            pidArrays[arrCounter] = pidArray;
-            arrCounter++;
+
+            counter++;
+            if (counter >= PID_CHUNK_SIZE){
+                counter = 0;
+                pidArrays[arrCounter] = pidArray;
+                arrCounter++;
+                pidArray = new JSONArray();
+            }
+
         }
 
         int currentChunk = 0;
         for(JSONArray pids : pidArrays) {
-            if(pids.length() == 0) {
+            if(pids == null || pids.length() == 0 ) {
                 continue;
             }
 
