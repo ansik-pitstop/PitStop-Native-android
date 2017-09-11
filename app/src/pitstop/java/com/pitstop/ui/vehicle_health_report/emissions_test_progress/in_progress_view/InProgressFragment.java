@@ -89,7 +89,7 @@ public class InProgressFragment extends Fragment implements InProgressView{
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
         Log.d(TAG,"setBluetooth()");
-        presenter.setBlueTooth(bluetooth);
+        presenter.setBluetooth(bluetooth);
     }
 
     public void setCallback(EmissionsProgressCallback callback){
