@@ -28,8 +28,8 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     private static final String TAG = HandlePidDataUseCaseImpl.class.getSimpleName();
 
-    private static final int PID_CHUNK_SIZE = 5; //Todo: change back to 10
-    private static final int SEND_INTERVAL = 300000; //Todo: change back to 5 minutes
+    private static final int PID_CHUNK_SIZE = 10;
+    private static final int SEND_INTERVAL = 300000;
 
     private PidRepository pidRepository;
     private Device215TripRepository tripRepository;
