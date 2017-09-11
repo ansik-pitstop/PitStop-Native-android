@@ -55,19 +55,17 @@ public class PidRepository implements Repository{
 
         List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
-        JSONArray[] pidArrays = new JSONArray[chunks];
+        JSONArray[] pidArrays = new JSONArray[chunks+1];
         List<Integer> tripIdList = new ArrayList<>();
         List<String> deviceIdList = new ArrayList<>();
 
-        try {
-            for(int chunkNumber = 0 ; chunkNumber < chunks ; chunkNumber++) {
-                JSONArray pidArray = new JSONArray();
-                for (int i = 0; i < PID_CHUNK_SIZE; i++) {
-                    if (chunkNumber * PID_CHUNK_SIZE + i >= pidDataEntries.size()) {
-                        continue;
-                    }
+        int counter = 0;
+        int arrCounter = 0;
+        for (Pid pidDataObject: pidDataEntries){
+            JSONArray pidArray = new JSONArray();
+            while (counter < PID_CHUNK_SIZE){
 
-                    Pid pidDataObject = pidDataEntries.get(chunkNumber * PID_CHUNK_SIZE + i);
+                try{
                     tripIdList.add(pidDataObject.getTripId());
                     deviceIdList.add(pidDataObject.getDeviceId());
                     JSONObject jsonObject = new JSONObject();
@@ -78,11 +76,15 @@ public class PidRepository implements Repository{
                     jsonObject.put("calculatedMileage", pidDataObject.getCalculatedMileage());
                     jsonObject.put("pids", new JSONArray(pidDataObject.getPids()));
                     pidArray.put(jsonObject);
+                }catch(JSONException e){
+                    e.printStackTrace();
                 }
-                pidArrays[chunkNumber] = pidArray;
+
+                counter++;
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+            counter = 0;
+            pidArrays[arrCounter] = pidArray;
+            arrCounter++;
         }
 
         int currentChunk = 0;
