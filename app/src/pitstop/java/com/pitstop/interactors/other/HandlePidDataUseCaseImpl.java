@@ -4,11 +4,21 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.database.LocalPidStorage;
+import com.pitstop.models.Pid;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 8/17/2017.
@@ -18,15 +28,21 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     private final String TAG = getClass().getSimpleName();
 
+    private static final int PID_CHUNK_SIZE = 5; //Todo: change back to 10
+    private static final int SEND_INTERVAL = 300000; //Todo: change back to 5 minutes
+
     private PidRepository pidRepository;
     private Device215TripRepository tripRepository;
+    private LocalPidStorage localPidStorage;
     private Handler useCaseHandler;
     private Handler mainHandler;
     private PidPackage pidPackage;
     private Callback callback;
 
     public HandlePidDataUseCaseImpl(PidRepository pidRepository
-            , Device215TripRepository tripRepository, Handler useCaseHandler, Handler mainHandler) {
+            , Device215TripRepository tripRepository, LocalPidStorage localPidStorage
+            , Handler useCaseHandler, Handler mainHandler) {
+        this.localPidStorage = localPidStorage;
         this.pidRepository = pidRepository;
         this.tripRepository = tripRepository;
         this.useCaseHandler = useCaseHandler;
@@ -50,6 +66,12 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     @Override
     public void run() {
+
+        localPidStorage.createPIDData(getPidDataObject(pidPackage));
+        if(localPidStorage.getPidDataEntryCount() < PID_CHUNK_SIZE) {
+            return;
+        }
+
         if (Device215TripRepository.getLocalLatestTripId() == -1){
             Log.d(TAG,"Repository latest trip id is -1, getting latest trip id from server.");
             tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<Trip215>() {
@@ -60,7 +82,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                         return;
                     }
                     Log.d(TAG,"Got latest trip id from server, id: "+pidPackage.tripId);
-                    insertPid(data.getTripId());
+                    insertPidData(data.getTripId());
                 }
 
                 @Override
@@ -78,70 +100,63 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         else{
             Log.d(TAG,"Repository latest trip id is "+Device215TripRepository.getLocalLatestTripId()
                     +", inserting PID");
-            insertPid(Device215TripRepository.getLocalLatestTripId());
+            insertPidData(Device215TripRepository.getLocalLatestTripId());
         }
 
-    }
-
-    private void insertPid(int tripId){
-        Log.d(TAG,"insertPid()");
-        pidRepository.insertPid(pidPackage, tripId, new Repository.Callback<Object>() {
-            @Override
-            public void onSuccess(Object response){
-                Log.d(TAG,"successfully added pids");
-                HandlePidDataUseCaseImpl.this.onSuccess();
-            }
-
-            @Override
-            public void onError(RequestError error){
-                Log.d(TAG,"insertPid() onError, message: "+error.getMessage());
-                //Check whether its a "trip not found" error
-                if (error.getMessage().contains("not found")){
-                    createTripUsingPid();
-                }
-                else{
-                    HandlePidDataUseCaseImpl.this.onError(error);
-                }
-            }
-        });
     }
 
     private void createTripUsingPid(){
         Log.d(TAG,"createTripUsingPid()");
         tripRepository.storeTripStart(pidPackageToTrip215Start(pidPackage)
-                , new Repository.Callback<Trip215>() {
+            , new Repository.Callback<Trip215>() {
 
+                @Override
+                public void onSuccess(Trip215 data) {
+
+                    Log.d(TAG,"Stored trip start using PID. Attempting to store pid again!");
+                    insertPidData(data.getTripId());
+                }
+
+                @Override
+                public void onError(RequestError error) {
+                    Log.d(TAG,"Error saving trip start using PID! error: "+error);
+                    HandlePidDataUseCaseImpl.this.onError(error);
+                }
+            });
+    }
+
+    //Set trip id and seperate pids into chunks
+    private void insertPidData(int tripId){
+        List<Pid> allPids = localPidStorage.getAllPidDataEntries();
+
+        int counter = 0;
+        List<Pid> chunk = new ArrayList<>();
+        for (Pid p: allPids){
+            p.setTripId(tripId);
+            chunk.add(p);
+            counter ++;
+
+            if (counter == PID_CHUNK_SIZE){
+                counter = 0;
+                pidRepository.insertPid(chunk, new Repository.Callback<Object>() {
                     @Override
-                    public void onSuccess(Trip215 data) {
-
-                        Log.d(TAG,"Stored trip start using PID. Attempting to store pid again!");
-                        pidRepository.insertPid(pidPackage,data.getTripId(), new Repository.Callback<Object>() {
-
-                            @Override
-                            public void onSuccess(Object response){
-                                Log.d(TAG,"Success storing PID after trip start was stored.");
-                                HandlePidDataUseCaseImpl.this.onSuccess();
-                            }
-
-                            @Override
-                            public void onError(RequestError error){
-                                Log.d(TAG,"Error storing PID even after trip start was saved.");
-                                HandlePidDataUseCaseImpl.this.onError(error);
-                            }
-                        });
+                    public void onSuccess(Object response){
+                        Log.d(TAG,"PIDS added!");
+                        HandlePidDataUseCaseImpl.this.onSuccess();
+                        localPidStorage.deleteAllPidDataEntries();
                     }
-
                     @Override
-                    public void onError(RequestError error) {
-                        Log.d(TAG,"Error saving trip start using PID! error: "+error);
-                        if (!error.getError().equals(RequestError.ERR_OFFLINE)){
-                            run(); //Try again, it seems that trip start exists
-                        }
-                        else{
-                            HandlePidDataUseCaseImpl.this.onError(error);
+                    public void onError(RequestError error){
+                        Log.d(TAG,"error adding PIDS");
+                        HandlePidDataUseCaseImpl.this.onError(error);
+                        if (localPidStorage.getAllPidDataEntries().size() > 5000){
+                            localPidStorage.deleteAllPidDataEntries();
                         }
                     }
                 });
+                chunk = new ArrayList<>();
+            }
+        }
     }
 
     private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
@@ -168,5 +183,47 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         }
 
         return new Trip215(Trip215.TRIP_START,tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
+    }
+
+    private Pid getPidDataObject(PidPackage pidPackage){
+
+        Pid pidDataObject = new Pid();
+        JSONArray pids = new JSONArray();
+
+        pidDataObject.setCalculatedMileage(0);
+        try{
+            pidDataObject.setMileage(Double.parseDouble(pidPackage.tripMileage));
+        }catch(NumberFormatException e){
+            pidDataObject.setMileage(0);
+        }
+
+        pidDataObject.setDataNumber("");
+        pidDataObject.setTripIdRaw(Long.parseLong(pidPackage.tripId));
+        pidDataObject.setTripId(String.valueOf(pidPackage.tripId));
+        pidDataObject.setRtcTime(pidPackage.rtcTime);
+        pidDataObject.setDeviceId(pidPackage.deviceId);
+        pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
+
+        StringBuilder sb = new StringBuilder();
+        for(Map.Entry<String, String> pidEntry : pidPackage.pids.entrySet()) {
+            sb.append(pidEntry.getKey());
+            sb.append(": ");
+            sb.append(pidEntry.getValue());
+            sb.append(" / ");
+            try {
+                JSONObject pid = new JSONObject();
+                pid.put("id", pidEntry.getKey());
+                pid.put("data", pidEntry.getValue());
+                pids.put(pid);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Log.d(TAG, "PIDs received: " + sb.toString());
+
+        pidDataObject.setPids(pids.toString());
+
+        return pidDataObject;
     }
 }

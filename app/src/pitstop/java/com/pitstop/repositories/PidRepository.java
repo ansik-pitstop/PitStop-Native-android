@@ -7,6 +7,7 @@ import android.util.Log;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.models.Pid;
+import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -16,6 +17,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.pitstop.R.array.pid;
 
 /**
  * Created by Karol Zdebel on 8/17/2017.
@@ -47,17 +50,53 @@ public class PidRepository implements Repository{
         handler.post(periodicPidDataSender);
     }
 
-    public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
+    public void insertPid(List<Pid> pids, Callback<Object> callback){
         Log.d(TAG,"insertPid() locally stored pid count: "+localPidStorage.getPidDataEntryCount()
                 +", pid: "+pid);
 
-        localPidStorage.createPIDData(getPidDataObject(pid,tripId));
-        if(localPidStorage.getPidDataEntryCount() >= PID_CHUNK_SIZE) {
-            sendPidDataToServer(callback);
+        if (pids == null || pids.isEmpty()){
+            callback.onError(RequestError.getUnknownError());
+            return;
         }
-        else{
-            callback.onSuccess(null);
+
+        JSONArray pidArray = new JSONArray();
+        for (Pid p: pids){
+            try{
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("dataNum", p.getDataNumber());
+                jsonObject.put("rtcTime", Long.parseLong(p.getRtcTime()));
+                jsonObject.put("tripMileage", p.getMileage());
+                jsonObject.put("tripIdRaw", p.getTripIdRaw());
+                jsonObject.put("calculatedMileage", p.getCalculatedMileage());
+                jsonObject.put("pids", new JSONArray(p.getPids()));
+                pidArray.put(jsonObject);
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
         }
+
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("tripId", pids.get(0).getTripId());
+            body.put("scannerId", pids.get(0).getDeviceId());
+            body.put("pidArray", pidArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        networkHelper.postNoAuth("scan/pids", (response, requestError) -> {
+            if (requestError == null) {
+                Log.i(TAG, "PIDS saved");
+                callback.onSuccess(response);
+            }
+            else{
+                Log.e(TAG, "save pid error: " + requestError.getMessage());
+                if (callback != null){
+                    callback.onError(requestError);
+                }
+            }
+        }, body);
     }
 
     private synchronized void sendPidDataToServer(@Nullable Callback callback){
