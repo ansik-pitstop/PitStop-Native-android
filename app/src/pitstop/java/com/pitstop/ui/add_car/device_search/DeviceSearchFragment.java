@@ -219,6 +219,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         dialog.show();
     }
 
+
     @Override
     public void onCarAddedWithShop(Car car) {
         Log.d(TAG,"onCarAddedWithShop() car: "+car);
