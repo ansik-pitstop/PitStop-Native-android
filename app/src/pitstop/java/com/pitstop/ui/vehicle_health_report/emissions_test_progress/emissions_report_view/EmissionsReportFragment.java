@@ -3,12 +3,9 @@ package com.pitstop.ui.vehicle_health_report.emissions_test_progress.emissions_r
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -35,7 +32,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     RelativeLayout cellOneDetails;
     @BindView(R.id.cell_one_text)
     TextView cellOneText;
-
 
     @BindView(R.id.emissions_report_cell_two)
     RelativeLayout cellTwo;
@@ -80,24 +76,14 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.componetns)
     TextView components;
 
-
-
-
-
-
     private Context context;
-
-
     private boolean dropDownInProgress;
-
     private JSONObject emissionsResponse;
 
     public void setReault(JSONObject response){
         emissionsResponse = response;
         System.out.println("Testing ER "+emissionsResponse);
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
