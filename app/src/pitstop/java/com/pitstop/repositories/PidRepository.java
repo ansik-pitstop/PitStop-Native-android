@@ -24,8 +24,8 @@ import java.util.Map;
 public class PidRepository implements Repository{
 
     private final String TAG = getClass().getSimpleName();
-    private static final int PID_CHUNK_SIZE = 10;
-    private static final int SEND_INTERVAL = 10000; //Todo: change back to 5 minutes
+    private static final int PID_CHUNK_SIZE = 5; //Todo: change back to 10
+    private static final int SEND_INTERVAL = 300000; //Todo: change back to 5 minutes
 
     private NetworkHelper networkHelper;
     private LocalPidStorage localPidStorage;
@@ -60,9 +60,10 @@ public class PidRepository implements Repository{
         }
     }
 
-    private void sendPidDataToServer(@Nullable Callback callback){
+    private synchronized void sendPidDataToServer(@Nullable Callback callback){
 
         List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
+        Log.d(TAG,"sendPidDataToServer() pidDatEntries.size() : "+pidDataEntries.size());
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE; // sending pids in size PID_CHUNK_SIZE chunks
         JSONArray[] pidArrays = new JSONArray[chunks+1];
         List<Integer> tripIdList = new ArrayList<>();
@@ -72,7 +73,7 @@ public class PidRepository implements Repository{
         int arrCounter = 0;
         JSONArray pidArray = new JSONArray();
         for (Pid pidDataObject: pidDataEntries){
-
+            if (counter == 0) pidArrays[arrCounter] = pidArray;
             try{
                 tripIdList.add(pidDataObject.getTripId());
                 deviceIdList.add(pidDataObject.getDeviceId());
@@ -91,7 +92,6 @@ public class PidRepository implements Repository{
             counter++;
             if (counter >= PID_CHUNK_SIZE){
                 counter = 0;
-                pidArrays[arrCounter] = pidArray;
                 arrCounter++;
                 pidArray = new JSONArray();
             }
