@@ -3,9 +3,11 @@ package com.pitstop.ui.dashboard;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
@@ -13,6 +15,8 @@ import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Karol Zdebel on 9/7/2017.
@@ -138,6 +142,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             @Override
             public void onMileageUpdated() {
                 updating = false;
+                EventBus.getDefault().post(new CarDataChangedEvent(
+                        new EventTypeImpl(EventType.EVENT_MILEAGE),EVENT_SOURCE));
                 if (getView() == null) return;
                 getView().hideLoading();
 
