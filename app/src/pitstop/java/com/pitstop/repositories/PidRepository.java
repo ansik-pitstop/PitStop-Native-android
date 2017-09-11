@@ -1,12 +1,12 @@
 package com.pitstop.repositories;
 
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.models.Pid;
-import com.pitstop.network.RequestCallback;
-import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -25,6 +25,7 @@ public class PidRepository implements Repository{
 
     private final String TAG = getClass().getSimpleName();
     private static final int PID_CHUNK_SIZE = 10;
+    private static final int SEND_INTERVAL = 300000;
 
     private NetworkHelper networkHelper;
     private LocalPidStorage localPidStorage;
@@ -32,6 +33,8 @@ public class PidRepository implements Repository{
     public PidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage) {
         this.networkHelper = networkHelper;
         this.localPidStorage = localPidStorage;
+        //Send pid data every 5 minutes regardless of chunk size
+        new Handler().postDelayed(() -> sendPidDataToServer(null),SEND_INTERVAL);
     }
 
     public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
@@ -48,7 +51,7 @@ public class PidRepository implements Repository{
         }
     }
 
-    private void sendPidDataToServer(Callback callback){
+    private void sendPidDataToServer(@Nullable Callback callback){
 
         List<Pid> pidDataEntries = localPidStorage.getAllPidDataEntries();
         int chunks = pidDataEntries.size() / PID_CHUNK_SIZE + 1; // sending pids in size PID_CHUNK_SIZE chunks
@@ -100,19 +103,18 @@ public class PidRepository implements Repository{
                 e.printStackTrace();
             }
 
-            networkHelper.postNoAuth("scan/pids", new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        Log.i(TAG, "PIDS saved");
-                        localPidStorage.deleteAllPidDataEntries();
-                    }
-                    else{
-                        Log.e(TAG, "save pid error: " + requestError.getMessage());
+            networkHelper.postNoAuth("scan/pids", (response, requestError) -> {
+                if (requestError == null) {
+                    Log.i(TAG, "PIDS saved");
+                    localPidStorage.deleteAllPidDataEntries();
+                }
+                else{
+                    Log.e(TAG, "save pid error: " + requestError.getMessage());
+                    if (callback != null){
                         callback.onError(requestError);
-                        if (localPidStorage.getAllPidDataEntries().size() > 10000){
-                            localPidStorage.deleteAllPidDataEntries();
-                        }
+                    }
+                    if (localPidStorage.getAllPidDataEntries().size() > 10000){
+                        localPidStorage.deleteAllPidDataEntries();
                     }
                 }
             }, body);

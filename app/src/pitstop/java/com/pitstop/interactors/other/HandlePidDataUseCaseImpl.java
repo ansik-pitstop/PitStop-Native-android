@@ -41,21 +41,11 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private void onSuccess(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onSuccess();
-            }
-        });
+        mainHandler.post(() -> callback.onSuccess());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
