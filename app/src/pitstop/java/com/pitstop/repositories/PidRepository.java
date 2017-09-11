@@ -30,14 +30,21 @@ public class PidRepository implements Repository{
     private NetworkHelper networkHelper;
     private LocalPidStorage localPidStorage;
 
+    private Handler handler = new Handler();
+    private Runnable periodicPidDataSender = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG,"Sending pid data to server periodically.");
+            sendPidDataToServer(null);
+            new Handler().postDelayed(this,SEND_INTERVAL);
+        }
+    };
+
     public PidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage) {
         this.networkHelper = networkHelper;
         this.localPidStorage = localPidStorage;
         //Send pid data every 5 minutes regardless of chunk size
-        new Handler().postDelayed(() -> {
-            Log.d(TAG,"Sending pid data to server periodically.");
-            sendPidDataToServer(null);
-        },SEND_INTERVAL);
+        handler.post(periodicPidDataSender);
     }
 
     public void insertPid(PidPackage pid, int tripId, Callback<Object> callback){
