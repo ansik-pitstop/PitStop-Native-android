@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
-    private final String TAG = getClass().getSimpleName();
+    private static final String TAG = HandlePidDataUseCaseImpl.class.getSimpleName();
 
     private static final int PID_CHUNK_SIZE = 5; //Todo: change back to 10
     private static final int SEND_INTERVAL = 300000; //Todo: change back to 5 minutes
@@ -38,6 +38,18 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     private Handler mainHandler;
     private PidPackage pidPackage;
     private Callback callback;
+
+    private static Handler periodicHandler;
+    private Runnable periodicPidDataSender = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG,"Sending pid data to server periodically.");
+            if (Device215TripRepository.getLocalLatestTripId() == -1){
+                insertPidData(Device215TripRepository.getLocalLatestTripId());
+            }
+            periodicHandler.postDelayed(this,SEND_INTERVAL);
+        }
+    };
 
     public HandlePidDataUseCaseImpl(PidRepository pidRepository
             , Device215TripRepository tripRepository, LocalPidStorage localPidStorage
@@ -53,6 +65,13 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     public void execute(PidPackage pidPackage, Callback callback) {
         this.callback = callback;
         this.pidPackage = pidPackage;
+
+        //This will only happen for one use case execution
+        if (periodicHandler == null){
+            periodicHandler = new Handler();
+            periodicHandler.post(periodicPidDataSender);
+        }
+
         useCaseHandler.post(this);
     }
 
@@ -199,7 +218,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         pidDataObject.setDataNumber("");
         pidDataObject.setTripIdRaw(Long.parseLong(pidPackage.tripId));
-        pidDataObject.setTripId(String.valueOf(pidPackage.tripId));
+        pidDataObject.setTripId(Integer.valueOf(pidPackage.tripId));
         pidDataObject.setRtcTime(pidPackage.rtcTime);
         pidDataObject.setDeviceId(pidPackage.deviceId);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
