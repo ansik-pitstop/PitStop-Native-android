@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -64,24 +63,16 @@ public class StartReportFragment extends Fragment implements StartReportView {
         ButterKnife.bind(this,view);
         emissionsMode = false;
         presenter = new StartReportPresenter();
-        startReportButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(emissionsMode){
-                    Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
-                    startActivity(intent);
-                }else{
-                    Intent intent = new Intent(getActivity(), ReportActivity.class);
-                    startActivity(intent);
-                }
+        startReportButton.setOnClickListener(view1 -> { //Todo: check for bluetooth connection here
+            if(emissionsMode){
+                Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
+                startActivity(intent);
+            }else{
+                Intent intent = new Intent(getActivity(), ReportActivity.class);
+                startActivity(intent);
             }
         });
-        modeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                presenter.onSwitchClicked(b);
-            }
-        });
+        modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
     public static StartReportFragment newInstance() {
