@@ -2,6 +2,7 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import com.pitstop.database.LocalPidStorage;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
@@ -350,10 +351,10 @@ public class UseCaseModule {
 
     @Provides
     HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository
-            , Device215TripRepository device215TripRepository
+            , Device215TripRepository device215TripRepository, LocalPidStorage localPidStorage
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository, useCaseHandler
-                , mainHandler);
+        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository
+                , localPidStorage, useCaseHandler, mainHandler);
     }
 
     @Provides

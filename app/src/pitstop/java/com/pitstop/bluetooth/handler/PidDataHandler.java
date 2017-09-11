@@ -28,7 +28,6 @@ public class PidDataHandler {
 
     private final String TAG = getClass().getSimpleName();
 
-    private static final int PID_CHUNK_SIZE = 15;
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 

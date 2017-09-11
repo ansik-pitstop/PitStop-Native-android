@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Pid;
 
@@ -14,6 +15,8 @@ import java.util.List;
  * Created by Paul Soladoye on 4/1/2016.
  */
 public class LocalPidStorage {
+
+    private final String TAG = getClass().getSimpleName();
 
     // PID_DATA table create statement
     public static final String CREATE_TABLE_PID_DATA = "CREATE TABLE IF NOT EXISTS "
@@ -115,12 +118,25 @@ public class LocalPidStorage {
         }
     }
 
+    synchronized public void deletePidEntries(List<Pid> pids){
+        Log.d(TAG,"deletePidEntries() pids: "+pids);
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        try {
+            for (int i=0;i<pids.size();i++){
+                String tripIdRaw = String.valueOf(pids.get(i).getTripIdRaw());
+                db.delete(TABLES.PID.TABLE_NAME, TABLES.PID.KEY_TRIP_ID_RAW + "=?"
+                        , new String[] { tripIdRaw });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void deleteAllRows(){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.PID.TABLE_NAME, null, null);
-
-
     }
 
 }
