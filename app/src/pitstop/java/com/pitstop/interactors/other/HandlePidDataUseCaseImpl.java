@@ -218,7 +218,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         pidDataObject.setDataNumber("");
         pidDataObject.setTripIdRaw(Long.parseLong(pidPackage.tripId));
-        pidDataObject.setTripId(Integer.valueOf(pidPackage.tripId));
+        pidDataObject.setTripId(-1);
         pidDataObject.setRtcTime(pidPackage.rtcTime);
         pidDataObject.setDeviceId(pidPackage.deviceId);
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
