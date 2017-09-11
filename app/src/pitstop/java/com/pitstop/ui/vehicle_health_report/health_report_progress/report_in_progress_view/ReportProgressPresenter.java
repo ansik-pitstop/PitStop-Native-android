@@ -38,8 +38,6 @@ public class ReportProgressPresenter {
         this.component = component;
     }
 
-
-
     public void subscribe(ReportProgressView view){
         this.view = view;
     }
@@ -54,9 +52,7 @@ public class ReportProgressPresenter {
         vhrMacroUseCase.start();
     }
 
-
-
-   public void setBluetooth(BluetoothConnectionObservable bluetooth){
+    public void setBluetooth(BluetoothConnectionObservable bluetooth){
        this.bluetooth = bluetooth;
        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
 
@@ -130,6 +126,5 @@ public class ReportProgressPresenter {
         if(issueList == null || recallList == null){return;}
         callback.setReportView(issueList,recallList);
     }
-
 
 }
