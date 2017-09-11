@@ -155,7 +155,8 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             chunk.add(p);
             counter ++;
 
-            if (counter == PID_CHUNK_SIZE){
+            //Send if its the last element or we hit max chunk size
+            if (counter == PID_CHUNK_SIZE || allPids.indexOf(p) == allPids.size()-1){
                 counter = 0;
                 pidRepository.insertPid(chunk, new Repository.Callback<List<Pid>>() {
                     @Override
