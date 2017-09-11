@@ -44,6 +44,7 @@ public class NotificationsPresenter {
         Log.d(TAG, "refreshed");
         onUpdateNeeded();
 
+
     }
 
     public void onUpdateNeeded(){
@@ -58,11 +59,28 @@ public class NotificationsPresenter {
                 else {
                     notificationView.displayNotifications(list);
                     Log.d("NotificationsRetrieved", Integer.toString(list.size()));
-                    Log.d("NotificationsRetrieved", list.get(0).getTitle());
                 }
+
             }
             @Override
             public void onError(RequestError error) {
+
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    if (notificationView.hasBeenPoppulated()){
+                        notificationView.displayOfflineErrorDialog();
+                    }
+                    else {
+                        notificationView.displayOfflineErrorView();
+                    }
+                }
+                else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
+                    if (notificationView.hasBeenPoppulated()){
+                        notificationView.displayUnknownErrorDialog();
+                    }
+                    else {
+                        notificationView.displayUnknownErrorView();
+                    }
+                }
                 notificationView.hideLoading();
                 Log.d("NotificationsError", "Error");
             }
