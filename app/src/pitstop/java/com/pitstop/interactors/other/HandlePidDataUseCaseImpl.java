@@ -157,12 +157,12 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
             if (counter == PID_CHUNK_SIZE){
                 counter = 0;
-                pidRepository.insertPid(chunk, new Repository.Callback<Object>() {
+                pidRepository.insertPid(chunk, new Repository.Callback<List<Pid>>() {
                     @Override
-                    public void onSuccess(Object response){
+                    public void onSuccess(List<Pid> pid){
                         Log.d(TAG,"PIDS added!");
                         HandlePidDataUseCaseImpl.this.onSuccess();
-                        localPidStorage.deleteAllPidDataEntries();
+                        localPidStorage.deletePidEntries(pid);
                     }
                     @Override
                     public void onError(RequestError error){

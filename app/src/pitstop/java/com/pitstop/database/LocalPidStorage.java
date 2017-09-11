@@ -115,6 +115,18 @@ public class LocalPidStorage {
         }
     }
 
+    synchronized public void deletePidEntries(List<Pid> pids){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        try {
+            String[] tripIdRaw = new String[pids.size()];
+            for (int i=0;i<pids.size();i++) tripIdRaw[i] = String.valueOf(pids.get(i).getTripId());
+            db.delete(TABLES.PID.TABLE_NAME, TABLES.PID.KEY_TRIP_ID_RAW + "=?", tripIdRaw);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void deleteAllRows(){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 

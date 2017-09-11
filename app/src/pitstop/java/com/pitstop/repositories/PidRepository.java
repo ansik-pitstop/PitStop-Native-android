@@ -27,7 +27,7 @@ public class PidRepository implements Repository{
         this.networkHelper = networkHelper;
     }
 
-    public void insertPid(List<Pid> pids, Callback<Object> callback){
+    public void insertPid(List<Pid> pids, Callback<List<Pid>> callback){
         Log.d(TAG,"insertPid() pids: "+pids);
 
         if (pids == null || pids.isEmpty()){
@@ -64,7 +64,7 @@ public class PidRepository implements Repository{
         networkHelper.postNoAuth("scan/pids", (response, requestError) -> {
             if (requestError == null) {
                 Log.i(TAG, "PIDS saved");
-                callback.onSuccess(response);
+                callback.onSuccess(pids);
             }
             else{
                 Log.e(TAG, "save pid error: " + requestError.getMessage());
