@@ -44,6 +44,8 @@ public class TabFragmentManager {
         mMixpanelHelper = mixpanelHelper;
     }
 
+
+
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
 
@@ -57,6 +59,7 @@ public class TabFragmentManager {
         setupActionBar();
         setupTabIcons();
         setupTabTappable();
+
     }
 
     private void setupSwitchActions(){

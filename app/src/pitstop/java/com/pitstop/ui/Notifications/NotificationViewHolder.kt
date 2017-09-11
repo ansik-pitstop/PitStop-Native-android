@@ -13,19 +13,19 @@ import com.pitstop.models.Notification
  */
 
 class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    internal val titleTV: TextView;
+    internal val titleTV: TextView?;
     internal val descriptionTV: TextView;
     internal val dateTV: TextView;
 
     init {
-        titleTV = itemView.findViewById(R.id.notificationTitle) as TextView
+        titleTV = itemView.findViewById(R.id.notificationTitle) as? TextView
         descriptionTV = itemView.findViewById(R.id.notificationDescription) as TextView
         dateTV = itemView.findViewById(R.id.dateTV) as TextView
-
     }
     fun bind(notification: Notification) {
-        titleTV.text = ("Welcome to Pitstop")
-        descriptionTV.text =("Your first Pitstop notification")
+        titleTV!!.text = (notification.title)
+        descriptionTV.text =(notification.content)
+        dateTV.text = (notification.dateCreated)
 
     }
 
