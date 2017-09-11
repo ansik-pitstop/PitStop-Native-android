@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.florent37.viewanimator.AnimationListener;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 
@@ -92,42 +91,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         dropDownInProgress = false;
         presenter = new EmissionsReportPresenter();
         ButterKnife.bind(this,view);
-        cellOne.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellOneDetails);
-            }
-        });
-        cellTwo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellTwoDetails);
-            }
-        });
-        cellThree.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellThreeDetails);
-            }
-        });
-        cellFour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellFourDetails);
-            }
-        });
-        cellFive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellFiveDetails);
-            }
-        });
-        cellSix.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onCellClicked(cellSixDetails);
-            }
-        });
+        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
+        cellTwo.setOnClickListener(view12 -> presenter.onCellClicked(cellTwoDetails));
+        cellThree.setOnClickListener(view13 -> presenter.onCellClicked(cellThreeDetails));
+        cellFour.setOnClickListener(view14 -> presenter.onCellClicked(cellFourDetails));
+        cellFive.setOnClickListener(view15 -> presenter.onCellClicked(cellFiveDetails));
+        cellSix.setOnClickListener(view16 -> presenter.onCellClicked(cellSixDetails));
         if(emissionsResponse !=null){
             if(emissionsResponse.has("data")){
                 try{
@@ -176,35 +145,15 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         if(dropDownInProgress){return;}
         if(cell.getHeight() == 0){//open
             ViewAnimator.animate(cell)
-                    .onStart(new AnimationListener.Start() {
-                        @Override
-                        public void onStart() {
-                            dropDownInProgress = true;
-                        }
-                    })
-                    .onStop(new AnimationListener.Stop() {
-                        @Override
-                        public void onStop() {
-                            dropDownInProgress = false;
-                        }
-                    })
+                    .onStart(() -> dropDownInProgress = true)
+                    .onStop(() -> dropDownInProgress = false)
                     .dp().height(0,100)
                     .duration(200)
                     .start();
         }else{//close
             ViewAnimator.animate(cell)
-                    .onStart(new AnimationListener.Start() {
-                        @Override
-                        public void onStart() {
-                            dropDownInProgress = true;
-                        }
-                    })
-                    .onStop(new AnimationListener.Stop() {
-                        @Override
-                        public void onStop() {
-                            dropDownInProgress = false;
-                        }
-                    })
+                    .onStart(() -> dropDownInProgress = true)
+                    .onStop(() -> dropDownInProgress = false)
                     .dp().height(100,0)
                     .duration(200)
                     .start();
