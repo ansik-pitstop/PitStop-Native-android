@@ -135,25 +135,16 @@ public class User implements Parcelable {
     }
 
     public static User jsonToUserObject(String json) {
+
         User user = null;
         try {
-
-            Log.d("userJson", json.toString());
             user = JsonUtil.json2object(json, User.class);
-            Log.d("installationID", user.getInstallationID().toString());
-
-
-            Log.d("UserJson", user.getFirstName());
-
+            //Log.d("installationID", user.getInstallationID().toString());
+            Log.d("userJson", json);
             if(user.getId() == 0) {
                 user = new User();
 
-
-
-
                 JSONObject userJson = new JSONObject(json).getJSONObject("user");
-
-
                 /*List<String> userInstallationIds;
                 userInstallationIds = new Gson().fromJson(userJson.getJSONArray("installationId").toString(), new TypeToken<List<String>>() {
                 }.getType());

@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Notification;
@@ -109,9 +111,11 @@ public class UserRepository implements Repository{
 
     public void getCurrentUser(Callback<User> callback){
         if (localUserStorage.getUser() == null){
+
             callback.onError(RequestError.getUnknownError());
             return;
         }
+        Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
         networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
                 ,getUserGetRequestCallback(callback));
     }
@@ -123,6 +127,7 @@ public class UserRepository implements Repository{
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        Log.d("userresponse", response);
                         callback.onSuccess(User.jsonToUserObject(response));
                     }
                     else{

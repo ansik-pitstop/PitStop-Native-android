@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -38,16 +40,19 @@ public class NotificationFragment extends Fragment implements NotificationView {
     private static final int NO_NETWORK = 2;
 
     private NotificationsPresenter presenter;
-    private boolean notificationsLoaded = false;
-    private boolean updating = false;
     private RecyclerView mNotificationRecyclerView;
-    private LinearLayout mNotificationsContainer;
-    private TextView mNoNotificationsTextView;
+    private View offlineView;
+    private View unknowErrorView;
+    private View noNotificationsView;
     private ProgressBar mLoadingSpinner;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList <Notification> notificationList;
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
+    private boolean hasBeenPoppulated = false;
+    private AlertDialog offlineAlertDialog;
+    private AlertDialog unknownErrorDialog;
+    private Button tryAgainButton;
 
 
 
@@ -55,9 +60,9 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
        NotificationFragment fragment = new NotificationFragment();
         return fragment;
-
-
     }
+
+
 
     public static void onNotificationClicked(String title){
         Log.d("NotificationFragment", title);
@@ -69,13 +74,13 @@ public class NotificationFragment extends Fragment implements NotificationView {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_notifications, null);
         mNotificationRecyclerView = (RecyclerView) view.findViewById(R.id.notifications_recyclerview);
-        mNotificationsContainer = (LinearLayout) view.findViewById(R.id.no_notification_container);
-        mNoNotificationsTextView = (TextView) view.findViewById(R.id.no_notifications_textview);
         mLoadingSpinner = (ProgressBar) view.findViewById(R.id.loading_spinner);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         mNotificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        offlineView = (View) view.findViewById(R.id.offline_view);
 
-
+        unknowErrorView =(View) view.findViewById(R.id.unknown_error_view);
+        noNotificationsView = (View) view.findViewById(R.id.no_notification_view);
         if (presenter == null) {
             useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getContext()))
@@ -86,52 +91,105 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
             presenter = new NotificationsPresenter(useCaseComponent, mixpanelHelper);
         }
-
-
         presenter.subscribe(this);
-       presenter.onUpdateNeeded();
-        Log.d("notificationFragment", "display?");
-
+        presenter.onUpdateNeeded();
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 presenter.onRefresh();
-                swipeRefreshLayout.setRefreshing(false);
+
             }
         });
         return view;
     }
+
     @Override
     public void noNotifications() {
         mNotificationRecyclerView.setVisibility(View.GONE);
-        mNotificationsContainer.setVisibility(View.VISIBLE);
-        mNoNotificationsTextView.setText("You don't have any Notifications");
-
+        noNotificationsView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         presenter.unsubscribe();
+        hasBeenPoppulated = false;
     }
 
     public void displayNotifications(List <Notification> notifList){
+        if (presenter == null) return;
+        unknowErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        noNotificationsView.setVisibility(View.GONE);
+        mNotificationRecyclerView.setVisibility(View.VISIBLE);
         mNotificationRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(notifList));
+        hasBeenPoppulated = true;
     }
 
     public void showLoading(){
-
-        if (!swipeRefreshLayout.isRefreshing()){
+        if (presenter == null){return;}
+        if (swipeRefreshLayout.isRefreshing() == false){
             mLoadingSpinner.setVisibility(View.VISIBLE);
         }
     }
-
     public void hideLoading(){
+        if (presenter == null){return;}
         if (swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setRefreshing(false);
         }else{
             mLoadingSpinner.setVisibility(View.GONE);
             swipeRefreshLayout.setEnabled(true);
         }
+    }
+
+    public boolean hasBeenPoppulated(){
+        return hasBeenPoppulated;
+    }
+
+    public void displayOfflineErrorDialog(){
+        if (offlineAlertDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
+        offlineAlertDialog.show();
+    }
+
+    public void displayOfflineErrorView(){
+
+
+
+        unknowErrorView.setVisibility(View.GONE);
+        noNotificationsView.setVisibility(View.GONE);
+        mNotificationRecyclerView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.VISIBLE);
+
+    }
+
+    public void displayUnknownErrorDialog(){
+        if (unknownErrorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
+        unknownErrorDialog.show();
+    }
+    public void displayUnknownErrorView(){
+        noNotificationsView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        mNotificationRecyclerView.setVisibility(View.GONE);
+        unknowErrorView.setVisibility(View.VISIBLE);
     }
 }
