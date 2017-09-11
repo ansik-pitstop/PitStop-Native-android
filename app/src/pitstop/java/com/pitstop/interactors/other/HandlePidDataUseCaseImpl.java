@@ -44,7 +44,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         @Override
         public void run() {
             Log.d(TAG,"Sending pid data to server periodically.");
-            if (Device215TripRepository.getLocalLatestTripId() == -1){
+            if (Device215TripRepository.getLocalLatestTripId() != -1){
                 insertPidData(Device215TripRepository.getLocalLatestTripId());
             }
             periodicHandler.postDelayed(this,SEND_INTERVAL);
