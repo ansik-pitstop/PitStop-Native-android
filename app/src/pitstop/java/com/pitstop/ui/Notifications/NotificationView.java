@@ -19,6 +19,7 @@ public interface NotificationView {
     void displayUnknownErrorView();
 
     boolean hasBeenPoppulated();
+    void onNotificationClicked(String title );
 
 
 }

@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.pitstop.R;
-import com.pitstop.adapters.NotificationListAdapter;
+import com.pitstop.adapters.NotificationAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -64,8 +64,9 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
 
 
-    public static void onNotificationClicked(String title){
+    public void onNotificationClicked(String title){
         Log.d("NotificationFragment", title);
+
     }
 
 
@@ -122,7 +123,7 @@ public class NotificationFragment extends Fragment implements NotificationView {
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.VISIBLE);
-        mNotificationRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(notifList));
+        mNotificationRecyclerView.setAdapter(new NotificationAdapter(this, notifList));
         hasBeenPoppulated = true;
     }
 
@@ -161,16 +162,16 @@ public class NotificationFragment extends Fragment implements NotificationView {
         offlineAlertDialog.show();
     }
 
+
     public void displayOfflineErrorView(){
-
-
 
         unknowErrorView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
-
     }
+
+
 
     public void displayUnknownErrorDialog(){
         if (unknownErrorDialog == null){
