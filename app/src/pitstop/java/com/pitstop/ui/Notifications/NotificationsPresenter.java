@@ -102,6 +102,16 @@ public class NotificationsPresenter {
             }
 
         }
+        else {
+            if (title.equalsIgnoreCase("[staging] New Vehicle Issues!")) {
+                notificationView.openCurrentServices();
+            }
+            else if (title.equalsIgnoreCase("[staging] Service Appointment Reminder"))
+                notificationView.openAppointments();
+            else if (title.equalsIgnoreCase("[staging] Vehicle Health Update")){
+                notificationView.openScanTab();
+            }
+        }
 
 
     }

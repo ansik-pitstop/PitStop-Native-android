@@ -32,9 +32,9 @@ import java.util.List;
  * Created by ishan on 2017-09-08.
  */
 
-public class NotificationFragment extends Fragment implements NotificationView {
+public class NotificationFragment extends Fragment implements NotificationView, View.OnClickListener {
 
-    
+
     // ints to classify types of errors
     private static final int NO_NOTIFICATION = 0;
     private static final int NETWORK_ERROR = 1;
@@ -70,9 +70,7 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
     public void onNotificationClicked(String title){
         Log.d("NotificationFragment", title);
-
         presenter.onNotificationClicked(title);
-
     }
 
 
@@ -86,7 +84,6 @@ public class NotificationFragment extends Fragment implements NotificationView {
         mNotificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         offlineView = (View) view.findViewById(R.id.offline_view);
         tabSwitcher = (TabSwitcher) getActivity();
-
         unknowErrorView =(View) view.findViewById(R.id.unknown_error_view);
         noNotificationsView = (View) view.findViewById(R.id.no_notification_view);
         if (presenter == null) {
@@ -113,6 +110,10 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
     @Override
     public void noNotifications() {
+        tryAgainButton = (Button) noNotificationsView.findViewById(R.id.try_again_btn);
+        tryAgainButton.setOnClickListener(this);
+        unknowErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.VISIBLE);
     }
@@ -171,7 +172,8 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
 
     public void displayOfflineErrorView(){
-
+        tryAgainButton = (Button) offlineView.findViewById(R.id.offline_try_again) ;
+        tryAgainButton.setOnClickListener(this);
         unknowErrorView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
@@ -195,6 +197,8 @@ public class NotificationFragment extends Fragment implements NotificationView {
         unknownErrorDialog.show();
     }
     public void displayUnknownErrorView(){
+        tryAgainButton = (Button)unknowErrorView.findViewById(R.id.unknown_error_try_again);
+        tryAgainButton.setOnClickListener(this);
         noNotificationsView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
@@ -214,5 +218,12 @@ public class NotificationFragment extends Fragment implements NotificationView {
     @Override
     public void openScanTab() {
         tabSwitcher.openScanTab();
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.d("onclick", "tryagainrefresh");
+        presenter.onRefresh();
+
     }
 }

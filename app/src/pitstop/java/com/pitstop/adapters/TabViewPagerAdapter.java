@@ -21,6 +21,11 @@ import com.pitstop.ui.services.MainServicesFragment;
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
+    DashboardFragment dashboardFragment;
+    MainServicesFragment mainServicesFragment;
+    ScanCarFragment scanCarFragment;
+    NotificationFragment notificationFragment;
+
     public TabViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -28,10 +33,6 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
-        DashboardFragment dashboardFragment;
-        MainServicesFragment mainServicesFragment;
-        ScanCarFragment scanCarFragment;
-        NotificationFragment notificationFragment;
 
 
         // getItem is called to instantiate the fragment for the given page.
