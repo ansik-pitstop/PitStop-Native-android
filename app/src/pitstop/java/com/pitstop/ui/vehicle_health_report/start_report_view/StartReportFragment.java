@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ import butterknife.ButterKnife;
  */
 
 public class StartReportFragment extends Fragment implements StartReportView {
+
+    private final String TAG = StartReportFragment.class.getSimpleName();
 
     @BindView(R.id.emissions_switch)
     Switch modeSwitch;
@@ -57,6 +60,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_start_report,container,false);
         context = getActivity().getApplicationContext();
         ButterKnife.bind(this,view);
@@ -81,18 +85,21 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         presenter.subscribe(this);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
     public void setModeEmissions() {
+        Log.d(TAG,"setModeEmissions()");
         emissionsMode = true;
         emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.highlight));
         healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
@@ -106,6 +113,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public void setModeHealthReport() {
+        Log.d(TAG,"setModeHealthReport()");
         emissionsMode = false;
         emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
         healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.primary));

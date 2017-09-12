@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-
-
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -30,6 +27,8 @@ import java.util.List;
 
 public class ReportActivity extends IBluetoothServiceActivity implements ReportView,ReportCallback {
 
+    private final String TAG = getClass().getSimpleName();
+
     private ReportPresenter presenter;
     private ReportProgressFragment reportProgressFragment;
     private HealthReportFragment healthReportFragment;
@@ -42,6 +41,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG,"serviceConnection.onServiceConnected()");
             setAutoConnectService(((BluetoothAutoConnectService.BluetoothBinder)service)
                     .getService());
 
@@ -54,13 +54,14 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG,"serviceConnection.onServiceDisconnected()");
             bluetoothConnectionObservable = null;
-
         }
     };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_progress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -77,6 +78,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
 
     @Override
     protected void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
@@ -85,6 +87,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         unbindService(serviceConnection);
         presenter.unsubscribe();
@@ -92,6 +95,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
 
     @Override
     public void setReportProgressView() {
+        Log.d(TAG,"setReportProgressView()");
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.report_progress_fragment_holder,reportProgressFragment);
         fragmentTransaction.commit();
@@ -99,6 +103,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
 
     @Override
     public void setReportView(List<CarIssue> issues, List<CarIssue> recalls) {
+        Log.d(TAG,"setReportView() issues: "+issues+"; recalls: "+recalls);
         healthReportFragment.inputCarIssues(issues,recalls);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
@@ -107,6 +112,7 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG,"onOptionsItemSelected()");
         int id = item.getItemId();
         if(id == android.R.id.home){
             super.onBackPressed();

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
@@ -29,10 +30,11 @@ import org.json.JSONObject;
  */
 
 public class EmissionsProgressActivity extends IBluetoothServiceActivity implements EmissionsProgressView,EmissionsProgressCallback {
+
+    private final String TAG = getClass().getSimpleName();
+
     private EmissionsProgressPresenter presenter;
-
     private FragmentManager fragmentManager;
-
     private InProgressFragment inProgressFragment;
     private EmissionsReportFragment emissionsReportFragment;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
@@ -41,6 +43,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG,"serviceConnection.onServiceConnected()");
             setAutoConnectService(((BluetoothAutoConnectService.BluetoothBinder)service)
                     .getService());
 
@@ -53,6 +56,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG,"serviceConnection.onServiceDisconnected()");
             bluetoothConnectionObservable = null;
 
         }
@@ -61,6 +65,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emissions_progress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -75,6 +80,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     protected void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
@@ -83,6 +89,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         unbindService(serviceConnection);
         presenter.unsubscribe();
@@ -90,6 +97,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void setColors() {
+        Log.d(TAG,"setColors()");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(),R.color.highlight)));
         Window window = getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -101,6 +109,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void setViewProgress() {
+        Log.d(TAG,"setViewProgress()");
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,inProgressFragment);
         transaction.commit();
@@ -109,6 +118,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void setViewReport(JSONObject emissionsResults) {
+        Log.d(TAG,"setViewReport()");
         emissionsReportFragment.setResult(emissionsResults);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,emissionsReportFragment);
@@ -117,6 +127,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG,"onOptionsItemSelected()");
         int id = item.getItemId();
         if(id == android.R.id.home){
             super.onBackPressed();
@@ -126,6 +137,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void end() {
+        Log.d(TAG,"end()");
         finish();
     }
 }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,9 @@ import butterknife.ButterKnife;
  */
 
 public class HealthReportFragment extends Fragment implements HealthReportView {
+
+    private final String TAG = getClass().getSimpleName();
+
     private HealthReportPresenter presenter;
     private Context context;
     private GlobalApplication application;
@@ -71,7 +75,6 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     @BindView(R.id.recall_green)
     ImageView recallGreen;
 
-    private int engineListHolderHeight;
     @BindView(R.id.engine_list_holder)
     RelativeLayout engineListHolder;
     @BindView(R.id.engine_list_button)
@@ -88,24 +91,29 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     @BindView(R.id.report_services_loading)
     ProgressBar servicesLoading;
 
+    private int engineListHolderHeight;
     private List<CarIssue> issues;
     private List<CarIssue> recalls;
 
     public void inputCarIssues(List<CarIssue> issues, List<CarIssue> recalls){
+        Log.d(TAG,"inputCarIssues() issues: "+issues+"; recalls: "+recalls);
         this.issues = issues;
         this.recalls = recalls;
     }
 
     public List<CarIssue> getIssues() {
+        Log.d(TAG,"getIssues()");
         return issues;
     }
 
     public List<CarIssue> getRecalls() {
+        Log.d(TAG,"getRecalls()");
         return recalls;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         context = getActivity().getApplicationContext();
         application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragment_health_report,container,false);
@@ -141,6 +149,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         presenter.subscribe(this);
 
@@ -148,6 +157,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
@@ -155,6 +165,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void setServicesList(List<CarIssue> issues) {
+        Log.d(TAG,"setServicesList() issues: "+issues);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         servicesIssueAdapter = new HeathReportIssueAdapter(issues,"No Services",presenter,context);
@@ -168,6 +179,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     }
     @Override
     public void setRecallList(List<CarIssue> recalls) {
+        Log.d(TAG,"setRecallList() recalls: "+recalls);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recallIssueAdapter = new HeathReportIssueAdapter(recalls,"No Recalls",presenter,context);
@@ -182,6 +194,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void setEngineList(List<CarIssue> engine) {
+        Log.d(TAG,"setEngineList() engineList: "+engine);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         engineIssueAdapter = new HeathReportIssueAdapter(engine,"No New Engine Codes",presenter,context);
@@ -196,6 +209,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void toggleRecallList() {
+        Log.d(TAG,"toggleRecallList()");
         if(recallListHolderHeight == 0 ){return;}
         if(recallListHolder.getHeight() == 0){
             ViewAnimator.animate(recallListHolder)
@@ -212,6 +226,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void toggleServiceList() {
+        Log.d(TAG,"toggleServiceList()");
         if(serviceListHolderHeight == 0){return;}
         if(serviceListHolder.getHeight() == 0){
             ViewAnimator.animate(serviceListHolder)
@@ -228,6 +243,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void toggleEngineList() {
+        Log.d(TAG,"toggleEngineList()");
         if(engineListHolderHeight == 0){return;}
         if(engineListHolder.getHeight() == 0){
             ViewAnimator.animate(engineListHolder)
@@ -244,6 +260,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void servicesLoading(boolean show) {
+        Log.d(TAG,"servicesLoading() show? "+show);
         if(show){
             servicesLoading.setVisibility(View.VISIBLE);
         }else{
@@ -253,6 +270,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @Override
     public void startIssueDetails(Car car, CarIssue issue) {
+        Log.d(TAG,"startIssueDetails()");
         Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, car);
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
