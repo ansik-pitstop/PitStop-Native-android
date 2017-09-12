@@ -226,7 +226,5 @@ public class NotificationFragment extends Fragment implements NotificationView, 
             Log.d("onclick", "tryagainrefresh");
             presenter.onRefresh();
         }
-
-
     }
 }
