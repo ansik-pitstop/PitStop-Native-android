@@ -76,7 +76,7 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartGetDTC() {
-               changeStep("Retrieving engine data");
+               changeStep("Retrieving engine codes");
                Log.d(TAG,"VHRMacrouseCase.onStartGetDTC()");
            }
 
@@ -92,6 +92,7 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartPID() {
+               changeStep("Retrieving real time engine data");
                Log.d(TAG,"VHRMacrouseCase.onStartPid()");
            }
 
