@@ -39,7 +39,6 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     private EmissionsReportFragment emissionsReportFragment;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
 
-
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -61,7 +60,6 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
         }
     };
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

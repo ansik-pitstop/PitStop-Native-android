@@ -1,24 +1,13 @@
 package com.pitstop.interactors.emissions;
 
-import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.SystemClock;
 
-import com.pitstop.interactors.MacroUseCases.EmissionsMacroUseCase;
-import com.pitstop.models.Pid;
-import com.pitstop.models.Trip215;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
-import com.pitstop.repositories.Repository;
-import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.jar.JarInputStream;
 
 /**
  * Created by Matt on 2017-08-28.
@@ -27,17 +16,28 @@ import java.util.jar.JarInputStream;
 public class Post2141UseCaseImpl implements Post2141UseCase {
 
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private NetworkHelper networkHelper;
     private Device215TripRepository device215TripRepository;
     private String pid;
     private String deviceId;
     private long rtcTime;
 
-    public Post2141UseCaseImpl(Device215TripRepository device215TripRepository, NetworkHelper networkHelper, Handler handler) {
-        this.handler = handler;
+    public Post2141UseCaseImpl(Device215TripRepository device215TripRepository
+            , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler) {
+        this.useCaseHandler = useCaseHandler;
         this.networkHelper = networkHelper;
         this.device215TripRepository = device215TripRepository;
+        this.mainHandler = mainHandler;
+    }
+
+    private void onPIDPosted(JSONObject response){
+        mainHandler.post(() -> callback.onPIDPosted(response));
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post( () -> callback.onError(error));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
         this.callback = callback;
         this.pid = pid;
         this.deviceId = deviceId;
-        handler.post(this);
+        useCaseHandler.post(this);
     }
 
     @Override
@@ -57,24 +57,20 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
         }catch (JSONException e){
             e.printStackTrace();
         }
-        networkHelper.post("demo/emissions/pid", new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
+        networkHelper.post("demo/emissions/pid", (response, requestError) -> {
 
-
-                if(response != null && requestError == null){
-                    System.out.println("Testing response " + response);
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        callback.onPIDPosted(responseJson);// I know this is bad, but its temporary
-                    }catch (JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                    }
-
-                }else if(response == null && requestError != null){
-                    System.out.println("Testing error "+requestError.getMessage());
-                    callback.onError(requestError);
+            if(response != null && requestError == null){
+                System.out.println("Testing response " + response);
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    Post2141UseCaseImpl.this.onPIDPosted(responseJson);// I know this is bad, but its temporary
+                }catch (JSONException e){
+                    Post2141UseCaseImpl.this.onError(RequestError.getUnknownError());
                 }
+
+            }else if(response == null && requestError != null){
+                System.out.println("Testing error "+requestError.getMessage());
+                Post2141UseCaseImpl.this.onError(requestError);
             }
         },body);
 
@@ -135,7 +131,5 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
                 callback.onError(error);
             }
         });*/
-
-
     }
 }
