@@ -30,7 +30,4 @@ public class EmissionsProgressPresenter {
         this.view = null;
     }
 
-    public void unsubscribe(){
-        this.view = null;
-    }
 }

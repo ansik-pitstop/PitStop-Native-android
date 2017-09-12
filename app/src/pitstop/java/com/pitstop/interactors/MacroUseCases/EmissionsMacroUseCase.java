@@ -4,23 +4,15 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
-import com.pitstop.interactors.get.GetCurrentServicesUseCase;
-import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
-import com.pitstop.interactors.get.GetDTCUseCase;
-import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
-import com.pitstop.models.Pid;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -89,7 +81,7 @@ public class EmissionsMacroUseCase {
             });
         }
         else if(current instanceof Post2141UseCaseImpl){
-            if(bluetooth.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED)){
+            if(bluetooth.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
                 System.out.print("Testing scanner "+ bluetooth.getReadyDevice().getScannerId());
                 ((Post2141UseCaseImpl) current).execute(pid2141, bluetooth.getReadyDevice().getScannerId(), new Post2141UseCase.Callback() {
                     @Override

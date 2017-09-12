@@ -83,6 +83,11 @@ public class VHRMacroUseCase {
                 }
 
                 @Override
+                public void onNoCarAdded(){
+                    callback.onServiceError();
+                }
+
+                @Override
                 public void onError(RequestError error) {
                     callback.onServiceError();
                     finish();

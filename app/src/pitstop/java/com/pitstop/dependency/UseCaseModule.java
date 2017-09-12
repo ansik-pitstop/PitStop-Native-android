@@ -15,6 +15,8 @@ import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.emissions.Post2141UseCase;
+import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
@@ -25,10 +27,14 @@ import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCaseImpl;
+import com.pitstop.interactors.get.GetDTCUseCase;
+import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetPIDUseCase;
+import com.pitstop.interactors.get.GetPIDUseCaseImpl;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
@@ -101,6 +107,25 @@ import dagger.Provides;
 @Module(includes = {RepositoryModule.class, ConnectionCheckerModule.class
         , HandlerModule.class} )
 public class UseCaseModule {
+
+    @Provides
+    Post2141UseCase getPost2141UseCase(Device215TripRepository device215TripRepository
+            , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new Post2141UseCaseImpl(device215TripRepository,networkHelper,useCaseHandler);
+    }
+
+    @Provides
+    GetPIDUseCase getPIDUseCase(@Named("useCaseHandler")Handler useCaseHandler
+            ,@Named("mainHandler") Handler mainHandler){
+        return new GetPIDUseCaseImpl(useCaseHandler);
+    }
+
+    @Provides
+    GetDTCUseCase getDTCUseCase(@Named("useCaseHandler")Handler useCaseHandler
+            ,@Named("mainHandler") Handler mainHandler){
+        return new GetDTCUseCaseImpl(useCaseHandler);
+    }
 
     @Provides
     AddCustomServiceUseCase addCustomServiceUseCase(CarRepository carRepository
