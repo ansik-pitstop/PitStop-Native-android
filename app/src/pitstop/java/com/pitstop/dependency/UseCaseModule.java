@@ -112,7 +112,8 @@ public class UseCaseModule {
     Post2141UseCase getPost2141UseCase(Device215TripRepository device215TripRepository
             , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new Post2141UseCaseImpl(device215TripRepository,networkHelper,useCaseHandler);
+        return new Post2141UseCaseImpl(device215TripRepository, networkHelper
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
