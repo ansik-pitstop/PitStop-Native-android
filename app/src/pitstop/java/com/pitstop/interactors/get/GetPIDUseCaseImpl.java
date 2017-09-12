@@ -15,18 +15,38 @@ import java.util.HashMap;
 public class GetPIDUseCaseImpl implements GetPIDUseCase {
 
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private BluetoothConnectionObservable bluetooth;
 
-    public GetPIDUseCaseImpl(Handler handler){
-        this.handler = handler;
+    public GetPIDUseCaseImpl(Handler useCaseHandler, Handler mainHandler){
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
         this.callback = callback;
         this.bluetooth = bluetooth;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void onGotPIDs(HashMap<String, String> allPid, BluetoothPidObserver pidObserver){
+        mainHandler.post(() -> {
+            bluetooth.unsubscribe(pidObserver);
+            callback.onGotPIDs(allPid);
+        });
+    }
+
+    private void subscribeAndRequest(BluetoothPidObserver pidObserver){
+        mainHandler.post(() -> {
+            bluetooth.subscribe(pidObserver);
+            bluetooth.requestAllPid();
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -34,16 +54,14 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
         BluetoothPidObserver pidObserver = new BluetoothPidObserver() {
             @Override
             public void onGotAllPid(HashMap<String, String> allPid) {
-                callback.onGotPIDs(allPid);
-                bluetooth.unsubscribe(this);
+                GetPIDUseCaseImpl.this.onGotPIDs(allPid,this);
             }
 
             @Override
             public void onErrorGettingAllPid() {
-                callback.onError(RequestError.getUnknownError());
+                GetPIDUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         };
-        bluetooth.subscribe(pidObserver);
-        bluetooth.requestAllPid();
+        GetPIDUseCaseImpl.this.subscribeAndRequest(pidObserver);
     }
 }

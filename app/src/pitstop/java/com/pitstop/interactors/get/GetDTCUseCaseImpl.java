@@ -16,18 +16,38 @@ import java.util.HashMap;
 public class GetDTCUseCaseImpl implements GetDTCUseCase {
 
     private Callback callback;
-    private Handler handler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private BluetoothConnectionObservable bluetooth;
 
-    public GetDTCUseCaseImpl(Handler handler){
-        this.handler = handler;
+    public GetDTCUseCaseImpl(Handler useCaseHandler, Handler mainHandler){
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
     }
 
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
         this.callback = callback;
         this.bluetooth = bluetooth;
-        handler.post(this);
+        useCaseHandler.post(this);
+    }
+
+    private void subscribeAndRequest(BluetoothDtcObserver bluetoothDtcObserver){
+        mainHandler.post(() -> {
+            bluetooth.subscribe(bluetoothDtcObserver);
+            bluetooth.requestDtcData();
+        });
+    }
+
+    private void onGotDTCs(HashMap<String, Boolean> dtc, BluetoothDtcObserver bluetoothDtcObserver){
+        mainHandler.post(() -> {
+            callback.onGotDTCs(dtc);
+            bluetooth.unsubscribe(bluetoothDtcObserver);
+        });
+    }
+
+    private void onError(RequestError error){
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -35,17 +55,15 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
         BluetoothDtcObserver dtcObserver = new BluetoothDtcObserver() {
             @Override
             public void onGotDtc(HashMap<String, Boolean> dtc) {
-                callback.onGotDTCs(dtc);
-                bluetooth.unsubscribe(this);
+                GetDTCUseCaseImpl.this.onGotDTCs(dtc,this);
             }
 
             @Override
             public void onErrorGettingDtc() {
-                callback.onError(RequestError.getUnknownError());
+                GetDTCUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         };
-        bluetooth.subscribe(dtcObserver);
-        bluetooth.requestDtcData();
+        subscribeAndRequest(dtcObserver);
 
     }
 }

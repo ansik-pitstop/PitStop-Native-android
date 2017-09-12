@@ -119,13 +119,13 @@ public class UseCaseModule {
     @Provides
     GetPIDUseCase getPIDUseCase(@Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetPIDUseCaseImpl(useCaseHandler);
+        return new GetPIDUseCaseImpl(useCaseHandler, mainHandler);
     }
 
     @Provides
     GetDTCUseCase getDTCUseCase(@Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
-        return new GetDTCUseCaseImpl(useCaseHandler);
+        return new GetDTCUseCaseImpl(useCaseHandler, mainHandler);
     }
 
     @Provides
