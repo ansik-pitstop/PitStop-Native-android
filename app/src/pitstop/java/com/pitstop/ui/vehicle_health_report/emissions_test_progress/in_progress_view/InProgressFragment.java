@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -261,52 +262,52 @@ public class InProgressFragment extends Fragment implements InProgressView{
     @Override
     public void endProgress(String message) {
         bigButton.setEnabled(true);
+        progressAnimation.hide();
+        loadingAnimation.show();
 
         com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
+                .andAnimate(emissionsProgressBar)
+                .fadeOut()
+                .duration(500L)
                 .onStop(() -> {
+                    emissionsProgressBar.setVisibility(View.INVISIBLE);
                     stepText.setText(message);
                     com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
                             .fadeIn()
                             .duration(500L)
-                            .wave()
-                            .duration()
-                            .onStop(() -> {
-                                com.github.florent37.viewanimator.ViewAnimator
-                                    .animate(emissionsLower)
-                                    .duration(500L)
-                                    .fadeIn()
-                                    .andAnimate(startText)
-                                    .fadeIn()
-                                    .duration(500L)
-                                    .andAnimate(pitstopLogo)
-                                    .fadeOut()
-                                    .duration(500L)
-                                    .start();
-
-                                com.github.florent37.viewanimator.ViewAnimator
-                                    .animate(bigButtonHolder)
-                                    .dp().translationY(50,0)
-                                    .duration(500L)
-                                    .onStop(() -> {
-                                        emissionsProgressBar.setVisibility(View.GONE);
-                                        stepHolder.setVisibility(View.GONE);
-                                        com.github.florent37.viewanimator.ViewAnimator
-                                                .animate(emissionsProgressBar)
-                                                .fadeOut()
-                                                .duration(500L)
-                                                .andAnimate(stepHolder)
-                                                .fadeOut()
-                                                .duration(500L)
-                                                .start();
-                                    })
-                                    .start();
-                                progressAnimation.hide();
-                                loadingAnimation.show();
-                            })
                             .start();
-                }).start();
+                })
+                .start();
+
+        new Handler().postDelayed(() -> {
+            com.github.florent37.viewanimator.ViewAnimator
+                    .animate(emissionsLower)
+                    .duration(500L)
+                    .fadeIn()
+                    .andAnimate(startText)
+                    .fadeIn()
+                    .duration(500L)
+                    .andAnimate(pitstopLogo)
+                    .fadeOut()
+                    .duration(500L)
+                    .start();
+
+            com.github.florent37.viewanimator.ViewAnimator
+                    .animate(bigButtonHolder)
+                    .dp().translationY(50,0)
+                    .duration(500L)
+                    .onStop(() -> {
+                        stepHolder.setVisibility(View.INVISIBLE);
+                        com.github.florent37.viewanimator.ViewAnimator
+                                .animate(stepHolder)
+                                .fadeOut()
+                                .duration(500L)
+                                .start();
+                    })
+                    .start();
+        },2500);
 
     }
 
