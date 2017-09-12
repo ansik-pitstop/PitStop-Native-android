@@ -2,6 +2,7 @@ package com.pitstop.ui.Notifications;
 
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.models.Notification;
@@ -86,4 +87,24 @@ public class NotificationsPresenter {
             }
         });
     }
+
+    public void onNotificationClicked(String title) {
+
+        if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE) {
+
+            if (title.equalsIgnoreCase("New Vehicle Issues!")) {
+                notificationView.openCurrentServices();
+            }
+            else if (title.equalsIgnoreCase("Service Appointment Reminder"))
+                notificationView.openAppointments();
+            else if (title.equalsIgnoreCase("Vehicle Health Update")){
+                notificationView.openScanTab();
+            }
+
+        }
+
+
+    }
+
+
 }

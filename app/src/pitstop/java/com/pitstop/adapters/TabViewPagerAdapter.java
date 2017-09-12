@@ -8,6 +8,7 @@ import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
+import com.pitstop.ui.scan_car.ScanCarContract;
 import com.pitstop.ui.scan_car.ScanCarFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 
@@ -27,22 +28,36 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
+        DashboardFragment dashboardFragment;
+        MainServicesFragment mainServicesFragment;
+        ScanCarFragment scanCarFragment;
+        NotificationFragment notificationFragment;
+
 
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return new DashboardFragment();
-
+                if (dashboardFragment == null) {
+                    dashboardFragment = new DashboardFragment();
+                }
+                return dashboardFragment;
             case TabFragmentManager.TAB_SERVICES:
-                return MainServicesFragment.newInstance();
-
+                if (mainServicesFragment == null){
+                    mainServicesFragment = MainServicesFragment.newInstance();
+                }
+                return mainServicesFragment;
             case TabFragmentManager.TAB_SCAN:
-                return ScanCarFragment.newInstance();
+                if (scanCarFragment == null){
+                    scanCarFragment = ScanCarFragment.newInstance();
+                }
+                return scanCarFragment;
 
             case TabFragmentManager.TAB_NOTIF:
-                return NotificationFragment.newInstance();
+                if (notificationFragment == null){
+                    notificationFragment = NotificationFragment.newInstance();
+                }
+                return notificationFragment;
         }
-
         return null;
     }
 

@@ -16,12 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.pitstop.R;
-import com.pitstop.adapters.NotificationListAdapter;
+import com.pitstop.adapters.NotificationAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Notification;
+import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class NotificationFragment extends Fragment implements NotificationView {
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private Button tryAgainButton;
+    TabSwitcher tabSwitcher;
 
 
 
@@ -64,8 +66,13 @@ public class NotificationFragment extends Fragment implements NotificationView {
 
 
 
-    public static void onNotificationClicked(String title){
+
+
+    public void onNotificationClicked(String title){
         Log.d("NotificationFragment", title);
+
+        presenter.onNotificationClicked(title);
+
     }
 
 
@@ -78,6 +85,7 @@ public class NotificationFragment extends Fragment implements NotificationView {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         mNotificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         offlineView = (View) view.findViewById(R.id.offline_view);
+        tabSwitcher = (TabSwitcher) getActivity();
 
         unknowErrorView =(View) view.findViewById(R.id.unknown_error_view);
         noNotificationsView = (View) view.findViewById(R.id.no_notification_view);
@@ -122,7 +130,7 @@ public class NotificationFragment extends Fragment implements NotificationView {
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.VISIBLE);
-        mNotificationRecyclerView.setAdapter(new com.pitstop.adapters.NotificationListAdapter(notifList));
+        mNotificationRecyclerView.setAdapter(new NotificationAdapter(this, notifList));
         hasBeenPoppulated = true;
     }
 
@@ -161,16 +169,16 @@ public class NotificationFragment extends Fragment implements NotificationView {
         offlineAlertDialog.show();
     }
 
+
     public void displayOfflineErrorView(){
-
-
 
         unknowErrorView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
-
     }
+
+
 
     public void displayUnknownErrorDialog(){
         if (unknownErrorDialog == null){
@@ -191,5 +199,20 @@ public class NotificationFragment extends Fragment implements NotificationView {
         offlineView.setVisibility(View.GONE);
         mNotificationRecyclerView.setVisibility(View.GONE);
         unknowErrorView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void openCurrentServices() {
+        tabSwitcher.openCurrentServices();
+    }
+
+    @Override
+    public void openAppointments() {
+        tabSwitcher.openAppointments();
+    }
+
+    @Override
+    public void openScanTab() {
+        tabSwitcher.openScanTab();
     }
 }

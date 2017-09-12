@@ -5,5 +5,8 @@ package com.pitstop.ui.main_activity;
  */
 
 public interface TabSwitcher {
-    void
+
+    void openCurrentServices();
+    void openAppointments();
+    void openScanTab();
 }

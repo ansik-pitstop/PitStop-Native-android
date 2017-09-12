@@ -19,6 +19,8 @@ public interface NotificationView {
     void displayUnknownErrorView();
 
     boolean hasBeenPoppulated();
-
-
+    void onNotificationClicked(String title );
+    void openCurrentServices();
+    void openAppointments();
+    void openScanTab();
 }
