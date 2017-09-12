@@ -222,8 +222,11 @@ public class NotificationFragment extends Fragment implements NotificationView, 
 
     @Override
     public void onClick(View v) {
-        Log.d("onclick", "tryagainrefresh");
-        presenter.onRefresh();
+        if (v == tryAgainButton){
+            Log.d("onclick", "tryagainrefresh");
+            presenter.onRefresh();
+        }
+
 
     }
 }
