@@ -88,31 +88,36 @@ public class InProgressPresenter {
                 @Override
                 public void onStartPID() {
                     Log.d(TAG,"EmissionsMacroUseCase.onStartPID()");
+                    if (view == null) return;
                     view.changeStep("Getting PIDs");
                 }
 
                 @Override
                 public void onGotPID() {
                     Log.d(TAG,"EmissionsMacroUseCase.onGotPID()");
+                    if (view == null) return;
                     view.changeStep("Got PIDs");
                 }
 
                 @Override
                 public void onErrorPID() {
                     Log.d(TAG,"EmissionsMacroUseCase.onErrorPID()");
+                    if (view == null) return;
                     error = true;
-                    view.changeStep("Error getting 2141 from device");
+                    view.endProgress("Error getting 2141 from device");
                 }
 
                 @Override
                 public void onStartPost2141() {
                     Log.d(TAG,"EmissionsMacroUseCase.onStartPost2141()");
+                    if (view == null) return;
                     view.changeStep("Posting 2141");
                 }
 
                 @Override
                 public void onDonePost2141(JSONObject response) {
                     Log.d(TAG,"EmissionsMacroUseCase.onDonePost2141()");
+                    if (view == null) return;
                     view.changeStep("Done posting 2141");
                     emissionsResuts = response;
 
@@ -121,13 +126,15 @@ public class InProgressPresenter {
                 @Override
                 public void onErrorPort2141() {
                     Log.d(TAG,"EmissionsMacroUseCase.onErrorPost2141()");
+                    if (view == null) return;
                     error = true;
-                    view.changeStep("Error decoding 2141");
+                    view.endProgress("Error decoding 2141");
                 }
 
                 @Override
                 public void onFinish() {
                     Log.d(TAG,"EmissionsMacroUseCase.onFinish()");
+                    if (view == null) return;
                     showReport();
                 }
             });

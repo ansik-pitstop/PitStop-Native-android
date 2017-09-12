@@ -257,4 +257,57 @@ public class InProgressFragment extends Fragment implements InProgressView{
             }
         }.start();
     }
+
+    @Override
+    public void endProgress(String message) {
+        bigButton.setEnabled(true);
+
+        com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
+                .fadeOut()
+                .duration(500L)
+                .onStop(() -> {
+                    stepText.setText(message);
+                    com.github.florent37.viewanimator.ViewAnimator.animate(stepHolder)
+                            .fadeIn()
+                            .duration(500L)
+                            .wave()
+                            .duration()
+                            .onStop(() -> {
+                                com.github.florent37.viewanimator.ViewAnimator
+                                    .animate(emissionsLower)
+                                    .duration(500L)
+                                    .fadeIn()
+                                    .andAnimate(startText)
+                                    .fadeIn()
+                                    .duration(500L)
+                                    .andAnimate(pitstopLogo)
+                                    .fadeOut()
+                                    .duration(500L)
+                                    .start();
+
+                                com.github.florent37.viewanimator.ViewAnimator
+                                    .animate(bigButtonHolder)
+                                    .dp().translationY(50,0)
+                                    .duration(500L)
+                                    .onStop(() -> {
+                                        emissionsProgressBar.setVisibility(View.GONE);
+                                        stepHolder.setVisibility(View.GONE);
+                                        com.github.florent37.viewanimator.ViewAnimator
+                                                .animate(emissionsProgressBar)
+                                                .fadeOut()
+                                                .duration(500L)
+                                                .andAnimate(stepHolder)
+                                                .fadeOut()
+                                                .duration(500L)
+                                                .start();
+                                    })
+                                    .start();
+                                progressAnimation.hide();
+                                loadingAnimation.show();
+                            })
+                            .start();
+                }).start();
+
+    }
+
 }
