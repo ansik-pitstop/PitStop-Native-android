@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.florent37.viewanimator.AnimationListener;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -68,13 +67,6 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                 .build();
         presenter = new ReportProgressPresenter(callback,component);
 
-        bigButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.setViewReport();
-            }
-        });
-
         return view;
     }
 
@@ -95,15 +87,12 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
         ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
-                .onStop(new AnimationListener.Stop() {
-                    @Override
-                    public void onStop() {
-                        stepText.setText(step);
-                        ViewAnimator.animate(stepHolder)
-                                .fadeIn()
-                                .duration(500L)
-                                .start();
-                    }
+                .onStop(() -> {
+                    stepText.setText(step);
+                    ViewAnimator.animate(stepHolder)
+                            .fadeIn()
+                            .duration(500L)
+                            .start();
                 }).start();
     }
 }
