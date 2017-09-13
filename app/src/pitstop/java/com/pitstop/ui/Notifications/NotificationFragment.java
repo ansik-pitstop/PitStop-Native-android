@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.pitstop.R;
@@ -24,35 +23,45 @@ import com.pitstop.models.Notification;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by ishan on 2017-09-08.
  */
 
-public class NotificationFragment extends Fragment implements NotificationView, View.OnClickListener {
+public class NotificationFragment extends Fragment implements NotificationView{
 
+    private final String TAG = getClass().getSimpleName();
 
-    private NotificationsPresenter presenter;
-    private RecyclerView mNotificationRecyclerView;
-    private View offlineView;
-    private View unknowErrorView;
+    @BindView(R.id.unknown_error_view)
+    private View unknownErrorView;
+
+    @BindView(R.id.no_notification_view)
     private View noNotificationsView;
-    private ProgressBar mLoadingSpinner;
+
+    @BindView(R.id.offline_view)
+    private View offlineView;
+
+    @BindView(R.id.swiperefresh)
     private SwipeRefreshLayout swipeRefreshLayout;
-    private ArrayList <Notification> notificationList;
-    private UseCaseComponent useCaseComponent;
-    private MixpanelHelper mixpanelHelper;
-    private boolean hasBeenPoppulated = false;
+
+    @BindView(R.id.loading_spinner)
+    private ProgressBar loadingView;
+
+    @BindView(R.id.notifications_recyclerview)
+    private RecyclerView notificationRecyclerView;
+
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
-    private Button tryAgainButton;
-    TabSwitcher tabSwitcher;
+    private boolean hasBeenPopulated = false;
+    private NotificationsPresenter presenter;
+    private TabSwitcher tabSwitcher;
 
-
-
-   public static NotificationFragment newInstance(){
+    public static NotificationFragment newInstance(){
 
        NotificationFragment fragment = new NotificationFragment();
         return fragment;
@@ -63,48 +72,48 @@ public class NotificationFragment extends Fragment implements NotificationView, 
         presenter.onNotificationClicked(title);
     }
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_notifications, null);
-        mNotificationRecyclerView = (RecyclerView) view.findViewById(R.id.notifications_recyclerview);
-        mLoadingSpinner = (ProgressBar) view.findViewById(R.id.loading_spinner);
+
+        ButterKnife.bind(this,view);
+
+        notificationRecyclerView = (RecyclerView) view.findViewById(R.id.notifications_recyclerview);
+        loadingView = (ProgressBar) view.findViewById(R.id.loading_spinner);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-        mNotificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         offlineView = (View) view.findViewById(R.id.offline_view);
         tabSwitcher = (TabSwitcher) getActivity();
-        unknowErrorView =(View) view.findViewById(R.id.unknown_error_view);
+        unknownErrorView =(View) view.findViewById(R.id.unknown_error_view);
         noNotificationsView = (View) view.findViewById(R.id.no_notification_view);
         if (presenter == null) {
-            useCaseComponent = DaggerUseCaseComponent.builder()
+            UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getContext()))
                     .build();
 
-            mixpanelHelper = new MixpanelHelper(
+            MixpanelHelper mixpanelHelper = new MixpanelHelper(
                     (GlobalApplication)getActivity().getApplicationContext());
 
             presenter = new NotificationsPresenter(useCaseComponent, mixpanelHelper);
         }
-        presenter.subscribe(this);
-        presenter.onUpdateNeeded();
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.onRefresh();
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
-            }
-        });
         return view;
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        presenter.subscribe(this);
+        presenter.onUpdateNeeded();
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
     public void noNotifications() {
-        tryAgainButton = (Button) noNotificationsView.findViewById(R.id.try_again_btn);
-        tryAgainButton.setOnClickListener(this);
-        unknowErrorView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
-        mNotificationRecyclerView.setVisibility(View.GONE);
+        notificationRecyclerView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.VISIBLE);
     }
 
@@ -112,23 +121,23 @@ public class NotificationFragment extends Fragment implements NotificationView, 
     public void onDestroyView() {
         super.onDestroyView();
         presenter.unsubscribe();
-        hasBeenPoppulated = false;
+        hasBeenPopulated = false;
     }
 
     public void displayNotifications(List <Notification> notifList){
         if (presenter == null) return;
-        unknowErrorView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
-        mNotificationRecyclerView.setVisibility(View.VISIBLE);
-        mNotificationRecyclerView.setAdapter(new NotificationAdapter(this, notifList));
-        hasBeenPoppulated = true;
+        notificationRecyclerView.setVisibility(View.VISIBLE);
+        notificationRecyclerView.setAdapter(new NotificationAdapter(this, notifList));
+        hasBeenPopulated = true;
     }
 
     public void showLoading(){
         if (presenter == null){return;}
         if (swipeRefreshLayout.isRefreshing() == false){
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
         }
     }
     public void hideLoading(){
@@ -136,16 +145,27 @@ public class NotificationFragment extends Fragment implements NotificationView, 
         if (swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setRefreshing(false);
         }else{
-            mLoadingSpinner.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
             swipeRefreshLayout.setEnabled(true);
         }
     }
 
+    @Override
+    public void hideRefreshing() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return swipeRefreshLayout.isRefreshing();
+    }
+
     public boolean hasBeenPoppulated(){
-        return hasBeenPoppulated;
+        return hasBeenPopulated;
     }
 
     public void displayOfflineErrorDialog(){
+        Log.d(TAG,"displayOfflineErrorDialog()");
         if (offlineAlertDialog == null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(R.string.offline_error_title);
@@ -162,17 +182,17 @@ public class NotificationFragment extends Fragment implements NotificationView, 
 
 
     public void displayOfflineErrorView(){
-        tryAgainButton = (Button) offlineView.findViewById(R.id.offline_try_again) ;
-        tryAgainButton.setOnClickListener(this);
-        unknowErrorView.setVisibility(View.GONE);
+        Log.d(TAG,"displayOfflineErrorView()");
+        unknownErrorView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
-        mNotificationRecyclerView.setVisibility(View.GONE);
+        notificationRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
     }
 
 
 
     public void displayUnknownErrorDialog(){
+        Log.d(TAG,"displayUnknownErrorDialog()");
         if (unknownErrorDialog == null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(R.string.unknown_error_title);
@@ -187,34 +207,34 @@ public class NotificationFragment extends Fragment implements NotificationView, 
         unknownErrorDialog.show();
     }
     public void displayUnknownErrorView(){
-        tryAgainButton = (Button)unknowErrorView.findViewById(R.id.unknown_error_try_again);
-        tryAgainButton.setOnClickListener(this);
+        Log.d(TAG,"displayUnknownErrorView()");
         noNotificationsView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
-        mNotificationRecyclerView.setVisibility(View.GONE);
-        unknowErrorView.setVisibility(View.VISIBLE);
+        notificationRecyclerView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void openCurrentServices() {
+        Log.d(TAG,"openCurrentServices()");
         tabSwitcher.openCurrentServices();
     }
 
     @Override
     public void openAppointments() {
+        Log.d(TAG,"openAppointments()");
         tabSwitcher.openAppointments();
     }
 
     @Override
     public void openScanTab() {
+        Log.d(TAG,"openScanTab()");
         tabSwitcher.openScanTab();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == tryAgainButton){
-            Log.d("onclick", "tryagainrefresh");
-            presenter.onRefresh();
-        }
+    @OnClick(R.id.try_again_btn)
+    public void onTryAgainClicked() {
+        Log.d(TAG, "onTryAgainClicked()");
+        presenter.onRefresh();
     }
 }

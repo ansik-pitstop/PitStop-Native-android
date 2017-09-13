@@ -1,6 +1,7 @@
 package com.pitstop.ui.Notifications;
 
 import com.pitstop.models.Notification;
+import com.pitstop.ui.LoadingTabView;
 
 import java.util.List;
 
@@ -8,11 +9,9 @@ import java.util.List;
  * Created by ishan on 2017-09-08.
  */
 
-public interface NotificationView {
+public interface NotificationView  extends LoadingTabView{
     void displayNotifications(List<Notification> list);
     void noNotifications();
-    void showLoading();
-    void hideLoading();
     void displayOfflineErrorDialog();
     void displayOfflineErrorView();
     void displayUnknownErrorDialog();

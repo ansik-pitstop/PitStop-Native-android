@@ -22,6 +22,8 @@ public class NotificationsPresenter {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
 
+    private boolean updating = false;
+
     public NotificationsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
@@ -39,18 +41,26 @@ public class NotificationsPresenter {
 
     public void onRefresh(){
         Log.d(TAG, "onRefresh()");
-        onUpdateNeeded();
+        if (updating && notificationView.isRefreshing() && notificationView != null){
+            notificationView.hideRefreshing();
+        }else{
+            onUpdateNeeded();
+        }
 
     }
 
     public void onUpdateNeeded(){
         Log.d(TAG, "onUpdateNeeded");
-        if (notificationView == null) return;
+        if (notificationView == null || updating) return;
+        updating = true;
         notificationView.showLoading();
+
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
+                updating = false;
                 if (notificationView == null) return;
+
                 notificationView.hideLoading();
                 if (list.size() == 0)
                     notificationView.noNotifications();
@@ -61,7 +71,9 @@ public class NotificationsPresenter {
             }
             @Override
             public void onError(RequestError error) {
+                updating = false;
                 if (notificationView == null) return;
+
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     if (notificationView.hasBeenPoppulated()){
                         notificationView.displayOfflineErrorDialog();
