@@ -382,6 +382,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
+            dataListener.scanFinished();
             foundDevices.clear();
             return;
 
@@ -445,12 +446,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                dataListener.scanFinished();
-                            }
-                        },2000);
+                        mHandler.postDelayed(() -> dataListener.scanFinished(),3000);
                     }
                 }
 

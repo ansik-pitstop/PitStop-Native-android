@@ -329,10 +329,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 allPidRequested = false;
                 rtcTimeRequested = false;
                 dtcRequested = false;
-                if (!deviceConnState.equals(State.VERIFYING)
-                        && !deviceConnState.equals(State.CONNECTED_VERIFIED)){
-                    deviceConnState = State.CONNECTED_UNVERIFIED;
-                }
+                deviceConnState = State.CONNECTED_UNVERIFIED;
 
                 requestVin();                //Get VIN to validate car
                 notifyVerifyingDevice();     //Verification in progress
