@@ -150,15 +150,13 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
     public int getImageResource(String title) {
         if (notificationView == null) return 0;
-        if (title.toLowerCase().contains("new vehicle issues")) {
-            return R.drawable.notification_default_3x;
-        }
-        else if (title.toLowerCase().contains("service appointment reminder"))
+        if (title.toLowerCase().contains("service appointment reminder"))
             return R.drawable.request_service_dashboard_3x;
         else if (title.toLowerCase().contains("vehicle health update")){
             return R.drawable.scan_notification_3x;
         }
-        return 0;
+        else return R.drawable.notification_default_3x;
+
 
     }
 }
