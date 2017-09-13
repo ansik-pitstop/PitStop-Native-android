@@ -133,7 +133,6 @@ public class TabFragmentManager {
     }
 
     private void setupTabTappable(){
-
         mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
             @Override

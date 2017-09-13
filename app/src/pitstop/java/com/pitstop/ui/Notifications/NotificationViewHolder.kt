@@ -26,7 +26,6 @@ class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         titleTV!!.text = (notification.title)
         descriptionTV.text =(notification.content)
         dateTV.text = (notification.dateCreated)
-
     }
 
 
