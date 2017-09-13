@@ -162,6 +162,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (communicator != null) {
             communicator.close();
+            communicator = null;
+            connectedDevice = null;
         }
         try {
             mContext.unregisterReceiver(receiver);
@@ -222,7 +224,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
             communicator.close();
-            dataListener.scanFinished();
+            communicator = null;
+            connectedDevice = null;
         }
     }
 
