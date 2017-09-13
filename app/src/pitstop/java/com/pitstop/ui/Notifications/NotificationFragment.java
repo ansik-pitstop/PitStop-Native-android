@@ -38,22 +38,22 @@ public class NotificationFragment extends Fragment implements NotificationView{
     private final String TAG = getClass().getSimpleName();
 
     @BindView(R.id.unknown_error_view)
-    private View unknownErrorView;
+    protected View unknownErrorView;
 
     @BindView(R.id.no_notification_view)
-    private View noNotificationsView;
+    protected View noNotificationsView;
 
     @BindView(R.id.offline_view)
-    private View offlineView;
+    protected View offlineView;
 
     @BindView(R.id.swiperefresh)
-    private SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
 
     @BindView(R.id.loading_spinner)
-    private ProgressBar loadingView;
+    protected ProgressBar loadingView;
 
     @BindView(R.id.notifications_recyclerview)
-    private RecyclerView notificationRecyclerView;
+    protected RecyclerView notificationRecyclerView;
 
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
