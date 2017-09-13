@@ -75,15 +75,15 @@ public class NotificationsPresenter {
                 if (notificationView == null) return;
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (notificationView.hasBeenPoppulated()){
+                    if (notificationView.hasBeenPopulated()){
                         notificationView.displayOfflineErrorDialog();
                     }
                     else {
-                        notificationView.displayOfflineErrorView();
+                        notificationView.displayOfflineView();
                     }
                 }
                 else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
-                    if (notificationView.hasBeenPoppulated()){
+                    if (notificationView.hasBeenPopulated()){
                         notificationView.displayUnknownErrorDialog();
                     }
                     else {
