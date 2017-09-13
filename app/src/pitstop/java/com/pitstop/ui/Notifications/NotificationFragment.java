@@ -68,7 +68,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     }
 
     public void onNotificationClicked(String title){
-        Log.d("NotificationFragment", title);
+        Log.d(TAG, "onNotificationClicked() title: "+title);
         presenter.onNotificationClicked(title);
     }
 
@@ -76,17 +76,10 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_notifications, null);
-
         ButterKnife.bind(this,view);
 
-        notificationRecyclerView = (RecyclerView) view.findViewById(R.id.notifications_recyclerview);
-        loadingView = (ProgressBar) view.findViewById(R.id.loading_spinner);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+        tabSwitcher = (TabSwitcher)getActivity();
         notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        offlineView = (View) view.findViewById(R.id.offline_view);
-        tabSwitcher = (TabSwitcher) getActivity();
-        unknownErrorView =(View) view.findViewById(R.id.unknown_error_view);
-        noNotificationsView = (View) view.findViewById(R.id.no_notification_view);
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getContext()))
@@ -125,7 +118,6 @@ public class NotificationFragment extends Fragment implements NotificationView{
     }
 
     public void displayNotifications(List <Notification> notifList){
-        if (presenter == null) return;
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
@@ -135,13 +127,11 @@ public class NotificationFragment extends Fragment implements NotificationView{
     }
 
     public void showLoading(){
-        if (presenter == null){return;}
-        if (swipeRefreshLayout.isRefreshing() == false){
+        if (!swipeRefreshLayout.isRefreshing()){
             loadingView.setVisibility(View.VISIBLE);
         }
     }
     public void hideLoading(){
-        if (presenter == null){return;}
         if (swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setRefreshing(false);
         }else{
