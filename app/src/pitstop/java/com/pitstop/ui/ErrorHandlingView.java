@@ -10,6 +10,4 @@ public interface ErrorHandlingView {
     void displayUnknownErrorView();
     void displayOfflineView();
     void displayOnlineView();
-    void displayNoCarView();
-    void startAddCarActivity();
 }
