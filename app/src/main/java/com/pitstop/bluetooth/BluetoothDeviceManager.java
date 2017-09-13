@@ -225,7 +225,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             dataListener.scanFinished();
         }
     }
-
+17:57:41.942
     /**
      * @param device
      */

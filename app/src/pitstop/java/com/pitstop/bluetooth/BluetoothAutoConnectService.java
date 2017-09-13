@@ -130,9 +130,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             if (deviceConnState.equals(State.CONNECTED_UNVERIFIED)){
                 if (deviceManager.moreDevicesLeft()){
                     deviceConnState = State.SEARCHING;
+                    notifySearchingForDevice();
                 }
                 else{
                     deviceConnState = State.DISCONNECTED;
+                    notifyDeviceDisconnected();
                 }
                 deviceManager.onConnectedDeviceInvalid();
             }
