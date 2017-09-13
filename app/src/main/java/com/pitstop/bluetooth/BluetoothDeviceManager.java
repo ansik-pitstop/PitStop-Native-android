@@ -241,6 +241,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (communicator != null && connectedDevice != null){
             communicator.close();
+            communicator = null;
+            connectedDevice = null;
         }
 
         switch (deviceInterface.commType()) {
