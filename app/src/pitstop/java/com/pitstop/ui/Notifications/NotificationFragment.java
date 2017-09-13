@@ -12,9 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+
 import com.pitstop.R;
 import com.pitstop.adapters.NotificationAdapter;
 import com.pitstop.application.GlobalApplication;

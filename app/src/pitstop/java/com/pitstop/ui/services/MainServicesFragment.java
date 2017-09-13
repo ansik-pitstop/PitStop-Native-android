@@ -177,4 +177,8 @@ public class MainServicesFragment extends Fragment{
         }
     }
 
+    public void setCurrent(){
+        mServicesPager.setCurrentItem(1);
+    }
+
 }
