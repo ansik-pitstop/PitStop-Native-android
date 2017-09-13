@@ -1,10 +1,8 @@
 package com.pitstop.ui.Notifications
 
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.View
 import android.widget.TextView
-
 import com.pitstop.R
 import com.pitstop.models.Notification
 
@@ -26,8 +24,8 @@ class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         titleTV!!.text = (notification.title)
         descriptionTV.text =(notification.content)
         dateTV.text = (notification.dateCreated)
-
     }
+
 
 
 }

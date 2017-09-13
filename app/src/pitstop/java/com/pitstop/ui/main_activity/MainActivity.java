@@ -95,7 +95,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
  * Created by David on 6/8/2016.
  */
 public class MainActivity extends IBluetoothServiceActivity implements MainActivityCallback
-        , Device215BreakingObserver, BluetoothConnectionObserver{
+        , Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher{
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -1195,4 +1195,18 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     }
 
+    @Override
+    public void openCurrentServices() {
+        tabFragmentManager.openServices();
+    }
+
+    @Override
+    public void openAppointments() {
+        myAppointments();
+    }
+
+    @Override
+    public void openScanTab() {
+        tabFragmentManager.openScanTab();
+    }
 }

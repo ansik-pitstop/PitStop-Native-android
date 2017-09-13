@@ -35,11 +35,6 @@ import java.util.List;
 public class NotificationFragment extends Fragment implements NotificationView, View.OnClickListener {
 
 
-    // ints to classify types of errors
-    private static final int NO_NOTIFICATION = 0;
-    private static final int NETWORK_ERROR = 1;
-    private static final int NO_NETWORK = 2;
-
     private NotificationsPresenter presenter;
     private RecyclerView mNotificationRecyclerView;
     private View offlineView;
