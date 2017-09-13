@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -32,8 +33,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<
     @Override
     public NotificationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_notification, parent ,false);
-        Log.d("Notification Adapter", "Adapting");
-        NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view);
+        NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view, notificationView);
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> notificationView
                 .onNotificationClicked(notificationList.get(position).getTitle()));
@@ -63,18 +63,25 @@ public class NotificationAdapter extends RecyclerView.Adapter<
         private TextView titleTV;
         private TextView descriptionTV;
         private TextView dateTV;
+        private ImageView imageView;
+        private NotificationView notificationView;
 
-        public NotificationViewHolder(View itemView){
+
+
+        public NotificationViewHolder(View itemView, NotificationView notificationView){
             super(itemView);
             titleTV = (TextView)itemView.findViewById(R.id.notificationTitle);
             descriptionTV = (TextView)itemView.findViewById(R.id.notificationDescription);
             dateTV = (TextView)itemView.findViewById(R.id.dateTV);
-        }
+            this.notificationView = notificationView;
+            imageView = (ImageView) itemView.findViewById(R.id.notification_image);
 
+        }
         public void bind(Notification notification) {
             titleTV.setText(notification.getTitle());
             descriptionTV.setText(notification.getContent());
             dateTV.setText(notification.getDateCreated());
+            imageView.setImageResource(notificationView.changeimage(notification.getTitle()));
         }
     }
 }

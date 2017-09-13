@@ -18,4 +18,5 @@ public interface NotificationView  extends LoadingTabView, ErrorHandlingView{
     void openAppointments();
     void openScanTab();
     boolean hasBeenPopulated();
+    int changeimage(String title);
 }

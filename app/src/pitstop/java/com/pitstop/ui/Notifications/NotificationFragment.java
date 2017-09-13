@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.pitstop.R;
@@ -37,6 +38,8 @@ import butterknife.OnClick;
 public class NotificationFragment extends Fragment implements NotificationView{
 
     private final String TAG = getClass().getSimpleName();
+
+
 
     @BindView(R.id.unknown_error_view)
     protected View unknownErrorView;
@@ -170,6 +173,14 @@ public class NotificationFragment extends Fragment implements NotificationView{
     public boolean hasBeenPopulated(){
         Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
+    }
+
+    @Override
+    public int changeimage(String title) {
+        if (presenter == null) return 0;
+        return presenter.getImageResource(title);
+
+
     }
 
     @Override
