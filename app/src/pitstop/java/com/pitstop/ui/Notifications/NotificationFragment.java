@@ -23,6 +23,7 @@ import com.pitstop.models.Notification;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -59,7 +60,9 @@ public class NotificationFragment extends Fragment implements NotificationView{
     private AlertDialog unknownErrorDialog;
     private NotificationsPresenter presenter;
     private TabSwitcher tabSwitcher;
+    private NotificationAdapter notificationAdapter;
     private boolean hasBeenPopulated = false;
+    private List<Notification> notificationList = new ArrayList<>();
 
     public static NotificationFragment newInstance(){
 
@@ -80,6 +83,8 @@ public class NotificationFragment extends Fragment implements NotificationView{
         ButterKnife.bind(this,view);
 
         tabSwitcher = (TabSwitcher)getActivity();
+        notificationAdapter = new NotificationAdapter(this, notificationList);
+        notificationRecyclerView.setAdapter(notificationAdapter);
         notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
@@ -124,11 +129,9 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public void displayNotifications(List <Notification> notifList){
         Log.d(TAG,"displayNotifications() notifList: "+notifList);
-        unknownErrorView.setVisibility(View.GONE);
-        offlineView.setVisibility(View.GONE);
-        noNotificationsView.setVisibility(View.GONE);
-        notificationRecyclerView.setVisibility(View.VISIBLE);
-        notificationRecyclerView.setAdapter(new NotificationAdapter(this, notifList));
+        notificationList.clear();
+        notificationList.addAll(notifList);
+        notificationAdapter.notifyDataSetChanged();
         hasBeenPopulated = true;
     }
 
@@ -187,12 +190,21 @@ public class NotificationFragment extends Fragment implements NotificationView{
     }
 
     @Override
-    public void displayOfflineErrorView(){
-        Log.d(TAG,"displayOfflineErrorView()");
+    public void displayOfflineView(){
+        Log.d(TAG,"displayOfflineView()");
         unknownErrorView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         notificationRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void displayOnlineView(){
+        Log.d(TAG,"displayOnlineView()");
+        unknownErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        noNotificationsView.setVisibility(View.GONE);
+        notificationRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
