@@ -5,11 +5,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.Notification;
 import com.pitstop.ui.Notifications.NotificationView;
-import com.pitstop.ui.Notifications.NotificationViewHolder;
 
 import java.util.List;
 
@@ -17,7 +17,8 @@ import java.util.List;
  * Created by ishan on 2017-09-12.
  */
 
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationViewHolder> {
+public class NotificationAdapter extends RecyclerView.Adapter<
+        NotificationAdapter.NotificationViewHolder> {
 
     NotificationView notificationView;
     List<Notification> notificationList;
@@ -34,13 +35,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationViewHo
         Log.d("Notification Adapter", "Adapting");
         NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view);
         int position = getItemViewType(viewType);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                notificationView.onNotificationClicked(notificationList.get(position).getTitle());
-
-            }
-        });
+        view.setOnClickListener(v -> notificationView
+                .onNotificationClicked(notificationList.get(position).getTitle()));
 
         return notificationViewHolder;
 
@@ -60,5 +56,25 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationViewHo
     @Override
     public int getItemViewType(int position){
         return position;
+    }
+
+
+    class NotificationViewHolder extends RecyclerView.ViewHolder{
+        private TextView titleTV;
+        private TextView descriptionTV;
+        private TextView dateTV;
+
+        public NotificationViewHolder(View itemView){
+            super(itemView);
+            titleTV = (TextView)itemView.findViewById(R.id.notificationTitle);
+            descriptionTV = (TextView)itemView.findViewById(R.id.notificationDescription);
+            dateTV = (TextView)itemView.findViewById(R.id.dateTV);
+        }
+
+        public void bind(Notification notification) {
+            titleTV.setText(notification.getTitle());
+            descriptionTV.setText(notification.getContent());
+            dateTV.setText(notification.getDateCreated());
+        }
     }
 }
