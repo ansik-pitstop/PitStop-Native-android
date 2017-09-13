@@ -37,9 +37,16 @@ public class StartReportPresenter {
 
     void startReportButtonClicked(boolean emissions){
         if (view == null || view.getBluetoothConnectionObservable() == null) return;
+
         if (!view.getBluetoothConnectionObservable().getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-            view.getBluetoothConnectionObservable().requestDeviceSearch(true,false);
+
+            if (!view.getBluetoothConnectionObservable().getDeviceState()
+                    .equals(BluetoothConnectionObservable.State.SEARCHING)){
+
+                view.getBluetoothConnectionObservable().requestDeviceSearch(true,false);
+            }
+
             view.displayNoBluetoothConnection();
         }
         else if (emissions){

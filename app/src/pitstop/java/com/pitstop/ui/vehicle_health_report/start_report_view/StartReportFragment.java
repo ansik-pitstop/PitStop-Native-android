@@ -106,6 +106,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .setPositiveButton("OK",null)
                     .create();
         }
+        noBluetoothConnectionDialog.show();
     }
 
     @Override
