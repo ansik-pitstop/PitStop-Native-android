@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.scan_car.ScanCarFragment;
