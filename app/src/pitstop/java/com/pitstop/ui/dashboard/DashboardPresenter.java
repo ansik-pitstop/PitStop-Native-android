@@ -25,7 +25,6 @@ import org.greenrobot.eventbus.EventBus;
 public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     private final String TAG = getClass().getSimpleName();
-
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
 
     private UseCaseComponent useCaseComponent;
