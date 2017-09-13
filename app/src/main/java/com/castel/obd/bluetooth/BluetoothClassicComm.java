@@ -59,6 +59,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     @Override
     public void disconnect(BluetoothDevice device) {
         mBluetoothChat.closeConnect();
+        deviceManager.bluetoothStateChanged(DISCONNECTED);
         btConnectionState = DISCONNECTED;
     }
 
@@ -66,6 +67,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     public void close() {
         Log.i(TAG, "Closing connection - BluetoothClassicComm");
         btConnectionState = DISCONNECTED;
+        deviceManager.bluetoothStateChanged(DISCONNECTED);
         mBluetoothChat.closeConnect();
         mHandler.removeCallbacks(runnable);
     }

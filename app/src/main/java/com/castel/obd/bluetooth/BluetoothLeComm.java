@@ -98,6 +98,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
      */
     @Override
     public void close() {
+        btConnectionState = DISCONNECTED;
+        deviceManager.bluetoothStateChanged(DISCONNECTED);
         if (mGatt == null) {
             return;
         }
@@ -107,11 +109,12 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     @Override
     public void disconnect(final BluetoothDevice device){
+        deviceManager.bluetoothStateChanged(DISCONNECTED);
+        btConnectionState = DISCONNECTED;
         if (mGatt == null) return;
 
         mCommandQueue.clear();
         mGatt.disconnect();
-        btConnectionState = DISCONNECTED;
     }
 
     @Override
