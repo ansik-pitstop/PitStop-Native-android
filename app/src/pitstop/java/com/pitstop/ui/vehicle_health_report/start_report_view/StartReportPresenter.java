@@ -36,11 +36,13 @@ public class StartReportPresenter {
     }
 
     void onBluetoothSearchRequested(){
+        Log.d(TAG,"onBluetoothSearchRequested()");
         if (view == null) return;
         view.getBluetoothConnectionObservable().requestDeviceSearch(true,false);
     }
 
     void startReportButtonClicked(boolean emissions){
+        Log.d(TAG,"startReportButtonClicked() emissions ? "+emissions);
         if (view == null || view.getBluetoothConnectionObservable() == null) return;
 
         //No bluetooth connection

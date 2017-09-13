@@ -84,12 +84,14 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public void startEmissionsProgressActivity(){
+        Log.d(TAG,"startEmissionsProgressActivity()");
         Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
         startActivity(intent);
     }
 
     @Override
     public void startVehicleHealthReportProgressActivity(){
+        Log.d(TAG,"startVehicleHealthReportProgressActivity()");
         Intent intent = new Intent(getActivity(), ReportActivity.class);
         startActivity(intent);
     }
@@ -130,6 +132,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
+        Log.d(TAG,"getBluetoothConnectionObservable()");
         return ((MainActivity)getActivity()).getBluetoothConnectService();
     }
 
