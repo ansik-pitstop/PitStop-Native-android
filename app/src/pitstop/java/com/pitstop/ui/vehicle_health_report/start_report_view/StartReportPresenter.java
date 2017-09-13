@@ -35,19 +35,26 @@ public class StartReportPresenter {
         }
     }
 
+    void onBluetoothSearchRequested(){
+        if (view == null) return;
+        view.getBluetoothConnectionObservable().requestDeviceSearch(true,false);
+    }
+
     void startReportButtonClicked(boolean emissions){
         if (view == null || view.getBluetoothConnectionObservable() == null) return;
 
+        //No bluetooth connection
         if (!view.getBluetoothConnectionObservable().getDeviceState()
                 .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
 
+            //Ask for search
             if (!view.getBluetoothConnectionObservable().getDeviceState()
                     .equals(BluetoothConnectionObservable.State.SEARCHING)){
-
-                view.getBluetoothConnectionObservable().requestDeviceSearch(true,false);
+                view.promptBluetoothSearch();
+            }else{
+                view.displaySearchInProgress();
             }
 
-            view.displayNoBluetoothConnection();
         }
         else if (emissions){
             view.startEmissionsProgressActivity();

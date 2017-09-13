@@ -61,7 +61,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private StartReportPresenter presenter;
 
     private Context context;
-    private AlertDialog noBluetoothConnectionDialog;
+    private AlertDialog promptBluetoothSearchDialog;
+    private AlertDialog promptSearchInProgressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,19 +95,37 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void displayNoBluetoothConnection() {
+    public void promptBluetoothSearch() {
         Log.d(TAG,"displayNoBluetoothConnection()");
-        if (noBluetoothConnectionDialog == null) {
-            noBluetoothConnectionDialog = new AnimatedDialogBuilder(getActivity())
+        if (promptBluetoothSearchDialog == null) {
+            promptBluetoothSearchDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("No Device Connection")
                     .setMessage("No connection with bluetooth device found."
-                        + " A search has been started, please try again once connected.")
+                        + " Would you like to start a search?")
+                    .setPositiveButton("Yes", (dialog, which)
+                            -> presenter.onBluetoothSearchRequested())
+                    .setNegativeButton("No", null)
+                    .setCancelable(false)
+                    .create();
+        }
+        promptBluetoothSearchDialog.show();
+    }
+
+    @Override
+    public void displaySearchInProgress() {
+        Log.d(TAG,"displaySearchInProgress()");
+        if (promptSearchInProgressDialog == null) {
+            promptSearchInProgressDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Bluetooth Search In Progress")
+                    .setMessage("Application is searching for bluetooth device. "
+                        + "Please wait and try again.")
                     .setCancelable(false)
                     .setPositiveButton("OK",null)
                     .create();
         }
-        noBluetoothConnectionDialog.show();
+        promptSearchInProgressDialog.show();
     }
 
     @Override
