@@ -221,6 +221,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
+            communicator.close();
             dataListener.scanFinished();
         }
     }
@@ -239,7 +240,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // scanLeDevice(false);// will stop after first device detection
 
         if (communicator != null && connectedDevice != null){
-            communicator.disconnect(connectedDevice);
+            communicator.close();
         }
 
         switch (deviceInterface.commType()) {
@@ -382,7 +383,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
-            dataListener.scanFinished();
             foundDevices.clear();
             return;
 
