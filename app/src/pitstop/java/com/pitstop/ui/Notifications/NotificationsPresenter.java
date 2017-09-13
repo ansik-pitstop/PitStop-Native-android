@@ -2,7 +2,6 @@ package com.pitstop.ui.Notifications;
 
 import android.util.Log;
 
-import com.pitstop.BuildConfig;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.models.Notification;
@@ -26,43 +25,43 @@ public class NotificationsPresenter {
     public NotificationsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
-
     }
 
     public void subscribe(NotificationView view) {
         this.notificationView = view;
-        Log.d(TAG, "subscribed");
+        Log.d(TAG, "subscribe()");
     }
 
     public void unsubscribe(){
-        Log.d(TAG, "unsubscribed");
+        Log.d(TAG, "unsubscribe()");
         this.notificationView = null;
     }
 
     public void onRefresh(){
-        Log.d(TAG, "refreshed");
+        Log.d(TAG, "onRefresh()");
         onUpdateNeeded();
 
     }
 
     public void onUpdateNeeded(){
-       notificationView.showLoading();
         Log.d(TAG, "onUpdateNeeded");
+        if (notificationView == null) return;
+        notificationView.showLoading();
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
+                if (notificationView == null) return;
                 notificationView.hideLoading();
                 if (list.size() == 0)
                     notificationView.noNotifications();
                 else {
                     notificationView.displayNotifications(list);
-                    Log.d("NotificationsRetrieved", Integer.toString(list.size()));
                 }
 
             }
             @Override
             public void onError(RequestError error) {
-
+                if (notificationView == null) return;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     if (notificationView.hasBeenPoppulated()){
                         notificationView.displayOfflineErrorDialog();
@@ -80,38 +79,22 @@ public class NotificationsPresenter {
                     }
                 }
                 notificationView.hideLoading();
-                Log.d("NotificationsError", "Error");
             }
         });
     }
 
     public void onNotificationClicked(String title) {
+        if (notificationView == null) return;
+        mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, title);
 
-        if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE) {
-
-            if (title.equalsIgnoreCase("New Vehicle Issues!")) {
-                notificationView.openCurrentServices();
-            }
-            else if (title.equalsIgnoreCase("Service Appointment Reminder"))
-                notificationView.openAppointments();
-            else if (title.equalsIgnoreCase("Vehicle Health Update")){
-                notificationView.openScanTab();
-            }
+        if (title.toLowerCase().contains("new vehicle issues")) {
+            notificationView.openCurrentServices();
         }
-        else {
-            if (title.equalsIgnoreCase("[staging] New Vehicle Issues!")) {
-                notificationView.openCurrentServices();
-            }
-            else if (title.equalsIgnoreCase("[staging] Service Appointment Reminder"))
-                notificationView.openAppointments();
-            else if (title.equalsIgnoreCase("[staging] Vehicle Health Update")
-                    || title.equalsIgnoreCase("[staging] Car Health Update")){
-                notificationView.openScanTab();
-            }
+        else if (title.toLowerCase().contains("service appointment reminder"))
+            notificationView.openAppointments();
+        else if (title.equalsIgnoreCase("vehicle health update")){
+            notificationView.openScanTab();
         }
-
-
     }
-
 
 }

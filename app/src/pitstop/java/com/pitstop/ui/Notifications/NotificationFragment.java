@@ -58,10 +58,6 @@ public class NotificationFragment extends Fragment implements NotificationView, 
         return fragment;
     }
 
-
-
-
-
     public void onNotificationClicked(String title){
         Log.d("NotificationFragment", title);
         presenter.onNotificationClicked(title);
