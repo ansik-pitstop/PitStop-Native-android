@@ -43,7 +43,6 @@ public class NotificationsPresenter {
         Log.d(TAG, "refreshed");
         onUpdateNeeded();
 
-
     }
 
     public void onUpdateNeeded(){
@@ -98,7 +97,6 @@ public class NotificationsPresenter {
             else if (title.equalsIgnoreCase("Vehicle Health Update")){
                 notificationView.openScanTab();
             }
-
         }
         else {
             if (title.equalsIgnoreCase("[staging] New Vehicle Issues!")) {
@@ -106,7 +104,8 @@ public class NotificationsPresenter {
             }
             else if (title.equalsIgnoreCase("[staging] Service Appointment Reminder"))
                 notificationView.openAppointments();
-            else if (title.equalsIgnoreCase("[staging] Vehicle Health Update")){
+            else if (title.equalsIgnoreCase("[staging] Vehicle Health Update")
+                    || title.equalsIgnoreCase("[staging] Car Health Update")){
                 notificationView.openScanTab();
             }
         }
