@@ -139,7 +139,7 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(message)
-                .setTitle("Field Missing");
+                .setTitle(getString(R.string.shop_fragment_field_missing_title));
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -151,7 +151,7 @@ public class ShopFormFragment extends Fragment implements ShopFormView {
 
     @Override
     public void showError() {
-        Toast.makeText(context,"Unable to add shop please try again",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,getString(R.string.unable_to_add_shop_toast_message),Toast.LENGTH_SHORT).show();
     }
 
     @Override

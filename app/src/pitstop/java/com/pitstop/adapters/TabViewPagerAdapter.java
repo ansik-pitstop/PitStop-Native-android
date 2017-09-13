@@ -1,9 +1,11 @@
 package com.pitstop.adapters;
 
+import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.pitstop.R;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
@@ -55,13 +57,13 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return "Dashboard";
+                return Resources.getSystem().getString(R.string.dashboard_tab_name);
             case TabFragmentManager.TAB_NOTIF:
-                return "Notifications";
+                return Resources.getSystem().getString(R.string.notification_tab_name);
             case TabFragmentManager.TAB_SCAN:
-                return "Scan";
+                return Resources.getSystem().getString(R.string.scan_tab_name);
             case TabFragmentManager.TAB_SERVICES:
-                return "Services";
+                return Resources.getSystem().getString(R.string.services_tab_name);
         }
         return "";
     }

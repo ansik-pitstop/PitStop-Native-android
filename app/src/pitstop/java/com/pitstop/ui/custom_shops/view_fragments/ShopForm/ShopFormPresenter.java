@@ -1,6 +1,9 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -71,11 +74,11 @@ public class ShopFormPresenter {
         String shopPostal = shopForm.getPostal();
 
         if(shopName.isEmpty()){
-            shopForm.showReminder("Please enter the shop name");
+            shopForm.showReminder(Resources.getSystem().getString(R.string.enter_shop_name_message));
             return;
         }
         if(shopPhone.isEmpty() && shopEmail.isEmpty()){
-            shopForm.showReminder("Please enter the shop phone or email");
+            shopForm.showReminder(Resources.getSystem().getString(R.string.enter_shop_email_or_phone_message));
             return;
         }
         Dealership dealership = new Dealership();
@@ -100,7 +103,7 @@ public class ShopFormPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(shopForm != null){
-                        shopForm.toast("There was an error updating your shops details");
+                        shopForm.toast(Resources.getSystem().getString(R.string.error_updating_shop_details_toast_massage));
                     }
                 }
             });
@@ -120,7 +123,7 @@ public class ShopFormPresenter {
                             @Override
                             public void onError(RequestError error) {
                                 if(shopForm != null){
-                                    shopForm.toast("There was an error adding your shop");
+                                    shopForm.toast(Resources.getSystem().getString(R.string.error_adding_shops_toast_massage));
                                 }
                             }
                         });
@@ -128,7 +131,7 @@ public class ShopFormPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(shopForm != null){
-                        shopForm.toast("There was an error adding your shop");
+                        shopForm.toast(Resources.getSystem().getString(R.string.error_adding_shops_toast_massage));
                     }
                 }
             });

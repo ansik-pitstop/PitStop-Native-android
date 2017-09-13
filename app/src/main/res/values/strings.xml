@@ -239,4 +239,59 @@
     <string name="please_connect_to_the_internet">Please connect to the internet</string>
     <string name="service_date_picker_title">Select when you completed this service.</string>
 
+    <!-- tab names -->
+    <string name="dashboard_tab_name">Dashboard</string>
+    <string name="notification_tab_name">Notifications</string>
+    <string name="scan_tab_name">Scan</string>
+    <string name="services_tab_name">Services</string>
+    
+    
+    <!-- device search fragment-->
+    <!-- on vin retrieval failed-->
+    <string name="vin_retrieval_failed_alert_title">Could not retrieve VIN</string>
+    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device, please input it manually</string>
+    <string name="device_search_fragment_alert_okbutton">OK</string>
+    <!-- on cannot find device -->
+    <string name="cannot_find_device_alert_title">Could not find OBD device</string>
+    <string name="cannot_find_device_alert_message">We were unable to find a Pitstop OBD device, please make sure that the device is plugged in and that the lights are flashing. Try again?</string>
+    <string name="cannot_find_cevice_alert_yesbtn">YES</string>
+    <string name="cannot_find_cevice_alert_nobtn">NO</string>
+    <!--invalid mileage-->
+    <string name="invalid_mileage_alert_title">Could not find OBD deviceInvalid Mileage</string>
+    <string name="invalid_mileage_alert_message">Please input a mileage between 0 and 3,000,000.</string>
+    <!-- add car error-->
+    <string name="add_car_error_alert_title">Add Car Error</string>
+    <!-- car already added error-->
+    <string name="car_already_added_alert_title">Car Already Added</string>
+    <string name="car_already_added_alert_message">This car has already been added and is in use. If this is your vehicle please remove it and try again.</string>
+    <string name="car_added_successfully_toast_message">Car Successfully Added</string>
+    <string name="connect_to_internet_toast_message">Please connect to the internet</string>
+    <string name="saving_car_message">Saving Car</string>
+    <string name="unexpected_car_adding_error_message">Unexpected error occurred adding car please restart the app and try again.</string>
+
+
+
+    <!-- vin entry fragment-->
+    <string name="no_back_camera_toast_message">This device does not have a back facing camera</string>
+
+
+    <!-- custom shops-->
+    <string name="error_loading_pitstop_shops_toast_message">There was an error loading the pitstop shops</string>
+    <string name="error_selecting_shop_toast_message">There was an error selectong this shop</string>
+    <string name="unable_to_add_shop_toast_message">Unable to add shop please try again</string>
+    <string name="shop_fragment_field_missing_title">Field Missing</string>
+    <string name="enter_shop_name_message">Pkease enter the shop name</string>
+    <string name="enter_shop_email_or_phone_message">Pkease enter the shop name</string>
+    <string name="error_updating_shop_details_toast_massage">There was an error updating your shop details</string>
+    <string name="error_adding_shops_toast_massage">There was an error adding your shop</string>
+
+
+
+
+    
+    
+    
+
+
+
 </resources>
