@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
@@ -57,6 +61,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private StartReportPresenter presenter;
 
     private Context context;
+    private AlertDialog noBluetoothConnectionDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,21 +71,46 @@ public class StartReportFragment extends Fragment implements StartReportView {
         ButterKnife.bind(this,view);
         emissionsMode = false;
         presenter = new StartReportPresenter();
-        startReportButton.setOnClickListener(view1 -> { //Todo: check for bluetooth connection here
-            if(emissionsMode){
-                Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
-                startActivity(intent);
-            }else{
-                Intent intent = new Intent(getActivity(), ReportActivity.class);
-                startActivity(intent);
-            }
-        });
+        startReportButton.setOnClickListener(view1 -> presenter
+                .startReportButtonClicked(emissionsMode));
         modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
     public static StartReportFragment newInstance() {
         StartReportFragment fragment = new StartReportFragment();
         return fragment;
+    }
+
+    @Override
+    public void startEmissionsProgressActivity(){
+        Intent intent = new Intent(getActivity(), EmissionsProgressActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void startVehicleHealthReportProgressActivity(){
+        Intent intent = new Intent(getActivity(), ReportActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void displayNoBluetoothConnection() {
+        Log.d(TAG,"displayNoBluetoothConnection()");
+        if (noBluetoothConnectionDialog == null) {
+            noBluetoothConnectionDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("No Device Connection")
+                    .setMessage("No connection with bluetooth device found."
+                        + " A search has been started, please try again once connected.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK",null)
+                    .create();
+        }
+    }
+
+    @Override
+    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
+        return ((MainActivity)getActivity()).getBluetoothConnectService();
     }
 
     @Override
