@@ -120,7 +120,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Bluetooth Search In Progress")
                     .setMessage("Bluetooth device search in progress"
-                            + ", please try again once complete.")
+                            + ", please try again when completed.")
                     .setCancelable(false)
                     .setPositiveButton("OK",null)
                     .create();
