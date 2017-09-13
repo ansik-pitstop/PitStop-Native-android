@@ -17,7 +17,7 @@ public interface NotificationView  extends LoadingTabView{
     void displayUnknownErrorDialog();
     void displayUnknownErrorView();
 
-    boolean hasBeenPoppulated();
+    boolean hasBeenPopulated();
     void onNotificationClicked(String title );
     void openCurrentServices();
     void openAppointments();

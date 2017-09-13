@@ -57,9 +57,9 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
-    private boolean hasBeenPopulated = false;
     private NotificationsPresenter presenter;
     private TabSwitcher tabSwitcher;
+    private boolean hasBeenPopulated = false;
 
     public static NotificationFragment newInstance(){
 
@@ -75,6 +75,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.activity_notifications, null);
         ButterKnife.bind(this,view);
 
@@ -97,6 +98,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
         presenter.subscribe(this);
         presenter.onUpdateNeeded();
         super.onViewCreated(view, savedInstanceState);
@@ -104,6 +106,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     @Override
     public void noNotifications() {
+        Log.d(TAG,"noNotifications()");
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         notificationRecyclerView.setVisibility(View.GONE);
@@ -112,12 +115,15 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
         hasBeenPopulated = false;
     }
 
+    @Override
     public void displayNotifications(List <Notification> notifList){
+        Log.d(TAG,"displayNotifications() notifList: "+notifList);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
@@ -126,12 +132,17 @@ public class NotificationFragment extends Fragment implements NotificationView{
         hasBeenPopulated = true;
     }
 
+    @Override
     public void showLoading(){
+        Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
             loadingView.setVisibility(View.VISIBLE);
         }
     }
+
+    @Override
     public void hideLoading(){
+        Log.d(TAG,"hideLoading()");
         if (swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setRefreshing(false);
         }else{
@@ -142,18 +153,23 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     @Override
     public void hideRefreshing() {
+        Log.d(TAG,"hideRefreshing()");
         swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
+        Log.d(TAG,"isRefreshing()");
         return swipeRefreshLayout.isRefreshing();
     }
 
-    public boolean hasBeenPoppulated(){
+    @Override
+    public boolean hasBeenPopulated(){
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
     }
 
+    @Override
     public void displayOfflineErrorDialog(){
         Log.d(TAG,"displayOfflineErrorDialog()");
         if (offlineAlertDialog == null){
@@ -170,7 +186,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         offlineAlertDialog.show();
     }
 
-
+    @Override
     public void displayOfflineErrorView(){
         Log.d(TAG,"displayOfflineErrorView()");
         unknownErrorView.setVisibility(View.GONE);
@@ -179,8 +195,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         offlineView.setVisibility(View.VISIBLE);
     }
 
-
-
+    @Override
     public void displayUnknownErrorDialog(){
         Log.d(TAG,"displayUnknownErrorDialog()");
         if (unknownErrorDialog == null){
@@ -196,6 +211,8 @@ public class NotificationFragment extends Fragment implements NotificationView{
         }
         unknownErrorDialog.show();
     }
+
+    @Override
     public void displayUnknownErrorView(){
         Log.d(TAG,"displayUnknownErrorView()");
         noNotificationsView.setVisibility(View.GONE);
