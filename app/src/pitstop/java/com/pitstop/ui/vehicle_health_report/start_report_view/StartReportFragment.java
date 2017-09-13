@@ -119,8 +119,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
             promptSearchInProgressDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Bluetooth Search In Progress")
-                    .setMessage("Application is searching for bluetooth device. "
-                        + "Please wait and try again.")
+                    .setMessage("Bluetooth device search in progress"
+                            + ", please try again once completed.")
                     .setCancelable(false)
                     .setPositiveButton("OK",null)
                     .create();
