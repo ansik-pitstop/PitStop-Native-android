@@ -105,8 +105,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .setTitle("No Device Connection")
                     .setMessage("No connection with bluetooth device found."
                         + " Would you like to start a search?")
-                    .setPositiveButton("Yes", (dialog, which)
-                            -> presenter.onBluetoothSearchRequested())
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Log.d(TAG,"promptBluetoothSearchDialog.positiveButtonClicked()");
+                        presenter.onBluetoothSearchRequested();
+                    })
                     .setNegativeButton("No", null)
                     .setCancelable(false)
                     .create();
@@ -132,8 +134,11 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        Log.d(TAG,"getBluetoothConnectionObservable()");
-        return ((MainActivity)getActivity()).getBluetoothConnectService();
+        BluetoothConnectionObservable bluetoothConnectionObservable
+                = ((MainActivity)getActivity()).getBluetoothConnectService();
+        Log.d(TAG,"getBluetoothConnectionObservable() null ? "
+                + (bluetoothConnectionObservable == null));
+        return bluetoothConnectionObservable;
     }
 
     @Override
