@@ -112,7 +112,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         if (mGatt == null) {
             return;
         }
-        mGatt.disconnect();
         mCommandQueue.clear();
         mGatt.close();
         mGatt = null;
@@ -131,6 +130,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     @Override
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
+        Log.d(TAG,"Connect to device()");
         mCommandQueue.clear();
         new Handler().postDelayed(() -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -183,7 +183,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.i(TAG, "onConnectionStateChange Status: " + status + " new State " + newState);
-
             switch (newState) {
 
                 case BluetoothProfile.STATE_CONNECTING:
