@@ -290,6 +290,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private boolean nonUrgentScanInProgress = false;
     private int discoveryNum = 0;
+    boolean discoveryWasStarted = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
@@ -313,12 +314,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
 
             //If discovery takes longer than 20 seconds, timeout and cancel it
+            discoveryWasStarted = true;
             discoveryNum++;
             useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, new DiscoveryTimeoutUseCase.Callback() {
                 @Override
                 public void onFinish(int timerDiscoveryNum) {
                     if (discoveryNum == timerDiscoveryNum
-                            && mBluetoothAdapter.isDiscovering()){
+                            && discoveryWasStarted){
                         Log.d(TAG,"discovery timeout!");
                         mBluetoothAdapter.cancelDiscovery();
                     }
