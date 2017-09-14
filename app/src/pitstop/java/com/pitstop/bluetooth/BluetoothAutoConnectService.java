@@ -123,9 +123,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     +", vinRequested? "+vinRequested);
             if (!vinRequested) return;
 
-            //For observer
-            notifyErrorGettingRtcTime();
-
             //For verification progress
             if (deviceConnState.equals(State.CONNECTED_UNVERIFIED)){
                 if (deviceManager.moreDevicesLeft()){
@@ -322,21 +319,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 break;
             case IBluetoothCommunicator.CONNECTED:
-                Log.d(TAG,"getBluetoothState() state: connected");
+                Log.d(TAG,"getBluetoothState() state: "+deviceConnState);
 
                 /*Check to make sure were not overriding the state once
                 ** its already verified and connected */
-                clearInvalidDeviceData();
-                terminalRtcTime = -1;
-                allPidRequested = false;
-                rtcTimeRequested = false;
-                dtcRequested = false;
-                deviceConnState = State.CONNECTED_UNVERIFIED;
-
-                requestVin();                //Get VIN to validate car
-                notifyVerifyingDevice();     //Verification in progress
-                requestDeviceTime();          //Get RTC and mileage once connected
-                deviceManager.requestData(); //Request data upon connecting
+                if (!deviceConnState.equals(State.CONNECTED_VERIFIED)
+                        || !deviceConnState.equals(State.CONNECTED_VERIFIED)){
+                    clearInvalidDeviceData();
+                    terminalRtcTime = -1;
+                    allPidRequested = false;
+                    rtcTimeRequested = false;
+                    dtcRequested = false;
+                    deviceConnState = State.CONNECTED_UNVERIFIED;
+                    requestVin();                //Get VIN to validate car
+                    notifyVerifyingDevice();     //Verification in progress
+                    requestDeviceTime();          //Get RTC and mileage once connected
+                    deviceManager.requestData(); //Request data upon connecting
+                }
 
                 break;
             case IBluetoothCommunicator.DISCONNECTED:
@@ -728,10 +727,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
-
-        deviceConnState = State.DISCONNECTED;
-        notifyDeviceDisconnected();
-
+        if (deviceConnState.equals(State.SEARCHING)){
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+        }
     }
 
     @Override

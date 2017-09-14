@@ -17,6 +17,7 @@ import com.castel.obd.bleDevice.Device215B;
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.application.GlobalApplication;
@@ -222,9 +223,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (!moreDevicesLeft()){
             communicator.close();
+            btConnectionState = IBluetoothCommunicator.DISCONNECTED;
+            dataListener.getBluetoothState(btConnectionState);
             connectedDevice = null;
         }
-        connectToNextDevice(); //Try to connect to next device retrieved during previous scan
+        else{
+            boolean deviceQualified = connectToNextDevice();
+            if (!deviceQualified) dataListener.scanFinished();
+        }
     }
 
     /**
@@ -240,7 +246,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // Le can be used for 212 but it doesn't work properly on all versions of Android
         // scanLeDevice(false);// will stop after first device detection
 
-        if (communicator != null && connectedDevice != null){
+        if (communicator != null){
             communicator.close();
             connectedDevice = null;
         }
@@ -385,7 +391,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return foundDevices.size() > 0;
     }
 
-    private void connectToNextDevice(){
+    //Returns whether a device qualified for connection
+    private boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
         short minRssiThreshold;
@@ -413,8 +420,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
             foundDevices.clear();
-            dataListener.scanFinished();
-            return;
+            return false;
 
         }
 
@@ -433,6 +439,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             connectTo215Device(strongestRssiDevice);
 
         }
+        return true;
     }
 
     private Map<BluetoothDevice, Short> foundDevices = new HashMap<>(); //Devices found by receiver
@@ -472,15 +479,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     rssiScan = false;
                     mixpanelHelper.trackFoundDevices(foundDevices);
                     Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                    connectToNextDevice();
-                    if (!moreDevicesLeft()){
-
+                    if (moreDevicesLeft()){
+                        connectToNextDevice();
+                    }else{
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        mHandler.postDelayed(() -> {
-                            if (btConnectionState != BluetoothCommunicator.CONNECTING)
-                                dataListener.scanFinished();
-                        },3000);
+                        mHandler.postDelayed(() -> dataListener.scanFinished(),3000);
                     }
                 }
 

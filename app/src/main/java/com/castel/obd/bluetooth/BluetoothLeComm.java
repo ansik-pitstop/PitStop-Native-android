@@ -83,14 +83,17 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     }
 
     public void setServiceUuid(UUID serviceUuid){
+        Log.d(TAG,"setServiceUuid()");
         this.serviceUuid = serviceUuid;
     }
 
     public void setWriteChar(UUID writeChar){
+        Log.d(TAG,"setWriteChar()");
         this.writeChar = writeChar;
     }
 
     public void setReadChar(UUID readChar){
+        Log.d(TAG,"setReadChar()");
         this.readChar = readChar;
     }
 
@@ -106,7 +109,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     @Override
     public void close() {
         btConnectionState = DISCONNECTED;
-        deviceManager.connectionStateChange(DISCONNECTED);
         if (mGatt == null) {
             return;
         }
