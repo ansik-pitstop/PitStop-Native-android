@@ -216,6 +216,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void closeDeviceConnection(){
+        Log.d(TAG,"closeDeviceConnection()");
         communicator.close();
         connectedDevice = null;
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;

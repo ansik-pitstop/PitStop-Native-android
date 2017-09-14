@@ -326,10 +326,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 /*Check to make sure were not overriding the state once
                 ** its already verified and connected */
                 if (!deviceConnState.equals(State.CONNECTED_UNVERIFIED)
-                        || !deviceConnState.equals(State.CONNECTED_VERIFIED)){
+                        && !deviceConnState.equals(State.CONNECTED_VERIFIED)
+                        && !deviceConnState.equals(State.VERIFYING)){
                     clearInvalidDeviceData();
+                    dtcTimeoutTimer.cancel();
+                    getVinTimeoutTimer.cancel();
+                    pidTimeoutTimer.cancel();
+                    rtcTimeoutTimer.cancel();
                     terminalRtcTime = -1;
                     allPidRequested = false;
+                    vinRequested = false;
                     rtcTimeRequested = false;
                     dtcRequested = false;
                     deviceConnState = State.CONNECTED_UNVERIFIED;
