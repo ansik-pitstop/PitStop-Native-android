@@ -317,7 +317,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, new DiscoveryTimeoutUseCase.Callback() {
                 @Override
                 public void onFinish(int timerDiscoveryNum) {
-                    if (discoveryNum == timerDiscoveryNum){
+                    if (discoveryNum == timerDiscoveryNum
+                            && mBluetoothAdapter.isDiscovering()){
                         Log.d(TAG,"discovery timeout!");
                         mBluetoothAdapter.cancelDiscovery();
                     }
