@@ -485,12 +485,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     };
 
     public void readData(final byte[] data) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                deviceInterface.parseData(data);
-            }
-        });
+        mHandler.post(() -> deviceInterface.parseData(data));
     }
 
     // functions
