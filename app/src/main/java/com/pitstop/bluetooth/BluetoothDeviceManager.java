@@ -220,13 +220,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void onConnectedDeviceInvalid(){
         LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        connectToNextDevice(); //Try to connect to next device retrieved during previous scan
         if (!moreDevicesLeft()){
             communicator.close();
             communicator = null;
             connectedDevice = null;
         }
+        connectToNextDevice(); //Try to connect to next device retrieved during previous scan
     }
 
     /**
@@ -392,6 +391,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
             foundDevices.clear();
+            dataListener.scanFinished();
             return;
 
         }
@@ -433,7 +433,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
                         && !foundDevices.containsKey(device)){
-                    Log.d(TAG,"foundDevices.put()");
+                    Log.d(TAG,"foundDevices.put() device name: "+device.getName());
                     foundDevices.put(device,rssi);
                 }
                 else{

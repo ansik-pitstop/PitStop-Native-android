@@ -121,18 +121,15 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         mCommandQueue.clear();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else {
-                    mGatt = device.connectGatt(mContext, true, gattCallback);
-                }
+        new Handler().postDelayed(() -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+            } else {
+                mGatt = device.connectGatt(mContext, true, gattCallback);
             }
-        }, 2000);
+        }, 1000);
     }
 
     @Override
