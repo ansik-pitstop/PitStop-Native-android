@@ -69,7 +69,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     private int btConnectionState = DISCONNECTED;
 
-    public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager, UUID serviceUuid, UUID writeChar, UUID readChar) {
+    public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
@@ -79,12 +79,19 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        this.serviceUuid = serviceUuid;
-        this.writeChar = writeChar;
-        this.readChar = readChar;
-
         this.deviceManager = deviceManager;
+    }
+
+    public void setServiceUuid(UUID serviceUuid){
+        this.serviceUuid = serviceUuid;
+    }
+
+    public void setWriteChar(UUID writeChar){
+        this.writeChar = writeChar;
+    }
+
+    public void setReadChar(UUID readChar){
+        this.readChar = readChar;
     }
 
     @Override
@@ -103,6 +110,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         if (mGatt == null) {
             return;
         }
+        mGatt.disconnect();
+        mCommandQueue.clear();
         mGatt.close();
         mGatt = null;
     }
@@ -134,7 +143,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     @Override
     public void writeData(byte[] bytes) {
-        if(!hasDiscoveredServices) {
+        if(!hasDiscoveredServices || serviceUuid == null || writeChar == null || readChar == null) {
             return;
         }
 
@@ -215,6 +224,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
@@ -237,6 +247,9 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
+
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
+
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();
 
@@ -258,6 +271,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
 
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();

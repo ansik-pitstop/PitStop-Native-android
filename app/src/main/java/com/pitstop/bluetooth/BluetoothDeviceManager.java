@@ -161,9 +161,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             dataListener.scanFinished();
         }
 
-        if (communicator != null) {
+        if (communicator != null ) {
             communicator.close();
-            communicator = null;
             connectedDevice = null;
         }
         try {
@@ -223,7 +222,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
         if (!moreDevicesLeft()){
             communicator.close();
-            communicator = null;
             connectedDevice = null;
         }
         connectToNextDevice(); //Try to connect to next device retrieved during previous scan
@@ -244,7 +242,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (communicator != null && connectedDevice != null){
             communicator.close();
-            communicator = null;
             connectedDevice = null;
         }
 
@@ -253,8 +250,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 dataListener.getBluetoothState(btConnectionState);
                 Log.i(TAG, "Connecting to LE device");
-                communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
-                        deviceInterface.getWriteChar(), deviceInterface.getReadChar());
+                if (communicator == null || !(communicator instanceof BluetoothLeComm)){
+                    communicator = new BluetoothLeComm(mContext, this);
+                }
+                else{
+                    ((BluetoothLeComm) communicator)
+                            .setReadChar(deviceInterface.getServiceUuid());
+                    ((BluetoothLeComm) communicator)
+                            .setServiceUuid(deviceInterface.getReadChar());
+                    ((BluetoothLeComm) communicator)
+                            .setWriteChar(deviceInterface.getWriteChar());
+                }
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
