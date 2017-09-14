@@ -729,12 +729,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
 
-        //Finish search if we're not currently connecting to a device, or more devices are left for verification
-        if (deviceConnState.equals(State.SEARCHING) && !deviceManager.moreDevicesLeft()
-                && !deviceConnState.equals(State.CONNECTING)) {
-            deviceConnState = State.DISCONNECTED;
-            notifyDeviceDisconnected();
-        }
+        deviceConnState = State.DISCONNECTED;
+        notifyDeviceDisconnected();
 
     }
 

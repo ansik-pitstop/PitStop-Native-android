@@ -473,7 +473,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        mHandler.postDelayed(() -> dataListener.scanFinished(),3000);
+                        mHandler.postDelayed(() -> {
+                            if (btConnectionState != BluetoothCommunicator.CONNECTING)
+                                dataListener.scanFinished();
+                        },3000);
                     }
                 }
 
