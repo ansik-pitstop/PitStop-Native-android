@@ -41,8 +41,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private ObdManager.IBluetoothDataListener dataListener;
-    private ObdManager mObdManager;
     private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
@@ -50,18 +48,12 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     //currently started and waiting on a response.
     Semaphore mCommandLock = new Semaphore(1,true);
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
-    private static final long SCAN_PERIOD = 12000;
     private BluetoothGatt mGatt;
-    private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
 
     private BluetoothDeviceManager deviceManager;
 
     private static String TAG = BluetoothLeComm.class.getSimpleName();
-
-    private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     private UUID serviceUuid;
     private UUID writeChar;
@@ -75,10 +67,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
-        mHandler = new Handler();
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
         this.deviceManager = deviceManager;
     }
 
@@ -112,9 +102,10 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         if (mGatt == null) {
             return;
         }
-        mCommandQueue.clear();
         mGatt.close();
-        mGatt = null;
+        hasDiscoveredServices = false;
+        mCommandQueue.clear();
+        mCommandLock.release();
     }
 
     @Override
@@ -186,7 +177,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     btConnectionState = CONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    needToScan = false;
                     deviceManager.connectionStateChange(btConnectionState);
                     gatt.discoverServices();
                     break;

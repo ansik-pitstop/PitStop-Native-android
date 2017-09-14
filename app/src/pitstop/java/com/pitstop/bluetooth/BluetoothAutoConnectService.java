@@ -112,7 +112,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private UseCaseComponent useCaseComponent;
 
     //For when VIN isn't returned from device(usually means ignition isn't ON
-    private final int VERIFICATION_TIMEOUT = 10;
+    private final int VERIFICATION_TIMEOUT = 15;
     private TimeoutTimer getVinTimeoutTimer = new TimeoutTimer(VERIFICATION_TIMEOUT,0) {
         @Override
         public void onRetry() {}
@@ -904,6 +904,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onBluetoothOff() {
         Log.d(TAG,"onBluetoothOff()");
+        deviceConnState = State.DISCONNECTED;
+        notifyDeviceDisconnected();
         currentDeviceId = null;
         deviceManager.bluetoothStateChanged(BluetoothAdapter.STATE_OFF); //CONTINUE HERE
         deviceManager.close();

@@ -152,7 +152,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void close() {
-
+        Log.d(TAG,"close()");
         if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
             dataListener.scanFinished();
