@@ -118,16 +118,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     }
 
     @Override
-    public void disconnect(final BluetoothDevice device){
-        deviceManager.connectionStateChange(DISCONNECTED);
-        btConnectionState = DISCONNECTED;
-        if (mGatt == null) return;
-
-        mCommandQueue.clear();
-        mGatt.disconnect();
-    }
-
-    @Override
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         Log.d(TAG,"Connect to device()");

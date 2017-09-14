@@ -22,7 +22,6 @@ public interface BluetoothCommunicator {
     void connectToDevice(BluetoothDevice device);
 
     int getState();
-    void disconnect(BluetoothDevice device);
     void close();
     void bluetoothStateChanged(int state);
 }
