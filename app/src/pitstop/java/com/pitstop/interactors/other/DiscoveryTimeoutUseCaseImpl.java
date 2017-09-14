@@ -42,7 +42,7 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
             @Override
             public void onFinish() {
                 Log.d(TAG,"onFinish() discovery num: "+discoveryNum);
-                callback.onFinish(discoveryNum);
+                mainHandler.post(() -> callback.onFinish(discoveryNum));
             }
         };
     }
