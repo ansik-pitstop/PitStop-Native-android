@@ -253,14 +253,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 if (communicator == null || !(communicator instanceof BluetoothLeComm)){
                     communicator = new BluetoothLeComm(mContext, this);
                 }
-                else{
-                    ((BluetoothLeComm) communicator)
-                            .setReadChar(deviceInterface.getServiceUuid());
-                    ((BluetoothLeComm) communicator)
-                            .setServiceUuid(deviceInterface.getReadChar());
-                    ((BluetoothLeComm) communicator)
-                            .setWriteChar(deviceInterface.getWriteChar());
-                }
+                ((BluetoothLeComm) communicator)
+                        .setReadChar(deviceInterface.getServiceUuid());
+                ((BluetoothLeComm) communicator)
+                        .setServiceUuid(deviceInterface.getReadChar());
+                ((BluetoothLeComm) communicator)
+                        .setWriteChar(deviceInterface.getWriteChar());
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
