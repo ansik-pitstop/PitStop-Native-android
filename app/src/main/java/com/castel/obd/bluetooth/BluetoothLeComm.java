@@ -140,7 +140,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             } else {
                 mGatt = device.connectGatt(mContext, true, gattCallback);
             }
-        }, 1000);
+        }, 2000);
     }
 
     @Override

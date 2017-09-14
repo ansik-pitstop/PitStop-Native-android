@@ -26,9 +26,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
-import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -38,8 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Ben!
@@ -174,6 +170,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private void writeToObd(String payload) {
+        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
+                +(communicator == null));
         if (communicator == null) {
             return;
         }
@@ -217,20 +215,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // on device connected?
     }
 
-    //Disconnect from device, add it to invalid device list, reset scan
-    public void onConnectedDeviceInvalid(){
-        LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (!moreDevicesLeft()){
-            communicator.close();
-            btConnectionState = IBluetoothCommunicator.DISCONNECTED;
-            dataListener.getBluetoothState(btConnectionState);
-            connectedDevice = null;
-        }
-        else{
-            boolean deviceQualified = connectToNextDevice();
-            if (!deviceQualified) dataListener.scanFinished();
-        }
+    public void closeDeviceConnection(){
+        communicator.close();
+        connectedDevice = null;
+        btConnectionState = IBluetoothCommunicator.DISCONNECTED;
     }
 
     /**
@@ -260,9 +248,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     communicator = new BluetoothLeComm(mContext, this);
                 }
                 ((BluetoothLeComm) communicator)
-                        .setReadChar(deviceInterface.getServiceUuid());
+                        .setReadChar(deviceInterface.getReadChar());
                 ((BluetoothLeComm) communicator)
-                        .setServiceUuid(deviceInterface.getReadChar());
+                        .setServiceUuid(deviceInterface.getServiceUuid());
                 ((BluetoothLeComm) communicator)
                         .setWriteChar(deviceInterface.getWriteChar());
                 break;
@@ -392,7 +380,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns whether a device qualified for connection
-    private boolean connectToNextDevice(){
+    public boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
         short minRssiThreshold;
@@ -479,12 +467,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     rssiScan = false;
                     mixpanelHelper.trackFoundDevices(foundDevices);
                     Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                    if (moreDevicesLeft()){
-                        connectToNextDevice();
+                    if (foundDevices.size() > 0){
+                        //Try to connect to available device, if none qualify then finish scan
+                        if (!connectToNextDevice()) dataListener.scanFinished();
                     }else{
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        mHandler.postDelayed(() -> dataListener.scanFinished(),3000);
+                        dataListener.scanFinished();
                     }
                 }
 

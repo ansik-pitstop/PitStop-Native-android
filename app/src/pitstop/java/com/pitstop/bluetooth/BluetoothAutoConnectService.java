@@ -122,6 +122,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.d(TAG,"getVinTimeoutTimer().onTimeout() deviceConnState: "+deviceConnState
                     +", vinRequested? "+vinRequested);
             if (!vinRequested) return;
+            vinRequested = false;
 
             //For verification progress
             if (deviceConnState.equals(State.CONNECTED_UNVERIFIED)){
@@ -133,7 +134,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
                 }
-                deviceManager.onConnectedDeviceInvalid();
+
+                onConnectedDeviceInvalid();
             }
         }
     };
@@ -323,7 +325,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 /*Check to make sure were not overriding the state once
                 ** its already verified and connected */
-                if (!deviceConnState.equals(State.CONNECTED_VERIFIED)
+                if (!deviceConnState.equals(State.CONNECTED_UNVERIFIED)
                         || !deviceConnState.equals(State.CONNECTED_VERIFIED)){
                     clearInvalidDeviceData();
                     terminalRtcTime = -1;
@@ -342,7 +344,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Log.d(TAG,"getBluetoothState() state: disconnected");
 
                 //Only notify that device disonnected if a verified connection was established previously
-                //TODO make the statement below more flexible, disconnecting during VERIFICATION for example
                 if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
@@ -838,8 +839,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
+        onConnectedDeviceInvalid();
 
-        deviceManager.onConnectedDeviceInvalid();
     }
 
     @Override
@@ -856,7 +857,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
-        deviceManager.onConnectedDeviceInvalid();
+        onConnectedDeviceInvalid();
+
     }
 
     @Override
@@ -873,8 +875,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         currentDeviceId = null;
         deviceIsVerified = false;
-        deviceManager.onConnectedDeviceInvalid();
-
+        onConnectedDeviceInvalid();
     }
 
     @Override
@@ -1176,5 +1177,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataHandler.clearPendingData();
         tripDataHandler.clearPendingData();
         dtcDataHandler.clearPendingData();
+    }
+
+    private void onConnectedDeviceInvalid(){
+        Log.d(TAG,"onConnectedDeviceInvalid()");
+        if (deviceManager.moreDevicesLeft() && deviceManager.connectToNextDevice()){
+            deviceConnState = State.SEARCHING;
+            notifySearchingForDevice();
+        }else{
+            deviceManager.closeDeviceConnection();
+            deviceConnState = State.DISCONNECTED;
+            notifyDeviceDisconnected();
+        }
     }
 }
