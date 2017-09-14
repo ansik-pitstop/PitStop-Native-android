@@ -288,6 +288,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private boolean nonUrgentScanInProgress = false;
+    private int discoveryNum = 0;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
