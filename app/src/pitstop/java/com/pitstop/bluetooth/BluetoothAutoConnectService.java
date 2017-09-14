@@ -785,10 +785,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
+            onVerificationSuccess(vin);
             return;
         }
 
@@ -814,10 +811,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
+            onVerificationSuccess(vin);
             return;
         }
 
@@ -834,7 +828,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void onVerificationDeviceInvalid() {
+    public void onVerificationDeviceInvalid(String vin) {
         Log.d(TAG,"onVerificationDeviceInvalid()");
 
         //ignore result if verification state changed mid use-case execution
@@ -843,10 +837,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         //Connected to device mid use-case execution, return
         else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
+            onVerificationSuccess(vin);
             return;
         }
 
@@ -866,19 +857,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void onVerificationDeviceAlreadyActive() {
+    public void onVerificationDeviceAlreadyActive(String vin) {
         Log.d(TAG,"onVerificationDeviceAlreadyActive()");
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
             return;
-        }
-        //Connected to device mid use-case execution, return
-        else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
+        }else if (ignoreVerification){
+            onVerificationSuccess(vin);
             return;
         }
 
@@ -897,19 +883,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void onVerificationError() {
+    public void onVerificationError(String vin) {
         Log.d(TAG,"onVerificationError()");
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
             return;
-        }
-        //Connected to device mid use-case execution, return
-        else if (ignoreVerification){
-            if (deviceConnState.equals(State.VERIFYING)){
-                deviceManager.onConnectedDeviceInvalid();
-                deviceConnState = State.SEARCHING;
-            }
+        }else if (ignoreVerification){
+            onVerificationSuccess(vin);
             return;
         }
 
