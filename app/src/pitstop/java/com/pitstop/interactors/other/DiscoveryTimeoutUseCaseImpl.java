@@ -25,7 +25,7 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
     }
 
     @Override
-    public void execute(Callback callback, int discoveryNum) {
+    public void execute(int discoveryNum, Callback callback) {
         this.callback = callback;
         this.discoveryNum = discoveryNum;
         useCaseHandler.post(this);
@@ -44,6 +44,6 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
                 Log.d(TAG,"onFinish() discovery num: "+discoveryNum);
                 mainHandler.post(() -> callback.onFinish(discoveryNum));
             }
-        };
+        }.start();
     }
 }

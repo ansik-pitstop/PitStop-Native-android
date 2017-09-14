@@ -11,5 +11,5 @@ public interface DiscoveryTimeoutUseCase extends Interactor {
         void onFinish(int discoveryNum);
     }
 
-    void execute(Callback callback, int discoveryNum);
+    void execute(int discoveryNum, Callback callback);
 }

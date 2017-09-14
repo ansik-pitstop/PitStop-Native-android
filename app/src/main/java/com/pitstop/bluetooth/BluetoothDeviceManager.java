@@ -24,6 +24,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
+import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.LogUtils;
@@ -310,6 +311,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
+
+            //If discovery takes longer than 20 seconds, timeout and cancel it
+            discoveryNum++;
+            useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, new DiscoveryTimeoutUseCase.Callback() {
+                @Override
+                public void onFinish(int timerDiscoveryNum) {
+                    if (discoveryNum == timerDiscoveryNum){
+                        Log.d(TAG,"discovery timeout!");
+                        mBluetoothAdapter.cancelDiscovery();
+                    }
+                }
+            });
+
             rssiScan = true;
             Log.i(TAG, "BluetoothAdapter starts discovery");
             foundDevices.clear(); //Reset found devices map from previous scan
