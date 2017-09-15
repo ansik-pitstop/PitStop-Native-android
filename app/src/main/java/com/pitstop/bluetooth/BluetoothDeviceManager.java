@@ -34,12 +34,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by Ben!
  */
 public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListener {
+
+    private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
     private Context mContext;
     private GlobalApplication application;
@@ -47,41 +48,16 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private ObdManager.IBluetoothDataListener dataListener;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private static final long SCAN_PERIOD = 12000;
-    private boolean hasDiscoveredServices = false;
-
     private Handler mHandler = new Handler();
 
-    private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
-
-    private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
-
-    public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
-    public static final UUID OBD_READ_CHAR_212 =
-            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
-    public static final UUID OBD_WRITE_CHAR_212 =
-            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
-
-    public static final UUID OBD_IDD_215_MAIN_SERVICE =
-            UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_READ_CHAR_215 =
-            UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_WRITE_CHAR_215 =
-            UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-
-    public static final UUID CONFIG_DESCRIPTOR =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-    private int btConnectionState = BluetoothCommunicator.DISCONNECTED;
-
     private AbstractDevice deviceInterface;
-
     private BluetoothCommunicator communicator;
-
-    private BluetoothDevice connectedDevice;
-
     private UseCaseComponent useCaseComponent;
+
+    private int discoveryNum = 0;
+    private int btConnectionState = BluetoothCommunicator.DISCONNECTED;
+    private boolean nonUrgentScanInProgress = false;
+    private boolean discoveryWasStarted = false;
 
     public enum CommType {
         CLASSIC, LE
@@ -159,7 +135,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (communicator != null ) {
             communicator.close();
-            connectedDevice = null;
         }
         try {
             mContext.unregisterReceiver(receiver);
@@ -217,7 +192,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void closeDeviceConnection(){
         Log.d(TAG,"closeDeviceConnection()");
         communicator.close();
-        connectedDevice = null;
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
     }
 
@@ -236,7 +210,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         if (communicator != null){
             communicator.close();
-            connectedDevice = null;
         }
 
         switch (deviceInterface.commType()) {
@@ -262,7 +235,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
-        connectedDevice = device;
         communicator.connectToDevice(device);
     }
 
@@ -277,18 +249,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
-    public boolean isScanning(){
-        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
-            && mBluetoothAdapter.isDiscovering();
-    }
-
-    public String getConnectedDeviceName() {
-        return deviceInterface.getDeviceName();
-    }
-
-    private boolean nonUrgentScanInProgress = false;
-    private int discoveryNum = 0;
-    boolean discoveryWasStarted = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
