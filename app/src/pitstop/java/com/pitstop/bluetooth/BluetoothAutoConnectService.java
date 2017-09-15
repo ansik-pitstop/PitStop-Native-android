@@ -915,7 +915,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
 
         for (Observer observer: observerList){
-            if (observer instanceof (BluetoothConnectionObserver)){
+            if (observer instanceof BluetoothConnectionObserver){
                 mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
                         .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName)));
             }
