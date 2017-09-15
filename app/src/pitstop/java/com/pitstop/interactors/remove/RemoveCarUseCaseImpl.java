@@ -143,6 +143,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                 }
                             });
                         }else{
+                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                    ,eventSource));
                             RemoveCarUseCaseImpl.this.onCarRemoved();
                         }
                     }
