@@ -103,18 +103,18 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
     @Override
     public void noShopWarning() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());// not sure if this is allowed
-        alertDialogBuilder.setTitle("Are you sure you do not wish to select a shop");
+        alertDialogBuilder.setTitle(getString(R.string.no_shop_alert_dialog_title));
         alertDialogBuilder
-                .setMessage("You won't be able to request services. You can add a shop in the settings page at any time")
+                .setMessage(getString(R.string.no_shop_alert_dialog_message))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         presenter.setCarNoDealer(car);
                         dialog.cancel();
 
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                     }

@@ -2,6 +2,7 @@ package com.pitstop.ui.main_activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -107,7 +108,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -133,7 +134,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -158,7 +159,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -188,7 +189,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,"Please select a car", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override

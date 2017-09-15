@@ -1,7 +1,10 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
+import android.content.res.Resources;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
@@ -180,7 +183,7 @@ public class ShopSearchPresenter implements ShopPresnter {
             public void onError(RequestError error) {
                 if(shopSearch != null){
                     shopSearch.loadingMyShops(false);
-                    shopSearch.toast("There was an error loading your shops");
+                    shopSearch.toast(Resources.getSystem().getString(R.string.error_loading_shops_toast_massage));
                 }
             }
         });
@@ -198,7 +201,7 @@ public class ShopSearchPresenter implements ShopPresnter {
             @Override
             public void onError(RequestError error) {
                 if(shopSearch != null){
-                    shopSearch.toast("There was an error loading the Pitstop shops");
+                    shopSearch.toast(Resources.getSystem().getString(R.string.error_loading_pitstop_shops_toast_message));
                 }
             }
         });

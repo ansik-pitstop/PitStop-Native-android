@@ -249,17 +249,17 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @Override
     public void showConfirmation(Dealership dealership) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Set shop to "+dealership.getName());
+        alertDialogBuilder.setTitle(getString(R.string.set_shop_alert_intro)+dealership.getName());
         alertDialogBuilder
-                .setMessage("Change the shop of this car")
+                .setMessage(R.string.change_shop_alert_message)
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes_button_text,new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                         presenter.changeShop(dealership);
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no_button_text,new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
 
