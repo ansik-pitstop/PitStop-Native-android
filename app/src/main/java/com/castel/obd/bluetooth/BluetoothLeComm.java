@@ -41,8 +41,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private ObdManager.IBluetoothDataListener dataListener;
-    private ObdManager mObdManager;
     private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
     ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
@@ -50,18 +48,12 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     //currently started and waiting on a response.
     Semaphore mCommandLock = new Semaphore(1,true);
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
-    private static final long SCAN_PERIOD = 12000;
     private BluetoothGatt mGatt;
-    private boolean mIsScanning = false;
     private boolean hasDiscoveredServices = false;
 
     private BluetoothDeviceManager deviceManager;
 
     private static String TAG = BluetoothLeComm.class.getSimpleName();
-
-    private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
 
     private UUID serviceUuid;
     private UUID writeChar;
@@ -69,22 +61,30 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
     private int btConnectionState = DISCONNECTED;
 
-    public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager, UUID serviceUuid, UUID writeChar, UUID readChar) {
+    public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
 
-        mHandler = new Handler();
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        this.serviceUuid = serviceUuid;
-        this.writeChar = writeChar;
-        this.readChar = readChar;
-
         this.deviceManager = deviceManager;
+    }
+
+    public void setServiceUuid(UUID serviceUuid){
+        Log.d(TAG,"setServiceUuid()");
+        this.serviceUuid = serviceUuid;
+    }
+
+    public void setWriteChar(UUID writeChar){
+        Log.d(TAG,"setWriteChar()");
+        this.writeChar = writeChar;
+    }
+
+    public void setReadChar(UUID readChar){
+        Log.d(TAG,"setReadChar()");
+        this.readChar = readChar;
     }
 
     @Override
@@ -98,43 +98,35 @@ public class BluetoothLeComm implements BluetoothCommunicator {
      */
     @Override
     public void close() {
+        btConnectionState = DISCONNECTED;
         if (mGatt == null) {
             return;
         }
         mGatt.close();
-        mGatt = null;
-    }
-
-    @Override
-    public void disconnect(final BluetoothDevice device){
-        if (mGatt == null) return;
-
+        hasDiscoveredServices = false;
         mCommandQueue.clear();
-        mGatt.disconnect();
-        btConnectionState = DISCONNECTED;
+        mCommandLock.release();
     }
 
     @Override
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
+        Log.d(TAG,"Connect to device()");
         mCommandQueue.clear();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                } else {
-                    mGatt = device.connectGatt(mContext, true, gattCallback);
-                }
+        new Handler().postDelayed(() -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
+            } else {
+                mGatt = device.connectGatt(mContext, true, gattCallback);
             }
         }, 2000);
     }
 
     @Override
     public void writeData(byte[] bytes) {
-        if(!hasDiscoveredServices) {
+        if(!hasDiscoveredServices || serviceUuid == null || writeChar == null || readChar == null) {
             return;
         }
 
@@ -172,7 +164,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.i(TAG, "onConnectionStateChange Status: " + status + " new State " + newState);
-
             switch (newState) {
 
                 case BluetoothProfile.STATE_CONNECTING:
@@ -186,7 +177,6 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
                     btConnectionState = CONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    needToScan = false;
                     deviceManager.connectionStateChange(btConnectionState);
                     gatt.discoverServices();
                     break;
@@ -215,6 +205,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
@@ -237,6 +228,9 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
+
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
+
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();
 
@@ -258,6 +252,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+
+            if (serviceUuid == null || writeChar == null || readChar == null) return;
 
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();

@@ -3,7 +3,6 @@ package com.castel.obd.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -57,15 +56,10 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     }
 
     @Override
-    public void disconnect(BluetoothDevice device) {
-        mBluetoothChat.closeConnect();
-        btConnectionState = DISCONNECTED;
-    }
-
-    @Override
     public void close() {
         Log.i(TAG, "Closing connection - BluetoothClassicComm");
         btConnectionState = DISCONNECTED;
+        deviceManager.bluetoothStateChanged(DISCONNECTED);
         mBluetoothChat.closeConnect();
         mHandler.removeCallbacks(runnable);
     }
@@ -83,21 +77,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
 
     @Override
     public void connectToDevice(BluetoothDevice device) {
-        switch (device.getBondState()) {
-            case BluetoothDevice.BOND_NONE:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    if (device.createBond()) Log.d(TAG, "Bond creation will be done");
-                    else {
-                        Log.d(TAG, "Error doing bond creation");
-                        mBluetoothChat.connectBluetooth(device);
-                    }
-                }
-                break;
-            case BluetoothDevice.BOND_BONDED:
-                mBluetoothChat.connectBluetooth(device);
-                break;
-        }
-
+        mBluetoothChat.connectBluetooth(device);
     }
 
     private final Runnable runnable = new Runnable() {

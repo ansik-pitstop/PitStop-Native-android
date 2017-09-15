@@ -71,6 +71,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         if (bluetoothObservable == null){
             bluetoothObservable = mCallback.getBluetoothObservable();
             if (bluetoothObservable == null) return;
+            bluetoothObservable.subscribe(this);
         }
 
         if (isDeviceConnected()){

@@ -91,7 +91,7 @@ public class VinDataHandler{
                                     " ignoreVerification?"
                                     +ignoreVerification);
                     verificationInProgress = false;
-                    deviceVerificationObserver.onVerificationDeviceInvalid();
+                    deviceVerificationObserver.onVerificationDeviceInvalid(vin);
                 }
 
                 @Override
@@ -100,8 +100,7 @@ public class VinDataHandler{
                                     ", ignoreVerification?"
                                     +ignoreVerification);
                     verificationInProgress = false;
-                    deviceVerificationObserver.onVerificationDeviceAlreadyActive();
-
+                    deviceVerificationObserver.onVerificationDeviceAlreadyActive(vin);
                 }
 
                 @Override
@@ -109,7 +108,7 @@ public class VinDataHandler{
                     Log.d(TAG, "handleVinOnConnect error occurred" +
                                     ", ignoreVerification?");
                     verificationInProgress = false;
-                    deviceVerificationObserver.onVerificationError();
+                    deviceVerificationObserver.onVerificationError(vin);
 
                 }
             });

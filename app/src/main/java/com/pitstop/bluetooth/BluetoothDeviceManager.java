@@ -17,6 +17,7 @@ import com.castel.obd.bleDevice.Device215B;
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.application.GlobalApplication;
@@ -24,9 +25,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
-import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -35,14 +34,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Ben!
  */
 public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListener {
+
+    private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
     private Context mContext;
     private GlobalApplication application;
@@ -50,41 +48,16 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private ObdManager.IBluetoothDataListener dataListener;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private static final long SCAN_PERIOD = 12000;
-    private boolean hasDiscoveredServices = false;
-
     private Handler mHandler = new Handler();
 
-    private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
-
-    private boolean needToScan = true; // need to scan after restarting bluetooth adapter even if mGatt != null
-
-    public static final UUID OBD_IDD_212_MAIN_SERVICE =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // 212B
-    public static final UUID OBD_READ_CHAR_212 =
-            UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // 212B
-    public static final UUID OBD_WRITE_CHAR_212 =
-            UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb"); // 212B
-
-    public static final UUID OBD_IDD_215_MAIN_SERVICE =
-            UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_READ_CHAR_215 =
-            UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-    public static final UUID OBD_WRITE_CHAR_215 =
-            UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
-
-    public static final UUID CONFIG_DESCRIPTOR =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-    private int btConnectionState = BluetoothCommunicator.DISCONNECTED;
-
     private AbstractDevice deviceInterface;
-
     private BluetoothCommunicator communicator;
-
-    private BluetoothDevice connectedDevice;
-
     private UseCaseComponent useCaseComponent;
+
+    private int discoveryNum = 0;
+    private int btConnectionState = BluetoothCommunicator.DISCONNECTED;
+    private boolean nonUrgentScanInProgress = false;
+    private boolean discoveryWasStarted = false;
 
     public enum CommType {
         CLASSIC, LE
@@ -154,13 +127,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void close() {
-
+        Log.d(TAG,"close()");
         if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
             dataListener.scanFinished();
         }
 
-        if (communicator != null) {
+        if (communicator != null ) {
             communicator.close();
         }
         try {
@@ -171,6 +144,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private void writeToObd(String payload) {
+        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
+                +(communicator == null));
         if (communicator == null) {
             return;
         }
@@ -214,15 +189,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // on device connected?
     }
 
-    //Disconnect from device, add it to invalid device list, reset scan
-    public void onConnectedDeviceInvalid(){
-        LogUtils.debugLogD(TAG, "Connected device recognized as invalid, disconnecting"
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
-        connectToNextDevice(); //Try to connect to next device retrieved during previous scan
-        if (!moreDevicesLeft()){
-            dataListener.scanFinished();
-        }
+    public void closeDeviceConnection(){
+        Log.d(TAG,"closeDeviceConnection()");
+        communicator.close();
+        btConnectionState = IBluetoothCommunicator.DISCONNECTED;
     }
 
     /**
@@ -238,31 +208,40 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         // Le can be used for 212 but it doesn't work properly on all versions of Android
         // scanLeDevice(false);// will stop after first device detection
 
-        if (communicator != null && connectedDevice != null){
-            communicator.disconnect(connectedDevice);
+        if (communicator != null){
+            communicator.close();
         }
 
         switch (deviceInterface.commType()) {
             case LE:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
+                dataListener.getBluetoothState(btConnectionState);
                 Log.i(TAG, "Connecting to LE device");
-                communicator = new BluetoothLeComm(mContext, this, deviceInterface.getServiceUuid(),
-                        deviceInterface.getWriteChar(), deviceInterface.getReadChar());
+                if (communicator == null || !(communicator instanceof BluetoothLeComm)){
+                    communicator = new BluetoothLeComm(mContext, this);
+                }
+                ((BluetoothLeComm) communicator)
+                        .setReadChar(deviceInterface.getReadChar());
+                ((BluetoothLeComm) communicator)
+                        .setServiceUuid(deviceInterface.getServiceUuid());
+                ((BluetoothLeComm) communicator)
+                        .setWriteChar(deviceInterface.getWriteChar());
                 break;
             case CLASSIC:
                 btConnectionState = BluetoothCommunicator.CONNECTING;
+                dataListener.getBluetoothState(btConnectionState);
                 Log.i(TAG, "Connecting to Classic device");
                 communicator = new BluetoothClassicComm(mContext, this);
                 break;
         }
 
-        connectedDevice = device;
         communicator.connectToDevice(device);
     }
 
     public void bluetoothStateChanged(int state) {
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
+            dataListener.getBluetoothState(btConnectionState);
         }
     }
 
@@ -270,16 +249,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return btConnectionState;
     }
 
-    public boolean isScanning(){
-        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
-            && mBluetoothAdapter.isDiscovering();
-    }
-
-    public String getConnectedDeviceName() {
-        return deviceInterface.getDeviceName();
-    }
-
-    private boolean nonUrgentScanInProgress = false;
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
@@ -301,6 +270,18 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
+
+            //If discovery takes longer than 20 seconds, timeout and cancel it
+            discoveryWasStarted = true;
+            discoveryNum++;
+            useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, timerDiscoveryNum -> {
+                if (discoveryNum == timerDiscoveryNum
+                        && discoveryWasStarted){
+                    Log.d(TAG,"discovery timeout!");
+                    mBluetoothAdapter.cancelDiscovery();
+                }
+            });
+
             rssiScan = true;
             Log.i(TAG, "BluetoothAdapter starts discovery");
             foundDevices.clear(); //Reset found devices map from previous scan
@@ -355,7 +336,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         return foundDevices.size() > 0;
     }
 
-    private void connectToNextDevice(){
+    //Returns whether a device qualified for connection
+    public boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
         short minRssiThreshold;
@@ -383,25 +365,22 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
             foundDevices.clear();
-            return;
+            return false;
 
         }
 
         if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-            Log.d(TAG, "device212 > RSSI_Threshold, device: "+strongestRssiDevice);
+            Log.d(TAG, "device212 > RSSI_Threshold, device: " + strongestRssiDevice);
 
             foundDevices.remove(strongestRssiDevice);
             connectTo212Device(strongestRssiDevice);
-
-
         } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
 
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
-
         }
+        return true;
     }
 
     private Map<BluetoothDevice, Short> foundDevices = new HashMap<>(); //Devices found by receiver
@@ -424,8 +403,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
                         && !foundDevices.containsKey(device)){
-                    Log.d(TAG,"foundDevices.put()");
                     foundDevices.put(device,rssi);
+                    Log.d(TAG,"foundDevices.put() device name: "+device.getName());
                 }
                 else{
                     Log.d(TAG,"Device did not meet criteria for foundDevice list");
@@ -434,23 +413,22 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             //Finished scanning
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
 
-                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan);
+                discoveryWasStarted = false;
+                discoveryNum++;
+                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan+" found devices size: "
+                        +foundDevices.size());
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
                     mixpanelHelper.trackFoundDevices(foundDevices);
                     Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
-                    connectToNextDevice();
-                    if (!moreDevicesLeft()){
-
+                    if (foundDevices.size() > 0){
+                        //Try to connect to available device, if none qualify then finish scan
+                        if (!connectToNextDevice()) dataListener.scanFinished();
+                    }else{
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                dataListener.scanFinished();
-                            }
-                        },2000);
+                        dataListener.scanFinished();
                     }
                 }
 
@@ -459,12 +437,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     };
 
     public void readData(final byte[] data) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                deviceInterface.parseData(data);
-            }
-        });
+        mHandler.post(() -> deviceInterface.parseData(data));
     }
 
     // functions
@@ -496,12 +469,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.getRtc());
     }
 
-    public void setDeviceNameAndId(String name){
+    public void setDeviceNameAndId(String id){
+        Log.d(TAG,"setDeviceNameAndId() id: "+id);
         //Device name should never be set for 212
         if (isConnectedTo215()){
             Device215B device215B = (Device215B)deviceInterface;
-            Log.d(TAG,"Setting device name and id to "+name+", command: "+device215B.setDeviceNameAndId(name));
-            writeToObd(device215B.setDeviceNameAndId(name));
+            writeToObd(device215B.setDeviceNameAndId(ObdManager.BT_DEVICE_NAME_215 + " " + id,id));
         }
     }
 
