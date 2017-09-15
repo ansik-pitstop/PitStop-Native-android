@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -109,6 +110,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private FreezeFrameDataHandler freezeFrameDataHandler;
 
     private UseCaseComponent useCaseComponent;
+
+    private Handler mainHandler;
 
     //For when VIN isn't returned from device(usually means ignition isn't ON
     private final int VERIFICATION_TIMEOUT = 15;
@@ -215,6 +218,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
+        mainHandler = new Handler(Looper.getMainLooper());
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getApplicationContext()))
                 .build();
@@ -1014,7 +1018,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"notifyDeviceNeedsOverwrite()");
         for (Observer o : observerList) {
             if (o instanceof Device215BreakingObserver) {
-                ((Device215BreakingObserver) o).onDeviceNeedsOverwrite();
+                mainHandler.post(() ->
+                        ((Device215BreakingObserver) o).onDeviceNeedsOverwrite());
             }
         }
     }
@@ -1024,7 +1029,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onSearchingForDevice();
+                mainHandler.post(()
+                        -> ((BluetoothConnectionObserver)observer).onSearchingForDevice());
             }
         }
     }
@@ -1034,8 +1040,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 +", scannerName: "+scannerName);
         trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
         for (Observer observer: observerList){
-            ((BluetoothConnectionObserver)observer)
-                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName));
+            mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
+                    .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName)));
         }
     }
 
@@ -1044,7 +1050,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceDisconnected();
+                mainHandler.post(()
+                        -> ((BluetoothConnectionObserver)observer).onDeviceDisconnected());
             }
         }
     }
@@ -1054,7 +1061,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceVerifying();
+                mainHandler.post(()
+                        -> ((BluetoothConnectionObserver)observer).onDeviceVerifying());
             }
         }
     }
@@ -1063,7 +1071,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"notifySyncingDevice()");
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)observer).onDeviceSyncing();
+                mainHandler.post(()
+                        -> ((BluetoothConnectionObserver)observer).onDeviceSyncing());
             }
         }
     }
@@ -1076,7 +1085,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
-                ((BluetoothDtcObserver) observer).onGotDtc(dtc);
+                mainHandler.post(()
+                        -> ((BluetoothDtcObserver) observer).onGotDtc(dtc));
             }
         }
     }
@@ -1089,7 +1099,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
-                ((BluetoothDtcObserver) observer).onErrorGettingDtc();
+                mainHandler.post(()
+                        -> ((BluetoothDtcObserver) observer).onErrorGettingDtc());
             }
         }
     }
@@ -1102,7 +1113,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         getVinTimeoutTimer.cancel();
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothVinObserver) {
-                ((BluetoothVinObserver)observer).onGotVin(vin);
+                mainHandler.post(()
+                        -> ((BluetoothVinObserver)observer).onGotVin(vin));
             }
         }
     }
@@ -1115,7 +1127,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         rtcTimeoutTimer.cancel();
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothRtcObserver) {
-                ((BluetoothRtcObserver)observer).onGotDeviceTime(rtc);
+                mainHandler.post(()
+                        -> ((BluetoothRtcObserver)observer).onGotDeviceTime(rtc));
             }
         }
     }
@@ -1127,7 +1140,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothRtcObserver) {
-                ((BluetoothRtcObserver)observer).onErrorGettingDeviceTime();
+                mainHandler.post(()
+                        -> ((BluetoothRtcObserver)observer).onErrorGettingDeviceTime());
             }
         }
 
@@ -1141,7 +1155,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidTimeoutTimer.cancel();
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
-                ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids);
+                mainHandler.post(()
+                        -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids));
             }
         }
     }
@@ -1153,7 +1168,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
-                ((BluetoothPidObserver)observer).onErrorGettingAllPid();
+                mainHandler.post(()
+                        -> ((BluetoothPidObserver)observer).onErrorGettingAllPid());
             }
         }
     }
