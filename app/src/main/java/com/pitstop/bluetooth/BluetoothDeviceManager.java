@@ -25,7 +25,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
-import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -315,14 +314,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             //If discovery takes longer than 20 seconds, timeout and cancel it
             discoveryWasStarted = true;
             discoveryNum++;
-            useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, new DiscoveryTimeoutUseCase.Callback() {
-                @Override
-                public void onFinish(int timerDiscoveryNum) {
-                    if (discoveryNum == timerDiscoveryNum
-                            && discoveryWasStarted){
-                        Log.d(TAG,"discovery timeout!");
-                        mBluetoothAdapter.cancelDiscovery();
-                    }
+            useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, timerDiscoveryNum -> {
+                if (discoveryNum == timerDiscoveryNum
+                        && discoveryWasStarted){
+                    Log.d(TAG,"discovery timeout!");
+                    mBluetoothAdapter.cancelDiscovery();
                 }
             });
 
@@ -457,6 +453,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
 
                 discoveryWasStarted = false;
+                discoveryNum++;
                 Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan);
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
