@@ -1,9 +1,12 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
+import android.content.res.Resources;
+
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
