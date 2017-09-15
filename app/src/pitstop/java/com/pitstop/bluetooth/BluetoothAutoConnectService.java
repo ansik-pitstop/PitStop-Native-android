@@ -121,9 +121,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final Handler backgroundHandler = new Handler();
     private final BluetoothServiceBroadcastReceiver connectionReceiver
             = new BluetoothServiceBroadcastReceiver(this);
+
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
-    private ReadyDevice readyDevice = null;
+    private ReadyDevice readyDevice;
     private BluetoothDeviceManager deviceManager;
     private HashMap<String ,Boolean> requestedDtcList;
     private List<Observer> observerList = new ArrayList<>();
