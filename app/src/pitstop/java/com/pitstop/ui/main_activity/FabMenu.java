@@ -124,11 +124,16 @@ public class FabMenu {
 
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Request Service");
-                final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
-                intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
-                intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
-                mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
+                if (car.getDealership() == null){
+                    Toast.makeText(mActivity,"Please select a dealership first"
+                            , Toast.LENGTH_SHORT).show();
+                }else{
+                    mMixpanelHelper.trackFabClicked("Request Service");
+                    final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
+                    intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
+                    intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
+                    mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
+                }
             }
 
             @Override
