@@ -443,6 +443,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Store all devices in a map
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
                         && !foundDevices.containsKey(device)){
+                    foundDevices.put(device,rssi);
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
                 }
                 else{
@@ -454,7 +455,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 discoveryWasStarted = false;
                 discoveryNum++;
-                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan);
+                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan+" found devices size: "
+                        +foundDevices.size());
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
