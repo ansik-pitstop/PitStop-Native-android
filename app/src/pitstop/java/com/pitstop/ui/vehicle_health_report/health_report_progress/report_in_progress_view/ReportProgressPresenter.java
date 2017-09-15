@@ -36,7 +36,7 @@ public class ReportProgressPresenter {
     private final int PROGRESS_FINISH = 100;
 
     private final CountDownTimer dtcLoadingTimer
-            = new CountDownTimer((long)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC, 100) {
+            = new CountDownTimer((long)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC*1000, 100) {
         @Override
         public void onTick(long millisUntilFinished) {
             if (view == null) return;
@@ -44,11 +44,12 @@ public class ReportProgressPresenter {
             double dtcProgress = (PROGRESS_FINISH/PROGRESS_START_GET_DTC)
                     *(dtcLen*1000*100/millisUntilFinished);
             view.setLoading((int)dtcProgress);
-            Log.d(TAG,"progress: "+(int)dtcLen);
+            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+(int)dtcLen);
         }
 
         @Override
         public void onFinish() {
+            Log.d(TAG,"dtcLoadingTimer.onFinish()");
         }
     };
 
