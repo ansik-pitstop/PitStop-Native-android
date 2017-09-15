@@ -414,13 +414,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-            Log.d(TAG, "device212 > RSSI_Threshold, device: "+strongestRssiDevice);
+            Log.d(TAG, "device212 > RSSI_Threshold, device: " + strongestRssiDevice);
 
             foundDevices.remove(strongestRssiDevice);
             connectTo212Device(strongestRssiDevice);
-
         } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
-
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
 
             foundDevices.remove(strongestRssiDevice);
@@ -450,7 +448,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
                         && !foundDevices.containsKey(device)){
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
-                    foundDevices.put(device,rssi);
                 }
                 else{
                     Log.d(TAG,"Device did not meet criteria for foundDevice list");
