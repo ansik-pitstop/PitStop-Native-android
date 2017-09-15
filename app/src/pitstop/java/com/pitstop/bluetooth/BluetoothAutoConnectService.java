@@ -129,7 +129,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private ReadyDevice readyDevice;
     private BluetoothDeviceManager deviceManager;
     private HashMap<String ,Boolean> requestedDtcList;
-    private List<Observer> observerList = new ArrayList<>();
+    private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
