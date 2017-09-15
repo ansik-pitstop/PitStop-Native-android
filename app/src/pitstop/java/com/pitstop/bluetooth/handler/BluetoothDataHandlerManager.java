@@ -10,7 +10,6 @@ public interface BluetoothDataHandlerManager{
     boolean isDeviceVerified();
     void trackBluetoothEvent(String event, String scannerId, String vin);
     void trackBluetoothEvent(String event);
-    String getDeviceId();
 
     //Methods below are invoked by Trip data handler
     long getRtcTime();

@@ -96,7 +96,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean ignoreVerification = false; //Whether to begin verifying device by VIN or not
     boolean deviceIdOverwriteInProgress= false;
     private ReadyDevice readyDevice = null;
-    private String readDeviceId = "";
     private long terminalRtcTime = -1;
 
     private List<Observer> observerList = new ArrayList<>();
@@ -329,15 +328,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         && !deviceConnState.equals(State.CONNECTED_VERIFIED)
                         && !deviceConnState.equals(State.VERIFYING)){
                     clearInvalidDeviceData();
-                    dtcTimeoutTimer.cancel();
-                    getVinTimeoutTimer.cancel();
-                    pidTimeoutTimer.cancel();
-                    rtcTimeoutTimer.cancel();
-                    terminalRtcTime = -1;
-                    allPidRequested = false;
-                    vinRequested = false;
-                    rtcTimeRequested = false;
-                    dtcRequested = false;
+                    resetConnectionVars();
                     deviceConnState = State.CONNECTED_UNVERIFIED;
                     requestVin();                //Get VIN to validate car
                     notifyVerifyingDevice();     //Verification in progress
@@ -353,13 +344,28 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
-                    deviceIsVerified = false;
+                    resetConnectionVars();
                     NotificationsHelper.cancelConnectedNotification(getApplicationContext());
                 }
                 currentDeviceId = null;
 
                 break;
         }
+    }
+
+    private void resetConnectionVars(){
+        dtcTimeoutTimer.cancel();
+        getVinTimeoutTimer.cancel();
+        pidTimeoutTimer.cancel();
+        rtcTimeoutTimer.cancel();
+        terminalRtcTime = -1;
+        allPidRequested = false;
+        vinRequested = false;
+        rtcTimeRequested = false;
+        dtcRequested = false;
+        readyDevice = null;
+        deviceIsVerified = false;
+        deviceIdOverwriteInProgress= false;
     }
 
     @Override
@@ -406,12 +412,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void onHandlerReadVin(String vin) {
         Log.d(TAG,"onHandlersReadVin() vin: "+vin);
         notifyVin(vin);
-    }
-
-    @Override
-    public String getDeviceId() {
-        Log.d(TAG,"getDeviceId()");
-        return readDeviceId;
     }
 
     @Override
