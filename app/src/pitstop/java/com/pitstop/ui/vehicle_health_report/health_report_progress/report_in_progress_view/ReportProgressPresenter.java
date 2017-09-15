@@ -40,7 +40,7 @@ public class ReportProgressPresenter {
         @Override
         public void onTick(long millisUntilFinished) {
             if (view == null) return;
-            double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC
+            double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC;
             double dtcProgress = (PROGRESS_FINISH/PROGRESS_START_GET_DTC)
                     *(dtcLen*1000*100/millisUntilFinished);
             view.setLoading((int)dtcProgress);
