@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_pr
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -29,6 +31,9 @@ import butterknife.ButterKnife;
 public class ReportProgressFragment extends Fragment implements ReportProgressView {
 
     private ReportProgressPresenter presenter;
+
+    @BindView(R.id.progress_bar)
+    NumberProgressBar progressBar;
 
     @BindView(R.id.step_holder)
     LinearLayout stepHolder;
@@ -71,8 +76,8 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
     }
 
@@ -94,5 +99,10 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                             .duration(500L)
                             .start();
                 }).start();
+    }
+
+    @Override
+    public void setLoading(int progress) {
+        progressBar.setProgress(progress);
     }
 }

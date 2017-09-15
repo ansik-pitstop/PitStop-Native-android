@@ -4,6 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.daimajia.numberprogressbar.NumberProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/start_report_button_holder"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:progress_reached_color="@color/highlight"
+        app:progress_text_color="@color/highlight" />
+
     <LinearLayout
         android:id="@+id/step_holder"
         android:layout_width="wrap_content"

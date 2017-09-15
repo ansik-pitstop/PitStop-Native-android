@@ -29,9 +29,28 @@ public class ReportProgressPresenter {
 
     private BluetoothConnectionObservable bluetooth;
 
-    private CountDownTimer timer;
-
     private VHRMacroUseCase vhrMacroUseCase;
+    private final int PROGRESS_START_GET_SERVICES = 0;
+    private final int PROGRESS_START_GET_DTC = 10;
+    private final int PROGRESS_START_GET_PID = 90;
+    private final int PROGRESS_FINISH = 100;
+
+    private final CountDownTimer dtcLoadingTimer
+            = new CountDownTimer((long)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC, 100) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if (view == null) return;
+            double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC
+            double dtcProgress = (PROGRESS_FINISH/PROGRESS_START_GET_DTC)
+                    *(dtcLen*1000*100/millisUntilFinished);
+            view.setLoading((int)dtcProgress);
+            Log.d(TAG,"progress: "+(int)dtcLen);
+        }
+
+        @Override
+        public void onFinish() {
+        }
+    };
 
     public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component){
         this. callback = callback;
@@ -59,7 +78,7 @@ public class ReportProgressPresenter {
            @Override
            public void onStartGetServices() {
                Log.d(TAG,"VHRMacroUseCase.onStartGetServices()");
-               changeStep("Getting services and recalls");
+               changeStep("Getting services and recalls",PROGRESS_START_GET_SERVICES);
            }
 
            @Override
@@ -76,7 +95,8 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartGetDTC() {
-               changeStep("Retrieving engine codes");
+               changeStep("Retrieving engine codes",PROGRESS_START_GET_DTC);
+               dtcLoadingTimer.start();
                Log.d(TAG,"VHRMacrouseCase.onStartGetDTC()");
            }
 
@@ -92,7 +112,8 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartPID() {
-               changeStep("Retrieving real time engine data");
+               dtcLoadingTimer.cancel();
+               changeStep("Retrieving real time engine data", PROGRESS_START_GET_PID);
                Log.d(TAG,"VHRMacrouseCase.onStartPid()");
            }
 
@@ -109,19 +130,21 @@ public class ReportProgressPresenter {
            @Override
            public void onFinish() {
                Log.d(TAG,"VHRMacrouseCase.onFinish()");
+               changeStep("Completed", PROGRESS_FINISH);
                setViewReport();
            }
        });
        start();
    }
 
-    public void changeStep(String step){
+    private void changeStep(String step, int progress){
         Log.d(TAG,"changeStep() step: "+step);
         if(view == null || callback == null){return;}
         view.changeStep(step);
+        view.setLoading(progress);
     }
 
-    public void setViewReport(){
+    private void setViewReport(){
         Log.d(TAG,"setViewReport()");
         if(view == null || callback == null){return;}
         if(issueList == null || recallList == null){return;}
