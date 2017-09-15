@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static android.R.attr.name;
+
 /**
  * Created by Ben!
  */
@@ -513,12 +515,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.getRtc());
     }
 
-    public void setDeviceNameAndId(String name){
+    public void setDeviceNameAndId(String id){
         //Device name should never be set for 212
         if (isConnectedTo215()){
             Device215B device215B = (Device215B)deviceInterface;
             Log.d(TAG,"Setting device name and id to "+name+", command: "+device215B.setDeviceNameAndId(name));
-            writeToObd(device215B.setDeviceNameAndId(name));
+            writeToObd(device215B.setDeviceNameAndId(ObdManager.BT_DEVICE_NAME_215 + " " + id,id));
         }
     }
 

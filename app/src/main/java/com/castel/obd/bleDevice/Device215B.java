@@ -124,9 +124,9 @@ public class Device215B implements AbstractDevice {
         return qiSingle(VIN_PARAM);
     }
 
-    public String setDeviceNameAndId(String name){
+    public String setDeviceNameAndId(String name, String id){
         return siMulti(BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM
-                ,name + "," + name);
+                ,name + "," + id);
     }
 
     public String setDeviceId(String id){
