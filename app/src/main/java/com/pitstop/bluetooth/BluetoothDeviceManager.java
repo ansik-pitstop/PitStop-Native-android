@@ -419,14 +419,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             foundDevices.remove(strongestRssiDevice);
             connectTo212Device(strongestRssiDevice);
 
-
         } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
 
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
 
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
-
         }
         return true;
     }
