@@ -851,7 +851,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         final MaterialShowcaseView firstBookingDiscountShowcase = new MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.dashboard_request_service_btn))
-                .setTitleText(getString(R.string.request_service_title))
+                .setTitleText(getString(R.string.service_request_button))
                 .setContentText(firstServicePromotion.toString())
                 .setDismissOnTouch(true)
                 .setDismissText(R.string.request_service_get_started_button)
@@ -928,7 +928,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         final MainActivity thisInstance = this;
 
-        showLoading(getString(R.string.loading_dealership_info_string));
+        showLoading(getString(R.string.loading));
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
@@ -1030,7 +1030,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         }
 
         if (car.getDealership() == null) {
-            Snackbar.make(rootView, getString(R.string.select_dealership_snackbar_text), Snackbar.LENGTH_LONG)
+            Snackbar.make(rootView, getString(R.string.select_dealership_toast_text), Snackbar.LENGTH_LONG)
                     .setAction(getString(R.string.select_snackbar_action_text), new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -1048,7 +1048,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         final List<String> shops = new ArrayList<>();
         final List<String> shopIds = new ArrayList<>();
 
-        showLoading(getString(R.string.loading_shop_information_text));
+        showLoading(getString(R.string.loading));
         networkHelper.getShops(new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
@@ -1066,12 +1066,12 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                                 shopIds.toArray(new String[shopIds.size()]));
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(MainActivity.this, getString(R.string.unknown_error_toast_text), Toast.LENGTH_SHORT)
+                        Toast.makeText(MainActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT)
                                 .show();
                     }
                 } else {
                     Log.e(TAG, "Get shops: " + requestError.getMessage());
-                    Toast.makeText(MainActivity.this, getString(R.string.unknown_error_toast_text), Toast.LENGTH_SHORT)
+                    Toast.makeText(MainActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT)
                             .show();
                 }
             }
@@ -1133,7 +1133,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
                                 } else {
                                     Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
-                                    Toast.makeText(MainActivity.this, getString(R.string.unknown_error_toast_text), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });

@@ -226,7 +226,7 @@ public class CarHistoryActivity extends AppCompatActivity {
 
             desc.setText(issue.getDescription());
             if(issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {
-                date.setText("Done");
+                date.setText(R.string.done);
             } else {
                 date.setText(String.format("Done on %s", formatDate(issue.getDoneAt())));
             }
