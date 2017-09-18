@@ -1,5 +1,6 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -38,7 +39,7 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
     public void onBindViewHolder(TimeViewHolder holder, int position) {
         int viewType = getItemViewType(position);
         if(viewType == VIEW_TYPE_EMPTY){
-            holder.time.setText("No available times");
+            holder.time.setText(Resources.getSystem().getString(R.string.no_available_times));
         }else{
             String timeSelect = times.get(position);
             holder.time.setText(timeSelect);

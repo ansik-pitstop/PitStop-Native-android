@@ -246,7 +246,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 .setTitle(getString(R.string.add_car_error_alert_title))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

@@ -48,14 +48,14 @@ public class TripView extends Fragment {
     public void setSpeed(double speed){
         if(getView() != null){
             currentSpeedTextView = (TextView) getView().findViewById(R.id.current_speed);
-            currentSpeedTextView.setText("Speed: "+decimalFormat.format(speed) + " km/h");
+            currentSpeedTextView.setText(getString(R.string.speed_title)+decimalFormat.format(speed) + " km/h");
         }
     }
     public void setDistance(double distance){
         if(getView() != null){
             distance /= 1000;//distance is in meters
             currentDistanceTextView = (TextView) getView().findViewById(R.id.current_distance);
-            currentDistanceTextView.setText("Distance: " + decimalFormat.format(distance) + " km");
+            currentDistanceTextView.setText(getString(R.string.distance) + decimalFormat.format(distance) + " km");
         }
     }
 

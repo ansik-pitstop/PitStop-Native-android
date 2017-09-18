@@ -42,10 +42,10 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         if (needDescription) {
             new AnimatedDialogBuilder(activity)
                     .setCancelable(false)
-                    .setTitle("Request Permissions")
+                    .setTitle(getString(R.string.request_permission_alert_title))
                     .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
                     .setNegativeButton("", null)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(activity, permissions, requestCode);
@@ -85,7 +85,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
                 }
             } else {
                 Snackbar.make(findViewById(android.R.id.content), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Retry", new View.OnClickListener() {
+                        .setAction(getString(R.string.retry_button), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 ActivityCompat.requestPermissions(IBluetoothServiceActivity.this,

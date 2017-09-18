@@ -96,7 +96,7 @@ public class VinEntryPresenter {
 
                         view.setLoadingCancelable(true);
                         view.onCarAddedWithShop(car);
-                        view.hideLoading("Added Car Successfully");
+                        view.hideLoading(Resources.getSystem().getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override

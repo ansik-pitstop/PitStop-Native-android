@@ -210,17 +210,17 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     @Override
     public void showLogOut() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Log Out");
+        alertDialogBuilder.setTitle(getString(R.string.log_out));
         alertDialogBuilder
-                .setMessage("Are you sure you want to logout?")
+                .setMessage(getString(R.string.log_out_confirm_message))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.dismiss();
                         presenter.logout();
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                     }

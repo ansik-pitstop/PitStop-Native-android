@@ -1,7 +1,10 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
@@ -81,11 +84,11 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
         if(localDealership.getName().equals("No Shop")){
-            view.showReminder("Please set a shop for this car first");
+            view.showReminder(Resources.getSystem().getString(R.string.set_shop_request));
             return;
         }
         if(!dateSelected){
-            view.showReminder("Please select a date first");
+            view.showReminder(Resources.getSystem().getString(R.string.select_appointment_date));
             return;
         }
         view.toggleTimeList();
@@ -126,14 +129,14 @@ public class ServiceFormPresenter implements PresenterCallback{
                 @Override
                 public void onNotOpen() {
                     if(view == null || callback == null){return;}
-                    resetDate(calendarView,"There are no times available for this date");
+                    resetDate(calendarView,Resources.getSystem().getString(R.string.no_times_for_date));
                     view.showLoading(false);
                 }
 
                 @Override
                public void onError(RequestError error) {
                     if(view == null || callback == null){return;}
-                    resetDate(calendarView,"There was an error loading these times");
+                    resetDate(calendarView,Resources.getSystem().getString(R.string.error_loading_times));
                     view.showLoading(false);
                }
             });
@@ -148,7 +151,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.showDate(sendDate);
         date = sendDate;
         dateSelected = true;
-        view.showTime("Tap to select time");
+        view.showTime(Resources.getSystem().getString(R.string.select_appt_time));
         timeSelected = false;
     }
 
@@ -166,7 +169,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(view == null || callback == null){return;}
         Calendar calendar = Calendar.getInstance();
         calendarView.setCurrentDate(calendar);
-        view.showDate("Tap to select date");
+        view.showDate(Resources.getSystem().getString(R.string.select_date));
         view.showCalender();
         view.showLoading(false);
         view.showReminder(message);
@@ -176,15 +179,15 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(localDealership.getEmail().equals("")){
-            view.showReminder("Please set an email for this shop");
+            view.showReminder(Resources.getSystem().getString(R.string.select_email_for_shop));
             return;
         }
         if(!dateSelected){
-            view.showReminder("Please choose a date");
+            view.showReminder(Resources.getSystem().getString(R.string.select_date));
             return;
         }
         else if(!timeSelected){
-            view.showReminder("Please choose a time");
+            view.showReminder(Resources.getSystem().getString(R.string.choose_time));
             return;
         }
         String outDate = date+" "+time;
@@ -207,7 +210,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                    public void onError(RequestError error) {
                        if(view == null || callback == null){return;}
                        view.disableButton(false);
-                      view.toast("There was an error adding your services");
+                      view.toast(Resources.getSystem().getString(R.string.add_service_error));
                    }
                });
             }
@@ -216,7 +219,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
                 view.disableButton(false);
-              view.toast("There was an error requesting this service");
+              view.toast(Resources.getSystem().getString(R.string.add_service_error));
             }
         });
     }

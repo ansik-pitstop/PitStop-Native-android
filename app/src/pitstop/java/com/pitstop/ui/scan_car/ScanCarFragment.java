@@ -468,10 +468,10 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         if (scanInterruptedDialog == null){
             scanInterruptedDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Scan Interrupted")
-                    .setMessage("Your device disconnected during the scan. Please re-connect and try again.")
+                    .setTitle(getString(R.string.scan_failed))
+                    .setMessage(R.string.scan_error_message)
                     .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
@@ -483,11 +483,10 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         if (noDeviceFoundDialog == null) {
             noDeviceFoundDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Cannot Scan")
-                    .setMessage("Make sure your vehicle engine is on and " +
-                            "OBD device is properly plugged in.")
+                    .setTitle(getString(R.string.scan_failed))
+                    .setMessage(getString(R.string.cannot_find_device_alert_message))
                     .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             mixpanelHelper.trackButtonTapped(MixpanelHelper.SCAN_CAR_RETRY_SCAN, MixpanelHelper.SCAN_CAR_VIEW);
@@ -501,7 +500,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
                     .setTitle(getResources().getString(R.string.scan_historical_title))
                     .setMessage(getResources().getString(R.string.scan_historical_message))
                     .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
@@ -589,21 +588,21 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         recallsStateLayout.setVisibility(View.GONE);
         recallsCountLayout.setVisibility(View.GONE);
         loadingRecalls.setVisibility(View.VISIBLE);
-        recallsText.setText("Checking for recalls");
+        recallsText.setText(getString(R.string.checking_recalls));
     }
 
     private void displayCheckingForServices(){
         servicesStateLayout.setVisibility(View.GONE);
         servicesCountLayout.setVisibility(View.GONE);
         loadingServices.setVisibility(View.VISIBLE);
-        servicesText.setText("Checking for services");
+        servicesText.setText(getString(R.string.checking_services));
     }
 
     private void displayCheckingForEngineIssues(){
         engineIssuesStateLayout.setVisibility(View.GONE);
         engineIssuesCountLayout.setVisibility(View.GONE);
         loadingEngineIssues.setVisibility(View.VISIBLE);
-        engineIssuesText.setText("Checking for engine issues");
+        engineIssuesText.setText(getString(R.string.checking_engine_issues));
     }
 
     private void displayEngineCodes(){
@@ -615,11 +614,11 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
             engineIssuesStateLayout.setVisibility(View.GONE);
             engineIssuesCountLayout.setVisibility(View.VISIBLE);
             engineIssuesCount.setText(String.valueOf(this.dtcCodes.size()));
-            engineIssuesText.setText("Engine issues");
+            engineIssuesText.setText(getString(R.string.engine_issues));
         } else {
             engineIssuesStateLayout.setVisibility(View.VISIBLE);
             engineIssuesCountLayout.setVisibility(View.GONE);
-            engineIssuesText.setText("No Engine Issues");
+            engineIssuesText.setText(getString(R.string.no_issues));
         }
 
         Drawable background = engineIssuesCountLayout.getBackground();
@@ -636,7 +635,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         if (this.services.size() > 0) {
             servicesCountLayout.setVisibility(View.VISIBLE);
             servicesCount.setText(String.valueOf(this.services.size()));
-            servicesText.setText("Services");
+            servicesText.setText(getString(R.string.services_nav_text));
 
             Drawable background = servicesCountLayout.getBackground();
             GradientDrawable gradientDrawable = (GradientDrawable) background;
@@ -645,7 +644,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         } else {
             servicesStateLayout.setVisibility(View.VISIBLE);
             servicesCountLayout.setVisibility(View.GONE);
-            servicesText.setText("No services due");
+            servicesText.setText(getString(R.string.no_services));
         }
     }
 
@@ -659,7 +658,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
             recallsCountLayout.setVisibility(View.VISIBLE);
             recallsStateLayout.setVisibility(View.GONE);
             recallsCount.setText(String.valueOf(this.recalls.size()));
-            recallsText.setText("Recalls");
+            recallsText.setText(getString(R.string.recalls));
 
             Drawable background = recallsCountLayout.getBackground();
             GradientDrawable gradientDrawable = (GradientDrawable) background;
@@ -667,7 +666,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
         } else {
             recallsStateLayout.setVisibility(View.VISIBLE);
             recallsCountLayout.setVisibility(View.GONE);
-            recallsText.setText("No recalls");
+            recallsText.setText(getString(R.string.no_recalls));
         }
     }
 

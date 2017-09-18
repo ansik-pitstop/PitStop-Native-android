@@ -1,5 +1,6 @@
 package com.pitstop.adapters;
 
+import android.content.res.Resources;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -54,14 +55,14 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.description.setMaxLines(2);
             holder.doneImageView.setVisibility(View.INVISIBLE);
             holder.description.setText("You have no pending Engine Code, Recalls or Routine Services");
-            holder.title.setText("Congrats!");
+            holder.title.setText("CONGRATS!");
             holder.imageView.setImageDrawable(
                     ContextCompat.getDrawable(holder.container.getContext()
                             , R.drawable.ic_check_circle_green_400_36dp));
         } else if (viewType == VIEW_TYPE_TENTATIVE) {
             holder.description.setMaxLines(2);
-            holder.description.setText("Tap to start");
-            holder.title.setText("Book your first tentative service");
+            holder.description.setText("Start");
+            holder.title.setText("Book Tentative Appointment");
             holder.imageView.setImageDrawable(
                     ContextCompat.getDrawable(holder.container.getContext(), R.drawable.ic_announcement_blue_600_24dp));
             holder.container.setOnClickListener(new View.OnClickListener() {

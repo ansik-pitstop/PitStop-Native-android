@@ -459,8 +459,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle(getString(R.string.first_service_booking_cancel_title))
                     .setMessage(getString(R.string.first_service_booking_cancel_message))
-                    .setNegativeButton("Continue booking", null) // Do nothing on continue
-                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(getString(R.string.continue_booking), null) // Do nothing on continue
+                    .setPositiveButton(getString(R.string.first_service_booking_cancel_title), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             try {
@@ -644,7 +644,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                 }
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Retry", new View.OnClickListener() {
+                        .setAction(getString(R.string.retry_button), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);

@@ -1,9 +1,11 @@
 package com.pitstop.ui.scan_car;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;

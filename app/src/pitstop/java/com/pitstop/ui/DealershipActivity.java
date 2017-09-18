@@ -113,7 +113,7 @@ public class DealershipActivity extends AppCompatActivity {
                         }
                     })
                     .show();*/
-            Toast.makeText(this, "No dealership selected, please select a dealership from settings", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.select_dealership_toast_text), Toast.LENGTH_LONG).show();
 
             return false;
         }

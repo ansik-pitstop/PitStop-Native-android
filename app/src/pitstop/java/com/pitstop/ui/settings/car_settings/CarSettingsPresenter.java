@@ -1,6 +1,9 @@
 package com.pitstop.ui.settings.car_settings;
 
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -66,7 +69,7 @@ public class CarSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(carSettings != null){
-                        carSettings.toast("An error occurred while updating your car");
+                        carSettings.toast(Resources.getSystem().getString(R.string.car_error_update_toast));
                     }
                 }
             });
@@ -90,7 +93,7 @@ public class CarSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(carSettings != null){
-                    carSettings.toast("There was an error loading your car details");
+                    carSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -110,7 +113,7 @@ public class CarSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(carSettings != null){
-                    carSettings.toast("There was an error removing your car");
+                    carSettings.toast(Resources.getSystem().getString(R.string.car_remove_error_toast));
                 }
             }
         });

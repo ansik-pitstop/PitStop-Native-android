@@ -1,5 +1,8 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.content.res.Resources;
+
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -109,7 +112,7 @@ public class MainSettingsPresenter {
             public void onError(RequestError error) {
                 if(mainSettings != null && switcher != null){
                     switcher.loading(false);
-                    mainSettings.toast("There was an error loading your cars");
+                    mainSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -132,7 +135,7 @@ public class MainSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(mainSettings != null){
-                    mainSettings.toast("There was an error loading your details");
+                    mainSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -160,7 +163,7 @@ public class MainSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(mainSettings != null){
-                    mainSettings.toast("There was an error loading your shops");
+                    mainSettings.toast(Resources.getSystem().getString(R.string.shops_load_error_toast));
                 }
             }
         });

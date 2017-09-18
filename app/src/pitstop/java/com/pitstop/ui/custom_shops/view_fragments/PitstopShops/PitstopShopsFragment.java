@@ -122,17 +122,17 @@ public class PitstopShopsFragment extends Fragment implements PitstopShopsView {
     @Override
     public void showConfirmation(Dealership dealership) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Set shop to "+dealership.getName());
+        alertDialogBuilder.setTitle(getString(R.string.set_shop_to)+dealership.getName());
         alertDialogBuilder
-                .setMessage("Change the shop of this car")
+                .setMessage(getString(R.string.change_shop_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                         presenter.changeShop(dealership);
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
 
