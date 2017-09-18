@@ -266,7 +266,7 @@ public class HttpRequest {
         private void logOut() {
             LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
-            Toast.makeText(application, Resources.getSystem().getString(R.string.log_in_again_toast), Toast.LENGTH_LONG).show();
+            Toast.makeText(application, application.getString(R.string.log_in_again_toast), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(application, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             application.startActivity(intent);

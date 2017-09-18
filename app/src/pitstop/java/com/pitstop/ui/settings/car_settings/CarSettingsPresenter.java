@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.car_settings;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.EventBus.EventSource;
@@ -69,7 +70,7 @@ public class CarSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(carSettings != null){
-                        carSettings.toast(Resources.getSystem().getString(R.string.car_error_update_toast));
+                        carSettings.toast(((Fragment)carSettings).getString(R.string.car_error_update_toast));
                     }
                 }
             });
@@ -93,7 +94,7 @@ public class CarSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(carSettings != null){
-                    carSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
+                    carSettings.toast(((Fragment)carSettings).getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -113,7 +114,7 @@ public class CarSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(carSettings != null){
-                    carSettings.toast(Resources.getSystem().getString(R.string.car_remove_error_toast));
+                    carSettings.toast(((Fragment)carSettings).getString(R.string.car_remove_error_toast));
                 }
             }
         });

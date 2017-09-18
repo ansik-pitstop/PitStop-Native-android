@@ -46,7 +46,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public void onBindViewHolder(ShopViewHolder holder, final int position) {
         int viewType = getItemViewType(position);
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.name.setText(Resources.getSystem().getString(R.string.no_matching_shops_text_));
+            holder.name.setText("No matching Shops");
             holder.address.setText("");
         } else {
             Dealership dealership = dealerships.get(position);

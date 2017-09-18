@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.R;
@@ -112,7 +113,7 @@ public class MainSettingsPresenter {
             public void onError(RequestError error) {
                 if(mainSettings != null && switcher != null){
                     switcher.loading(false);
-                    mainSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
+                    mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -135,7 +136,7 @@ public class MainSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(mainSettings != null){
-                    mainSettings.toast(Resources.getSystem().getString(R.string.car_load_error_toast));
+                    mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -163,7 +164,7 @@ public class MainSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(mainSettings != null){
-                    mainSettings.toast(Resources.getSystem().getString(R.string.shops_load_error_toast));
+                    mainSettings.toast(((Fragment)mainSettings).getString(R.string.shops_load_error_toast));
                 }
             }
         });

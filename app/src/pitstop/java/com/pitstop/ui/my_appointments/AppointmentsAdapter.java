@@ -49,8 +49,8 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
 
 
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.date.setText(Resources.getSystem().getString(R.string.no_appointments));
-            holder.details.setText(Resources.getSystem().getString(R.string.no_appointments));
+            holder.date.setText(R.string.no_appointments);
+            holder.details.setText(R.string.no_appointments);
 
         } else {
             Appointment currentApp = mAppts.get(position);

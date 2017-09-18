@@ -39,7 +39,7 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
     public void onBindViewHolder(TimeViewHolder holder, int position) {
         int viewType = getItemViewType(position);
         if(viewType == VIEW_TYPE_EMPTY){
-            holder.time.setText(Resources.getSystem().getString(R.string.no_available_times));
+            holder.time.setText(R.string.no_available_times);
         }else{
             String timeSelect = times.get(position);
             holder.time.setText(timeSelect);

@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.EventBus.EventSource;
@@ -74,11 +75,11 @@ public class ShopFormPresenter {
         String shopPostal = shopForm.getPostal();
 
         if(shopName.isEmpty()){
-            shopForm.showReminder(Resources.getSystem().getString(R.string.enter_shop_name_message));
+            shopForm.showReminder(((Fragment)shopForm).getString(R.string.enter_shop_name_message));
             return;
         }
         if(shopPhone.isEmpty() && shopEmail.isEmpty()){
-            shopForm.showReminder(Resources.getSystem().getString(R.string.enter_shop_email_or_phone_message));
+            shopForm.showReminder(((Fragment)shopForm).getString(R.string.enter_shop_email_or_phone_message));
             return;
         }
         Dealership dealership = new Dealership();
@@ -103,7 +104,7 @@ public class ShopFormPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(shopForm != null){
-                        shopForm.toast(Resources.getSystem().getString(R.string.error_updating_shop_details_toast_massage));
+                        shopForm.toast(((Fragment)shopForm).getString(R.string.error_updating_shop_details_toast_massage));
                     }
                 }
             });
@@ -123,7 +124,7 @@ public class ShopFormPresenter {
                             @Override
                             public void onError(RequestError error) {
                                 if(shopForm != null){
-                                    shopForm.toast(Resources.getSystem().getString(R.string.error_adding_shops_toast_massage));
+                                    shopForm.toast(((Fragment)shopForm).getString(R.string.error_adding_shops_toast_massage));
                                 }
                             }
                         });
@@ -131,7 +132,7 @@ public class ShopFormPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if(shopForm != null){
-                        shopForm.toast(Resources.getSystem().getString(R.string.error_adding_shops_toast_massage));
+                        shopForm.toast(((Fragment)shopForm).getString(R.string.error_adding_shops_toast_massage));
                     }
                 }
             });

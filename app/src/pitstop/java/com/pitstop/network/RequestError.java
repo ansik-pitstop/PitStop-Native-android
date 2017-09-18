@@ -59,7 +59,7 @@ public class RequestError {
     public static RequestError getUnknownError() {
         RequestError requestError = new RequestError();
         requestError.setError(ERR_UNKNOWN);
-        requestError.setMessage(Resources.getSystem().getString(R.string.internet_check_error));
+        requestError.setMessage("Please check your internet connection");
 
         return requestError;
     }
@@ -67,7 +67,7 @@ public class RequestError {
     public static RequestError getOfflineError(){
         RequestError requestError = new RequestError();
         requestError.setError(ERR_OFFLINE);
-        requestError.setMessage(Resources.getSystem().getString(R.string.internet_check_error));
+        requestError.setMessage("Please check your internet connection");
 
         return requestError;
     }
