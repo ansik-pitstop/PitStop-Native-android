@@ -84,7 +84,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
 
     //Timer length values
-    private final int DTC_RETRY_LEN = 5; //Seconds
+    private final int DTC_RETRY_LEN = 3; //Seconds
     private final int DTC_RETRY_COUNT = 4;
     private final int PID_RETRY_LEN = 5; //Seconds
     private final int PID_RETRY_COUNT = 0;

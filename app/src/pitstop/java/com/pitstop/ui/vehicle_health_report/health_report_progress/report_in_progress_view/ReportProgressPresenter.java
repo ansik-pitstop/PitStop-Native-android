@@ -41,10 +41,12 @@ public class ReportProgressPresenter {
         public void onTick(long millisUntilFinished) {
             if (view == null) return;
             double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC*1000;
-            double dtcProgress = (PROGRESS_START_GET_DTC/PROGRESS_FINISH)
-                    *(dtcLen*100/millisUntilFinished);
+            double dtcRange = (PROGRESS_START_GET_PID-PROGRESS_START_GET_DTC);
+            double dtcProgress = PROGRESS_START_GET_PID - ((dtcRange/(double)PROGRESS_FINISH)
+                    *((double)millisUntilFinished*100/dtcLen));
             view.setLoading((int)dtcProgress);
-            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+(int)dtcProgress);
+            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+dtcProgress+", millisUntilFinished: "
+                    +millisUntilFinished);
         }
 
         @Override
@@ -103,6 +105,7 @@ public class ReportProgressPresenter {
 
            @Override
            public void onGotDTC() {
+               dtcLoadingTimer.cancel();
                Log.d(TAG,"VHRMacrouseCase.onGotDTC()");
            }
 
