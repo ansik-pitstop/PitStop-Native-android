@@ -47,6 +47,7 @@ public class VHRMacroUseCase {
     private final int TYPE_GET_SERVICES = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
+    private final int TIME_PADDING = 1;
 
     private Callback callback;
     private Queue<Interactor> interactorQueue;
@@ -69,11 +70,13 @@ public class VHRMacroUseCase {
         interactorQueue.add(component.getGetDTCUseCase());
         interactorQueue.add(component.getGetPIDUseCase());
         progressTimerQueue = new LinkedList<>();
-        progressTimerQueue.add(new ProgressTimer(TYPE_GET_SERVICES,TIME_GET_SERVICES));
+        progressTimerQueue.add(new ProgressTimer(TYPE_GET_SERVICES,TIME_GET_SERVICES+TIME_PADDING));
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GET_DTC, BluetoothConnectionObservable.RETRIEVAL_LEN_DTC));
+                new ProgressTimer(TYPE_GET_DTC
+                        , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GET_PID,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID));
+                new ProgressTimer(TYPE_GET_PID
+                        ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID+TIME_PADDING));
     }
     public void start(){
         next();
@@ -199,8 +202,8 @@ public class VHRMacroUseCase {
         private double useCaseTime;
         private int type;
 
-        public ProgressTimer(int type, double useCaseTime){
-            super((long)useCaseTime*1000,100);
+        ProgressTimer(int type, double useCaseTime){
+            super((long)useCaseTime*1000,300);
             this.useCaseTime = useCaseTime;
             this.type = type;
             switch(type){
@@ -236,7 +239,7 @@ public class VHRMacroUseCase {
             final double range = finishProgress - startProgress;
             final double totalTimeMillis = useCaseTime * 1000;
             final double millisUntilFinishedDouble = (double)millisUntilFinished;
-            final double progress = finishProgress - ((range/finishProgress)
+            final double progress = finishProgress - ((range/PROGRESS_FINISH)
                     * (millisUntilFinishedDouble / totalTimeMillis)* 100);
             Log.d(TAG,"progressTimer.onTick() progress: "+progress);
             callback.onProgressUpdate((int)progress);
@@ -245,6 +248,7 @@ public class VHRMacroUseCase {
         @Override
         public void onFinish() {
             Log.d(TAG,"progressTimer.onFinish() type: "+type);
+            callback.onProgressUpdate((int)finishProgress);
             switch(type){
                 case TYPE_GET_SERVICES:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_SERVICES, retrieviedRecalls null? "
@@ -256,6 +260,7 @@ public class VHRMacroUseCase {
                     }
                     else{
                         callback.onServicesGot(retrievedCurrentServices,retrievedRecalls);
+                        progressTimerQueue.remove();
                         next();
                     }
                     break;
@@ -268,6 +273,7 @@ public class VHRMacroUseCase {
                     }
                     else{
                         callback.onGotDTC();
+                        progressTimerQueue.remove();
                         next();
                     }
                     break;
@@ -280,6 +286,7 @@ public class VHRMacroUseCase {
                     }
                     else{
                         callback.onGotPID();
+                        progressTimerQueue.remove();
                         next();
                     }
                     break;

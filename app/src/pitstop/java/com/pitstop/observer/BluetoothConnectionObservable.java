@@ -14,7 +14,7 @@ public interface BluetoothConnectionObservable extends Subject{
 
     //Number of seconds before an error or success response occurs with dtc data
     double RETRIEVAL_LEN_DTC = BluetoothAutoConnectService.DTC_RETRY_COUNT
-            * BluetoothAutoConnectService.DTC_RETRY_LEN;
+            * BluetoothAutoConnectService.DTC_RETRY_LEN + BluetoothAutoConnectService.DTC_RETRY_LEN;
 
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
