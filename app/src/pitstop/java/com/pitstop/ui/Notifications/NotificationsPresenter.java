@@ -23,8 +23,12 @@ import java.util.List;
 
 public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
+    private static final String SERVICE_APPOINTMENT_REMINDER = "service appointment reminder";
+    private static final String NEW_VEHICLE_ISSUE = "new vehicle issues";
+    private static final String VEHICLE_HEALTH_UPDATE = "vehicle health update";
+
+
     private final String TAG = getClass().getSimpleName();
-    private NotificationView notificationView;
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_NOTIFICATIONS);
 
     private UseCaseComponent useCaseComponent;
@@ -35,20 +39,6 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
     public NotificationsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
-    }
-
-    @Override
-    public void subscribe(NotificationView view) {
-        this.notificationView = view;
-        setNoUpdateOnEventTypes(getIgnoredEventTypes());
-        if (!EventBus.getDefault().isRegistered(this)){
-            EventBus.getDefault().register(this);
-        }
-    }
-
-    @Override
-    public void unsubscribe() {
-        super.unsubscribe();
     }
 
     @Override
@@ -72,8 +62,8 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
     public void onRefresh(){
         Log.d(TAG, "onRefresh()");
-        if (updating && notificationView.isRefreshing() && notificationView != null){
-            notificationView.hideRefreshing();
+        if (updating && getView().isRefreshing() && getView() != null){
+            getView().hideRefreshing();
         }else{
             onUpdateNeeded();
         }
@@ -82,81 +72,76 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
     public void onUpdateNeeded(){
         Log.d(TAG, "onUpdateNeeded");
-        if (notificationView == null || updating) {
-            Log.d("notification", "notificationviewisnull");
+        if (getView() == null || updating) {
             return;
         }
         updating = true;
-        notificationView.showLoading();
+        getView().showLoading();
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
                 updating = false;
-                if (notificationView == null){
+                if (getView() == null){
                     Log.d("notifications", "return");
                     return;}
 
-                notificationView.hideLoading();
+                getView().hideLoading();
                 if (list.size() == 0) {
-                    notificationView.noNotifications();
+                    getView().noNotifications();
                     Log.d("notifications", "zerolist");
 
                 }
                 else {
                     Log.d("notifications", "display");
-                    notificationView.displayNotifications(list);
+                    getView().displayNotifications(list);
                 }
 
             }
             @Override
             public void onError(RequestError error) {
                 updating = false;
-                if (notificationView == null) return;
+                if (getView() == null) return;
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (notificationView.hasBeenPopulated()){
-                        notificationView.displayOfflineErrorDialog();
+                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
                     }
                     else {
-                        notificationView.displayOfflineView();
+                        getView().displayOfflineView();
                     }
                 }
                 else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
-                    if (notificationView.hasBeenPopulated()){
-                        notificationView.displayUnknownErrorDialog();
+                    if (getView().hasBeenPopulated()){
+                        getView().displayUnknownErrorDialog();
                     }
                     else {
-                        notificationView.displayUnknownErrorView();
+                        getView().displayUnknownErrorView();
                     }
                 }
-                notificationView.hideLoading();
+                getView().hideLoading();
             }
         });
     }
 
     public void onNotificationClicked(String title) {
-        if (notificationView == null) return;
+        Log.d(TAG, "NotificationClicked()" + title);
+        if (getView() == null) return;
         mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, title);
-
-        if (title.toLowerCase().contains("new vehicle issues")) {
-            notificationView.openCurrentServices();
-        }
-        else if (title.toLowerCase().contains("service appointment reminder"))
-            notificationView.openAppointments();
-        else if (title.toLowerCase().contains("vehicle health update")){
-            notificationView.openScanTab();
-        }
+        if (title.toLowerCase().contains(NEW_VEHICLE_ISSUE))
+            getView().openCurrentServices();
+        else if (title.toLowerCase().contains(SERVICE_APPOINTMENT_REMINDER))
+            getView().openAppointments();
+        else if (title.toLowerCase().contains(VEHICLE_HEALTH_UPDATE))
+            getView().openScanTab();
     }
 
     public int getImageResource(String title) {
-        if (notificationView == null) return 0;
-        if (title.toLowerCase().contains("service appointment reminder"))
+        if (getView() == null) return 0;
+        if (title.toLowerCase().contains(SERVICE_APPOINTMENT_REMINDER))
             return R.drawable.request_service_dashboard_3x;
-        else if (title.toLowerCase().contains("vehicle health update")){
+        else if (title.toLowerCase().contains(VEHICLE_HEALTH_UPDATE))
             return R.drawable.scan_notification_3x;
-        }
         else return R.drawable.notification_default_3x;
-
 
     }
 }

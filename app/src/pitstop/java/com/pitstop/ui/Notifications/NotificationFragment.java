@@ -135,6 +135,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         notificationList.clear();
         notificationList.addAll(notifList);
         notificationAdapter.notifyDataSetChanged();
+        this.displayOnlineView();
         hasBeenPopulated = true;
     }
 
@@ -177,10 +178,9 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     @Override
     public int changeimage(String title) {
+        Log.d(TAG, "changeimage()");
         if (presenter == null) return 0;
         return presenter.getImageResource(title);
-
-
     }
 
     @Override
