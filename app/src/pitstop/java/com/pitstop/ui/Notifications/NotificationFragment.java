@@ -207,6 +207,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         noNotificationsView.setVisibility(View.GONE);
         notificationRecyclerView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        offlineView.bringToFront();
     }
 
     @Override
@@ -216,6 +217,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         offlineView.setVisibility(View.GONE);
         noNotificationsView.setVisibility(View.GONE);
         notificationRecyclerView.setVisibility(View.VISIBLE);
+        notificationRecyclerView.bringToFront();
     }
 
     @Override
@@ -242,6 +244,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
         offlineView.setVisibility(View.GONE);
         notificationRecyclerView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
+        unknownErrorView.bringToFront();
     }
 
     @Override
@@ -265,6 +268,18 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @OnClick(R.id.try_again_btn)
     public void onTryAgainClicked() {
         Log.d(TAG, "onTryAgainClicked()");
+        presenter.onRefresh();
+    }
+
+    @OnClick(R.id.offline_try_again)
+    public void onOfflineTryAgainClicked() {
+        Log.d(TAG, "onOfflineTryAgainClicked()");
+        presenter.onRefresh();
+    }
+
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownErrorTryAgainClicked(){
+        Log.d(TAG,"onUnknownErrorTryAgainClicked()");
         presenter.onRefresh();
     }
 }
