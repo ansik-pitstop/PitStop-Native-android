@@ -1,5 +1,8 @@
 package com.pitstop.interactors.MacroUseCases;
 
+import android.os.CountDownTimer;
+import android.util.Log;
+
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
@@ -35,32 +38,50 @@ public class VHRMacroUseCase {
         void onGotPID();
         void onPIDError();
         void onFinish();
+        void onProgressUpdate(int progress);
     }
 
+    private final int TIME_GET_SERVICES = 2;
+    private final int TYPE_GET_SERVICES = 0;
+    private final int TYPE_GET_DTC = 1;
+    private final int TYPE_GET_PID = 2;
+
     private Callback callback;
-
-    public Queue<Interactor> interactorQueue;
-
+    private Queue<Interactor> interactorQueue;
+    private Queue<ProgressTimer> progressTimerQueue;
     private UseCaseComponent component;
-
     private BluetoothConnectionObservable bluetooth;
 
-
+    //Lists for progress timers to communicate results
+    private List<CarIssue> retrievedCurrentServices;
+    private List<CarIssue> retrievedRecalls;
+    private HashMap<String, Boolean> retrievedDtc;
+    private HashMap<String, String> retrievedPid;
 
     public VHRMacroUseCase(UseCaseComponent component, BluetoothConnectionObservable bluetooth, Callback callback){
         this.callback = callback;
         this.component = component;
         this.bluetooth = bluetooth;
-        interactorQueue = new LinkedList<Interactor>();
+        interactorQueue = new LinkedList<>();
         interactorQueue.add(component.getCurrentServicesUseCase());
         interactorQueue.add(component.getGetDTCUseCase());
         interactorQueue.add(component.getGetPIDUseCase());
+        progressTimerQueue = new LinkedList<>();
+        progressTimerQueue.add(new ProgressTimer(TYPE_GET_SERVICES,TIME_GET_SERVICES));
+        progressTimerQueue.add(
+                new ProgressTimer(TYPE_GET_DTC, BluetoothConnectionObservable.RETRIEVAL_LEN_DTC));
+        progressTimerQueue.add(
+                new ProgressTimer(TYPE_GET_PID,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID));
     }
     public void start(){
         next();
     }
     private void next(){
         if(interactorQueue.isEmpty()){finish();}
+
+        //Start progress timer
+        progressTimerQueue.peek().start();
+
         Interactor current = interactorQueue.peek();
         interactorQueue.remove(current);
 
@@ -78,18 +99,26 @@ public class VHRMacroUseCase {
                         }
                     }
                     currentServices.addAll(customIssues);
-                    callback.onServicesGot(currentServices,recalls);
+                    retrievedCurrentServices = new ArrayList<>(currentServices);
+                    retrievedRecalls = new ArrayList<>(recalls);
+//                    callback.onServicesGot(currentServices,recalls);
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
                     next();
                 }
 
                 @Override
                 public void onNoCarAdded(){
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
                     callback.onServiceError();
                 }
 
                 @Override
                 public void onError(RequestError error) {
                     callback.onServiceError();
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
                     finish();
                 }
             });
@@ -100,12 +129,17 @@ public class VHRMacroUseCase {
             ((GetDTCUseCaseImpl) current).execute(bluetooth, new GetDTCUseCase.Callback() {
                 @Override
                 public void onGotDTCs(HashMap<String, Boolean> dtc) {
-                    callback.onGotDTC();
+                    retrievedDtc = new HashMap<>(dtc);
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
+//                    callback.onGotDTC();
                     next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
+                    progressTimerQueue.peek().cancel();
+                    progressTimerQueue.remove();
                     callback.onDTCError();
                     finish();
                 }
@@ -116,12 +150,17 @@ public class VHRMacroUseCase {
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
                 public void onGotPIDs(HashMap<String, String> pid) {
-                    callback.onGotPID();
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
+//                    callback.onGotPID();
+                    retrievedPid = new HashMap<>(pid);
                     next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
+                    progressTimerQueue.peek().cancel();
+                    progressTimerQueue.remove();
                     callback.onPIDError();
                     finish();
                 }
@@ -134,5 +173,85 @@ public class VHRMacroUseCase {
 
     private void finish(){
         callback.onFinish();
+    }
+
+    class ProgressTimer extends CountDownTimer{
+
+        private final int PROGRESS_START_GET_SERVICES = 0;
+        private final int PROGRESS_START_GET_DTC = 10;
+        private final int PROGRESS_START_GET_PID = 90;
+        private final int PROGRESS_FINISH = 100;
+
+        private final String TAG = getClass().getSimpleName();
+
+        private double finishProgress;
+        private double startProgress;
+        private double useCaseTime;
+        private int type;
+
+        public ProgressTimer(int type, double useCaseTime){
+            super((long)useCaseTime*1000,100);
+            this.useCaseTime = useCaseTime;
+            this.type = type;
+            switch(type){
+                case TYPE_GET_SERVICES:
+                    this.startProgress = PROGRESS_START_GET_SERVICES;
+                    this.finishProgress = PROGRESS_START_GET_DTC;
+                    break;
+                case TYPE_GET_DTC:
+                    this.startProgress = PROGRESS_START_GET_DTC;
+                    this.finishProgress = PROGRESS_START_GET_PID;
+                    break;
+                case TYPE_GET_PID:
+                    this.startProgress = PROGRESS_START_GET_PID;
+                    this.finishProgress = PROGRESS_FINISH;
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            final double range = finishProgress - startProgress;
+            final double totalTimeMillis = useCaseTime * 1000;
+            final double millisUntilFinishedDouble = (double)millisUntilFinished;
+            final double progress = finishProgress - ((range/finishProgress)
+                    * (millisUntilFinishedDouble / totalTimeMillis)* 100);
+            Log.d(TAG,"progressTimer.onTick() progress: "+progress);
+            callback.onProgressUpdate((int)progress);
+        }
+
+        @Override
+        public void onFinish() {
+            Log.d(TAG,"progressTimer.onFinish() type: "+type);
+            switch(type){
+                case TYPE_GET_SERVICES:
+                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_SERVICES, retrieviedRecalls null? "
+                            +(retrievedRecalls == null) +", retrievedCurrentServices null? "
+                            +(retrievedCurrentServices == null));
+                    if (retrievedRecalls == null || retrievedCurrentServices == null)
+                        callback.onServiceError();
+                    else
+                        callback.onServicesGot(retrievedCurrentServices,retrievedRecalls);
+                    break;
+                case TYPE_GET_DTC:
+                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_DTC, retrieviedDtc null? "
+                            +(retrievedDtc == null));
+                    if (retrievedDtc == null)
+                        callback.onDTCError();
+                    else
+                        callback.onGotDTC();
+                    break;
+                case TYPE_GET_PID:
+                    Log.d(TAG,"progressTimer().onFinish() type: TYPE_GET_PID, retrievedPid null? "
+                            +(retrievedPid == null));
+                    if (retrievedPid == null)
+                        callback.onPIDError();
+                    else
+                        callback.onGotPID();
+                    break;
+            }
+        }
     }
 }

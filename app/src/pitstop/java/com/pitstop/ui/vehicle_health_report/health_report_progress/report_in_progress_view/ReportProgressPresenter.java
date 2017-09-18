@@ -1,6 +1,5 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view;
 
-import android.os.CountDownTimer;
 import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
@@ -30,30 +29,6 @@ public class ReportProgressPresenter {
     private BluetoothConnectionObservable bluetooth;
 
     private VHRMacroUseCase vhrMacroUseCase;
-    private final int PROGRESS_START_GET_SERVICES = 0;
-    private final int PROGRESS_START_GET_DTC = 10;
-    private final int PROGRESS_START_GET_PID = 90;
-    private final int PROGRESS_FINISH = 100;
-
-    private final CountDownTimer dtcLoadingTimer
-            = new CountDownTimer((long)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC*1000, 100) {
-        @Override
-        public void onTick(long millisUntilFinished) {
-            if (view == null) return;
-            double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC*1000;
-            double dtcRange = (PROGRESS_START_GET_PID-PROGRESS_START_GET_DTC);
-            double dtcProgress = PROGRESS_START_GET_PID - ((dtcRange/(double)PROGRESS_FINISH)
-                    *((double)millisUntilFinished*100/dtcLen));
-            view.setLoading((int)dtcProgress);
-            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+dtcProgress+", millisUntilFinished: "
-                    +millisUntilFinished);
-        }
-
-        @Override
-        public void onFinish() {
-            Log.d(TAG,"dtcLoadingTimer.onFinish()");
-        }
-    };
 
     public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component){
         this. callback = callback;
@@ -81,7 +56,7 @@ public class ReportProgressPresenter {
            @Override
            public void onStartGetServices() {
                Log.d(TAG,"VHRMacroUseCase.onStartGetServices()");
-               changeStep("Getting services and recalls",PROGRESS_START_GET_SERVICES);
+               changeStep("Getting services and recalls");
            }
 
            @Override
@@ -98,14 +73,12 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartGetDTC() {
-               changeStep("Retrieving engine codes",PROGRESS_START_GET_DTC);
-               dtcLoadingTimer.start();
+               changeStep("Retrieving engine codes");
                Log.d(TAG,"VHRMacrouseCase.onStartGetDTC()");
            }
 
            @Override
            public void onGotDTC() {
-               dtcLoadingTimer.cancel();
                Log.d(TAG,"VHRMacrouseCase.onGotDTC()");
            }
 
@@ -116,8 +89,7 @@ public class ReportProgressPresenter {
 
            @Override
            public void onStartPID() {
-               dtcLoadingTimer.cancel();
-               changeStep("Retrieving real time engine data", PROGRESS_START_GET_PID);
+               changeStep("Retrieving real time engine data");
                Log.d(TAG,"VHRMacrouseCase.onStartPid()");
            }
 
@@ -134,18 +106,22 @@ public class ReportProgressPresenter {
            @Override
            public void onFinish() {
                Log.d(TAG,"VHRMacrouseCase.onFinish()");
-               changeStep("Completed", PROGRESS_FINISH);
+               changeStep("Completed");
                setViewReport();
+           }
+
+           @Override
+           public void onProgressUpdate(int progress) {
+               if (view != null) view.setLoading(progress);
            }
        });
        start();
    }
 
-    private void changeStep(String step, int progress){
+    private void changeStep(String step){
         Log.d(TAG,"changeStep() step: "+step);
         if(view == null || callback == null){return;}
         view.changeStep(step);
-        view.setLoading(progress);
     }
 
     private void setViewReport(){

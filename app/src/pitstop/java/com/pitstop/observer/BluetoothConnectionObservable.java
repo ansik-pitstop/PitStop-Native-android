@@ -1,5 +1,6 @@
 package com.pitstop.observer;
 
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.ReadyDevice;
 
 /**
@@ -12,7 +13,8 @@ public interface BluetoothConnectionObservable extends Subject{
     double RETRIEVAL_LEN_ALL_PID = 5.0;
 
     //Number of seconds before an error or success response occurs with dtc data
-    double RETRIEVAL_LEN_DTC = 12.0;
+    double RETRIEVAL_LEN_DTC = BluetoothAutoConnectService.DTC_RETRY_COUNT
+            * BluetoothAutoConnectService.DTC_RETRY_LEN;
 
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
