@@ -44,7 +44,7 @@ public class ReportProgressPresenter {
             double dtcProgress = (PROGRESS_FINISH/PROGRESS_START_GET_DTC)
                     *(dtcLen*1000*100/millisUntilFinished);
             view.setLoading((int)dtcProgress);
-            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+(int)dtcLen);
+            Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+(int)dtcProgress);
         }
 
         @Override

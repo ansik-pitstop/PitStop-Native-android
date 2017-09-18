@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,8 @@ import butterknife.ButterKnife;
  */
 
 public class ReportProgressFragment extends Fragment implements ReportProgressView {
+
+    private final String TAG = getClass().getSimpleName();
 
     private ReportProgressPresenter presenter;
 
@@ -67,6 +70,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
         application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragement_report_progress,container,false);
         ButterKnife.bind(this,view);
+        progressBar.setMax(100);
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
@@ -103,6 +107,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @Override
     public void setLoading(int progress) {
+        Log.d(TAG,"setLoading() progress: "+progress);
         progressBar.setProgress(progress);
     }
 }
