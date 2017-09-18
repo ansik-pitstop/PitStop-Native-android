@@ -86,7 +86,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Timer length values
     public static final int DTC_RETRY_LEN = 3; //Seconds
     public static final int DTC_RETRY_COUNT = 4;
-    public static final int PID_RETRY_LEN = 5; //Seconds
+    public static final int PID_RETRY_LEN = 15; //Seconds
     public static final int PID_RETRY_COUNT = 0;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;

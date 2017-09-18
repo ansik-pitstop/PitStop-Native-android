@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -13,6 +14,8 @@ import java.util.HashMap;
  */
 
 public class GetPIDUseCaseImpl implements GetPIDUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private Callback callback;
     private Handler useCaseHandler;
@@ -54,11 +57,13 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
         BluetoothPidObserver pidObserver = new BluetoothPidObserver() {
             @Override
             public void onGotAllPid(HashMap<String, String> allPid) {
+                Log.d(TAG,"onGotAllPid() allPid: "+allPid);
                 GetPIDUseCaseImpl.this.onGotPIDs(allPid,this);
             }
 
             @Override
             public void onErrorGettingAllPid() {
+                Log.d(TAG,"onErrorGettingAllPid()");
                 GetPIDUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         };
