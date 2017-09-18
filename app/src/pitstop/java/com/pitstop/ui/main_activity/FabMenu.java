@@ -153,7 +153,7 @@ public class FabMenu {
                 -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Call");
+                mMixpanelHelper.trackDealershipCallTapped();
                 mMixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
@@ -180,7 +180,7 @@ public class FabMenu {
 
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Directions");
+                mMixpanelHelper.trackDealershipDirectionsTapped();
                 mMixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
                         MixpanelHelper.TOOLS_VIEW);
 
