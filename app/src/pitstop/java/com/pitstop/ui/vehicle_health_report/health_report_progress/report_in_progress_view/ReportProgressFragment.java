@@ -33,8 +33,6 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     private final String TAG = getClass().getSimpleName();
 
-    private ReportProgressPresenter presenter;
-
     @BindView(R.id.progress_bar)
     NumberProgressBar progressBar;
 
@@ -48,12 +46,10 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     Button bigButton;
 
     private ReportCallback callback;
-
     private Context context;
     private GlobalApplication application;
-
     private BluetoothConnectionObservable bluetooth;
-
+    private ReportProgressPresenter presenter;
 
     public void setCallback(ReportCallback callback){
         this.callback = callback;
@@ -81,18 +77,21 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
     public void changeStep(String step) {
+        Log.d(TAG,"changeStep() step: "+step);
         ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
