@@ -47,7 +47,7 @@ public class VHRMacroUseCase {
     private final int TYPE_GET_SERVICES = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
-    private final int TIME_PADDING = 1;
+    private final int TIME_PADDING = 2;
 
     private Callback callback;
     private Queue<Interactor> interactorQueue;
@@ -85,7 +85,10 @@ public class VHRMacroUseCase {
     }
     private void next(){
         Log.d(TAG,"next()");
-        if(interactorQueue.isEmpty()){finish();}
+        if(interactorQueue.isEmpty()){
+            finish();
+            return;
+        }
 
         //Start progress timer
         progressTimerQueue.peek().start();
