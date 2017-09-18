@@ -10,20 +10,31 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/start_report_button_holder"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
         android:layout_marginRight="50dp"
         android:layout_marginLeft="50dp"
-        android:layout_marginBottom="50dp"
         app:progress_reached_color="@color/primary"
         app:progress_text_color="@color/primary" />
+
+    <Button
+        android:id="@+id/error_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/step_holder"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/color_button_rectangle_primary"
+        android:text="Return" />
 
     <LinearLayout
         android:id="@+id/step_holder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/start_report_button_holder"
+        android:layout_marginTop="25dp"
+        android:layout_below="@id/progress_bar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
         android:orientation="horizontal">
 
         <TextView

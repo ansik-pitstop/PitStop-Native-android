@@ -132,6 +132,10 @@ public class ReportProgressPresenter {
        start();
    }
 
+   void onErrorButtonClicked(){
+       if (view != null) callback.finishActivity();
+   }
+
     private void changeStep(String step){
         Log.d(TAG,"changeStep() step: "+step);
         if(view == null || callback == null){return;}

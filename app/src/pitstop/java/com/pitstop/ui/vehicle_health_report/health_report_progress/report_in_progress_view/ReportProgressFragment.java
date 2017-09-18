@@ -26,6 +26,7 @@ import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallbac
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Matt on 2017-08-16.
@@ -46,6 +47,9 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @BindView(R.id.start_report_button)
     Button bigButton;
+
+    @BindView(R.id.error_button)
+    Button errorButton;
 
     private ReportCallback callback;
     private Context context;
@@ -104,6 +108,12 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                             .duration(500L)
                             .start();
                 }).start();
+        errorButton.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.error_button)
+    public void onErrorButtonClicked(){
+        presenter.onErrorButtonClicked();
     }
 
     @Override
