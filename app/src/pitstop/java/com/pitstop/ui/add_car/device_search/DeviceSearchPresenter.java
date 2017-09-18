@@ -170,7 +170,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Check if retrieved VIN is valid, otherwise begin timer
             if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                view.showLoading("Retrieving VIN");
+                view.showLoading(Resources.getSystem().getString(R.string.getting_vin));
                 searchingForVin = true;
                 getVinTimer.start();
             }
@@ -183,7 +183,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         //Otherwise request search and wait for callback
         else{
-            view.showLoading("Searching for Device");
+            view.showLoading(Resources.getSystem().getString(R.string.searching_for_device_action_bar));
             searchingForDevice = true;
             findDeviceTimer.start();
             bluetoothConnectionObservable.requestDeviceSearch(true, true);
@@ -226,7 +226,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.PENDING);
 
-            view.showLoading("Getting VIN");
+            view.showLoading(Resources.getSystem().getString(R.string.getting_vin));
 
             //Try to get valid VIN
             searchingForVin = true;
@@ -261,7 +261,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             return;
         }
 
-        view.showLoading("Saving Car");
+        view.showLoading(Resources.getSystem().getString(R.string.saving_car_message));
 
         addingCar = true;
         double mileage = Double.valueOf(view.getMileage());
@@ -291,7 +291,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (view == null) return;
 
                         view.onCarAddedWithShop(car);
-                        view.hideLoading("Car Successfully Added");
+                        view.hideLoading(Resources.getSystem().getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override

@@ -544,12 +544,12 @@ public class DashboardFragment extends Fragment implements DashboardView {
                     .findViewById(R.id.mileage_input);
             updateMileageDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Update Mileage")
+                    .setTitle(getString(R.string.update_mileage))
                     .setView(dialogLayout)
-                    .setPositiveButton("Confirm", (dialog, which)
+                    .setPositiveButton(getString(R.string.confirm_button), (dialog, which)
                             -> presenter.onUpdateMileageDialogConfirmClicked(
                                     textInputEditText.getText().toString()))
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> dialog.cancel())
                     .create();
         }
 
@@ -581,9 +581,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
         if (mileageErrorDialog == null){
             mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Invalid Mileage")
-                    .setMessage("Please input a valid mileage.")
-                    .setPositiveButton("OK", (dialog, which)
+                    .setTitle(getString(R.string.invalid_device_alert_title))
+                    .setMessage(getString(R.string.invalid_mileage_alert_message))
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
                             -> dialog.dismiss())
                     .create();
         }

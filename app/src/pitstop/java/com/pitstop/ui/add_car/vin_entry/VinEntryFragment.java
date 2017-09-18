@@ -320,7 +320,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void displayScannedVinInvalid() {
         Log.d(TAG,"displayScannedVinInvalid()");
-        Toast.makeText(getContext(),"Scanned VIN is invalid",Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(),getString(R.string.invalid_vin),Toast.LENGTH_LONG).show();
     }
 
     @Override

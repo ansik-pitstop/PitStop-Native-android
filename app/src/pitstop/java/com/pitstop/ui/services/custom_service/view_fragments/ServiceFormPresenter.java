@@ -1,7 +1,10 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -60,31 +63,31 @@ public class ServiceFormPresenter implements PresenterCallback {
         if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
-        item.setText("Replace");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_replace));
         item.setCardColor("#194D85");
         item.setKey(CustomServiceListAdapter.SERVICE_ACTION_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Rotate");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_rotate));
         item.setCardColor("#256fc0");
         item.setKey(CustomServiceListAdapter.SERVICE_ACTION_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Perform");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_perform));
         item.setCardColor("#2b83e2");
         item.setKey(CustomServiceListAdapter.SERVICE_ACTION_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Inspect");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_inspect));
         item.setCardColor("#5FA2EC");
         item.setKey(CustomServiceListAdapter.SERVICE_ACTION_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Other");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_other));
         item.setCardColor("#8FBDF2");
         item.setKey(CustomServiceListAdapter.SERVICE_ACTION_OTHER_KEY);
         items.add(item);
@@ -96,61 +99,61 @@ public class ServiceFormPresenter implements PresenterCallback {
         if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
-        item.setText("Air Filter");
+        item.setText(Resources.getSystem().getString(R.string.air_filter));
         item.setCardColor("#194D85");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Brakes");
+        item.setText(Resources.getSystem().getString(R.string.brakes));
         item.setCardColor("#256fc0");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Coolant");
+        item.setText(Resources.getSystem().getString(R.string.coolant));
         item.setCardColor("#2b83e2");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Exhaust");
+        item.setText(Resources.getSystem().getString(R.string.exhaust));
         item.setCardColor("#5FA2EC");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Lights");
+        item.setText(Resources.getSystem().getString(R.string.lights));
         item.setCardColor("#8FBDF2");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Spark Plugs");
+        item.setText(Resources.getSystem().getString(R.string.spark_plugs));
         item.setCardColor("#194D85");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Suspension");
+        item.setText(Resources.getSystem().getString(R.string.suspension));
         item.setCardColor("#256fc0");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Tires");
+        item.setText(Resources.getSystem().getString(R.string.tires));
         item.setCardColor("#2b83e2");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Transmission");
+        item.setText(Resources.getSystem().getString(R.string.transmission));
         item.setCardColor("#5FA2EC");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Other");
+        item.setText(Resources.getSystem().getString(R.string.preset_issue_service_other));
         item.setCardColor("#8FBDF2");
         item.setKey(CustomServiceListAdapter.SERVICE_PART_OTHER_KEY);
         items.add(item);
@@ -162,25 +165,25 @@ public class ServiceFormPresenter implements PresenterCallback {
         if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
-        item.setText("Low ");
+        item.setText(Resources.getSystem().getString(R.string.severity_indicator_low));
         item.setCardColor("#2b83e2");
         item.setKey(CustomServiceListAdapter.SERVICE_PRIORITY_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Medium");
+        item.setText(Resources.getSystem().getString(R.string.severity_indicator_medium));
         item.setCardColor("#FFCE54");
         item.setKey(CustomServiceListAdapter.SERVICE_PRIORITY_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("High");
+        item.setText(Resources.getSystem().getString(R.string.severity_indicator_high));
         item.setCardColor("#FF6F00");
         item.setKey(CustomServiceListAdapter.SERVICE_PRIORITY_KEY);
         items.add(item);
 
         item = new CustomIssueListItem();
-        item.setText("Critical");
+        item.setText(Resources.getSystem().getString(R.string.severity_indicator_critical));
         item.setCardColor("#FF0000");
         item.setKey(CustomServiceListAdapter.SERVICE_PRIORITY_KEY);
         items.add(item);
@@ -253,11 +256,11 @@ public class ServiceFormPresenter implements PresenterCallback {
         view.disableCreateButton(false);
         CarIssue customIssue = new CarIssue();
         if(view.getPartName().equals("")){
-            view.showReminder("Please enter the part name");
+            view.showReminder(Resources.getSystem().getString(R.string.what_car_part));
             view.disableCreateButton(true);
             return;
         }else if(view.getPriority().equals("")){
-            view.showReminder("Please select a priority");
+            view.showReminder(Resources.getSystem().getString(R.string.select_priority));
             view.disableCreateButton(true);
             return;
         }
@@ -299,7 +302,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             @Override
             public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
-                view.showReminder("An error occurred logging your issue "+error.getMessage());
+                view.showReminder(Resources.getSystem().getString(R.string.error_logging_issue)+error.getMessage());
             }
         });
     }
@@ -321,7 +324,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             @Override
             public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
-                view.showReminder("An error occurred adding your service "+error.getMessage());
+                view.showReminder(Resources.getSystem().getString(R.string.add_service_error)+error.getMessage());
                 view.disableCreateButton(true);
             }
         });

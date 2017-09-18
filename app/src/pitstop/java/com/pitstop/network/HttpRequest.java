@@ -2,6 +2,7 @@ package com.pitstop.network;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.LoginActivity;
@@ -264,7 +266,7 @@ public class HttpRequest {
         private void logOut() {
             LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
-            Toast.makeText(application, "Your session has expired.  Please log in again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(application, Resources.getSystem().getString(R.string.log_in_again_toast), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(application, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             application.startActivity(intent);

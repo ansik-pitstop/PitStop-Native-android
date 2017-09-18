@@ -1,6 +1,7 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,8 +48,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
         int viewType = getItemViewType(position);
 
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.date.setText("No Trips");
-            holder.details.setText("There are currently no trips");
+            holder.date.setText(Resources.getSystem().getString(R.string.no_trips_title));
+            holder.details.setText(Resources.getSystem().getString(R.string.no_trips));
         } else {
             View.OnClickListener clickListener = new View.OnClickListener() {
                 @Override
