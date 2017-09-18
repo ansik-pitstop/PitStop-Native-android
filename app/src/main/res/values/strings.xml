@@ -132,7 +132,7 @@
     <string name="feature_notification">Pitstop alerts you when your vehicle is due for service, when there\'s a manufacturing recall, and when there is an issue with your engine.</string>
 
 
-    <string name="logging_in_message">Logging in...</string>
+    <string name="logging_in_message">Logging in..&#8230;.</string>
     <string name="sign_up_fb">Sign up with facebook</string>
     <string name="log_in_button">LOG IN</string>
     <string name="log_in_fb">Log in with Facebook</string>
@@ -168,7 +168,7 @@
     <!--Upcoming Timeline-->
     
     <string name="kilometers_unit">KMs</string>
-    <string name="timeline_error_message">Something went wrong...</string>
+    <string name="timeline_error_message">Something went wrong&#8230;</string>
     <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
 
     <!--Dashboard-->
@@ -252,7 +252,7 @@
     <string name="unable_to_add_shop_toast_message">Unable to add shop please try again</string>
     <string name="shop_fragment_field_missing_title">Field Missing</string>
     <string name="enter_shop_name_message">Please enter the shop name</string>
-    <string name="enter_shop_email_or_phone_message">Pkease enter the shop name</string>
+    <string name="enter_shop_email_or_phone_message">Please enter the shop name</string>
     <string name="error_updating_shop_details_toast_massage">There was an error updating your shop details</string>
     <string name="error_adding_shops_toast_massage">There was an error adding your shop</string>
     <string name="error_loading_shops_toast_massage">There was an error loading your shop</string>
@@ -263,8 +263,6 @@
     <string name="no_shop_alert_dialog_title">Are you sure you do not wish to select a shop?</string>
     <string name="no_shop_alert_dialog_message">You won\'t be able to request services. You can add a shop in the settings page at any time</string>
     <string name="no_matching_shops_text_">No Matching Shops</string>
-
-
 
     <!--Main activity and FAB menu -->
     <string name="select_car_request_toast">Please select a car</string>
@@ -278,7 +276,7 @@
     <string name="invalid_device_alert_message">Your OBD device has lost its ID or is invalid, please input the ID found on the front of the device so our algorithm can fix it.</string>
     <string name="ignore_button_text">Ignore</string>
     <string name="request_permission_alert_title">Request Permissions</string>
-    <string name="show_loading_string">Loading...</string>
+    <string name="show_loading_string">Loading&#8230;</string>
     <string name="add_car_toast_text">Please add a car</string>
     <string name="error_loading_car_toast_text">Error loading car</string>
     <string name="request_service_get_started_button">Get Started</string>

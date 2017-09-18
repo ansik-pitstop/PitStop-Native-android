@@ -48,6 +48,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @BindView(R.id.service_description)
     TextView serviceDescription;
 
+
     @BindView(R.id.service_action_button)
     RelativeLayout actionButton;
     @BindView(R.id.service_action_list)

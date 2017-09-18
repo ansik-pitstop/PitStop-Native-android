@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.EventBus.EventSource;
@@ -69,7 +70,7 @@ public class PitstopShopsPresenter implements ShopPresenter {
             public void onError(RequestError error) {
                 if(pitstopShops != null){
                     pitstopShops.loading(false);
-                    pitstopShops.toast(Resources.getSystem().getString(R.string.error_loading_pitstop_shops_toast_message));
+                    pitstopShops.toast(((Fragment)pitstopShops).getString(R.string.error_loading_pitstop_shops_toast_message));
                 }
             }
         });
@@ -103,7 +104,7 @@ public class PitstopShopsPresenter implements ShopPresenter {
 
             @Override
             public void onError(RequestError error) {
-                pitstopShops.toast(Resources.getSystem().getString(R.string.error_selecting_shop_toast_message));
+                pitstopShops.toast(((Fragment)pitstopShops).getString(R.string.error_selecting_shop_toast_message));
 
             }
         });

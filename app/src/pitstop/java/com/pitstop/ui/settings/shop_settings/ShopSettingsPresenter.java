@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.shop_settings;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.R;
@@ -65,7 +66,7 @@ public class ShopSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(shopSettings != null){
-                    shopSettings.toast(Resources.getSystem().getString(R.string.error_removing_shop_toast));
+                    shopSettings.toast(((Fragment)shopSettings).getString(R.string.error_removing_shop_toast));
                 }
             }
         });

@@ -48,8 +48,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
         int viewType = getItemViewType(position);
 
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.date.setText(Resources.getSystem().getString(R.string.no_trips_title));
-            holder.details.setText(Resources.getSystem().getString(R.string.no_trips));
+            holder.date.setText(R.string.no_trips_title);
+            holder.details.setText(R.string.no_trips);
         } else {
             View.OnClickListener clickListener = new View.OnClickListener() {
                 @Override

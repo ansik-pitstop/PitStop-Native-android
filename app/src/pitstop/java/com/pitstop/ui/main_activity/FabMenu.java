@@ -108,7 +108,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity, Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, mActivity.getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -139,7 +139,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,mActivity.getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -162,7 +162,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,mActivity.getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -190,7 +190,7 @@ public class FabMenu {
 
             @Override
             public void onNoCarSet() {
-                Toast.makeText(mActivity,Resources.getSystem().getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,mActivity.getString(R.string.select_car_request_toast), Toast.LENGTH_SHORT).show();
             }
 
             @Override

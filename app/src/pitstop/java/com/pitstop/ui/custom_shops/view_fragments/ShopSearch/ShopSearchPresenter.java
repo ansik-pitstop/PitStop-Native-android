@@ -1,5 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
+import android.app.Fragment;
 import android.content.res.Resources;
 
 import android.util.Log;

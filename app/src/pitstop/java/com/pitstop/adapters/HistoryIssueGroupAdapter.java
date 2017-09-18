@@ -151,7 +151,7 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         }
 
         String header = headers.get(groupPosition);
-        ((TextView) convertView.findViewById(R.id.issue_group_header)).setText(header.equals("") ? Resources.getSystem().getString(R.string.no_date) : header);
+        ((TextView) convertView.findViewById(R.id.issue_group_header)).setText(header.equals("") ? convertView.getContext().getString(R.string.no_date) : header);
 
         return convertView;
     }
@@ -177,7 +177,7 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
 
         desc.setText(issue.getDescription());
         if (issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {
-            date.setText(Resources.getSystem().getString(R.string.done));
+            date.setText(convertView.getContext().getString(R.string.done));
         } else {
             date.setText(String.format("Done on %s", DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt())));
         }
