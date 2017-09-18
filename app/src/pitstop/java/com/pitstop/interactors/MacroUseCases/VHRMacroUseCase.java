@@ -27,6 +27,8 @@ import java.util.Queue;
 
 public class VHRMacroUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     public interface Callback{
         void onStartGetServices();
         void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls);
@@ -77,6 +79,7 @@ public class VHRMacroUseCase {
         next();
     }
     private void next(){
+        Log.d(TAG,"next()");
         if(interactorQueue.isEmpty()){finish();}
 
         //Start progress timer
@@ -90,6 +93,7 @@ public class VHRMacroUseCase {
             ((GetCurrentServicesUseCaseImpl) current).execute(new GetCurrentServicesUseCase.Callback() {
                 @Override
                 public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+                    Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
                     List<CarIssue> recalls = new ArrayList<CarIssue>();
                     for(CarIssue c: currentServices){
                         if(c.getIssueType().equals(CarIssue.RECALL)){
@@ -109,6 +113,7 @@ public class VHRMacroUseCase {
 
                 @Override
                 public void onNoCarAdded(){
+                    Log.d(TAG,"getCurrentServicesUseCase.onNoCarAdded()");
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
 //                    callback.onServiceError();
@@ -116,6 +121,7 @@ public class VHRMacroUseCase {
 
                 @Override
                 public void onError(RequestError error) {
+                    Log.d(TAG,"getCurrentServicesUseCase.onError()");
 //                    callback.onServiceError();
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
@@ -129,6 +135,7 @@ public class VHRMacroUseCase {
             ((GetDTCUseCaseImpl) current).execute(bluetooth, new GetDTCUseCase.Callback() {
                 @Override
                 public void onGotDTCs(HashMap<String, Boolean> dtc) {
+                    Log.d(TAG,"getDTCUseCase.onGotDTCs() dtc: "+dtc);
                     retrievedDtc = new HashMap<>(dtc);
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
@@ -138,6 +145,7 @@ public class VHRMacroUseCase {
 
                 @Override
                 public void onError(RequestError error) {
+                    Log.d(TAG,"getDTCUseCase.onError()");
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
 //                    callback.onDTCError();
@@ -150,6 +158,7 @@ public class VHRMacroUseCase {
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
                 public void onGotPIDs(HashMap<String, String> pid) {
+                    Log.d(TAG,"getPIDUseCase.onGotPIDs() pid: "+pid);
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
 //                    callback.onGotPID();
@@ -159,6 +168,7 @@ public class VHRMacroUseCase {
 
                 @Override
                 public void onError(RequestError error) {
+                    Log.d(TAG,"getPidUseCase.onError()");
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
 //                    callback.onPIDError();
