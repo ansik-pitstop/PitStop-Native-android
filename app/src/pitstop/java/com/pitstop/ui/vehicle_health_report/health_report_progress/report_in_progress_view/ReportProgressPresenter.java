@@ -41,7 +41,7 @@ public class ReportProgressPresenter {
         public void onTick(long millisUntilFinished) {
             if (view == null) return;
             double dtcLen =(int)BluetoothConnectionObservable.RETRIEVAL_LEN_DTC*1000;
-            double dtcProgress = (PROGRESS_FINISH/PROGRESS_START_GET_DTC)
+            double dtcProgress = (PROGRESS_START_GET_DTC/PROGRESS_FINISH)
                     *(dtcLen*100/millisUntilFinished);
             view.setLoading((int)dtcProgress);
             Log.d(TAG,"dtcLoadingTimer.onTick() progress: "+(int)dtcProgress);
