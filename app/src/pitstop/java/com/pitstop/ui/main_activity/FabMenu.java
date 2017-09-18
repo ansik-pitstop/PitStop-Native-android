@@ -154,8 +154,6 @@ public class FabMenu {
             @Override
             public void onCarRetrieved(Car car) {
                 mMixpanelHelper.trackDealershipCallTapped();
-                mMixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         car.getDealership().getPhone()));
                 mActivity.startActivity(intent);
@@ -181,8 +179,6 @@ public class FabMenu {
             @Override
             public void onCarRetrieved(Car car) {
                 mMixpanelHelper.trackDealershipDirectionsTapped();
-                mMixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
 
                 String uri = String.format(Locale.ENGLISH,
                         "http://maps.google.com/maps?daddr=%s",
