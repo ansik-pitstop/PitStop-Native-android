@@ -140,7 +140,7 @@ public class ReportProgressPresenter {
 
     private void handleError(String title, String body, DialogInterface.OnClickListener onOkClicked){
         final int ERR_DELAY_LEN = 1500;
-        view.changeStep(body);
+        view.changeStep(title);
         mainHandler.postDelayed(() -> view.showError(title,body,onOkClicked),ERR_DELAY_LEN);
     }
 
