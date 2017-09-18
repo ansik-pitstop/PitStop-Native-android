@@ -15,18 +15,39 @@
         app:progress_reached_color="@color/primary"
         app:progress_text_color="@color/primary" />
 
-    <Button
-        android:id="@+id/error_button"
-        style="@style/Widget.AppCompat.Button.Colored"
+    <LinearLayout
+        android:id="@+id/error_holder"
+        android:orientation="vertical"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/step_holder"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/color_button_rectangle_primary"
-        android:text="Return" />
+        android:layout_marginTop="25dp"
+        android:layout_below="@id/progress_bar">
+
+        <TextView
+            android:id="@+id/error_text"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="5dp"
+            android:text="Error occurred"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/primary" />
+
+        <Button
+            android:id="@+id/error_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/color_button_rectangle_primary"
+            android:text="Return" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/step_holder"

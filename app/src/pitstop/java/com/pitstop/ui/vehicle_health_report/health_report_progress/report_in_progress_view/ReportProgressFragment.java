@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,8 +47,11 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     @BindView(R.id.start_report_button)
     Button bigButton;
 
-    @BindView(R.id.error_button)
-    Button errorButton;
+    @BindView(R.id.error_holder)
+    View errorHolder;
+
+    @BindView(R.id.error_text)
+    TextView errorText;
 
     private ReportCallback callback;
     private Context context;
@@ -108,7 +110,6 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                             .duration(500L)
                             .start();
                 }).start();
-        errorButton.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.error_button)
@@ -124,12 +125,17 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @Override
     public void showError(String title, String body, DialogInterface.OnClickListener onOkClicked) {
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle(title)
-                .setMessage(body)
-                .setCancelable(false)
-                .setPositiveButton("Ok", onOkClicked)
-                .create();
-        alertDialog.show();
+        ViewAnimator.animate(stepHolder)
+                .fadeOut()
+                .duration(500L)
+                .onStop(() -> {
+                    errorText.setText(body);
+                    ViewAnimator.animate(errorHolder)
+                            .fadeIn()
+                            .duration(500L)
+                            .start();
+
+                })
+                .start();
     }
 }
