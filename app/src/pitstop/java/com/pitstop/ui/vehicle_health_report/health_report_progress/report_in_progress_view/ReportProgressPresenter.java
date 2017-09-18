@@ -21,6 +21,8 @@ public class ReportProgressPresenter {
 
     private final String TAG = getClass().getSimpleName();
 
+    private final int DELAY_SET_VIEW_REPORT = 1500;
+
     private ReportProgressView view;
 
     private ReportCallback callback;
@@ -30,7 +32,7 @@ public class ReportProgressPresenter {
     private List<CarIssue> recallList;
 
     private BluetoothConnectionObservable bluetooth;
-
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
 
     public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component){
@@ -113,10 +115,12 @@ public class ReportProgressPresenter {
            }
 
            @Override
-           public void onFinish() {
-               Log.d(TAG,"VHRMacrouseCase.onFinish()");
-               changeStep("Completed");
-               setViewReport();
+           public void onFinish(boolean success) {
+               Log.d(TAG,"VHRMacrouseCase.onFinish() success? "+success);
+               if (success){
+                   changeStep("Completed");
+                   mainHandler.postDelayed(() -> setViewReport(),DELAY_SET_VIEW_REPORT);
+               }
            }
 
            @Override
@@ -137,10 +141,7 @@ public class ReportProgressPresenter {
     private void handleError(String title, String body, DialogInterface.OnClickListener onOkClicked){
         final int ERR_DELAY_LEN = 1500;
         view.changeStep(body);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            view.showError(title,body,onOkClicked);
-            callback.finishActivity();
-        },ERR_DELAY_LEN);
+        mainHandler.postDelayed(() -> view.showError(title,body,onOkClicked),ERR_DELAY_LEN);
     }
 
     private void setViewReport(){

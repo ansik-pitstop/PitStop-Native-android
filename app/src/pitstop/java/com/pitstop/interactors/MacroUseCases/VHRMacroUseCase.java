@@ -39,11 +39,11 @@ public class VHRMacroUseCase {
         void onStartPID();
         void onGotPID();
         void onPIDError();
-        void onFinish();
+        void onFinish(boolean success);
         void onProgressUpdate(int progress);
     }
 
-    private final int TIME_GET_SERVICES = 2;
+    private final int TIME_GET_SERVICES = 4;
     private final int TYPE_GET_SERVICES = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
@@ -60,6 +60,8 @@ public class VHRMacroUseCase {
     private List<CarIssue> retrievedRecalls;
     private HashMap<String, Boolean> retrievedDtc;
     private HashMap<String, String> retrievedPid;
+
+    private boolean success = true;
 
     public VHRMacroUseCase(UseCaseComponent component, BluetoothConnectionObservable bluetooth, Callback callback){
         this.callback = callback;
@@ -108,27 +110,18 @@ public class VHRMacroUseCase {
                     currentServices.addAll(customIssues);
                     retrievedCurrentServices = new ArrayList<>(currentServices);
                     retrievedRecalls = new ArrayList<>(recalls);
-//                    callback.onServicesGot(currentServices,recalls);
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    next();
                 }
 
                 @Override
                 public void onNoCarAdded(){
                     Log.d(TAG,"getCurrentServicesUseCase.onNoCarAdded()");
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    callback.onServiceError();
+                    success = false;
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    Log.d(TAG,"getCurrentServicesUseCase.onError()");
-//                    callback.onServiceError();
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    finish();
+                    Log.d(TAG,"getCurrentServicesUseCase.onError() error: "+error.getMessage());
+                    success = false;
                 }
             });
         }
@@ -140,19 +133,12 @@ public class VHRMacroUseCase {
                 public void onGotDTCs(HashMap<String, Boolean> dtc) {
                     Log.d(TAG,"getDTCUseCase.onGotDTCs() dtc: "+dtc);
                     retrievedDtc = new HashMap<>(dtc);
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    callback.onGotDTC();
-//                    next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    Log.d(TAG,"getDTCUseCase.onError()");
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    callback.onDTCError();
-//                    finish();
+                    Log.d(TAG,"getDTCUseCase.onError() error: "+error.getMessage());
+                    success = false;
                 }
             });
         }
@@ -162,20 +148,13 @@ public class VHRMacroUseCase {
                 @Override
                 public void onGotPIDs(HashMap<String, String> pid) {
                     Log.d(TAG,"getPIDUseCase.onGotPIDs() pid: "+pid);
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    callback.onGotPID();
                     retrievedPid = new HashMap<>(pid);
-//                    next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    Log.d(TAG,"getPidUseCase.onError()");
-//                    progressTimerQueue.peek().cancel();
-//                    progressTimerQueue.remove();
-//                    callback.onPIDError();
-//                    finish();
+                    Log.d(TAG,"getPidUseCase.onError() error: "+error.getMessage());
+                    success = false;
                 }
             });
         }
@@ -185,7 +164,7 @@ public class VHRMacroUseCase {
     }
 
     private void finish(){
-        callback.onFinish();
+        callback.onFinish(success);
     }
 
     private class ProgressTimer extends CountDownTimer{
