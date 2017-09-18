@@ -43,7 +43,7 @@ public class VHRMacroUseCase {
         void onProgressUpdate(int progress);
     }
 
-    private final int TIME_GET_SERVICES = 4;
+    private final int TIME_GET_SERVICES = 6;
     private final int TYPE_GET_SERVICES = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
