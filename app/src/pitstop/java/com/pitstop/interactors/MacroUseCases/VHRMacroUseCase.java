@@ -104,22 +104,22 @@ public class VHRMacroUseCase {
 //                    callback.onServicesGot(currentServices,recalls);
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
-                    next();
+//                    next();
                 }
 
                 @Override
                 public void onNoCarAdded(){
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
-                    callback.onServiceError();
+//                    callback.onServiceError();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    callback.onServiceError();
+//                    callback.onServiceError();
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
-                    finish();
+//                    finish();
                 }
             });
         }
@@ -133,15 +133,15 @@ public class VHRMacroUseCase {
 //                    progressTimerQueue.peek().cancel();
 //                    progressTimerQueue.remove();
 //                    callback.onGotDTC();
-                    next();
+//                    next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    progressTimerQueue.peek().cancel();
-                    progressTimerQueue.remove();
-                    callback.onDTCError();
-                    finish();
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
+//                    callback.onDTCError();
+//                    finish();
                 }
             });
         }
@@ -154,15 +154,15 @@ public class VHRMacroUseCase {
 //                    progressTimerQueue.remove();
 //                    callback.onGotPID();
                     retrievedPid = new HashMap<>(pid);
-                    next();
+//                    next();
                 }
 
                 @Override
                 public void onError(RequestError error) {
-                    progressTimerQueue.peek().cancel();
-                    progressTimerQueue.remove();
-                    callback.onPIDError();
-                    finish();
+//                    progressTimerQueue.peek().cancel();
+//                    progressTimerQueue.remove();
+//                    callback.onPIDError();
+//                    finish();
                 }
             });
         }
@@ -175,7 +175,7 @@ public class VHRMacroUseCase {
         callback.onFinish();
     }
 
-    class ProgressTimer extends CountDownTimer{
+    private class ProgressTimer extends CountDownTimer{
 
         private final int PROGRESS_START_GET_SERVICES = 0;
         private final int PROGRESS_START_GET_DTC = 10;
@@ -197,16 +197,26 @@ public class VHRMacroUseCase {
                 case TYPE_GET_SERVICES:
                     this.startProgress = PROGRESS_START_GET_SERVICES;
                     this.finishProgress = PROGRESS_START_GET_DTC;
+                    Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GET_SERVICES, useCaseTime: "
+                            +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
+                            +finishProgress);
                     break;
                 case TYPE_GET_DTC:
                     this.startProgress = PROGRESS_START_GET_DTC;
                     this.finishProgress = PROGRESS_START_GET_PID;
+                    Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GET_DTC, useCaseTime: "
+                            +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
+                            +finishProgress);
                     break;
                 case TYPE_GET_PID:
+                    Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GET_PID, useCaseTime: "
+                            +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
+                            +finishProgress);
                     this.startProgress = PROGRESS_START_GET_PID;
                     this.finishProgress = PROGRESS_FINISH;
                     break;
                 default:
+                    Log.d(TAG,"ProgressTimer onCreate() error: unknown type");
                     throw new IllegalArgumentException();
             }
         }
@@ -230,26 +240,38 @@ public class VHRMacroUseCase {
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_SERVICES, retrieviedRecalls null? "
                             +(retrievedRecalls == null) +", retrievedCurrentServices null? "
                             +(retrievedCurrentServices == null));
-                    if (retrievedRecalls == null || retrievedCurrentServices == null)
+                    if (retrievedRecalls == null || retrievedCurrentServices == null){
                         callback.onServiceError();
-                    else
+                        finish();
+                    }
+                    else{
                         callback.onServicesGot(retrievedCurrentServices,retrievedRecalls);
+                        next();
+                    }
                     break;
                 case TYPE_GET_DTC:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_DTC, retrieviedDtc null? "
                             +(retrievedDtc == null));
-                    if (retrievedDtc == null)
+                    if (retrievedDtc == null){
                         callback.onDTCError();
-                    else
+                        finish();
+                    }
+                    else{
                         callback.onGotDTC();
+                        next();
+                    }
                     break;
                 case TYPE_GET_PID:
                     Log.d(TAG,"progressTimer().onFinish() type: TYPE_GET_PID, retrievedPid null? "
                             +(retrievedPid == null));
-                    if (retrievedPid == null)
+                    if (retrievedPid == null){
                         callback.onPIDError();
-                    else
+                        finish();
+                    }
+                    else{
                         callback.onGotPID();
+                        next();
+                    }
                     break;
             }
         }
