@@ -112,6 +112,7 @@ public class ReportProgressPresenter {
 
            @Override
            public void onProgressUpdate(int progress) {
+               Log.d(TAG,"VHRMacroUseCase.onProgressUpdate() progress: "+progress);
                if (view != null) view.setLoading(progress);
            }
        });
