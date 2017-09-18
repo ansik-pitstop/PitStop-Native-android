@@ -114,6 +114,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @OnClick(R.id.error_button)
     public void onErrorButtonClicked(){
+        Log.d(TAG,"onErrorButtonClicked()");
         presenter.onErrorButtonClicked();
     }
 
@@ -125,6 +126,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @Override
     public void showError(String title, String body, DialogInterface.OnClickListener onOkClicked) {
+        Log.d(TAG,"showError() title: "+title+", body: "+body);
         ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
