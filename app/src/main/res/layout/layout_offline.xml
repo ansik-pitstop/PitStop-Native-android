@@ -8,7 +8,7 @@
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_centerInParent="true"
         android:textColor="@color/black50"
-        android:text="@string/please_connect_to_the_internet"
+        android:text="@string/offline_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <Button

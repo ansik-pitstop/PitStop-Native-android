@@ -233,7 +233,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setTitle(getString(R.string.invalid_mileage_alert_title))
                 .setMessage(getString(R.string.invalid_mileage_alert_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.device_search_fragment_alert_okbutton), new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -280,7 +280,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setTitle(getString(R.string.add_car_error_alert_title))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.device_search_fragment_alert_okbutton), new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -298,7 +298,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setTitle(getString(R.string.car_already_added_alert_title))
                 .setMessage(getString(R.string.car_already_added_alert_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.device_search_fragment_alert_okbutton), new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
