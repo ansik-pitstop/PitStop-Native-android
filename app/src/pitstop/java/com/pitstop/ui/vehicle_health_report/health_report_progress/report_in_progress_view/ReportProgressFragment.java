@@ -2,8 +2,10 @@ package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_pr
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,5 +110,16 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     public void setLoading(int progress) {
         Log.d(TAG,"setLoading() progress: "+progress);
         progressBar.setProgress(progress);
+    }
+
+    @Override
+    public void showError(String title, String body, DialogInterface.OnClickListener onOkClicked) {
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(title)
+                .setMessage(body)
+                .setCancelable(false)
+                .setPositiveButton("Ok", onOkClicked)
+                .create();
+        alertDialog.show();
     }
 }

@@ -110,6 +110,12 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
         fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
         fragmentTransaction.commit();
     }
+
+    @Override
+    public void finishActivity() {
+        finish();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG,"onOptionsItemSelected()");

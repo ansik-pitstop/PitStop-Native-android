@@ -1,5 +1,8 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view;
 
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
@@ -68,6 +71,8 @@ public class ReportProgressPresenter {
 
            @Override
            public void onServiceError() {
+               handleError("Error","Error retrieving car services and recalls"
+                       ,(DialogInterface dialog, int which) -> callback.finishActivity());
                 Log.d(TAG,"VHRMacrouseCase.onServiceError()");
            }
 
@@ -85,6 +90,8 @@ public class ReportProgressPresenter {
            @Override
            public void onDTCError() {
                Log.d(TAG,"VHRMacrouseCase.onDTCError()");
+               handleError("Error","Error retrieving engine codes"
+                       ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
            @Override
@@ -101,6 +108,8 @@ public class ReportProgressPresenter {
            @Override
            public void onPIDError() {
                Log.d(TAG,"VHRMacrouseCase.onPidError()");
+               handleError("Error","Error retrieving real time car data"
+                       ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
            @Override
@@ -123,6 +132,15 @@ public class ReportProgressPresenter {
         Log.d(TAG,"changeStep() step: "+step);
         if(view == null || callback == null){return;}
         view.changeStep(step);
+    }
+
+    private void handleError(String title, String body, DialogInterface.OnClickListener onOkClicked){
+        final int ERR_DELAY_LEN = 1500;
+        view.changeStep(body);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            view.showError(title,body,onOkClicked);
+            callback.finishActivity();
+        },ERR_DELAY_LEN);
     }
 
     private void setViewReport(){
