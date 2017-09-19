@@ -14,6 +14,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -36,18 +37,20 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     private Car dashboardCar;
     private UseCaseComponent useCaseComponent;
     private BluetoothConnectionObservable bluetoothObservable;
-
+    private MixpanelHelper mixpanelHelper;
     private boolean isAskingForDtcs = false;
 
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
     public ScanPresenter(BluetoothConnectionObservable observable
-            , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
+            , UseCaseComponent useCaseComponent, NetworkHelper networkHelper
+            , MixpanelHelper mixpanelHelper) {
 
         bluetoothObservable = observable;
         this.networkHelper = networkHelper;
         this.useCaseComponent = useCaseComponent;
+        this.mixpanelHelper = mixpanelHelper;
 
     }
 
@@ -270,6 +273,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
         if (!isAskingForDtcs) return;
         view.onEngineCodesRetrieved(new HashSet<String>(dtc.keySet()));
+        mixpanelHelper.trackScanCompleted();
     }
 
     @Override
