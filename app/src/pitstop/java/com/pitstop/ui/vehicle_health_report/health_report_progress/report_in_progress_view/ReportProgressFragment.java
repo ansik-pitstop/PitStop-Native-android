@@ -22,6 +22,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,6 +53,12 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
 
     @BindView(R.id.error_text)
     TextView errorText;
+
+    @BindView(R.id.start_report_animation)
+    AVLoadingIndicatorView startReportAnimation;
+
+    @BindView(R.id.progress_report_animation)
+    AVLoadingIndicatorView progressReportAnimation;
 
     private ReportCallback callback;
     private Context context;
@@ -134,6 +141,8 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                 .fadeOut()
                 .duration(500L)
                 .onStop(() -> {
+                    progressReportAnimation.hide();
+                    startReportAnimation.show();
                     progressBar.setProgress(View.GONE);
                     stepHolder.setVisibility(View.GONE);
                     errorHolder.setVisibility(View.VISIBLE);
