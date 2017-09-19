@@ -3,11 +3,10 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothDtcObserver;
-
-import java.util.HashMap;
 
 /**
  * Created by Matt on 2017-08-23.
@@ -39,7 +38,7 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
         });
     }
 
-    private void onGotDTCs(HashMap<String, Boolean> dtc, BluetoothDtcObserver bluetoothDtcObserver){
+    private void onGotDTCs(DtcPackage dtc, BluetoothDtcObserver bluetoothDtcObserver){
         mainHandler.post(() -> {
             callback.onGotDTCs(dtc);
             bluetooth.unsubscribe(bluetoothDtcObserver);
@@ -54,7 +53,7 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
     public void run() {
         BluetoothDtcObserver dtcObserver = new BluetoothDtcObserver() {
             @Override
-            public void onGotDtc(HashMap<String, Boolean> dtc) {
+            public void onGotDtc(DtcPackage dtc) {
                 GetDTCUseCaseImpl.this.onGotDTCs(dtc,this);
             }
 

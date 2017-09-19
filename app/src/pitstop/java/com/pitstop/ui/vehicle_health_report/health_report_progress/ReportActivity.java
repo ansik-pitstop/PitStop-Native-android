@@ -117,11 +117,16 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     }
 
     @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG,"onOptionsItemSelected()");
         int id = item.getItemId();
         if(id == android.R.id.home){
-            super.onBackPressed();
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }

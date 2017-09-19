@@ -3,6 +3,8 @@ package com.pitstop.interactors.MacroUseCases;
 import android.os.CountDownTimer;
 import android.util.Log;
 
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
@@ -16,7 +18,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -58,8 +59,8 @@ public class VHRMacroUseCase {
     //Lists for progress timers to communicate results
     private List<CarIssue> retrievedCurrentServices;
     private List<CarIssue> retrievedRecalls;
-    private HashMap<String, Boolean> retrievedDtc;
-    private HashMap<String, String> retrievedPid;
+    private DtcPackage retrievedDtc;
+    private PidPackage retrievedPid;
 
     private boolean success = true;
 
@@ -133,9 +134,9 @@ public class VHRMacroUseCase {
             callback.onStartGetDTC();
             ((GetDTCUseCaseImpl) current).execute(bluetooth, new GetDTCUseCase.Callback() {
                 @Override
-                public void onGotDTCs(HashMap<String, Boolean> dtc) {
+                public void onGotDTCs(DtcPackage dtc) {
                     Log.d(TAG,"getDTCUseCase.onGotDTCs() dtc: "+dtc);
-                    retrievedDtc = new HashMap<>(dtc);
+                    retrievedDtc = dtc;
                 }
 
                 @Override
@@ -149,9 +150,9 @@ public class VHRMacroUseCase {
             callback.onStartPID();
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
-                public void onGotPIDs(HashMap<String, String> pid) {
+                public void onGotPIDs(PidPackage pid) {
                     Log.d(TAG,"getPIDUseCase.onGotPIDs() pid: "+pid);
-                    retrievedPid = new HashMap<>(pid);
+                    retrievedPid = pid;
                 }
 
                 @Override

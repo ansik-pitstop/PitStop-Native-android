@@ -1,10 +1,9 @@
 package com.pitstop.interactors.get;
 
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
-
-import java.util.HashMap;
 
 /**
  * Created by Matt on 2017-08-23.
@@ -12,7 +11,7 @@ import java.util.HashMap;
 
 public interface GetPIDUseCase extends Interactor {
     interface Callback{
-        void onGotPIDs(HashMap<String, String> pid);
+        void onGotPIDs(PidPackage pid);
         void onError(RequestError error);
     }
 

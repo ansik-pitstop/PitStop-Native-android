@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -129,7 +130,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private UseCaseComponent useCaseComponent;
     private ReadyDevice readyDevice;
     private BluetoothDeviceManager deviceManager;
-    private HashMap<String ,Boolean> requestedDtcList;
+    private DtcPackage requestedDtcs;
     private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
 
     /**For tracking pid in mixpanel helper**/
@@ -187,10 +188,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onTimeout() {
             Log.d(TAG,"dtcTimeoutTimer.onTimeout() dtcRequested? "+dtcRequested
-                    +" found dtc: "+ requestedDtcList);
+                    +" found dtc: "+ requestedDtcs);
             if (!dtcRequested) return;
-            if (requestedDtcList == null) notifyErrorGettingDtcData();
-            else notifyDtcData(requestedDtcList);
+            if (requestedDtcs == null) notifyErrorGettingDtcData();
+            else notifyDtcData(requestedDtcs);
         }
     };
 
@@ -465,7 +466,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dtcRequested) return false;
 
         dtcRequested = true;
-        requestedDtcList = null;
+        requestedDtcs = null;
         if (dtcTimeoutTimer.isRunning())
             dtcTimeoutTimer.cancel();
         dtcTimeoutTimer.startTimer();
@@ -663,23 +664,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcPackage.deviceId = currentDeviceId;
         dtcDataHandler.handleDtcData(dtcPackage);
+        Log.d(TAG,"requestedDtcs before appending: "+requestedDtcs);
         appendDtc(dtcPackage);
+        Log.d(TAG,"requestedDtcs after appending: "+requestedDtcs);
 
     }
 
     private void appendDtc(DtcPackage dtcPackage){
-        //This needs to be called before a return is made otherwise error will be thrown
-        if (requestedDtcList == null) requestedDtcList = new HashMap<>();
-
-        if (dtcPackage == null) return;
-
-        Log.d(TAG,"appendDtc() dtc before appending: "+ requestedDtcList);
-        for (String d: dtcPackage.dtcs){
-            if (!requestedDtcList.containsKey(d) && !requestedDtcList.get(d) == dtcPackage.isPending){
-                requestedDtcList.put(d,dtcPackage.isPending);
+        if (requestedDtcs == null && dtcPackage != null){
+            requestedDtcs = dtcPackage;
+        }else{
+            for (Map.Entry<String,Boolean> dtc: dtcPackage.dtcs.entrySet()){
+                //Check whether requested dtcs already contains same <String,Boolean> pair, if not add
+                if (!requestedDtcs.dtcs.containsKey(dtc.getKey())
+                        && !requestedDtcs.dtcs.get(dtc.getKey()).equals(dtc.getValue()))
+                    requestedDtcs.dtcs.put(dtc.getKey(),dtc.getValue());
             }
         }
-        Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtcList);
     }
 
     @Override
@@ -974,7 +975,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcData(HashMap<String, Boolean> dtc) {
+    private void notifyDtcData(DtcPackage dtc) {
         Log.d(TAG,"notifyDtcData() "+dtc);
         if (!dtcRequested) return;
         dtcRequested = false;
@@ -1053,7 +1054,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
                 mainHandler.post(()
-                        -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids));
+                        -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage));
             }
         }
     }

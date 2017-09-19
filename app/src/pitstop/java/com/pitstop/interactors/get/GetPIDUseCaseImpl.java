@@ -3,11 +3,10 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothPidObserver;
-
-import java.util.HashMap;
 
 /**
  * Created by Matt on 2017-08-23.
@@ -34,7 +33,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
         useCaseHandler.post(this);
     }
 
-    private void onGotPIDs(HashMap<String, String> allPid, BluetoothPidObserver pidObserver){
+    private void onGotPIDs(PidPackage allPid, BluetoothPidObserver pidObserver){
         mainHandler.post(() -> {
             bluetooth.unsubscribe(pidObserver);
             callback.onGotPIDs(allPid);
@@ -56,7 +55,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
     public void run() {
         BluetoothPidObserver pidObserver = new BluetoothPidObserver() {
             @Override
-            public void onGotAllPid(HashMap<String, String> allPid) {
+            public void onGotAllPid(PidPackage allPid) {
                 Log.d(TAG,"onGotAllPid() allPid: "+allPid);
                 GetPIDUseCaseImpl.this.onGotPIDs(allPid,this);
             }

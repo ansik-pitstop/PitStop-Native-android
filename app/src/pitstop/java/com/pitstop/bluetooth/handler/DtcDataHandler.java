@@ -68,7 +68,7 @@ public class DtcDataHandler{
 
         for (DtcPackage p: pendingDtcPackages){
 
-            if(dtcPackage.dtcNumber > 0) {
+            if(dtcPackage.dtcs.size() > 0) {
                 saveDtcs(p);
                 bluetoothDataHandlerManager.requestFreezeData();
             }

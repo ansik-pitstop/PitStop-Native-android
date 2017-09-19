@@ -1,5 +1,6 @@
 package com.pitstop.interactors.MacroUseCases;
 
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -11,7 +12,6 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -61,9 +61,9 @@ public class EmissionsMacroUseCase {
           callback.onStartPID();
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
-                public void onGotPIDs(HashMap<String, String> pid) {
-                    if(pid.containsKey("2141")){
-                        pid2141 = pid.get("2141");
+                public void onGotPIDs(PidPackage pid) {
+                    if(pid.pids.containsKey("2141")){
+                        pid2141 = pid.pids.get("2141");
                         callback.onGotPID();
                         next();
                     }else{
