@@ -60,7 +60,7 @@
                 android:src="@drawable/ic_error_red_600_24dp"/>
             <TextView
                 android:id="@+id/message"
-                android:text="Please check your internet connection"
+                android:text="@string/internet_check_error"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="15dp"

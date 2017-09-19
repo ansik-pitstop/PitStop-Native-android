@@ -53,7 +53,7 @@
                 android:layout_marginBottom="8dp"
                 android:fontFamily="sans-serif-light"
                 android:maxLines="2"
-                android:text="ISSUE"
+                android:text="@string/issues"
                 android:textColor="@color/highlight"
                 android:textIsSelectable="false"
                 android:textSize="16sp" />

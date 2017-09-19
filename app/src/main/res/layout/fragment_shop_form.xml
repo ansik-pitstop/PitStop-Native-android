@@ -15,7 +15,7 @@
         android:id="@+id/textView9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Shop Name"/>
+        android:text="@string/shop_name"/>
 
     <EditText
         android:id="@+id/shop_name"
@@ -28,7 +28,7 @@
         android:id="@+id/textView10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Phone Number" />
+        android:text="@string/phone_number_hint" />
 
     <EditText
         android:id="@+id/phone_number"
@@ -41,21 +41,21 @@
         android:id="@+id/textView11"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email Address" />
+        android:text="@string/email_hint" />
 
     <EditText
         android:id="@+id/enter_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Enter your shops email"
+        android:hint="@string/enter_shop_email"
         android:inputType="textEmailAddress" />
 
     <TextView
         android:id="@+id/textView12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Street Address" />
+        android:text="@string/address" />
 
     <EditText
         android:id="@+id/street_address"
@@ -80,7 +80,7 @@
                 android:id="@+id/textView14"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="City" />
+                android:text="@string/city" />
 
             <EditText
                 android:id="@+id/enter_city"
@@ -101,7 +101,7 @@
                 android:id="@+id/textView15"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Province/State" />
+                android:text="@string/province_or_state" />
 
             <EditText
                 android:id="@+id/enter_province"
@@ -129,7 +129,7 @@
                 android:id="@+id/textView16"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Postal Code" />
+                android:text="@string/postal_code" />
 
             <EditText
                 android:id="@+id/postal_code"
@@ -149,7 +149,7 @@
                 android:id="@+id/textView17"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Country" />
+                android:text="@string/country" />
 
             <EditText
                 android:id="@+id/enter_country"
@@ -165,21 +165,18 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit" />
+        android:text="@string/submit_button" />
 
     <TextView
         android:id="@+id/textView18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please enter an email for this shop in order to"
-        android:layout_gravity="center_horizontal"/>
+        android:text="@string/enter_shop_email_to_request_service"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        />
 
-    <TextView
-        android:id="@+id/textView19"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="request service for your vehicle"
-        android:layout_gravity="center_horizontal"/>
+
 
     </LinearLayout>
 

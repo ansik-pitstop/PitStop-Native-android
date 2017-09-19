@@ -48,7 +48,7 @@
                     android:layout_centerHorizontal="true"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
-                    android:text="We couldn't get your cars"
+                    android:text="@string/couldnt_get_cars"
                     android:textAlignment="center"
                     android:textColor="#aaaaaa"
                     android:textSize="24sp"
@@ -63,7 +63,7 @@
                     android:background="@drawable/color_button_primary"
                     android:onClick="refreshClicked"
                     android:padding="16dp"
-                    android:text="Tap here to try again"
+                    android:text="@string/try_again"
                     android:textAllCaps="false"
                     android:textColor="#efefef"
                     android:textSize="18sp"/>
@@ -88,7 +88,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text="Loading"
+                        android:text="@string/loading"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="#000"/>
 
@@ -431,7 +431,7 @@
                                 android:id="@+id/my_trips_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:text="My Trips"
+                                android:text="@string/my_trips"
                                 android:textStyle="bold"
                                 android:layout_marginBottom="4dp"
                                 android:layout_weight="1"
@@ -507,7 +507,7 @@
                                 android:layout_marginBottom="4dp"
                                 android:layout_weight="1"
                                 android:gravity="center_vertical"
-                                android:text="My Appointments"
+                                android:text="@string/past_appts_title"
                                 android:textStyle="bold" />
 
                             <ImageView
@@ -568,7 +568,7 @@
                                     android:layout_alignParentTop="true"
                                     android:layout_marginLeft="4dp"
                                     android:layout_toEndOf="@+id/imageView19"
-                                    android:text="Message Dealer"/>
+                                    android:text="@string/message_dealer"/>
                             </LinearLayout>
                         </RelativeLayout>
 
@@ -608,7 +608,7 @@
                                     android:layout_alignParentTop="true"
                                     android:layout_marginLeft="4dp"
                                     android:layout_toEndOf="@+id/imageView21"
-                                    android:text="Scan Vehicle"/>
+                                    android:text="@string/scan_car"/>
                             </LinearLayout>
                         </RelativeLayout>
                     </LinearLayout>
@@ -639,7 +639,7 @@
                                 android:layout_marginBottom="4dp"
                                 android:layout_toLeftOf="@+id/dealership_action_icons"
                                 android:gravity="center_vertical"
-                                android:text="Dealership"
+                                android:text="@string/dealership"
                                 android:textSize="18sp"/>
 
                             <LinearLayout
