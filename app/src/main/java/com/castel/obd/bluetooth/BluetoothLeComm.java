@@ -98,10 +98,12 @@ public class BluetoothLeComm implements BluetoothCommunicator {
      */
     @Override
     public void close() {
+        Log.d(TAG,"close()");
         btConnectionState = DISCONNECTED;
         hasDiscoveredServices = false;
-        mCommandQueue.clear();
+        mCommandExecutor.shutdownNow();
         mCommandLock.release();
+        mCommandQueue.clear();
         if (mGatt != null) {
             mGatt.close();
         }
@@ -209,6 +211,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 Log.i(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
+                mCommandLock.release();
                 queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION, serviceUuid,
                         writeChar, readChar));
                 hasDiscoveredServices = true;
