@@ -22,6 +22,10 @@ public class ReportRepository implements Repository {
     private final String TAG = getClass().getSimpleName();
     private NetworkHelper networkHelper;
 
+    public ReportRepository(NetworkHelper networkHelper) {
+        this.networkHelper = networkHelper;
+    }
+
     private JSONArray dtcPackageToJSON(DtcPackage dtcPackage){
         JSONArray dtcArr = new JSONArray();
         for (Map.Entry<String,Boolean> entry: dtcPackage.dtcs.entrySet()){
