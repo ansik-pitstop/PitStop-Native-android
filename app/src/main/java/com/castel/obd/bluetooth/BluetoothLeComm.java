@@ -43,7 +43,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private MixpanelHelper mixpanelHelper;
     private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
-    ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
+    ExecutorService mCommandExecutor;
     //Semaphore lock to coordinate command executions, to ensure only one is
     //currently started and waiting on a response.
     Semaphore mCommandLock = new Semaphore(1,true);
@@ -114,6 +114,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     public void connectToDevice(final BluetoothDevice device) {
         Log.d(TAG,"Connect to device()");
         mCommandQueue.clear();
+        mCommandExecutor = Executors.newSingleThreadExecutor();
         new Handler().postDelayed(() -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
@@ -143,7 +144,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             mCommandQueue.add(command);
             //Schedule a new runnable to process that command (one command at a time executed only)
             ExecuteCommandRunnable runnable = new ExecuteCommandRunnable(command, mGatt);
-            mCommandExecutor.execute(runnable);
+            if (mCommandExecutor != null)
+                mCommandExecutor.execute(runnable);
         }
     }
 
