@@ -20,7 +20,7 @@ public class BluetoothDataVisualizer {
             Toast.makeText(context,"NULL pid values received",Toast.LENGTH_LONG).show();
         }else{
             Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
-            double rpm = 0;
+            String rpm = pidPackage.pids.get("210C");
             Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();
         }
     }
