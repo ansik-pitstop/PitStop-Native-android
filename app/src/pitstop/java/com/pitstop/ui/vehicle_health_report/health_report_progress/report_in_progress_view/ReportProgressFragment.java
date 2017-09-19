@@ -130,8 +130,12 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
         ViewAnimator.animate(stepHolder)
                 .fadeOut()
                 .duration(500L)
+                .andAnimate(progressBar)
+                .fadeOut()
+                .duration(500L)
                 .onStop(() -> {
-                    stepHolder.setVisibility(View.INVISIBLE);
+                    progressBar.setProgress(View.GONE);
+                    stepHolder.setVisibility(View.GONE);
                     errorHolder.setVisibility(View.VISIBLE);
                     errorText.setText(body);
                     ViewAnimator.animate(errorHolder)

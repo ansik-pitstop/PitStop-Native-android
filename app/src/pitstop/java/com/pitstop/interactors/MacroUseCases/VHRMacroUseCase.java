@@ -236,9 +236,10 @@ public class VHRMacroUseCase {
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_SERVICES, retrieviedRecalls null? "
                             +(retrievedRecalls == null) +", retrievedCurrentServices null? "
                             +(retrievedCurrentServices == null));
-                    if (retrievedRecalls == null || retrievedCurrentServices == null){
+                    if (retrievedRecalls == null || retrievedCurrentServices == null || true){ //TODO: remove true from IF and call finished() instead of callback.onFinished(false)
                         callback.onServiceError();
-                        finish();
+                        //finish();
+                        callback.onFinish(false);
                     }
                     else{
                         callback.onServicesGot(retrievedCurrentServices,retrievedRecalls);

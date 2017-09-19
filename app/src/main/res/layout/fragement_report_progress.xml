@@ -4,93 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.daimajia.numberprogressbar.NumberProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/start_report_button_holder"
-        android:layout_centerHorizontal="true"
-        android:layout_marginRight="50dp"
-        android:layout_marginLeft="50dp"
-        app:progress_reached_color="@color/primary"
-        app:progress_text_color="@color/primary" />
-
-    <LinearLayout
-        android:id="@+id/error_holder"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:layout_below="@id/progress_bar">
-
-        <TextView
-            android:id="@+id/error_text"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginRight="5dp"
-            android:text="Error occurred"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/primary" />
-
-        <Button
-            android:id="@+id/error_button"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/color_button_rectangle_primary"
-            android:text="Return" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/step_holder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:layout_below="@id/progress_bar"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/step_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginRight="5dp"
-            android:text="Starting"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/primary" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/report_progress_animation"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentBottom="true"
-                android:visibility="visible"
-                app:indicatorColor="@color/primary"
-                app:indicatorName="BallPulseIndicator" />
-        </RelativeLayout>
-
-
-    </LinearLayout>
-
     <FrameLayout
         android:id="@+id/start_report_button_holder"
         android:layout_marginTop="50dp"
         android:layout_width="300dp"
         android:layout_height="300dp"
-       android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true">
 
 
         <ImageView
@@ -147,4 +66,88 @@
             android:visibility="invisible" />
 
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/error_holder"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_below="@+id/start_report_button_holder">
+
+        <TextView
+            android:id="@+id/error_text"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="5dp"
+            android:text="Error occurred while generating vehicle health report"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/primary" />
+
+        <Button
+            android:id="@+id/error_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/color_button_rectangle_primary"
+            android:text="Return" />
+
+    </LinearLayout>
+
+    <com.daimajia.numberprogressbar.NumberProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/start_report_button_holder"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        app:progress_reached_color="@color/primary"
+        app:progress_text_color="@color/primary" />
+
+    <LinearLayout
+        android:id="@+id/step_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_below="@id/progress_bar"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/step_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="5dp"
+            android:text="Starting"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/primary" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/report_progress_animation"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentBottom="true"
+                android:visibility="visible"
+                app:indicatorColor="@color/primary"
+                app:indicatorName="BallPulseIndicator" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
 </RelativeLayout>
