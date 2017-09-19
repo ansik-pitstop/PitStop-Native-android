@@ -26,6 +26,7 @@ public class BluetoothDataVisualizer {
     }
 
     public static void visualizePidDataSent(boolean success, Context context){
+        Log.d(TAG,"visualizePidDataSent() success ? "+success);
         if (success)
             Toast.makeText(context,"Pid values sent to server successfully",Toast.LENGTH_LONG)
                     .show();
