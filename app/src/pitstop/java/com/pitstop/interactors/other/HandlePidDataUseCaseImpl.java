@@ -11,7 +11,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
-import com.pitstop.utils.BluetoothDataVisualizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -170,7 +169,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     public void onError(RequestError error){
                         Log.d(TAG,"error adding PIDS");
                         HandlePidDataUseCaseImpl.this.onError(error);
-                        if (localPidStorage.getAllPidDataEntries().size() > 5000){
+                        if (!error.getError().equals(RequestError.ERR_OFFLINE)){
                             localPidStorage.deleteAllPidDataEntries();
                         }
                     }
