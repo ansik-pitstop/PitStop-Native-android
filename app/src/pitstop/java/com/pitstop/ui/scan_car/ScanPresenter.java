@@ -14,6 +14,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.BasePresenter;
 import com.pitstop.ui.BaseView;
+import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -31,23 +32,25 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     private static final String TAG = ScanPresenter.class.getSimpleName();
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
-    private ScanCarContract.View mCallback;
+    private ScanCarContract.View view;
     private NetworkHelper networkHelper;
     private Car dashboardCar;
     private UseCaseComponent useCaseComponent;
     private BluetoothConnectionObservable bluetoothObservable;
-
+    private MixpanelHelper mixpanelHelper;
     private boolean isAskingForDtcs = false;
 
     private Set<CarIssue> services;
     private Set<CarIssue> recalls;
 
     public ScanPresenter(BluetoothConnectionObservable observable
-            , UseCaseComponent useCaseComponent, NetworkHelper networkHelper) {
+            , UseCaseComponent useCaseComponent, NetworkHelper networkHelper
+            , MixpanelHelper mixpanelHelper) {
 
         bluetoothObservable = observable;
         this.networkHelper = networkHelper;
         this.useCaseComponent = useCaseComponent;
+        this.mixpanelHelper = mixpanelHelper;
 
     }
 
@@ -66,62 +69,64 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void startScan() {
         Log.d(TAG,"startScan()");
-        if (mCallback == null) return;
+        if (view == null) return;
 
         if (bluetoothObservable == null){
-            bluetoothObservable = mCallback.getBluetoothObservable();
+            bluetoothObservable = view.getBluetoothObservable();
             if (bluetoothObservable == null) return;
+            bluetoothObservable.subscribe(this);
         }
 
         if (isDeviceConnected()){
-            mCallback.onScanStarted();
+            view.onScanStarted();
             bluetoothObservable.requestAllPid();
             getServicesAndRecalls();
             getEngineCodes();
         }
         else{
             bluetoothObservable.requestDeviceSearch(true, false);
-            mCallback.onStartScanFailed(ERR_START_DC);
+            view.onStartScanFailed(ERR_START_DC);
         }
     }
 
     @Override
     public void update() {
-        if (mCallback == null) return;
+        if (view == null) return;
 
-        mCallback.showLoading("Loading...");
+        view.showLoading("Loading...");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                if (mCallback != null){
-                    mCallback.hideLoading("Loading...");
+                if (view == null) return;
+                view.hideLoading("Loading...");
 
-                    //Check whether car change occurred
-                    if (dashboardCar != null){
-                        if (car.getId() != dashboardCar.getId()){
+                //Check whether car change occurred
+                if (dashboardCar != null){
+                    if (car.getId() != dashboardCar.getId()){
 
-                            //show prompt if scanning and car change occurred
-                            if (mCallback.isScanning()){
-                                interruptScan(ERR_INTERRUPT_GEN);
-                            }
-                            else{
-                                mCallback.resetUI();
-                            }
+                        //show prompt if scanning and car change occurred
+                        if (view.isScanning()){
+                            interruptScan(ERR_INTERRUPT_GEN);
+                        }
+                        else{
+                            view.resetUI();
                         }
                     }
                 }
-
                 dashboardCar = car;
             }
 
+
             @Override
             public void onNoCarSet() {
-                mCallback.hideLoading(null);
+                if (view == null) return;
+                view.hideLoading(null);
             }
 
             @Override
             public void onError(RequestError error) {
-                mCallback.hideLoading(null);
+                if (view == null) return;
+                view.hideLoading(null);
             }
         });
     }
@@ -143,15 +148,15 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         networkHelper.getCarsById(dashboardCar.getId(), new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                if (mCallback == null) return;
+                if (view == null) return;
 
                 if (requestError != null) {
                     Log.e(TAG, String.valueOf(requestError.getStatusCode()));
                     Log.e(TAG, requestError.getError());
                     Log.e(TAG, requestError.getMessage());
-                    mCallback.onNetworkError(requestError.getMessage());
-                    mCallback.onRecallRetrieved(null);
-                    mCallback.onServicesRetrieved(null);
+                    view.onNetworkError(requestError.getMessage());
+                    view.onRecallRetrieved(null);
+                    view.onServicesRetrieved(null);
                     return;
                 }
 
@@ -175,14 +180,14 @@ public class ScanPresenter implements ScanCarContract.Presenter {
                             services.add(issue);
                         }
                     }
-                    mCallback.onServicesRetrieved(services);
-                    mCallback.onRecallRetrieved(recalls);
+                    view.onServicesRetrieved(services);
+                    view.onRecallRetrieved(recalls);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    mCallback.onNetworkError("Unknown network error happened, please retry later.");
-                    mCallback.onServicesRetrieved(null);
-                    mCallback.onRecallRetrieved(null);
+                    view.onNetworkError("Unknown network error happened, please retry later.");
+                    view.onServicesRetrieved(null);
+                    view.onRecallRetrieved(null);
                 }
             }
         });
@@ -190,10 +195,10 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void interruptScan(String errorMessage) {
-        if (mCallback == null) return;
-        if (!mCallback.isScanning()) return;
+        if (view == null) return;
+        if (!view.isScanning()) return;
 
-        mCallback.onScanInterrupted(errorMessage);
+        view.onScanInterrupted(errorMessage);
     }
 
     @Override
@@ -209,9 +214,9 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     @Override
     public void bind(BaseView<? extends BasePresenter> view) {
         Log.d(TAG,"bind()");
-        if (mCallback != null) return;
+        if (this.view != null) return;
 
-        mCallback = (ScanCarContract.View) view;
+        this.view = (ScanCarContract.View) view;
         if(bluetoothObservable != null){
             bluetoothObservable.subscribe(this);
         }
@@ -221,18 +226,18 @@ public class ScanPresenter implements ScanCarContract.Presenter {
     public void unbind() {
         Log.d(TAG,"unbind()");
 
-        if (mCallback == null) return;
+        if (view == null) return;
 
         if (bluetoothObservable != null){
             bluetoothObservable.unsubscribe(this);
         }
 
-        if (mCallback.isScanning()){
+        if (view.isScanning()){
             interruptScan(ERR_INTERRUPT_GEN);
         }
 
-        mCallback.hideLoading(null);
-        mCallback = null;
+        view.hideLoading(null);
+        view = null;
     }
 
     @Override
@@ -247,7 +252,7 @@ public class ScanPresenter implements ScanCarContract.Presenter {
 
     @Override
     public void onDeviceDisconnected() {
-        if (mCallback.isScanning()){
+        if (view.isScanning()){
             interruptScan(ERR_INTERRUPT_DC);
         }
     }
@@ -267,13 +272,14 @@ public class ScanPresenter implements ScanCarContract.Presenter {
         Log.i(TAG, "DTC data received: " + dtc);
 
         if (!isAskingForDtcs) return;
-        mCallback.onEngineCodesRetrieved(new HashSet<String>(dtc.keySet()));
+        view.onEngineCodesRetrieved(new HashSet<String>(dtc.keySet()));
+        mixpanelHelper.trackScanCompleted();
     }
 
     @Override
     public void onErrorGettingDtc() {
         Log.d(TAG,"onErrorGettingDtc()");
-        mCallback.onScanInterrupted("Error retrieving DTC from device");
+        view.onScanInterrupted("Error retrieving DTC from device");
     }
 
 }

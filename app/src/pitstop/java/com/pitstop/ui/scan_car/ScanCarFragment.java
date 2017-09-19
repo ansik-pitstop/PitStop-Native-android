@@ -146,7 +146,7 @@ public class ScanCarFragment extends CarDataFragmentOld implements ScanCarContra
 
         if (presenter == null){
             presenter = new ScanPresenter(bluetoothObservable, useCaseComponent
-                    , networkComponent.networkHelper());
+                    , networkComponent.networkHelper(), mixpanelHelper);
         }
         presenter.bind(this);
         presenter.update();

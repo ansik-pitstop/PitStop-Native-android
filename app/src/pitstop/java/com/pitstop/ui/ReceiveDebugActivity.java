@@ -259,12 +259,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void getSupportedPids(View view) {
-        service.getSupportedPids();
     }
 
     public void getPids(View view) {
-        String values = ((EditText) findViewById(R.id.values)).getText().toString();
-        service.getPids(values);
     }
 
     public void getDTC(View view) {
@@ -281,7 +278,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
             service.requestDeviceSearch(false,false);
         }else {
-            service.getSupportedPids();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
     }
@@ -303,7 +299,6 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     public void resetRtc(View view) {
-        service.resetObdDeviceTime();
     }
 
     public void setFixedUpload(View view) {
@@ -322,7 +317,5 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void writeToObd(View view) {
         String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
         String value = ((EditText) findViewById(R.id.values)).getText().toString();
-
-        service.changeSetting(tag, value);
     }
 }

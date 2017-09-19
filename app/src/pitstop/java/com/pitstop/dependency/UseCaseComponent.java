@@ -20,6 +20,7 @@ import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
+import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -124,4 +125,5 @@ public interface UseCaseComponent {
 
     UpdateCarMileageUseCase updateCarMileageUseCase();
 
+    DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
 }

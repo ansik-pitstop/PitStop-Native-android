@@ -124,11 +124,16 @@ public class FabMenu {
 
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Request Service");
-                final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
-                intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
-                intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
-                mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
+                if (car.getDealership() == null){
+                    Toast.makeText(mActivity,"Please select a dealership first"
+                            , Toast.LENGTH_SHORT).show();
+                }else{
+                    mMixpanelHelper.trackFabClicked("Request Service");
+                    final Intent intent = new Intent(mActivity, RequestServiceActivity.class);
+                    intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
+                    intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
+                    mActivity.startActivityForResult(intent, RC_REQUEST_SERVICE);
+                }
             }
 
             @Override
@@ -148,9 +153,7 @@ public class FabMenu {
                 -> mUseCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Call");
-                mMixpanelHelper.trackButtonTapped("Confirm call to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
+                mMixpanelHelper.trackDealershipCallTapped();
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
                         car.getDealership().getPhone()));
                 mActivity.startActivity(intent);
@@ -175,9 +178,7 @@ public class FabMenu {
 
             @Override
             public void onCarRetrieved(Car car) {
-                mMixpanelHelper.trackFabClicked("Directions");
-                mMixpanelHelper.trackButtonTapped("Directions to " + car.getDealership().getName(),
-                        MixpanelHelper.TOOLS_VIEW);
+                mMixpanelHelper.trackDealershipDirectionsTapped();
 
                 String uri = String.format(Locale.ENGLISH,
                         "http://maps.google.com/maps?daddr=%s",

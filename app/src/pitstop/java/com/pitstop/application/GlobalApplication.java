@@ -24,8 +24,8 @@ import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentStorage;
-import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -124,7 +124,7 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings);
+        Smooch.init(this, settings, null);
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -246,7 +246,7 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null);
+            Smooch.login(String.valueOf(userId), null,null);
         }
 
         setCurrentUser(currentUser);
@@ -330,7 +330,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout();
+        Smooch.logout(null);
 
         cleanUpDatabase();
     }

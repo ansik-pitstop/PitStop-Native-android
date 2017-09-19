@@ -19,7 +19,7 @@ public class MixpanelHelper {
     /**
      * Event
      */
-    public static final String EVENT_BUTTON_TAPPED = "Button Tapped";
+    public static final String EVENT_BUTTON_TAPPED = "tapp";
     public static final String EVENT_ITEM_TAPPED = "Item Tapped";
     public static final String EVENT_VIEW_APPEARED = "View Appeared";
     public static final String EVENT_APP_STATUS = "App Status";
@@ -593,6 +593,29 @@ public class MixpanelHelper {
 
     public void trackTimeEventEnd(String timeEvent) {
         application.getMixpanelAPI().track(timeEvent);
+    }
+
+    /** Temporary methods implemented so that we can begin tracking these events quickly without
+     * refactoring this entire class **/
+    public void trackScanCompleted(){
+        JSONObject properties = new JSONObject();
+        try{
+            properties.put("step","complete");
+            properties.put("result","success");
+            properties.put("view","scan");
+            trackCustom("scanCarProcess",properties);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void trackDealershipDirectionsTapped(){
+        trackButtonTapped("dealershipDirections","dashboard");
+    }
+
+    public void trackDealershipCallTapped(){
+        trackButtonTapped("call","dashboard");
     }
 
 
