@@ -99,13 +99,12 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     @Override
     public void close() {
         btConnectionState = DISCONNECTED;
-        if (mGatt == null) {
-            return;
-        }
-        mGatt.close();
         hasDiscoveredServices = false;
         mCommandQueue.clear();
         mCommandLock.release();
+        if (mGatt != null) {
+            mGatt.close();
+        }
     }
 
     @Override
@@ -131,7 +130,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         }
 
         if (btConnectionState == CONNECTED && mGatt != null) {
-            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA, serviceUuid, writeChar, readChar));
+            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA
+                    , serviceUuid, writeChar, readChar));
         }
     }
 
@@ -174,10 +174,9 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
 
                 case BluetoothProfile.STATE_CONNECTED:
+                    //Do not notify state as connected, it is done onServicesDiscovered
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
-                    btConnectionState = CONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    deviceManager.connectionStateChange(btConnectionState);
                     gatt.discoverServices();
                     break;
 
@@ -213,10 +212,9 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION, serviceUuid,
                         writeChar, readChar));
                 hasDiscoveredServices = true;
-
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
-                //btConnectionState = CONNECTED;
+                btConnectionState = CONNECTED;
                 deviceManager.connectionStateChange(btConnectionState);
 
             } else {

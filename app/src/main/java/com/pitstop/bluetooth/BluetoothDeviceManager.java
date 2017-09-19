@@ -145,8 +145,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private void writeToObd(String payload) {
         Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
-                +(communicator == null));
-        if (communicator == null) {
+                +(communicator == null) + ", Connected ?  "
+                +(btConnectionState == IBluetoothCommunicator.CONNECTED));
+
+        if (communicator == null
+                || btConnectionState != IBluetoothCommunicator.CONNECTED) {
             return;
         }
 
