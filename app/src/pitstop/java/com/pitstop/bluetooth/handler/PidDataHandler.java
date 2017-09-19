@@ -3,6 +3,7 @@ package com.pitstop.bluetooth.handler;
 import android.content.Context;
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -76,7 +77,9 @@ public class PidDataHandler {
                 @Override
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
-                    BluetoothDataVisualizer.visualizePidDataSent(false,context);
+                    if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
+                        BluetoothDataVisualizer.visualizePidDataSent(false,context);
+                    }
                     if (error.getMessage().contains("not found")){
                         //Let trip handler know to get his shit together
                     }

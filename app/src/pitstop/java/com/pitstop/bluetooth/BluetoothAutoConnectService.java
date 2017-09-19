@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -19,6 +20,7 @@ import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.BuildConfig;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -614,7 +616,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void idrPidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        BluetoothDataVisualizer.visualizePidReceived(pidPackage,getApplicationContext());
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
+            BluetoothDataVisualizer.visualizePidReceived(pidPackage,getApplicationContext());
+        }
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
         if (pidPackage == null) return;
