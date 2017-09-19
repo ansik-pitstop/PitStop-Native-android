@@ -20,6 +20,7 @@ public class MixpanelHelper {
      * Event
      */
     public static final String EVENT_BUTTON_TAPPED = "tapp";
+    public static final String EVENT_ITEM_TAPPED = "Item Tapped";
     public static final String EVENT_VIEW_APPEARED = "View Appeared";
     public static final String EVENT_APP_STATUS = "App Status";
     public static final String EVENT_PERIPHERAL_CONNECTION_STATUS = "Peripheral Connection Status";
@@ -230,6 +231,7 @@ public class MixpanelHelper {
     public static final String NOTIFICATION_DISPLAYED = "Notification(s) Displayed";
     public static final String NOTIFICATION_FETCH_ERROR = "Error in fetching Notification(s) / Network Error";
     public static final String NO_NOTIFICATION_DISPLAYED = "Empty Notification Message Displated";
+    public static final String NOTIFICATION = "Notification";
 
     /**
      * Bluetooth Events
@@ -435,6 +437,16 @@ public class MixpanelHelper {
         insertUsername(properties);
         insertCar(properties);
         application.getMixpanelAPI().track(event, properties);
+    }
+
+    public void trackItemTapped(String item, String itemValue){
+        try{
+            JSONObject properties = new JSONObject();
+            properties.put(item, itemValue);
+            trackCustom(EVENT_ITEM_TAPPED, properties);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
     /**

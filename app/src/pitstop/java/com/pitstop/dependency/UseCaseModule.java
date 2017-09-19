@@ -39,6 +39,8 @@ import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCaseImpl;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
+import com.pitstop.interactors.get.GetUserNotificationUseCase;
+import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
@@ -350,6 +352,16 @@ public class UseCaseModule {
 
         return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
     }
+
+    @Provides
+    GetUserNotificationUseCase getUserNotificationUseCase(
+            UserRepository userRepository
+            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
+
+        return new GetUserNotificationUseCaseImpl(userRepository, mainHandler, useCaseHandler);
+    }
+
+
 
     @Provides
     HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository

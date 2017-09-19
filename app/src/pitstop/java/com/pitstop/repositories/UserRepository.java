@@ -1,13 +1,17 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.models.Notification;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -107,9 +111,11 @@ public class UserRepository implements Repository{
 
     public void getCurrentUser(Callback<User> callback){
         if (localUserStorage.getUser() == null){
+
             callback.onError(RequestError.getUnknownError());
             return;
         }
+        Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
         networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
                 ,getUserGetRequestCallback(callback));
     }
@@ -121,6 +127,7 @@ public class UserRepository implements Repository{
             public void done(String response, RequestError requestError) {
                 try {
                     if (requestError == null){
+                        Log.d("userresponse", response);
                         callback.onSuccess(User.jsonToUserObject(response));
                     }
                     else{
@@ -219,6 +226,9 @@ public class UserRepository implements Repository{
         });
     }
 
+
+
+
     private RequestCallback getSetFirstCarAddedCallback(Callback<Object> callback){
         //Create corresponding request callback
         RequestCallback requestCallback = new RequestCallback() {
@@ -241,6 +251,8 @@ public class UserRepository implements Repository{
 
         return requestCallback;
     }
+
+
 
     public void getCurrentUserSettings(Callback<Settings> callback){
 

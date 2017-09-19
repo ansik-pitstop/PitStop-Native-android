@@ -2,18 +2,28 @@ package com.pitstop.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by Paul Soladoye on 3/21/2016.
  */
 public class User implements Parcelable {
 
+
+
     private int id;
 
+
+
+    private List<String> installationId;
     private String firstName;
     private String lastName;
     private String email;
@@ -116,19 +126,37 @@ public class User implements Parcelable {
         this.verifiedEmail = verifiedEmail;
     }
 
+    public List<String> getInstallationID() {
+        return installationId;
+    }
+
+    public void setInstallationID(List<String> installationID) {
+        this.installationId = installationID;
+    }
+
     public static User jsonToUserObject(String json) {
+
         User user = null;
         try {
             user = JsonUtil.json2object(json, User.class);
-
+            //Log.d("installationID", user.getInstallationID().toString());
+            Log.d("userJson", json);
             if(user.getId() == 0) {
                 user = new User();
+
                 JSONObject userJson = new JSONObject(json).getJSONObject("user");
+                /*List<String> userInstallationIds;
+                userInstallationIds = new Gson().fromJson(userJson.getJSONArray("installationId").toString(), new TypeToken<List<String>>() {
+                }.getType());
+
+                user.setInstallationID(userInstallationIds);*/
                 user.setId(userJson.getInt("id"));
                 user.setFirstName(userJson.getString("firstName"));
                 user.setLastName(userJson.getString("lastName"));
                 user.setEmail(userJson.getString("email"));
                 user.setPhone(userJson.getString("phone"));
+
+                /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }
         } catch (Exception e) {
             e.printStackTrace();
