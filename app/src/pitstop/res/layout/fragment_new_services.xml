@@ -46,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="My Services"
+                    android:text="@string/my_services"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                 <include layout="@layout/divider" />
@@ -89,7 +89,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="5dp"
-                                android:text="Create Service"
+                                android:text="@string/create_service"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                             <TextView
@@ -99,7 +99,7 @@
                                 android:layout_marginBottom="5dp"
                                 android:layout_marginLeft="5dp"
                                 android:layout_marginRight="5dp"
-                                android:text="Add any services that you don't see below"
+                                android:text="@string/add_service_message"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
                         </LinearLayout>
                     </RelativeLayout>
@@ -146,7 +146,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="10dp"
-                                    android:text="Engine Issues"
+                                    android:text="@string/engine_issues"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
                             </LinearLayout>
 
@@ -180,7 +180,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="10dp"
-                                    android:text="Potential Engine Issues"
+                                    android:text="@string/potential_engine_issues"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
                             </LinearLayout>
 
@@ -213,7 +213,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="10dp"
-                                    android:text="Recalls"
+                                    android:text="@string/recalls"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
                             </LinearLayout>
 
@@ -246,7 +246,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="10dp"
-                                    android:text="Routine Services"
+                                    android:text="@string/routine_services"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
                             </LinearLayout>
 

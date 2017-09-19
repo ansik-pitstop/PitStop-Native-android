@@ -20,7 +20,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Do you have pitstop hardware?"
+                android:text="@string/have_pitstop_device"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:paddingRight="@dimen/activity_horizontal_margin"
@@ -39,16 +39,16 @@
                     android:id="@+id/yes_i_do_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textOn="YES"
-                    android:textOff="YES"
+                    android:textOn="@string/yes_button_text"
+                    android:textOff="@string/yes_button_text"
                     android:checked="true"/>
 
                 <ToggleButton
                     android:id="@+id/no_i_dont_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textOn="NO"
-                    android:textOff="NO"
+                    android:textOn="@string/no_button_text"
+                    android:textOff="@string/no_button_text"
                     android:checked="false" />
             </LinearLayout>
 
@@ -65,7 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MILEAGE"
+                    android:text="@string/mileage_title"
                     android:id="@+id/textView32"
                     android:layout_marginRight="16dp" />
 
@@ -93,7 +93,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Car was found, however, VIN retrival failed. Please Input VIN manually below."
+                    android:text="@string/car_found_enter_vin"
                     android:id="@+id/VIN_hint"
                     android:visibility="gone" />
 
@@ -126,7 +126,7 @@
                 <Button
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="SEARCH FOR CAR"
+                    android:text="@string/search_for_car"
                     android:id="@+id/button"
                     android:layout_alignParentTop="true"
                     android:onClick="searchForCar"
@@ -144,7 +144,7 @@
                 <Button
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="SCAN VIN BARCODE"
+                    android:text="@string/scan_vin_barcode"
                     android:id="@+id/scannerButton"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"

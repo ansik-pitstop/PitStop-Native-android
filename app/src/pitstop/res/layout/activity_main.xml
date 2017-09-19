@@ -35,7 +35,7 @@
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_dashboard"
-                    android:text="Dealership"
+                    android:text="@string/dealership"
                     android:icon="@drawable/ic_dashboard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -49,14 +49,14 @@
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_scan"
-                    android:text="Scan"
+                    android:text="@string/scan"
                     android:icon="@drawable/scan_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_notification"
-                    android:text="Notification"
+                    android:text="@string/notifications"
                     android:icon="@drawable/ic_notifications_white_24dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
