@@ -51,6 +51,7 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.BluetoothDataVisualizer;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
@@ -613,6 +614,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void idrPidData(PidPackage pidPackage) {
         LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+        BluetoothDataVisualizer.visualizePidReceived(pidPackage,getApplicationContext());
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
         if (pidPackage == null) return;

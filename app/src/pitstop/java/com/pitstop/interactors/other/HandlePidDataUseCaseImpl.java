@@ -11,6 +11,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.utils.BluetoothDataVisualizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;

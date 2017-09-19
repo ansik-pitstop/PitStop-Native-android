@@ -15,9 +15,14 @@ public class BluetoothDataVisualizer {
     private static final String TAG = BluetoothDataVisualizer.class.getSimpleName();
 
     public static void visualizePidReceived(PidPackage pidPackage, Context context){
-        Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
-        double rpm = 0;
-        Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();
+        if (pidPackage == null){
+            Log.d(TAG,"visualizePidReceived() pidPackage = null");
+            Toast.makeText(context,"NULL pid values received",Toast.LENGTH_LONG).show();
+        }else{
+            Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
+            double rpm = 0;
+            Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();
+        }
     }
 
     public static void visualizePidDataSent(boolean success, Context context){

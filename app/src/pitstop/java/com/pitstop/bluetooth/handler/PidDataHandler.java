@@ -10,6 +10,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.BluetoothDataVisualizer;
 import com.pitstop.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class PidDataHandler {
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
     private UseCaseComponent useCaseComponent;
     private String supportedPids = "";
+    private Context context;
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
@@ -43,7 +45,7 @@ public class PidDataHandler {
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
-
+        this.context = context;
         initPidPriorityList();
     }
 
@@ -67,12 +69,14 @@ public class PidDataHandler {
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
                 public void onSuccess() {
+                    BluetoothDataVisualizer.visualizePidDataSent(true,context);
                     Log.d(TAG,"Successfully handled pids.");
                 }
 
                 @Override
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
+                    BluetoothDataVisualizer.visualizePidDataSent(false,context);
                     if (error.getMessage().contains("not found")){
                         //Let trip handler know to get his shit together
                     }
