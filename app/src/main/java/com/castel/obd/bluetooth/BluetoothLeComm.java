@@ -43,7 +43,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private MixpanelHelper mixpanelHelper;
     private final LinkedList<WriteCommand> mCommandQueue = new LinkedList<>();
     //Command Operation executor - will only run one at a time
-    ExecutorService mCommandExecutor = Executors.newSingleThreadExecutor();
+    ExecutorService mCommandExecutor;
     //Semaphore lock to coordinate command executions, to ensure only one is
     //currently started and waiting on a response.
     Semaphore mCommandLock = new Semaphore(1,true);
@@ -98,14 +98,15 @@ public class BluetoothLeComm implements BluetoothCommunicator {
      */
     @Override
     public void close() {
+        Log.d(TAG,"close()");
         btConnectionState = DISCONNECTED;
-        if (mGatt == null) {
-            return;
-        }
-        mGatt.close();
         hasDiscoveredServices = false;
-        mCommandQueue.clear();
+        mCommandExecutor.shutdownNow();
         mCommandLock.release();
+        mCommandQueue.clear();
+        if (mGatt != null) {
+            mGatt.close();
+        }
     }
 
     @Override
@@ -113,6 +114,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     public void connectToDevice(final BluetoothDevice device) {
         Log.d(TAG,"Connect to device()");
         mCommandQueue.clear();
+        mCommandExecutor = Executors.newSingleThreadExecutor();
         new Handler().postDelayed(() -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mGatt = device.connectGatt(mContext, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
@@ -131,7 +133,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         }
 
         if (btConnectionState == CONNECTED && mGatt != null) {
-            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA, serviceUuid, writeChar, readChar));
+            queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA
+                    , serviceUuid, writeChar, readChar));
         }
     }
 
@@ -141,7 +144,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             mCommandQueue.add(command);
             //Schedule a new runnable to process that command (one command at a time executed only)
             ExecuteCommandRunnable runnable = new ExecuteCommandRunnable(command, mGatt);
-            mCommandExecutor.execute(runnable);
+            if (mCommandExecutor != null)
+                mCommandExecutor.execute(runnable);
         }
     }
 
@@ -174,10 +178,9 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
 
                 case BluetoothProfile.STATE_CONNECTED:
+                    //Do not notify state as connected, it is done onServicesDiscovered
                     Log.i(TAG, "ACTION_GATT_CONNECTED");
-                    btConnectionState = CONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.CONNECTED);
-                    deviceManager.connectionStateChange(btConnectionState);
                     gatt.discoverServices();
                     break;
 
@@ -210,13 +213,13 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 Log.i(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
+                mCommandLock.release();
                 queueCommand(new WriteCommand(null, WriteCommand.WRITE_TYPE.NOTIFICATION, serviceUuid,
                         writeChar, readChar));
                 hasDiscoveredServices = true;
-
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
-                //btConnectionState = CONNECTED;
+                btConnectionState = CONNECTED;
                 deviceManager.connectionStateChange(btConnectionState);
 
             } else {
