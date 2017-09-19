@@ -169,7 +169,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     public void onError(RequestError error){
                         Log.d(TAG,"error adding PIDS");
                         HandlePidDataUseCaseImpl.this.onError(error);
-                        if (localPidStorage.getAllPidDataEntries().size() > 5000){
+                        if (!error.getError().equals(RequestError.ERR_OFFLINE)){
                             localPidStorage.deleteAllPidDataEntries();
                         }
                     }
