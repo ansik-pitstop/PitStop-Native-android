@@ -14,9 +14,9 @@ import java.util.List;
  */
 
 public interface HealthReportView {
-    void setServicesList(List<Service> issues);
+    void setServicesList(List<Service> services);
     void setRecallList(List<Recall> recalls);
-    void setEngineList(List<EngineIssue> engineList);
+    void setEngineList(List<EngineIssue> engineIssues);
     void toggleServiceList();
     void toggleRecallList();
     void toggleEngineList();

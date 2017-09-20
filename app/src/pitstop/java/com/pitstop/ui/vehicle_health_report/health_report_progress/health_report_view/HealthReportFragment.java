@@ -23,6 +23,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.CarHealthItem;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
@@ -31,6 +32,7 @@ import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -151,25 +153,29 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
 
     @Override
-    public void setServicesList(List<Service> issues) {
-        Log.d(TAG,"setServicesList() issues: "+issues);
+    public void setServicesList(List<Service> services) {
+        Log.d(TAG,"setServicesList() issues: "+services);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        servicesIssueAdapter = new HeathReportIssueAdapter(issues,"No Services",presenter,context);
+        List<CarHealthItem> carHealthItemList = new ArrayList<>(services);
+        servicesIssueAdapter = new HeathReportIssueAdapter(carHealthItemList
+                ,"No Services",presenter,context);
         servicesList.setAdapter(servicesIssueAdapter);
         servicesList.setLayoutManager(linearLayoutManager);
-        if(issues.size()>0){
+        if(services.size()>0){
             serviceRed.setVisibility(View.VISIBLE);
             serviceGreen.setVisibility(View.INVISIBLE);
         }
-        serviceCount.setText(Integer.toString(issues.size()));
+        serviceCount.setText(Integer.toString(services.size()));
     }
     @Override
     public void setRecallList(List<Recall> recalls) {
         Log.d(TAG,"setRecallList() recalls: "+recalls);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recallIssueAdapter = new HeathReportIssueAdapter(recalls,"No Recalls",presenter,context);
+        List<CarHealthItem> carHealthItemList = new ArrayList<>(recalls);
+        recallIssueAdapter = new HeathReportIssueAdapter(
+                carHealthItemList,"No Recalls",presenter,context);
         recallList.setAdapter(recallIssueAdapter);
         recallList.setLayoutManager(linearLayoutManager);
         if(recalls.size()>0){
@@ -184,7 +190,9 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         Log.d(TAG,"setEngineList() engineList: "+engine);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        engineIssueAdapter = new HeathReportIssueAdapter(engine,"No New Engine Codes",presenter,context);
+        List<CarHealthItem> carHealthItemList = new ArrayList<>(engine);
+        engineIssueAdapter = new HeathReportIssueAdapter(
+                carHealthItemList,"No New Engine Codes",presenter,context);
         engineList.setAdapter(engineIssueAdapter);
         engineList.setLayoutManager(linearLayoutManager);
         if(engine.size()>0){
@@ -256,11 +264,11 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     }
 
     @Override
-    public void startIssueDetails(Car car, CarIssue issue) {
+    public void startIssueDetails(Car car, CarIssue carIssue) {
         Log.d(TAG,"startIssueDetails()");
         Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, car);
-        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
         startActivity(intent);
 
     }

@@ -6,6 +6,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.CarHealthItem;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 
@@ -83,10 +84,12 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
     }
 
     @Override
-    public void issueClicked(CarIssue issue) {
+    public void issueClicked(CarHealthItem carHealthItem) {
         Log.d(TAG,"issueClicked()");
         if(dashCar == null){return;}
-        view.startIssueDetails(dashCar,issue);
+
+        view.startIssueDetails(dashCar
+                ,CarIssue.fromCarHealthItem(carHealthItem,dashCar.getId()));
     }
 }
 

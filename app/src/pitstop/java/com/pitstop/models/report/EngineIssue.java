@@ -7,12 +7,22 @@ package com.pitstop.models.report;
 public class EngineIssue extends CarHealthItem{
     private boolean isPending;
     private String symptoms;
+    private String causes;
 
     public EngineIssue(int id, int priority, boolean isPending, String item
-            , String symptoms, String description) {
+            , String symptoms, String description, String causes) {
         super(id,priority,item,description);
         this.isPending = isPending;
         this.symptoms = symptoms;
+        this.causes = causes;
+    }
+
+    public String getCauses() {
+        return causes;
+    }
+
+    public void setCauses(String causes) {
+        this.causes = causes;
     }
 
     public boolean isPending() {
@@ -34,6 +44,7 @@ public class EngineIssue extends CarHealthItem{
     @Override
     public String toString(){
         return "item: "+getItem()+", priority: "+getPriority() +", isPending: "+isPending
-                +", description: "+getDescription()+", symptoms: "+getSymptoms();
+                +", description: "+getDescription()+", symptoms: "+getSymptoms()
+                +", causes: "+causes;
     }
 }

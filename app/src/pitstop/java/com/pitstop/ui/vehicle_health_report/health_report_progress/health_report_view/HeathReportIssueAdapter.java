@@ -12,8 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.CarHealthItem;
+import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     private final int VIEW_TYPE_EMPTY = 100;
 
-    private final List<Object> issues;
+    private final List<CarHealthItem> carHealthItemList;
 
     private String emptyText;
 
@@ -33,8 +35,9 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     private HealthReportPresenterCallback callback;
 
-    public HeathReportIssueAdapter(@NonNull List<Object> issues, String emptyText,HealthReportPresenterCallback callback, Context context) {
-        this.issues = issues;
+    public HeathReportIssueAdapter(@NonNull List<CarHealthItem> carHealthItems
+            , String emptyText, HealthReportPresenterCallback callback, Context context) {
+        this.carHealthItemList = carHealthItems;
         this.emptyText = emptyText;
         this.callback = callback;
         this.context = context;
@@ -53,34 +56,39 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
             holder.description.setText("");
             holder.image.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_check_circle_green_400_36dp));
         } else {
-            final CarIssue carIssue = issues.get(position);
+            final CarHealthItem carHealthItem = carHealthItemList.get(position);
 
-            holder.description.setText(carIssue.getDescription());
+            holder.description.setText(carHealthItem.getDescription());
             holder.description.setEllipsize(TextUtils.TruncateAt.END);
-            if (issues.get(0) != null && issues.get(0) instanceof Recall) {
+            if (carHealthItem instanceof Recall) {
+                holder.action.setText(String.format("%s %s"
+                        , "Recall", carHealthItem.getItem()));
                 holder.image.setImageDrawable(ContextCompat
                         .getDrawable(context, R.drawable.ic_error_red_600_24dp));
 
-            } else if (issues.get(0) != null && issues.get(0) instanceof E) {
-                holder.image.setImageDrawable(ContextCompat
-                        .getDrawable(context, R.drawable.car_engine_red));
-
-            } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                holder.image.setImageDrawable(ContextCompat
-                        .getDrawable(context, R.drawable.car_engine_yellow));
-            } else {
-                holder.description.setText(carIssue.getDescription());
+            } else if (carHealthItem instanceof EngineIssue) {
+                holder.action.setText(String.format("%s %s"
+                        , "Pending Engine Code", carHealthItem.getItem()));
+                if (((EngineIssue)carHealthItem).isPending()){
+                    holder.image.setImageDrawable(ContextCompat
+                            .getDrawable(context, R.drawable.car_engine_yellow));
+                }
+                else{
+                    holder.action.setText(String.format("%s %s"
+                            , "Stored Engine Code", carHealthItem.getItem()));
+                    holder.image.setImageDrawable(ContextCompat
+                            .getDrawable(context, R.drawable.car_engine_red));
+                }
+            } else if (carHealthItem instanceof Service){
+                holder.action.setText(String.format("%s %s"
+                        , ((Service)carHealthItem).getAction(), carHealthItem.getItem()));
+                holder.description.setText(carHealthItem.getDescription());
                 holder.image.setImageDrawable(ContextCompat
                         .getDrawable(context, R.drawable.ic_warning_amber_300_24dp));
             }
 
-            holder.action.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
-            holder.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    callback.issueClicked(issues.get(position));
-                }
-            });
+            holder.setOnClickListener(view
+                    -> callback.issueClicked(carHealthItemList.get(position)));
 
 
         }
@@ -88,7 +96,7 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     @Override
     public int getItemViewType(int position) {
-        if (issues.isEmpty()) {
+        if (carHealthItemList.isEmpty()) {
             return VIEW_TYPE_EMPTY;
         } else {
             return super.getItemViewType(position);
@@ -97,8 +105,8 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     @Override
     public int getItemCount() {
-        if (issues.isEmpty()) return 1;
-        return issues.size();
+        if (carHealthItemList.isEmpty()) return 1;
+        return carHealthItemList.size();
     }
 
     public class IssueViewHolder extends RecyclerView.ViewHolder{
@@ -108,9 +116,9 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
         public IssueViewHolder(View itemView) {
             super(itemView);
-            description = (TextView) itemView.findViewById(R.id.description_issue);
-            action = (TextView) itemView.findViewById(R.id.action_issue);
-            image = (ImageView) itemView.findViewById(R.id.image_issue);
+            description = itemView.findViewById(R.id.description_issue);
+            action = itemView.findViewById(R.id.action_issue);
+            image = itemView.findViewById(R.id.image_issue);
         }
         public void setOnClickListener(View.OnClickListener clickListener){
             itemView.setOnClickListener(clickListener);
