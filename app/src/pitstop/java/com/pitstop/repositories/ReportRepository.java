@@ -3,7 +3,6 @@ package com.pitstop.repositories;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
@@ -18,7 +17,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +34,45 @@ public class ReportRepository implements Repository {
         this.networkHelper = networkHelper;
     }
 
+    public void createVehicleHealthReport(int carId, boolean isInternal
+            , DtcPackage dtc, PidPackage pid, Callback<VehicleHealthReport> callback){
+        Log.d(TAG,"createVehicleHealthReport() carId: "+carId+", isInternal: "
+                +isInternal+", dtc: "+dtc+", pid: "+pid);
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("engineCodes", dtcPackageToJSON(dtc));
+            body.put("isInternal", pidPackageToJSON(pid));
+            body.put("isInternal", isInternal);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,"createVehicleHealthReport() body: "+body);
+
+        networkHelper.post(String.format("v1/car/%d/report/vehicle-health", carId)
+                , (response, requestError) -> {
+
+                    if (requestError == null){
+                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
+                        VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
+                        if (vehicleHealthReport == null){
+                            Log.d(TAG,"Error parsing response.");
+                            callback.onError(RequestError.getUnknownError());
+                        }
+                        else{
+                            callback.onSuccess(vehicleHealthReport);
+                        }
+
+                    }else{
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        callback.onError(requestError);
+                    }
+
+        }, body);
+
+    }
+
     private JSONArray dtcPackageToJSON(DtcPackage dtcPackage){
         JSONArray dtcArr = new JSONArray();
         for (Map.Entry<String,Boolean> entry: dtcPackage.dtcs.entrySet()){
@@ -43,7 +80,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("code",entry.getKey());
                 dtcJson.put("isPending",entry.getValue());
-                dtcJson.put("rtcTime",dtcPackage.rtcTime);
+                dtcJson.put("rtcTime",Long.valueOf(dtcPackage.rtcTime));
                 dtcArr.put(dtcJson);
             }catch(JSONException e){
                 e.printStackTrace();
@@ -70,52 +107,26 @@ public class ReportRepository implements Repository {
         return pidArr;
     }
 
-    public void createVehicleHealthReport(int carId, boolean isInternal
-            , DtcPackage dtc, PidPackage pid, Callback<VehicleHealthReport> callback){
-        Log.d(TAG,"createVehicleHealthReport() carId: "+carId+", isInternal: "
-                +isInternal+", dtc: "+dtc+", pid: "+pid);
-        JSONObject body = new JSONObject();
+    private VehicleHealthReport jsonToVehicleHealthReport(String response){
+        try{
+            JSONObject healthReportJson = new JSONObject(response).getJSONObject("response");
+            int id = healthReportJson.getInt("id");
+            JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
 
-        try {
-            body.put("engineCodes", dtcPackageToJSON(dtc));
-            body.put("isInternal", pidPackageToJSON(pid));
-            body.put("isInternal", isInternal);
-        } catch (JSONException e) {
+            List<EngineIssue> engineIssues
+                    = gson.fromJson(healthReportContentJson.get("dtc").toString()
+                    ,new TypeToken<List<EngineIssue>>() {}.getType());
+            List<Recall> recalls
+                    = gson.fromJson(healthReportContentJson.get("recall").toString()
+                    ,new TypeToken<List<Recall>>() {}.getType());
+            List<Service> services
+                    = gson.fromJson(healthReportContentJson.get("services").toString()
+                    ,new TypeToken<List<Service>>() {}.getType());
+            return new VehicleHealthReport(id, engineIssues,recalls,services);
+        }catch (JSONException e){
             e.printStackTrace();
+            return null;
         }
-
-        Log.d(TAG,"createVehicleHealthReport() body: "+body);
-
-        networkHelper.post(String.format("v1/car/%d/report/vehicle-health", carId)
-                , (response, requestError) -> {
-
-                    if (requestError == null){
-                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
-                        try{
-                            JSONObject healthReportJson = new JSONObject(response);
-                            Type listType = new TypeToken<List<String>>() {}.getType();
-                            List<EngineIssue> engineIssues
-                                    = gson.fromJson((JsonElement)(healthReportJson.get("dtc")),listType);
-                            List<Recall> recalls
-                                    = gson.fromJson((JsonElement)healthReportJson.get("recall"),listType);
-                            List<Service> services
-                                    = gson.fromJson((JsonElement)healthReportJson.get("services"),listType);
-                            VehicleHealthReport vehicleHealthReport
-                                    = new VehicleHealthReport(engineIssues,recalls,services);
-                            Log.d(TAG,"Vehicle health report created: "+vehicleHealthReport);
-                            callback.onSuccess(vehicleHealthReport);
-                        }catch(JSONException e){
-                            e.printStackTrace();
-                            callback.onError(RequestError.getUnknownError());
-                        }
-
-                    }else{
-                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
-                        callback.onError(requestError);
-                    }
-
-        }, body);
-
     }
 
 }

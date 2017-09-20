@@ -7,11 +7,15 @@ import java.util.List;
  */
 
 public class VehicleHealthReport {
+
+    private int id;
     private List<EngineIssue> engineIssues;
     private List<Recall> recalls;
     private List<Service> services;
 
-    public VehicleHealthReport(List<EngineIssue> engineIssues, List<Recall> recalls, List<Service> services) {
+    public VehicleHealthReport(int id, List<EngineIssue> engineIssues, List<Recall> recalls
+            , List<Service> services) {
+        this.id = id;
         this.engineIssues = engineIssues;
         this.recalls = recalls;
         this.services = services;
@@ -41,9 +45,13 @@ public class VehicleHealthReport {
         this.services = services;
     }
 
+    public int getId() {
+        return id;
+    }
+
     @Override
     public String toString(){
-        return "engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
+        return "id: "+id+", engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
                 +", services: "+getServices();
     }
 }

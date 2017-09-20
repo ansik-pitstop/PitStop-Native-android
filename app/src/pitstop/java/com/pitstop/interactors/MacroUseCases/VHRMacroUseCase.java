@@ -20,6 +20,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -106,7 +107,9 @@ public class VHRMacroUseCase {
                 public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
                     Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
                     List<CarIssue> recalls = new ArrayList<CarIssue>();
-                    for(CarIssue c: currentServices){
+                    List<CarIssue> current
+                            = Collections.synchronizedList(new ArrayList<>(currentServices));
+                    for(CarIssue c: current){
                         if(c.getIssueType().equals(CarIssue.RECALL)){
                             recalls.add(c);
                         }else if(c.getIssueType().equals(CarIssue.DTC)){

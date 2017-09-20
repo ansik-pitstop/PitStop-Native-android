@@ -1,6 +1,7 @@
 package com.pitstop.interactors.add;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
@@ -16,6 +17,8 @@ import com.pitstop.repositories.UserRepository;
  */
 
 public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReportUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private ReportRepository reportRepository;
     private UserRepository userRepository;
@@ -36,6 +39,7 @@ public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReport
 
     @Override
     public void execute(PidPackage pid, DtcPackage dtc, Callback callback) {
+        Log.d(TAG,"execute() pid: "+pid+", dtc: "+dtc);
         this.pid = pid;
         this.dtc = dtc;
         this.callback = callback;
@@ -61,11 +65,13 @@ public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReport
                         , new Repository.Callback<VehicleHealthReport>() {
                     @Override
                     public void onSuccess(VehicleHealthReport report) {
+                        Log.d(TAG,"onSuccess() report: "+report);
                         AddVehicleHealthReportUseCaseImpl.this.onReportAdded(report);
                     }
 
                     @Override
                     public void onError(RequestError error) {
+                        Log.d(TAG,"onError() error: "+error);
                         AddVehicleHealthReportUseCaseImpl.this.onError(error);
                     }
                 });

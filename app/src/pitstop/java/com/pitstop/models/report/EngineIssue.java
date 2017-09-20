@@ -12,10 +12,10 @@ public class EngineIssue {
     private String symptoms;
     private String description;
 
-    public EngineIssue(int id, int priorty, boolean isPending, String item
+    public EngineIssue(int id, int priority, boolean isPending, String item
             , String symptoms, String description) {
         this.id = id;
-        this.priority = priorty;
+        this.priority = priority;
         this.isPending = isPending;
         this.item = item;
         this.symptoms = symptoms;
