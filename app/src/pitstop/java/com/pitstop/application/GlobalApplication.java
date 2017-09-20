@@ -16,11 +16,9 @@ import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
-import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentStorage;
@@ -124,7 +122,8 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings, null);
+        Smooch.init(this, settings, (response)
+                -> Log.d(TAG,"Smooch.init() response err: "+response.getError()));
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -144,14 +143,11 @@ public class GlobalApplication extends Application {
                 .build()
         );
 
-        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e == null) {
-                    Log.d(TAG, "Installation saved");
-                } else {
-                    Log.w(TAG, "Error saving installation: " + e.getMessage());
-                }
+        ParseInstallation.getCurrentInstallation().saveInBackground(e -> {
+            if(e == null) {
+                Log.d(TAG, "Installation saved");
+            } else {
+                Log.w(TAG, "Error saving installation: " + e.getMessage());
             }
         });
 
@@ -233,6 +229,9 @@ public class GlobalApplication extends Application {
     }
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
+
+        Log.d(TAG,"logInUser()");
+
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
@@ -246,7 +245,8 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null,null);
+            Smooch.login(String.valueOf(userId), "12345", response
+                    -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -330,7 +330,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout(null);
+        Smooch.logout(response -> Log.d(TAG,"smooch logout err:  "+response.getError()));
 
         cleanUpDatabase();
     }
