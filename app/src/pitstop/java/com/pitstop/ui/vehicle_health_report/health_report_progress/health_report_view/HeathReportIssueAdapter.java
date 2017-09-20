@@ -1,7 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -12,11 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 import com.pitstop.R;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.models.issue.Issue;
+import com.pitstop.models.report.Recall;
 
 import java.util.List;
 
@@ -28,7 +25,7 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     private final int VIEW_TYPE_EMPTY = 100;
 
-    private final List<CarIssue> issues;
+    private final List<Object> issues;
 
     private String emptyText;
 
@@ -36,7 +33,7 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     private HealthReportPresenterCallback callback;
 
-    public HeathReportIssueAdapter(@NonNull List<CarIssue> issues, String emptyText,HealthReportPresenterCallback callback, Context context) {
+    public HeathReportIssueAdapter(@NonNull List<Object> issues, String emptyText,HealthReportPresenterCallback callback, Context context) {
         this.issues = issues;
         this.emptyText = emptyText;
         this.callback = callback;
@@ -60,11 +57,11 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
             holder.description.setText(carIssue.getDescription());
             holder.description.setEllipsize(TextUtils.TruncateAt.END);
-            if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
+            if (issues.get(0) != null && issues.get(0) instanceof Recall) {
                 holder.image.setImageDrawable(ContextCompat
                         .getDrawable(context, R.drawable.ic_error_red_600_24dp));
 
-            } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
+            } else if (issues.get(0) != null && issues.get(0) instanceof E) {
                 holder.image.setImageDrawable(ContextCompat
                         .getDrawable(context, R.drawable.car_engine_red));
 

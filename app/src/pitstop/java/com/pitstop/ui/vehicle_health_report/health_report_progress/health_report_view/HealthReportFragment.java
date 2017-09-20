@@ -23,8 +23,13 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
 
 import java.util.List;
 
@@ -92,24 +97,6 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ProgressBar servicesLoading;
 
     private int engineListHolderHeight;
-    private List<CarIssue> issues;
-    private List<CarIssue> recalls;
-
-    public void inputCarIssues(List<CarIssue> issues, List<CarIssue> recalls){
-        Log.d(TAG,"inputCarIssues() issues: "+issues+"; recalls: "+recalls);
-        this.issues = issues;
-        this.recalls = recalls;
-    }
-
-    public List<CarIssue> getIssues() {
-        Log.d(TAG,"getIssues()");
-        return issues;
-    }
-
-    public List<CarIssue> getRecalls() {
-        Log.d(TAG,"getRecalls()");
-        return recalls;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -164,7 +151,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
 
     @Override
-    public void setServicesList(List<CarIssue> issues) {
+    public void setServicesList(List<Service> issues) {
         Log.d(TAG,"setServicesList() issues: "+issues);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -178,7 +165,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         serviceCount.setText(Integer.toString(issues.size()));
     }
     @Override
-    public void setRecallList(List<CarIssue> recalls) {
+    public void setRecallList(List<Recall> recalls) {
         Log.d(TAG,"setRecallList() recalls: "+recalls);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -193,7 +180,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     }
 
     @Override
-    public void setEngineList(List<CarIssue> engine) {
+    public void setEngineList(List<EngineIssue> engine) {
         Log.d(TAG,"setEngineList() engineList: "+engine);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -276,5 +263,16 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
         startActivity(intent);
 
+    }
+
+    @Override
+    public VehicleHealthReport getVehicleHealthReport() {
+        if (getActivity() == null) return null;
+        try {
+            return ((ReportActivity) getActivity()).getVehicleHealthReport();
+        }catch(ClassCastException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

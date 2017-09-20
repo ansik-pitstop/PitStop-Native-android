@@ -7,11 +7,9 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
-import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
-
-import java.util.List;
 
 /**
  * Created by Matt on 2017-08-16.
@@ -28,9 +26,7 @@ public class ReportProgressPresenter {
     private ReportCallback callback;
     private UseCaseComponent component;
 
-    private List<CarIssue> issueList;
-    private List<CarIssue> recallList;
-
+    private VehicleHealthReport vehicleHealthReport;
     private BluetoothConnectionObservable bluetooth;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
@@ -59,23 +55,22 @@ public class ReportProgressPresenter {
        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
 
            @Override
-           public void onStartGetServices() {
-               Log.d(TAG,"VHRMacroUseCase.onStartGetServices()");
-               changeStep("Getting services and recalls");
+           public void onStartGeneratingReport() {
+               changeStep("Generating report");
+               Log.d(TAG,"VHRMacrouseCase.onStartGeneratingReport()");
            }
 
            @Override
-           public void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls) {
-               Log.d(TAG,"VHRMacrouseCase.onServicesGot()");
-               issueList = issues;
-               recallList = recalls;
+           public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport){
+               ReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
+               Log.d(TAG,"onFinishGeneratingReport() vehicleHealthReport: "
+                       +vehicleHealthReport);
            }
 
            @Override
-           public void onServiceError() {
-               handleError("Error","Error retrieving car services and recalls"
+           public void onErrorGeneratingReport() {
+               handleError("Error","Error generating report"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
-                Log.d(TAG,"VHRMacrouseCase.onServiceError()");
            }
 
            @Override
@@ -119,7 +114,8 @@ public class ReportProgressPresenter {
                Log.d(TAG,"VHRMacrouseCase.onFinish() success? "+success);
                if (success){
                    changeStep("Completed");
-                   mainHandler.postDelayed(() -> setViewReport(),DELAY_SET_VIEW_REPORT);
+                   mainHandler.postDelayed(()
+                           -> setViewReport(vehicleHealthReport),DELAY_SET_VIEW_REPORT);
                }
            }
 
@@ -147,11 +143,10 @@ public class ReportProgressPresenter {
         mainHandler.postDelayed(() -> view.showError(title,body,onOkClicked),ERR_DELAY_LEN);
     }
 
-    private void setViewReport(){
+    private void setViewReport(VehicleHealthReport vehicleHealthReport){
         Log.d(TAG,"setViewReport()");
-        if(view == null || callback == null){return;}
-        if(issueList == null || recallList == null){return;}
-        callback.setReportView(issueList,recallList);
+        if(view == null || callback == null || vehicleHealthReport == null) return;
+        callback.setReportView(vehicleHealthReport);
     }
 
 }

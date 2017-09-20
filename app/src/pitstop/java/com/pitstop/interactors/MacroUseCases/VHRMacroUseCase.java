@@ -8,21 +8,16 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
-import com.pitstop.interactors.get.GetCurrentServicesUseCase;
-import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
+import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
 import com.pitstop.models.report.VehicleHealthReport;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -34,9 +29,9 @@ public class VHRMacroUseCase {
     private final String TAG = getClass().getSimpleName();
 
     public interface Callback{
-        void onStartGetServices();
-        void onServicesGot(List<CarIssue> issues, List<CarIssue> recalls);
-        void onServiceError();
+        void onStartGeneratingReport();
+        void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport);
+        void onErrorGeneratingReport();
         void onStartGetDTC();
         void onGotDTC();
         void onDTCError();
@@ -47,8 +42,8 @@ public class VHRMacroUseCase {
         void onProgressUpdate(int progress);
     }
 
-    private final int TIME_GET_SERVICES = 6;
-    private final int TYPE_GET_SERVICES = 0;
+    private final int TIME_GENERATE_REPORT = 8;
+    private final int TYPE_GENERATE_REPORT = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
     private final int TIME_PADDING = 2;
@@ -56,12 +51,10 @@ public class VHRMacroUseCase {
     private Callback callback;
     private Queue<Interactor> interactorQueue;
     private Queue<ProgressTimer> progressTimerQueue;
-    private UseCaseComponent component;
     private BluetoothConnectionObservable bluetooth;
+    private VehicleHealthReport generatedReport;
 
     //Lists for progress timers to communicate results
-    private List<CarIssue> retrievedCurrentServices;
-    private List<CarIssue> retrievedRecalls;
     private DtcPackage retrievedDtc;
     private PidPackage retrievedPid;
 
@@ -69,20 +62,25 @@ public class VHRMacroUseCase {
 
     public VHRMacroUseCase(UseCaseComponent component, BluetoothConnectionObservable bluetooth, Callback callback){
         this.callback = callback;
-        this.component = component;
         this.bluetooth = bluetooth;
+
+        //Use case queue
         interactorQueue = new LinkedList<>();
-        interactorQueue.add(component.getCurrentServicesUseCase());
         interactorQueue.add(component.getGetDTCUseCase());
         interactorQueue.add(component.getGetPIDUseCase());
+        interactorQueue.add(component.getAddVehicleReportUseCase());
+
+        //Timer queue
         progressTimerQueue = new LinkedList<>();
-        progressTimerQueue.add(new ProgressTimer(TYPE_GET_SERVICES,TIME_GET_SERVICES+TIME_PADDING));
+        progressTimerQueue.add(
+                new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_DTC
                         , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_PID
                         ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID+TIME_PADDING));
+
     }
     public void start(){
         next();
@@ -100,42 +98,7 @@ public class VHRMacroUseCase {
         Interactor current = interactorQueue.peek();
         interactorQueue.remove(current);
 
-        if(current instanceof GetCurrentServicesUseCaseImpl){
-            callback.onStartGetServices();
-            ((GetCurrentServicesUseCaseImpl) current).execute(new GetCurrentServicesUseCase.Callback() {
-                @Override
-                public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
-                    Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
-                    List<CarIssue> recalls = new ArrayList<CarIssue>();
-                    List<CarIssue> current
-                            = Collections.synchronizedList(new ArrayList<>(currentServices));
-                    for(CarIssue c: current){
-                        if(c.getIssueType().equals(CarIssue.RECALL)){
-                            recalls.add(c);
-                        }else if(c.getIssueType().equals(CarIssue.DTC)){
-                            currentServices.remove(c);
-                        }
-                    }
-                    currentServices.addAll(customIssues);
-                    retrievedCurrentServices = new ArrayList<>(currentServices);
-                    retrievedRecalls = new ArrayList<>(recalls);
-                }
-
-                @Override
-                public void onNoCarAdded(){
-                    Log.d(TAG,"getCurrentServicesUseCase.onNoCarAdded()");
-                    success = false;
-                }
-
-                @Override
-                public void onError(RequestError error) {
-                    Log.d(TAG,"getCurrentServicesUseCase.onError() error: "+error.getMessage());
-                    success = false;
-                }
-            });
-        }
-
-        else if(current instanceof GetDTCUseCaseImpl){
+        if(current instanceof GetDTCUseCaseImpl){
             callback.onStartGetDTC();
             ((GetDTCUseCaseImpl) current).execute(bluetooth, new GetDTCUseCase.Callback() {
                 @Override
@@ -167,32 +130,38 @@ public class VHRMacroUseCase {
                 }
             });
         }
+        else if (current instanceof AddVehicleHealthReportUseCaseImpl){
+            callback.onStartGeneratingReport();
+            if (retrievedPid == null || retrievedDtc == null){
+                callback.onErrorGeneratingReport();
+                return;
+            }
+            ((AddVehicleHealthReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
+                    , new AddVehicleHealthReportUseCase.Callback() {
+                        @Override
+                        public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
+                            generatedReport = vehicleHealthReport;
+                        }
+
+                        @Override
+                        public void onError(RequestError requestError) {
+                        }
+            });
+        }
         else{
             finish();
         }
     }
 
     private void finish(){
-        //Todo: remove debug below
-        component.addVehicleReportUseCase().execute(retrievedPid, retrievedDtc, new AddVehicleHealthReportUseCase.Callback() {
-            @Override
-            public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
-                Log.d(TAG,"addVehicleReportUseCase.onReportAdded() vehicleHealthReport: "+vehicleHealthReport);
-            }
-
-            @Override
-            public void onError(RequestError requestError) {
-                Log.d(TAG,"addVehicleReportUseCase.onError() error: "+requestError.getMessage());
-            }
-        });
         callback.onFinish(success);
     }
 
     private class ProgressTimer extends CountDownTimer{
 
-        private final int PROGRESS_START_GET_SERVICES = 0;
-        private final int PROGRESS_START_GET_DTC = 10;
-        private final int PROGRESS_START_GET_PID = 90;
+        private final int PROGRESS_START_GET_DTC = 0;
+        private final int PROGRESS_START_GET_PID = 60;
+        private final int PROGRESS_START_GENERATE_REPORT = 80;
         private final int PROGRESS_FINISH = 100;
 
         private final String TAG = getClass().getSimpleName();
@@ -207,10 +176,10 @@ public class VHRMacroUseCase {
             this.useCaseTime = useCaseTime;
             this.type = type;
             switch(type){
-                case TYPE_GET_SERVICES:
-                    this.startProgress = PROGRESS_START_GET_SERVICES;
+                case TYPE_GENERATE_REPORT:
+                    this.startProgress = PROGRESS_START_GENERATE_REPORT;
                     this.finishProgress = PROGRESS_START_GET_DTC;
-                    Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GET_SERVICES, useCaseTime: "
+                    Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GENERATE_REPORT, useCaseTime: "
                             +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
                             +finishProgress);
                     break;
@@ -249,21 +218,22 @@ public class VHRMacroUseCase {
         public void onFinish() {
             Log.d(TAG,"progressTimer.onFinish() type: "+type);
             callback.onProgressUpdate((int)finishProgress);
+
             switch(type){
-                case TYPE_GET_SERVICES:
-                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_SERVICES, retrieviedRecalls null? "
-                            +(retrievedRecalls == null) +", retrievedCurrentServices null? "
-                            +(retrievedCurrentServices == null));
-                    if (retrievedRecalls == null || retrievedCurrentServices == null){
-                        callback.onServiceError();
+                case TYPE_GENERATE_REPORT:
+                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GENERATE_REPORT dtc: "
+                            +retrievedDtc+", pid: "+retrievedPid);
+                    if (retrievedDtc == null || retrievedPid == null){
+                        callback.onErrorGeneratingReport();
                         finish();
                     }
                     else{
-                        callback.onServicesGot(retrievedCurrentServices,retrievedRecalls);
+                        callback.onFinishGeneratingReport(generatedReport);
                         progressTimerQueue.remove();
                         next();
                     }
                     break;
+
                 case TYPE_GET_DTC:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_DTC, retrieviedDtc null? "
                             +(retrievedDtc == null));
@@ -277,6 +247,7 @@ public class VHRMacroUseCase {
                         next();
                     }
                     break;
+
                 case TYPE_GET_PID:
                     Log.d(TAG,"progressTimer().onFinish() type: TYPE_GET_PID, retrievedPid null? "
                             +(retrievedPid == null));

@@ -6,9 +6,8 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
-
-import java.util.ArrayList;
 
 /**
  * Created by Matt on 2017-08-17.
@@ -34,6 +33,7 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
         getDashboardCar();
         setLists();
     }
+
     private void getDashboardCar(){
         Log.d(TAG,"getDashboardCar()");
         component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
@@ -56,9 +56,10 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     public void setLists(){
         Log.d(TAG,"setLists()");
-        view.setServicesList(view.getIssues());
-        view.setRecallList(view.getRecalls());
-        view.setEngineList(new ArrayList<CarIssue>());
+        VehicleHealthReport vehicleHealthReport = view.getVehicleHealthReport();
+        view.setServicesList(vehicleHealthReport.getServices());
+        view.setRecallList(vehicleHealthReport.getRecalls());
+        view.setEngineList(vehicleHealthReport.getEngineIssues());
     }
 
     public void unsubscribe(){

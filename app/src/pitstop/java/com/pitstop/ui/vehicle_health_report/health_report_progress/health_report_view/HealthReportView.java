@@ -2,7 +2,10 @@ package com.pitstop.ui.vehicle_health_report.health_report_progress.health_repor
 
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.models.issue.Issue;
+import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
+import com.pitstop.models.report.VehicleHealthReport;
 
 import java.util.List;
 
@@ -11,15 +14,13 @@ import java.util.List;
  */
 
 public interface HealthReportView {
-    void setServicesList(List<CarIssue> issues);
-    void setRecallList(List<CarIssue> recalls);
-    void setEngineList(List<CarIssue> engineList);
+    void setServicesList(List<Service> issues);
+    void setRecallList(List<Recall> recalls);
+    void setEngineList(List<EngineIssue> engineList);
     void toggleServiceList();
     void toggleRecallList();
     void toggleEngineList();
     void servicesLoading(boolean show);
     void startIssueDetails(Car car, CarIssue issue);
-
-     List<CarIssue> getIssues();
-     List<CarIssue> getRecalls();
+    VehicleHealthReport getVehicleHealthReport();
 }

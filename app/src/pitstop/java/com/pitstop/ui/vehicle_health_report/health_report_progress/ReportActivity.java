@@ -13,19 +13,18 @@ import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view.HealthReportFragment;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.ReportProgressFragment;
 
-import java.util.List;
-
 /**
  * Created by Matt on 2017-08-14.
  */
 
-public class ReportActivity extends IBluetoothServiceActivity implements ReportView,ReportCallback {
+public class ReportActivity extends IBluetoothServiceActivity
+        implements ReportView,ReportCallback, ReportHolder {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -33,8 +32,8 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     private ReportProgressFragment reportProgressFragment;
     private HealthReportFragment healthReportFragment;
 
+    private VehicleHealthReport vehicleHealthReport;
     private FragmentManager fragmentManager;
-
     private BluetoothConnectionObservable bluetoothConnectionObservable;
 
 
@@ -102,9 +101,9 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
     }
 
     @Override
-    public void setReportView(List<CarIssue> issues, List<CarIssue> recalls) {
-        Log.d(TAG,"setReportView() issues: "+issues+"; recalls: "+recalls);
-        healthReportFragment.inputCarIssues(issues,recalls);
+    public void setReportView(VehicleHealthReport vehicleHealthReport) {
+        Log.d(TAG,"setReportView() report: "+vehicleHealthReport);
+        this.vehicleHealthReport = vehicleHealthReport;
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
@@ -129,5 +128,10 @@ public class ReportActivity extends IBluetoothServiceActivity implements ReportV
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public VehicleHealthReport getVehicleHealthReport() {
+        return vehicleHealthReport;
     }
 }
