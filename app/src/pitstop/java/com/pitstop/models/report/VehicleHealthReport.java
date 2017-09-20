@@ -43,7 +43,7 @@ public class VehicleHealthReport {
 
     @Override
     public String toString(){
-        return "engineIssues: "+engineIssues.toString()
-                +", recalls: "+recalls+", services: "+services;
+        return "engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
+                +", services: "+getServices();
     }
 }
