@@ -16,11 +16,9 @@ import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.parse.Parse;
-import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.database.LocalAppointmentStorage;
@@ -145,14 +143,11 @@ public class GlobalApplication extends Application {
                 .build()
         );
 
-        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e == null) {
-                    Log.d(TAG, "Installation saved");
-                } else {
-                    Log.w(TAG, "Error saving installation: " + e.getMessage());
-                }
+        ParseInstallation.getCurrentInstallation().saveInBackground(e -> {
+            if(e == null) {
+                Log.d(TAG, "Installation saved");
+            } else {
+                Log.w(TAG, "Error saving installation: " + e.getMessage());
             }
         });
 
