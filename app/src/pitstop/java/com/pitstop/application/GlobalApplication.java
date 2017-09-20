@@ -124,7 +124,8 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings, null);
+        Smooch.init(this, settings, (response)
+                -> Log.d(TAG,"Smooch.init() response err: "+response.getError()));
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
