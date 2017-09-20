@@ -1,5 +1,7 @@
 package com.pitstop.ui.my_garage;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,13 +16,18 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.ui.dashboard.DashboardPresenter;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.smooch.ui.ConversationActivity;
+
+import static com.pitstop.ui.main_activity.MainActivity.RC_REQUEST_SERVICE;
 
 /**
  * Created by ishan on 2017-09-19.
@@ -33,7 +40,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @BindView(R.id.appointments_view)
     View appointmentsView;
 
-
+    @BindView(R.id.contact_view)
+    View contactView;
 
 
     private MyGaragePresenter presenter;
@@ -60,6 +68,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
         }
 
+
         return view;
     }
 
@@ -69,6 +78,62 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+    }
+
+
+    @Override
+    public void openMyAppointments() {
+        Log.d(TAG, "openMyAppointments()");
+        ((MainActivity)getActivity()).openAppointments();
+    }
+
+
+
+
+    @Override
+    public void openRequestService() {
+        Log.d(TAG, "onRequestService()");
+        ((MainActivity)getActivity()).requestMultiService(null);
+    }
+
+    @Override
+    public void toast(String message) {
+        Toast.makeText(getActivity(),message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean isUserNull() {
+        if(((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser() == null)
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    public String getUserPhone() {
+        return  ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getPhone();
+    }
+
+    @Override
+    public String getUserFirstName() {
+        return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getFirstName();
+    }
+
+    @Override
+    public String getUserEmail() {
+        return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getEmail();
+    }
+
+    @Override
+    public void openSmooch() {
+        ConversationActivity.show(getActivity());
+    }
+
+    @Override
+    public void callDealership(Car car) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
+                car.getDealership().getPhone()));
+        getActivity().startActivity(intent);
     }
 
     @OnClick(R.id.my_appointments_garage)
@@ -84,15 +149,17 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         presenter.onRequestServiceClicked();
     }
 
-    @Override
-    public void openMyAppointments() {
-        Log.d(TAG, "openMyAppointments()");
-        ((MainActivity)getActivity()).openAppointments();
+    @OnClick (R.id.message_my_garage)
+    public void onMessageClicked(){
+        Log.d(TAG, "onMessageClicked()");
+        presenter.onMessageClicked();
     }
 
-    @Override
-    public void openRequestService() {
-        Log.d(TAG, "onRequestService()");
-        ((MainActivity)getActivity()).requestMultiService(null);
+    @OnClick (R.id.call_garage)
+    public void onCallClicked(){
+        Log.d(TAG, "onCallClicked()");
+        presenter.onCallClicked();
     }
+
+
 }

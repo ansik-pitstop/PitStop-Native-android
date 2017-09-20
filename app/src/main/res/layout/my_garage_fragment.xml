@@ -6,14 +6,27 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/appointments_view"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            layout="@layout/appointments_view"/>
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/appointments_view"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                layout="@layout/appointments_view"/>
+
+            <include
+                android:id ="@+id/contact_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/contact_view"/>
 
 
+
+
+        </LinearLayout>
     </ScrollView>
 
 
