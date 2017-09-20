@@ -233,6 +233,9 @@ public class GlobalApplication extends Application {
     }
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
+
+        Log.d(TAG,"logInUser()");
+
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
@@ -246,7 +249,8 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null,null);
+            Smooch.login(String.valueOf(userId), "12345", response
+                    -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -330,7 +334,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout(null);
+        Smooch.logout(response -> Log.d(TAG,"smooch logout err:  "+response.getError()));
 
         cleanUpDatabase();
     }
