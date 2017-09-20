@@ -73,13 +73,13 @@ public class VHRMacroUseCase {
         //Timer queue
         progressTimerQueue = new LinkedList<>();
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
-        progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_DTC
                         , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_PID
                         ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID+TIME_PADDING));
+        progressTimerQueue.add(
+                new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
 
     }
     public void start(){
@@ -160,8 +160,11 @@ public class VHRMacroUseCase {
     private class ProgressTimer extends CountDownTimer{
 
         private final int PROGRESS_START_GET_DTC = 0;
+        private final int PROGRESS_FINISH_GET_DTC = 60;
         private final int PROGRESS_START_GET_PID = 60;
+        private final int PROGRESS_FINISH_GET_PID = 80;
         private final int PROGRESS_START_GENERATE_REPORT = 80;
+        private final int PROGRESS_FINISH_GENERATE_REPORT = 100;
         private final int PROGRESS_FINISH = 100;
 
         private final String TAG = getClass().getSimpleName();
@@ -178,14 +181,14 @@ public class VHRMacroUseCase {
             switch(type){
                 case TYPE_GENERATE_REPORT:
                     this.startProgress = PROGRESS_START_GENERATE_REPORT;
-                    this.finishProgress = PROGRESS_START_GET_DTC;
+                    this.finishProgress = PROGRESS_FINISH_GENERATE_REPORT;
                     Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GENERATE_REPORT, useCaseTime: "
                             +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
                             +finishProgress);
                     break;
                 case TYPE_GET_DTC:
                     this.startProgress = PROGRESS_START_GET_DTC;
-                    this.finishProgress = PROGRESS_START_GET_PID;
+                    this.finishProgress = PROGRESS_FINISH_GET_DTC;
                     Log.d(TAG,"ProgressTimer onCreate() type: TYPE_GET_DTC, useCaseTime: "
                             +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
                             +finishProgress);
@@ -195,7 +198,7 @@ public class VHRMacroUseCase {
                             +useCaseTime +", startProgress: "+startProgress+", finishProgress: "
                             +finishProgress);
                     this.startProgress = PROGRESS_START_GET_PID;
-                    this.finishProgress = PROGRESS_FINISH;
+                    this.finishProgress = PROGRESS_FINISH_GET_PID;
                     break;
                 default:
                     Log.d(TAG,"ProgressTimer onCreate() error: unknown type");
