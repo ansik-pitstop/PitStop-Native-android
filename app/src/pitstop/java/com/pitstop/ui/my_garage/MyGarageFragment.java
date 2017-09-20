@@ -17,10 +17,13 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.dashboard.DashboardPresenter;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +45,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @BindView(R.id.contact_view)
     View contactView;
-
 
     private MyGaragePresenter presenter;
 
@@ -67,11 +69,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             presenter = new MyGaragePresenter(useCaseComponent, mixpanelHelper);
 
         }
-
-
         return view;
     }
-
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -80,15 +79,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         presenter.subscribe(this);
     }
 
-
     @Override
     public void openMyAppointments() {
         Log.d(TAG, "openMyAppointments()");
         ((MainActivity)getActivity()).openAppointments();
     }
-
-
-
 
     @Override
     public void openRequestService() {
@@ -130,10 +125,20 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void callDealership(Car car) {
+    public void callDealership(Dealership dealership) {
+        Log.d(TAG, "callDealership()");
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                car.getDealership().getPhone()));
+                dealership.getPhone()));
         getActivity().startActivity(intent);
+    }
+
+    @Override
+    public void showDealershipsDialog(List<Dealership> dealerships) {
+
+
+
+
+
     }
 
     @OnClick(R.id.my_appointments_garage)
@@ -160,6 +165,5 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG, "onCallClicked()");
         presenter.onCallClicked();
     }
-
 
 }

@@ -10,7 +10,9 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.dashboard.DashboardPresenter;
 import com.pitstop.ui.mainFragments.TabPresenter;
@@ -18,6 +20,7 @@ import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.HashMap;
+import java.util.List;
 
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
@@ -125,22 +128,27 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     public void onCallClicked() {
-
-
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        if(getView() == null || updating) return;
+        updating = true;
+        useCaseComponent.getGetUserShopsUseCase().execute(new GetUserShopsUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-                mixpanelHelper.trackDealershipCallTapped();
-                getView().callDealership(car);
+            public void onShopGot(List<Dealership> dealerships) {
+                if(getView() != null){
+                    updating =false;
+                    if (dealerships.size() == 0)
+                        getView().toast("Please add a dealership");
+                    else if (dealerships.size() == 1)
+                        getView().callDealership(dealerships.get(0));
+                    else
+                        getView().showDealershipsDialog(dealerships);
+                }
             }
-            @Override
-            public void onNoCarSet() {
-                getView().toast("Please select a car");
-            }
-
             @Override
             public void onError(RequestError error) {
-                getView().toast(error.getMessage());
+                updating = false;
+                if(getView() != null){
+                    getView().toast("There was an error loading your shops");
+                }
             }
         });
 

@@ -1,6 +1,9 @@
 package com.pitstop.ui.my_garage;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
+
+import java.util.List;
 
 /**
  * Created by ishan on 2017-09-19.
@@ -17,7 +20,7 @@ public interface MyGarageView {
     String getUserPhone();
     String getUserFirstName();
     String getUserEmail();
-
     void openSmooch();
-    void callDealership(Car car);
+    void callDealership(Dealership dealership);
+    void showDealershipsDialog(List<Dealership> dealerships);
 }
