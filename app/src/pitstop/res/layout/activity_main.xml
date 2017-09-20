@@ -35,22 +35,32 @@
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_dashboard"
-                    android:text="Dealership"
+                    android:text="Dashboard"
                     android:icon="@drawable/ic_dashboard"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_services"
                     android:text="Services"
                     android:icon="@drawable/history"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+
+
+                    />
 
                 <android.support.design.widget.TabItem
                     android:id="@+id/tab_scan"
                     android:text="Scan"
                     android:icon="@drawable/scan_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <android.support.design.widget.TabItem
+                    android:id="@+id/tab_garage"
+                    android:text="MyGarage"
+                    android:icon="@drawable/garage_white_3x"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 

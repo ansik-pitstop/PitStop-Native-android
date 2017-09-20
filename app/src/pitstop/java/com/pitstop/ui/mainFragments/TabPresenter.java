@@ -64,4 +64,5 @@ public abstract class TabPresenter<T> implements Presenter<T> {
     public abstract void onAppStateChanged();
     public abstract EventSource getSourceType();
 
+
 }

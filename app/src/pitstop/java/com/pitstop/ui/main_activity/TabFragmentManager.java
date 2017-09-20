@@ -22,9 +22,10 @@ public class TabFragmentManager {
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
-    public static final int TAB_NOTIF = 3;
+    public static final int TAB_GARAGE = 3;
+    public static final int TAB_NOTIF = 4;
 
-    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report ","Notifications"};
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
 
     @BindView(R.id.main_tablayout)
     TabLayout mTabLayout;
@@ -54,7 +55,7 @@ public class TabFragmentManager {
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
 
         mViewPager.setAdapter(tabViewPagerAdapter);
-        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setOffscreenPageLimit(4);
 
         setupSwitchActions();
         setupActionBar();
@@ -81,6 +82,9 @@ public class TabFragmentManager {
                         break;
                     case TAB_SCAN:
                         mMixpanelHelper.trackSwitchedToTab("Health");
+                        break;
+                    case TAB_GARAGE:
+                        mMixpanelHelper.trackSwitchedToTab("My Garage");
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");
@@ -121,7 +125,7 @@ public class TabFragmentManager {
         mTabLayout.setupWithViewPager(mViewPager);
 
         int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
-                ,R.drawable.scan_icon,R.drawable.ic_notifications_white_24dp};
+                ,R.drawable.scan_icon,R.drawable.garage_white,R.drawable.ic_notifications_white_24dp};
 
         for (int i=0;i<tabIcons.length;i++){
             try{
@@ -152,6 +156,11 @@ public class TabFragmentManager {
                     case TAB_SCAN:
                         //Go to scan fragment
                         mViewPager.setCurrentItem(TAB_SCAN);
+                        break;
+
+                    case TAB_GARAGE:
+                        //Go to my garage fragment
+                        mViewPager.setCurrentItem(TAB_GARAGE);
                         break;
 
                     case TAB_NOTIF:
