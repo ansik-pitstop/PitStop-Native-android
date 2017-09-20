@@ -7,12 +7,14 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
+import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
+import com.pitstop.models.VehicleHealthReport;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -168,6 +170,18 @@ public class VHRMacroUseCase {
     }
 
     private void finish(){
+        //Todo: remove debug below
+        component.addVehicleReportUseCase().execute(retrievedPid, retrievedDtc, new AddVehicleHealthReportUseCase.Callback() {
+            @Override
+            public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
+                Log.d(TAG,"addVehicleReportUseCase.onReportAdded() vehicleHealthReport: "+vehicleHealthReport);
+            }
+
+            @Override
+            public void onError(RequestError requestError) {
+                Log.d(TAG,"addVehicleReportUseCase.onError() error: "+requestError.getMessage());
+            }
+        });
         callback.onFinish(success);
     }
 
