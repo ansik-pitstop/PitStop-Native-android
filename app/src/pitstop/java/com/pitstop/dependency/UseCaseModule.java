@@ -13,6 +13,8 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
+import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
+import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -89,6 +91,7 @@ import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
+import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
@@ -418,5 +421,13 @@ public class UseCaseModule {
     GetCarByVinUseCase getCarByVinUseCase(@Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler, CarRepository carRepository){
         return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository);
+    }
+
+    @Provides
+    AddVehicleHealthReportUseCase addVehicleHealthReportUseCase(ReportRepository reportRepository
+            , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
+            , @Named("useCaseHandler")Handler useCaseHandler){
+        return new AddVehicleHealthReportUseCaseImpl(reportRepository,userRepository
+                ,mainHandler,useCaseHandler);
     }
 }
