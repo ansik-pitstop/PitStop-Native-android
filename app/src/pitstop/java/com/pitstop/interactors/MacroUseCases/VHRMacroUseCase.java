@@ -14,7 +14,7 @@ import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
-import com.pitstop.models.VehicleHealthReport;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;

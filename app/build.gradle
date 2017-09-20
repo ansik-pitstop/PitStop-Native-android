@@ -27,8 +27,6 @@ allprojects {
 }
 
 android {
-    signingConfigs {
-    }
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 26
     buildToolsVersion '26.0.1'
@@ -83,7 +81,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
-
         }
     }
     compileOptions {
@@ -125,7 +122,7 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
-    compile "com.google.dagger:dagger:2.9"
+    compile 'com.google.dagger:dagger:2.9'
     apt 'com.google.dagger:dagger-compiler:2.9'
     provided 'javax.annotation:jsr250-api:1.0'
     compile 'org.greenrobot:eventbus:3.0.0'
@@ -168,7 +165,6 @@ dependencies {
     }
     compile 'com.google.android.gms:play-services-maps:11.0.4'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
-
 }
 
 apply plugin: 'com.google.gms.google-services'

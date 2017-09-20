@@ -3,7 +3,7 @@ package com.pitstop.interactors.add;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.interactors.Interactor;
-import com.pitstop.models.VehicleHealthReport;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 
 /**

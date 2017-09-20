@@ -2,15 +2,24 @@ package com.pitstop.repositories;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.models.VehicleHealthReport;
+import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
+import com.pitstop.models.report.VehicleHealthReport;
+import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +29,7 @@ import java.util.Map;
 public class ReportRepository implements Repository {
 
     private final String TAG = getClass().getSimpleName();
+    private final Gson gson = new Gson();
     private NetworkHelper networkHelper;
 
     public ReportRepository(NetworkHelper networkHelper) {
@@ -81,8 +91,24 @@ public class ReportRepository implements Repository {
 
                     if (requestError == null){
                         Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
-                        VehicleHealthReport vehicleHealthReport = new VehicleHealthReport();
-                        callback.onSuccess(vehicleHealthReport);
+                        try{
+                            JSONObject healthReportJson = new JSONObject(response);
+                            Type listType = new TypeToken<List<String>>() {}.getType();
+                            List<EngineIssue> engineIssues
+                                    = gson.fromJson((JsonElement)(healthReportJson.get("dtc")),listType);
+                            List<Recall> recalls
+                                    = gson.fromJson((JsonElement)healthReportJson.get("recall"),listType);
+                            List<Service> services
+                                    = gson.fromJson((JsonElement)healthReportJson.get("services"),listType);
+                            VehicleHealthReport vehicleHealthReport
+                                    = new VehicleHealthReport(engineIssues,recalls,services);
+                            Log.d(TAG,"Vehicle health report created: "+vehicleHealthReport);
+                            callback.onSuccess(vehicleHealthReport);
+                        }catch(JSONException e){
+                            e.printStackTrace();
+                            callback.onError(RequestError.getUnknownError());
+                        }
+
                     }else{
                         Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
                         callback.onError(requestError);
@@ -91,4 +117,5 @@ public class ReportRepository implements Repository {
         }, body);
 
     }
+
 }
