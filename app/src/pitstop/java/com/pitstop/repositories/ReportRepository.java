@@ -36,10 +36,13 @@ public class ReportRepository implements Repository {
     }
 
     public void getVehicleHealthReports(int carId, Callback<List<VehicleHealthReport>> callback){
+        Log.d(TAG,"getVehicleHealthReports() carId: "+carId);
         networkHelper.get("v1/report/?carId=" + carId, (response, requestError) -> {
             if (requestError == null){
+                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
                 callback.onSuccess(new ArrayList<>());
             }else{
+                Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
                 callback.onError(requestError);
             }
         });

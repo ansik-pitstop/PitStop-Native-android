@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import butterknife.ButterKnife;
 
 public class PastReportsFragment extends Fragment implements PastReportsView {
 
+    private final String TAG = getClass().getSimpleName();
+
     @BindView(R.id.reports_recycler_view)
     protected RecyclerView reportsRecyclerView;
 
@@ -41,6 +44,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
             , @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         View root = inflater.inflate(R.layout.fragment_past_reports,container);
         ButterKnife.bind(this,root);
 
@@ -63,6 +67,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         presenter.populateUI();
@@ -70,18 +75,21 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
     }
 
     @Override
     public void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports) {
+        Log.d(TAG,"displayHealthReports() reports: "+vehicleHealthReports);
         this.vehicleHealthReports.addAll(vehicleHealthReports);
         pastReportsAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
+        Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
         presenter.onReportClicked(vehicleHealthReport);
     }
 
