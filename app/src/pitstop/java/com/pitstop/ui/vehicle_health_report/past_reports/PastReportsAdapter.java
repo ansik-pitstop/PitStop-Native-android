@@ -42,7 +42,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
 
     @Override
     public int getItemCount() {
-        return 0;
+        return vehicleHealthReports.size();
     }
 
     public class ReportViewHolder extends RecyclerView.ViewHolder{
