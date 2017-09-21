@@ -128,12 +128,13 @@ public class ReportRepository implements Repository {
         return pidArr;
     }
 
-    //todo: continue here
     private List<VehicleHealthReport> jsonToVehicleHealthReportList(String response){
         try{
             List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
             JSONArray reportList = new JSONObject(response).getJSONArray("response");
+
             for (int i=0;i<reportList.length();i++){
+
                 JSONObject healthReportJson = reportList.getJSONObject(i);
                 int id = healthReportJson.getInt("id");
                 JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
