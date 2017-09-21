@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface PastReportsView {
     void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports);
+    void displayHealthReport(VehicleHealthReport vehicleHealthReport);
     void onReportClicked(VehicleHealthReport vehicleHealthReport);
     void displayError();
 }

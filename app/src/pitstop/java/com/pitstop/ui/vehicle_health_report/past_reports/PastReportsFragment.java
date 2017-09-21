@@ -88,6 +88,16 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     }
 
     @Override
+    public void displayHealthReport(VehicleHealthReport vehicleHealthReport) {
+        try{
+            ((PastReportsViewSwitcher)getActivity()).setReportView(vehicleHealthReport);
+        }catch(ClassCastException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
     public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
         presenter.onReportClicked(vehicleHealthReport);

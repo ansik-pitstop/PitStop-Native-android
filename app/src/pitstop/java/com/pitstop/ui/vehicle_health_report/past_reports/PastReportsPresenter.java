@@ -62,6 +62,7 @@ public class PastReportsPresenter {
 
     void onReportClicked(VehicleHealthReport vehicleHealthReport){
         Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
+        view.displayHealthReport(vehicleHealthReport);
     }
 
 }
