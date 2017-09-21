@@ -89,10 +89,10 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     @Override
     public void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports) {
         Log.d(TAG,"displayHealthReports() reports: "+vehicleHealthReports);
+        reportsRecyclerView.setVisibility(View.VISIBLE);
+        noReportsView.setVisibility(View.GONE);
         this.vehicleHealthReports.addAll(vehicleHealthReports);
         pastReportsAdapter.notifyDataSetChanged();
-        noReportsView.setVisibility(View.GONE);
-        reportsRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -137,7 +137,6 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
             loadingView.bringToFront();
         }else{
             loadingView.setVisibility(View.GONE);
-            loadingView.bringToFront();
         }
     }
 }

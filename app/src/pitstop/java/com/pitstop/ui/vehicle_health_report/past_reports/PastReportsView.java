@@ -15,4 +15,5 @@ public interface PastReportsView{
     void onReportClicked(VehicleHealthReport vehicleHealthReport);
     void displayError();
     void displayLoading(boolean display);
+
 }

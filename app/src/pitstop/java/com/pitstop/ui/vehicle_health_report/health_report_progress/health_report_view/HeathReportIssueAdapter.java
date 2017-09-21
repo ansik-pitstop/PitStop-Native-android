@@ -45,7 +45,8 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
 
     @Override
     public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new IssueViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_issue_report, parent, false));
+        return new IssueViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_item_issue_report, parent, false));
     }
 
     @Override

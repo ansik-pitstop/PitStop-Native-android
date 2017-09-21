@@ -48,9 +48,10 @@ public class PastReportsPresenter {
         populating = true;
 
         if (savedVehicleHealthReports != null){
-            displayHealthReports(savedVehicleHealthReports);
-            view.displayLoading(false);
             populating = false;
+            displayHealthReports(savedVehicleHealthReports);
+            if (view != null)
+                view.displayLoading(false);
             return;
         }
 
