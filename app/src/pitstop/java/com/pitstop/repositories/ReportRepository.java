@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,16 @@ public class ReportRepository implements Repository {
 
     public ReportRepository(NetworkHelper networkHelper) {
         this.networkHelper = networkHelper;
+    }
+
+    public void getVehicleHealthReports(int carId, Callback<List<VehicleHealthReport>> callback){
+        networkHelper.get("v1/report/?carId=" + carId, (response, requestError) -> {
+            if (requestError == null){
+                callback.onSuccess(new ArrayList<>());
+            }else{
+                callback.onError(requestError);
+            }
+        });
     }
 
     public void createVehicleHealthReport(int carId, boolean isInternal
