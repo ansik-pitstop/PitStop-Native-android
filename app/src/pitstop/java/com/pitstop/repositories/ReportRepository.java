@@ -40,7 +40,14 @@ public class ReportRepository implements Repository {
         networkHelper.get("v1/report/?carId=" + carId, (response, requestError) -> {
             if (requestError == null){
                 Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
-                callback.onSuccess(new ArrayList<>());
+                List<VehicleHealthReport> vehicleHealthReports
+                        = jsonToVehicleHealthReportList(response);
+                if (vehicleHealthReports == null){
+                    callback.onError(RequestError.getUnknownError());
+                    return;
+                }else{
+                    callback.onSuccess(vehicleHealthReports);
+                }
             }else{
                 Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
                 callback.onError(requestError);
@@ -119,6 +126,37 @@ public class ReportRepository implements Repository {
 
         }
         return pidArr;
+    }
+
+    //todo: continue here
+    private List<VehicleHealthReport> jsonToVehicleHealthReportList(String response){
+        try{
+            List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
+            JSONArray reportList = new JSONObject(response).getJSONArray("response");
+            for (int i=0;i<reportList.length();i++){
+                JSONObject healthReportJson = reportList.getJSONObject(i);
+                int id = healthReportJson.getInt("id");
+                JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
+
+                List<EngineIssue> engineIssues
+                        = gson.fromJson(healthReportContentJson.get("dtc").toString()
+                        ,new TypeToken<List<EngineIssue>>() {}.getType());
+                List<Recall> recalls
+                        = gson.fromJson(healthReportContentJson.get("recall").toString()
+                        ,new TypeToken<List<Recall>>() {}.getType());
+                List<Service> services
+                        = gson.fromJson(healthReportContentJson.get("services").toString()
+                        ,new TypeToken<List<Service>>() {}.getType());
+
+                vehicleHealthReports.add(
+                        new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services));
+            }
+            return vehicleHealthReports;
+
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private VehicleHealthReport jsonToVehicleHealthReport(String response){
