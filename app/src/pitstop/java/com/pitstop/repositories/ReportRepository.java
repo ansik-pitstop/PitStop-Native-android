@@ -150,7 +150,7 @@ public class ReportRepository implements Repository {
                         ,new TypeToken<List<Service>>() {}.getType());
 
                 vehicleHealthReports.add(
-                        new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services));
+                        new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services)); //Todo: retrieve created date
             }
             return vehicleHealthReports;
 
