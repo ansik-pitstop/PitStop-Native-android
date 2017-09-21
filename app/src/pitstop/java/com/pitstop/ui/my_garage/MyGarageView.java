@@ -22,5 +22,8 @@ public interface MyGarageView {
     String getUserEmail();
     void openSmooch();
     void callDealership(Dealership dealership);
-    void showDealershipsDialog(List<Dealership> dealerships);
+    void showDealershipsCallDialog(List<Dealership> dealerships, int origin);
+    void showDealershipsDirectionDialog(List<Dealership> dealerships, int origin);
+    void onDealershipSelected(Dealership dealership, int origin);
+    void openDealershipDirections(Dealership dealership);
 }
