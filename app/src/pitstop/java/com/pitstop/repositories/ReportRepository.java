@@ -122,7 +122,7 @@ public class ReportRepository implements Repository {
             List<Service> services
                     = gson.fromJson(healthReportContentJson.get("services").toString()
                     ,new TypeToken<List<Service>>() {}.getType());
-            return new VehicleHealthReport(id, engineIssues,recalls,services);
+            return new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services); //Todo: retrieve created date
         }catch (JSONException e){
             e.printStackTrace();
             return null;

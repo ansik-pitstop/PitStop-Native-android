@@ -12,13 +12,23 @@ public class VehicleHealthReport {
     private List<EngineIssue> engineIssues;
     private List<Recall> recalls;
     private List<Service> services;
+    private String date;
 
-    public VehicleHealthReport(int id, List<EngineIssue> engineIssues, List<Recall> recalls
-            , List<Service> services) {
+    public VehicleHealthReport(int id, String date, List<EngineIssue> engineIssues
+            , List<Recall> recalls, List<Service> services) {
         this.id = id;
+        this.date = date;
         this.engineIssues = engineIssues;
         this.recalls = recalls;
         this.services = services;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public List<EngineIssue> getEngineIssues() {

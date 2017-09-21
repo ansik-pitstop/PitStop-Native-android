@@ -1,6 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.past_reports;
 
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -28,6 +29,10 @@ public class PastReportsPresenter {
 
     void populateUI(){
         //Get all the reports and call view.displayHealthReports
+    }
+
+    void onReportClicked(VehicleHealthReport vehicleHealthReport){
+
     }
 
 }

@@ -18,7 +18,7 @@
         android:src="@drawable/ic_report"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:id="@+id/notification_image"
+        android:id="@+id/icon"
         />
 
     <!-- Title !-->

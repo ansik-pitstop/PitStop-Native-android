@@ -78,4 +78,9 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         this.vehicleHealthReports.addAll(vehicleHealthReports);
         pastReportsAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
+        presenter.onReportClicked(vehicleHealthReport);
+    }
 }
