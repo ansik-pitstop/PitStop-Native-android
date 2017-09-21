@@ -1,9 +1,9 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view;
 
-import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,7 +30,7 @@ import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -277,7 +277,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     public VehicleHealthReport getVehicleHealthReport() {
         if (getActivity() == null) return null;
         try {
-            return ((ReportActivity) getActivity()).getVehicleHealthReport();
+            return ((ReportHolder) getActivity()).getVehicleHealthReport();
         }catch(ClassCastException e){
             e.printStackTrace();
             return null;
