@@ -11,6 +11,7 @@ public interface StartReportView {
     void setModeHealthReport();
     void startEmissionsProgressActivity();
     void startVehicleHealthReportProgressActivity();
+    void startPastReportsActivity();
     void promptBluetoothSearch();
     void displaySearchInProgress();
     BluetoothConnectionObservable getBluetoothConnectionObservable();

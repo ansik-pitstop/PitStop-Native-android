@@ -21,11 +21,13 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
+import com.pitstop.ui.vehicle_health_report.past_reports.PastReportsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Matt on 2017-08-11.
@@ -93,6 +95,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void startVehicleHealthReportProgressActivity(){
         Log.d(TAG,"startVehicleHealthReportProgressActivity()");
         Intent intent = new Intent(getActivity(), ReportActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void startPastReportsActivity() {
+        Log.d(TAG,"startPastReportsActivity()");
+        Intent intent = new Intent(getActivity(), PastReportsActivity.class);
         startActivity(intent);
     }
 
@@ -180,5 +189,11 @@ public class StartReportFragment extends Fragment implements StartReportView {
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.primary));
         modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);
+    }
+
+    @OnClick(R.id.show_reports_button)
+    public void onShowReportsButtonClicked(){
+        Log.d(TAG,"onShowReportsButtonClicked()");
+        presenter.onShowReportsButtonClicked(emissionsMode);
     }
 }

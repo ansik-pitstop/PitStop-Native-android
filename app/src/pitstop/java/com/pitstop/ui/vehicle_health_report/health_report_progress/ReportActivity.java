@@ -1,7 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -66,7 +66,7 @@ public class ReportActivity extends IBluetoothServiceActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         presenter = new ReportPresenter(this);
         reportProgressFragment = new ReportProgressFragment();
         reportProgressFragment.setCallback(this);

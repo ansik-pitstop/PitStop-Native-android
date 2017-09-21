@@ -6,6 +6,6 @@ import com.pitstop.models.report.VehicleHealthReport;
  * Created by Karol Zdebel on 9/20/2017.
  */
 
-interface ReportHolder {
+public interface ReportHolder {
     VehicleHealthReport getVehicleHealthReport();
 }

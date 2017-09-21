@@ -64,4 +64,14 @@ public class StartReportPresenter {
             view.startVehicleHealthReportProgressActivity();
         }
     }
+
+    void onShowReportsButtonClicked(boolean emissionMode){
+        Log.d(TAG,"onShowReportsButtonClicked() emissionMode: "+emissionMode);
+        if (view == null) return;
+        if (emissionMode){
+            //Do nothing yet
+        }else{
+            view.startPastReportsActivity();
+        }
+    }
 }
