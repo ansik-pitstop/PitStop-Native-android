@@ -23,6 +23,14 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
     private Handler mainHandler;
     private Callback callback;
 
+    public GetVehicleHealthReportUseCaseImpl(UserRepository userRepository
+            , ReportRepository reportRepository, Handler useCaseHandler, Handler mainHandler) {
+        this.userRepository = userRepository;
+        this.reportRepository = reportRepository;
+        this.useCaseHandler = useCaseHandler;
+        this.mainHandler = mainHandler;
+    }
+
     @Override
     public void execute(Callback callback) {
         this.callback = callback;

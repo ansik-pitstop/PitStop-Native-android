@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.past_reports;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -82,5 +83,16 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     @Override
     public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
         presenter.onReportClicked(vehicleHealthReport);
+    }
+
+    @Override
+    public void displayError() {
+        new AlertDialog.Builder(getActivity())
+            .setTitle("Error")
+            .setMessage("Error loading reports, please check connection")
+            .setCancelable(false)
+            .setPositiveButton("Ok", (dialog, id) -> getActivity().finish())
+            .create()
+            .show();
     }
 }
