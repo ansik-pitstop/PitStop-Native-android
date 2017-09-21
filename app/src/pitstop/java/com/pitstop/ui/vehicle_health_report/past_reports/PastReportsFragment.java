@@ -45,7 +45,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
             , @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-        View root = inflater.inflate(R.layout.fragment_past_reports,container);
+        View root = inflater.inflate(R.layout.fragment_past_reports,container,false);
         ButterKnife.bind(this,root);
 
         //Setup adapter

@@ -52,9 +52,11 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         private TextView date;
         private ImageView icon;
         private VehicleHealthReport vehicleHealthReport;
+        private View thisView;
 
         public ReportViewHolder(View itemView) {
             super(itemView);
+            thisView = itemView;
             title = itemView.findViewById(R.id.title);
             description = itemView.findViewById(R.id.description);
             date = itemView.findViewById(R.id.date);
@@ -71,9 +73,9 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
             date.setText(vehicleHealthReport.getDate());
         }
 
-        public void setOnClickListener(PastReportsView view){
+        public void setOnClickListener(PastReportsView callback){
             if (vehicleHealthReport != null){
-                view.onReportClicked(vehicleHealthReport);
+                thisView.setOnClickListener(view1 -> callback.onReportClicked(vehicleHealthReport));
             }
         }
     }

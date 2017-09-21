@@ -30,7 +30,14 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreate()");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_report_progress);
+        setContentView(R.layout.activity_past_reports);
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d(TAG,"onStart()");
+        super.onStart();
+        setPastReportsView();
     }
 
     @Override
@@ -38,7 +45,7 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
         Log.d(TAG,"setPastReportView()");
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(R.id.report_progress_fragment_holder,pastReportsFragment);
+        fragmentTransaction.replace(R.id.past_reports_holder,pastReportsFragment);
         fragmentTransaction.commit();
     }
 
@@ -48,7 +55,7 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
         this.vehicleHealthReport = vehicleHealthReport;
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
+        fragmentTransaction.replace(R.id.past_reports_holder,healthReportFragment);
         fragmentTransaction.commit();
     }
 
