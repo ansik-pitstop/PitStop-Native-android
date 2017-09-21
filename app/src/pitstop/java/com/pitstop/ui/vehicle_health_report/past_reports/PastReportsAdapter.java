@@ -30,14 +30,14 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
     @Override
     public ReportViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ReportViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_past_report, parent, false)
-                , pastReportsView);
+                .inflate(R.layout.list_item_past_report, parent, false));
 
     }
 
     @Override
     public void onBindViewHolder(ReportViewHolder holder, int position) {
         holder.bind(vehicleHealthReports.get(position));
+        holder.setOnClickListener(pastReportsView);
     }
 
     @Override
@@ -52,11 +52,9 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         private TextView date;
         private ImageView icon;
         private VehicleHealthReport vehicleHealthReport;
-        private PastReportsView pastReportsView;
 
-        public ReportViewHolder(View itemView, PastReportsView pastReportsView) {
+        public ReportViewHolder(View itemView) {
             super(itemView);
-            this.pastReportsView = pastReportsView;
             title = itemView.findViewById(R.id.title);
             description = itemView.findViewById(R.id.description);
             date = itemView.findViewById(R.id.date);
@@ -75,7 +73,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
 
         public void setOnClickListener(PastReportsView view){
             if (vehicleHealthReport != null){
-                pastReportsView.onReportClicked(vehicleHealthReport);
+                view.onReportClicked(vehicleHealthReport);
             }
         }
     }
