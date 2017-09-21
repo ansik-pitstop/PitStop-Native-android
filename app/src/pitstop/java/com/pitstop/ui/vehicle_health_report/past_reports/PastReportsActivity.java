@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.models.report.VehicleHealthReport;
@@ -30,22 +31,21 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreate()");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_past_reports);
-    }
-
-    @Override
-    protected void onStart() {
-        Log.d(TAG,"onStart()");
-        super.onStart();
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         setPastReportsView();
     }
 
     @Override
     public void setPastReportsView() {
         Log.d(TAG,"setPastReportView()");
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle("Past Reports");
+        }
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(R.id.past_reports_holder,pastReportsFragment);
+        fragmentTransaction.replace(android.R.id.content,pastReportsFragment);
         fragmentTransaction.commit();
     }
 
@@ -53,9 +53,13 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     public void setReportView(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"setReportView()");
         this.vehicleHealthReport = vehicleHealthReport;
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setTitle("Past Reports");
+        }
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(R.id.past_reports_holder,healthReportFragment);
+        fragmentTransaction.replace(android.R.id.content,healthReportFragment);
+        fragmentTransaction.addToBackStack("pastReports->healthReportFragment");
         fragmentTransaction.commit();
     }
 
@@ -63,5 +67,15 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     public VehicleHealthReport getVehicleHealthReport() {
         Log.d(TAG,"getVehicleHealthReport()");
         return vehicleHealthReport;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            onBackPressed();
+            return true;
+        }else{
+            return super.onOptionsItemSelected(item);
+        }
     }
 }

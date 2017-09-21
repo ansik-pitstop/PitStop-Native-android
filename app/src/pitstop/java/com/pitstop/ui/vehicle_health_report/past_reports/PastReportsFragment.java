@@ -36,6 +36,12 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     @BindView(R.id.reports_recycler_view)
     protected RecyclerView reportsRecyclerView;
 
+    @BindView(R.id.no_reports_view)
+    protected View noReportsView;
+
+    @BindView(R.id.loading_view)
+    protected View loadingView;
+
     private PastReportsPresenter presenter;
     private PastReportsAdapter pastReportsAdapter;
     private List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
@@ -83,6 +89,8 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     @Override
     public void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports) {
         Log.d(TAG,"displayHealthReports() reports: "+vehicleHealthReports);
+        noReportsView.setVisibility(View.GONE);
+        reportsRecyclerView.setVisibility(View.VISIBLE);
         this.vehicleHealthReports.addAll(vehicleHealthReports);
         pastReportsAdapter.notifyDataSetChanged();
     }
@@ -98,6 +106,12 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     }
 
     @Override
+    public void displayNoHealthReports() {
+        noReportsView.setVisibility(View.VISIBLE);
+        reportsRecyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
     public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
         presenter.onReportClicked(vehicleHealthReport);
@@ -105,6 +119,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
 
     @Override
     public void displayError() {
+        Log.d(TAG,"displayError()");
         new AlertDialog.Builder(getActivity())
             .setTitle("Error")
             .setMessage("Error loading reports, please check connection")
@@ -112,5 +127,17 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
             .setPositiveButton("Ok", (dialog, id) -> getActivity().finish())
             .create()
             .show();
+    }
+
+    @Override
+    public void displayLoading(boolean display) {
+        Log.d(TAG,"displayLoading() display: "+display);
+        if (display){
+            loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+        }else{
+            loadingView.setVisibility(View.GONE);
+            loadingView.bringToFront();
+        }
     }
 }

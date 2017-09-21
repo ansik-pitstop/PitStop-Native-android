@@ -18,10 +18,12 @@ public class PastReportsPresenter {
 
     private final String TAG = getClass().getSimpleName();
 
-
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private PastReportsView view;
+    private List<VehicleHealthReport> savedVehicleHealthReports;
+
+    private boolean populating = false;
 
     public PastReportsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -29,7 +31,8 @@ public class PastReportsPresenter {
     }
 
     void subscribe(PastReportsView view){
-        Log.d(TAG,"subscribe()");
+        Log.d(TAG,"subscribe() savedVehicleHealthReports == null? "
+                +(savedVehicleHealthReports==null));
         this.view = view;
     }
 
@@ -40,29 +43,56 @@ public class PastReportsPresenter {
 
     void populateUI(){
         Log.d(TAG,"populateUI()");
+        if (view == null || populating) return;
+        view.displayLoading(true);
+        populating = true;
+
+        if (savedVehicleHealthReports != null){
+            displayHealthReports(savedVehicleHealthReports);
+            view.displayLoading(false);
+            populating = false;
+            return;
+        }
+
         //Get all the reports and call view.displayHealthReports
         useCaseComponent.getGetVehicleHealthReportsUseCase()
                 .execute(new GetVehicleHealthReportsUseCase.Callback() {
                     @Override
                     public void onGotVehicleHealthReports(
                             List<VehicleHealthReport> vehicleHealthReports) {
-
+                        savedVehicleHealthReports = vehicleHealthReports;
                         Log.d(TAG,"populateUI() reports: "+vehicleHealthReports);
-                        view.displayHealthReports(vehicleHealthReports);
+                        populating = false;
+                        if (view == null) return;
+                        displayHealthReports(vehicleHealthReports);
+                        view.displayLoading(false);
                     }
 
                     @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"populateUI() error retrieving reports: "
                                 +error.getMessage());
+                        populating = false;
+                        if (view == null) return;
                         view.displayError();
+                        view.displayLoading(false);
                     }
                 });
     }
 
     void onReportClicked(VehicleHealthReport vehicleHealthReport){
         Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
-        view.displayHealthReport(vehicleHealthReport);
+        if (view != null)
+            view.displayHealthReport(vehicleHealthReport);
+    }
+
+    private void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports){
+        if (view == null) return;
+        if (vehicleHealthReports.isEmpty()){
+            view.displayNoHealthReports();
+        }else{
+            view.displayHealthReports(vehicleHealthReports);
+        }
     }
 
 }
