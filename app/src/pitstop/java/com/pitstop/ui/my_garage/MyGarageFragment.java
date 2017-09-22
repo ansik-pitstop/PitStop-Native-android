@@ -7,15 +7,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.pitstop.R;
-import com.pitstop.adapters.CarsAdapterMyGarage;
+import com.pitstop.adapters.CarsAdapter;
 import com.pitstop.adapters.DealershipListAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -23,6 +24,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -35,6 +37,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.smooch.ui.ConversationActivity;
+
+import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
  * Created by ishan on 2017-09-19.
@@ -50,19 +54,21 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     View contactView;
 
 
-    @BindView(R.id.cars_listview_garage)
-    ListView carsListView;
+    @BindView(R.id.car_recycler_view)
+    RecyclerView carRecyclerView;
+
+    @BindView(R.id.add_car_garage)
+    View addCar;
 
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
-    private CarsAdapterMyGarage carsAdapter;
+    private CarsAdapter carsAdapter;
 
     List <Car> carList = new ArrayList<>();
 
     public static MyGarageFragment newInstance(){
         return new MyGarageFragment();
-
     }
 
     @Nullable
@@ -81,8 +87,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             presenter = new MyGaragePresenter(useCaseComponent, mixpanelHelper);
 
         }
-        carsAdapter = new CarsAdapterMyGarage(getContext(), R.layout.list_item_car_garage, carList);
-        carsListView.setAdapter(carsAdapter);
+        carRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
+        carsAdapter = new CarsAdapter(this, carList);
+        carRecyclerView.setAdapter(carsAdapter);
         return view;
     }
 
@@ -96,6 +103,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG, "onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
     }
@@ -142,15 +150,19 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void openSmooch() {
+        Log.d(TAG, "openSmooch()");
         ConversationActivity.show(getActivity());
     }
 
     @Override
     public void callDealership(Dealership dealership) {
+
+
         Log.d(TAG, "callDealership()");
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" +
-                dealership.getPhone()));
+        Intent intent = new Intent(Intent.ACTION_DIAL,
+                Uri.parse("tel:" + dealership.getPhone()));
         getActivity().startActivity(intent);
+
     }
 
     @Override
@@ -200,20 +212,28 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void openDealershipDirections(Dealership dealership) {
+        Log.d(TAG, "openDealershipDirections()");
+
+
+        Log.d(TAG, dealership.getAddress());
         String uri = String.format(Locale.ENGLISH,
-                "http://maps.google.com/maps?daddr=%s",
-                dealership.getAddress());
+                    "http://maps.google.com/maps?daddr=%s",
+                    dealership.getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         getActivity().startActivity(intent);
     }
 
     @Override
     public void showCars(List<Car> list) {
+        Log.d(TAG, "showCars()");
         carList.clear();
         carList.addAll(list);
         carsAdapter.notifyDataSetChanged();
+    }
 
-
+    @Override
+    public void onCarClicked(Car car) {
+        Log.d(TAG, "onCarClicked()");
     }
 
     @OnClick(R.id.my_appointments_garage)
@@ -244,6 +264,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void onFindDirectionsClicked(){
         Log.d(TAG, "onFindDirectionsClicked()");
         presenter.onFindDirectionsClicked();
+    }
+
+    @OnClick(R.id.add_car_garage)
+    public void onAddCarClicked(){
+        Log.d(TAG, "onAddCarClicked()");
+        Intent intent = new Intent(this.getActivity(),AddCarActivity.class);
+        startActivityForResult(intent,RC_ADD_CAR);
     }
 
 }

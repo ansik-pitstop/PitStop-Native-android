@@ -24,6 +24,7 @@ public interface MyGarageView {
     void showDealershipsCallDialog(List<Dealership> dealerships);
     void showDealershipsDirectionDialog(List<Dealership> dealerships);
     void openDealershipDirections(Dealership dealership);
+    void onCarClicked(Car car);
 
     void showCars(List<Car> carList);
 }

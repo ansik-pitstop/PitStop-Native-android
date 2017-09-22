@@ -93,8 +93,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         Log.d(TAG, "onMessageClicked()");
         if (getView() == null||updating )return;
         updating = true;
-
-
         if (customProperties == null){
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
@@ -129,9 +127,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().toast(error.getMessage());
                 }
             });
-
         }
-
         else{
             updating = false;
             getView().openSmooch();
@@ -150,7 +146,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (!c.getDealership().getName().equalsIgnoreCase("No Dealership")) {
+                        if (c.getDealership().getId()!=1) {
                             dealershipList.add(c.getDealership());
                         }
                     }
@@ -169,7 +165,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().toast(error.getMessage());
                 }
             });
-
         }
         else {
             Log.d(TAG, "dealershipsAlreadyGot");
@@ -180,10 +175,9 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 getView().callDealership(dealershipList.get(0));
             else
                 getView().showDealershipsCallDialog(dealershipList);
-
         }
-
     }
+
 
     public void onFindDirectionsClicked() {
 
@@ -196,7 +190,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     updating = false;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (!c.getDealership().getName().equalsIgnoreCase("No Dealership")) {
+                        if (c.getDealership().getId()!=1) {
                             dealershipList.add(c.getDealership());
                         }
                     }
@@ -225,8 +219,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 getView().showDealershipsDirectionDialog(dealershipList);
         }
     }
-
-
     public void loadCars() {
         if(getView() == null|| updating) return;
         if (carList ==null){
@@ -239,20 +231,16 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (!c.getDealership().getName().equalsIgnoreCase("No Dealership")) {
+                        if (c.getDealership().getId()!=1 ) {
                             dealershipList.add(c.getDealership());
+                            Log.d(TAG, c.getDealership().getName());
                         }
                     }
                     getView().showCars(carList);
-
-
-
                 }
-
                 @Override
                 public void onError(RequestError error) {
                     getView().toast(error.getMessage());
-
                 }
             });
 
