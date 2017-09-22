@@ -3,7 +3,6 @@ package com.pitstop.ui.vehicle_health_report.past_reports;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -40,21 +39,21 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     @Override
     public void setPastReportsView() {
         Log.d(TAG,"setPastReportView()");
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(android.R.id.content,pastReportsFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.animator.left_in,R.animator.right_out)
+                .replace(android.R.id.content,pastReportsFragment)
+                .commit();
     }
 
     @Override
     public void setReportView(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"setReportView()");
         this.vehicleHealthReport = vehicleHealthReport;
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-        fragmentTransaction.replace(android.R.id.content,healthReportFragment);
-        fragmentTransaction.addToBackStack("pastReports->healthReportFragment");
-        fragmentTransaction.commit();
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.animator.left_in,R.animator.right_out)
+                .replace(android.R.id.content,healthReportFragment)
+                .addToBackStack("pastReports->healthReportFragment")
+                .commit();
     }
 
     @Override

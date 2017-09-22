@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -59,9 +62,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         reportsRecyclerView.setAdapter(pastReportsAdapter);
         reportsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        if (getActivity().getActionBar() != null){
-            getActivity().getActionBar().setTitle("Past Reports");
-        }
+        getActivity().setTitle("Past Reports");
 
         //Create presenter
         if (presenter == null){
@@ -73,6 +74,35 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
             presenter = new PastReportsPresenter(useCaseComponent,mixpanelHelper);
         }
         return root;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_past_reports,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_sort_date_newest:
+                presenter.onSortNewestDateClicked();
+                return true;
+            case R.id.action_sort_date_oldest:
+                presenter.onSortOldestDateClicked();
+                return true;
+            case R.id.action_sort_engine_issue:
+                presenter.onSortEngineIssuesClicked();
+                return true;
+            case R.id.action_sort_services:
+                presenter.onSortServicesClicked();
+                return true;
+            case R.id.action_sort_recalls:
+                presenter.onSortRecallsClicked();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

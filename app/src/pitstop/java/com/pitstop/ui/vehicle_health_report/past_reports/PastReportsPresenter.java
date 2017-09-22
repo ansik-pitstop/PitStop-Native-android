@@ -96,4 +96,23 @@ public class PastReportsPresenter {
         }
     }
 
+    void onSortNewestDateClicked() {
+        Log.d(TAG,"onSortNewestDateClicked()");
+    }
+
+    void onSortOldestDateClicked() {
+        Log.d(TAG,"onSortOldestDateClicked()");
+    }
+
+    void onSortEngineIssuesClicked() {
+        Log.d(TAG,"onSortEngineIssuesClicked()");
+    }
+
+    void onSortServicesClicked() {
+        Log.d(TAG,"onSortServicesClicked()");
+    }
+
+    void onSortRecallsClicked() {
+        Log.d(TAG,"onSortRecallsClicked()");
+    }
 }
