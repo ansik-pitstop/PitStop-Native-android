@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#f6f6f6">
+    android:layout_height="match_parent">
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -14,6 +14,9 @@
         <!-- Engine Codes -->
         <RelativeLayout
             android:id="@+id/engine_list_button"
+            android:background="@color/white"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -27,22 +30,22 @@
 
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/engine_green"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         app:srcCompat="@drawable/color_button_green_highlight" />
 
                     <ImageView
                         android:id="@+id/engine_red"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/rounded_red_background" />
+                        app:srcCompat="@drawable/color_button_red_highlight" />
 
                     <TextView
                         android:id="@+id/engine_list_count"
@@ -54,8 +57,10 @@
                 </FrameLayout>
 
                 <ImageView
+                    android:id="@+id/engine_issue_right_chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/right_chevron" />
 
@@ -95,7 +100,9 @@
 
         <RelativeLayout
             android:id="@+id/recall_list_button"
-            android:layout_marginTop="3dp"
+            android:background="@color/white"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -109,22 +116,22 @@
 
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/recall_green"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         app:srcCompat="@drawable/color_button_green_highlight" />
 
                     <ImageView
                         android:id="@+id/recall_red"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/rounded_red_background" />
+                        app:srcCompat="@drawable/color_button_red_highlight" />
 
                     <TextView
                         android:id="@+id/recall_list_count"
@@ -136,9 +143,10 @@
                 </FrameLayout>
 
                 <ImageView
-                    android:id="@+id/imageView38"
+                    android:id="@+id/recall_right_chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/right_chevron" />
 
@@ -178,7 +186,9 @@
 
         <RelativeLayout
             android:id="@+id/service_list_button"
-            android:layout_marginTop="3dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -192,23 +202,23 @@
 
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/service_green"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:visibility="visible"
                         app:srcCompat="@drawable/color_button_green_highlight" />
 
                     <ImageView
                         android:id="@+id/service_red"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/rounded_red_background" />
+                        app:srcCompat="@drawable/color_button_red_highlight" />
 
                     <TextView
                         android:id="@+id/service_count"
@@ -220,8 +230,10 @@
                 </FrameLayout>
 
                 <ImageView
+                    android:id="@+id/service_right_chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/right_chevron" />
 

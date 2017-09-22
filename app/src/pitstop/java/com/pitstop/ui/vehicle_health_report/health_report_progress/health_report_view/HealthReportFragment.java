@@ -67,6 +67,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ImageView serviceRed;
     @BindView(R.id.service_green)
     ImageView serviceGreen;
+    @BindView(R.id.service_right_chevron)
+    ImageView serviceRightChevron;
 
     private int recallListHolderHeight;
     @BindView(R.id.recall_list_holder)
@@ -81,6 +83,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ImageView recallRed;
     @BindView(R.id.recall_green)
     ImageView recallGreen;
+    @BindView(R.id.recall_right_chevron)
+    ImageView recallRightChevron;
 
     @BindView(R.id.engine_list_holder)
     RelativeLayout engineListHolder;
@@ -94,6 +98,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ImageView engineRed;
     @BindView(R.id.engine_green)
     ImageView engineGreen;
+    @BindView(R.id.engine_issue_right_chevron)
+    ImageView engineIssueRightChevron;
 
     @BindView(R.id.report_services_loading)
     ProgressBar servicesLoading;
@@ -111,6 +117,10 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
                 .contextModule(new ContextModule(application))
                 .build();
         presenter = new HealthReportPresenter(component);
+
+        engineIssueRightChevron.setRotation(90);
+        recallRightChevron.setRotation(90);
+        serviceRightChevron.setRotation(90);
 
         serviceListHolder.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             if(serviceListHolder.getHeight() >= serviceListHolderHeight){
@@ -209,11 +219,15 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         if(recallListHolder.getHeight() == 0){
             ViewAnimator.animate(recallListHolder)
                     .height(0, recallListHolderHeight)
+                    .andAnimate(recallRightChevron)
+                    .rotation(0,90)
                     .duration(200)
                     .start();
         }else {
             ViewAnimator.animate(recallListHolder)
                     .height(recallListHolder.getHeight(),0)
+                    .andAnimate(recallRightChevron)
+                    .rotation(90,0)
                     .duration(200)
                     .start();
         }
@@ -226,11 +240,15 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         if(serviceListHolder.getHeight() == 0){
             ViewAnimator.animate(serviceListHolder)
                     .height(0, serviceListHolderHeight)
+                    .andAnimate(serviceRightChevron)
+                    .rotation(0,90)
                     .duration(200)
                     .start();
         }else{
             ViewAnimator.animate(serviceListHolder)
                     .height(serviceListHolder.getHeight(),0)
+                    .andAnimate(serviceRightChevron)
+                    .rotation(90,0)
                     .duration(200)
                     .start();
         }
@@ -243,11 +261,15 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         if(engineListHolder.getHeight() == 0){
             ViewAnimator.animate(engineListHolder)
                     .height(0, engineListHolderHeight)
+                    .andAnimate(engineIssueRightChevron)
+                    .rotation(0,90)
                     .duration(200)
                     .start();
         }else{
             ViewAnimator.animate(engineListHolder)
                     .height(engineListHolder.getHeight(),0)
+                    .andAnimate(engineIssueRightChevron)
+                    .rotation(90,0)
                     .duration(200)
                     .start();
         }
