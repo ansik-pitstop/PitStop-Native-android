@@ -40,9 +40,6 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     @Override
     public void setPastReportsView() {
         Log.d(TAG,"setPastReportView()");
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setTitle("Past Reports");
-        }
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(android.R.id.content,pastReportsFragment);
@@ -53,9 +50,6 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     public void setReportView(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"setReportView()");
         this.vehicleHealthReport = vehicleHealthReport;
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setTitle("Past Reports");
-        }
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(android.R.id.content,healthReportFragment);

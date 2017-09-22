@@ -118,6 +118,10 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
                 .build();
         presenter = new HealthReportPresenter(component);
 
+        if (getActivity().getActionBar() != null){
+            getActivity().getActionBar().setTitle("Vehicle Health Report");
+        }
+
         engineIssueRightChevron.setRotation(90);
         recallRightChevron.setRotation(90);
         serviceRightChevron.setRotation(90);

@@ -59,6 +59,10 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         reportsRecyclerView.setAdapter(pastReportsAdapter);
         reportsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        if (getActivity().getActionBar() != null){
+            getActivity().getActionBar().setTitle("Past Reports");
+        }
+
         //Create presenter
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
