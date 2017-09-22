@@ -14,7 +14,6 @@ public interface MyGarageView {
 
     void openMyAppointments();
     void openRequestService();
-
     void toast(String message);
     boolean isUserNull();
     String getUserPhone();
@@ -22,8 +21,9 @@ public interface MyGarageView {
     String getUserEmail();
     void openSmooch();
     void callDealership(Dealership dealership);
-    void showDealershipsCallDialog(List<Dealership> dealerships, int origin);
-    void showDealershipsDirectionDialog(List<Dealership> dealerships, int origin);
-    void onDealershipSelected(Dealership dealership, int origin);
+    void showDealershipsCallDialog(List<Dealership> dealerships);
+    void showDealershipsDirectionDialog(List<Dealership> dealerships);
     void openDealershipDirections(Dealership dealership);
+
+    void showCars(List<Car> carList);
 }

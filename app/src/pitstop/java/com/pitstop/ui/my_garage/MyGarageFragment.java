@@ -1,33 +1,33 @@
 package com.pitstop.ui.my_garage;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.pitstop.R;
-import com.pitstop.adapters.DealershipDialogAdapter;
+import com.pitstop.adapters.CarsAdapterMyGarage;
+import com.pitstop.adapters.DealershipListAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.ui.dashboard.DashboardPresenter;
 import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,8 +36,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.smooch.ui.ConversationActivity;
 
-import static com.pitstop.ui.main_activity.MainActivity.RC_REQUEST_SERVICE;
-
 /**
  * Created by ishan on 2017-09-19.
  */
@@ -45,16 +43,22 @@ import static com.pitstop.ui.main_activity.MainActivity.RC_REQUEST_SERVICE;
 public class MyGarageFragment extends Fragment implements MyGarageView {
 
     private static final String TAG = MyGarageFragment.class.getSimpleName();
-
     @BindView(R.id.appointments_view)
     View appointmentsView;
 
     @BindView(R.id.contact_view)
     View contactView;
 
+
+    @BindView(R.id.cars_listview_garage)
+    ListView carsListView;
+
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
+    private CarsAdapterMyGarage carsAdapter;
+
+    List <Car> carList = new ArrayList<>();
 
     public static MyGarageFragment newInstance(){
         return new MyGarageFragment();
@@ -77,6 +81,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             presenter = new MyGaragePresenter(useCaseComponent, mixpanelHelper);
 
         }
+        carsAdapter = new CarsAdapterMyGarage(getContext(), R.layout.list_item_car_garage, carList);
+        carsListView.setAdapter(carsAdapter);
         return view;
     }
 
@@ -85,6 +91,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.loadCars();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -141,21 +154,20 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void showDealershipsCallDialog(List<Dealership> dealerships, int origin) {
+    public void showDealershipsCallDialog(List<Dealership> dealerships) {
         Log.d(TAG, "showDealershipsCallDialog()");
         if (dealershipCallDialog == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dealerships_dialog, null);
-            RecyclerView recyclerView = (RecyclerView)dialogLayout
-                    .findViewById(R.id.dealership_recycler_view);
-            DealershipDialogAdapter dealershipDialogAdapter = new DealershipDialogAdapter(dealerships, this, origin);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(dealershipDialogAdapter);
-            recyclerView.setVisibility(View.VISIBLE);
-            dealershipCallDialog = new AnimatedDialogBuilder(getActivity())
+            DealershipListAdapter listAdapter = new DealershipListAdapter(getContext(), R.layout.list_item_dealership, dealerships);
+            AnimatedDialogBuilder builder = new AnimatedDialogBuilder(getActivity());
+            builder.setAdapter(listAdapter, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    callDealership(dealerships.get(i));
+                }
+            });
+            dealershipCallDialog = builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Select a Dealership")
-                    .setView(dialogLayout)
                     .setPositiveButton("", null)
                     .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
                     .create();
@@ -164,35 +176,27 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void showDealershipsDirectionDialog(List<Dealership> dealerships, int origin) {
+    public void showDealershipsDirectionDialog(List<Dealership> dealerships) {
         Log.d(TAG, "showDealershipsDirectionsDialog()");
         if (dealershipDirectionsDialog == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dealerships_dialog, null);
-            RecyclerView recyclerView = (RecyclerView)dialogLayout
-                    .findViewById(R.id.dealership_recycler_view);
-            DealershipDialogAdapter dealershipDialogAdapter = new DealershipDialogAdapter(dealerships, this, origin);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(dealershipDialogAdapter);
-            recyclerView.setVisibility(View.VISIBLE);
-            dealershipDirectionsDialog = new AnimatedDialogBuilder(getActivity())
+            DealershipListAdapter listAdapter = new DealershipListAdapter(getContext(), R.layout.list_item_dealership, dealerships);
+            AnimatedDialogBuilder builder = new AnimatedDialogBuilder(getActivity());
+            builder.setAdapter(listAdapter, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    openDealershipDirections(dealerships.get(i));
+                }
+            });
+            dealershipDirectionsDialog= builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Select a Dealership")
-                    .setView(dialogLayout)
                     .setPositiveButton("", null)
                     .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
                     .create();
         }
         dealershipDirectionsDialog.show();
     }
-    @Override
-    public void onDealershipSelected(Dealership dealership, int origin) {
-        Log.d(TAG, "onDealershipSelected()");
-        if (origin == MyGaragePresenter.FROM_CALL_CLICKED)
-            callDealership(dealership);
-        else
-            openDealershipDirections(dealership);
-    }
+
 
     @Override
     public void openDealershipDirections(Dealership dealership) {
@@ -203,13 +207,21 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         getActivity().startActivity(intent);
     }
 
+    @Override
+    public void showCars(List<Car> list) {
+        carList.clear();
+        carList.addAll(list);
+        carsAdapter.notifyDataSetChanged();
+
+
+    }
+
     @OnClick(R.id.my_appointments_garage)
     public void onMyAppointmentsClicked(){
         Log.d(TAG, "onMyAppointmentsClicked()");
         presenter.onMyAppointmentsClicked();
 
     }
-
     @OnClick(R.id.request_service_garage)
     public void onRequestServiceClicked(){
         Log.d(TAG, "onRequestServiceClicked");
