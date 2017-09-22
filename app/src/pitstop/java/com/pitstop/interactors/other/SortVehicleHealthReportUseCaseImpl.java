@@ -40,11 +40,11 @@ public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthRepo
         switch (sortType){
             case DATE_NEW:
                 Collections.sort(vehicleHealthReports
-                        ,(t1, t2) -> t1.getDate().compareTo(t2.getDate()));
+                        ,(t1, t2) -> t2.getDate().compareTo(t1.getDate()));
                 break;
             case DATE_OLD:
                 Collections.sort(vehicleHealthReports
-                        ,(t1, t2) -> t2.getDate().compareTo(t1.getDate()));
+                        ,(t1, t2) -> t1.getDate().compareTo(t2.getDate()));
                 break;
             case ENGINE_ISSUE:
                 Collections.sort(vehicleHealthReports

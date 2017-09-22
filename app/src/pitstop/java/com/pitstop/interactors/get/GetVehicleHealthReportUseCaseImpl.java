@@ -9,6 +9,7 @@ import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,6 +59,8 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
                 reportRepository.getVehicleHealthReports(data.getCarId(), new Repository.Callback<List<VehicleHealthReport>>() {
                     @Override
                     public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
+                        Collections.sort(vehicleHealthReports
+                                , (t1,t2) -> t2.getDate().compareTo(t2.getDate()));
                         GetVehicleHealthReportUseCaseImpl.this
                                 .onGotVehicleHealthReports(vehicleHealthReports);
                     }
