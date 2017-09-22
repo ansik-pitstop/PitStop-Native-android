@@ -60,7 +60,7 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
                     @Override
                     public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
                         Collections.sort(vehicleHealthReports
-                                , (t1,t2) -> t2.getDate().compareTo(t2.getDate()));
+                                , (t1,t2) -> t2.getDate().compareTo(t1.getDate()));
                         GetVehicleHealthReportUseCaseImpl.this
                                 .onGotVehicleHealthReports(vehicleHealthReports);
                     }
