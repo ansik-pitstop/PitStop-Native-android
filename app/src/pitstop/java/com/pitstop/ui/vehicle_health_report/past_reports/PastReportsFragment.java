@@ -49,6 +49,12 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     private PastReportsAdapter pastReportsAdapter;
     private List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
@@ -78,12 +84,14 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_past_reports,menu);
+        Log.d(TAG,"onCreateOptionsMenu()");
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_past_reports,menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG,"onOptionsItemSelected()");
         switch(item.getItemId()){
             case R.id.action_sort_date_newest:
                 presenter.onSortNewestDateClicked();
@@ -125,6 +133,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         Log.d(TAG,"displayHealthReports() reports: "+vehicleHealthReports);
         reportsRecyclerView.setVisibility(View.VISIBLE);
         noReportsView.setVisibility(View.GONE);
+        this.vehicleHealthReports.clear();
         this.vehicleHealthReports.addAll(vehicleHealthReports);
         pastReportsAdapter.notifyDataSetChanged();
     }
@@ -137,6 +146,11 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void notifyReportDataChange() {
+        pastReportsAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -172,5 +186,10 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         }else{
             loadingView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public List<VehicleHealthReport> getDisplayedReports() {
+        return vehicleHealthReports;
     }
 }

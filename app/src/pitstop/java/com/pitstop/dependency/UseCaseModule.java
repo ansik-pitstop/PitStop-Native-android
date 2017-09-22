@@ -67,6 +67,8 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
+import com.pitstop.interactors.other.SortVehicleHealthReportUseCaseImpl;
+import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -459,5 +461,13 @@ public class UseCaseModule {
 
         return new GetVehicleHealthReportUseCaseImpl(userRepository,reportRepository
                 ,useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    SortVehicleHealthReportsUseCase sortVehicleHealthReportsUseCase(
+            @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new SortVehicleHealthReportUseCaseImpl(useCaseHandler, mainHandler);
     }
 }

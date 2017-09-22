@@ -11,9 +11,11 @@ import java.util.List;
 public interface PastReportsView{
     void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports);
     void displayHealthReport(VehicleHealthReport vehicleHealthReport);
+    void notifyReportDataChange();
     void displayNoHealthReports();
     void onReportClicked(VehicleHealthReport vehicleHealthReport);
     void displayError();
     void displayLoading(boolean display);
+    List<VehicleHealthReport> getDisplayedReports();
 
 }

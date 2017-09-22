@@ -8,19 +8,19 @@
         <menu>
             <item
                 android:id="@+id/action_sort_date_newest"
-                android:title="Sort by newest"/>
+                android:title="Sort by Newest"/>
             <item
                 android:id="@+id/action_sort_date_oldest"
-                android:title="Sort by newest"/>
+                android:title="Sort by Oldest"/>
             <item
                 android:id="@+id/action_sort_engine_issue"
-                android:title="Sort by engine issues"/>
+                android:title="Sort by Engine Issues"/>
             <item
                 android:id="@+id/action_sort_services"
-                android:title="Sort by services issues"/>
+                android:title="Sort by Services Issues"/>
             <item
                 android:id="@+id/action_sort_recalls"
-                android:title="Sort by recalls"/>
+                android:title="Sort by Recalls"/>
 
         </menu>
 

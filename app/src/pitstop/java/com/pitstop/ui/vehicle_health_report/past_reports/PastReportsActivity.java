@@ -64,6 +64,7 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG,"onOptionsItemSelected()");
         if(item.getItemId() == android.R.id.home){
             onBackPressed();
             return true;

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.models.report.VehicleHealthReport;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -70,7 +71,8 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
                     ", %d services and %d recalls",vehicleHealthReport.getEngineIssues().size()
                     , vehicleHealthReport.getServices().size()
                     ,vehicleHealthReport.getRecalls().size()));
-            date.setText(vehicleHealthReport.getDate());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            date.setText(simpleDateFormat.format(vehicleHealthReport.getDate()));
         }
 
         public void setOnClickListener(PastReportsView callback){

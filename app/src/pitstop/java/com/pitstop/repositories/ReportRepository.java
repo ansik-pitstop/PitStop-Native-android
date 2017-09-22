@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -149,8 +150,9 @@ public class ReportRepository implements Repository {
                         = gson.fromJson(healthReportContentJson.get("services").toString()
                         ,new TypeToken<List<Service>>() {}.getType());
 
+                Date dummyDate = new Date((long)(Math.random()*System.currentTimeMillis()));
                 vehicleHealthReports.add(
-                        new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services)); //Todo: retrieve created date
+                        new VehicleHealthReport(id, dummyDate, engineIssues,recalls,services)); //Todo: retrieve created date
             }
             return vehicleHealthReports;
 
@@ -175,7 +177,8 @@ public class ReportRepository implements Repository {
             List<Service> services
                     = gson.fromJson(healthReportContentJson.get("services").toString()
                     ,new TypeToken<List<Service>>() {}.getType());
-            return new VehicleHealthReport(id, "2001/01/01", engineIssues,recalls,services); //Todo: retrieve created date
+            Date dummyDate = new Date((long)(Math.random()*System.currentTimeMillis()/1000));
+            return new VehicleHealthReport(id, dummyDate , engineIssues,recalls,services); //Todo: retrieve created date
         }catch (JSONException e){
             e.printStackTrace();
             return null;

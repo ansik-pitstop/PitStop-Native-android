@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.report.VehicleHealthReport;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,14 +26,11 @@ public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthRepo
         this.mainHandler = mainHandler;
     }
 
-    private void onSorted(List<VehicleHealthReport> vehicleHealthReports){
-        mainHandler.post(() -> callback.onSorted(vehicleHealthReports));
-    }
-
     @Override
     public void execute(List<VehicleHealthReport> vehicleHealthReports, SortType sortType
             , Callback callback) {
         this.vehicleHealthReports = vehicleHealthReports;
+        this.sortType = sortType;
         this.callback = callback;
         useCaseHandler.post(this);
     }
@@ -41,29 +39,31 @@ public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthRepo
     public void run() {
         switch (sortType){
             case DATE_NEW:
+                Collections.sort(vehicleHealthReports
+                        ,(t1, t2) -> t1.getDate().compareTo(t2.getDate()));
                 break;
             case DATE_OLD:
+                Collections.sort(vehicleHealthReports
+                        ,(t1, t2) -> t2.getDate().compareTo(t1.getDate()));
                 break;
             case ENGINE_ISSUE:
+                Collections.sort(vehicleHealthReports
+                        ,(t1,t2) -> t2.getEngineIssues().size() - t1.getEngineIssues().size());
                 break;
             case SERVICE:
+                Collections.sort(vehicleHealthReports
+                        , (t1,t2) -> t2.getServices().size() - t1.getServices().size());
                 break;
             case RECALL:
+                Collections.sort(vehicleHealthReports
+                        , (t1,t2) -> t2.getRecalls().size() - t1.getServices().size());
                 break;
             default:
-
+                Collections.sort(vehicleHealthReports
+                        , (t1, t2) -> t1.getDate().compareTo(t2.getDate()));
         }
-    }
 
-    private void sortByDate(List<VehicleHealthReport> vehicleHealthReports, boolean newest){
-        if (newest){
-            vehicleHealthReports.sort((t1, t2) -> t1.getDate().compareTo(t2.getDate()));
-        }else{
-            vehicleHealthReports.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
-        }
-    }
-
-    private void sortByEngineIssues(List<VehicleHealthReport> vehicleHealthReports){
+        mainHandler.post(() -> callback.onSorted(vehicleHealthReports));
 
     }
 }

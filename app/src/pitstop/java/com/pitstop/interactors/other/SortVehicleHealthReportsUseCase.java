@@ -15,7 +15,6 @@ public interface SortVehicleHealthReportsUseCase extends Interactor {
 
     interface Callback{
         void onSorted(List<VehicleHealthReport> vehicleHealthReports);
-        void onError();
     }
 
     void execute(List<VehicleHealthReport> vehicleHealthReports, SortType sortType

@@ -31,6 +31,7 @@ import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
+import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -139,4 +140,6 @@ public interface UseCaseComponent {
     AddVehicleHealthReportUseCase getAddVehicleReportUseCase();
 
     GetVehicleHealthReportsUseCase getGetVehicleHealthReportsUseCase();
+
+    SortVehicleHealthReportsUseCase getSortVehicleHealthReportsUseCase();
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetVehicleHealthReportsUseCase;
+import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
@@ -98,21 +99,46 @@ public class PastReportsPresenter {
 
     void onSortNewestDateClicked() {
         Log.d(TAG,"onSortNewestDateClicked()");
+        if (populating || savedVehicleHealthReports == null) return;
+
+        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
+                , SortVehicleHealthReportsUseCase.SortType.DATE_NEW
+                , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
     void onSortOldestDateClicked() {
         Log.d(TAG,"onSortOldestDateClicked()");
+        if (populating || savedVehicleHealthReports == null) return;
+
+        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
+                , SortVehicleHealthReportsUseCase.SortType.DATE_OLD
+                , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
     void onSortEngineIssuesClicked() {
         Log.d(TAG,"onSortEngineIssuesClicked()");
+        if (populating || savedVehicleHealthReports == null || view == null) return;
+
+        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
+                , SortVehicleHealthReportsUseCase.SortType.ENGINE_ISSUE
+                , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
     void onSortServicesClicked() {
         Log.d(TAG,"onSortServicesClicked()");
+        if (populating || savedVehicleHealthReports == null) return;
+
+        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
+                , SortVehicleHealthReportsUseCase.SortType.SERVICE
+                , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
     void onSortRecallsClicked() {
         Log.d(TAG,"onSortRecallsClicked()");
+        if (populating || savedVehicleHealthReports == null) return;
+
+        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
+                , SortVehicleHealthReportsUseCase.SortType.RECALL
+                , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 }
