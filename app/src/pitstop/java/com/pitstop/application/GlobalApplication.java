@@ -245,7 +245,7 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), "12345", response
+            Smooch.login(String.valueOf(userId), accessToken, response
                     -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
         }
 
