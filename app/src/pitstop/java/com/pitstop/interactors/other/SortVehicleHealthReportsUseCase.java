@@ -10,10 +10,14 @@ import java.util.List;
  */
 
 public interface SortVehicleHealthReportsUseCase extends Interactor {
+
+    enum SortType{ DATE_NEW, DATE_OLD, ENGINE_ISSUE, SERVICE, RECALL }
+
     interface Callback{
         void onSorted(List<VehicleHealthReport> vehicleHealthReports);
         void onError();
     }
 
-    void execute(List<VehicleHealthReport> vehicleHealthReports, Callback callback);
+    void execute(List<VehicleHealthReport> vehicleHealthReports, SortType sortType
+            , Callback callback);
 }

@@ -12,9 +12,12 @@ import java.util.List;
 
 public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthReportsUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private List<VehicleHealthReport> vehicleHealthReports;
+    private SortType sortType;
     private Callback callback;
 
     public SortVehicleHealthReportUseCaseImpl(Handler useCaseHandler, Handler mainHandler) {
@@ -27,7 +30,8 @@ public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthRepo
     }
 
     @Override
-    public void execute(List<VehicleHealthReport> vehicleHealthReports, Callback callback) {
+    public void execute(List<VehicleHealthReport> vehicleHealthReports, SortType sortType
+            , Callback callback) {
         this.vehicleHealthReports = vehicleHealthReports;
         this.callback = callback;
         useCaseHandler.post(this);
@@ -35,6 +39,31 @@ public class SortVehicleHealthReportUseCaseImpl implements SortVehicleHealthRepo
 
     @Override
     public void run() {
+        switch (sortType){
+            case DATE_NEW:
+                break;
+            case DATE_OLD:
+                break;
+            case ENGINE_ISSUE:
+                break;
+            case SERVICE:
+                break;
+            case RECALL:
+                break;
+            default:
+
+        }
+    }
+
+    private void sortByDate(List<VehicleHealthReport> vehicleHealthReports, boolean newest){
+        if (newest){
+            vehicleHealthReports.sort((t1, t2) -> t1.getDate().compareTo(t2.getDate()));
+        }else{
+            vehicleHealthReports.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
+        }
+    }
+
+    private void sortByEngineIssues(List<VehicleHealthReport> vehicleHealthReports){
 
     }
 }

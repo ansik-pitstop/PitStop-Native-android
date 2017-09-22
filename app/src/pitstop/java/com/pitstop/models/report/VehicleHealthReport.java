@@ -1,5 +1,6 @@
 package com.pitstop.models.report;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,9 +13,9 @@ public class VehicleHealthReport {
     private List<EngineIssue> engineIssues;
     private List<Recall> recalls;
     private List<Service> services;
-    private String date;
+    private Date date;
 
-    public VehicleHealthReport(int id, String date, List<EngineIssue> engineIssues
+    public VehicleHealthReport(int id, Date date, List<EngineIssue> engineIssues
             , List<Recall> recalls, List<Service> services) {
         this.id = id;
         this.date = date;
@@ -23,11 +24,11 @@ public class VehicleHealthReport {
         this.services = services;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
