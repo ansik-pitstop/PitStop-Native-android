@@ -8,7 +8,9 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
+import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.BluetoothDataVisualizer;
@@ -28,6 +30,11 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class PidDataHandler {
 
+    private final int PID_COUNT_DEFAULT = 10;
+    private final int PID_COUNT_SAFE = 5;
+    private final int TIME_INTERVAL_DEFAULT = 5;
+    private final int TIME_INTERVAL_SAFE = 120;
+
     private final String TAG = getClass().getSimpleName();
 
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
@@ -36,7 +43,6 @@ public class PidDataHandler {
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
     private List<PidPackage> pendingPidPackages = new ArrayList<>();
     private UseCaseComponent useCaseComponent;
-    private String supportedPids = "";
     private Context context;
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
@@ -112,13 +118,13 @@ public class PidDataHandler {
         PID_PRIORITY.add("212E");
     }
 
-    public void handleSupportedPidResult(String[] pids){
+    private String getSupportedPid(String[] pids, int max){
         HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
         StringBuilder sb = new StringBuilder();
         int pidCount = 0;
         // go through the priority list and get the first 10 pids that are supported
         for(String dataType : PID_PRIORITY) {
-            if(pidCount >= 10) {
+            if(pidCount >= max) {
                 break;
             }
             if(supportedPidsSet.contains(dataType)) {
@@ -128,11 +134,50 @@ public class PidDataHandler {
             }
         }
         if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
-            supportedPids = sb.substring(0, sb.length() - 1);
+            return sb.substring(0, sb.length() - 1);
         } else {
-            supportedPids = DEFAULT_PIDS;
+            return DEFAULT_PIDS;
         }
-        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids);
+    }
+
+    public void handleSupportedPidResult(String[] pids, String vin){
+        Log.d(TAG,"handleSupportedPidResult() pids: "+pids+", vin: "+vin);
+
+        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+            @Override
+            public void onGotCar(Car car) {
+                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+
+                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
+                    Log.d(TAG,"handleSupportedPidResult() Car make matches Chevrolet, Dodge" +
+                            ", Chrystler or Jeep setting pid time interval to "+TIME_INTERVAL_SAFE
+                            +", and supported pids to: "+supportedPids);
+                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_SAFE);
+                }
+                else{
+                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
+                    Log.d(TAG,"handleSupportedPidResult() Car make doesn't match" +
+                            " any of the 'safe cars' setting supported pids to "+supportedPids);
+                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
+                }
+            }
+
+            @Override
+            public void onNoCarFound() {
+                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
+                //Do nothing, car is probably being added and will handle supported pids again
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onError()");
+                bluetoothDataHandlerManager.setPidsToBeSent(
+                        getSupportedPid(pids,PID_COUNT_DEFAULT),TIME_INTERVAL_DEFAULT);
+            }
+        });
     }
 
 }

@@ -161,6 +161,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Log.d(TAG,"endAddCarSuccess() hasDealership? "+hasDealership+", createdCar: "+car);
         if (car == null) return;
 
+        if (bluetoothConnectionObservable != null){
+            bluetoothConnectionObservable.requestPidInitialization();
+        }
+
         currentFragment = null;
         Intent data = new Intent();
         data.putExtra(MainActivity.CAR_EXTRA, car);

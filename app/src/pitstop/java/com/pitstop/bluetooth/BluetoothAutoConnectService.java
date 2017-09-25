@@ -443,8 +443,19 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void setPidsToBeSent(String pids) {
-        deviceManager.setPidsToSend(pids);
+    public void setPidsToBeSent(String pids, int timeInterval) {
+        Log.d(TAG,"setPidsToBeSent() pids: "+pids+", timeInterval: "+timeInterval);
+        deviceManager.setPidsToSend(pids, timeInterval);
+    }
+
+    @Override
+    public boolean requestPidInitialization() {
+        Log.d(TAG,"requestPidInitialization()");
+        if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
+            deviceManager.getSupportedPids();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -606,8 +617,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             vinDataHandler.handleVinData(parameterPackage.value
                     ,currentDeviceId,ignoreVerification);
         }
-        else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
-            pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
+        else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
+                && readyDevice != null){
+
+            pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(",")
+                    ,readyDevice.getVin());
         }
     }
 

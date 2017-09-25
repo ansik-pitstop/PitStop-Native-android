@@ -23,6 +23,8 @@ public interface BluetoothConnectionObservable extends Subject{
         String CONNECTED_VERIFIED = "state_connected_verified"; //Established trusted connection with device
     }
 
+    boolean requestPidInitialization();
+
     //Invoked when a observer needs the dtc data
     boolean requestDtcData();
 

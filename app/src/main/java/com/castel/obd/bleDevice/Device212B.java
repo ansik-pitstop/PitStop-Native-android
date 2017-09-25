@@ -121,7 +121,7 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public String setPidsToSend(String pids) {
+    public String setPidsToSend(String pids, int timeInterval) {
         return OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids);
     }
 

@@ -31,7 +31,7 @@ public interface AbstractDevice {
     String setRtc(long rtcTime);
     String getPids(String pids);
     String getSupportedPids();
-    String setPidsToSend(String pids);
+    String setPidsToSend(String pids, int timeInterval);
     String requestSnapshot();
 
     // monitor

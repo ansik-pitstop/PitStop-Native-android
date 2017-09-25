@@ -7,6 +7,7 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
+import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -126,4 +127,6 @@ public interface UseCaseComponent {
     UpdateCarMileageUseCase updateCarMileageUseCase();
 
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
+
+    GetCarByVinUseCase getCarByVinUseCase();
 }
