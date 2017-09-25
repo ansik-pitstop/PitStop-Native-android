@@ -13,8 +13,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.List;
 
 /**
@@ -81,6 +79,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
+                Log.d(TAG,"onNotificationsRetrieved() notifs: " + list);
                 updating = false;
                 if (getView() == null){
                     Log.d("notifications", "return");
