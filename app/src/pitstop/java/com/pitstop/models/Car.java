@@ -20,6 +20,9 @@ public class Car implements Parcelable {
 
     public class Make{
         public static final String CHEVROLET = "chevrolet";
+        public static final String CHRYSLER = "chrysler";
+        public static final String DODGE = "dodge";
+        public static final String JEEP = "jeep";
     }
     /**
      * Car id
