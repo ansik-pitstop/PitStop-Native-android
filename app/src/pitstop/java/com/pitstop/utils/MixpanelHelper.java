@@ -75,6 +75,37 @@ public class MixpanelHelper {
     public static final String TUTORIAL_GET_STARTED_TAPPED = "Get Started";
 
     /**
+    * Vehicle Health Report
+     */
+    public static final String BUTTON_VHR_TOGGLE = "vhrToggle";
+    public static final String BUTTON_VHR_START = "vhrStart";
+    public static final String BUTTON_VHR_PAST_REPORTS = "vhrPastReports";
+    public static final String BUTTON_VHR_ERR_RETRURN = "vhrErrorReturn";
+    public static final String BUTTON_VHR_RECALL_LIST = "vhrRecallList";
+    public static final String BUTTON_VHR_ENGINE_ISSUE_LIST = "vhrEngineIssueList";
+    public static final String BUTTON_VHR_SERVICE_LIST = "vhrServiceList";
+    public static final String BUTTON_VHR_RECALL_ITEM = "vhrRecallItem";
+    public static final String BUTTON_VHR_ENGINE_ISSUE_ITEM = "vhrEngineIssueItem";
+    public static final String BUTTON_VHR_SERVICE_ITEM = "vhrServiceItem";
+
+    public static final String EVENT_VHR_PROCESS = "vhrProcess";
+    public static final String STEP_VHR_GET_DTC = "getDtc";
+    public static final String STEP_VHR_GET_PID = "getPid";
+    public static final String STEP_VHR_GENERATE_REPORT = "generateReport";
+
+    public static final String VIEW_VHR_TAB = "vhrTab";
+    public static final String VIEW_VHR_IN_PROGRESS = "vhrInProgress";
+    public static final String VIEW_VHR_RESULT = "vhrReport";
+    public static final String VIEW_VHR_PAST_REPORTS = "vhrPastReports";
+
+    /**
+     * Emissions Test Report
+     */
+    public static final String BUTTON_ET_TOGGLE = "etToggleButton";
+    public static final String BUTTON_ET_START = "etStartButton";
+    public static final String BUTTON_ET_PAST_REPORTS = "etPastReportsButton";
+
+    /**
      * Add Car View / Activity
      */
     public static final String ADD_CAR_BACK = "Back";
