@@ -444,11 +444,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void setPidsToBeSent(String pids, int timeInterval) {
+        Log.d(TAG,"setPidsToBeSent() pids: "+pids+", timeInterval: "+timeInterval);
         deviceManager.setPidsToSend(pids, timeInterval);
     }
 
     @Override
     public boolean requestPidInitialization() {
+        Log.d(TAG,"requestPidInitialization()");
         if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
             deviceManager.getSupportedPids();
             return true;
