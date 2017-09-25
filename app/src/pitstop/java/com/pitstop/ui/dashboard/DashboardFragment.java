@@ -459,6 +459,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public void displayDefaultDealershipVisuals(Dealership dealership) {
         Log.d(TAG,"displayDefaultDealershipVisual()");
 
+
         dealershipName.setText(dealership.getName());
         dealershipAddress.setText(dealership.getAddress());
         dealershipPhone.setText(dealership.getPhone());

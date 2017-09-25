@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -69,8 +70,6 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
             @Override
             public void onSuccess(User data) {
                 List<String> userInstallationIds = data.getInstallationID();
-                /*userInstallationIds = new Gson().fromJson(,  new TypeToken<List<String>>() {
-                }.getType());*/
                 ParseQuery<Notification> parseQuery = ParseQuery.getQuery("Notification");
                 parseQuery.whereContainedIn("recipients", userInstallationIds);
                 parseQuery.findInBackground(new FindCallback<Notification>() {

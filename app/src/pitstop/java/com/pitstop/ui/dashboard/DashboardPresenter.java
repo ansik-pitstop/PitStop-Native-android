@@ -68,6 +68,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 if (getView() == null) return;
                 getView().displayOnlineView();
 
+                Log.d(TAG, Integer.toString(car.getId()));
+
                 if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
                         || car.getDealership().getId() == 18)){
                     getView().displayMercedesDealershipVisuals(car.getDealership());
