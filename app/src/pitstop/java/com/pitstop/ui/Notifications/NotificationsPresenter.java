@@ -23,6 +23,7 @@ import java.util.List;
 
 public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
+
     private static final String SERVICE_APPOINTMENT_REMINDER = "service appointment reminder";
     private static final String NEW_VEHICLE_ISSUE = "new vehicle issues";
     private static final String VEHICLE_HEALTH_UPDATE = "vehicle health update";
@@ -123,23 +124,42 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         });
     }
 
-    public void onNotificationClicked(String title) {
-        Log.d(TAG, "NotificationClicked()" + title);
-        if (getView() == null) return;
-        mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, title);
-        if (title.toLowerCase().contains(NEW_VEHICLE_ISSUE))
-            getView().openCurrentServices();
-        else if (title.toLowerCase().contains(SERVICE_APPOINTMENT_REMINDER))
-            getView().openAppointments();
-        else if (title.toLowerCase().contains(VEHICLE_HEALTH_UPDATE))
-            getView().openScanTab();
+    public static String convertPushType(String pushType){
+        if (pushType.contains("promo"))
+            return "promo";
+        else if (pushType.contains("serviceUpdate") || pushType.contains("newRecall")
+                || pushType.contains("serviceDue") ||pushType.contains("newDtc"))
+            return "serviceUpdate";
+        else if (pushType.contains("scanReminder") || pushType.contains("carScan"))
+            return "scanReminder";
+        else if (pushType.contains("tip"))
+            return "tip";
+        else if (pushType.contains("missingTrip"))
+            return "missingTrip";
+        else if (pushType.contains("serviceRequest"))
+            return "serviceRequest";
+        else
+            return "unknown";
+
     }
 
-    public int getImageResource(String title) {
+    public void onNotificationClicked(String pushType) {
+        Log.d(TAG, "NotificationClicked()" + pushType);
+        if (getView() == null) return;
+        mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
+        if (convertPushType(pushType).toLowerCase().contains("serviceupdate"))
+            getView().openCurrentServices();
+        else if (convertPushType(pushType).toLowerCase().contains("scanreminder"))
+            getView().openScanTab();
+        else if (convertPushType(pushType).toLowerCase().contains("servicerequest"))
+            getView().openAppointments();
+    }
+
+    public int getImageResource(String pushType) {
         if (getView() == null) return 0;
-        if (title.toLowerCase().contains(SERVICE_APPOINTMENT_REMINDER))
+        if (convertPushType(pushType).toLowerCase().contains("serviceupdate"))
             return R.drawable.request_service_dashboard_3x;
-        else if (title.toLowerCase().contains(VEHICLE_HEALTH_UPDATE))
+        else if (convertPushType(pushType).toLowerCase().contains("scanreminder"))
             return R.drawable.scan_notification_3x;
         else return R.drawable.notification_default_3x;
 

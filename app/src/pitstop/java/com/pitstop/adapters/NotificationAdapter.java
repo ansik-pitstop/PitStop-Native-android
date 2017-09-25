@@ -36,7 +36,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<
         NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view, notificationView);
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> notificationView
-                .onNotificationClicked(notificationList.get(position).getTitle()));
+                .onNotificationClicked(notificationList.get(position).getPushType()));
 
         return notificationViewHolder;
 
@@ -76,12 +76,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<
             this.notificationView = notificationView;
             imageView = (ImageView) itemView.findViewById(R.id.notification_image);
 
+
         }
         public void bind(Notification notification) {
             titleTV.setText(notification.getTitle());
             descriptionTV.setText(notification.getContent());
             dateTV.setText(notification.getDateCreated());
-            imageView.setImageResource(notificationView.changeimage(notification.getTitle()));
+            imageView.setImageResource(notificationView.changeimage(notification.getPushType()));
+
         }
     }
 }
