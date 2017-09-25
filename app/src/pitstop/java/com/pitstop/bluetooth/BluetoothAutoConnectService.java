@@ -448,6 +448,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public boolean requestPidInitialization() {
+        if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
+            deviceManager.getSupportedPids();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean requestDtcData() {
         Log.d(TAG,"requestDtcData() dtcRequested? "+dtcRequested);
         if (dtcRequested) return false;

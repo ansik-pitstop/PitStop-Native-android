@@ -168,8 +168,7 @@ public class PidDataHandler {
             @Override
             public void onNoCarFound() {
                 Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
-                bluetoothDataHandlerManager.setPidsToBeSent(
-                        getSupportedPid(pids,PID_COUNT_DEFAULT),TIME_INTERVAL_DEFAULT);
+                //Do nothing, car is probably being added and will handle supported pids again
             }
 
             @Override
