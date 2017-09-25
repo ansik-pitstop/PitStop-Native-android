@@ -3,6 +3,7 @@ package com.pitstop.ui.mainFragments;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.models.Car;
 import com.pitstop.ui.Presenter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -63,6 +64,5 @@ public abstract class TabPresenter<T> implements Presenter<T> {
     public abstract EventType[] getIgnoredEventTypes();
     public abstract void onAppStateChanged();
     public abstract EventSource getSourceType();
-
 
 }

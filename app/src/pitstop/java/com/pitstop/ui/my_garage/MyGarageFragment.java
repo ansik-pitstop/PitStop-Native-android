@@ -26,6 +26,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.vehicle_specs.VehicleSpecsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -213,9 +214,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void openDealershipDirections(Dealership dealership) {
         Log.d(TAG, "openDealershipDirections()");
-
-
-        Log.d(TAG, dealership.getAddress());
         String uri = String.format(Locale.ENGLISH,
                     "http://maps.google.com/maps?daddr=%s",
                     dealership.getAddress());
@@ -234,6 +232,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void onCarClicked(Car car) {
         Log.d(TAG, "onCarClicked()");
+        presenter.onCarClicked(car);
     }
 
     @OnClick(R.id.my_appointments_garage)
@@ -246,6 +245,14 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void onRequestServiceClicked(){
         Log.d(TAG, "onRequestServiceClicked");
         presenter.onRequestServiceClicked();
+    }
+
+    @Override
+    public void openSpecsActivity(Car car) {
+        Log.d(TAG, "openSpecsActivity()" + car.getModel());
+        Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
+        startActivity(intent);
+
     }
 
     @OnClick (R.id.message_my_garage)

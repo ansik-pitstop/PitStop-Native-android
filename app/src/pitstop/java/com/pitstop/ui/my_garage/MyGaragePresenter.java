@@ -208,7 +208,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().toast(error.getMessage());
                 }
             });
-
         }
         else {
             if (dealershipList.size() == 0)
@@ -223,7 +222,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         if(getView() == null|| updating) return;
         if (carList ==null){
             updating = true;
-
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
@@ -243,9 +241,12 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().toast(error.getMessage());
                 }
             });
-
         }
+    }
 
+    public void onCarClicked(Car car) {
+        Log.d(TAG, "onCarClicked()");
+        getView().openSpecsActivity(car);
 
     }
 }
