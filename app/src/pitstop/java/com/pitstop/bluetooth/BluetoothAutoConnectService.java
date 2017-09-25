@@ -606,8 +606,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             vinDataHandler.handleVinData(parameterPackage.value
                     ,currentDeviceId,ignoreVerification);
         }
-        else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)){
-            pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(","));
+        else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
+                && readyDevice != null){
+
+            pidDataHandler.handleSupportedPidResult(parameterPackage.value.split(",")
+                    ,readyDevice.getVin());
         }
     }
 
