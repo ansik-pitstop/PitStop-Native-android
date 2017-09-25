@@ -42,8 +42,6 @@ public class Device215B implements AbstractDevice {
 
     private static final String TAG = Device215B.class.getSimpleName();
 
-    private static final int IDR_INTERVAL_TIME = 15;
-
     // parameter IDs
     public static final String TERMINAL_ID_PARAM = "A01";
     public static final String BT_NAME_PARAM = "A02";
@@ -159,10 +157,10 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public String setPidsToSend(String pids) {
+    public String setPidsToSend(String pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend: "+pids);
         return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
-                ,  pids.replace(",", "/") + ","+IDR_INTERVAL_TIME);
+                ,  pids.replace(",", "/") + ","+timeInterval);
     }
 
     @Override

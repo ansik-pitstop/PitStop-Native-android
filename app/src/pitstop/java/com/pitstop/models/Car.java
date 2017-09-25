@@ -18,6 +18,9 @@ import java.util.List;
  */
 public class Car implements Parcelable {
 
+    public class Make{
+        public static final String CHEVROLET = "chevrolet";
+    }
     /**
      * Car id
      */

@@ -19,7 +19,6 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
-import com.castel.obd215b.util.DataPackageUtil;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -447,18 +446,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // functions
 
-    public void setParam(String param, String value) { // 215B specific
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return;
-        }
-
-        if (!(deviceInterface instanceof Device215B)) return;
-
-        Log.d(TAG, DataPackageUtil.siMulti(param, value));
-        writeToObd(DataPackageUtil.siMulti(param, value));
-    }
-
     public void getVin() {
+        Log.d(TAG,"getVin()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -467,6 +456,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getRtc() {
+        Log.d(TAG,"getRtc()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -484,6 +474,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void setDeviceId(String id){
+        Log.d(TAG,"setDeviceId() id: "+id);
         if (isConnectedTo215()){
             Device215B device215B = (Device215B)deviceInterface;
             Log.d(TAG,"Setting device id to "+id+", command: "+device215B.setDeviceId(id));
@@ -492,6 +483,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void setRtc(long rtcTime) {
+        Log.d(TAG,"setRtc() rtc: "+rtcTime);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -500,6 +492,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getPids(String pids) {
+        Log.d(TAG,"getPids() pids: "+pids);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -508,6 +501,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getSupportedPids() {
+        Log.d(TAG,"getSupportedPids()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -516,16 +510,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     // sets pids to check and sets data interval
-    public void setPidsToSend(String pids) {
+    public void setPidsToSend(String pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend: "+pids);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
 
-        writeToObd(deviceInterface.setPidsToSend(pids));
+        writeToObd(deviceInterface.setPidsToSend(pids,timeInterval));
     }
 
     public void getDtcs() {
+        Log.d(TAG,"getDtcs()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -535,6 +530,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void getFreezeFrame() {
+        Log.d(TAG,"getFreezeFrame()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -543,6 +539,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void requestData() {
+        Log.d(TAG,"requestData()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -559,13 +556,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    public void getRtcAndMileage(){
-        if (isConnectedTo215()){
-            writeToObd(((Device215B) deviceInterface).getRtcAndMileage());
-        }
-    }
-
     public boolean isConnectedTo215(){
+        Log.d(TAG,"isConnectedTo215()");
         if (deviceInterface != null)
             return deviceInterface instanceof Device215B;
         else
@@ -573,6 +565,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public int getConnectionState(){
+        Log.d(TAG,"getConnectionState()");
         return btConnectionState;
     }
 

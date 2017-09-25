@@ -443,8 +443,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void setPidsToBeSent(String pids) {
-        deviceManager.setPidsToSend(pids);
+    public void setPidsToBeSent(String pids, int timeInterval) {
+        deviceManager.setPidsToSend(pids, timeInterval);
     }
 
     @Override

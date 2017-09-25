@@ -8,7 +8,9 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
+import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.BluetoothDataVisualizer;
@@ -27,6 +29,9 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  */
 
 public class PidDataHandler {
+
+    private final int TIME_INTERVAL_DEFAULT = 5;
+    private final int TIME_INTERVAL_SAFE = 120;
 
     private final String TAG = getClass().getSimpleName();
 
@@ -113,6 +118,7 @@ public class PidDataHandler {
     }
 
     public void handleSupportedPidResult(String[] pids){
+        Log.d(TAG,"handleSupportedPidResult() pids: "+pids);
         HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
         StringBuilder sb = new StringBuilder();
         int pidCount = 0;
@@ -132,7 +138,31 @@ public class PidDataHandler {
         } else {
             supportedPids = DEFAULT_PIDS;
         }
-        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids);
+        Log.d(TAG,"handleSupportedPidResult() supported pids: "+supportedPids);
+
+        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                Log.d(TAG,"handleSupportedPidResult() car make: "+car.getMake().toLowerCase());
+
+//                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)){
+//
+//                }
+
+                bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
+
+            }
+
+            @Override
+            public void onNoCarSet() {
+                bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
+            }
+        });
     }
 
 }

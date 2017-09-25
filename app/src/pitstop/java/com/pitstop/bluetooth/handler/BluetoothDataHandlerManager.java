@@ -16,7 +16,7 @@ public interface BluetoothDataHandlerManager{
     boolean isConnectedTo215();
 
     //Methods below are invoked by PID data handler
-    void setPidsToBeSent(String pids);
+    void setPidsToBeSent(String pids, int timeInterval);
 
     //Methods below are invoked by RTC data handler
     void requestDeviceSync();
