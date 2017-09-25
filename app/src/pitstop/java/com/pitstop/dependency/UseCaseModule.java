@@ -17,6 +17,8 @@ import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarByVinUseCase;
+import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
@@ -384,5 +386,11 @@ public class UseCaseModule {
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase(@Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
         return new DiscoveryTimeoutUseCaseImpl(useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    GetCarByVinUseCase getCarByVinUseCase(@Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, CarRepository carRepository){
+        return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository);
     }
 }
