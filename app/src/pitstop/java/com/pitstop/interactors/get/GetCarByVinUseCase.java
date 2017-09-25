@@ -5,16 +5,15 @@ import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 
 /**
- * Created by Matt on 2017-06-13.
+ * Created by Karol Zdebel on 9/25/2017.
  */
 
-public interface GetCarsByUserIdUseCase extends Interactor {
+public interface GetCarByVinUseCase extends Interactor {
     interface Callback{
         void onGotCar(Car car);
         void onNoCarFound();
         void onError(RequestError error);
     }
 
-    //Execute the use case
-    void execute(GetCarsByUserIdUseCase.Callback callback);
+    void execute(String vin, Callback callback);
 }
