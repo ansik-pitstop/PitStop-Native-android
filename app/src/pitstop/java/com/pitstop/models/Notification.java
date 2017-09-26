@@ -1,14 +1,11 @@
 package com.pitstop.models;
 
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
-
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -36,12 +33,10 @@ public class Notification extends ParseObject {
     }
 
     public String getPushType(){
-       String getDataKey =  (String)((HashMap)get(DATA_KEY)).keySet().toArray()[0];
+        if (get(DATA_KEY) == null) return "";
+        String getDataKey =  (String)((HashMap)get(DATA_KEY)).keySet().toArray()[0];
         return ((HashMap)get(DATA_KEY)).get(getDataKey).toString();
-
-
     }
-
 
     public String getContent(){
         Log.d(TAG, getString(CONTENT_KEY));
@@ -51,6 +46,11 @@ public class Notification extends ParseObject {
     public String getDateCreated(){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(getCreatedAt());
+    }
+
+    @Override
+    public String toString(){
+        return "hasDataKey ? "+(get(DATA_KEY) == null);
     }
 
 }

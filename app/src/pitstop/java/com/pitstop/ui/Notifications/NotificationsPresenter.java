@@ -13,8 +13,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.List;
 
 /**
@@ -81,6 +79,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
             @Override
             public void onNotificationsRetrieved(List<Notification> list) {
+                Log.d(TAG,"onNotificationsRetrieved() notifs: " + list);
                 updating = false;
                 if (getView() == null){
                     Log.d("notifications", "return");
@@ -130,7 +129,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         else if (pushType.contains("serviceUpdate") || pushType.contains("newRecall")
                 || pushType.contains("serviceDue") ||pushType.contains("newDtc"))
             return "serviceUpdate";
-        else if (pushType.contains("scanReminder") || pushType.contains("carScan"))
+        else if (pushType.toLowerCase().contains("scanreminder") || pushType.toLowerCase().contains("carscan"))
             return "scanReminder";
         else if (pushType.contains("tip"))
             return "tip";
@@ -140,19 +139,18 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
             return "serviceRequest";
         else
             return "unknown";
-
     }
 
     public void onNotificationClicked(String pushType) {
         Log.d(TAG, "NotificationClicked()" + pushType);
         if (getView() == null) return;
         mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
-        if (convertPushType(pushType).toLowerCase().contains("serviceupdate"))
+        if (convertPushType(pushType).equalsIgnoreCase("serviceUpdate"))
             getView().openCurrentServices();
-        else if (convertPushType(pushType).toLowerCase().contains("scanreminder"))
+        else if (convertPushType(pushType).equalsIgnoreCase("scanReminder"))
             getView().openScanTab();
-        else if (convertPushType(pushType).toLowerCase().contains("servicerequest"))
-            getView().openAppointments();
+        else if (convertPushType(pushType).equalsIgnoreCase("serviceRequest"))
+            getView().openRequestService();
     }
 
     public int getImageResource(String pushType) {
@@ -162,6 +160,5 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         else if (convertPushType(pushType).toLowerCase().contains("scanreminder"))
             return R.drawable.scan_notification_3x;
         else return R.drawable.notification_default_3x;
-
     }
 }
