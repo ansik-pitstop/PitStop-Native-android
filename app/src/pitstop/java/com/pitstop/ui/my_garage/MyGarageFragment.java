@@ -27,6 +27,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsActivity;
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -251,6 +252,10 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void openSpecsActivity(Car car) {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
+        Bundle bundle  = new Bundle();
+        bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
+        bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScannerId());
+        intent.putExtras(bundle);
         startActivity(intent);
 
     }
