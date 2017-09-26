@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view;
+package com.pitstop.ui.vehicle_health_report.health_report_view;
 
 import android.content.Context;
 import android.content.Intent;

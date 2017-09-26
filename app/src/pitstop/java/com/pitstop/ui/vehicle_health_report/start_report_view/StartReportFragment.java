@@ -17,12 +17,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
 import com.pitstop.ui.vehicle_health_report.past_reports.PastReportsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
+import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
@@ -73,7 +75,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
         context = getActivity().getApplicationContext();
         ButterKnife.bind(this,view);
         emissionsMode = false;
-        presenter = new StartReportPresenter();
+        MixpanelHelper mixpanelHelper = new MixpanelHelper(
+                (GlobalApplication)getActivity().getApplicationContext());
+        presenter = new StartReportPresenter(mixpanelHelper);
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));

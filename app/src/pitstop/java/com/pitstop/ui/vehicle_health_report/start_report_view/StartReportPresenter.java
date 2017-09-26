@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.start_report_view;
 import android.util.Log;
 
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.utils.MixpanelHelper;
 
 
 /**
@@ -14,6 +15,11 @@ public class StartReportPresenter {
     private final String TAG = StartReportPresenter.class.getSimpleName();
 
     private StartReportView view;
+    private MixpanelHelper mixpanelHelper;
+
+    public StartReportPresenter(MixpanelHelper mixpanelHelper) {
+        this.mixpanelHelper = mixpanelHelper;
+    }
 
     public void subscribe(StartReportView view){
         Log.d(TAG,"subscribe()");
@@ -27,6 +33,8 @@ public class StartReportPresenter {
 
     void onSwitchClicked(boolean b){
         Log.d(TAG,"onSwitchClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_TOGGLE
+                ,MixpanelHelper.VIEW_VHR_TAB);
         if(view == null){return;}
         if(b){
             view.setModeEmissions();
@@ -43,6 +51,8 @@ public class StartReportPresenter {
 
     void startReportButtonClicked(boolean emissions){
         Log.d(TAG,"startReportButtonClicked() emissions ? "+emissions);
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_START,MixpanelHelper.VIEW_VHR_TAB);
         if (view == null || view.getBluetoothConnectionObservable() == null) return;
 
         //No bluetooth connection
@@ -67,6 +77,8 @@ public class StartReportPresenter {
 
     void onShowReportsButtonClicked(boolean emissionMode){
         Log.d(TAG,"onShowReportsButtonClicked() emissionMode: "+emissionMode);
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_PAST_REPORTS,MixpanelHelper.VIEW_VHR_TAB);
         if (view == null) return;
         if (emissionMode){
             //Do nothing yet

@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view;
+package com.pitstop.ui.vehicle_health_report.health_report_view;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;

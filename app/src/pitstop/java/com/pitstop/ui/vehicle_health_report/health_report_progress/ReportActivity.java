@@ -16,7 +16,7 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.health_report_view.HealthReportFragment;
+import com.pitstop.ui.vehicle_health_report.health_report_view.HealthReportFragment;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.ReportProgressFragment;
 
 /**
