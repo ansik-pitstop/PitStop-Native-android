@@ -7,8 +7,12 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.report.CarHealthItem;
+import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Matt on 2017-08-17.
@@ -20,11 +24,13 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     private HealthReportView view;
     private UseCaseComponent component;
+    private MixpanelHelper mixpanelHelper;
     private Car dashCar;
 
 
-    public HealthReportPresenter(UseCaseComponent component) {
+    public HealthReportPresenter(UseCaseComponent component, MixpanelHelper mixpanelHelper) {
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     public void subscribe(HealthReportView view){
@@ -70,22 +76,40 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     public void serviceButtonClicked(){
         Log.d(TAG,"serviceButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_ENGINE_ISSUE_LIST
+                , MixpanelHelper.VIEW_VHR_RESULT);
         view.toggleServiceList();
     }
 
     public void recallButtonClicked(){
         Log.d(TAG,"recallButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_RECALL_LIST
+                , MixpanelHelper.VIEW_VHR_RESULT);
         view.toggleRecallList();
     }
 
     public void engineButtonClicked(){
         Log.d(TAG,"engineButtonClicked()");
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_ENGINE_ISSUE_LIST
+                , MixpanelHelper.VIEW_VHR_RESULT);
         view.toggleEngineList();
     }
 
     @Override
     public void issueClicked(CarHealthItem carHealthItem) {
         Log.d(TAG,"issueClicked()");
+        if (carHealthItem instanceof EngineIssue){
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_ENGINE_ISSUE_ITEM
+                    , MixpanelHelper.VIEW_VHR_RESULT);
+        }
+        else if (carHealthItem instanceof Service){
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_SERVICE_ITEM
+                    , MixpanelHelper.VIEW_VHR_RESULT);
+        }
+        else if (carHealthItem instanceof Recall){
+            mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_RECALL_ITEM
+                    , MixpanelHelper.VIEW_VHR_RESULT);
+        }
         if(dashCar == null){return;}
 
         view.startIssueDetails(dashCar
