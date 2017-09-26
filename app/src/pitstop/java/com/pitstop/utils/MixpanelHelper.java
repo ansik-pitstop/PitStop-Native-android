@@ -97,6 +97,7 @@ public class MixpanelHelper {
     public static final String VIEW_VHR_IN_PROGRESS = "vhrInProgress";
     public static final String VIEW_VHR_RESULT = "vhrReport";
     public static final String VIEW_VHR_PAST_REPORTS = "vhrPastReports";
+    public static final String VIEW = "view";
 
     /**
      * Emissions Test Report
@@ -141,11 +142,11 @@ public class MixpanelHelper {
     /**
      * General add car steps
      */
-    public static final String ADD_CAR_STEP = "Step";
-    public static final String ADD_CAR_STEP_RESULT = "Result";
-    public static final String ADD_CAR_STEP_RESULT_SUCCESS = "Success";
-    public static final String ADD_CAR_STEP_RESULT_PENDING = "Pending";
-    public static final String ADD_CAR_STEP_RESULT_FAILED = "Failed";
+    public static final String STEP = "step";
+    public static final String RESULT = "result";
+    public static final String ADD_CAR_STEP_RESULT_SUCCESS = "success";
+    public static final String ADD_CAR_STEP_RESULT_PENDING = "pending";
+    public static final String ADD_CAR_STEP_RESULT_FAILED = "failed";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_SAVE_TO_SERVER = "Saving Car to Server";
@@ -348,7 +349,7 @@ public class MixpanelHelper {
     public void trackViewAppeared(String value){
         JSONObject json = new JSONObject();
         try {
-            json.put("View", value);
+            json.put(VIEW, value);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -373,7 +374,7 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         try {
             json.put("Button", value);
-            json.put("View", view);
+            json.put(VIEW, view);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -385,7 +386,7 @@ public class MixpanelHelper {
     public void trackScrolledInView(String view) {
         JSONObject json = new JSONObject();
         try {
-            json.put("View", view);
+            json.put(VIEW, view);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -409,7 +410,7 @@ public class MixpanelHelper {
     public void trackViewRefreshed(String view){
         JSONObject json = new JSONObject();
         try {
-            json.put("View", view);
+            json.put(VIEW, view);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -434,7 +435,7 @@ public class MixpanelHelper {
         JSONObject json = new JSONObject();
         try {
             json.put("Button", "Add Car");
-            json.put("View", view);
+            json.put(VIEW, view);
             json.put("Mileage", mileage);
             json.put("Method of Adding Car", method);
         } catch (JSONException e) {
@@ -480,6 +481,18 @@ public class MixpanelHelper {
         }
     }
 
+    public void trackVhrProcess(String step, String result){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(STEP, step)
+                    .put(RESULT, result)
+                    .put(VIEW,VIEW_VHR_IN_PROGRESS);
+            trackCustom(EVENT_VHR_PROCESS, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * <p>Track add car steps</p>
      * Error handling predefined (print stack trace). If you want to handle the error yourself, see {@link #trackCustom(String, JSONObject)}
@@ -490,8 +503,8 @@ public class MixpanelHelper {
     public void trackAddCarProcess(String step, String result) {
         try {
             JSONObject properties = new JSONObject();
-            properties.put(ADD_CAR_STEP, step)
-                    .put(ADD_CAR_STEP_RESULT, result);
+            properties.put(STEP, step)
+                    .put(RESULT, result);
             trackCustom(EVENT_ADD_CAR_PROCESS, properties);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -611,7 +624,7 @@ public class MixpanelHelper {
         try {
             JSONObject properties = new JSONObject();
             properties.put("Alert Name", alertName)
-                    .put("View", view);
+                    .put(VIEW, view);
             trackCustom(EVENT_ALERT_APPEARED, properties);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -633,7 +646,7 @@ public class MixpanelHelper {
         try{
             properties.put("step","complete");
             properties.put("result","success");
-            properties.put("view","scan");
+            properties.put(VIEW,"scan");
             trackCustom("scanCarProcess",properties);
         }catch(JSONException e){
             e.printStackTrace();
