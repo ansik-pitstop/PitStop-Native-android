@@ -99,7 +99,6 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
             tankSizeView.setVisibility(View.GONE);
         else
             tankSize.setText(bundle.getString(TANK_SIZE_KEY));
-
     }
 
 
