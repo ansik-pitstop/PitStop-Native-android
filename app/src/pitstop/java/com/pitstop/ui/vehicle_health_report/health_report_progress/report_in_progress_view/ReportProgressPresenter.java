@@ -66,13 +66,19 @@ public class ReportProgressPresenter {
 
            @Override
            public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport){
-               ReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
                Log.d(TAG,"onFinishGeneratingReport() vehicleHealthReport: "
                        +vehicleHealthReport);
+               ReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
+                       ,MixpanelHelper.SUCCESS);
+
            }
 
            @Override
            public void onErrorGeneratingReport() {
+               Log.d(TAG,"onErrorGeneratingReport()");
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
+                       ,MixpanelHelper.FAIL);
                handleError("Error","Error generating report"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
@@ -85,12 +91,16 @@ public class ReportProgressPresenter {
 
            @Override
            public void onGotDTC() {
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_DTC
+                       ,MixpanelHelper.SUCCESS);
                Log.d(TAG,"VHRMacrouseCase.onGotDTC()");
            }
 
            @Override
            public void onDTCError() {
                Log.d(TAG,"VHRMacrouseCase.onDTCError()");
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_DTC
+                       ,MixpanelHelper.FAIL);
                handleError("Error","Error retrieving engine codes"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
@@ -104,11 +114,15 @@ public class ReportProgressPresenter {
            @Override
            public void onGotPID() {
                Log.d(TAG,"VHRMacrouseCase.onGotPid()");
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_PID
+                       ,MixpanelHelper.SUCCESS);
            }
 
            @Override
            public void onPIDError() {
                Log.d(TAG,"VHRMacrouseCase.onPidError()");
+               mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_PID
+                       ,MixpanelHelper.FAIL);
                handleError("Error","Error retrieving real time car data"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }

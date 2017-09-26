@@ -153,9 +153,9 @@ public class MixpanelHelper {
      */
     public static final String STEP = "step";
     public static final String RESULT = "result";
-    public static final String ADD_CAR_STEP_RESULT_SUCCESS = "success";
-    public static final String ADD_CAR_STEP_RESULT_PENDING = "pending";
-    public static final String ADD_CAR_STEP_RESULT_FAILED = "failed";
+    public static final String SUCCESS = "success";
+    public static final String PENDING = "pending";
+    public static final String FAIL = "fail";
     public static final String ADD_CAR_STEP_CONNECT_TO_BLUETOOTH = "Connecting to Bluetooth";
     public static final String ADD_CAR_STEP_GET_VIN = "Getting VIN";
     public static final String ADD_CAR_STEP_SAVE_TO_SERVER = "Saving Car to Server";
