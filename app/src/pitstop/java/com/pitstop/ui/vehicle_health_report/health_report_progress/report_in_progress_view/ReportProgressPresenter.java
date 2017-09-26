@@ -10,6 +10,7 @@ import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
+import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Matt on 2017-08-16.
@@ -26,14 +27,17 @@ public class ReportProgressPresenter {
     private ReportCallback callback;
     private UseCaseComponent component;
 
+    private MixpanelHelper mixpanelHelper;
     private VehicleHealthReport vehicleHealthReport;
     private BluetoothConnectionObservable bluetooth;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
 
-    public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component){
+    public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component
+            , MixpanelHelper mixpanelHelper){
         this. callback = callback;
         this.component = component;
+        this.mixpanelHelper = mixpanelHelper;
     }
 
     public void subscribe(ReportProgressView view){
@@ -129,6 +133,8 @@ public class ReportProgressPresenter {
    }
 
    void onErrorButtonClicked(){
+       mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_ERR_RETRURN
+               ,MixpanelHelper.VIEW_VHR_IN_PROGRESS);
        if (view != null) callback.finishActivity();
    }
 
