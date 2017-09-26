@@ -226,7 +226,7 @@ public class VHRMacroUseCase {
                 case TYPE_GENERATE_REPORT:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GENERATE_REPORT dtc: "
                             +retrievedDtc+", pid: "+retrievedPid);
-                    if (retrievedDtc == null || retrievedPid == null){
+                    if (retrievedDtc == null || retrievedPid == null || generatedReport == null){
                         callback.onErrorGeneratingReport();
                         finish();
                     }
