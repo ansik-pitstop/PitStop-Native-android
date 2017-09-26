@@ -76,7 +76,7 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     public void serviceButtonClicked(){
         Log.d(TAG,"serviceButtonClicked()");
-        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_ENGINE_ISSUE_LIST
+        mixpanelHelper.trackButtonTapped(MixpanelHelper.BUTTON_VHR_SERVICE_LIST
                 , MixpanelHelper.VIEW_VHR_RESULT);
         view.toggleServiceList();
     }

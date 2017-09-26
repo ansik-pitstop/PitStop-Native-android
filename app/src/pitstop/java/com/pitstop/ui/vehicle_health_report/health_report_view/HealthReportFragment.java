@@ -31,6 +31,7 @@ import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
+import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +117,9 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        presenter = new HealthReportPresenter(component);
+        MixpanelHelper mixpanelHelper
+                = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
+        presenter = new HealthReportPresenter(component, mixpanelHelper);
 
         getActivity().setTitle("Vehicle Health Report");
 
