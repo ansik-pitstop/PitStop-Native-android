@@ -126,8 +126,11 @@ public class ReportActivity extends IBluetoothServiceActivity
         int id = item.getItemId();
         if(id == android.R.id.home){
             finish();
+            return true;
         }
-        return super.onOptionsItemSelected(item);
+        else{
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
