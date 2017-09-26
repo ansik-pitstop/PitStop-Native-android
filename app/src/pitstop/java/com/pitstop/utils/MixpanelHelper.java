@@ -79,6 +79,7 @@ public class MixpanelHelper {
      */
     public static final String BUTTON_VHR_TOGGLE = "vhrToggle";
     public static final String BUTTON_VHR_START = "vhrStart";
+    public static final String BUTTON_VHR_PAST_REPORT_ITEM = "vhrPastReportItem";
     public static final String BUTTON_VHR_PAST_REPORTS = "vhrPastReports";
     public static final String BUTTON_VHR_ERR_RETRURN = "vhrErrorReturn";
     public static final String BUTTON_VHR_RECALL_LIST = "vhrRecallList";
@@ -87,6 +88,14 @@ public class MixpanelHelper {
     public static final String BUTTON_VHR_RECALL_ITEM = "vhrRecallItem";
     public static final String BUTTON_VHR_ENGINE_ISSUE_ITEM = "vhrEngineIssueItem";
     public static final String BUTTON_VHR_SERVICE_ITEM = "vhrServiceItem";
+    public static final String BUTTON_VHR_SORT_REPORTS_NEWEST = "vhrSortReportsNewest";
+    public static final String BUTTON_VHR_SORT_REPORTS_OLDEST = "vhrSortReportsOldest";
+    public static final String BUTTON_VHR_SORT_REPORTS_ENGINE_ISSUES = "vhrSortReportsEngineIssues";
+    public static final String BUTTON_VHR_SORT_REPORTS_SERVICES = "vhrSortReportsServices";
+    public static final String BUTTON_VHR_SORT_REPORTS_RECALL = "vhrSortReportsRecalls";
+
+
+
 
     public static final String EVENT_VHR_PROCESS = "vhrProcess";
     public static final String STEP_VHR_GET_DTC = "getDtc";

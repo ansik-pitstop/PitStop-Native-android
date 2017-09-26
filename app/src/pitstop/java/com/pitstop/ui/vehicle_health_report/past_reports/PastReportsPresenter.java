@@ -84,6 +84,8 @@ public class PastReportsPresenter {
 
     void onReportClicked(VehicleHealthReport vehicleHealthReport){
         Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_PAST_REPORT_ITEM, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (view != null)
             view.displayHealthReport(vehicleHealthReport);
     }
@@ -99,6 +101,8 @@ public class PastReportsPresenter {
 
     void onSortNewestDateClicked() {
         Log.d(TAG,"onSortNewestDateClicked()");
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_SORT_REPORTS_NEWEST, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (populating || savedVehicleHealthReports == null) return;
 
         useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
@@ -108,6 +112,8 @@ public class PastReportsPresenter {
 
     void onSortOldestDateClicked() {
         Log.d(TAG,"onSortOldestDateClicked()");
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_SORT_REPORTS_OLDEST, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (populating || savedVehicleHealthReports == null) return;
 
         useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
@@ -117,6 +123,8 @@ public class PastReportsPresenter {
 
     void onSortEngineIssuesClicked() {
         Log.d(TAG,"onSortEngineIssuesClicked()");
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_SORT_REPORTS_ENGINE_ISSUES, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (populating || savedVehicleHealthReports == null || view == null) return;
 
         useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
@@ -126,6 +134,8 @@ public class PastReportsPresenter {
 
     void onSortServicesClicked() {
         Log.d(TAG,"onSortServicesClicked()");
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_SORT_REPORTS_SERVICES, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (populating || savedVehicleHealthReports == null) return;
 
         useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
@@ -135,6 +145,8 @@ public class PastReportsPresenter {
 
     void onSortRecallsClicked() {
         Log.d(TAG,"onSortRecallsClicked()");
+        mixpanelHelper.trackButtonTapped(
+                MixpanelHelper.BUTTON_VHR_SORT_REPORTS_RECALL, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (populating || savedVehicleHealthReports == null) return;
 
         useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()

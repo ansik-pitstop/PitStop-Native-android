@@ -22,6 +22,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
+import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
@@ -85,7 +86,9 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        presenter = new ReportProgressPresenter(callback,component);
+        MixpanelHelper mixpanelHelper
+                = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
+        presenter = new ReportProgressPresenter(callback,component,mixpanelHelper);
 
         return view;
     }
