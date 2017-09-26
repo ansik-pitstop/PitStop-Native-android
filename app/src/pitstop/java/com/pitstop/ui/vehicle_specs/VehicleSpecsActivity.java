@@ -30,9 +30,7 @@ public class VehicleSpecsActivity extends AppCompatActivity {
         specsFragment = new VehicleSpecsFragment();
         specsFragment.setArguments(bundle);
         setSpecsFragment();
-
     }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -44,7 +42,4 @@ public class VehicleSpecsActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.vehicle_specs_fragment_holder,specsFragment);
         fragmentTransaction.commit();
     }
-
-
-
 }

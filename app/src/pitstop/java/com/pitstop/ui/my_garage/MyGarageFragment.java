@@ -228,6 +228,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         carList.clear();
         carList.addAll(list);
         carsAdapter.notifyDataSetChanged();
+        if (list.size() == 0){
+            appointmentsView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -255,6 +258,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Bundle bundle  = new Bundle();
         bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
         bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScannerId());
+        bundle.putString(VehicleSpecsFragment.ENGINE_KEY, car.getEngine());
+        bundle.putString(VehicleSpecsFragment.CITY_MILEAGE_KEY, car.getCityMileage());
+        bundle.putString(VehicleSpecsFragment.HIGHWAY_MILEAGE_KEY, car.getHighwayMileage());
+        bundle.putString(VehicleSpecsFragment.TRIM_KEY, car.getTrim());
+        bundle.putString(VehicleSpecsFragment.TANK_SIZE_KEY, car.getTankSize());
         intent.putExtras(bundle);
         startActivity(intent);
 
