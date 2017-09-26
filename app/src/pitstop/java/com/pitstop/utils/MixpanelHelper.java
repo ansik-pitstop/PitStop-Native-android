@@ -94,9 +94,6 @@ public class MixpanelHelper {
     public static final String BUTTON_VHR_SORT_REPORTS_SERVICES = "vhrSortReportsServices";
     public static final String BUTTON_VHR_SORT_REPORTS_RECALL = "vhrSortReportsRecalls";
 
-
-
-
     public static final String EVENT_VHR_PROCESS = "vhrProcess";
     public static final String STEP_VHR_GET_DTC = "getDtc";
     public static final String STEP_VHR_GET_PID = "getPid";
