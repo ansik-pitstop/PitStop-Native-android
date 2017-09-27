@@ -17,6 +17,7 @@ import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
@@ -148,4 +149,6 @@ public interface UseCaseComponent {
     GetCarByVinUseCase getGetCarByVinUseCase();
 
     AddLicensePlateUseCase addLicensePlateUseCase();
+
+    GetLicensePlateUseCase getLicensePlateUseCase();
 }

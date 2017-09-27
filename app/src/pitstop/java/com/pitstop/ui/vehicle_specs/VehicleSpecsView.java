@@ -5,5 +5,7 @@ package com.pitstop.ui.vehicle_specs;
  */
 
 public interface VehicleSpecsView {
+
     void showLicensePlate(String s);
+    void toast(String message);
 }

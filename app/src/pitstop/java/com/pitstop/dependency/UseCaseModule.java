@@ -1,12 +1,16 @@
 package com.pitstop.dependency;
 
 import android.os.Handler;
+import android.support.v4.widget.CircularProgressDrawable;
 
 import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
+import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -35,6 +39,8 @@ import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
@@ -437,6 +443,18 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler){
 
         return new DiscoveryTimeoutUseCaseImpl(useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    AddLicensePlateUseCase addLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new AddLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
+    }
+
+    @Provides
+    GetLicensePlateUseCase getLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new GetLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
     }
 
     @Provides

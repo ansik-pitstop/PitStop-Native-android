@@ -10,10 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalSpecsStorage;
+import com.pitstop.database.TABLES;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -32,6 +34,7 @@ import butterknife.OnClick;
 public class VehicleSpecsFragment extends android.app.Fragment implements VehicleSpecsView {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
+    public static final String CAR_ID_KEY = "carid";
     public static final String CAR_VIN_KEY = "carVin";
     public static final String SCANNER_ID_KEY = "scannerId";
     public static final String CITY_MILEAGE_KEY = "cityMieage";
@@ -39,6 +42,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     public static final String ENGINE_KEY = "engine";
     public static final String TRIM_KEY = "trim";
     public static final String TANK_SIZE_KEY = "tankSize";
+
+    private int carId;
 
     private AlertDialog cityMileageDialog;
     private AlertDialog licensePlateDialog;
@@ -87,7 +92,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         View view  = inflater.inflate(R.layout.vehicle_specs_fragment, null);
         ButterKnife.bind(this, view);
         bundle  = getArguments();
-        localSpecsStorage = new LocalSpecsStorage(getActivity());
+
 
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
@@ -99,7 +104,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
             presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
         }
-
+        this.carId = bundle.getInt(CAR_ID_KEY);
         setView();
         return view;
     }
@@ -109,15 +114,18 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
+        presenter.getLicensePlate(carId);
     }
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG, "onDestroyView()");
         presenter.unsubscribe();
         super.onDestroyView();
     }
 
     public void setView(){
+        Log.d(TAG, "setView()");
         carVin.setText(bundle.getString(CAR_VIN_KEY));
         if (bundle.getString(SCANNER_ID_KEY) == null)
             scannerID.setText("No scanner connected");
@@ -144,33 +152,21 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void showLicensePlate(String s) {
+        Log.d(TAG, "showLicensePlate()");
         licensePlate.setText(s);
         licensePlate.setVisibility(View.VISIBLE);
     }
 
-    /*  @OnClick(R.id.city_mileage_specs)
-    public void showCityMileageDialog(){
-        if (cityMileage == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
-            final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
-                    .findViewById(R.id.mileage_input);
-            cityMileageDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Update City Mileage")
-                    .setView(dialogLayout)
-                    .setPositiveButton("Confirm", (dialog, which)
-                            -> presenter.onUpdateCityMileageDialogConfirmClicked(
-                            textInputEditText.getText().toString()))
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                    .create();
-        }
+    @Override
+    public void toast(String message) {
 
-        cityMileageDialog.show();
-    }*/
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+
+    }
 
     @OnClick(R.id.license_plate_cardview)
     public void showLicensePlateDialog(){
+        Log.d(TAG, "showLicensePlateDialog()");
         if (licensePlateDialog == null){
             final View dialogLayout = LayoutInflater.from(
                     getActivity()).inflate(R.layout.dialog_input_mileage, null);
@@ -182,7 +178,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     .setTitle("Update License Plate")
                     .setView(dialogLayout)
                     .setPositiveButton("Confirm", (dialog, which)
-                            -> presenter.onUpdateLicensePlateDialogConfirmClicked(
+                            -> presenter.onUpdateLicensePlateDialogConfirmClicked(carId,
                             textInputEditText.getText().toString()))
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
                     .create();

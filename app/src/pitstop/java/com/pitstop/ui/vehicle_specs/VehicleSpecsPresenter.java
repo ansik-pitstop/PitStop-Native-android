@@ -2,9 +2,11 @@ package com.pitstop.ui.vehicle_specs;
 
 import android.app.Dialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.Presenter;
 import com.pitstop.ui.scan_car.ScanCarContract;
@@ -41,10 +43,10 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
 
     }
 
-    public void onUpdateLicensePlateDialogConfirmClicked(String s) {
+    public void onUpdateLicensePlateDialogConfirmClicked(int carID, String s) {
         if(this.view == null)return;
         view.showLicensePlate(s);
-        useCaseComponent.addLicensePlateUseCase().execute(new AddLicensePlateUseCase.Callback() {
+        useCaseComponent.addLicensePlateUseCase().execute(carID, s, new AddLicensePlateUseCase.Callback() {
             @Override
             public void onLicensePlateStored(String licensePlate) {
 
@@ -57,6 +59,22 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         });
         Log.d(TAG, "onUpdateLicensePlateDialogConfirmClicked()");
         Log.d(TAG, s);
+
+    }
+
+    public void getLicensePlate(int carID){
+        if (this.view == null) return;
+
+        useCaseComponent.getLicensePlateUseCase().execute(carID, new GetLicensePlateUseCase.Callback() {
+            @Override
+            public void onLicensePlateGot(String licensePlate) {
+                view.showLicensePlate(licensePlate);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+            }
+        });
 
     }
 

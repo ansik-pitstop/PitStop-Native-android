@@ -256,6 +256,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
         Bundle bundle  = new Bundle();
+        bundle.putInt(VehicleSpecsFragment.CAR_ID_KEY, car.getId());
         bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
         bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScannerId());
         bundle.putString(VehicleSpecsFragment.ENGINE_KEY, car.getEngine());
