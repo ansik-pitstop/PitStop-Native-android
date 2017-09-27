@@ -17,9 +17,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -138,6 +141,8 @@ public class ReportRepository implements Repository {
 
                 JSONObject healthReportJson = reportList.getJSONObject(i);
                 int id = healthReportJson.getInt("id");
+                Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                        .parse(healthReportJson.getString("createdAt"));
                 JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
 
                 List<EngineIssue> engineIssues
@@ -150,13 +155,15 @@ public class ReportRepository implements Repository {
                         = gson.fromJson(healthReportContentJson.get("services").toString()
                         ,new TypeToken<List<Service>>() {}.getType());
 
-                Date dummyDate = new Date((long)(Math.random()*System.currentTimeMillis()));
                 vehicleHealthReports.add(
-                        new VehicleHealthReport(id, dummyDate, engineIssues,recalls,services)); //Todo: retrieve created date
+                        new VehicleHealthReport(id, createdAt, engineIssues,recalls,services));
             }
             return vehicleHealthReports;
 
         }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }catch(ParseException e){
             e.printStackTrace();
             return null;
         }
@@ -166,6 +173,8 @@ public class ReportRepository implements Repository {
         try{
             JSONObject healthReportJson = new JSONObject(response).getJSONObject("response");
             int id = healthReportJson.getInt("id");
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                    .parse(healthReportJson.getString("createdAt"));
             JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
 
             List<EngineIssue> engineIssues
@@ -177,9 +186,11 @@ public class ReportRepository implements Repository {
             List<Service> services
                     = gson.fromJson(healthReportContentJson.get("services").toString()
                     ,new TypeToken<List<Service>>() {}.getType());
-            Date dummyDate = new Date((long)(Math.random()*System.currentTimeMillis()/1000));
-            return new VehicleHealthReport(id, dummyDate , engineIssues,recalls,services); //Todo: retrieve created date
+            return new VehicleHealthReport(id, createdAt , engineIssues,recalls,services);
         }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }catch(ParseException e){
             e.printStackTrace();
             return null;
         }

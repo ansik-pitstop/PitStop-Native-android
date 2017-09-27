@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.pitstop.R;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 import com.pitstop.ui.vehicle_health_report.health_report_view.HealthReportFragment;
@@ -40,7 +39,6 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     public void setPastReportsView() {
         Log.d(TAG,"setPastReportView()");
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.animator.left_in,R.animator.right_out)
                 .replace(android.R.id.content,pastReportsFragment)
                 .commit();
     }
@@ -50,7 +48,6 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
         Log.d(TAG,"setReportView()");
         this.vehicleHealthReport = vehicleHealthReport;
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.animator.left_in,R.animator.right_out)
                 .replace(android.R.id.content,healthReportFragment)
                 .addToBackStack("pastReports->healthReportFragment")
                 .commit();
