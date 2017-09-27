@@ -32,12 +32,13 @@ public class PidDataHandler {
 
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
-    private final int TIME_INTERVAL_DEFAULT = 5;
+    private final int TIME_INTERVAL_DEFAULT = 4;
     private final int TIME_INTERVAL_SAFE = 120;
 
     private final String TAG = getClass().getSimpleName();
 
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
+    private final String DEFAULT_PIDS_SAFE = "2105,2106,210b,210c,210d";
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
@@ -118,6 +119,74 @@ public class PidDataHandler {
         PID_PRIORITY.add("212E");
     }
 
+    public void setDefaultPidCommunicationParameters(String vin){
+        Log.d(TAG,"setDefaultPidCommunicationParameters() vin: "+vin);
+        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+            @Override
+            public void onGotCar(Car car) {
+                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+
+                    bluetoothDataHandlerManager.setPidsToBeSent(DEFAULT_PIDS_SAFE,TIME_INTERVAL_SAFE);
+                }
+                else{
+                    bluetoothDataHandlerManager.setPidsToBeSent(DEFAULT_PIDS,TIME_INTERVAL_DEFAULT);
+                }
+            }
+
+            @Override
+            public void onNoCarFound() {
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onNoCarFound()");
+                //Do nothing, car is probably being added and will handle supported pids again
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onError()");
+            }
+        });
+    }
+
+    public void setPidCommunicationParameters(String[] pids, String vin){
+        Log.d(TAG,"setPidCommunicationParameters() pids: "+pids+", vin: "+vin);
+
+        useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+            @Override
+            public void onGotCar(Car car) {
+                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+
+                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
+                    Log.d(TAG,"setPidCommunicationParameters() Car make matches Chevrolet, Dodge" +
+                            ", Chrystler or Jeep setting pid time interval to "+TIME_INTERVAL_SAFE
+                            +", and supported pids to: "+supportedPids);
+                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_SAFE);
+                }
+                else{
+                    String supportedPids = getSupportedPid(pids,PID_COUNT_DEFAULT);
+                    Log.d(TAG,"setPidCommunicationParameters() Car make doesn't match" +
+                            " any of the 'safe cars' setting supported pids to "+supportedPids);
+                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
+                }
+            }
+
+            @Override
+            public void onNoCarFound() {
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onNoCarFound()");
+                //Do nothing, car is probably being added and will handle supported pids again
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onError()");
+            }
+        });
+    }
+
     private String getSupportedPid(String[] pids, int max){
         HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
         StringBuilder sb = new StringBuilder();
@@ -138,46 +207,6 @@ public class PidDataHandler {
         } else {
             return DEFAULT_PIDS;
         }
-    }
-
-    public void handleSupportedPidResult(String[] pids, String vin){
-        Log.d(TAG,"handleSupportedPidResult() pids: "+pids+", vin: "+vin);
-
-        useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
-            @Override
-            public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
-                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
-                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
-
-                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    Log.d(TAG,"handleSupportedPidResult() Car make matches Chevrolet, Dodge" +
-                            ", Chrystler or Jeep setting pid time interval to "+TIME_INTERVAL_SAFE
-                            +", and supported pids to: "+supportedPids);
-                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_SAFE);
-                }
-                else{
-                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    Log.d(TAG,"handleSupportedPidResult() Car make doesn't match" +
-                            " any of the 'safe cars' setting supported pids to "+supportedPids);
-                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
-                }
-            }
-
-            @Override
-            public void onNoCarFound() {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
-                //Do nothing, car is probably being added and will handle supported pids again
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onError()");
-                bluetoothDataHandlerManager.setPidsToBeSent(
-                        getSupportedPid(pids,PID_COUNT_DEFAULT),TIME_INTERVAL_DEFAULT);
-            }
-        });
     }
 
 }
