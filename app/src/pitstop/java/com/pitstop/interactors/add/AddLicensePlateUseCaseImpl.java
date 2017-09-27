@@ -45,11 +45,11 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
         });
     }
 
-    public void onLicensePlateRetrieved(String licensePlate){
+    public void onLicensePlateStored(String licensePlate){
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onLicensePlateRetrieved(licensePlate);
+                callback.onLicensePlateStored(licensePlate);
             }
         });
     }

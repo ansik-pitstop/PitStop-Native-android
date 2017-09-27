@@ -14,8 +14,10 @@ import java.util.List;
 public interface AddLicensePlateUseCase extends Interactor{
 
     interface Callback{
-        void onLicensePlateRetrieved(String licensePlate);
+
         void onError(RequestError error);
+
+        void onLicensePlateStored(String licensePlate);
     }
     public void execute(AddLicensePlateUseCase.Callback callback);
 }

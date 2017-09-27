@@ -2,6 +2,8 @@ package com.pitstop.dependency;
 
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
+import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
@@ -144,4 +146,6 @@ public interface UseCaseComponent {
     SortVehicleHealthReportsUseCase getSortVehicleHealthReportsUseCase();
 
     GetCarByVinUseCase getGetCarByVinUseCase();
+
+    AddLicensePlateUseCase addLicensePlateUseCase();
 }
