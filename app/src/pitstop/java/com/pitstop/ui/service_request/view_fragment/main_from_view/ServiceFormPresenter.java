@@ -79,8 +79,8 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     public void timeButtonClicked(){
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
-        if(view == null || callback == null || localDealership == null){return;}
-        if(localDealership.getName().equals("No Shop")){
+        if(view == null || callback == null){return;}
+        if(localDealership.getName().equals("No Shop") || localDealership == null){
             view.showReminder("Please set a shop for this car first");
             return;
         }
@@ -92,13 +92,18 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
     public void dateButtonClicked(){
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
-        if(view == null || callback == null || localDealership == null){return;}
+        if(view == null || callback == null){return;}
+        if(localDealership.getName().equals("No Shop") || localDealership == null){
+            view.showReminder("Please set a shop for this car first");
+            return;
+        }
         view.toggleCalender();
     }
 
     public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
         if(view == null || callback == null || localDealership == null){return;}
+
         String date = year+"/"+month+"/"+dayOfMonth;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
@@ -175,8 +180,9 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void onSubmitClicked(){
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(view == null || callback == null){return;}
-        if (localDealership == null){
-            view.showReminder("Please select a shop before requesting a service.");
+
+        if(localDealership.getName().equals("No Shop") || localDealership == null){
+            view.showReminder("Please set a shop for this car first");
             return;
         }
         if(localDealership.getEmail().equals("")){
