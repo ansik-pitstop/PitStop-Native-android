@@ -167,7 +167,7 @@ public class PidDataHandler {
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_SAFE);
                 }
                 else{
-                    String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
+                    String supportedPids = getSupportedPid(pids,PID_COUNT_DEFAULT);
                     Log.d(TAG,"setPidCommunicationParameters() Car make doesn't match" +
                             " any of the 'safe cars' setting supported pids to "+supportedPids);
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
