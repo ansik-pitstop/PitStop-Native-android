@@ -62,8 +62,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -83,10 +85,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
 
     //Timer length values
-    private final int DTC_RETRY_LEN = 5; //Seconds
-    private final int DTC_RETRY_COUNT = 4;
-    private final int PID_RETRY_LEN = 5; //Seconds
-    private final int PID_RETRY_COUNT = 0;
+    public static final int DTC_RETRY_LEN = 3; //Seconds
+    public static final int DTC_RETRY_COUNT = 4;
+    public static final int PID_RETRY_LEN = 15; //Seconds
+    public static final int PID_RETRY_COUNT = 0;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
     private final int VERIFICATION_TIMEOUT = 15; //Seconds
@@ -102,6 +104,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean allowPidTracking = true;
     private boolean allPidRequested = false;
     private boolean dtcRequested = false;
+    private boolean receivedDtcResponse = false;
 
     //Connection state values
     private long terminalRtcTime = -1;
@@ -128,8 +131,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private UseCaseComponent useCaseComponent;
     private ReadyDevice readyDevice;
     private BluetoothDeviceManager deviceManager;
-    private HashMap<String ,Boolean> requestedDtcList;
-    private List<Observer> observerList = new ArrayList<>();
+    private DtcPackage requestedDtcs;
+    private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
@@ -186,10 +189,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onTimeout() {
             Log.d(TAG,"dtcTimeoutTimer.onTimeout() dtcRequested? "+dtcRequested
-                    +" found dtc: "+ requestedDtcList);
+                    +" found dtc: "+ requestedDtcs);
             if (!dtcRequested) return;
-            if (requestedDtcList == null) notifyErrorGettingDtcData();
-            else notifyDtcData(requestedDtcList);
+            if (!receivedDtcResponse) notifyErrorGettingDtcData();
+            else notifyDtcData(requestedDtcs);
         }
     };
 
@@ -464,7 +467,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dtcRequested) return false;
 
         dtcRequested = true;
-        requestedDtcList = null;
+        requestedDtcs = null;
         if (dtcTimeoutTimer.isRunning())
             dtcTimeoutTimer.cancel();
         dtcTimeoutTimer.startTimer();
@@ -652,9 +655,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void dtcData(DtcPackage dtcPackage) {
+        if (dtcPackage == null) return;
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-
         //Set device id if its found in dtc package
         if (dtcPackage.deviceId != null && !dtcPackage.deviceId.isEmpty()){
             currentDeviceId = dtcPackage.deviceId;
@@ -662,23 +665,34 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcPackage.deviceId = currentDeviceId;
         dtcDataHandler.handleDtcData(dtcPackage);
-        appendDtc(dtcPackage);
+        Log.d(TAG,"requestedDtcs before appending: "+requestedDtcs);
+        if (dtcRequested){
+            appendDtc(dtcPackage);
+            receivedDtcResponse = true;
+        }
+        Log.d(TAG,"requestedDtcs after appending: "+requestedDtcs);
 
     }
 
     private void appendDtc(DtcPackage dtcPackage){
-        //This needs to be called before a return is made otherwise error will be thrown
-        if (requestedDtcList == null) requestedDtcList = new HashMap<>();
-
         if (dtcPackage == null) return;
 
-        Log.d(TAG,"appendDtc() dtc before appending: "+ requestedDtcList);
-        for (String d: dtcPackage.dtcs){
-            if (!requestedDtcList.containsKey(d) && !requestedDtcList.get(d) == dtcPackage.isPending){
-                requestedDtcList.put(d,dtcPackage.isPending);
+        if (requestedDtcs == null){
+            requestedDtcs = new DtcPackage();
+            requestedDtcs.rtcTime = dtcPackage.rtcTime;
+            requestedDtcs.deviceId = dtcPackage.deviceId;
+            requestedDtcs.dtcs = new HashMap<>();
+        }
+
+        for (Map.Entry<String,Boolean> dtc: dtcPackage.dtcs.entrySet()){
+            //Check whether requested dtcs already contains same <String,Boolean> pair, if not add
+            if (!requestedDtcs.dtcs.containsKey(dtc.getKey())
+                    && !(requestedDtcs.dtcs.containsKey(dtc.getKey())
+                            && requestedDtcs.dtcs.get(dtc.getKey()).equals(dtc.getValue()))){
+
+                requestedDtcs.dtcs.put(dtc.getKey(),dtc.getValue());
             }
         }
-        Log.d(TAG,"appendDtc() dtc after appending: "+ requestedDtcList);
     }
 
     @Override
@@ -973,10 +987,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyDtcData(HashMap<String, Boolean> dtc) {
+    private void notifyDtcData(DtcPackage dtc) {
         Log.d(TAG,"notifyDtcData() "+dtc);
         if (!dtcRequested) return;
         dtcRequested = false;
+        receivedDtcResponse = false; //Reset flag
 
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
@@ -991,6 +1006,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"notifyErrorGettingDtcData()");
         if (!dtcRequested) return;
         dtcRequested = false;
+        receivedDtcResponse = false;
 
         trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
@@ -1052,7 +1068,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer: observerList){
             if (observer instanceof BluetoothPidObserver){
                 mainHandler.post(()
-                        -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage.pids));
+                        -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage));
             }
         }
     }

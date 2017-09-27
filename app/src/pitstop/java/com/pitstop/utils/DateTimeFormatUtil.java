@@ -68,6 +68,10 @@ public class DateTimeFormatUtil {
         return ISO8601_FORMAT.format(calendar.getTime());
     }
 
+    public static String rtcToIso(long rtc){
+        return ISO8601_FORMAT.format(rtc);
+    }
+
     public static Calendar formatISO8601ToCalendar(String dateString) throws ParseException{
         if (dateString == null) return null;
         Calendar calendar = Calendar.getInstance();

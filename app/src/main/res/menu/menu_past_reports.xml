@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        app:showAsAction="always"
+        android:icon="@drawable/ic_sort">
+
+        <menu>
+            <item
+                android:id="@+id/action_sort_date_newest"
+                android:title="Sort by Newest"/>
+            <item
+                android:id="@+id/action_sort_date_oldest"
+                android:title="Sort by Oldest"/>
+            <item
+                android:id="@+id/action_sort_engine_issue"
+                android:title="Sort by Engine Issues"/>
+            <item
+                android:id="@+id/action_sort_services"
+                android:title="Sort by Services Issues"/>
+            <item
+                android:id="@+id/action_sort_recalls"
+                android:title="Sort by Recalls"/>
+
+        </menu>
+
+    </item>
+</menu>

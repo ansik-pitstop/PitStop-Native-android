@@ -26,6 +26,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 8/15/2017.
@@ -68,7 +69,7 @@ public class DtcDataHandler{
 
         for (DtcPackage p: pendingDtcPackages){
 
-            if(dtcPackage.dtcNumber > 0) {
+            if(dtcPackage.dtcs.size() > 0) {
                 saveDtcs(p);
                 bluetoothDataHandlerManager.requestFreezeData();
             }
@@ -98,45 +99,32 @@ public class DtcDataHandler{
 
                                 HashSet<String> dtcNames = new HashSet<>();
                                 for (CarIssue issue : car.getActiveIssues()) {
-                                    dtcNames.add(issue.getItem());
+                                    dtcPackage.dtcs.remove((issue.getItem()));
                                 }
 
-                                List<String> dtcList = new ArrayList<String>();
-                                for (String dtc: dtcPackage.dtcs){
-                                    dtcList.add(dtc);
-                                }
-                                List<String> toRemove = new ArrayList<>();
-                                for (String dtc: dtcList){
-                                    if (dtcNames.contains(dtc)){
-                                        toRemove.add(dtc);
-                                    }
-                                }
-                                dtcList.removeAll(toRemove);
-                                Log.d(TAG,"dtc list size after removing duplicates: "+dtcList.size());
-                                for (final String dtc: dtcList) {
-                                    final List<String> dtcListReference = dtcList;
+                                Log.d(TAG,"dtc list size after removing duplicates: "
+                                        +dtcPackage.dtcs.keySet().size());
+                                for (final String dtc: dtcPackage.dtcs.keySet()) {
+                                    final List<String> dtcListReference
+                                            = new ArrayList<>(dtcPackage.dtcs.keySet());
 
                                     networkHelper.addNewDtc(car.getId(), car.getTotalMileage(),
-                                            dtcPackage.rtcTime, dtc, dtcPackage.isPending,
-                                            new RequestCallback() {
-                                                @Override
-                                                public void done(String response, RequestError requestError) {
-                                                    Log.i(TAG, "DTC added: " + dtc);
-                                                    if (requestError != null){
-                                                        Log.d(TAG,"Error adding new dtc, error: "+requestError.getMessage());
-                                                        return;
-                                                    }
-                                                    //INCLUDE THIS INSIDE USE CASE WHEN REFACTORING
-                                                    //Notify that dtcs have been updated once
-                                                    // the last one has been sent successfully
-                                                    if (dtcListReference.indexOf(dtc)
-                                                            == dtcListReference.size()-1){
-
-                                                        notifyEventBus(new EventTypeImpl(
-                                                                EventType.EVENT_DTC_NEW));
-                                                    }
+                                            dtcPackage.rtcTime, dtc, dtcPackage.dtcs.get(dtc),
+                                            (response1, requestError1) -> {
+                                                Log.i(TAG, "DTC added: " + dtc);
+                                                if (requestError1 != null){
+                                                    Log.d(TAG,"Error adding new dtc, error: "+ requestError1.getMessage());
+                                                    return;
                                                 }
+                                                //INCLUDE THIS INSIDE USE CASE WHEN REFACTORING
+                                                //Notify that dtcs have been updated once
+                                                // the last one has been sent successfully
+                                                if (dtcListReference.indexOf(dtc)
+                                                        == dtcListReference.size()-1){
 
+                                                    notifyEventBus(new EventTypeImpl(
+                                                            EventType.EVENT_DTC_NEW));
+                                                }
                                             });
                                 }
                             } catch (JSONException e) {
@@ -151,9 +139,9 @@ public class DtcDataHandler{
             }
         } else if(car != null) {
             Log.i(TAG, "Saving dtcs offline");
-            for (final String dtc : dtcPackage.dtcs) {
+            for (final Map.Entry<String,Boolean> dtc: dtcPackage.dtcs.entrySet()) {
                 dtcsToSend.add(new Dtc(car.getId(), car.getTotalMileage(), dtcPackage.rtcTime,
-                        dtc, dtcPackage.isPending));
+                        dtc.getKey(), dtc.getValue()));
             }
         }
     }
