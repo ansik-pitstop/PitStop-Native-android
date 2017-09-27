@@ -15,7 +15,7 @@
     <!-- Emissions or Health Report Icon !-->
     <ImageView
         android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_report"
+        android:src="@drawable/ic_report_healthy"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:id="@+id/icon"

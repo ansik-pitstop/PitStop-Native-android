@@ -67,12 +67,22 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         public void bind(VehicleHealthReport vehicleHealthReport){
             this.vehicleHealthReport = vehicleHealthReport;
             title.setText("Vehicle Health Report");
+
             description.setText(String.format("Contains %d engine issues" +
                     ", %d services and %d recalls",vehicleHealthReport.getEngineIssues().size()
                     , vehicleHealthReport.getServices().size()
                     ,vehicleHealthReport.getRecalls().size()));
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
             date.setText(simpleDateFormat.format(vehicleHealthReport.getDate()));
+
+            if (vehicleHealthReport.getEngineIssues().size() > 0
+                    || vehicleHealthReport.getRecalls().size() > 0
+                    || vehicleHealthReport.getServices().size() > 0){
+
+                icon.setImageDrawable(thisView.getContext()
+                        .getResources().getDrawable(R.drawable.ic_report_unhealthy));
+            }
         }
 
         public void setOnClickListener(PastReportsView callback){
