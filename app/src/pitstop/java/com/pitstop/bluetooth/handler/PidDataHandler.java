@@ -120,7 +120,7 @@ public class PidDataHandler {
     }
 
     public void setDefaultPidCommunicationParameters(String vin){
-        Log.d(TAG,"initializePid() vin: "+vin);
+        Log.d(TAG,"setDefaultPidCommunicationParameters() vin: "+vin);
         useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
