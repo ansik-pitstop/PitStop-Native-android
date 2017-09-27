@@ -1,9 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.start_report_view;
 
-
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -13,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -39,14 +36,14 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     private final String TAG = StartReportFragment.class.getSimpleName();
 
-    @BindView(R.id.emissions_switch)
-    Switch modeSwitch;
+//    @BindView(R.id.emissions_switch)
+//    Switch modeSwitch;
 
-    @BindView(R.id.emissions_label)
-    TextView emissionsLabel;
+//    @BindView(R.id.emissions_label)
+//    TextView emissionsLabel;
 
-    @BindView(R.id.health_report_label)
-    TextView healthReportLabel;
+//    @BindView(R.id.health_report_label)
+//    TextView healthReportLabel;
 
     @BindView(R.id.title_vehicle_health)
     TextView vehicleHealthTitle;
@@ -80,7 +77,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         presenter = new StartReportPresenter(mixpanelHelper);
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
-        modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
+        //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
     public static StartReportFragment newInstance() {
@@ -172,13 +169,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void setModeEmissions() {
         Log.d(TAG,"setModeEmissions()");
         emissionsMode = true;
-        emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.highlight));
-        healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
+        //emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.highlight));
+        //healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.highlight));
         pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_highlight));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_green_highlight));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.highlight));
-        modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.highlight), PorterDuff.Mode.MULTIPLY);
+        //modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.highlight), PorterDuff.Mode.MULTIPLY);
     }
 
 
@@ -186,13 +183,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void setModeHealthReport() {
         Log.d(TAG,"setModeHealthReport()");
         emissionsMode = false;
-        emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
-        healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.primary));
+        //emissionsLabel.setTextColor(ContextCompat.getColor(context,R.color.dark_grey));
+        //healthReportLabel.setTextColor(ContextCompat.getColor(context,R.color.primary));
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.primary));
         pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_primary));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.primary));
-        modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);
+        //modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);
     }
 
     @OnClick(R.id.show_reports_button)

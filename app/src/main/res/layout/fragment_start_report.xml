@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="30dp">
 
     <TextView
         android:id="@+id/title_vehicle_health"
@@ -64,34 +65,34 @@
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/health_report_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:text="Health Report"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/primary" />
+        <!--<TextView-->
+            <!--android:id="@+id/health_report_label"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:text="Health Report"-->
+            <!--android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+            <!--android:textColor="@color/primary" />-->
 
-        <Switch
-            android:id="@+id/emissions_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="2dp"
-            android:scaleX="1.4"
-            android:scaleY="1.4"
-            android:thumbTint="@color/primary" />
+        <!--<Switch-->
+            <!--android:id="@+id/emissions_switch"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginTop="2dp"-->
+            <!--android:scaleX="1.4"-->
+            <!--android:scaleY="1.4"-->
+            <!--android:thumbTint="@color/primary" />-->
 
-        <TextView
-            android:id="@+id/emissions_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Emissions Test"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/dark_grey" />
+        <!--<TextView-->
+            <!--android:id="@+id/emissions_label"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:text="Emissions Test"-->
+            <!--android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+            <!--android:textColor="@color/dark_grey" />-->
 
         <Button
             android:id="@+id/show_reports_button"
