@@ -143,7 +143,7 @@ public class PidDataHandler {
     public void handleSupportedPidResult(String[] pids, String vin){
         Log.d(TAG,"handleSupportedPidResult() pids: "+pids+", vin: "+vin);
 
-        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+        useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
                 if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
