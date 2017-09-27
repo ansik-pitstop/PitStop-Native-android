@@ -39,6 +39,8 @@ public class Car implements Parcelable {
     private String cityMileage;
     private String highwayMileage;
 
+
+
     /**
      * Mileage entered by the user when they added their car
      */
