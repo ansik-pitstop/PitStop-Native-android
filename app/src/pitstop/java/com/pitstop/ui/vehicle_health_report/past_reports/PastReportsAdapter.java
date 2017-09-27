@@ -82,6 +82,9 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
 
                 icon.setImageDrawable(thisView.getContext()
                         .getResources().getDrawable(R.drawable.ic_report_unhealthy));
+            }else{
+                icon.setImageDrawable(thisView.getContext()
+                        .getResources().getDrawable(R.drawable.ic_report_healthy));
             }
         }
 
