@@ -305,7 +305,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_h"
+                                tools:src="@drawable/highway_mileage_mercedes"
                                 android:layout_gravity="center"/>
 
                             <TextView
@@ -342,7 +342,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_c"
+                                tools:src="@drawable/traffic_lights_mercedes"
                                 android:layout_gravity="center"/>
 
                             <TextView

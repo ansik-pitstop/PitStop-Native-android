@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <ImageView
         android:layout_width="match_parent"
@@ -24,17 +28,30 @@
             android:layout_gravity="center_horizontal"
             >
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/vin_2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
 
                 <TextView
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:paddingLeft="16dp"
+                    android:paddingLeft="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="VIN"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
                 <TextView
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
@@ -42,7 +59,6 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:id="@+id/car_vin"
-                    android:text="222222"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -56,17 +72,30 @@
             android:layout_marginBottom="2dp"
             android:layout_gravity="center_horizontal"
             >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/scanner_2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
 
                 <TextView
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:paddingLeft="16dp"
+                    android:paddingLeft="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Scanner ID"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
                 <TextView
                     android:layout_gravity="right"
                     android:gravity="right"
@@ -87,26 +116,54 @@
             android:layout_marginRight="12dp"
             android:layout_marginBottom="2dp"
             android:layout_gravity="center_horizontal"
-            >
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="License Plate"
-                    android:textSize="18sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+            ><LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:paddingLeft="6dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/license_2x"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+
+            <TextView
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="License Plate"
+                android:textSize="18sp"
+                android:textColor="@color/Smooch_inputTextColor" />
+
+
+        </LinearLayout>
+            <LinearLayout
+                android:gravity="right"
+                android:layout_gravity="right"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
                 <TextView
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:paddingRight="16dp"
+                    android:paddingRight="6dp"
                     android:id="@+id/car_license_plate_specs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
+                <ImageView
+                    android:layout_marginRight="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/editpencil"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+            </LinearLayout>
+
 
         </android.support.v7.widget.CardView>
 
@@ -176,9 +233,9 @@
             <ImageView
                 android:paddingLeft="6dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/citymileage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:src="@drawable/traffic_lights_2x"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
 
             <TextView
                 android:paddingTop="8dp"
@@ -217,9 +274,9 @@
                 <ImageView
                     android:paddingLeft="6dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/highwaymileage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:src="@drawable/highway_mileage2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
 
                 <TextView
                     android:paddingTop="8dp"
@@ -252,16 +309,30 @@
             android:layout_marginBottom="2dp"
             android:layout_gravity="center_horizontal"
             >
-            <TextView
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingLeft="16dp"
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Trim"
-                android:textSize="18sp"
-                android:textColor="@color/Smooch_inputTextColor" />
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/trim_2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Trim"
+                    android:textSize="18sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
             <TextView
                 android:layout_gravity="right"
                 android:gravity="right"
@@ -282,16 +353,30 @@
             android:layout_marginBottom="2dp"
             android:layout_gravity="center_horizontal"
             >
-            <TextView
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingLeft="16dp"
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Tank Size"
-                android:textSize="18sp"
-                android:textColor="@color/Smooch_inputTextColor" />
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/tank_size_2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Tank Size"
+                    android:textSize="18sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
             <TextView
                 android:layout_gravity="right"
                 android:gravity="right"
@@ -305,5 +390,6 @@
         </android.support.v7.widget.CardView>
 
     </LinearLayout>
+    </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

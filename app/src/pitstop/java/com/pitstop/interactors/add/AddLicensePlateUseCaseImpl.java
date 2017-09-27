@@ -38,8 +38,8 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
         this.carID = carid;
         this.carLicensePlate = plate;
         useCaseHandler.post(this);
-
     }
+/*
 
     public void onError(RequestError error){
 
@@ -59,6 +59,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
             }
         });
     }
+*/
 
 
     @Override
