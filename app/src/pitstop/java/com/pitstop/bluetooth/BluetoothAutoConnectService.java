@@ -736,7 +736,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED_VERIFIED;
         readyDevice = new ReadyDevice(vin, currentDeviceId, currentDeviceId);
         notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
-        requestPidInitialization();
         deviceManager.getSupportedPids();
     }
 
@@ -763,7 +762,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = new ReadyDevice(vin,currentDeviceId,currentDeviceId);
         notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
         sendConnectedNotification();
-        requestPidInitialization();
         deviceManager.getSupportedPids(); //Get supported pids once verified
     }
 
@@ -790,7 +788,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = new ReadyDevice(vin,deviceId,deviceId);
         notifyDeviceReady(vin,deviceId,deviceId);
         sendConnectedNotification();
-        requestPidInitialization();
         deviceManager.getSupportedPids(); //Get supported pids once verified
     }
 
