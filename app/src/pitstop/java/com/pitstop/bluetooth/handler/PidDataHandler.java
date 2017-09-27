@@ -32,12 +32,13 @@ public class PidDataHandler {
 
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
-    private final int TIME_INTERVAL_DEFAULT = 5;
+    private final int TIME_INTERVAL_DEFAULT = 4;
     private final int TIME_INTERVAL_SAFE = 120;
 
     private final String TAG = getClass().getSimpleName();
 
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
+    private final String DEFAULT_PIDS_SAFE = "2105,2106,210b,210c,210d";
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
@@ -118,26 +119,34 @@ public class PidDataHandler {
         PID_PRIORITY.add("212E");
     }
 
-    private String getSupportedPid(String[] pids, int max){
-        HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
-        StringBuilder sb = new StringBuilder();
-        int pidCount = 0;
-        // go through the priority list and get the first 10 pids that are supported
-        for(String dataType : PID_PRIORITY) {
-            if(pidCount >= max) {
-                break;
+    public void setPidCommunicationParameters(String vin){
+        Log.d(TAG,"initializePid() vin: "+vin);
+        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+            @Override
+            public void onGotCar(Car car) {
+                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+
+                    bluetoothDataHandlerManager.setPidsToBeSent(DEFAULT_PIDS_SAFE,TIME_INTERVAL_SAFE);
+                }
+                else{
+                    bluetoothDataHandlerManager.setPidsToBeSent(DEFAULT_PIDS,TIME_INTERVAL_DEFAULT);
+                }
             }
-            if(supportedPidsSet.contains(dataType)) {
-                sb.append(dataType);
-                sb.append(",");
-                ++pidCount;
+
+            @Override
+            public void onNoCarFound() {
+                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
+                //Do nothing, car is probably being added and will handle supported pids again
             }
-        }
-        if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
-            return sb.substring(0, sb.length() - 1);
-        } else {
-            return DEFAULT_PIDS;
-        }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onError()");
+            }
+        });
     }
 
     public void handleSupportedPidResult(String[] pids, String vin){
@@ -178,6 +187,28 @@ public class PidDataHandler {
                         getSupportedPid(pids,PID_COUNT_DEFAULT),TIME_INTERVAL_DEFAULT);
             }
         });
+    }
+
+    private String getSupportedPid(String[] pids, int max){
+        HashSet<String> supportedPidsSet = new HashSet<>(Arrays.asList(pids));
+        StringBuilder sb = new StringBuilder();
+        int pidCount = 0;
+        // go through the priority list and get the first 10 pids that are supported
+        for(String dataType : PID_PRIORITY) {
+            if(pidCount >= max) {
+                break;
+            }
+            if(supportedPidsSet.contains(dataType)) {
+                sb.append(dataType);
+                sb.append(",");
+                ++pidCount;
+            }
+        }
+        if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') { // remove comma at end
+            return sb.substring(0, sb.length() - 1);
+        } else {
+            return DEFAULT_PIDS;
+        }
     }
 
 }
