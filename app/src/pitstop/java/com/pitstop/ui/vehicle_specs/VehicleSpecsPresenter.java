@@ -19,7 +19,6 @@ import com.pitstop.utils.MixpanelHelper;
 public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
 
     private VehicleSpecsView view;
-
     private final static String TAG = VehicleSpecsPresenter.class.getSimpleName();
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
@@ -32,20 +31,17 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
     @Override
     public void subscribe(VehicleSpecsView view) {
         this.view  = view;
-
-
     }
-
 
     @Override
     public void unsubscribe() {
         this.view = null;
-
     }
 
     public void onUpdateLicensePlateDialogConfirmClicked(int carID, String s) {
         if(this.view == null)return;
         view.showLicensePlate(s);
+
         useCaseComponent.addLicensePlateUseCase().execute(carID, s, new AddLicensePlateUseCase.Callback() {
             @Override
             public void onLicensePlateStored(String licensePlate) {

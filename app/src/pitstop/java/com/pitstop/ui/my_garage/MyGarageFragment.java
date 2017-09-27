@@ -264,6 +264,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         bundle.putString(VehicleSpecsFragment.HIGHWAY_MILEAGE_KEY, car.getHighwayMileage());
         bundle.putString(VehicleSpecsFragment.TRIM_KEY, car.getTrim());
         bundle.putString(VehicleSpecsFragment.TANK_SIZE_KEY, car.getTankSize());
+        if (car.getDealership() != null)
+            bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
         startActivity(intent);
 
@@ -293,5 +295,4 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Intent intent = new Intent(this.getActivity(),AddCarActivity.class);
         startActivityForResult(intent,RC_ADD_CAR);
     }
-
 }

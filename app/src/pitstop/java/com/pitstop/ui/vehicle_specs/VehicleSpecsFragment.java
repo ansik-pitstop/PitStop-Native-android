@@ -1,5 +1,7 @@
 package com.pitstop.ui.vehicle_specs;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -42,16 +44,29 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     public static final String ENGINE_KEY = "engine";
     public static final String TRIM_KEY = "trim";
     public static final String TANK_SIZE_KEY = "tankSize";
+    public static final String DEALERSHIP_KEY = "dealership";
+
+
+    public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
+
 
     private int carId;
-
-    private AlertDialog cityMileageDialog;
+    private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
     private VehicleSpecsPresenter presenter;
-    private LocalSpecsStorage localSpecsStorage;
+
+    @BindView(R.id.dealership_tv)
+    TextView dealership;
+
+    @BindView(R.id.dealership_view)
+    View dealerhsipView;
+
 
     @BindView(R.id.car_vin)
     TextView carVin;
+
+    @BindView(R.id.scanner_view)
+    View scannerView;
 
     @BindView(R.id.scanner_id)
     TextView scannerID;
@@ -148,6 +163,14 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
             tankSizeView.setVisibility(View.GONE);
         else
             tankSize.setText(bundle.getString(TANK_SIZE_KEY));
+
+        if(bundle.getString(DEALERSHIP_KEY)!= null) {
+            dealerhsipView.setVisibility(View.VISIBLE);
+            dealership.setText(bundle.getString(DEALERSHIP_KEY));
+        }
+        else{
+            dealerhsipView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -159,7 +182,6 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void toast(String message) {
-
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
 
     }
@@ -169,11 +191,11 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Log.d(TAG, "showLicensePlateDialog()");
         if (licensePlateDialog == null){
             final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
+                    getActivity()).inflate(R.layout.dialog_input_license_plate, null);
             final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
-                    .findViewById(R.id.mileage_input);
+                    .findViewById(R.id.plate_input);
             textInputEditText.setHint("License Plate");
-            cityMileageDialog = new AnimatedDialogBuilder(getActivity())
+            licensePlateDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Update License Plate")
                     .setView(dialogLayout)
@@ -183,10 +205,46 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
                     .create();
         }
-        cityMileageDialog.show();
+        licensePlateDialog.show();
     }
 
+    @OnClick(R.id.scanner_view)
+    public void onScannerViewClicked(){
+        Log.d(TAG, "onScannerViewClicked()");
+        if (bundle.getString(SCANNER_ID_KEY) == null){
+            showBuyDeviceDialog();
 
+        }
+
+    }
+
+    private void showBuyDeviceDialog() {
+        Log.d(TAG, "showBuyDeviceDialog()");
+        if (buyDeviceDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            buyDeviceDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Purchase Pitstop Device")
+                    .setView(dialogLayout)
+                    .setMessage("It appears you do not have a Pitstop device paired to this " +
+                                "car.With the device,we can trach your car's engine " +
+                                    "mileage, fuel consumption, trips, engine codes, and " +
+                                    "driving alarms. If you would like all these features, " +
+                            "please purchase a device and connect it to your car. ")
+                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
+                            -> openPitstopAmazonLink())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        buyDeviceDialog.show();
+    }
+
+    private void openPitstopAmazonLink() {
+        Log.d(TAG, "openPitstopAmazonLink()");
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
+        startActivity(browserIntent);
+    }
 
 
 }

@@ -61,7 +61,6 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
 */
 
-
     @Override
     public void run() {
         localSpecsStorage.deleteRecord(carID);
