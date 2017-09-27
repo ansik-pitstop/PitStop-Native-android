@@ -16,13 +16,13 @@ import com.pitstop.utils.MixpanelHelper;
  * Created by Matt on 2017-08-16.
  */
 
-public class ReportProgressPresenter {
+public class HealthReportProgressPresenter {
 
     private final String TAG = getClass().getSimpleName();
 
     private final int DELAY_SET_VIEW_REPORT = 1500;
 
-    private ReportProgressView view;
+    private HealthReportProgressView view;
 
     private ReportCallback callback;
     private UseCaseComponent component;
@@ -33,14 +33,14 @@ public class ReportProgressPresenter {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
 
-    public ReportProgressPresenter(ReportCallback callback, UseCaseComponent component
+    public HealthReportProgressPresenter(ReportCallback callback, UseCaseComponent component
             , MixpanelHelper mixpanelHelper){
         this. callback = callback;
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    public void subscribe(ReportProgressView view){
+    public void subscribe(HealthReportProgressView view){
         this.view = view;
     }
 
@@ -68,7 +68,7 @@ public class ReportProgressPresenter {
            public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport){
                Log.d(TAG,"onFinishGeneratingReport() vehicleHealthReport: "
                        +vehicleHealthReport);
-               ReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
+               HealthReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.SUCCESS);
 

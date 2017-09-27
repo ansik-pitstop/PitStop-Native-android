@@ -6,7 +6,7 @@ import android.content.DialogInterface;
  * Created by Matt on 2017-08-16.
  */
 
-public interface ReportProgressView {
+public interface HealthReportProgressView {
 
     void changeStep(String step);
     void setLoading(int progress);

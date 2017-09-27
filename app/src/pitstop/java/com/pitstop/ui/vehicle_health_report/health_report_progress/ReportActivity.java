@@ -17,7 +17,7 @@ import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_view.HealthReportFragment;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.ReportProgressFragment;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 
 /**
  * Created by Matt on 2017-08-14.
@@ -29,7 +29,7 @@ public class ReportActivity extends IBluetoothServiceActivity
     private final String TAG = getClass().getSimpleName();
 
     private ReportPresenter presenter;
-    private ReportProgressFragment reportProgressFragment;
+    private HealthReportProgressFragment healthReportProgressFragment;
     private HealthReportFragment healthReportFragment;
 
     private VehicleHealthReport vehicleHealthReport;
@@ -47,7 +47,7 @@ public class ReportActivity extends IBluetoothServiceActivity
             bluetoothConnectionObservable = ((BluetoothAutoConnectService.BluetoothBinder)service)
                     .getService();
             checkPermissions();
-            reportProgressFragment.setBluetooth(bluetoothConnectionObservable);
+            healthReportProgressFragment.setBluetooth(bluetoothConnectionObservable);
 
         }
 
@@ -68,8 +68,8 @@ public class ReportActivity extends IBluetoothServiceActivity
                 , serviceConnection, Context.BIND_AUTO_CREATE);
         fragmentManager = getSupportFragmentManager();
         presenter = new ReportPresenter(this);
-        reportProgressFragment = new ReportProgressFragment();
-        reportProgressFragment.setCallback(this);
+        healthReportProgressFragment = new HealthReportProgressFragment();
+        healthReportProgressFragment.setCallback(this);
         healthReportFragment = new HealthReportFragment();
 
     }
@@ -96,7 +96,7 @@ public class ReportActivity extends IBluetoothServiceActivity
     public void setReportProgressView() {
         Log.d(TAG,"setReportProgressView()");
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.report_progress_fragment_holder,reportProgressFragment);
+        fragmentTransaction.replace(R.id.report_progress_fragment_holder, healthReportProgressFragment);
         fragmentTransaction.commit();
     }
 

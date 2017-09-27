@@ -33,7 +33,7 @@ import butterknife.OnClick;
  * Created by Matt on 2017-08-16.
  */
 
-public class ReportProgressFragment extends Fragment implements ReportProgressView {
+public class HealthReportProgressFragment extends Fragment implements HealthReportProgressView {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -65,7 +65,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     private Context context;
     private GlobalApplication application;
     private BluetoothConnectionObservable bluetooth;
-    private ReportProgressPresenter presenter;
+    private HealthReportProgressPresenter presenter;
 
     public void setCallback(ReportCallback callback){
         this.callback = callback;
@@ -80,7 +80,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
         application = (GlobalApplication) context;
-        View view = inflater.inflate(R.layout.fragement_report_progress,container,false);
+        View view = inflater.inflate(R.layout.fragment_health_report_progress,container,false);
         ButterKnife.bind(this,view);
         progressBar.setMax(100);
         UseCaseComponent component = DaggerUseCaseComponent.builder()
@@ -88,7 +88,7 @@ public class ReportProgressFragment extends Fragment implements ReportProgressVi
                 .build();
         MixpanelHelper mixpanelHelper
                 = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
-        presenter = new ReportProgressPresenter(callback,component,mixpanelHelper);
+        presenter = new HealthReportProgressPresenter(callback,component,mixpanelHelper);
 
         return view;
     }
