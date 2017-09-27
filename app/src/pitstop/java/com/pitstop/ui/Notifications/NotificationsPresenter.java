@@ -13,6 +13,9 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -81,6 +84,8 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
             public void onNotificationsRetrieved(List<Notification> list) {
                 Log.d(TAG,"onNotificationsRetrieved() notifs: " + list);
                 updating = false;
+
+                Collections.sort(list, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
                 if (getView() == null){
                     Log.d("notifications", "return");
                     return;}
