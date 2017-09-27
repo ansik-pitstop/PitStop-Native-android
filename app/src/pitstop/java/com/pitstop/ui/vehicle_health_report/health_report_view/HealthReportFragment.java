@@ -127,6 +127,10 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         recallRightChevron.setRotation(90);
         serviceRightChevron.setRotation(90);
 
+        recallListHolderHeight = 0;
+        engineListHolderHeight = 0;
+        serviceListHolderHeight = 0;
+
         serviceListHolder.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             if(serviceListHolder.getHeight() >= serviceListHolderHeight){
                 serviceListHolderHeight = serviceListHolder.getHeight();
