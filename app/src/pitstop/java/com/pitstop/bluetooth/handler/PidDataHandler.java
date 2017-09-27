@@ -119,7 +119,7 @@ public class PidDataHandler {
         PID_PRIORITY.add("212E");
     }
 
-    public void setPidCommunicationParameters(String vin){
+    public void setDefaultPidCommunicationParameters(String vin){
         Log.d(TAG,"initializePid() vin: "+vin);
         useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
@@ -138,19 +138,19 @@ public class PidDataHandler {
 
             @Override
             public void onNoCarFound() {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onNoCarFound()");
                 //Do nothing, car is probably being added and will handle supported pids again
             }
 
             @Override
             public void onError(RequestError error) {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onError()");
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onError()");
             }
         });
     }
 
-    public void handleSupportedPidResult(String[] pids, String vin){
-        Log.d(TAG,"handleSupportedPidResult() pids: "+pids+", vin: "+vin);
+    public void setPidCommunicationParameters(String[] pids, String vin){
+        Log.d(TAG,"setPidCommunicationParameters() pids: "+pids+", vin: "+vin);
 
         useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
@@ -161,14 +161,14 @@ public class PidDataHandler {
                         || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
 
                     String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    Log.d(TAG,"handleSupportedPidResult() Car make matches Chevrolet, Dodge" +
+                    Log.d(TAG,"setPidCommunicationParameters() Car make matches Chevrolet, Dodge" +
                             ", Chrystler or Jeep setting pid time interval to "+TIME_INTERVAL_SAFE
                             +", and supported pids to: "+supportedPids);
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_SAFE);
                 }
                 else{
                     String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    Log.d(TAG,"handleSupportedPidResult() Car make doesn't match" +
+                    Log.d(TAG,"setPidCommunicationParameters() Car make doesn't match" +
                             " any of the 'safe cars' setting supported pids to "+supportedPids);
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,TIME_INTERVAL_DEFAULT);
                 }
@@ -176,15 +176,13 @@ public class PidDataHandler {
 
             @Override
             public void onNoCarFound() {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onNoCarFound()");
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onNoCarFound()");
                 //Do nothing, car is probably being added and will handle supported pids again
             }
 
             @Override
             public void onError(RequestError error) {
-                Log.d(TAG,"handleSupportedPidResult() getCarByVinUseCase().onError()");
-                bluetoothDataHandlerManager.setPidsToBeSent(
-                        getSupportedPid(pids,PID_COUNT_DEFAULT),TIME_INTERVAL_DEFAULT);
+                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onError()");
             }
         });
     }
