@@ -37,7 +37,7 @@ public class EmissionsReport {
     private String ignition;
     private String components;
     private String fuelSystem;
-    private String NMHCCataclyst;
+    private String NMHCCatalyst;
     private String boostPressure;
     private String EGRVTTSystem;
     private String exhaustSensor;
@@ -47,7 +47,7 @@ public class EmissionsReport {
     private boolean pass;
 
     public EmissionsReport(int id, String misfire, String ignition, String components
-            , String fuelSystem, String NMHCCataclyst, String boostPressure
+            , String fuelSystem, String NMHCCatalyst, String boostPressure
             , String EGRVTTSystem, String exhaustSensor, String NOxSCRMonitor
             , String PMFilterMonitoring, Date createdAt, boolean pass) {
 
@@ -56,7 +56,7 @@ public class EmissionsReport {
         this.ignition = ignition;
         this.components = components;
         this.fuelSystem = fuelSystem;
-        this.NMHCCataclyst = NMHCCataclyst;
+        this.NMHCCatalyst = NMHCCatalyst;
         this.boostPressure = boostPressure;
         this.EGRVTTSystem = EGRVTTSystem;
         this.exhaustSensor = exhaustSensor;
@@ -106,12 +106,12 @@ public class EmissionsReport {
         this.fuelSystem = fuelSystem;
     }
 
-    public String getNMHCCataclyst() {
-        return NMHCCataclyst;
+    public String getNMHCCatalyst() {
+        return NMHCCatalyst;
     }
 
-    public void setNMHCCataclyst(String NMHCCataclyst) {
-        this.NMHCCataclyst = NMHCCataclyst;
+    public void setNMHCCatalyst(String NMHCCatalyst) {
+        this.NMHCCatalyst = NMHCCatalyst;
     }
 
     public String getBoostPressure() {

@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.Pid;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
@@ -25,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.R.attr.data;
 
 /**
  * Created by Karol Zdebel on 9/19/2017.
@@ -98,6 +101,33 @@ public class ReportRepository implements Repository {
                     }
 
                 }, body);
+    }
+
+    private EmissionsReport jsonToEmissionsReport(String stringResponse){
+        try{
+            JSONObject response = new JSONObject(stringResponse);
+            int id = response.getInt("id");
+            JSONObject content = response.getJSONObject("content");
+            JSONObject data = content.getJSONObject("data");
+            String misfire = data.getString("Misfire");
+            String ignition = data.getString("Ignition");
+            String components = data.getString("Components");
+            String fuelSystem = data.getString("Fuel System");
+            String NMHCCatalyst = data.getString("NMHC Catalyst");
+            String boostPressure = data.getString("Boost Pressure");
+            String EGRVTTSystem = data.getString("EGR/VTT System");
+            String exhaustSensor = data.getString("Exhaust Sensor");
+            String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
+            String PMFilterMonitoring= data.getString("PM Filter Monitoring");
+            boolean pass = data.getBoolean("pass");
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                    .parse(content.getString("createdAt"));
+            return new EmissionsReport(id, misfire, ignition, components
+                    , fuelSystem, NMHCCatalyst, boostPressure, EGRVTTSystem
+                    , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
+        }catch(JSONException | ParseException e){
+            e.printStackTrace();
+        }
     }
 
     public void createVehicleHealthReport(int carId, boolean isInternal
