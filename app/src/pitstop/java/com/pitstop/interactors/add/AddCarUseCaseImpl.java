@@ -138,6 +138,11 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                                     @Override
                                     public void onSuccess(ObdScanner obdScanner) {
+                                        if (obdScanner == null){
+                                            AddCarUseCaseImpl.this.onError(
+                                                    RequestError.getUnknownError());
+                                            return;
+                                        }
                                         Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
                                                 +obdScanner.getScannerId()
                                                 +", active?"+obdScanner.getStatus());
