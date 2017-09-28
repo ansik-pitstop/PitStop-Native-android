@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
@@ -57,6 +58,45 @@ public class ReportRepository implements Repository {
                 callback.onError(requestError);
             }
         });
+    }
+
+    public void createEmissionsReport(int carId, boolean isInternal
+            , DtcPackage dtc, PidPackage pid, Callback<EmissionsReport> callback){
+
+        Log.d(TAG,"createEmissionsReport() carId: "+carId+", isInternal: "
+                +isInternal+", dtc: "+dtc+", pid: "+pid);
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("engineCodes", dtcPackageToJSON(dtc));
+            body.put("isInternal", pidPackageToJSON(pid));
+            body.put("isInternal", isInternal);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,"createEmissionsReport() body: "+body);
+
+        networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
+                , (response, requestError) -> {
+
+                    if (requestError == null){
+                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
+//                        EmissionsReport emissionsReport = jsonToEmissionsReport(response);
+//                        if (emissionsReport == null){
+//                            Log.d(TAG,"Error parsing response.");
+//                            callback.onError(RequestError.getUnknownError());
+//                        }
+//                        else{
+//                            callback.onSuccess(emissionsReport);
+//                        }
+
+                    }else{
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        callback.onError(requestError);
+                    }
+
+                }, body);
     }
 
     public void createVehicleHealthReport(int carId, boolean isInternal
