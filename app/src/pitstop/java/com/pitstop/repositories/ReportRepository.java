@@ -69,7 +69,7 @@ public class ReportRepository implements Repository {
 
         try {
             body.put("engineCodes", dtcPackageToJSON(dtc));
-            body.put("isInternal", pidPackageToJSON(pid));
+            body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -107,7 +107,7 @@ public class ReportRepository implements Repository {
 
         try {
             body.put("engineCodes", dtcPackageToJSON(dtc));
-            body.put("isInternal", pidPackageToJSON(pid));
+            body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
         } catch (JSONException e) {
             e.printStackTrace();
