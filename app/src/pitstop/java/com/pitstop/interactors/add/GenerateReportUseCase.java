@@ -3,6 +3,7 @@ package com.pitstop.interactors.add;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.interactors.Interactor;
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 
@@ -13,7 +14,9 @@ import com.pitstop.network.RequestError;
 public interface GenerateReportUseCase extends Interactor {
 
     interface Callback{
-        void onReportAdded(VehicleHealthReport vehicleHealthReport);
+        void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport);
+        void onReportAdded(VehicleHealthReport vehicleHealthReport
+                , EmissionsReport emissionsReport);
         void onError(RequestError requestError);
     }
 

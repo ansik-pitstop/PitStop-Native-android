@@ -62,7 +62,7 @@ public class ReportRepository implements Repository {
 
     public void createEmissionsReport(int carId, boolean isInternal
             , DtcPackage dtc, PidPackage pid, Callback<EmissionsReport> callback){
-
+        pid.pids.put("2141","0F0C14FF");
         Log.d(TAG,"createEmissionsReport() carId: "+carId+", isInternal: "
                 +isInternal+", dtc: "+dtc+", pid: "+pid);
         JSONObject body = new JSONObject();
@@ -92,7 +92,8 @@ public class ReportRepository implements Repository {
 //                        }
 
                     }else{
-                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage()
+                                +", error: "+requestError.getError()+", response code: "+requestError.getStatusCode());
                         callback.onError(requestError);
                     }
 

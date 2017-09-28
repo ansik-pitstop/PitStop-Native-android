@@ -13,6 +13,7 @@ import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -139,8 +140,16 @@ public class VHRMacroUseCase {
             ((GenerateReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
                     , new GenerateReportUseCase.Callback() {
                         @Override
-                        public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
+                        public void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport) {
+                            Log.d(TAG,"onReportAddedWithoutEmissions() vhr: "+vehicleHealthReport);
                             generatedReport = vehicleHealthReport;
+                        }
+
+                        @Override
+                        public void onReportAdded(VehicleHealthReport vehicleHealthReport
+                                , EmissionsReport emissionsReport) {
+                            Log.d(TAG,"onReportAdded() vhr: "
+                                    +vehicleHealthReport+", et: "+emissionsReport);
                         }
 
                         @Override
