@@ -30,7 +30,6 @@ import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
 import com.pitstop.bluetooth.handler.PidDataHandler;
-import com.pitstop.bluetooth.handler.RtcDataHandler;
 import com.pitstop.bluetooth.handler.TripDataHandler;
 import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
@@ -117,7 +116,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private DtcDataHandler dtcDataHandler;
     private TripDataHandler tripDataHandler;
     private VinDataHandler vinDataHandler;
-    private RtcDataHandler rtcDataHandler;
     private FreezeFrameDataHandler freezeFrameDataHandler;
 
     //Other useful objects
@@ -283,7 +281,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.dtcDataHandler = new DtcDataHandler(this,getApplicationContext());
         this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
-        this.rtcDataHandler = new RtcDataHandler(this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
 
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
@@ -609,7 +606,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             try{
                 long rtcTime = Long.valueOf(parameterPackage.value);
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
-                rtcDataHandler.handleRtcData(rtcTime,currentDeviceId);
+                trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,currentDeviceId
+                        ,String.valueOf(rtcTime));
                 notifyRtc(rtcTime);
             }
             catch(Exception e){
