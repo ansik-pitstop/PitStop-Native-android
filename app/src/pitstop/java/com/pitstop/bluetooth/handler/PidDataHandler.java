@@ -77,7 +77,9 @@ public class PidDataHandler {
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
                 public void onSuccess() {
-                    BluetoothDataVisualizer.visualizePidDataSent(true,context);
+                    if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+                        BluetoothDataVisualizer.visualizePidDataSent(true,context);
+                    }
                     Log.d(TAG,"Successfully handled pids.");
                 }
 

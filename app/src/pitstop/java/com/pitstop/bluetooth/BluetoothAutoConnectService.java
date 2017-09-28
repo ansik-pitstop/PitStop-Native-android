@@ -450,9 +450,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean requestPidInitialization() {
-        Log.d(TAG,"requestPidInitialization() readyDevice.getVin(): "+readyDevice.getVin());
         if (deviceConnState.equals(State.CONNECTED_VERIFIED) && readyDevice != null
                 && readyDevice.getVin() != null){
+            Log.d(TAG,"requestPidInitialization() readyDevice.getVin(): "+readyDevice.getVin());
             pidDataHandler.setDefaultPidCommunicationParameters(readyDevice.getVin());
             return true;
         }
