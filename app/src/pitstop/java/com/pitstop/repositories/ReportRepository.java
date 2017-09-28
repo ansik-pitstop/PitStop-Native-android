@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.EmissionsReport;
-import com.pitstop.models.Pid;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
@@ -26,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.R.attr.data;
 
 /**
  * Created by Karol Zdebel on 9/19/2017.
@@ -127,6 +124,7 @@ public class ReportRepository implements Repository {
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
         }catch(JSONException | ParseException e){
             e.printStackTrace();
+            return null;
         }
     }
 
