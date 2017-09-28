@@ -245,7 +245,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
             dataListener.getBluetoothState(btConnectionState);
-            communicator.bluetoothStateChanged(state);
+            if (communicator != null){
+                communicator.bluetoothStateChanged(state);
+            }
         }
     }
 
