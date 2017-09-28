@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.Settings;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
@@ -16,7 +17,7 @@ import com.pitstop.repositories.UserRepository;
  * Created by Karol Zdebel on 9/19/2017.
  */
 
-public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReportUseCase {
+public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -29,7 +30,7 @@ public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReport
     private DtcPackage dtc;
     private Callback callback;
 
-    public AddVehicleHealthReportUseCaseImpl(ReportRepository reportRepository
+    public GenerateReportUseCaseImpl(ReportRepository reportRepository
             , UserRepository userRepository, Handler mainHandler, Handler useCaseHandler) {
         this.reportRepository = reportRepository;
         this.userRepository = userRepository;
@@ -58,29 +59,45 @@ public class AddVehicleHealthReportUseCaseImpl implements AddVehicleHealthReport
     public void run() {
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onSuccess(Settings data) {
-                if (!data.hasMainCar()) AddVehicleHealthReportUseCaseImpl
-                        .this.onError(RequestError.getUnknownError());
-                reportRepository.createVehicleHealthReport(data.getCarId(), false, dtc, pid
-                        , new Repository.Callback<VehicleHealthReport>() {
-                    @Override
-                    public void onSuccess(VehicleHealthReport report) {
-                        Log.d(TAG,"onSuccess() report: "+report);
-                        AddVehicleHealthReportUseCaseImpl.this.onReportAdded(report);
-                    }
+            public void onSuccess(Settings settings) {
 
-                    @Override
-                    public void onError(RequestError error) {
-                        Log.d(TAG,"onError() error: "+error);
-                        AddVehicleHealthReportUseCaseImpl.this.onError(error);
-                    }
-                });
+                if (!settings.hasMainCar()) GenerateReportUseCaseImpl
+                        .this.onError(RequestError.getUnknownError());
+
+                reportRepository.createEmissionsReport(settings.getCarId()
+                        , false, dtc, pid, new Repository.Callback<EmissionsReport>() {
+                            
+                            @Override
+                            public void onSuccess(EmissionsReport emissionsReport) {
+
+                                reportRepository.createVehicleHealthReport(settings.getCarId(), false, dtc, pid
+                                        , new Repository.Callback<VehicleHealthReport>() {
+                                            @Override
+                                            public void onSuccess(VehicleHealthReport report) {
+                                                Log.d(TAG,"onSuccess() report: "+report);
+                                                GenerateReportUseCaseImpl.this.onReportAdded(report);
+                                            }
+
+                                            @Override
+                                            public void onError(RequestError error) {
+                                                Log.d(TAG,"onError() error: "+error);
+                                                GenerateReportUseCaseImpl.this.onError(error);
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                GenerateReportUseCaseImpl.this.onError(error);
+                            }
+                        });
+
 
             }
 
             @Override
             public void onError(RequestError error) {
-                AddVehicleHealthReportUseCaseImpl.this.onError(error);
+                GenerateReportUseCaseImpl.this.onError(error);
             }
         });
     }

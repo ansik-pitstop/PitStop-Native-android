@@ -4,7 +4,7 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
@@ -137,7 +137,7 @@ public interface UseCaseComponent {
 
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
 
-    AddVehicleHealthReportUseCase getAddVehicleReportUseCase();
+    GenerateReportUseCase getAddVehicleReportUseCase();
 
     GetVehicleHealthReportsUseCase getGetVehicleHealthReportsUseCase();
 

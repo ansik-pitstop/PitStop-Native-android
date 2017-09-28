@@ -13,8 +13,8 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
+import com.pitstop.interactors.add.GenerateReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -446,11 +446,11 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddVehicleHealthReportUseCase addVehicleHealthReportUseCase(ReportRepository reportRepository
+    GenerateReportUseCase addVehicleHealthReportUseCase(ReportRepository reportRepository
             , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
             , @Named("useCaseHandler")Handler useCaseHandler){
 
-        return new AddVehicleHealthReportUseCaseImpl(reportRepository,userRepository
+        return new GenerateReportUseCaseImpl(reportRepository,userRepository
                 ,mainHandler,useCaseHandler);
     }
 

@@ -7,8 +7,8 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
+import com.pitstop.interactors.add.GenerateReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
@@ -130,14 +130,14 @@ public class VHRMacroUseCase {
                 }
             });
         }
-        else if (current instanceof AddVehicleHealthReportUseCaseImpl){
+        else if (current instanceof GenerateReportUseCaseImpl){
             callback.onStartGeneratingReport();
             if (retrievedPid == null || retrievedDtc == null){
                 callback.onErrorGeneratingReport();
                 return;
             }
-            ((AddVehicleHealthReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
-                    , new AddVehicleHealthReportUseCase.Callback() {
+            ((GenerateReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
+                    , new GenerateReportUseCase.Callback() {
                         @Override
                         public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
                             generatedReport = vehicleHealthReport;

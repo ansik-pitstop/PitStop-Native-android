@@ -162,7 +162,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("id",entry.getKey());
                 dtcJson.put("data",entry.getValue());
-                dtcJson.put("rtcTime",pidPackage.rtcTime);
+                dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime));
                 pidArr.put(dtcJson);
             }catch(JSONException e){
                 e.printStackTrace();

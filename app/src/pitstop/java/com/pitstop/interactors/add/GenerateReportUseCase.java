@@ -10,7 +10,7 @@ import com.pitstop.network.RequestError;
  * Created by Karol Zdebel on 9/19/2017.
  */
 
-public interface AddVehicleHealthReportUseCase extends Interactor {
+public interface GenerateReportUseCase extends Interactor {
 
     interface Callback{
         void onReportAdded(VehicleHealthReport vehicleHealthReport);
