@@ -26,11 +26,10 @@ public class LocalSpecsStorage {
 
     public LocalSpecsStorage(Context context){
         this.databaseHelper = LocalDatabaseHelper.getInstance(context);
-
-
     }
 
-    public void storeLicensePlate(int carID, String licensePlate){
+    public void storeLicensePlate(int carID, String licensePlate, Repository.Callback<String> callback){
+        Log.d(TAG, "storeLicensePlate " + Integer.toString(carID) + " " + licensePlate );
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.execSQL(LocalSpecsStorage.CREATE_LOCAL_SPEC_STORAGE);
         ContentValues values = new ContentValues();
@@ -38,11 +37,12 @@ public class LocalSpecsStorage {
         values.put(TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE, licensePlate);
         Log.d("LocalSpecsStorage", Integer.toString(carID) + " " + licensePlate);
         long result = db.insert(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, values);
+        callback.onSuccess(licensePlate);
 
     }
 
     public void getLicensePlate(int carID, Repository.Callback<String> callback){
-
+        Log.d(TAG, "getLicensePlate " + Integer.toString(carID));
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         String[] values = {String.valueOf(carID)};
 
@@ -58,17 +58,15 @@ public class LocalSpecsStorage {
     }
 
     public void deleteRecord(int carID){
+        Log.d(TAG, "deleteLicensePlate " + Integer.toString(carID));
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         String[] values = {String.valueOf(carID)};
         db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values);
     }
 
-    public void delete(){
+    public void deleteAllRecords(Repository.Callback<Void> callback){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, null);
     }
-
-
-
 
 }

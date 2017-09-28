@@ -130,6 +130,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.getLicensePlate(carId);
+        presenter.getCarImage(bundle.getString(CAR_VIN_KEY));
     }
 
     @Override

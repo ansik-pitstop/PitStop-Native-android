@@ -25,6 +25,8 @@ import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
@@ -488,4 +490,12 @@ public class UseCaseModule {
 
         return new SortVehicleHealthReportUseCaseImpl(useCaseHandler, mainHandler);
     }
+
+    @Provides
+    GetCarStyleIDUseCase getCarStyleIDUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler,NetworkHelper networkHelper){
+        return new GetCarStyleIDUSeCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+
 }

@@ -6,6 +6,7 @@ import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.models.Notification;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
         this.carLicensePlate = plate;
         useCaseHandler.post(this);
     }
-/*
+
 
     public void onError(RequestError error){
 
@@ -59,11 +60,21 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
             }
         });
     }
-*/
 
     @Override
     public void run() {
         localSpecsStorage.deleteRecord(carID);
-        localSpecsStorage.storeLicensePlate(carID, carLicensePlate);
+        localSpecsStorage.storeLicensePlate(carID, carLicensePlate, new Repository.Callback<String>() {
+            @Override
+            public void onSuccess(String data) {
+                AddLicensePlateUseCaseImpl.this.onLicensePlateStored(data);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                AddLicensePlateUseCaseImpl.this.onError(error);
+
+            }
+        });
     }
 }
