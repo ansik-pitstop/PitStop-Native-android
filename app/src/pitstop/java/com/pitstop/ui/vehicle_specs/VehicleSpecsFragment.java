@@ -248,12 +248,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         }
         buyDeviceDialog.show();
     }
-
     private void openPitstopAmazonLink() {
         Log.d(TAG, "openPitstopAmazonLink()");
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
         startActivity(browserIntent);
     }
-
-
 }

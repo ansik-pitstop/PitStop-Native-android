@@ -55,7 +55,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @BindView(R.id.contact_view)
     View contactView;
 
-
     @BindView(R.id.car_recycler_view)
     RecyclerView carRecyclerView;
 
@@ -268,6 +267,12 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
         startActivity(intent);
+
+    }
+
+    @Override
+    public void noCarsView() {
+        appointmentsView.setVisibility(View.GONE);
 
     }
 

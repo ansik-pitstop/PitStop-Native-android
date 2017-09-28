@@ -226,6 +226,10 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
                     updating = false;
+                    if (cars.size() == 0){
+                        getView().noCarsView();
+                        return;
+                    }
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {

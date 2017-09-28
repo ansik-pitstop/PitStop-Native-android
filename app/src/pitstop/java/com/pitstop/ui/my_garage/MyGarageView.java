@@ -29,4 +29,6 @@ public interface MyGarageView {
     void showCars(List<Car> carList);
 
     void openSpecsActivity(Car car);
+
+    void noCarsView();
 }
