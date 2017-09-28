@@ -129,4 +129,5 @@ public interface UseCaseComponent {
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
 
     GetCarByVinUseCase getCarByVinUseCase();
+
 }
