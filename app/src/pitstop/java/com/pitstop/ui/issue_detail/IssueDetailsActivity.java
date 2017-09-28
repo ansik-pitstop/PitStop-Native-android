@@ -77,7 +77,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
         issuesPager.setOffscreenPageLimit(5);
         issuesPager.setPageMargin(- (int) (1.5 * UiUtils.convertDpToPixel(24, this)));
         for (int index = 0; index < allIssues.size(); index++){
-            if (carIssue.getId() == allIssues.get(index).getId()){
+            //Todo: below needs better logic which requires some redesigning
+            if (carIssue.getDescription().equals(allIssues.get(index).getDescription())
+                    && carIssue.getPriority() == allIssues.get(index).getPriority()
+                    && carIssue.getItem().equals(allIssues.get(index).getItem())){
                 issuesPager.setCurrentItem(index);
                 break;
             }

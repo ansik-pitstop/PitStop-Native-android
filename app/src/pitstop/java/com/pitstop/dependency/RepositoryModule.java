@@ -10,6 +10,7 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.PidRepository;
+import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.Device215TripRepository;
@@ -76,5 +77,11 @@ public class RepositoryModule {
     @Singleton
     PidRepository getPidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage){
         return new PidRepository(networkHelper,localPidStorage);
+    }
+
+    @Provides
+    @Singleton
+    ReportRepository getReportRepository(NetworkHelper networkHelper){
+        return new ReportRepository(networkHelper);
     }
 }

@@ -77,7 +77,9 @@ public class PidDataHandler {
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
                 public void onSuccess() {
-                    BluetoothDataVisualizer.visualizePidDataSent(true,context);
+                    if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+                        BluetoothDataVisualizer.visualizePidDataSent(true,context);
+                    }
                     Log.d(TAG,"Successfully handled pids.");
                 }
 
@@ -121,7 +123,7 @@ public class PidDataHandler {
 
     public void setDefaultPidCommunicationParameters(String vin){
         Log.d(TAG,"setDefaultPidCommunicationParameters() vin: "+vin);
-        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+        useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
                 if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
@@ -152,7 +154,7 @@ public class PidDataHandler {
     public void setPidCommunicationParameters(String[] pids, String vin){
         Log.d(TAG,"setPidCommunicationParameters() pids: "+pids+", vin: "+vin);
 
-        useCaseComponent.getCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
+        useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
                 if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)

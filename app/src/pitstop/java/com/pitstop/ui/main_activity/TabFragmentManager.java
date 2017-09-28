@@ -24,7 +24,7 @@ public class TabFragmentManager {
     public static final int TAB_SCAN = 2;
     public static final int TAB_NOTIF = 3;
 
-    public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report ","Notifications"};
 
     @BindView(R.id.main_tablayout)
     TabLayout mTabLayout;
@@ -80,7 +80,7 @@ public class TabFragmentManager {
                         mMixpanelHelper.trackSwitchedToTab("Services");
                         break;
                     case TAB_SCAN:
-                        mMixpanelHelper.trackSwitchedToTab("Scan");
+                        mMixpanelHelper.trackSwitchedToTab("Health");
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");

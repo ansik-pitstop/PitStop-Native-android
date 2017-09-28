@@ -471,7 +471,7 @@ public class Device215B implements AbstractDevice {
 
                         DtcPackage dtcPackage = new DtcPackage();
 
-                        dtcPackage.isPending = idrInfo.dtc.charAt(0) == '1';
+                        boolean isPending = idrInfo.dtc.charAt(0) == '1';
 
                         // first element is dtc type
                         for(int i = 1 ; i < unparsedDtcCodes.length ; i++) {
@@ -480,15 +480,11 @@ public class Device215B implements AbstractDevice {
 
                         List<FaultInfo> faultInfo = FaultParse.parse(context, unparsedDtcCodes);
 
-                        String[] dtcCodes = new String[faultInfo.size()];
+                        dtcPackage.dtcs = new HashMap<>();
 
                         for(int i = 1 ; i < faultInfo.size() ; i++) {
-                            dtcCodes[i] = faultInfo.get(i).code;
+                            dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
                         }
-
-                        dtcPackage.dtcs = dtcCodes;
-
-                        dtcPackage.dtcNumber = dtcCodes.length;
 
                         try {
                             dtcPackage.rtcTime = String.valueOf(parseRtcTime(idrInfo.ignitionTime)
@@ -631,7 +627,7 @@ public class Device215B implements AbstractDevice {
 
                 DtcPackage dtcPackage = new DtcPackage();
 
-                dtcPackage.isPending = dtcInfo.dtcType == 1;
+                boolean isPending = dtcInfo.dtcType == 1;
 
                 // dtc example:
                 // $$HT-IDD215B-S00V002,DTC,1,04,4,07470107,07470207,07470307,07474307,*308F\r\n
@@ -645,15 +641,11 @@ public class Device215B implements AbstractDevice {
 
                 List<FaultInfo> faultInfo = FaultParse.parse(context, unparsedDtcCodes);
 
-                String[] dtcCodes = new String[faultInfo.size()];
+                dtcPackage.dtcs = new HashMap<>();
 
                 for(int i = 0 ; i < faultInfo.size() ; i++) {
-                    dtcCodes[i] = faultInfo.get(i).code;
+                    dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
                 }
-
-                dtcPackage.dtcs = dtcCodes;
-
-                dtcPackage.dtcNumber = dtcCodes.length;
 
                 dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
 

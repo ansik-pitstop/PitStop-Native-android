@@ -89,7 +89,7 @@ public class VinEntryPresenter {
                     public void onCarAddedWithBackendShop(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);addingCar = false;
+                                ,MixpanelHelper.SUCCESS);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -101,7 +101,7 @@ public class VinEntryPresenter {
                     public void onCarAdded(Car car) {
                         Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);addingCar = false;
+                                ,MixpanelHelper.SUCCESS);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -113,7 +113,7 @@ public class VinEntryPresenter {
                     public void onError(RequestError error) {
                         Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.ADD_CAR_STEP_RESULT_FAILED);addingCar = false;
+                                ,MixpanelHelper.FAIL);addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -156,7 +156,7 @@ public class VinEntryPresenter {
 
         //Got VIN manually with success
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
-                , MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+                , MixpanelHelper.SUCCESS);
 
         //Add vehicle logic below
         int mileage = Integer.valueOf(view.getMileage());
@@ -170,7 +170,7 @@ public class VinEntryPresenter {
         if (view == null || result == null) return;
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
-                ,MixpanelHelper.ADD_CAR_STEP_RESULT_SUCCESS);
+                ,MixpanelHelper.SUCCESS);
 
         view.displayVin(result);
 
