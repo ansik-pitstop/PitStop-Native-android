@@ -25,6 +25,8 @@ import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCaseImpl;
 import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
@@ -495,6 +497,12 @@ public class UseCaseModule {
     GetCarStyleIDUseCase getCarStyleIDUseCase( @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler,NetworkHelper networkHelper){
         return new GetCarStyleIDUSeCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+    @Provides
+    GetCarImagesArrayUseCase getCarImagesArrayUseCase (@Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, NetworkHelper networkHelper){
+        return new GetCarImagesArrayUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
     }
 
 

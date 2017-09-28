@@ -8,8 +8,10 @@
         android:layout_height="wrap_content">
 
     <ImageView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/car_pic"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="200dp" />
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"

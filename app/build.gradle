@@ -142,6 +142,7 @@ dependencies {
     compile 'com.facebook.stetho:stetho-urlconnection:1.5.0'
     compile 'io.smooch:core:latest.release'
     compile 'io.smooch:ui:latest.release'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'

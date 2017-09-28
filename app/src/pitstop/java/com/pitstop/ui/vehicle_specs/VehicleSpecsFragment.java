@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.ui.Notifications.NotificationsPresenter;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +56,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
     private VehicleSpecsPresenter presenter;
+
+    @BindView(R.id.car_pic)
+    ImageView carPic;
 
     @BindView(R.id.dealership_tv)
     TextView dealership;
@@ -140,6 +145,11 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         super.onDestroyView();
     }
 
+    @Override
+    public void showImage(String s) {
+        Picasso.with(getActivity()).load(s).into(carPic);
+    }
+
     public void setView(){
         Log.d(TAG, "setView()");
         carVin.setText(bundle.getString(CAR_VIN_KEY));
@@ -214,9 +224,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Log.d(TAG, "onScannerViewClicked()");
         if (bundle.getString(SCANNER_ID_KEY) == null){
             showBuyDeviceDialog();
-
         }
-
     }
 
     private void showBuyDeviceDialog() {
@@ -229,7 +237,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     .setTitle("Purchase Pitstop Device")
                     .setView(dialogLayout)
                     .setMessage("It appears you do not have a Pitstop device paired to this " +
-                                "car.With the device,we can trach your car's engine " +
+                                "car.With the device,we can track your car's engine " +
                                     "mileage, fuel consumption, trips, engine codes, and " +
                                     "driving alarms. If you would like all these features, " +
                             "please purchase a device and connect it to your car. ")

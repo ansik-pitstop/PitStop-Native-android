@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.network.RequestError;
@@ -24,6 +25,8 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private boolean updating;
+
+    public static final String BASE_URL_PHOTO = "https://media.ed.edmunds-media.com";
 
     public VehicleSpecsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -60,6 +63,18 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             @Override
             public void onStyleIDGot(String styleID) {
                 Log.d(TAG, styleID);
+                useCaseComponent.getCarImagesArrayUseCase().execute(styleID, new GetCarImagesArrayUseCase.Callback() {
+                    @Override
+                    public void onArrayGot(String imageLink) {
+                        view.showImage(BASE_URL_PHOTO + imageLink);
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        Log.d(TAG, error.getMessage());
+
+                    }
+                });
             }
 
             @Override

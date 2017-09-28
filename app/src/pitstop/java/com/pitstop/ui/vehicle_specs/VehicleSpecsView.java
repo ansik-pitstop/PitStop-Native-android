@@ -8,4 +8,5 @@ public interface VehicleSpecsView {
 
     void showLicensePlate(String s);
     void toast(String message);
+    void showImage(String s);
 }
