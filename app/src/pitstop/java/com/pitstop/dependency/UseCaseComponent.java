@@ -144,4 +144,5 @@ public interface UseCaseComponent {
     SortVehicleHealthReportsUseCase getSortVehicleHealthReportsUseCase();
 
     GetCarByVinUseCase getGetCarByVinUseCase();
+
 }
