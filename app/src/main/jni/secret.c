@@ -45,12 +45,12 @@ Java_com_pitstop_utils_SecretUtils_getMixpanelTokenProd(JNIEnv *env, jobject ins
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getSmoochTokenDev(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "57e40bb1192d9e45009811b3");
+    return (*env) ->  NewStringUTF(env, "5ne26uy9j2g92krka9h7jhwxx");
 }
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getSmoochTokenProd(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "56c53046d0f0b42f009e813c");
+    return (*env) ->  NewStringUTF(env, "0xs5j98mds1x8mn77ptw4knc5");
 }
 
 // Parse
