@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 
 /**
@@ -8,4 +9,5 @@ import com.pitstop.models.report.VehicleHealthReport;
 
 public interface ReportHolder {
     VehicleHealthReport getVehicleHealthReport();
+    EmissionsReport getEmissionsReport();
 }

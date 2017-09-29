@@ -116,9 +116,9 @@ public class ReportRepository implements Repository {
             String exhaustSensor = data.getString("Exhaust Sensor");
             String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
             String PMFilterMonitoring= data.getString("PM Filter Monitoring");
-            boolean pass = data.getBoolean("pass");
+            boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                    .parse(content.getString("createdAt"));
+                    .parse(response.getString("createdAt"));
             return new EmissionsReport(id, misfire, ignition, components
                     , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
