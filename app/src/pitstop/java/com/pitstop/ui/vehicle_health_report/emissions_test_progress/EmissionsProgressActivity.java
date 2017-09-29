@@ -1,7 +1,5 @@
 package com.pitstop.ui.vehicle_health_report.emissions_test_progress;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MenuItem;
@@ -20,8 +19,8 @@ import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress_view.InProgressFragment;
+import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;
 
 import org.json.JSONObject;
 
@@ -34,7 +33,6 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     private final String TAG = getClass().getSimpleName();
 
     private EmissionsProgressPresenter presenter;
-    private FragmentManager fragmentManager;
     private InProgressFragment inProgressFragment;
     private EmissionsReportFragment emissionsReportFragment;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
@@ -69,7 +67,6 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
-        fragmentManager = getFragmentManager();
         presenter = new EmissionsProgressPresenter(this);
         inProgressFragment = new InProgressFragment();
         emissionsReportFragment = new EmissionsReportFragment();
@@ -108,7 +105,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     @Override
     public void setViewProgress() {
         Log.d(TAG,"setViewProgress()");
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,inProgressFragment);
         transaction.commit();
     }
@@ -118,7 +115,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     public void setViewReport(JSONObject emissionsResults) {
         Log.d(TAG,"setViewReport()");
         emissionsReportFragment.setResult(emissionsResults);
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,emissionsReportFragment);
         transaction.commit();
     }
