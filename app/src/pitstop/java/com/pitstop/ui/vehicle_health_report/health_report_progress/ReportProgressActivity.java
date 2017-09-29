@@ -16,14 +16,14 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.vehicle_health_report.health_report_view.HealthReportFragment;
+import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 
 /**
  * Created by Matt on 2017-08-14.
  */
 
-public class ReportActivity extends IBluetoothServiceActivity
+public class ReportProgressActivity extends IBluetoothServiceActivity
         implements ReportView,ReportCallback, ReportHolder {
 
     private final String TAG = getClass().getSimpleName();

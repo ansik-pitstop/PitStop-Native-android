@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.health_report_view;
+package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
 import android.util.Log;
 

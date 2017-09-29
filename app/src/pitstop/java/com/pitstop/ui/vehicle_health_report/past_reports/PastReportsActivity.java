@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
-import com.pitstop.ui.vehicle_health_report.health_report_view.HealthReportFragment;
+import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
 
 /**
  * Created by Karol Zdebel on 9/21/2017.

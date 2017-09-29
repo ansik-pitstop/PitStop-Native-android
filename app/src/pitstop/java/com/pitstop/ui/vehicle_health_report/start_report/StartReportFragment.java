@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.start_report_view;
+package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportProgressActivity;
 import com.pitstop.ui.vehicle_health_report.past_reports.PastReportsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -95,7 +95,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public void startVehicleHealthReportProgressActivity(){
         Log.d(TAG,"startVehicleHealthReportProgressActivity()");
-        Intent intent = new Intent(getActivity(), ReportActivity.class);
+        Intent intent = new Intent(getActivity(), ReportProgressActivity.class);
         startActivity(intent);
     }
 

@@ -269,7 +269,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
 
-        <activity android:name=".ui.vehicle_health_report.health_report_progress.ReportActivity"
+        <activity android:name=".ui.vehicle_health_report.health_report_progress.ReportProgressActivity"
           android:label="Vehicle Health Report"
             android:screenOrientation="portrait" />
 

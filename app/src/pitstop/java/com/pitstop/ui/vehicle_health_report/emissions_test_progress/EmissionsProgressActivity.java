@@ -20,7 +20,7 @@ import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
-import com.pitstop.ui.vehicle_health_report.emissions_test_progress.emissions_report_view.EmissionsReportFragment;
+import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress_view.InProgressFragment;
 
 import org.json.JSONObject;
