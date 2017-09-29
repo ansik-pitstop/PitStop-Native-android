@@ -115,7 +115,11 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
     @Override
     public void setReportView(VehicleHealthReport vehicleHealthReport, EmissionsReport emissionsReport) {
-
+        Log.d(TAG,"setReportView() vhr: "+vehicleHealthReport+", et: "+emissionsReport);
+        Intent intent = new Intent(ReportProgressActivity.this, ShowReportActivity.class);
+        intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
+        intent.putExtra(ShowReportActivity.EXTRA_ET,emissionsReport);
+        startActivity(intent);
     }
 
     @Override
