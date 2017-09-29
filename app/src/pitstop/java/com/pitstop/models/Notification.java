@@ -28,8 +28,11 @@ public class Notification extends ParseObject {
 
     public String getTitle()
     {
-        Log.d(TAG, getString(TITLE_KEY));
-        return getString(TITLE_KEY);
+        if (getString(TITLE_KEY)!=null) {
+            Log.d(TAG, getString(TITLE_KEY));
+            return getString(TITLE_KEY);
+        }
+        return "";
     }
 
     public String getPushType(){
@@ -39,13 +42,19 @@ public class Notification extends ParseObject {
     }
 
     public String getContent(){
-        Log.d(TAG, getString(CONTENT_KEY));
-        return getString(CONTENT_KEY);
+        if (getString(CONTENT_KEY)!= null) {
+            Log.d(TAG, getString(CONTENT_KEY));
+            return getString(CONTENT_KEY);
+        }
+        return "";
     }
 
     public String getDateCreated(){
+        if(getCreatedAt()!= null){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(getCreatedAt());
+        }
+        return "";
     }
 
     @Override
