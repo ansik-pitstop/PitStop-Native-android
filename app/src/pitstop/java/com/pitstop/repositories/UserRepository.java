@@ -153,7 +153,6 @@ public class UserRepository implements Repository{
                     try {
                         JSONObject options = new JSONObject(response).getJSONObject("user");
                         options.put("mainCar",carId);
-
                         JSONObject putOptions = new JSONObject();
                         putOptions.put("settings",options);
 

@@ -172,6 +172,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void showImage(String s) {
+        Log.d(TAG, "showImage()");
         carLogo.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
         carName.setVisibility(View.GONE);

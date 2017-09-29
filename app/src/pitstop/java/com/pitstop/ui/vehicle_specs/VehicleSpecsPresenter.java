@@ -118,11 +118,9 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             public void onUserCarSet() {
                 view.toast("Current Car Set");
             }
-
             @Override
             public void onError(RequestError error) {
                 view.toast(error.getMessage());
-
             }
         });
     }
