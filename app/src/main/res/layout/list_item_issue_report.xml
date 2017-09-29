@@ -57,6 +57,6 @@
         android:id="@+id/imageView47"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        app:srcCompat="@color/dark_grey" />
+        app:srcCompat="@color/grey" />
 
 </LinearLayout>

@@ -90,12 +90,6 @@
                 android:layout_height="match_parent" />
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/imageView42"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            app:srcCompat="@color/grey" />
-
         <RelativeLayout
             android:id="@+id/recall_list_button"
             android:background="@color/white"
@@ -173,12 +167,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </RelativeLayout>
-
-        <ImageView
-            android:id="@+id/imageView44"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            app:srcCompat="@color/grey" />
 
         <RelativeLayout
             android:id="@+id/service_list_button"
