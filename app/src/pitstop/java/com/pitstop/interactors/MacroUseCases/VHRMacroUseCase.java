@@ -47,7 +47,7 @@ public class VHRMacroUseCase {
     private final int TYPE_GENERATE_REPORT = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
-    private final int TIME_PADDING = 2;
+    private final int TIME_PADDING = 4;
 
     private Callback callback;
     private Queue<Interactor> interactorQueue;

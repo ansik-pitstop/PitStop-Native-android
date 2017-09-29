@@ -39,7 +39,7 @@ public class EmissionsReport {
     private String fuelSystem;
     private String NMHCCatalyst;
     private String boostPressure;
-    private String EGRVTTSystem;
+    private String EGRVVTSystem;
     private String exhaustSensor;
     private String NOxSCRMonitor;
     private String PMFilterMonitoring;
@@ -48,7 +48,7 @@ public class EmissionsReport {
 
     public EmissionsReport(int id, String misfire, String ignition, String components
             , String fuelSystem, String NMHCCatalyst, String boostPressure
-            , String EGRVTTSystem, String exhaustSensor, String NOxSCRMonitor
+            , String EGRVVTSystem, String exhaustSensor, String NOxSCRMonitor
             , String PMFilterMonitoring, Date createdAt, boolean pass) {
 
         this.id = id;
@@ -58,7 +58,7 @@ public class EmissionsReport {
         this.fuelSystem = fuelSystem;
         this.NMHCCatalyst = NMHCCatalyst;
         this.boostPressure = boostPressure;
-        this.EGRVTTSystem = EGRVTTSystem;
+        this.EGRVVTSystem = EGRVVTSystem;
         this.exhaustSensor = exhaustSensor;
         this.NOxSCRMonitor = NOxSCRMonitor;
         this.PMFilterMonitoring = PMFilterMonitoring;
@@ -122,12 +122,12 @@ public class EmissionsReport {
         this.boostPressure = boostPressure;
     }
 
-    public String getEGRVTTSystem() {
-        return EGRVTTSystem;
+    public String getEGRVVTSystem() {
+        return EGRVVTSystem;
     }
 
-    public void setEGRVTTSystem(String EGRVTTSystem) {
-        this.EGRVTTSystem = EGRVTTSystem;
+    public void setEGRVVTSystem(String EGRVVTSystem) {
+        this.EGRVVTSystem = EGRVVTSystem;
     }
 
     public String getExhaustSensor() {

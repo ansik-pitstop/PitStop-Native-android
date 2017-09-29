@@ -112,7 +112,7 @@ public class ReportRepository implements Repository {
             String fuelSystem = data.getString("Fuel System");
             String NMHCCatalyst = data.getString("NMHC Catalyst");
             String boostPressure = data.getString("Boost Pressure");
-            String EGRVTTSystem = data.getString("EGR/VTT System");
+            String EGRVVTSystem = data.getString("EGR/VVT System");
             String exhaustSensor = data.getString("Exhaust Sensor");
             String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
             String PMFilterMonitoring= data.getString("PM Filter Monitoring");
@@ -120,7 +120,7 @@ public class ReportRepository implements Repository {
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(content.getString("createdAt"));
             return new EmissionsReport(id, misfire, ignition, components
-                    , fuelSystem, NMHCCatalyst, boostPressure, EGRVTTSystem
+                    , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
         }catch(JSONException | ParseException e){
             e.printStackTrace();
