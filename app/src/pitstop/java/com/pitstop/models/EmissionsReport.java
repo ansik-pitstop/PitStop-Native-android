@@ -1,5 +1,8 @@
 package com.pitstop.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
@@ -30,7 +33,7 @@ import java.util.Date;
 // ,"updatedAt":null}
 // ,"meta":{}}
 
-public class EmissionsReport {
+public class EmissionsReport implements Parcelable{
 
     private int id;
     private String misfire;
@@ -65,6 +68,55 @@ public class EmissionsReport {
         this.createdAt = createdAt;
         this.pass = pass;
     }
+
+    protected EmissionsReport(Parcel in) {
+        id = in.readInt();
+        misfire = in.readString();
+        ignition = in.readString();
+        components = in.readString();
+        fuelSystem = in.readString();
+        NMHCCatalyst = in.readString();
+        boostPressure = in.readString();
+        EGRVVTSystem = in.readString();
+        exhaustSensor = in.readString();
+        NOxSCRMonitor = in.readString();
+        PMFilterMonitoring = in.readString();
+        pass = in.readByte() != 0;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+
+        parcel.writeInt(id);
+        parcel.writeString(misfire);
+        parcel.writeString(ignition);
+        parcel.writeString(components);
+        parcel.writeString(fuelSystem);
+        parcel.writeString(NMHCCatalyst);
+        parcel.writeString(boostPressure);
+        parcel.writeString(EGRVVTSystem);
+        parcel.writeString(exhaustSensor);
+        parcel.writeString(NOxSCRMonitor);
+        parcel.writeString(PMFilterMonitoring);
+        parcel.writeByte((byte) (pass ? 1 : 0));
+    }
+
+    public static final Creator<EmissionsReport> CREATOR = new Creator<EmissionsReport>() {
+        @Override
+        public EmissionsReport createFromParcel(Parcel in) {
+            return new EmissionsReport(in);
+        }
+
+        @Override
+        public EmissionsReport[] newArray(int size) {
+            return new EmissionsReport[size];
+        }
+    };
 
     public int getId() {
         return id;
