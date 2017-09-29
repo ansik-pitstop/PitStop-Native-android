@@ -273,6 +273,10 @@
           android:label="Vehicle Health Report"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".ui.vehicle_health_report.show_report.ShowReportActivity"
+            android:label="Report"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".ui.vehicle_health_report.past_reports.PastReportsActivity"
             android:label="Past Vehicle Health Reports"
             android:screenOrientation="portrait" />
