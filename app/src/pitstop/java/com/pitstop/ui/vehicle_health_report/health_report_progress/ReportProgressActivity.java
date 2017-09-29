@@ -25,7 +25,7 @@ import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_pro
  */
 
 public class ReportProgressActivity extends IBluetoothServiceActivity
-        implements ReportView,ReportCallback, ReportHolder {
+        implements ReportView,ReportCallback {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -33,7 +33,6 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
     private HealthReportProgressFragment healthReportProgressFragment;
     private HealthReportFragment healthReportFragment;
 
-    private VehicleHealthReport vehicleHealthReport;
     private FragmentManager fragmentManager;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
 
@@ -104,7 +103,6 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
     @Override
     public void setReportView(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"setReportView() report: "+vehicleHealthReport);
-        this.vehicleHealthReport = vehicleHealthReport;
         Intent intent = new Intent(ReportProgressActivity.this, ShowReportActivity.class);
         intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
         startActivity(intent);
@@ -135,10 +133,5 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
         else{
             return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public VehicleHealthReport getVehicleHealthReport() {
-        return vehicleHealthReport;
     }
 }

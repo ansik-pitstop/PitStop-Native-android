@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.past_reports;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,22 +9,17 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.pitstop.models.report.VehicleHealthReport;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
-import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
+import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 
 /**
  * Created by Karol Zdebel on 9/21/2017.
  */
 
-public class PastReportsActivity extends AppCompatActivity implements PastReportsViewSwitcher
-        , ReportHolder {
+public class PastReportsActivity extends AppCompatActivity implements PastReportsViewSwitcher{
 
     private final String TAG = getClass().getSimpleName();
 
     private final Fragment pastReportsFragment = new PastReportsFragment();
-    private final Fragment healthReportFragment = new HealthReportFragment();
-
-    private VehicleHealthReport vehicleHealthReport;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,17 +42,13 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     @Override
     public void setReportView(VehicleHealthReport vehicleHealthReport) {
         Log.d(TAG,"setReportView()");
-        this.vehicleHealthReport = vehicleHealthReport;
-        getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content,healthReportFragment)
-                .addToBackStack("pastReports->healthReportFragment")
-                .commit();
-    }
-
-    @Override
-    public VehicleHealthReport getVehicleHealthReport() {
-        Log.d(TAG,"getVehicleHealthReport()");
-        return vehicleHealthReport;
+        Intent intent = new Intent(PastReportsActivity.this, ShowReportActivity.class);
+        intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
+        startActivity(intent);
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(android.R.id.content,healthReportFragment)
+//                .addToBackStack("pastReports->healthReportFragment")
+//                .commit();
     }
 
     @Override
