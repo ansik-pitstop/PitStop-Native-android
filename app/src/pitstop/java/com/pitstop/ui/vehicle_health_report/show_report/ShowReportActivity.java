@@ -31,6 +31,8 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+        Log.d(TAG,"onCreate()");
         View rootView = getLayoutInflater().inflate(R.layout.activity_show_report
                 , findViewById(android.R.id.content));
         setContentView(rootView);
@@ -40,7 +42,7 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         this.vehicleHealthReport = getIntent().getParcelableExtra(EXTRA_VHR);
         this.emissionsReport = getIntent().getParcelableExtra(EXTRA_ET);
 
-        Log.d(TAG,"Retrievied vhr from parcel:" + vehicleHealthReport
+        Log.d(TAG,"Retrieved vhr from parcel:" + vehicleHealthReport
                 + ", retrieved et from parcel: "+emissionsReport);
 
         if (vehicleHealthReport != null){
@@ -50,7 +52,6 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
             displayEmissionsReport();
         }
 
-        super.onCreate(savedInstanceState, persistentState);
     }
 
     public void displayHealthReport(){

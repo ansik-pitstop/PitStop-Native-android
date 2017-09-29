@@ -1,6 +1,5 @@
 package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,8 +12,10 @@ import android.widget.TextView;
 
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.EmissionsReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
+import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -80,18 +81,19 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.pass)
     TextView pass;
 
-    private Context context;
     private boolean dropDownInProgress;
     private EmissionsReportPresenter presenter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-        context = getActivity().getApplicationContext();
         View view = inflater.inflate(R.layout.fragment_emissions_report,container,false);
-        dropDownInProgress = false;
-        presenter = new EmissionsReportPresenter();
         ButterKnife.bind(this,view);
+        dropDownInProgress = false;
+        MixpanelHelper mixpanelHelper = new MixpanelHelper(
+                (GlobalApplication)getActivity().getApplicationContext());
+        presenter = new EmissionsReportPresenter(mixpanelHelper);
+
         cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
         cellTwo.setOnClickListener(view12 -> presenter.onCellClicked(cellTwoDetails));
         cellThree.setOnClickListener(view13 -> presenter.onCellClicked(cellThreeDetails));
@@ -110,17 +112,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     }
 
     @Override
-    public void onResume() {
-        Log.d(TAG,"onResume()");
-        super.onResume();
-        presenter.subscribe(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d(TAG,"onDestroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
         presenter.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override
