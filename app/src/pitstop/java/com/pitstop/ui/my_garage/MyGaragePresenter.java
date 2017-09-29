@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -35,17 +36,19 @@ import static com.pitstop.ui.main_activity.MainActivity.RC_REQUEST_SERVICE;
 
 public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
-    // integers to let the adapter know whether to call the dealership or find directions to dealership
-    //their values are arbitrary
-
     private static final String TAG = MyGaragePresenter.class.getSimpleName();
-
     private HashMap<String, Object> customProperties;
     private List<Dealership> dealershipList;
     private List<Car> carList;
 
-    //
-    //public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
+    public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_MY_GARAGE);
+
+    public final EventType[] ignoredEvents = {
+            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
+            new EventTypeImpl(EventType.EVENT_DTC_NEW),
+            new EventTypeImpl(EventType.EVENT_MILEAGE),
+            new EventTypeImpl(EventType.EVENT_SERVICES_NEW)
+    };
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
@@ -58,23 +61,22 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
     }
 
-
-
     @Override
     public EventType[] getIgnoredEventTypes() {
-        return new EventType[0];
+        return ignoredEvents;
     }
 
     @Override
     public void onAppStateChanged() {
         dealershipList = null;
         carList = null;
+        getView().onUpdateNeeded();
 
     }
 
     @Override
     public EventSource getSourceType() {
-        return null;
+        return EVENT_SOURCE;
     }
 
 
@@ -135,6 +137,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     public void onCallClicked() {
+        Log.d(TAG, "onCallClicked()");
         if(getView() == null || updating) return;
         if (dealershipList == null) {
             updating = true;
@@ -180,6 +183,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
 
     public void onFindDirectionsClicked() {
+        Log.d(TAG, "onFindDirectionClicked()");
 
         if(getView() == null || updating) return;
         if (dealershipList == null) {
@@ -219,6 +223,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         }
     }
     public void loadCars() {
+        Log.d(TAG, "loadCars()");
         if(getView() == null|| updating) return;
         if (carList ==null){
             updating = true;

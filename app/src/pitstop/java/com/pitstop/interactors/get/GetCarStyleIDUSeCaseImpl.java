@@ -75,6 +75,9 @@ public class GetCarStyleIDUSeCaseImpl implements GetCarStyleIDUseCase {
                     try{
                         // parsing the response for styles ID
                         JSONObject jsonResponse = new JSONObject(response);
+                        if (jsonResponse.has("status") && jsonResponse.getString("status").equalsIgnoreCase("NOT_FOUND")){
+                            GetCarStyleIDUSeCaseImpl.this.onError(RequestError.getUnknownError());
+                        }
                         JSONArray years = jsonResponse.getJSONArray("years");
                         JSONObject first = years.getJSONObject(0);
                         JSONArray styles = first.getJSONArray("styles");

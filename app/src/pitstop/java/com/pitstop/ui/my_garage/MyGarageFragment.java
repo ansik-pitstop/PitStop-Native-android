@@ -40,6 +40,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.smooch.ui.ConversationActivity;
 
+import static com.pitstop.R.array.car;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
@@ -123,6 +124,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void toast(String message) {
+        Log.d(TAG, "toast: " + message);
         Toast.makeText(getActivity(),message, Toast.LENGTH_SHORT).show();
     }
 
@@ -153,12 +155,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void openSmooch() {
         Log.d(TAG, "openSmooch()");
         ConversationActivity.show(getActivity());
+        Car car = new Car();
     }
 
     @Override
     public void callDealership(Dealership dealership) {
-
-
         Log.d(TAG, "callDealership()");
         Intent intent = new Intent(Intent.ACTION_DIAL,
                 Uri.parse("tel:" + dealership.getPhone()));
@@ -238,6 +239,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         presenter.onCarClicked(car);
     }
 
+    @Override
+    public void onUpdateNeeded() {
+        presenter.loadCars();
+    }
+
     @OnClick(R.id.my_appointments_garage)
     public void onMyAppointmentsClicked(){
         Log.d(TAG, "onMyAppointmentsClicked()");
@@ -255,6 +261,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
         Bundle bundle  = new Bundle();
+        bundle.putBoolean(VehicleSpecsFragment.IS_CURRENT_KEY, car.isCurrentCar());
         bundle.putInt(VehicleSpecsFragment.CAR_ID_KEY, car.getId());
         bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
         bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScannerId());
@@ -263,6 +270,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         bundle.putString(VehicleSpecsFragment.HIGHWAY_MILEAGE_KEY, car.getHighwayMileage());
         bundle.putString(VehicleSpecsFragment.TRIM_KEY, car.getTrim());
         bundle.putString(VehicleSpecsFragment.TANK_SIZE_KEY, car.getTankSize());
+        bundle.putInt(VehicleSpecsFragment.YEAR_KEY, car.getYear());
+        bundle.putString(VehicleSpecsFragment.MAKE_KEY, car.getMake());
+        bundle.putString(VehicleSpecsFragment.MODEL_KEY, car.getModel());
         if (car.getDealership() != null)
             bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
@@ -272,6 +282,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void noCarsView() {
+        Log.d(TAG, "noCarsView()");
         appointmentsView.setVisibility(View.GONE);
 
     }

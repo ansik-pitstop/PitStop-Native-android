@@ -162,7 +162,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.unsubscribe();
     }
 
-    private int getDealerSpecificBanner(String name) {
+    public static int getDealerSpecificBanner(String name) {
         Log.d(TAG,"getDealerSpecificBanner()");
         if (name.equalsIgnoreCase("Waterloo Dodge")) {
             return R.drawable.waterloo_dodge;
@@ -202,7 +202,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     }
 
-    private int getCarSpecificLogo(String make) {
+    public static int getCarSpecificLogo(String make) {
         Log.d(TAG,"getCarSpecificLogo()");
         if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
