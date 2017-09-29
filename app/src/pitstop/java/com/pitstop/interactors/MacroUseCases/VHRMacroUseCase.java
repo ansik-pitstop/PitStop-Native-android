@@ -141,19 +141,22 @@ public class VHRMacroUseCase {
                     , new GenerateReportUseCase.Callback() {
                         @Override
                         public void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport) {
-                            Log.d(TAG,"onReportAddedWithoutEmissions() vhr: "+vehicleHealthReport);
+                            Log.d(TAG,"generateReportUseCase.onReportAddedWithoutEmissions() " +
+                                    "vhr: "+vehicleHealthReport);
                             generatedReport = vehicleHealthReport;
                         }
 
                         @Override
                         public void onReportAdded(VehicleHealthReport vehicleHealthReport
                                 , EmissionsReport emissionsReport) {
-                            Log.d(TAG,"onReportAdded() vhr: "
+                            generatedReport = vehicleHealthReport;
+                            Log.d(TAG,"generateReportUseCase.onReportAdded() vhr: "
                                     +vehicleHealthReport+", et: "+emissionsReport);
                         }
 
                         @Override
                         public void onError(RequestError requestError) {
+                            Log.d(TAG,"generateReportUseCase.onError() vhr null!");
                         }
             });
         }
