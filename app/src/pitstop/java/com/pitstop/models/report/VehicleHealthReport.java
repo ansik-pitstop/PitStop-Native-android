@@ -1,5 +1,9 @@
 package com.pitstop.models.report;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +11,7 @@ import java.util.List;
  * Created by Karol Zdebel on 9/19/2017.
  */
 
-public class VehicleHealthReport {
+public class VehicleHealthReport implements Parcelable {
 
     private int id;
     private List<EngineIssue> engineIssues;
@@ -64,5 +68,42 @@ public class VehicleHealthReport {
     public String toString(){
         return "id: "+id+", engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
                 +", services: "+getServices();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    protected VehicleHealthReport(Parcel in) {
+        this.id = in.readInt();
+        this.recalls = new ArrayList<>();
+        this.engineIssues = new ArrayList<>();
+        this.services = new ArrayList<>();
+        in.readList(this.engineIssues,EngineIssue.class.getClassLoader());
+        in.readList(this.recalls,Recall.class.getClassLoader());
+        in.readList(this.services,Service.class.getClassLoader());
+        this.date = (Date)in.readSerializable();
+    }
+
+    public static final Creator<VehicleHealthReport> CREATOR = new Creator<VehicleHealthReport>() {
+        @Override
+        public VehicleHealthReport createFromParcel(Parcel source) {
+            return new VehicleHealthReport(source);
+        }
+
+        @Override
+        public VehicleHealthReport[] newArray(int size) {
+            return new VehicleHealthReport[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeList(engineIssues);
+        parcel.writeList(recalls);
+        parcel.writeList(services);
+        parcel.writeSerializable(date);
     }
 }
