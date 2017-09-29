@@ -82,14 +82,14 @@ public class ReportRepository implements Repository {
 
                     if (requestError == null){
                         Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
-//                        EmissionsReport emissionsReport = jsonToEmissionsReport(response);
-//                        if (emissionsReport == null){
-//                            Log.d(TAG,"Error parsing response.");
-//                            callback.onError(RequestError.getUnknownError());
-//                        }
-//                        else{
-//                            callback.onSuccess(emissionsReport);
-//                        }
+                        EmissionsReport emissionsReport = jsonToEmissionsReport(response);
+                        if (emissionsReport == null){
+                            Log.d(TAG,"Error parsing response.");
+                            callback.onError(RequestError.getUnknownError());
+                        }
+                        else{
+                            callback.onSuccess(emissionsReport);
+                        }
 
                     }else{
                         Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage()
@@ -102,7 +102,7 @@ public class ReportRepository implements Repository {
 
     private EmissionsReport jsonToEmissionsReport(String stringResponse){
         try{
-            JSONObject response = new JSONObject(stringResponse);
+            JSONObject response = new JSONObject(stringResponse).getJSONObject("response");
             int id = response.getInt("id");
             JSONObject content = response.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
