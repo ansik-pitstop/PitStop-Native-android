@@ -314,27 +314,25 @@ public class Device212B implements AbstractDevice {
 
                 DtcPackage dtcPackage = new DtcPackage();
 
-                dtcPackage.isPending = tripFlag.equals("5");
+                boolean isPending = tripFlag.equals("5");
 
                 dtcPackage.rtcTime = dataPackageInfo.rtcTime;
 
                 dtcPackage.deviceId = dataPackageInfo.deviceId;
 
                 if(dataPackageInfo.dtcData.isEmpty()) {
-                    dtcPackage.dtcs = new String[0];
-                    dtcPackage.dtcNumber = 0;
+                    dtcPackage.dtcs = new HashMap<>();
                 } else {
 
                     String[] unparsedDtcs = dataPackageInfo.dtcData.split(",");
 
-                    dtcPackage.dtcs = new String[unparsedDtcs.length];
+                    dtcPackage.dtcs = new HashMap<>();
 
                     for (int i = 0; i < unparsedDtcs.length; i++) {
                         if (unparsedDtcs[i].length() > 0) {
-                            dtcPackage.dtcs[i] = ObdDataUtil.parseDTCs(unparsedDtcs[i]);
+                            dtcPackage.dtcs.put(ObdDataUtil.parseDTCs(unparsedDtcs[i]),isPending);
                         }
                     }
-                    dtcPackage.dtcNumber = unparsedDtcs.length;
                 }
 
                 dataListener.dtcData(dtcPackage);
