@@ -114,7 +114,6 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     @Override
     public void setViewReport(JSONObject emissionsResults) {
         Log.d(TAG,"setViewReport()");
-        emissionsReportFragment.setResult(emissionsResults);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.emissions_progress_fragment_holder,emissionsReportFragment);
         transaction.commit();

@@ -28,4 +28,8 @@ public class EmissionsReportPresenter {
         view.toggleCellDetails(cell);
     }
 
+    public void loadEmissionsTest(){
+        
+    }
+
 }

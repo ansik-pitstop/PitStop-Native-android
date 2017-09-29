@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,9 +13,8 @@ import android.widget.TextView;
 
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pitstop.models.EmissionsReport;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -77,16 +77,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.componetns)
     TextView components;
 
+    @BindView (R.id.pass)
+    TextView pass;
+
     private Context context;
     private boolean dropDownInProgress;
-    private JSONObject emissionsResponse;
     private EmissionsReportPresenter presenter;
-
-    public void setResult(JSONObject response){
-        Log.d(TAG,"setResult() response: "+response);
-        emissionsResponse = response;
-        System.out.println("Testing ER "+emissionsResponse);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,35 +98,15 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         cellFour.setOnClickListener(view14 -> presenter.onCellClicked(cellFourDetails));
         cellFive.setOnClickListener(view15 -> presenter.onCellClicked(cellFiveDetails));
         cellSix.setOnClickListener(view16 -> presenter.onCellClicked(cellSixDetails));
-        if(emissionsResponse !=null){
-            if(emissionsResponse.has("data")){
-                try{
-                    JSONObject data = emissionsResponse.getJSONObject("data");
-                    if(data.has("EGR")){
-                        egr.setText(data.getString("EGR"));
-                    }
-                    if(data.has("Evap")){
-                        evap.setText(data.getString("Evap"));
-                    }
-                    if(data.has("Misfire")){
-                        misfire.setText(data.getString("Misfire"));
-                    }
-                    if(data.has("Catalyst")){
-                        catalyst.setText(data.getString("Catalyst"));
-                    }
-                    if(data.has("O2 Sensor")){
-                        o2sensor.setText(data.getString("O2 Sensor"));
-                    }
-                    if(data.has("Components")){
-                        components.setText(data.getString("Components"));
-                    }
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
 
-            }
-        }
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.subscribe(this);
+        presenter.loadEmissionsTest();
     }
 
     @Override
@@ -166,5 +142,25 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     .duration(200)
                     .start();
         }
+    }
+
+    @Override
+    public EmissionsReport getEmissionsReport() {
+        if (getActivity() != null && getActivity() instanceof ReportHolder){
+            return ((ReportHolder)getActivity()).getEmissionsReport();
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public void displayEmissionsReport(EmissionsReport emissionsReport) {
+        egr.setText(emissionsReport.getEGRVVTSystem());
+        evap.setText(emissionsReport.getFuelSystem());
+        misfire.setText(emissionsReport.getMisfire());
+        catalyst.setText(emissionsReport.getNMHCCatalyst());
+        o2sensor.setText(emissionsReport.getNOxSCRMonitor());
+        components.setText(emissionsReport.getComponents());
+        pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
     }
 }
