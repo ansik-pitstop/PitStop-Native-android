@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 
 import com.pitstop.R;
 import com.pitstop.models.EmissionsReport;
@@ -34,9 +33,7 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         super.onCreate(savedInstanceState);
 
         Log.d(TAG,"onCreate()");
-        View rootView = getLayoutInflater().inflate(R.layout.activity_show_report
-                , findViewById(android.R.id.content));
-        setContentView(rootView);
+        setContentView(R.layout.activity_show_report);
         healthReportFragment = new HealthReportFragment();
         emissionsReportFragment = new EmissionsReportFragment();
 

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.models.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -110,6 +111,11 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 //        fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
 //        fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
 //        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void setReportView(VehicleHealthReport vehicleHealthReport, EmissionsReport emissionsReport) {
+
     }
 
     @Override

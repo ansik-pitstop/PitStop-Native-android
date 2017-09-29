@@ -31,7 +31,8 @@ public class VHRMacroUseCase {
 
     public interface Callback{
         void onStartGeneratingReport();
-        void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport);
+        void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport
+                , EmissionsReport emissionsReport);
         void onErrorGeneratingReport();
         void onStartGetDTC();
         void onGotDTC();
@@ -53,7 +54,8 @@ public class VHRMacroUseCase {
     private Queue<Interactor> interactorQueue;
     private Queue<ProgressTimer> progressTimerQueue;
     private BluetoothConnectionObservable bluetooth;
-    private VehicleHealthReport generatedReport;
+    private VehicleHealthReport vehicleHealthReport;
+    private EmissionsReport emissionsReport;
 
     //Lists for progress timers to communicate results
     private DtcPackage retrievedDtc;
@@ -143,13 +145,14 @@ public class VHRMacroUseCase {
                         public void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport) {
                             Log.d(TAG,"generateReportUseCase.onReportAddedWithoutEmissions() " +
                                     "vhr: "+vehicleHealthReport);
-                            generatedReport = vehicleHealthReport;
+                            VHRMacroUseCase.this.vehicleHealthReport = vehicleHealthReport;
                         }
 
                         @Override
                         public void onReportAdded(VehicleHealthReport vehicleHealthReport
                                 , EmissionsReport emissionsReport) {
-                            generatedReport = vehicleHealthReport;
+                            VHRMacroUseCase.this.vehicleHealthReport = vehicleHealthReport;
+                            VHRMacroUseCase.this.emissionsReport = emissionsReport;
                             Log.d(TAG,"generateReportUseCase.onReportAdded() vhr: "
                                     +vehicleHealthReport+", et: "+emissionsReport);
                         }
@@ -238,12 +241,12 @@ public class VHRMacroUseCase {
                 case TYPE_GENERATE_REPORT:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GENERATE_REPORT dtc: "
                             +retrievedDtc+", pid: "+retrievedPid);
-                    if (retrievedDtc == null || retrievedPid == null || generatedReport == null){
+                    if (retrievedDtc == null || retrievedPid == null || vehicleHealthReport == null){
                         callback.onErrorGeneratingReport();
                         finish();
                     }
                     else{
-                        callback.onFinishGeneratingReport(generatedReport);
+                        callback.onFinishGeneratingReport(vehicleHealthReport, emissionsReport);
                         progressTimerQueue.remove();
                         next();
                     }
