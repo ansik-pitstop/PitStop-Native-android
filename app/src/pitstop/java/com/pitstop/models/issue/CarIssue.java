@@ -2,9 +2,14 @@ package com.pitstop.models.issue;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
 import com.google.gson.annotations.Expose;
+import com.pitstop.models.report.CarHealthItem;
+import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.Recall;
+import com.pitstop.models.report.Service;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +23,9 @@ import java.util.concurrent.TimeUnit;
  * Created by Paul Soladoye on 3/18/2016.
  */
 public class CarIssue implements Parcelable, Issue {
+
+    private static final String TAG = CarIssue.class.getSimpleName();
+
     public static final String DTC = "dtc"; // stored only
     public static final String PENDING_DTC = "pending_dtc";
     public static final String RECALL = "recall_recallmasters";
@@ -199,6 +207,41 @@ public class CarIssue implements Parcelable, Issue {
         return carIssue.getId() == getId();
     }
 
+    public static CarIssue fromCarHealthItem(CarHealthItem carHealthItem, int carId){
+        Log.d(TAG,"fromCarHealthItem() carHealthItem: "+carHealthItem+", carId: "+carId);
+
+        String symptoms = "";
+        String action = "";
+        String causes = "";
+
+        if (carHealthItem instanceof Recall){
+            action = "Recall";
+        }else if (carHealthItem instanceof EngineIssue){
+            symptoms = ((EngineIssue)carHealthItem).getSymptoms();
+            causes = ((EngineIssue)carHealthItem).getCauses();
+            if (((EngineIssue)carHealthItem).isPending())
+                action = "Pending Engine Code";
+            else
+                action = "Stored Engine Code";
+        }else if (carHealthItem instanceof Service){
+            action = ((Service)carHealthItem).getAction();
+        }
+        CarIssue carIssue = new CarIssue.Builder()
+                .setIssueType(carHealthItem.getItem())
+                .setCarId(carId)
+                .setItem(carHealthItem.getItem())
+                .setAction(action)
+                .setDescription(carHealthItem.getDescription())
+                .setPriority(carHealthItem.getPriority())
+                .setSymptoms(symptoms)
+                .setCauses(causes)
+                .build();
+
+        Log.d(TAG,"fromCarHealthItem() carIssue: "+carIssue);
+
+        return carIssue;
+    }
+
     public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
         CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
         carIssue.setCarId(carId);
@@ -372,12 +415,14 @@ public class CarIssue implements Parcelable, Issue {
             return this;
         }
 
-        public void setSymptoms(String symptoms) {
+        public Builder setSymptoms(String symptoms) {
             this.symptoms = symptoms;
+            return this;
         }
 
-        public void setCauses(String causes) {
+        public Builder setCauses(String causes) {
             this.causes = causes;
+            return this;
         }
 
         public CarIssue build(){

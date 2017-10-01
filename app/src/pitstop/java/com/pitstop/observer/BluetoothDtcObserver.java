@@ -1,6 +1,6 @@
 package com.pitstop.observer;
 
-import java.util.HashMap;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
 
 /**
  * Created by Karol Zdebel on 7/21/2017.
@@ -9,6 +9,6 @@ import java.util.HashMap;
 public interface BluetoothDtcObserver extends Observer {
 
     //DTC data retrieved from the device that is currently being used
-    void onGotDtc(HashMap<String ,Boolean> dtc);
+    void onGotDtc(DtcPackage dtc);
     void onErrorGettingDtc();
 }
