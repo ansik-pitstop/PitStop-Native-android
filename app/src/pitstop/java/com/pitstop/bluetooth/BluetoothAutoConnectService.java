@@ -525,7 +525,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (!deviceConnState.equals(State.DISCONNECTED)
                 && !deviceConnState.equals(State.SEARCHING)) return;
 
-        if (deviceManager.startScan(urgent,ignoreVerification)){
+        if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
 
             if (urgent){
                 trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
