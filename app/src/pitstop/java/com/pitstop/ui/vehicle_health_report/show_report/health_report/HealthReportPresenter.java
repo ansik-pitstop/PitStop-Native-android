@@ -63,10 +63,23 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     public void setLists(){
         Log.d(TAG,"setLists()");
+        if (view == null) return;
         VehicleHealthReport vehicleHealthReport = view.getVehicleHealthReport();
         view.setServicesList(vehicleHealthReport.getServices());
         view.setRecallList(vehicleHealthReport.getRecalls());
         view.setEngineList(vehicleHealthReport.getEngineIssues());
+        if (vehicleHealthReport.getServices().size() > 5
+                || vehicleHealthReport.getEngineIssues().size() > 1
+                || vehicleHealthReport.getRecalls().size() > 1){
+
+            view.setVehicleHealthSummary("Needs Work");
+        }else if (vehicleHealthReport.getServices().size() == 0){
+
+            view.setVehicleHealthSummary("Perfect");
+        }
+        else{
+            view.setVehicleHealthSummary("Good");
+        }
     }
 
     public void unsubscribe(){

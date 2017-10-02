@@ -22,5 +22,6 @@ public interface HealthReportView {
     void toggleEngineList();
     void servicesLoading(boolean show);
     void startIssueDetails(Car car, CarIssue issue);
+    void setVehicleHealthSummary(String summary);
     VehicleHealthReport getVehicleHealthReport();
 }

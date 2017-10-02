@@ -11,6 +11,7 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/summary_holder"
             android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -27,7 +28,7 @@
                 android:textColor="#32CD32" />
 
             <TextView
-                android:id="@+id/textView59"
+                android:id="@+id/summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"

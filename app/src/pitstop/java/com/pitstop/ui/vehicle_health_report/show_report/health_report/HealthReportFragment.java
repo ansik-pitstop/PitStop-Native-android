@@ -104,6 +104,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @BindView(R.id.report_services_loading)
     ProgressBar servicesLoading;
+    @BindView(R.id.summary)
+    TextView summary;
 
     private int engineListHolderHeight;
 
@@ -302,6 +304,11 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
         startActivity(intent);
 
+    }
+
+    @Override
+    public void setVehicleHealthSummary(String summary) {
+        this.summary.setText(summary);
     }
 
     @Override
