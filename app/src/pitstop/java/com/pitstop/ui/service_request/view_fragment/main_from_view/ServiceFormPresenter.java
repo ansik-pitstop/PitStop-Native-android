@@ -214,6 +214,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                         if(callback.getIssue()!= null){
                             view.disableButton(false);
                             callback.finishActivity();
+                            view.toast("Service requested successfully.");
                             return;
                         }
                        component.getAddServicesUseCase().execute(issues
@@ -224,6 +225,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                                if(view == null || callback == null){return;}
                                view.disableButton(false);
                                callback.finishActivity();
+                               view.toast("Service requested successfully.");
                            }
 
                            @Override
@@ -231,7 +233,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                                Log.d(TAG,"onError() error: "+error.getMessage());
                                if(view == null || callback == null){return;}
                                view.disableButton(false);
-                              view.toast("There was an error adding your services");
+                               view.toast("There was an error adding your services");
                            }
                        });
                     }
