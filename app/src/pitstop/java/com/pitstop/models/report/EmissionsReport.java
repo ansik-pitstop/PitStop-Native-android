@@ -9,30 +9,6 @@ import java.util.Date;
  * Created by Karol Zdebel on 9/28/2017.
  */
 
-//{"response":{"id":116,"content":{"id":"2141"
-// ,"data":{
-// "Misfire":"N/A"
-// ,"RawData":"0F0C14FF"
-// ,"Ignition":"Compression"
-// ,"Reserved1":"Incomplete"
-// ,"Reserved2":"Incomplete"
-// ,"Components":"Complete"
-// ,"Fuel System":"N/A"
-// ,"NMHC Catalyst":"N/A"
-// ,"Boost Pressure":"N/A"
-// ,"EGR/VVT System":"N/A"
-// ,"Exhaust Sensor":"N/A"
-// ,"NOx/SCR Monitor":"N/A"
-// ,"PM Filter Monitoring":"N/A"}
-// ,"pass":false}
-// ,"meta":null
-// ,"carId":5111
-// ,"isInternal":false
-// ,"reportType":"emission"
-// ,"createdAt":"2017-09-28T16:02:36.185Z"
-// ,"updatedAt":null}
-// ,"meta":{}}
-
 public class EmissionsReport implements Parcelable{
 
     private int id;
