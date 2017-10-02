@@ -2,7 +2,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 
 import android.view.View;
 
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 
 /**
  * Created by Matt on 2017-08-17.

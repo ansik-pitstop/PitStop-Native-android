@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 import com.pitstop.utils.MixpanelHelper;
 

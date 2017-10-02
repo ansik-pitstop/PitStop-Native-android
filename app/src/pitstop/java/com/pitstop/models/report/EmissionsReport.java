@@ -1,4 +1,4 @@
-package com.pitstop.models;
+package com.pitstop.models.report;
 
 import android.os.Parcel;
 import android.os.Parcelable;

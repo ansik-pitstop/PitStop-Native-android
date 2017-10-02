@@ -16,7 +16,7 @@ import java.util.List;
  * Created by Karol Zdebel on 9/21/2017.
  */
 
-public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReportsUseCase {
+public class GetReportUseCaseImpl implements GetReportsUseCase {
 
     private UserRepository userRepository;
     private ReportRepository reportRepository;
@@ -24,7 +24,7 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
     private Handler mainHandler;
     private Callback callback;
 
-    public GetVehicleHealthReportUseCaseImpl(UserRepository userRepository
+    public GetReportUseCaseImpl(UserRepository userRepository
             , ReportRepository reportRepository, Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
         this.reportRepository = reportRepository;
@@ -43,7 +43,7 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
     }
 
     private void onGotVehicleHealthReports(List<VehicleHealthReport> vehicleHealthReports){
-        mainHandler.post(() -> callback.onGotVehicleHealthReports(vehicleHealthReports));
+        mainHandler.post(() -> callback.onGotReports(vehicleHealthReports));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
             @Override
             public void onSuccess(Settings data) {
                 if (!data.hasMainCar()){
-                    GetVehicleHealthReportUseCaseImpl.this.onError(RequestError.getUnknownError());
+                    GetReportUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
 
@@ -61,20 +61,20 @@ public class GetVehicleHealthReportUseCaseImpl implements GetVehicleHealthReport
                     public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
                         Collections.sort(vehicleHealthReports
                                 , (t1,t2) -> t2.getDate().compareTo(t1.getDate()));
-                        GetVehicleHealthReportUseCaseImpl.this
+                        GetReportUseCaseImpl.this
                                 .onGotVehicleHealthReports(vehicleHealthReports);
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        GetVehicleHealthReportUseCaseImpl.this.onError(error);
+                        GetReportUseCaseImpl.this.onError(error);
                     }
                 });
             }
 
             @Override
             public void onError(RequestError error) {
-                GetVehicleHealthReportUseCaseImpl.this.onError(error);
+                GetReportUseCaseImpl.this.onError(error);
             }
         });
     }

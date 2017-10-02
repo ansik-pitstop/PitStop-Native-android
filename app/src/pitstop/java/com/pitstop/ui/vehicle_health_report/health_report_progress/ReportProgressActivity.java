@@ -13,7 +13,7 @@ import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;

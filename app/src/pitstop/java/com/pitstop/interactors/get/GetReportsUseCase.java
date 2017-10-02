@@ -10,9 +10,9 @@ import java.util.List;
  * Created by Karol Zdebel on 9/21/2017.
  */
 
-public interface GetVehicleHealthReportsUseCase extends Interactor {
+public interface GetReportsUseCase extends Interactor {
     interface Callback {
-        void onGotVehicleHealthReports(List<VehicleHealthReport> vehicleHealthReports);
+        void onGotReports(List<VehicleHealthReport> vehicleHealthReports);
         void onError(RequestError error);
     }
 

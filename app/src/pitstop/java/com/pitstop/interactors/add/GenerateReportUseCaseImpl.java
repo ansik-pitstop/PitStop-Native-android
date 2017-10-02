@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.Settings;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;

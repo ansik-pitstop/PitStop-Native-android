@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;

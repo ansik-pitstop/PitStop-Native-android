@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;

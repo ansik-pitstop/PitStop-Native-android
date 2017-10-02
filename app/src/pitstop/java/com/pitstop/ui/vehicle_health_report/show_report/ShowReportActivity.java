@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.pitstop.R;
-import com.pitstop.models.EmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;

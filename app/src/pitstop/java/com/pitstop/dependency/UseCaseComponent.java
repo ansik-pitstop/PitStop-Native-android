@@ -19,12 +19,12 @@ import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
+import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
-import com.pitstop.interactors.get.GetVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
@@ -139,7 +139,7 @@ public interface UseCaseComponent {
 
     GenerateReportUseCase getAddVehicleReportUseCase();
 
-    GetVehicleHealthReportsUseCase getGetVehicleHealthReportsUseCase();
+    GetReportsUseCase getGetVehicleHealthReportsUseCase();
 
     SortVehicleHealthReportsUseCase getSortVehicleHealthReportsUseCase();
 

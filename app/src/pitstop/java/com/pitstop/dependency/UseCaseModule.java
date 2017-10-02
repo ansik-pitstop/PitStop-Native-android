@@ -43,6 +43,8 @@ import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCaseImpl;
+import com.pitstop.interactors.get.GetReportUseCaseImpl;
+import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
@@ -53,8 +55,6 @@ import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
-import com.pitstop.interactors.get.GetVehicleHealthReportUseCaseImpl;
-import com.pitstop.interactors.get.GetVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
@@ -455,11 +455,11 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetVehicleHealthReportsUseCase getVehicleHealthReportsUseCase(ReportRepository reportRepository
+    GetReportsUseCase getVehicleHealthReportsUseCase(ReportRepository reportRepository
             , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
             , @Named("useCaseHandler")Handler useCaseHandler){
 
-        return new GetVehicleHealthReportUseCaseImpl(userRepository,reportRepository
+        return new GetReportUseCaseImpl(userRepository,reportRepository
                 ,useCaseHandler,mainHandler);
     }
 
