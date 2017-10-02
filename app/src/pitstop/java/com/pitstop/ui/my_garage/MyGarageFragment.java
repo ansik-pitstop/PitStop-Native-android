@@ -277,7 +277,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
         startActivity(intent);
-
     }
 
     @Override

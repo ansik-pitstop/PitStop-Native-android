@@ -38,7 +38,6 @@ public class DealershipActivity extends AppCompatActivity {
         dashboardCar = getIntent().getParcelableExtra("dashboardCar");
     }
 
-
     @OnClick(R.id.message_dealer_container)
     public void startChat(View view) {
         if (!checkDealership()) return;

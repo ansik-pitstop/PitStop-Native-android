@@ -130,13 +130,13 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
+
                 view.openMyGarage();
             }
 
             @Override
             public void onError(RequestError error) {
                 view.toast(error.getMessage());
-
             }
         });
     }

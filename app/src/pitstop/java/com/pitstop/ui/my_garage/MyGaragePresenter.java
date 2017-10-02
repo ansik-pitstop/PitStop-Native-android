@@ -121,11 +121,13 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                 @Override
                 public void onNoCarSet() {
+                    updating = false;
                     getView().toast("Please Select a Car");
                 }
 
                 @Override
                 public void onError(RequestError error) {
+                    updating = false;
                     getView().toast(error.getMessage());
                 }
             });
@@ -170,6 +172,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             });
         }
         else {
+            updating = false;
             Log.d(TAG, "dealershipsAlreadyGot");
             if (dealershipList.size() == 0)
 
@@ -214,6 +217,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             });
         }
         else {
+            updating = false;
             if (dealershipList.size() == 0)
                 getView().toast("Please add a dealership");
             else if (dealershipList.size() == 1)
@@ -247,6 +251,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 }
                 @Override
                 public void onError(RequestError error) {
+                    updating = false;
                     getView().toast(error.getMessage());
                 }
             });

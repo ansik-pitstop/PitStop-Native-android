@@ -39,6 +39,7 @@ import butterknife.OnClick;
  */
 
 public class VehicleSpecsFragment extends android.app.Fragment implements VehicleSpecsView {
+
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String CAR_ID_KEY = "carid";
@@ -62,6 +63,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     private int carId;
     private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
+    private AlertDialog dealershipAlertDialog;
+    private AlertDialog deleteCarAlertDialog;
     private VehicleSpecsPresenter presenter;
 
     @BindView(R.id.car_logo_imageview)
@@ -181,7 +184,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     public void setView(){
         Log.d(TAG, "setView()");
-        if (!bundle.getBoolean(IS_CURRENT_KEY)){
+        if (bundle.getBoolean(IS_CURRENT_KEY)){
             selectCarAsCurrent.setVisibility(View.GONE);
         }
         carVin.setText(bundle.getString(CAR_VIN_KEY));
@@ -284,7 +287,21 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @OnClick(R.id.delete_car)
     public void onDeleteCarClicked(){
-        presenter.deleteCar(bundle.getInt(CAR_ID_KEY));
+
+        if (deleteCarAlertDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            deleteCarAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Purchase Pitstop Device")
+                    .setView(dialogLayout)
+                    .setMessage("Are you sure you want to delete this car")
+                    .setPositiveButton("Yes", (dialog, which)
+                            -> presenter.deleteCar(bundle.getInt(CAR_ID_KEY)))
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        deleteCarAlertDialog.show();
     }
 
     private void showBuyDeviceDialog() {
