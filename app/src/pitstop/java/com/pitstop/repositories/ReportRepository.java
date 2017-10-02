@@ -140,7 +140,7 @@ public class ReportRepository implements Repository {
             JSONObject content = jsonResponse.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
             int vhrId = -1;
-            if (meta.has("vhrId"))
+            if (meta != null && meta.has("vhrId"))
                 vhrId = meta.getInt("vhrId");
             String misfire = data.getString("Misfire");
             String ignition = data.getString("Ignition");
