@@ -136,14 +136,8 @@ public class ReportRepository implements Repository {
     private EmissionsReport etContentToJson(JSONObject jsonResponse){
         try{
             int id = jsonResponse.getInt("id");
-            JSONObject meta = null;
-            if (jsonResponse.getJSONObject("meta") != null)
-                meta = jsonResponse.getJSONObject("meta");
             JSONObject content = jsonResponse.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
-            int vhrId = -1;
-            if (meta != null && meta.has("vhrId"))
-                vhrId = meta.getInt("vhrId");
             String misfire = data.getString("Misfire");
             String ignition = data.getString("Ignition");
             String components = data.getString("Components");
@@ -157,7 +151,7 @@ public class ReportRepository implements Repository {
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
-            return new EmissionsReport(id, vhrId, misfire, ignition, components
+            return new EmissionsReport(id, misfire, ignition, components
                     , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
         }catch(JSONException | ParseException e){
@@ -174,6 +168,9 @@ public class ReportRepository implements Repository {
             for (int i=0;i<response.length();i++){
                 EmissionsReport et = etContentToJson(response.getJSONObject(i));
                 if (et != null){
+                    JSONObject meta = response.getJSONObject(i).getJSONObject("meta");
+                    if (meta != null && meta.has("vhrId"))
+                        et.setVhrId(meta.getInt("vhrId"));
                     emissionsReportList.add(et);
                 }
             }
