@@ -49,7 +49,6 @@ public class TabFragmentManager {
 
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
-
         tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
 

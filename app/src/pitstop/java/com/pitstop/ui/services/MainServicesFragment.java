@@ -1,5 +1,6 @@
 package com.pitstop.ui.services;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -41,7 +42,6 @@ public class MainServicesFragment extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
         mServicesPager.setOffscreenPageLimit(2);
 
@@ -76,6 +76,7 @@ public class MainServicesFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View rootview = inflater.inflate(R.layout.activity_services,null);
+        mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
@@ -178,6 +179,9 @@ public class MainServicesFragment extends Fragment{
     }
 
     public void setCurrent(){
+        if (mServicesPager == null){
+            return;
+        }
         mServicesPager.setCurrentItem(1);
     }
 
