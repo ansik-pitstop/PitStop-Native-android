@@ -42,7 +42,7 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         this.emissionsReport = getIntent().getParcelableExtra(EXTRA_ET);
 
         if (getSupportActionBar() != null)
-            getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Log.d(TAG,"Retrieved vhr from parcel:" + vehicleHealthReport
                 + ", retrieved et from parcel: "+emissionsReport);

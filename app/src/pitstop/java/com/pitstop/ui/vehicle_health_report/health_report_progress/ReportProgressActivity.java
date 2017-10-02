@@ -116,7 +116,6 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
         intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
         intent.putExtra(ShowReportActivity.EXTRA_ET,emissionsReport);
         startActivity(intent);
-        finish();
     }
 
     @Override
