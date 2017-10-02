@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueStorage;
@@ -19,7 +21,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-//MAY BE USELESS FOR NOW SINCE CAR ISSUES ARE TIED TO CAR REPOSITORY ANYWAY, NOT IMPLEMENTED FULLY
 
 /**
  * CarIssue repository, use this class to modify, retrieve, and delete car issue data.
@@ -29,7 +30,7 @@ import java.util.List;
  */
 
 public class CarIssueRepository implements Repository{
-
+    private final String TAG = getClass().getSimpleName();
     private final String END_POINT_REQUEST_SERVICE = "utility/serviceRequest";
     private final String END_POINT_ISSUES_UPCOMING = "car/%s/issues?type=upcoming";
     private final String END_POINT_ISSUES_CURRENT = "car/%s/issues?type=active";
@@ -76,7 +77,7 @@ public class CarIssueRepository implements Repository{
         catch(JSONException e){
             e.printStackTrace();
         }
-
+        Log.d(TAG,"insert() body: "+body.toString());
         networkHelper.post("car/" + issue.getCarId() + "/service"
                 , getInsertCarIssueRequestCallback(callback), body);
     }
@@ -105,20 +106,18 @@ public class CarIssueRepository implements Repository{
             e.printStackTrace();
         }
 
+        Log.d(TAG,"insert() body: "+body.toString());
         networkHelper.post("car/" + carId + "/service"
                 , getInsertCarIssuesRequestCallback(callback), body);
     }
 
     private RequestCallback getInsertCarIssuesRequestCallback(Callback<Object> callback){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(requestError == null && response != null){
-                    callback.onSuccess(response);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(requestError == null && response != null){
+                callback.onSuccess(response);
 
-                }else{
-                    callback.onError(requestError);
-                }
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
@@ -126,20 +125,17 @@ public class CarIssueRepository implements Repository{
 
     private RequestCallback getInsertCarIssueRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onSuccess(response);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    callback.onSuccess(response);
                 }
-                catch(JsonIOException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
+            }
+            catch(JsonIOException e){
+                callback.onError(RequestError.getUnknownError());
             }
         };
 
@@ -166,27 +162,24 @@ public class CarIssueRepository implements Repository{
 
     }
     public RequestCallback getInsertCustomRequestCallback(Callback<CarIssue> callback,int carId){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(requestError == null && response != null){
-                    CarIssue issue = new CarIssue();
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        issue.setCarId(carId);
-                        issue.setId(responseJson.getInt("id"));
-                        issue.setItem(responseJson.getString("item"));
-                        issue.setAction(responseJson.getString("action"));
-                        issue.setDescription(responseJson.getString("description"));
-                        issue.setIssueType(CarIssue.SERVICE_USER);
-                        callback.onSuccess(issue);
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                        callback.onSuccess(new CarIssue());
-                    }
-                }else{
-                  callback.onError(requestError);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(requestError == null && response != null){
+                CarIssue issue = new CarIssue();
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    issue.setCarId(carId);
+                    issue.setId(responseJson.getInt("id"));
+                    issue.setItem(responseJson.getString("item"));
+                    issue.setAction(responseJson.getString("action"));
+                    issue.setDescription(responseJson.getString("description"));
+                    issue.setIssueType(CarIssue.SERVICE_USER);
+                    callback.onSuccess(issue);
+                }catch (JSONException e){
+                    e.printStackTrace();
+                    callback.onSuccess(new CarIssue());
                 }
+            }else{
+              callback.onError(requestError);
             }
         };
         return requestCallback;
@@ -270,25 +263,22 @@ public class CarIssueRepository implements Repository{
 
     private RequestCallback getCurrentCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        JSONObject jsonObject = new JSONObject(response);
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    JSONObject jsonObject = new JSONObject(response);
 
-                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                    JSONArray jsonArray = jsonObject.getJSONArray("results");
 
-                        ArrayList<CarIssue> carIssues = CarIssue.createCarIssues(jsonArray,carId);
-                        callback.onSuccess(carIssues);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+                    ArrayList<CarIssue> carIssues = CarIssue.createCarIssues(jsonArray,carId);
+                    callback.onSuccess(carIssues);
                 }
-                catch(JSONException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
+            }
+            catch(JSONException e){
+                callback.onError(RequestError.getUnknownError());
             }
         };
 
@@ -323,25 +313,19 @@ public class CarIssueRepository implements Repository{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            networkHelper.put("car", new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                }
+            networkHelper.put("car", (response, requestError) -> {
             }, updateSalesman);
         }
     }
 
     private RequestCallback getRequestServiceCallback(Callback<Object> callback){
-        return new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    callback.onSuccess(response);
-                    return;
-                }
-                else{
-                    callback.onError(requestError);
-                }
+        return (response, requestError) -> {
+            if (requestError == null){
+                callback.onSuccess(response);
+                return;
+            }
+            else{
+                callback.onError(requestError);
             }
         };
     }
@@ -354,28 +338,24 @@ public class CarIssueRepository implements Repository{
 
     private RequestCallback getDoneCarIssuesRequestCallback(final int carId, Callback<List<CarIssue>> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        ArrayList<CarIssue> carIssues = new ArrayList<>();
-                        JSONObject jsonObject = new JSONObject(response);
-                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-                        carIssues = CarIssue.createCarIssues(jsonArray,carId);
 
-                        callback.onSuccess(carIssues);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        return (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    ArrayList<CarIssue> carIssues = new ArrayList<>();
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("results");
+                    carIssues = CarIssue.createCarIssues(jsonArray,carId);
+
+                    callback.onSuccess(carIssues);
                 }
-                catch(JSONException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
             }
+            catch(JSONException e){
+                callback.onError(RequestError.getUnknownError());
+            }
         };
-
-        return requestCallback;
     }
 }

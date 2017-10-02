@@ -40,21 +40,11 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     }
 
     private void onServicesRequested(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onServicesRequested();
-            }
-        });
+        mainHandler.post(() -> callback.onServicesRequested());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

@@ -213,21 +213,28 @@ public class CarIssue implements Parcelable, Issue {
         String symptoms = "";
         String action = "";
         String causes = "";
+        String issueType = "";
 
         if (carHealthItem instanceof Recall){
             action = "Recall";
+            issueType = RECALL;
         }else if (carHealthItem instanceof EngineIssue){
             symptoms = ((EngineIssue)carHealthItem).getSymptoms();
             causes = ((EngineIssue)carHealthItem).getCauses();
-            if (((EngineIssue)carHealthItem).isPending())
+            if (((EngineIssue)carHealthItem).isPending()){
                 action = "Pending Engine Code";
-            else
+                issueType = PENDING_DTC;
+            }
+            else{
                 action = "Stored Engine Code";
+                issueType = DTC;
+            }
         }else if (carHealthItem instanceof Service){
+            issueType = SERVICE_PRESET;
             action = ((Service)carHealthItem).getAction();
         }
         CarIssue carIssue = new CarIssue.Builder()
-                .setIssueType(carHealthItem.getItem())
+                .setIssueType(issueType)
                 .setCarId(carId)
                 .setItem(carHealthItem.getItem())
                 .setAction(action)
@@ -430,5 +437,16 @@ public class CarIssue implements Parcelable, Issue {
         }
     }
 
+    @Override
+    public String toString(){
+        try{
+            return String.format("id:%d, carId:%d, year:%d, month:%d, day:%d, doneMileage:%d, status:%s" +
+                            ", doneAt:%s, priority:%d, issueType:%s, item:%s, description:%s, symptoms:%s" +
+                            ", causes:%s, action:%s", id, carId, year, month, day ,doneMileage, status, doneAt
+                    , priority, issueType, item, description, symptoms, causes, action);
+        }catch(NullPointerException e){
+            return "null";
+        }
 
+    }
 }
