@@ -7,10 +7,19 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-        <include
-            android:visibility="gone"
-            layout="@layout/layout_load"
-            android:id="@+id/progress" />
+        <RelativeLayout
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <include
+                android:id="@+id/progress"
+                android:visibility="gone"
+                layout="@layout/layout_load"
+                 />
+
+        </RelativeLayout>
+
 
 
             <include

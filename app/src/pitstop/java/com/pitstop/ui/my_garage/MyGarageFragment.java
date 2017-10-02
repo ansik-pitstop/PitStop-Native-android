@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -64,7 +65,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     View addCar;
 
     @BindView(R.id.progress)
-    View loadingView;
+    RelativeLayout loadingView;
 
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
