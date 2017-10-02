@@ -42,41 +42,43 @@ public class ReportRepository implements Repository {
 
     public void getVehicleHealthReports(int carId, Callback<List<VehicleHealthReport>> callback){
         Log.d(TAG,"getVehicleHealthReports() carId: "+carId);
-        networkHelper.get("v1/report/?carId=" + carId+"?reportType=\"vhr\"", (response, requestError) -> {
-            if (requestError == null){
-                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
-                List<VehicleHealthReport> vehicleHealthReports
-                        = jsonToVehicleHealthReportList(response);
-                if (vehicleHealthReports == null){
-                    callback.onError(RequestError.getUnknownError());
-                    return;
-                }else{
-                    callback.onSuccess(vehicleHealthReports);
-                }
-            }else{
-                Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
-                callback.onError(requestError);
-            }
+        networkHelper.get(String.format("v1/report/?carId=%d&type=vhr")
+                , (response, requestError) -> {
+                        if (requestError == null){
+                            Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
+                            List<VehicleHealthReport> vehicleHealthReports
+                                    = jsonToVehicleHealthReportList(response);
+                            if (vehicleHealthReports == null){
+                                callback.onError(RequestError.getUnknownError());
+                                return;
+                            }else{
+                                callback.onSuccess(vehicleHealthReports);
+                            }
+                        }else{
+                            Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
+                            callback.onError(requestError);
+                        }
         });
     }
 
     public void getEmissionReports(int carId, Callback<List<EmissionsReport>> callback){
         Log.d(TAG,"getEmissionReports() carId: "+carId);
-        networkHelper.get("v1/report/?carId=" + carId +"?reportType=\"et\"", (response, requestError) -> {
-            if (requestError == null){
-//                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
-//                List<EmissionsReport> emissionsReports
-//                        = jsonToEmissionReportList(response);
-//                if (emissionsReports == null){
-//                    callback.onError(RequestError.getUnknownError());
-//                    return;
-//                }else{
-//                    callback.onSuccess(emissionsReports);
-//                }
-            }else{
-                Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
-                callback.onError(requestError);
-            }
+        networkHelper.get(String.format("v1/report/?carId=%d&type=emission",carId)
+                , (response, requestError) -> {
+                        if (requestError == null){
+                                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
+            //                List<EmissionsReport> emissionsReports
+            //                        = jsonToEmissionReportList(response);
+            //                if (emissionsReports == null){
+            //                    callback.onError(RequestError.getUnknownError());
+            //                    return;
+            //                }else{
+            //                    callback.onSuccess(emissionsReports);
+            //                }
+                        }else{
+                            Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
+                            callback.onError(requestError);
+                        }
         });
     }
 
@@ -222,17 +224,23 @@ public class ReportRepository implements Repository {
     }
 
     private List<VehicleHealthReport> jsonToVehicleHealthReportList(String response){
-        try{
-            List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
-            JSONArray reportList = new JSONObject(response).getJSONArray("response");
-
-            for (int i=0;i<reportList.length();i++){
-
+        List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
+        JSONArray reportList;
+        try {
+            reportList = new JSONObject(response).getJSONArray("response");
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        for (int i=0;i<reportList.length();i++){
+            try{
                 JSONObject healthReportJson = reportList.getJSONObject(i);
                 int id = healthReportJson.getInt("id");
                 Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                         .parse(healthReportJson.getString("createdAt"));
                 JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
+                Log.d(TAG,"reportList #"+i+", healthReportContentJson: "
+                        +healthReportContentJson.toString());
 
                 List<EngineIssue> engineIssues
                         = gson.fromJson(healthReportContentJson.get("dtc").toString()
@@ -246,16 +254,15 @@ public class ReportRepository implements Repository {
 
                 vehicleHealthReports.add(
                         new VehicleHealthReport(id, createdAt, engineIssues,recalls,services));
+            }catch(JSONException e){
+                e.printStackTrace();
+            }catch(ParseException e){
+                e.printStackTrace();
+                return null;
             }
-            return vehicleHealthReports;
 
-        }catch (JSONException e){
-            e.printStackTrace();
-            return null;
-        }catch(ParseException e){
-            e.printStackTrace();
-            return null;
         }
+        return vehicleHealthReports;
     }
 
     private VehicleHealthReport jsonToVehicleHealthReport(String response){

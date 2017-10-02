@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Settings;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.ReportRepository;
@@ -50,17 +51,29 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
     public void run() {
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onSuccess(Settings data) {
-                if (!data.hasMainCar()){
+            public void onSuccess(Settings settings) {
+                if (!settings.hasMainCar()){
                     GetReportUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
 
-                reportRepository.getVehicleHealthReports(data.getCarId(), new Repository.Callback<List<VehicleHealthReport>>() {
+                reportRepository.getVehicleHealthReports(settings.getCarId(), new Repository.Callback<List<VehicleHealthReport>>() {
                     @Override
                     public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
                         Collections.sort(vehicleHealthReports
                                 , (t1,t2) -> t2.getDate().compareTo(t1.getDate()));
+
+                        reportRepository.getEmissionReports(settings.getCarId(), new Repository.Callback<List<EmissionsReport>>() {
+                            @Override
+                            public void onSuccess(List<EmissionsReport> emissionsReports) {
+
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                GetReportUseCaseImpl.this.onError(error);
+                            }
+                        });
                         GetReportUseCaseImpl.this
                                 .onGotVehicleHealthReports(vehicleHealthReports);
                     }
