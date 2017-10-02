@@ -13,4 +13,5 @@ public interface EmissionsReportView {
     void toggleCellDetails(View cell);
     EmissionsReport getEmissionsReport();
     void displayEmissionsReport(EmissionsReport emissionsReport);
+    void displayEmissionsUnavailable();
 }

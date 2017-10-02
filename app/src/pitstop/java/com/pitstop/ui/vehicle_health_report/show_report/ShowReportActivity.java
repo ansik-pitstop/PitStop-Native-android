@@ -46,12 +46,8 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         Log.d(TAG,"Retrieved vhr from parcel:" + vehicleHealthReport
                 + ", retrieved et from parcel: "+emissionsReport);
 
-        if (vehicleHealthReport != null){
-            displayHealthReport();
-        }
-        if (emissionsReport != null){
-            displayEmissionsReport();
-        }
+        displayHealthReport();
+        displayEmissionsReport();
     }
 
     @Override

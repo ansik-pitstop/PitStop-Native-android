@@ -81,6 +81,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.pass)
     TextView pass;
 
+    @BindView (R.id.emissions_unavailable_text)
+    TextView emissionsUnavailble;
+
+    @BindView (R.id.emissions_content)
+    View emissionsContent;
+
     private boolean dropDownInProgress;
     private EmissionsReportPresenter presenter;
 
@@ -150,6 +156,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayEmissionsReport(EmissionsReport emissionsReport) {
+        emissionsContent.setVisibility(View.VISIBLE);
+        emissionsUnavailble.setVisibility(View.GONE);
+
         egr.setText(emissionsReport.getEGRVVTSystem());
         evap.setText(emissionsReport.getFuelSystem());
         misfire.setText(emissionsReport.getMisfire());
@@ -157,5 +166,11 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         o2sensor.setText(emissionsReport.getNOxSCRMonitor());
         components.setText(emissionsReport.getComponents());
         pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
+    }
+
+    @Override
+    public void displayEmissionsUnavailable() {
+        emissionsUnavailble.setVisibility(View.VISIBLE);
+        emissionsContent.setVisibility(View.GONE);
     }
 }
