@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueStorage;
@@ -19,7 +21,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-//MAY BE USELESS FOR NOW SINCE CAR ISSUES ARE TIED TO CAR REPOSITORY ANYWAY, NOT IMPLEMENTED FULLY
 
 /**
  * CarIssue repository, use this class to modify, retrieve, and delete car issue data.
@@ -29,7 +30,7 @@ import java.util.List;
  */
 
 public class CarIssueRepository implements Repository{
-
+    private final String TAG = getClass().getSimpleName();
     private final String END_POINT_REQUEST_SERVICE = "utility/serviceRequest";
     private final String END_POINT_ISSUES_UPCOMING = "car/%s/issues?type=upcoming";
     private final String END_POINT_ISSUES_CURRENT = "car/%s/issues?type=active";
@@ -76,7 +77,7 @@ public class CarIssueRepository implements Repository{
         catch(JSONException e){
             e.printStackTrace();
         }
-
+        Log.d(TAG,"insert() body: "+body.toString());
         networkHelper.post("car/" + issue.getCarId() + "/service"
                 , getInsertCarIssueRequestCallback(callback), body);
     }
@@ -105,6 +106,7 @@ public class CarIssueRepository implements Repository{
             e.printStackTrace();
         }
 
+        Log.d(TAG,"insert() body: "+body.toString());
         networkHelper.post("car/" + carId + "/service"
                 , getInsertCarIssuesRequestCallback(callback), body);
     }

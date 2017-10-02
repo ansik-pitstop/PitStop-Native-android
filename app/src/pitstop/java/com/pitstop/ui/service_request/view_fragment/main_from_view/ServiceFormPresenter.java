@@ -212,8 +212,9 @@ public class ServiceFormPresenter implements PresenterCallback{
                         Log.d(TAG,"onServiceRequested()");
                         if(view == null || callback == null){return;}
                         if(callback.getIssue()!= null){
-                            Log.d(TAG,"callback.getIssue() issue: "+callback.getIssue());
-                            issues.add(callback.getIssue());
+                            view.disableButton(false);
+                            callback.finishActivity();
+                            return;
                         }
                        component.getAddServicesUseCase().execute(issues
                                , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
