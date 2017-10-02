@@ -21,4 +21,6 @@ public interface NotificationView  extends LoadingTabView, ErrorHandlingView{
     int changeimage(String title);
 
     void openRequestService();
+
+    void toast(String s);
 }

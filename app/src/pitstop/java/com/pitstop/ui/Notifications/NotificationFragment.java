@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.adapters.NotificationAdapter;
@@ -157,6 +158,11 @@ public class NotificationFragment extends Fragment implements NotificationView{
             loadingView.setVisibility(View.GONE);
             swipeRefreshLayout.setEnabled(true);
         }
+    }
+
+    @Override
+    public void toast(String s) {
+        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
     }
 
     @Override

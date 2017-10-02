@@ -91,6 +91,9 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                     return;}
 
                 getView().hideLoading();
+                if (list == null){
+                    getView().toast("There was an error loading your notifications.");
+                }
                 if (list.size() == 0) {
                     getView().noNotifications();
                     Log.d("notifications", "zerolist");
