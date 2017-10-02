@@ -47,4 +47,8 @@ public class EmissionsReportPresenter {
         }
     }
 
+    public void onEmissionResultHolderClicked() {
+        if (view != null)
+            view.displayEmissionsUnavailableDialog();
+    }
 }

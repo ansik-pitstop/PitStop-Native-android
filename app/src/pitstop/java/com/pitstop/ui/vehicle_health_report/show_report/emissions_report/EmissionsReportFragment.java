@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Matt on 2017-08-17.
@@ -78,7 +80,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.componetns)
     TextView components;
 
-    @BindView (R.id.pass)
+    @BindView (R.id.emission_result)
     TextView pass;
 
     @BindView (R.id.emissions_content)
@@ -86,6 +88,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     private boolean dropDownInProgress;
     private EmissionsReportPresenter presenter;
+
+    @OnClick(R.id.emission_result_holder)
+    public void onEmissionResultHolderClicked(){
+        presenter.onEmissionResultHolderClicked();
+        Log.d(TAG,"onEmissionResultHolderClicked()");
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -167,5 +175,15 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void displayEmissionsUnavailable() {
         emissionsContent.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void displayEmissionsUnavailableDialog() {
+        new AlertDialog.Builder(getActivity()).setTitle("Emissions Unavailable")
+                .setMessage("Vehicle ineligible for emissions testing through the Pitstop " +
+                        "device at the time of the scan")
+                .setPositiveButton("Ok",null)
+                .create()
+                .show();
     }
 }
