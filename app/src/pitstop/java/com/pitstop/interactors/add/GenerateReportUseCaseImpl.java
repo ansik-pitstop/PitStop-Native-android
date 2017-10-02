@@ -93,13 +93,13 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                                             public void onError(RequestError error) {
                                                 Log.d(TAG,"Error generating emissions report error: "
                                                         +error.getMessage());
-//                                                if (error.getStatusCode() == 400){
-//                                                    GenerateReportUseCaseImpl.this
-//                                                            .onReportAddedWithoutEmissions(vhr);
-//                                                }
-                                               // else{
+                                                if (error.getStatusCode() == 400){
+                                                    GenerateReportUseCaseImpl.this
+                                                            .onReportAddedWithoutEmissions(vhr);
+                                                }
+                                                else{
                                                     GenerateReportUseCaseImpl.this.onError(error);
-                                              //  }
+                                                }
                                             }
                                         });
                             }
