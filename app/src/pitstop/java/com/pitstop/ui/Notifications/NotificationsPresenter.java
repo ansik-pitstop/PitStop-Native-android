@@ -84,8 +84,6 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
             public void onNotificationsRetrieved(List<Notification> list) {
                 Log.d(TAG,"onNotificationsRetrieved() notifs: " + list);
                 updating = false;
-
-                Collections.sort(list, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
                 if (getView() == null){
                     Log.d("notifications", "return");
                     return;}
@@ -93,7 +91,9 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                 getView().hideLoading();
                 if (list == null){
                     getView().toast("There was an error loading your notifications.");
+                    return;
                 }
+                Collections.sort(list, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
                 if (list.size() == 0) {
                     getView().noNotifications();
                     Log.d("notifications", "zerolist");
