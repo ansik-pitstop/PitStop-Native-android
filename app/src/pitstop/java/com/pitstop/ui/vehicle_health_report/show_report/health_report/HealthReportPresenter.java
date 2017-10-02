@@ -74,13 +74,12 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
                 || vehicleHealthReport.getEngineIssues().size() > 1
                 || vehicleHealthReport.getRecalls().size() > 1){
 
-            view.setVehicleHealthSummary("Needs Work");
+            view.setVehicleHealthSummary(HealthReportView.State.NEEDS_WORK);
         }else if (vehicleHealthReport.getServices().size() == 0){
-
-            view.setVehicleHealthSummary("Perfect");
+            view.setVehicleHealthSummary(HealthReportView.State.PERFECT);
         }
         else{
-            view.setVehicleHealthSummary("Good");
+            view.setVehicleHealthSummary(HealthReportView.State.GOOD);
         }
     }
 
