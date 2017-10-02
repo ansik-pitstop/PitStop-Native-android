@@ -67,14 +67,13 @@ public class ReportRepository implements Repository {
                 , (response, requestError) -> {
                         if (requestError == null){
                                 Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
-            //                List<EmissionsReport> emissionsReports
-            //                        = jsonToEmissionReportList(response);
-            //                if (emissionsReports == null){
-            //                    callback.onError(RequestError.getUnknownError());
-            //                    return;
-            //                }else{
-            //                    callback.onSuccess(emissionsReports);
-            //                }
+                            List<EmissionsReport> emissionsReports
+                                    = jsonToEmissionsReportList(response);
+                            if (emissionsReports == null){
+                                callback.onError(RequestError.getUnknownError());
+                            }else{
+                                callback.onSuccess(emissionsReports);
+                            }
                         }else{
                             Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
                             callback.onError(requestError);
@@ -124,9 +123,17 @@ public class ReportRepository implements Repository {
 
     private EmissionsReport jsonToEmissionsReport(String stringResponse){
         try{
-            JSONObject response = new JSONObject(stringResponse).getJSONObject("response");
-            int id = response.getInt("id");
-            JSONObject content = response.getJSONObject("content");
+            return etContentToJson(new JSONObject(stringResponse).getJSONObject("response"));
+        }catch(JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private EmissionsReport etContentToJson(JSONObject jsonResponse){
+        try{
+            int id = jsonResponse.getInt("id");
+            JSONObject content = jsonResponse.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
             String misfire = data.getString("Misfire");
             String ignition = data.getString("Ignition");
@@ -140,11 +147,29 @@ public class ReportRepository implements Repository {
             String PMFilterMonitoring= data.getString("PM Filter Monitoring");
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                    .parse(response.getString("createdAt"));
+                    .parse(jsonResponse.getString("createdAt"));
             return new EmissionsReport(id, misfire, ignition, components
                     , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
         }catch(JSONException | ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private List<EmissionsReport> jsonToEmissionsReportList(String stringResponse){
+        List<EmissionsReport> emissionsReportList = new ArrayList<>();
+        try{
+            JSONArray response = new JSONObject(stringResponse).getJSONArray("response");
+            for (int i=0;i<response.length();i++){
+                EmissionsReport et = etContentToJson(response.getJSONObject(i));
+                if (et != null){
+                    emissionsReportList.add(et);
+                }
+            }
+            return emissionsReportList;
+        }catch(JSONException e){
             e.printStackTrace();
             return null;
         }
@@ -170,7 +195,6 @@ public class ReportRepository implements Repository {
                 , (response, requestError) -> {
 
                     if (requestError == null){
-                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
                         if (vehicleHealthReport == null){
                             Log.d(TAG,"Error parsing response.");
@@ -228,50 +252,25 @@ public class ReportRepository implements Repository {
         JSONArray reportList;
         try {
             reportList = new JSONObject(response).getJSONArray("response");
+            for (int i=0;i<reportList.length();i++){
+                VehicleHealthReport vhr = vhrContentToJson(reportList.getJSONObject(i));
+                if (vhr != null){
+                    vehicleHealthReports.add(vhr);
+                }
+            }
         }catch (JSONException e){
             e.printStackTrace();
             return null;
         }
-        for (int i=0;i<reportList.length();i++){
-            try{
-                JSONObject healthReportJson = reportList.getJSONObject(i);
-                int id = healthReportJson.getInt("id");
-                Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                        .parse(healthReportJson.getString("createdAt"));
-                JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
-                Log.d(TAG,"reportList #"+i+", healthReportContentJson: "
-                        +healthReportContentJson.toString());
-
-                List<EngineIssue> engineIssues
-                        = gson.fromJson(healthReportContentJson.get("dtc").toString()
-                        ,new TypeToken<List<EngineIssue>>() {}.getType());
-                List<Recall> recalls
-                        = gson.fromJson(healthReportContentJson.get("recall").toString()
-                        ,new TypeToken<List<Recall>>() {}.getType());
-                List<Service> services
-                        = gson.fromJson(healthReportContentJson.get("services").toString()
-                        ,new TypeToken<List<Service>>() {}.getType());
-
-                vehicleHealthReports.add(
-                        new VehicleHealthReport(id, createdAt, engineIssues,recalls,services));
-            }catch(JSONException e){
-                e.printStackTrace();
-            }catch(ParseException e){
-                e.printStackTrace();
-                return null;
-            }
-
-        }
         return vehicleHealthReports;
     }
 
-    private VehicleHealthReport jsonToVehicleHealthReport(String response){
+    private VehicleHealthReport vhrContentToJson(JSONObject vhrResponse){
         try{
-            JSONObject healthReportJson = new JSONObject(response).getJSONObject("response");
-            int id = healthReportJson.getInt("id");
+            int id = vhrResponse.getInt("id");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-                    .parse(healthReportJson.getString("createdAt"));
-            JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
+                    .parse(vhrResponse.getString("createdAt"));
+            JSONObject healthReportContentJson = vhrResponse.getJSONObject("content");
 
             List<EngineIssue> engineIssues
                     = gson.fromJson(healthReportContentJson.get("dtc").toString()
@@ -287,6 +286,15 @@ public class ReportRepository implements Repository {
             e.printStackTrace();
             return null;
         }catch(ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private VehicleHealthReport jsonToVehicleHealthReport(String response){
+        try{
+            return vhrContentToJson(new JSONObject(response).getJSONObject("response"));
+        }catch (JSONException e){
             e.printStackTrace();
             return null;
         }
