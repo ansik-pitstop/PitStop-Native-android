@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_specs;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import butterknife.OnClick;
 public class VehicleSpecsFragment extends android.app.Fragment implements VehicleSpecsView {
 
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
+    public static final String CAR_DELETED_OR_SELECTED_AS_CURRENT = "cardeleteorselect";
 
     public static final String CAR_ID_KEY = "carid";
     public static final String CAR_VIN_KEY = "carVin";
@@ -249,7 +251,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void closeSpecsFragment() {
-
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(CAR_DELETED_OR_SELECTED_AS_CURRENT, true);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
         getActivity().finish();
     }
 

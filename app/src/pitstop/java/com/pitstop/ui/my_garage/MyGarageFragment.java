@@ -1,5 +1,6 @@
 package com.pitstop.ui.my_garage;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -235,6 +236,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
 
+
     @Override
     public void openDealershipDirections(Dealership dealership) {
         Log.d(TAG, "openDealershipDirections()");
@@ -242,7 +244,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
                     "http://maps.google.com/maps?daddr=%s",
                     dealership.getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        getActivity().startActivity(intent);
+        getActivity().startActivityForResult(intent, 0 );
     }
 
     @Override
@@ -280,6 +282,19 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // requestcode set as 0 in "openSpecsActivity Method"
+        if(requestCode == 0){
+            if(resultCode == Activity.RESULT_OK){
+                if(data.getExtras().getBoolean(VehicleSpecsFragment.CAR_DELETED_OR_SELECTED_AS_CURRENT)){
+                    presenter.onAppStateChanged();
+                }
+            }
+        }
+    }
+
+    @Override
     public void openSpecsActivity(Car car) {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
@@ -299,7 +314,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         if (car.getDealership() != null)
             bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
-        startActivity(intent);
+        // the zero is the requestcode sent
+        startActivityForResult(intent, 0);
     }
 
     @Override
