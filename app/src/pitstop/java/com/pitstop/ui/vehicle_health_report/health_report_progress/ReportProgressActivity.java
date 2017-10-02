@@ -107,10 +107,6 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
         Intent intent = new Intent(ReportProgressActivity.this, ShowReportActivity.class);
         intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
         startActivity(intent);
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
-//        fragmentTransaction.replace(R.id.report_progress_fragment_holder,healthReportFragment);
-//        fragmentTransaction.commit();
     }
 
     @Override
