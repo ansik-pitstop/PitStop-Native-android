@@ -107,16 +107,16 @@ public class GlobalApplication extends Application {
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build();
 
-        Fabric.with(this, crashlyticsKit);
-
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             Log.d(TAG,"Release build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Release");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
         }
         else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
             Log.d(TAG,"Beta build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Beta");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
+
+        Fabric.with(this, crashlyticsKit);
 
         MultiDex.install(this);
 

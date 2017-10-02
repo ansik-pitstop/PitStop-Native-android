@@ -137,6 +137,7 @@ public class VHRMacroUseCase {
             callback.onStartGeneratingReport();
             if (retrievedPid == null || retrievedDtc == null){
                 callback.onErrorGeneratingReport();
+                if (progressTimerQueue.peek() != null) progressTimerQueue.peek().cancel();
                 return;
             }
             ((GenerateReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
