@@ -455,7 +455,7 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetReportsUseCase getVehicleHealthReportsUseCase(ReportRepository reportRepository
+    GetReportsUseCase getReportsUseCase(ReportRepository reportRepository
             , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
             , @Named("useCaseHandler")Handler useCaseHandler){
 

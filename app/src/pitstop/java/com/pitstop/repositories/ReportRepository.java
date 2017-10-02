@@ -42,7 +42,7 @@ public class ReportRepository implements Repository {
 
     public void getVehicleHealthReports(int carId, Callback<List<VehicleHealthReport>> callback){
         Log.d(TAG,"getVehicleHealthReports() carId: "+carId);
-        networkHelper.get("v1/report/?carId=" + carId, (response, requestError) -> {
+        networkHelper.get("v1/report/?carId=" + carId+"?reportType=\"vhr\"", (response, requestError) -> {
             if (requestError == null){
                 Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
                 List<VehicleHealthReport> vehicleHealthReports
@@ -53,6 +53,26 @@ public class ReportRepository implements Repository {
                 }else{
                     callback.onSuccess(vehicleHealthReports);
                 }
+            }else{
+                Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
+                callback.onError(requestError);
+            }
+        });
+    }
+
+    public void getEmissionReports(int carId, Callback<List<EmissionsReport>> callback){
+        Log.d(TAG,"getEmissionReports() carId: "+carId);
+        networkHelper.get("v1/report/?carId=" + carId +"?reportType=\"et\"", (response, requestError) -> {
+            if (requestError == null){
+//                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
+//                List<EmissionsReport> emissionsReports
+//                        = jsonToEmissionReportList(response);
+//                if (emissionsReports == null){
+//                    callback.onError(RequestError.getUnknownError());
+//                    return;
+//                }else{
+//                    callback.onSuccess(emissionsReports);
+//                }
             }else{
                 Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
                 callback.onError(requestError);
