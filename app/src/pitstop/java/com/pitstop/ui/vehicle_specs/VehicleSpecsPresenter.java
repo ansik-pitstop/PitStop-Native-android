@@ -14,6 +14,7 @@ import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.Presenter;
+import com.pitstop.ui.my_garage.MyGarageFragment;
 import com.pitstop.ui.scan_car.ScanCarContract;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -72,11 +73,13 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
                 useCaseComponent.getCarImagesArrayUseCase().execute(styleID, new GetCarImagesArrayUseCase.Callback() {
                     @Override
                     public void onArrayGot(String imageLink) {
+                        if (view == null) return;
                         updating = false;
                         view.showImage(BASE_URL_PHOTO + imageLink);
                     }
                     @Override
                     public void onError(RequestError error) {
+                        if (view ==null) return;
                         updating = false;
                         view.showDealershipBanner();
                         Log.d(TAG, error.getMessage());
@@ -85,6 +88,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             }
             @Override
             public void onError(RequestError error) {
+                if (view == null) return;
                 updating = false;
                 view.showDealershipBanner();
                 Log.d(TAG, error.getMessage());
@@ -131,7 +135,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             @Override
             public void onCarRemoved() {
 
-                view.openMyGarage();
+                view.closeSpecsFragment();
             }
 
             @Override

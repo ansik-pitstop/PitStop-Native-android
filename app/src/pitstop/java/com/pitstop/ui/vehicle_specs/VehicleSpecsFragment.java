@@ -155,6 +155,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         this.carId = bundle.getInt(CAR_ID_KEY);
         setView();
         return view;
+
+
     }
 
     @Override
@@ -246,7 +248,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     }
 
     @Override
-    public void openMyGarage() {
+    public void closeSpecsFragment() {
+
         getActivity().finish();
     }
 
@@ -271,6 +274,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         }
         licensePlateDialog.show();
     }
+
 
     @OnClick(R.id.scanner_view)
     public void onScannerViewClicked(){

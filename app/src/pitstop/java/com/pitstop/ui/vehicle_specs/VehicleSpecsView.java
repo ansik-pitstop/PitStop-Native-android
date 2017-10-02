@@ -10,5 +10,5 @@ public interface VehicleSpecsView {
     void toast(String message);
     void showImage(String s);
     void showDealershipBanner();
-    void openMyGarage();
+    void closeSpecsFragment();
 }

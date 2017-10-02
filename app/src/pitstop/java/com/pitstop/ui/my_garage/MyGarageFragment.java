@@ -62,6 +62,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @BindView(R.id.add_car_garage)
     View addCar;
 
+    @BindView(R.id.progress)
+    View loadingView;
+
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
@@ -100,7 +103,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
-        presenter.loadCars();
+
     }
 
     @Override
@@ -108,6 +111,26 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG, "onDestroyView()");
         super.onDestroyView();
         presenter.unsubscribe();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.onAppStateChanged();
+
+    }
+
+    @Override
+    public void showLoading() {
+        Log.d(TAG,"showLoading()");
+        loadingView.setVisibility(View.VISIBLE);
+        loadingView.bringToFront();
+
+    }
+
+    @Override
+    public void hideLoading(){
+        loadingView.setVisibility(View.GONE);
     }
 
     @Override
@@ -283,7 +306,12 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void noCarsView() {
         Log.d(TAG, "noCarsView()");
         appointmentsView.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void appointmentsVisible() {
+        Log.d(TAG, "appointmentsVisible()");
+        appointmentsView.setVisibility(View.VISIBLE);
     }
 
     @OnClick (R.id.message_my_garage)

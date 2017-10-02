@@ -95,6 +95,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         Log.d(TAG, "onMessageClicked()");
         if (getView() == null||updating )return;
         updating = true;
+        getView().showLoading();
         if (customProperties == null){
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
@@ -115,25 +116,28 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                         User.getCurrentUser().setFirstName(getView().getUserFirstName());
                         User.getCurrentUser().setEmail(getView().getUserEmail());
                     }
-
+                    getView().hideLoading();
                     getView().openSmooch();
                 }
 
                 @Override
                 public void onNoCarSet() {
                     updating = false;
+                    getView().hideLoading();
                     getView().toast("Please Select a Car");
                 }
 
                 @Override
                 public void onError(RequestError error) {
                     updating = false;
+                    getView().hideLoading();
                     getView().toast(error.getMessage());
                 }
             });
         }
         else{
             updating = false;
+            getView().hideLoading();
             getView().openSmooch();
         }
     }
@@ -230,15 +234,17 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         Log.d(TAG, "loadCars()");
         if(getView() == null|| updating) return;
         if (carList ==null){
+            getView().showLoading();
             updating = true;
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
+                    getView().hideLoading();
                     updating = false;
                     if (cars.size() == 0){
                         getView().noCarsView();
-                        return;
-                    }
+                    }else
+                        getView().appointmentsVisible();
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
@@ -251,6 +257,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 }
                 @Override
                 public void onError(RequestError error) {
+                    getView().hideLoading();
                     updating = false;
                     getView().toast(error.getMessage());
                 }

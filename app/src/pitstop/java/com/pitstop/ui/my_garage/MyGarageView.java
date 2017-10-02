@@ -29,4 +29,9 @@ public interface MyGarageView {
     void openSpecsActivity(Car car);
     void noCarsView();
     void onUpdateNeeded();
+
+    void showLoading();
+    void hideLoading();
+
+    void appointmentsVisible();
 }

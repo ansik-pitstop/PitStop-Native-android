@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_specs;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -30,14 +31,17 @@ public class VehicleSpecsActivity extends AppCompatActivity {
         specsFragment = new VehicleSpecsFragment();
         specsFragment.setArguments(bundle);
         setSpecsFragment();
+
     }
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume()");
         super.onResume();
         //presenter.subscribe(this);
     }
 
     public void setSpecsFragment() {
+        Log.d(TAG , "setSpecsFragment()");
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.vehicle_specs_fragment_holder,specsFragment);
         fragmentTransaction.commit();
