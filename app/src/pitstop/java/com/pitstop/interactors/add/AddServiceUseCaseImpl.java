@@ -26,21 +26,11 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
     }
 
     private void onServiceRequested(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onServiceRequested();
-            }
-        });
+        mainHandler.post(() -> callback.onServiceRequested());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
