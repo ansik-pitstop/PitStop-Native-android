@@ -69,16 +69,17 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                 if (!settings.hasMainCar()) GenerateReportUseCaseImpl
                         .this.onError(RequestError.getUnknownError());
 
-                reportRepository.createEmissionsReport(settings.getCarId()
-                        , false, dtc, pid, new Repository.Callback<EmissionsReport>() {
-
+                reportRepository.createVehicleHealthReport(settings.getCarId()
+                        , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
                             @Override
-                            public void onSuccess(EmissionsReport et) {
+                            public void onSuccess(VehicleHealthReport vhr) {
 
-                                reportRepository.createVehicleHealthReport(settings.getCarId()
-                                        , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
+                                reportRepository.createEmissionsReport(settings.getCarId()
+                                        ,vhr.getId(), false, dtc, pid
+                                        , new Repository.Callback<EmissionsReport>() {
+
                                             @Override
-                                            public void onSuccess(VehicleHealthReport vhr) {
+                                            public void onSuccess(EmissionsReport et) {
                                                 Log.d(TAG,"onSuccess() vhr report: "+vhr
                                                         + "et report: "+et);
                                                 GenerateReportUseCaseImpl.this
@@ -87,38 +88,24 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
                                             @Override
                                             public void onError(RequestError error) {
-                                                Log.d(TAG,"onError() error: "+error);
-                                                GenerateReportUseCaseImpl.this.onError(error);
+                                                if (error.getStatusCode() == 400){
+                                                    GenerateReportUseCaseImpl.this
+                                                            .onReportAddedWithoutEmissions(vhr);
+                                                }
+                                                else{
+                                                    GenerateReportUseCaseImpl.this.onError(error);
+                                                }
                                             }
                                         });
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                if (error.getStatusCode() == 400){
-                                    Log.d(TAG,"Error generating emissions" +
-                                            ", proceeding to only return vhr");
-                                    reportRepository.createVehicleHealthReport(settings.getCarId(), false, dtc, pid
-                                            , new Repository.Callback<VehicleHealthReport>() {
-                                                @Override
-                                                public void onSuccess(VehicleHealthReport vhr) {
-                                                    Log.d(TAG,"onSuccess() NO ET vhr report: "+vhr);
-                                                    GenerateReportUseCaseImpl.this
-                                                            .onReportAddedWithoutEmissions(vhr);
-                                                }
-
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    Log.d(TAG,"onError() error: "+error);
-                                                    GenerateReportUseCaseImpl.this.onError(error);
-                                                }
-                                            });
-                                }
-                                else{
-                                    GenerateReportUseCaseImpl.this.onError(error);
-                                }
+                                Log.d(TAG,"onError() error: "+error);
+                                GenerateReportUseCaseImpl.this.onError(error);
                             }
                         });
+
 
 
             }

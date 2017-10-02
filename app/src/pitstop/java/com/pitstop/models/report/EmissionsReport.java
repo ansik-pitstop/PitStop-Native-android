@@ -36,6 +36,7 @@ import java.util.Date;
 public class EmissionsReport implements Parcelable{
 
     private int id;
+    private int vhrId = -1;
     private String misfire;
     private String ignition;
     private String components;
@@ -55,6 +56,27 @@ public class EmissionsReport implements Parcelable{
             , String PMFilterMonitoring, Date createdAt, boolean pass) {
 
         this.id = id;
+        this.misfire = misfire;
+        this.ignition = ignition;
+        this.components = components;
+        this.fuelSystem = fuelSystem;
+        this.NMHCCatalyst = NMHCCatalyst;
+        this.boostPressure = boostPressure;
+        this.EGRVVTSystem = EGRVVTSystem;
+        this.exhaustSensor = exhaustSensor;
+        this.NOxSCRMonitor = NOxSCRMonitor;
+        this.PMFilterMonitoring = PMFilterMonitoring;
+        this.createdAt = createdAt;
+        this.pass = pass;
+    }
+
+    public EmissionsReport(int id, int vhrId, String misfire, String ignition, String components
+            , String fuelSystem, String NMHCCatalyst, String boostPressure
+            , String EGRVVTSystem, String exhaustSensor, String NOxSCRMonitor
+            , String PMFilterMonitoring, Date createdAt, boolean pass) {
+
+        this.id = id;
+        this.vhrId = vhrId;
         this.misfire = misfire;
         this.ignition = ignition;
         this.components = components;
@@ -222,13 +244,22 @@ public class EmissionsReport implements Parcelable{
         this.pass = pass;
     }
 
+    public int getVhrId() {
+        return vhrId;
+    }
+
+    public void setVhrId(int vhrId) {
+        this.vhrId = vhrId;
+    }
+
     @Override
     public String toString(){
-        return String.format("id:%d, misfire:%s, ignition:%s, components:%s" +
+        return String.format("id:%d, vhrId:%d, misfire:%s, ignition:%s, components:%s" +
                 ", fuel system: %s, catalyst:%s, boost pressure:%s, egr/vvt system:%s" +
                 ", exhaust sensor:%s, NOx/SCR monitor:%s, PM fiter monitoring:%s, createdAt:%s" +
-                ", pass:%b",getId(), getMisfire(), getIgnition(), getComponents(), getFuelSystem()
-                , getNMHCCatalyst(), getBoostPressure(), getEGRVVTSystem(), getExhaustSensor()
-                , getNOxSCRMonitor(), getPMFilterMonitoring(), getCreatedAt().toString(), isPass());
+                ", pass:%b",getId(), getVhrId(), getMisfire(), getIgnition(), getComponents()
+                , getFuelSystem(), getNMHCCatalyst(), getBoostPressure(), getEGRVVTSystem()
+                , getExhaustSensor(), getNOxSCRMonitor(), getPMFilterMonitoring()
+                , getCreatedAt().toString(), isPass());
     }
 }

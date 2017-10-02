@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.models.report.EmissionsReport;
@@ -40,6 +41,8 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         this.vehicleHealthReport = getIntent().getParcelableExtra(EXTRA_VHR);
         this.emissionsReport = getIntent().getParcelableExtra(EXTRA_ET);
 
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
         Log.d(TAG,"Retrieved vhr from parcel:" + vehicleHealthReport
                 + ", retrieved et from parcel: "+emissionsReport);
 
@@ -48,6 +51,17 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
         }
         if (emissionsReport != null){
             displayEmissionsReport();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            super.onBackPressed();
+            return true;
+        }
+        else{
+            return super.onOptionsItemSelected(item);
         }
     }
 

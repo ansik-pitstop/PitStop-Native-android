@@ -81,14 +81,17 @@ public class ReportRepository implements Repository {
         });
     }
 
-    public void createEmissionsReport(int carId, boolean isInternal
+    public void createEmissionsReport(int carId, int vhrId, boolean isInternal
             , DtcPackage dtc, PidPackage pid, Callback<EmissionsReport> callback){
         pid.pids.put("2141","0F0C14FF");
         Log.d(TAG,"createEmissionsReport() carId: "+carId+", isInternal: "
                 +isInternal+", dtc: "+dtc+", pid: "+pid);
         JSONObject body = new JSONObject();
+        JSONObject meta = new JSONObject();
 
         try {
+            meta.put("vhrId",vhrId);
+            body.put("meta", meta);
             body.put("engineCodes", dtcPackageToJSON(dtc));
             body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
@@ -133,8 +136,12 @@ public class ReportRepository implements Repository {
     private EmissionsReport etContentToJson(JSONObject jsonResponse){
         try{
             int id = jsonResponse.getInt("id");
+            JSONObject meta = jsonResponse.getJSONObject("meta");
             JSONObject content = jsonResponse.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
+            int vhrId = -1;
+            if (meta.has("vhrId"))
+                vhrId = meta.getInt("vhrId");
             String misfire = data.getString("Misfire");
             String ignition = data.getString("Ignition");
             String components = data.getString("Components");
@@ -148,7 +155,7 @@ public class ReportRepository implements Repository {
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
-            return new EmissionsReport(id, misfire, ignition, components
+            return new EmissionsReport(id, vhrId, misfire, ignition, components
                     , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
                     , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
         }catch(JSONException | ParseException e){

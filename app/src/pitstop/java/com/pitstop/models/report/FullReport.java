@@ -60,4 +60,9 @@ public class FullReport implements Parcelable{
     public void setEmissionsReport(EmissionsReport emissionsReport) {
         this.emissionsReport = emissionsReport;
     }
+
+    @Override
+    public String toString(){
+        return "vhr: "+vehicleHealthReport.toString() +", et: "+emissionsReport;
+    }
 }

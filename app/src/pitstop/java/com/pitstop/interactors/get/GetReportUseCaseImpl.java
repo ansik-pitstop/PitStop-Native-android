@@ -5,12 +5,14 @@ import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.report.EmissionsReport;
+import com.pitstop.models.report.FullReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,8 +48,9 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
         mainHandler.post(() -> callback.onError(error));
     }
 
-    private void onGotVehicleHealthReports(List<VehicleHealthReport> vehicleHealthReports){
-        mainHandler.post(() -> callback.onGotReports(vehicleHealthReports));
+    private void onGotReports(List<VehicleHealthReport> vehicleHealthReports
+            , List<FullReport> fullReports){
+        mainHandler.post(() -> callback.onGotReports(vehicleHealthReports, fullReports));
     }
 
     @Override
@@ -70,6 +73,22 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
                             @Override
                             public void onSuccess(List<EmissionsReport> emissionsReports) {
                                 Log.d(TAG,"Got emission reports: "+emissionsReports);
+
+                                List<FullReport> fullReports = new ArrayList<>();
+                                List<VehicleHealthReport> toRemove = new ArrayList<>();
+                                for (VehicleHealthReport v: vehicleHealthReports){
+                                    for (EmissionsReport e: emissionsReports){
+                                        if (e.getVhrId() != -1 && e.getVhrId() == v.getId()){
+                                            fullReports.add(new FullReport(v,e));
+                                            toRemove.add(v);
+                                        }
+
+                                    }
+                                }
+                                vehicleHealthReports.removeAll(toRemove);
+                                GetReportUseCaseImpl.this
+                                        .onGotReports(vehicleHealthReports,fullReports);
+
                             }
 
                             @Override
@@ -77,8 +96,6 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
                                 GetReportUseCaseImpl.this.onError(error);
                             }
                         });
-                        GetReportUseCaseImpl.this
-                                .onGotVehicleHealthReports(vehicleHealthReports);
                     }
 
                     @Override

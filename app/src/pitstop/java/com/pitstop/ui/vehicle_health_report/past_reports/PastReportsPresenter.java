@@ -5,6 +5,7 @@ import android.util.Log;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
+import com.pitstop.models.report.FullReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
@@ -60,10 +61,10 @@ public class PastReportsPresenter {
         useCaseComponent.getGetVehicleHealthReportsUseCase()
                 .execute(new GetReportsUseCase.Callback() {
                     @Override
-                    public void onGotReports(
-                            List<VehicleHealthReport> vehicleHealthReports) {
+                    public void onGotReports(List<VehicleHealthReport> vehicleHealthReports
+                            , List<FullReport> fullReports) {
                         savedVehicleHealthReports = vehicleHealthReports;
-                        Log.d(TAG,"populateUI() reports: "+vehicleHealthReports);
+                        Log.d(TAG,"populateUI() vhr: "+vehicleHealthReports+", full: "+fullReports);
                         populating = false;
                         if (view == null) return;
                         displayHealthReports(vehicleHealthReports);
