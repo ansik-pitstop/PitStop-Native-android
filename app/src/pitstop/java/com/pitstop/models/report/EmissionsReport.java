@@ -230,12 +230,17 @@ public class EmissionsReport implements Parcelable{
 
     @Override
     public String toString(){
-        return String.format("id:%d, vhrId:%d, misfire:%s, ignition:%s, components:%s" +
-                ", fuel system: %s, catalyst:%s, boost pressure:%s, egr/vvt system:%s" +
-                ", exhaust sensor:%s, NOx/SCR monitor:%s, PM fiter monitoring:%s, createdAt:%s" +
-                ", pass:%b",getId(), getVhrId(), getMisfire(), getIgnition(), getComponents()
-                , getFuelSystem(), getNMHCCatalyst(), getBoostPressure(), getEGRVVTSystem()
-                , getExhaustSensor(), getNOxSCRMonitor(), getPMFilterMonitoring()
-                , getCreatedAt().toString(), isPass());
+        try{
+            return String.format("id:%d, vhrId:%d, misfire:%s, ignition:%s, components:%s" +
+                            ", fuel system: %s, catalyst:%s, boost pressure:%s, egr/vvt system:%s" +
+                            ", exhaust sensor:%s, NOx/SCR monitor:%s, PM fiter monitoring:%s, createdAt:%s" +
+                            ", pass:%b",getId(), getVhrId(), getMisfire(), getIgnition(), getComponents()
+                    , getFuelSystem(), getNMHCCatalyst(), getBoostPressure(), getEGRVVTSystem()
+                    , getExhaustSensor(), getNOxSCRMonitor(), getPMFilterMonitoring()
+                    , getCreatedAt().toString(), isPass());
+        }catch(NullPointerException e){
+            return "null";
+        }
+
     }
 }

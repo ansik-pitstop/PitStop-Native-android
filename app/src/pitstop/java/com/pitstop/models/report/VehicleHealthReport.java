@@ -66,8 +66,13 @@ public class VehicleHealthReport implements Parcelable {
 
     @Override
     public String toString(){
-        return "id: "+id+", engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
-                +", services: "+getServices();
+        try{
+            return "id: "+id+", engineIssues: "+getEngineIssues() +", recalls: "+getRecalls()
+                    +", services: "+getServices();
+        }catch(NullPointerException e){
+            return "null";
+        }
+
     }
 
     @Override
