@@ -160,6 +160,7 @@ public class VHRMacroUseCase {
                         @Override
                         public void onError(RequestError requestError) {
                             Log.d(TAG,"generateReportUseCase.onError() vhr null!");
+                            callback.onErrorGeneratingReport();
                         }
             });
         }

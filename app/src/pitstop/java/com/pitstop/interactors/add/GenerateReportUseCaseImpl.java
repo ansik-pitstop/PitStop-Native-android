@@ -66,8 +66,11 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
             @Override
             public void onSuccess(Settings settings) {
 
-                if (!settings.hasMainCar()) GenerateReportUseCaseImpl
-                        .this.onError(RequestError.getUnknownError());
+                if (!settings.hasMainCar()){
+                    GenerateReportUseCaseImpl
+                            .this.onError(RequestError.getUnknownError());
+                    return;
+                }
 
                 reportRepository.createVehicleHealthReport(settings.getCarId()
                         , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
