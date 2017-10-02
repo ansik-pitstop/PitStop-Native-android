@@ -12,6 +12,8 @@
     <color name="evcheck_dark">#1f974a</color>
     <color name="not_connected">#e53a52</color>
     <color name="red">#d32f2f</color>
+    <color name="green">#32CD32</color>
+    <color name="orange">#FFC04C</color>
 
     <color name="service_button_tutorial">#29d767</color>
 

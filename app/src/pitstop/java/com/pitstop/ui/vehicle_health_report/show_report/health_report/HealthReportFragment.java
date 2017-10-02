@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -307,8 +308,17 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     }
 
     @Override
-    public void setVehicleHealthSummary(String summary) {
-        this.summary.setText(summary);
+    public void setVehicleHealthSummary(State state) {
+        if (state == State.GOOD){
+            this.summary.setText("Good");
+            this.summary.setTextColor(Color.YELLOW);
+        }else if (state == State.NEEDS_WORK){
+            this.summary.setText("Needs Work");
+            this.summary.setTextColor(Color.RED);
+        }else if (state == State.PERFECT){
+            this.summary.setText("Perfect");
+            this.summary.setTextColor(Color.GREEN);
+        }
     }
 
     @Override

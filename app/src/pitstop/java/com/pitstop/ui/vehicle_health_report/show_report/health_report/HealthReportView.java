@@ -14,6 +14,9 @@ import java.util.List;
  */
 
 public interface HealthReportView {
+
+    enum State{ NEEDS_WORK, GOOD, PERFECT }
+
     void setServicesList(List<Service> services);
     void setRecallList(List<Recall> recalls);
     void setEngineList(List<EngineIssue> engineIssues);
@@ -22,6 +25,6 @@ public interface HealthReportView {
     void toggleEngineList();
     void servicesLoading(boolean show);
     void startIssueDetails(Car car, CarIssue issue);
-    void setVehicleHealthSummary(String summary);
+    void setVehicleHealthSummary(State summary);
     VehicleHealthReport getVehicleHealthReport();
 }
