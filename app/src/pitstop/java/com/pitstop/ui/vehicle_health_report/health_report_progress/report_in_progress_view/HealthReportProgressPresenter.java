@@ -69,8 +69,8 @@ public class HealthReportProgressPresenter {
            @Override
            public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport
                 , EmissionsReport emissionsReport){
-               Log.d(TAG,"onFinishGeneratingReport() vehicleHealthReport: "
-                       +vehicleHealthReport);
+               Log.d(TAG,"onFinishGeneratingReport() vhr: "
+                       +vehicleHealthReport+" \n et: "+emissionsReport);
                HealthReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
                HealthReportProgressPresenter.this.emissionsReport = emissionsReport;
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT

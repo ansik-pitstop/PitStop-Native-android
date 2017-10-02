@@ -36,6 +36,7 @@ public class EmissionsReportPresenter {
     }
 
     public void loadEmissionsTest(){
+        Log.d(TAG,"loadEmissionsTest()");
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
@@ -48,6 +49,7 @@ public class EmissionsReportPresenter {
     }
 
     public void onEmissionResultHolderClicked() {
+        Log.d(TAG,"onEmissionResultHolderClicked()");
         if (view != null)
             view.displayEmissionsUnavailableDialog();
     }

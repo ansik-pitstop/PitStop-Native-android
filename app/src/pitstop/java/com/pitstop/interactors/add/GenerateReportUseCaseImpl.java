@@ -41,6 +41,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
     @Override
     public void execute(PidPackage pid, DtcPackage dtc, Callback callback) {
         Log.d(TAG,"execute() pid: "+pid+", dtc: "+dtc);
+        pid.pids.put("2141","E031H545");
         this.pid = pid;
         this.dtc = dtc;
         this.callback = callback;

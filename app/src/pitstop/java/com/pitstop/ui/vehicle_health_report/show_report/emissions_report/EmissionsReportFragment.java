@@ -117,6 +117,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         presenter.loadEmissionsTest();
@@ -152,6 +153,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public EmissionsReport getEmissionsReport() {
+        Log.d(TAG,"getEmissionsReport()");
         if (getActivity() != null && getActivity() instanceof ReportHolder){
             return ((ReportHolder)getActivity()).getEmissionsReport();
         }else{
@@ -161,6 +163,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayEmissionsReport(EmissionsReport emissionsReport) {
+        Log.d(TAG,"displayEmissionsReport() er: "+emissionsReport);
         emissionsContent.setVisibility(View.VISIBLE);
 
         egr.setText(emissionsReport.getEGRVVTSystem());
@@ -174,11 +177,13 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayEmissionsUnavailable() {
+        Log.d(TAG,"displayEmissionsUnavailable()");
         emissionsContent.setVisibility(View.GONE);
     }
 
     @Override
     public void displayEmissionsUnavailableDialog() {
+        Log.d(TAG,"displayEmissionsUnavailableDialog()");
         new AlertDialog.Builder(getActivity()).setTitle("Emissions Unavailable")
                 .setMessage("At the time of the scan this vehicle was ineligible for emissions" +
                         " testing through the use of the Pitstop device.")

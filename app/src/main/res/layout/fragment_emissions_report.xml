@@ -43,7 +43,6 @@
     </LinearLayout>
 
     <include
-        android:visibility="gone"
         android:id="@+id/emissions_content"
         layout="@layout/layout_emissions_content"/>
 

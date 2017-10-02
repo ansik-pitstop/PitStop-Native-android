@@ -45,7 +45,7 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Log.d(TAG,"Retrieved vhr from parcel:" + vehicleHealthReport
-                + ", retrieved et from parcel: "+emissionsReport);
+                + "\n\n retrieved et from parcel: "+emissionsReport);
 
         if (vehicleHealthReport != null){
             displayHealthReport();
