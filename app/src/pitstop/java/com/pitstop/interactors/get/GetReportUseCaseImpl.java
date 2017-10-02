@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.report.EmissionsReport;
@@ -18,6 +19,8 @@ import java.util.List;
  */
 
 public class GetReportUseCaseImpl implements GetReportsUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private UserRepository userRepository;
     private ReportRepository reportRepository;
@@ -66,7 +69,7 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
                         reportRepository.getEmissionReports(settings.getCarId(), new Repository.Callback<List<EmissionsReport>>() {
                             @Override
                             public void onSuccess(List<EmissionsReport> emissionsReports) {
-
+                                Log.d(TAG,"Got emission reports: "+emissionsReports);
                             }
 
                             @Override

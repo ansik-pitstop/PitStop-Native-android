@@ -221,4 +221,14 @@ public class EmissionsReport implements Parcelable{
     public void setPass(boolean pass) {
         this.pass = pass;
     }
+
+    @Override
+    public String toString(){
+        return String.format("id:%d, misfire:%s, ignition:%s, components:%s" +
+                ", fuel system: %s, catalyst:%s, boost pressure:%s, egr/vvt system:%s" +
+                ", exhaust sensor:%s, NOx/SCR monitor:%s, PM fiter monitoring:%s, createdAt:%s" +
+                ", pass:%b",getId(), getMisfire(), getIgnition(), getComponents(), getFuelSystem()
+                , getNMHCCatalyst(), getBoostPressure(), getEGRVVTSystem(), getExhaustSensor()
+                , getNOxSCRMonitor(), getPMFilterMonitoring(), getCreatedAt().toString(), isPass());
+    }
 }
