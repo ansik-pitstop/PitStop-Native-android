@@ -83,7 +83,6 @@ public class ReportRepository implements Repository {
 
     public void createEmissionsReport(int carId, int vhrId, boolean isInternal
             , DtcPackage dtc, PidPackage pid, Callback<EmissionsReport> callback){
-        pid.pids.put("2141","0F0C14FF");
         Log.d(TAG,"createEmissionsReport() carId: "+carId+", isInternal: "
                 +isInternal+", dtc: "+dtc+", pid: "+pid);
         JSONObject body = new JSONObject();
@@ -168,9 +167,11 @@ public class ReportRepository implements Repository {
             for (int i=0;i<response.length();i++){
                 EmissionsReport et = etContentToJson(response.getJSONObject(i));
                 if (et != null){
-                    JSONObject meta = response.getJSONObject(i).getJSONObject("meta");
-                    if (meta != null && meta.has("vhrId"))
-                        et.setVhrId(meta.getInt("vhrId"));
+                    JSONObject meta = null;
+                    if (response.getJSONObject(i).get("meta") != null)
+                        meta = response.getJSONObject(i).getJSONObject("meta");
+                        if (meta != null && meta.has("vhrId"))
+                            et.setVhrId(meta.getInt("vhrId"));
                     emissionsReportList.add(et);
                 }
             }

@@ -173,7 +173,7 @@ public class HealthReportProgressPresenter {
 
     private void setViewReport(VehicleHealthReport vehicleHealthReport
             , EmissionsReport emissionsReport){
-        Log.d(TAG,"setViewReport()");
+        Log.d(TAG,"setViewReport() et: "+emissionsReport+", vhr: "+vehicleHealthReport);
         if(view == null || callback == null || vehicleHealthReport == null) return;
         if (emissionsReport == null){
             callback.setReportView(vehicleHealthReport);
