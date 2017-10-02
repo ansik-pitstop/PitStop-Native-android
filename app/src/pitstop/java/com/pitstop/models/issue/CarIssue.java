@@ -437,5 +437,16 @@ public class CarIssue implements Parcelable, Issue {
         }
     }
 
+    @Override
+    public String toString(){
+        try{
+            return String.format("id:%d, carId:%d, year:%d, month:%d, day:%d, doneMileage:%d, status:%s" +
+                            ", doneAt:%s, priority:%d, issueType:%s, item:%s, description:%s, symptoms:%s" +
+                            ", causes:%s, action:%s", id, carId, year, month, day ,doneMileage, status, doneAt
+                    , priority, issueType, item, description, symptoms, causes, action);
+        }catch(NullPointerException e){
+            return "null";
+        }
 
+    }
 }
