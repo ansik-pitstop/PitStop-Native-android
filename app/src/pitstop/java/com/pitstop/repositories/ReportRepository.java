@@ -136,7 +136,9 @@ public class ReportRepository implements Repository {
     private EmissionsReport etContentToJson(JSONObject jsonResponse){
         try{
             int id = jsonResponse.getInt("id");
-            JSONObject meta = jsonResponse.getJSONObject("meta");
+            JSONObject meta = null;
+            if (jsonResponse.getJSONObject("meta") != null)
+                meta = jsonResponse.getJSONObject("meta");
             JSONObject content = jsonResponse.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
             int vhrId = -1;
