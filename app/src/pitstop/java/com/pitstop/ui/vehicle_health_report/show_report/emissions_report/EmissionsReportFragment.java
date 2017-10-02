@@ -180,8 +180,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void displayEmissionsUnavailableDialog() {
         new AlertDialog.Builder(getActivity()).setTitle("Emissions Unavailable")
-                .setMessage("Vehicle ineligible for emissions testing through the Pitstop " +
-                        "device at the time of the scan")
+                .setMessage("At the time of the scan this vehicle was ineligible for emissions" +
+                        " testing through the use of the Pitstop device.")
                 .setPositiveButton("Ok",null)
                 .create()
                 .show();
