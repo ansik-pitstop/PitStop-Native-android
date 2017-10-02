@@ -137,7 +137,7 @@ public interface UseCaseComponent {
 
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
 
-    GenerateReportUseCase getAddVehicleReportUseCase();
+    GenerateReportUseCase getGenerateReportUseCase();
 
     GetReportsUseCase getGetVehicleHealthReportsUseCase();
 

@@ -71,7 +71,7 @@ public class VHRMacroUseCase {
         interactorQueue = new LinkedList<>();
         interactorQueue.add(component.getGetDTCUseCase());
         interactorQueue.add(component.getGetPIDUseCase());
-        interactorQueue.add(component.getAddVehicleReportUseCase());
+        interactorQueue.add(component.getGenerateReportUseCase());
 
         //Timer queue
         progressTimerQueue = new LinkedList<>();

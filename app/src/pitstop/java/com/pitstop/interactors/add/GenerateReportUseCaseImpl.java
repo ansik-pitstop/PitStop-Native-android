@@ -76,7 +76,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                         , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
                             @Override
                             public void onSuccess(VehicleHealthReport vhr) {
-
+                                Log.d(TAG,"vhr generated: "+vhr);
                                 reportRepository.createEmissionsReport(settings.getCarId()
                                         ,vhr.getId(), false, dtc, pid
                                         , new Repository.Callback<EmissionsReport>() {
@@ -91,13 +91,15 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
                                             @Override
                                             public void onError(RequestError error) {
-                                                if (error.getStatusCode() == 400){
-                                                    GenerateReportUseCaseImpl.this
-                                                            .onReportAddedWithoutEmissions(vhr);
-                                                }
-                                                else{
+                                                Log.d(TAG,"Error generating emissions report error: "
+                                                        +error.getMessage());
+//                                                if (error.getStatusCode() == 400){
+//                                                    GenerateReportUseCaseImpl.this
+//                                                            .onReportAddedWithoutEmissions(vhr);
+//                                                }
+                                               // else{
                                                     GenerateReportUseCaseImpl.this.onError(error);
-                                                }
+                                              //  }
                                             }
                                         });
                             }

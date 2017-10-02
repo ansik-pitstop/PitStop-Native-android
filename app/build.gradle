@@ -69,6 +69,7 @@ android {
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? endpointTypeStaging : endpointTypeSnapshot
             resValue "string", "parse_server_url", "http://parseserverpush-staging.us-west-2.elasticbeanstalk.com/parse"
             versionNameSuffix ".debug"
+            ext.enableCrashlytics = false
         }
         beta.initWith(buildTypes.debug)
         beta { // for release to beta in Play Store, dev backend, mixpanel

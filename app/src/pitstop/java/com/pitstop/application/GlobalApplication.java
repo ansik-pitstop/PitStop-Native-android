@@ -11,6 +11,7 @@ import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -102,8 +103,11 @@ public class GlobalApplication extends Application {
 
         Stetho.initializeWithDefaults(this);
 
-        //Begin Crashlytics
-        Fabric.with(this, new Crashlytics());
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build();
+
+        Fabric.with(this, crashlyticsKit);
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             Log.d(TAG,"Release build.");
