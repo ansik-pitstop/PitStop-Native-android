@@ -236,7 +236,9 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
     public void loadCars() {
         Log.d(TAG, "loadCars()");
-        if(getView() == null|| updating) return;
+        if(getView() == null|| updating){
+            getView().hideLoading();
+            return;}
         if (carList ==null){
             getView().showLoading();
             updating = true;
@@ -257,15 +259,21 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                             Log.d(TAG, c.getDealership().getName());
                         }
                     }
+                    getView().hideLoading();
                     getView().showCars(carList);
+
                 }
                 @Override
                 public void onError(RequestError error) {
                     getView().hideLoading();
                     updating = false;
+                    getView().hideLoading();
                     getView().toast(error.getMessage());
                 }
             });
+        }
+        else {
+            getView().hideLoading();
         }
     }
 
@@ -278,5 +286,9 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
         getView().onUpdateNeeded();
+    }
+
+    public void makeCarListNull() {
+        carList = null;
     }
 }

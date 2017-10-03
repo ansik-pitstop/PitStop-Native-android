@@ -276,6 +276,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
+    public void stopRefreshing() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
     public void onCarClicked(Car car) {
         Log.d(TAG, "onCarClicked()");
         presenter.onCarClicked(car);
@@ -284,6 +289,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void onUpdateNeeded() {
         Log.d(TAG, "onUpdateNeeded");
+        presenter.makeCarListNull();
         presenter.loadCars();
     }
 

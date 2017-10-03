@@ -34,4 +34,6 @@ public interface MyGarageView {
     void hideLoading();
 
     void appointmentsVisible();
+
+    void stopRefreshing();
 }
