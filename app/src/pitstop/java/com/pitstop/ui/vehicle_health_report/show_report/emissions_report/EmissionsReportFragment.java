@@ -229,8 +229,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
         Log.d(TAG,"displayPetrolEmissionsReport() petrolEmissionsReport: "+petrolEmissionsReport);
         emissionsContentHolder.setVisibility(View.VISIBLE);
-        dieselEmissionsContent.setVisibility(View.VISIBLE);
-        petrolEmissionsContent.setVisibility(View.GONE);
+        dieselEmissionsContent.setVisibility(View.GONE);
+        petrolEmissionsContent.setVisibility(View.VISIBLE);
 
         displayEmissionsreport(petrolEmissionsReport);
 

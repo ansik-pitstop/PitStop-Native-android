@@ -108,6 +108,14 @@ public class ReportRepository implements Repository {
                     if (requestError == null){
                         Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
                         EmissionsReport emissionsReport = jsonToEmissionsReport(response);
+                        if (emissionsReport instanceof PetrolEmissionsReport){
+                            PetrolEmissionsReport per = (PetrolEmissionsReport)emissionsReport;
+                            Log.d(TAG,"Got petrol emissions report: " + per);
+                        }else{
+                            DieselEmissionsReport der = (DieselEmissionsReport)emissionsReport;
+                            Log.d(TAG,"Got diesel emissions report: " + der);
+                        }
+
                         if (emissionsReport == null){
                             Log.d(TAG,"Error parsing response.");
                             callback.onError(RequestError.getUnknownError());
