@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -58,6 +60,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @BindView(R.id.contact_view)
     View contactView;
 
+    @BindView(R.id.contents_container)
+    LinearLayout mainLayout;
+
     @BindView(R.id.car_recycler_view)
     RecyclerView carRecyclerView;
 
@@ -66,6 +71,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @BindView(R.id.progress)
     RelativeLayout loadingView;
+
+    @BindView(R.id.swiper)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
@@ -97,6 +105,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         carRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
         carsAdapter = new CarsAdapter(this, carList);
         carRecyclerView.setAdapter(carsAdapter);
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
         return view;
     }
 
@@ -105,6 +114,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.onAppStateChanged();
 
     }
 
@@ -116,23 +126,29 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        presenter.onAppStateChanged();
-
-    }
-
-    @Override
     public void showLoading() {
-        Log.d(TAG,"showLoading()");
-        loadingView.setVisibility(View.VISIBLE);
-        loadingView.bringToFront();
+        Log.d(TAG, "showLoading()");
+        if (!swipeRefreshLayout.isRefreshing()) {
+            Log.d(TAG, "showLoading()");
+            mainLayout.setVisibility(View.GONE);
+            loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+            swipeRefreshLayout.setEnabled(false);
+        }
 
     }
 
     @Override
     public void hideLoading(){
-        loadingView.setVisibility(View.GONE);
+        Log.d(TAG, "hideLoading()");
+        if (!swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setEnabled(true);
+            loadingView.setVisibility(View.GONE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
+        else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
@@ -267,6 +283,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void onUpdateNeeded() {
+        Log.d(TAG, "onUpdateNeeded");
         presenter.loadCars();
     }
 

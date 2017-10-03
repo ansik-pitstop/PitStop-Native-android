@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:background="@color/white"
-                android:alpha="0.7"
+                android:alpha="0.6"
                 android:visibility="gone"/>
 
             <RelativeLayout
@@ -106,11 +106,11 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="8dp"
             android:layout_gravity="center_horizontal"
             >
             <TextView
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:text="Select as Current Car"
                 android:textColor="#4CAF50"
                 android:paddingTop="8dp"
@@ -150,7 +150,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="VIN"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -195,7 +195,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Scanner ID"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -239,7 +239,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="License Plate"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -301,7 +301,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Dealership"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
             <TextView
@@ -351,7 +351,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Engine"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -395,7 +395,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="City Mileage"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
             <TextView
@@ -436,7 +436,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Highway Mileage"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
             <TextView
@@ -478,7 +478,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Trim"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -522,7 +522,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Tank Size"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
 
@@ -551,7 +551,7 @@
             android:layout_gravity="center_horizontal"
             >
             <TextView
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:text="Delete Car"
                 android:textColor="#D50000"
                 android:paddingTop="8dp"

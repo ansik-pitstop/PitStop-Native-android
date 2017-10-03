@@ -202,6 +202,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         }
         else
             engine.setText(bundle.getString(ENGINE_KEY));
+
         cityMileage.setText(bundle.getString(CITY_MILEAGE_KEY));
         highwayMileage.setText(bundle.getString(HIGHWAY_MILEAGE_KEY));
         if (bundle.getString(TRIM_KEY) == null)
@@ -232,11 +233,13 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void toast(String message) {
+        Log.d(TAG, "toast " + message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void showDealershipBanner() {
+        Log.d(TAG, "showDealershipBanner()");
         carLogo.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);
         carName.setVisibility(View.VISIBLE);
@@ -251,6 +254,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @Override
     public void closeSpecsFragment() {
+        Log.d(TAG, "closeSpecsFragment");
         Intent resultIntent = new Intent();
         resultIntent.putExtra(CAR_DELETED_OR_SELECTED_AS_CURRENT, true);
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
@@ -290,12 +294,13 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     @OnClick(R.id.make_car_current)
     public void onMakeCarCurrentClicked(){
+        Log.d(TAG, "makeCarCurrentClicked");
         presenter.makeCarCurrent(bundle.getInt(CAR_ID_KEY));
     }
 
     @OnClick(R.id.delete_car)
     public void onDeleteCarClicked(){
-
+        Log.d(TAG, "deleteCarClicked");
         if (deleteCarAlertDialog == null){
             final View dialogLayout = LayoutInflater.from(
                     getActivity()).inflate(R.layout.buy_device_dialog, null);

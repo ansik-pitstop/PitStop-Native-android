@@ -58,7 +58,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onError(error);
+                if(error!=null)
+                    callback.onError(error);
             }
         });
     }

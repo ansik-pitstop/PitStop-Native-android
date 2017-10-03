@@ -68,6 +68,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
     @Override
     public void onAppStateChanged() {
+        Log.d(TAG, "onAppStateChanged()");
         dealershipList = null;
         carList = null;
         getView().onUpdateNeeded();
@@ -100,6 +101,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
                 public void onCarRetrieved(Car car) {
+                    Log.d(TAG, "onCarRetrieved()");
                     updating = false;
                     //mixpanelHelper.trackFabClicked("Message");
                     customProperties = new HashMap<>();
@@ -122,6 +124,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                 @Override
                 public void onNoCarSet() {
+                    Log.d(TAG, "noCarSet()");
                     updating = false;
                     getView().hideLoading();
                     getView().toast("Please Select a Car");
@@ -129,6 +132,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                 @Override
                 public void onError(RequestError error) {
+
                     updating = false;
                     getView().hideLoading();
                     getView().toast(error.getMessage());
@@ -179,7 +183,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             updating = false;
             Log.d(TAG, "dealershipsAlreadyGot");
             if (dealershipList.size() == 0)
-
                 getView().toast("Please add a dealership");
             else if (dealershipList.size() == 1)
                 getView().callDealership(dealershipList.get(0));
@@ -198,6 +201,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
+
                     updating = false;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
@@ -269,5 +273,10 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         Log.d(TAG, "onCarClicked()");
         getView().openSpecsActivity(car);
 
+    }
+
+    public void onRefresh() {
+        Log.d(TAG, "onRefresh()");
+        getView().onUpdateNeeded();
     }
 }

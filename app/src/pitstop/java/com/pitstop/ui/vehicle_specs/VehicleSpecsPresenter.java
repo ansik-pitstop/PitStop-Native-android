@@ -38,11 +38,13 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
     }
     @Override
     public void subscribe(VehicleSpecsView view) {
+        Log.d(TAG, "subscribe");
         this.view  = view;
     }
 
     @Override
     public void unsubscribe() {
+        Log.d(TAG, "unsubscribe");
         this.view = null;
     }
 
@@ -82,7 +84,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
                         if (view ==null) return;
                         updating = false;
                         view.showDealershipBanner();
-                        Log.d(TAG, error.getMessage());
+                       // Log.d(TAG, error.getMessage());
                     }
                 });
             }
@@ -121,6 +123,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             @Override
             public void onUserCarSet() {
                 view.toast("Current Car Set");
+                view.closeSpecsFragment();
             }
             @Override
             public void onError(RequestError error) {
@@ -134,7 +137,6 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
-
                 view.closeSpecsFragment();
             }
 
