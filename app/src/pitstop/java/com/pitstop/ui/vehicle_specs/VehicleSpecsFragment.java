@@ -68,6 +68,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     private AlertDialog dealershipAlertDialog;
     private AlertDialog deleteCarAlertDialog;
     private VehicleSpecsPresenter presenter;
+    private AlertDialog currentCarConfirmDialog;
 
     @BindView(R.id.car_logo_imageview)
     ImageView carLogo;
@@ -295,7 +296,21 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @OnClick(R.id.make_car_current)
     public void onMakeCarCurrentClicked(){
         Log.d(TAG, "makeCarCurrentClicked");
-        presenter.makeCarCurrent(bundle.getInt(CAR_ID_KEY));
+        if(currentCarConfirmDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            currentCarConfirmDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Select as Current Car")
+                    .setView(dialogLayout)
+                    .setMessage("Are you sure you want to select this as your current car?")
+                    .setPositiveButton("Yes", (dialog, which)
+                            -> presenter.makeCarCurrent(bundle.getInt(CAR_ID_KEY)))
+                    .setNegativeButton("No", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        currentCarConfirmDialog.show();
+
     }
 
     @OnClick(R.id.delete_car)
@@ -306,12 +321,12 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
             deleteCarAlertDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Purchase Pitstop Device")
+                    .setTitle("Delete Car")
                     .setView(dialogLayout)
                     .setMessage("Are you sure you want to delete this car")
                     .setPositiveButton("Yes", (dialog, which)
                             -> presenter.deleteCar(bundle.getInt(CAR_ID_KEY)))
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton("No", (dialog, which) -> dialog.cancel())
                     .create();
         }
         deleteCarAlertDialog.show();
