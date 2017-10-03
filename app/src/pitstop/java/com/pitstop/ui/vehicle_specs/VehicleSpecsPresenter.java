@@ -15,7 +15,7 @@ import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.Presenter;
 import com.pitstop.ui.my_garage.MyGarageFragment;
-import com.pitstop.ui.scan_car.ScanCarContract;
+
 import com.pitstop.utils.MixpanelHelper;
 
 /**

@@ -8,7 +8,7 @@ import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.my_garage.MyGarageFragment;
-import com.pitstop.ui.scan_car.ScanCarFragment;
+
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.vehicle_health_report.start_report_view.StartReportFragment;
 import com.pitstop.ui.vehicle_health_report.start_report_view.StartReportFragment;
