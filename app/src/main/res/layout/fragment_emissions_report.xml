@@ -42,8 +42,26 @@
 
     </LinearLayout>
 
-    <include
+    <LinearLayout
         android:id="@+id/emissions_content"
-        layout="@layout/layout_petrol_emissions_content"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/emissions_shared_content"
+            layout="@layout/layout_shared_emissions_content"/>
+
+        <include
+            android:visibility="gone"
+            android:id="@+id/petrol_emissions_content"
+            layout="@layout/layout_petrol_emissions_content"/>
+
+        <include
+            android:visibility="gone"
+            android:id="@+id/diesel_emissions_content"
+            layout="@layout/layout_diesel_emissions_content"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

@@ -11,7 +11,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_nmhc_catalyst"
+            android:id="@+id/cell_heated_catalyst"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -28,7 +28,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/nmhc_catalyst"
+                        android:id="@+id/heated_catalyst"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="NMHC Catalyst"
+                android:text="Heated Catalyst"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
@@ -56,13 +56,13 @@
             layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_nmhc_catalyst_details"
+            android:id="@+id/cell_heated_catalyst_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_nmhc_catalyst_details_text"
+                android:id="@+id/cell_heated_catalyst_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -85,7 +85,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_egrvtt_system"
+            android:id="@+id/cell_catalyst"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -102,7 +102,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/egr_vtt_system"
+                        android:id="@+id/catalyst"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -121,21 +121,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="EGR/VTT System"
+                android:text="Catalyst"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
 
-        <include layout="@layout/divider"/>
+        <include
+            layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_egrvtt_system_details"
+            android:id="@+id/cell_catalyst_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_egrvtt_system_details_text"
+                android:id="@+id/cell_catalyst_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -158,7 +159,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_nox_scr_monitor"
+            android:id="@+id/cell_evap"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -175,7 +176,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/nox_scr_monitor"
+                        android:id="@+id/evap"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -194,21 +195,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="NOx/SCR System"
+                android:text="Evap"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
 
-        <include layout="@layout/divider"/>
+        <include
+            layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_nox_scr_monitor_details"
+            android:id="@+id/cell_evap_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_nox_scr_monitor_details_text"
+                android:id="@+id/cell_evap_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -231,7 +233,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_boost_pressure"
+            android:id="@+id/cell_secondary_air_filter"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -248,7 +250,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/boost_pressure"
+                        android:id="@+id/secondary_air_filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -267,21 +269,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Boost Pressure"
+                android:text="Heated Catalyst"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
 
-        <include layout="@layout/divider"/>
+        <include
+            layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_boost_pressure_details"
+            android:id="@+id/cell_secondary_air_filter_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_boost_pressure_details_text"
+                android:id="@+id/cell_secondary_air_filter_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -304,7 +307,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_exhaust_sensor"
+            android:id="@+id/cell_ac_refrigerant"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -321,7 +324,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/exhaust_sensor"
+                        android:id="@+id/ac_refrigerant"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -340,21 +343,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Exhaust Sensor"
+                android:text="Heated Catalyst"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
 
-        <include layout="@layout/divider"/>
+        <include
+            layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_exhaust_sensor_details"
+            android:id="@+id/cell_ac_refrigerant_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_exhaust_sensor_details_text"
+                android:id="@+id/cell_ac_refrigerant_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -377,7 +381,7 @@
 
         <RelativeLayout
             android:background="@color/white"
-            android:id="@+id/cell_pm_filter_monitoring"
+            android:id="@+id/cell_o2_sensor"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -394,7 +398,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/pm_filter_monitoring"
+                        android:id="@+id/o2_sensor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -413,21 +417,170 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="PM Filter Monitoring"
+                android:text="O2 Sensor"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
 
-        <include layout="@layout/divider"/>
+        <include
+            layout="@layout/divider" />
 
         <RelativeLayout
-            android:id="@+id/cell_pm_filter_monitoring_details"
+            android:id="@+id/cell_o2_sensor_details"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_pm_filter_monitoring_details_text"
+                android:id="@+id/cell_o2_sensor_details_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:text="TextView \n \n" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                app:srcCompat="@color/grey" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:background="@color/white"
+            android:id="@+id/cell_o2_sensor_heater"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/o2_sensor_heater"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="N/A" />
+                </RelativeLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/right_chevron" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="O2 Sensor Heater"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black" />
+        </RelativeLayout>
+
+        <include
+            layout="@layout/divider" />
+
+        <RelativeLayout
+            android:id="@+id/cell_o2_sensor_heater_details"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/cell_o2_sensor_heater_details_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:text="TextView \n \n" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                app:srcCompat="@color/grey" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:background="@color/white"
+            android:id="@+id/cell_egr"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/egr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="N/A" />
+                </RelativeLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/right_chevron" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="EGR"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black" />
+        </RelativeLayout>
+
+        <include
+            layout="@layout/divider" />
+
+        <RelativeLayout
+            android:id="@+id/cell_egr_details"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/cell_egr_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.florent37.viewanimator.ViewAnimator;
@@ -32,61 +31,75 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     private final String TAG = getClass().getSimpleName();
 
-    @BindView(R.id.emissions_report_cell_one)
-    RelativeLayout cellOne;
-    @BindView(R.id.emissions_report_cell_one_details)
-    RelativeLayout cellOneDetails;
-    @BindView(R.id.cell_one_text)
-    TextView cellOneText;
-
-    @BindView(R.id.emissions_report_cell_two)
-    RelativeLayout cellTwo;
-    @BindView(R.id.emissions_report_cell_two_details)
-    RelativeLayout cellTwoDetails;
-
-    @BindView(R.id.emissions_report_cell_three)
-    RelativeLayout cellThree;
-    @BindView(R.id.emissions_report_cell_three_details)
-    RelativeLayout cellThreeDetails;
-
-    @BindView(R.id.emissions_report_cell_four)
-    RelativeLayout cellFour;
-    @BindView(R.id.emissions_report_cell_four_details)
-    RelativeLayout cellFourDetails;
-
-    @BindView(R.id.emissions_report_cell_five)
-    RelativeLayout cellFive;
-    @BindView(R.id.emissions_report_cell_five_details)
-    RelativeLayout cellFiveDetails;
-
-    @BindView(R.id.emissions_report_cell_six)
-    RelativeLayout cellSix;
-    @BindView(R.id.emissions_report_cell_six_details)
-    RelativeLayout cellSixDetails;
-
-    @BindView(R.id.egr)
-    TextView egr;
-
-    @BindView(R.id.evap)
-    TextView evap;
+    //Shared
+    @BindView (R.id.emission_result)
+    protected TextView pass;
 
     @BindView(R.id.misfire)
-    TextView misfire;
+    protected TextView misfire;
+
+    @BindView(R.id.ignition)
+    protected TextView ignition;
+
+    @BindView(R.id.components)
+    protected TextView components;
+
+    @BindView(R.id.fuel_system)
+    protected TextView fuelSystem;
+
+    //Petrol
+    @BindView(R.id.nmhc_catalyst)
+    protected TextView NMHCCatalyst;
+
+    @BindView(R.id.egr_vtt_system)
+    protected TextView EGRVTTSystem;
+
+    @BindView(R.id.nox_scr_monitor)
+    protected TextView NOxSCRMonitor;
+
+    @BindView(R.id.boost_pressure)
+    protected TextView boostPressure;
+
+    @BindView(R.id.exhaust_sensor)
+    protected TextView exhaustSensor;
+
+    @BindView(R.id.pm_filter_monitoring)
+    protected TextView PMFilterMonitoring;
+
+    //Diesel
+    @BindView(R.id.heated_catalyst)
+    protected TextView heatedCatalyst;
 
     @BindView(R.id.catalyst)
-    TextView catalyst;
+    protected TextView catalyst;
 
-    @BindView(R.id.o2Sensor)
-    TextView o2sensor;
+    @BindView(R.id.evap)
+    protected TextView evap;
 
-    @BindView(R.id.componetns)
-    TextView components;
+    @BindView(R.id.secondary_air_filter)
+    protected TextView secondaryAirFilter;
 
-    @BindView (R.id.emission_result)
-    TextView pass;
+    @BindView(R.id.ac_refrigerant)
+    protected TextView ACRefrigerant;
+
+    @BindView(R.id.o2_sensor)
+    protected TextView O2Sensor;
+
+    @BindView(R.id.o2_sensor_heater)
+    protected TextView O2SensorHeater;
+
+    @BindView(R.id.egr)
+    protected TextView EGR;
+
+    //Holders
+    @BindView (R.id.petrol_emissions_content)
+    View petrolEmissionsContent;
+
+    @BindView (R.id.diesel_emissions_content)
+    View dieselEmissionsContent;
 
     @BindView (R.id.emissions_content)
-    View emissionsContent;
+    View emissionsContentHolder;
 
     private boolean dropDownInProgress;
     private EmissionsReportPresenter presenter;
@@ -107,12 +120,13 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 (GlobalApplication)getActivity().getApplicationContext());
         presenter = new EmissionsReportPresenter(mixpanelHelper);
 
-        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
-        cellTwo.setOnClickListener(view12 -> presenter.onCellClicked(cellTwoDetails));
-        cellThree.setOnClickListener(view13 -> presenter.onCellClicked(cellThreeDetails));
-        cellFour.setOnClickListener(view14 -> presenter.onCellClicked(cellFourDetails));
-        cellFive.setOnClickListener(view15 -> presenter.onCellClicked(cellFiveDetails));
-        cellSix.setOnClickListener(view16 -> presenter.onCellClicked(cellSixDetails));
+        //todo: show details later
+//        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
+//        cellTwo.setOnClickListener(view12 -> presenter.onCellClicked(cellTwoDetails));
+//        cellThree.setOnClickListener(view13 -> presenter.onCellClicked(cellThreeDetails));
+//        cellFour.setOnClickListener(view14 -> presenter.onCellClicked(cellFourDetails));
+//        cellFive.setOnClickListener(view15 -> presenter.onCellClicked(cellFiveDetails));
+//        cellSix.setOnClickListener(view16 -> presenter.onCellClicked(cellSixDetails));
 
         return view;
     }
@@ -164,21 +178,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     }
 
     @Override
-    public void displayEmissionsReport(EmissionsReport emissionsReport) {
-        Log.d(TAG,"displayEmissionsReport() er: "+emissionsReport);
-        emissionsContent.setVisibility(View.VISIBLE);
-
-        //egr.setText(emissionsReport.getEGRVVTSystem());
-
-        //catalyst.setText(emissionsReport.getNMHCCatalyst());
-        //o2sensor.setText(emissionsReport.getNOxSCRMonitor());
-
-    }
-
-    @Override
     public void displayEmissionsUnavailable() {
         Log.d(TAG,"displayEmissionsUnavailable()");
-        emissionsContent.setVisibility(View.GONE);
+        emissionsContentHolder.setVisibility(View.GONE);
     }
 
     @Override
@@ -194,16 +196,48 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayDieselEmissionsReport(DieselEmissionsReport dieselEmissionsReport) {
-        emissionsContent.setVisibility(View.VISIBLE);
-        evap.setText(dieselEmissionsReport.getFuelSystem());
-        misfire.setText(dieselEmissionsReport.getMisfire());
-        components.setText(dieselEmissionsReport.getComponents());
+        //Holders
+        emissionsContentHolder.setVisibility(View.VISIBLE);
+        petrolEmissionsContent.setVisibility(View.GONE);
+        dieselEmissionsContent.setVisibility(View.VISIBLE);
 
-        pass.setText(dieselEmissionsReport.isPass() ? "Pass" : "Fail");
+        displayEmissionsreport(dieselEmissionsReport);
+
+        //Diesel
+        heatedCatalyst.setText(dieselEmissionsReport.getHeatedCatalyst());
+        catalyst.setText(dieselEmissionsReport.getCatalyst());
+        evap.setText(dieselEmissionsReport.getEvap());
+        secondaryAirFilter.setText(dieselEmissionsReport.getSecondaryAir());
+        ACRefrigerant.setText(dieselEmissionsReport.getACRefrigirator());
+        O2Sensor.setText(dieselEmissionsReport.getO2Sensor());
+        O2SensorHeater.setText(dieselEmissionsReport.getO2SensorHeater());
+        EGR.setText(dieselEmissionsReport.getEGR());
+
+    }
+
+    private void displayEmissionsreport(EmissionsReport emissionsReport){
+        //Shared
+        misfire.setText(emissionsReport.getMisfire());
+        ignition.setText(emissionsReport.getIgnition());
+        components.setText(emissionsReport.getComponents());
+        fuelSystem.setText(emissionsReport.getFuelSystem());
+        pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
     }
 
     @Override
     public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
+        emissionsContentHolder.setVisibility(View.VISIBLE);
+        dieselEmissionsContent.setVisibility(View.VISIBLE);
+        petrolEmissionsContent.setVisibility(View.GONE);
 
+        displayEmissionsreport(petrolEmissionsReport);
+
+        //Petrol
+        NMHCCatalyst.setText(petrolEmissionsReport.getNMHCCatalyst());
+        EGRVTTSystem.setText(petrolEmissionsReport.getEGRVTTSystem());
+        NOxSCRMonitor.setText(petrolEmissionsReport.getNOxSCRMonitor());
+        boostPressure.setText(petrolEmissionsReport.getBoostPressure());
+        exhaustSensor.setText(petrolEmissionsReport.getExhaustSensor());
+        PMFilterMonitoring.setText(petrolEmissionsReport.getPMFilterMonitoring());
     }
 }
