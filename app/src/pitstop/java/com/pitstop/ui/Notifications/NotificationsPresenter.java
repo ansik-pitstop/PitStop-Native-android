@@ -90,7 +90,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
                 getView().hideLoading();
                 if (list == null){
-                    getView().toast("There was an error loading your notifications.");
+                    getView().displayUnknownErrorView();
                     return;
                 }
                 Collections.sort(list, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
