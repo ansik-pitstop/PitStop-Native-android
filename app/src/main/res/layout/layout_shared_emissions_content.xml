@@ -64,7 +64,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_one_text"
+                android:id="@+id/cell_misfire_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -139,7 +139,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_two_text"
+                android:id="@+id/cell_ignition_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -213,7 +213,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_three_text"
+                android:id="@+id/cell_components_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -287,7 +287,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/cell_four_text"
+                android:id="@+id/cell_fuel_system_details_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
