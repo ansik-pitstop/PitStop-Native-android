@@ -65,7 +65,7 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
     }
 
     public void displayHealthReport(){
-        Log.d(TAG,"displayHealthReport()");
+        Log.d(TAG,"displayReport()");
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.holder_top, healthReportFragment)
                 .commit();

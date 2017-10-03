@@ -2,7 +2,6 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.report.FullReport;
-import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 
 import java.util.List;
@@ -13,8 +12,7 @@ import java.util.List;
 
 public interface GetReportsUseCase extends Interactor {
     interface Callback {
-        void onGotReports(List<VehicleHealthReport> vehicleHealthReports
-                , List<FullReport> fullReports);
+        void onGotReports(List<FullReport> fullReports);
         void onError(RequestError error);
     }
 

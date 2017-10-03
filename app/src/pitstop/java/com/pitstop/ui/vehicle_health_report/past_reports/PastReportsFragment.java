@@ -19,6 +19,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.report.FullReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -47,7 +48,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
 
     private PastReportsPresenter presenter;
     private PastReportsAdapter pastReportsAdapter;
-    private List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
+    private List<FullReport> reports = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +65,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         ButterKnife.bind(this,root);
 
         //Setup adapter
-        pastReportsAdapter = new PastReportsAdapter(this, vehicleHealthReports);
+        pastReportsAdapter = new PastReportsAdapter(this, reports);
         reportsRecyclerView.setAdapter(pastReportsAdapter);
         reportsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -129,19 +130,20 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     }
 
     @Override
-    public void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports) {
-        Log.d(TAG,"displayHealthReports() reports: "+vehicleHealthReports);
+    public void displayReports(List<FullReport> reports) {
+        Log.d(TAG,"displayReports() reports: "+reports);
         reportsRecyclerView.setVisibility(View.VISIBLE);
         noReportsView.setVisibility(View.GONE);
-        this.vehicleHealthReports.clear();
-        this.vehicleHealthReports.addAll(vehicleHealthReports);
+        this.reports.clear();
+        this.reports.addAll(reports);
         pastReportsAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void displayHealthReport(VehicleHealthReport vehicleHealthReport) {
+    public void displayReport(FullReport report) {
+        Log.d(TAG,"displayReport() report: "+report);
         try{
-            ((PastReportsViewSwitcher)getActivity()).setReportView(vehicleHealthReport);
+            ((PastReportsViewSwitcher)getActivity()).setReportView(report);
         }catch(ClassCastException e){
             e.printStackTrace();
         }
@@ -189,7 +191,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     }
 
     @Override
-    public List<VehicleHealthReport> getDisplayedReports() {
-        return vehicleHealthReports;
+    public List<FullReport> getDisplayedReports() {
+        return reports;
     }
 }

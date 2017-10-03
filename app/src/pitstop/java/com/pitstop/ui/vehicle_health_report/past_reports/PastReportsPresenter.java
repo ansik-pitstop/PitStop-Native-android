@@ -4,9 +4,8 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetReportsUseCase;
-import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
+import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.models.report.FullReport;
-import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -23,7 +22,7 @@ public class PastReportsPresenter {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private PastReportsView view;
-    private List<VehicleHealthReport> savedVehicleHealthReports;
+    private List<FullReport> savedReports;
 
     private boolean populating = false;
 
@@ -34,7 +33,7 @@ public class PastReportsPresenter {
 
     void subscribe(PastReportsView view){
         Log.d(TAG,"subscribe() savedVehicleHealthReports == null? "
-                +(savedVehicleHealthReports==null));
+                +(savedReports==null));
         this.view = view;
     }
 
@@ -49,25 +48,23 @@ public class PastReportsPresenter {
         view.displayLoading(true);
         populating = true;
 
-        if (savedVehicleHealthReports != null){
+        if (savedReports != null){
             populating = false;
-            displayHealthReports(savedVehicleHealthReports);
+            displayReports(savedReports);
             if (view != null)
                 view.displayLoading(false);
             return;
         }
 
-        //Get all the reports and call view.displayHealthReports
+        //Get all the reports and call view.displayReports
         useCaseComponent.getGetVehicleHealthReportsUseCase()
                 .execute(new GetReportsUseCase.Callback() {
                     @Override
-                    public void onGotReports(List<VehicleHealthReport> vehicleHealthReports
-                            , List<FullReport> fullReports) {
-                        savedVehicleHealthReports = vehicleHealthReports;
-                        Log.d(TAG,"populateUI() vhr: "+vehicleHealthReports+", full: "+fullReports);
+                    public void onGotReports(List<FullReport> fullReports) {
+                        savedReports = fullReports;
                         populating = false;
                         if (view == null) return;
-                        displayHealthReports(vehicleHealthReports);
+                        displayReports(fullReports);
                         view.displayLoading(false);
                     }
 
@@ -83,20 +80,20 @@ public class PastReportsPresenter {
                 });
     }
 
-    void onReportClicked(VehicleHealthReport vehicleHealthReport){
-        Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
+    void onReportClicked(FullReport report){
+        Log.d(TAG,"onReportClicked() report: "+report);
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_PAST_REPORT_ITEM, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
         if (view != null)
-            view.displayHealthReport(vehicleHealthReport);
+            view.displayReport(report);
     }
 
-    private void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports){
+    private void displayReports(List<FullReport> reports){
         if (view == null) return;
-        if (vehicleHealthReports.isEmpty()){
+        if (reports.isEmpty()){
             view.displayNoHealthReports();
         }else{
-            view.displayHealthReports(vehicleHealthReports);
+            view.displayReports(reports);
         }
     }
 
@@ -104,10 +101,10 @@ public class PastReportsPresenter {
         Log.d(TAG,"onSortNewestDateClicked()");
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_SORT_REPORTS_NEWEST, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
-        if (populating || savedVehicleHealthReports == null) return;
+        if (populating || savedReports == null) return;
 
-        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
-                , SortVehicleHealthReportsUseCase.SortType.DATE_NEW
+        useCaseComponent.getSortReportsUseCase().execute(view.getDisplayedReports()
+                , SortReportsUseCase.SortType.DATE_NEW
                 , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
@@ -115,10 +112,10 @@ public class PastReportsPresenter {
         Log.d(TAG,"onSortOldestDateClicked()");
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_SORT_REPORTS_OLDEST, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
-        if (populating || savedVehicleHealthReports == null) return;
+        if (populating || savedReports == null) return;
 
-        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
-                , SortVehicleHealthReportsUseCase.SortType.DATE_OLD
+        useCaseComponent.getSortReportsUseCase().execute(view.getDisplayedReports()
+                , SortReportsUseCase.SortType.DATE_OLD
                 , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
@@ -126,10 +123,10 @@ public class PastReportsPresenter {
         Log.d(TAG,"onSortEngineIssuesClicked()");
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_SORT_REPORTS_ENGINE_ISSUES, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
-        if (populating || savedVehicleHealthReports == null || view == null) return;
+        if (populating || savedReports == null || view == null) return;
 
-        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
-                , SortVehicleHealthReportsUseCase.SortType.ENGINE_ISSUE
+        useCaseComponent.getSortReportsUseCase().execute(view.getDisplayedReports()
+                , SortReportsUseCase.SortType.ENGINE_ISSUE
                 , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
@@ -137,10 +134,10 @@ public class PastReportsPresenter {
         Log.d(TAG,"onSortServicesClicked()");
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_SORT_REPORTS_SERVICES, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
-        if (populating || savedVehicleHealthReports == null) return;
+        if (populating || savedReports == null) return;
 
-        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
-                , SortVehicleHealthReportsUseCase.SortType.SERVICE
+        useCaseComponent.getSortReportsUseCase().execute(view.getDisplayedReports()
+                , SortReportsUseCase.SortType.SERVICE
                 , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 
@@ -148,10 +145,10 @@ public class PastReportsPresenter {
         Log.d(TAG,"onSortRecallsClicked()");
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_SORT_REPORTS_RECALL, MixpanelHelper.VIEW_VHR_PAST_REPORTS);
-        if (populating || savedVehicleHealthReports == null) return;
+        if (populating || savedReports == null) return;
 
-        useCaseComponent.getSortVehicleHealthReportsUseCase().execute(view.getDisplayedReports()
-                , SortVehicleHealthReportsUseCase.SortType.RECALL
+        useCaseComponent.getSortReportsUseCase().execute(view.getDisplayedReports()
+                , SortReportsUseCase.SortType.RECALL
                 , (vehicleHealthReports) -> { if (view != null) view.notifyReportDataChange(); });
     }
 }

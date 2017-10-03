@@ -17,6 +17,10 @@ public class FullReport implements Parcelable{
         this.emissionsReport = emissionsReport;
     }
 
+    public FullReport(VehicleHealthReport vehicleHealthReport) {
+        this.vehicleHealthReport = vehicleHealthReport;
+    }
+
     protected FullReport(Parcel in) {
         vehicleHealthReport = in.readParcelable(VehicleHealthReport.class.getClassLoader());
         emissionsReport = in.readParcelable(EmissionsReport.class.getClassLoader());

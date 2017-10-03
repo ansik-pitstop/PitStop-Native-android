@@ -48,9 +48,8 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
         mainHandler.post(() -> callback.onError(error));
     }
 
-    private void onGotReports(List<VehicleHealthReport> vehicleHealthReports
-            , List<FullReport> fullReports){
-        mainHandler.post(() -> callback.onGotReports(vehicleHealthReports, fullReports));
+    private void onGotReports(List<FullReport> fullReports){
+        mainHandler.post(() -> callback.onGotReports(fullReports));
     }
 
     @Override
@@ -87,8 +86,11 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
                                 }
                                 Log.d(TAG,"Got full reports: "+fullReports);
                                 vehicleHealthReports.removeAll(toRemove);
+                                for (VehicleHealthReport v: vehicleHealthReports){
+                                    fullReports.add(new FullReport(v));
+                                }
                                 GetReportUseCaseImpl.this
-                                        .onGotReports(vehicleHealthReports,fullReports);
+                                        .onGotReports(fullReports);
 
                             }
 
