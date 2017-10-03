@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.pitstop.models.report.VehicleHealthReport;
+import com.pitstop.models.report.FullReport;
 import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 
 /**
@@ -40,15 +40,12 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
     }
 
     @Override
-    public void setReportView(VehicleHealthReport vehicleHealthReport) {
+    public void setReportView(FullReport report) {
         Log.d(TAG,"setReportView()");
         Intent intent = new Intent(PastReportsActivity.this, ShowReportActivity.class);
-        intent.putExtra(ShowReportActivity.EXTRA_VHR, vehicleHealthReport);
+        intent.putExtra(ShowReportActivity.EXTRA_VHR, report.getVehicleHealthReport());
+        intent.putExtra(ShowReportActivity.EXTRA_ET, report.getEmissionsReport());
         startActivity(intent);
-//        getSupportFragmentManager().beginTransaction()
-//                .replace(android.R.id.content,healthReportFragment)
-//                .addToBackStack("pastReports->healthReportFragment")
-//                .commit();
     }
 
     @Override
