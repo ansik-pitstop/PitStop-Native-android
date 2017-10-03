@@ -53,7 +53,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         private TextView description;
         private TextView date;
         private ImageView icon;
-        private VehicleHealthReport vehicleHealthReport;
+        private FullReport report;
         private View thisView;
 
         public ReportViewHolder(View itemView) {
@@ -66,7 +66,8 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         }
 
         public void bind(FullReport report){
-            this.vehicleHealthReport = report.getVehicleHealthReport();
+            this.report = report;
+            VehicleHealthReport vehicleHealthReport = report.getVehicleHealthReport();
             title.setText("Vehicle Health Report");
 
             description.setText(String.format("Contains %d engine issues" +
@@ -90,8 +91,8 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         }
 
         public void setOnClickListener(PastReportsView callback){
-            if (vehicleHealthReport != null){
-                thisView.setOnClickListener(view1 -> callback.onReportClicked(vehicleHealthReport));
+            if (report != null){
+                thisView.setOnClickListener(view1 -> callback.onReportClicked(report));
             }
         }
     }

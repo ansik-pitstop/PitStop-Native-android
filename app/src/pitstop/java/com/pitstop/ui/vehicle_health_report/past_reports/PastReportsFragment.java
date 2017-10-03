@@ -20,7 +20,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.report.FullReport;
-import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -162,9 +161,9 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     }
 
     @Override
-    public void onReportClicked(VehicleHealthReport vehicleHealthReport) {
-        Log.d(TAG,"onReportClicked() report: "+vehicleHealthReport);
-        presenter.onReportClicked(vehicleHealthReport);
+    public void onReportClicked(FullReport report) {
+        Log.d(TAG,"onReportClicked() report: "+report);
+        presenter.onReportClicked(report);
     }
 
     @Override
