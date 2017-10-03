@@ -166,11 +166,11 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"displayEmissionsReport() er: "+emissionsReport);
         emissionsContent.setVisibility(View.VISIBLE);
 
-        egr.setText(emissionsReport.getEGRVVTSystem());
+        //egr.setText(emissionsReport.getEGRVVTSystem());
         evap.setText(emissionsReport.getFuelSystem());
         misfire.setText(emissionsReport.getMisfire());
-        catalyst.setText(emissionsReport.getNMHCCatalyst());
-        o2sensor.setText(emissionsReport.getNOxSCRMonitor());
+        //catalyst.setText(emissionsReport.getNMHCCatalyst());
+        //o2sensor.setText(emissionsReport.getNOxSCRMonitor());
         components.setText(emissionsReport.getComponents());
         pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
     }

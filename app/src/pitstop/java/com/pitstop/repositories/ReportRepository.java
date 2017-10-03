@@ -6,8 +6,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
@@ -125,14 +127,14 @@ public class ReportRepository implements Repository {
 
     private EmissionsReport jsonToEmissionsReport(String stringResponse){
         try{
-            return etContentToJson(new JSONObject(stringResponse).getJSONObject("response"));
+            return etPetrolToJson(new JSONObject(stringResponse).getJSONObject("response"));
         }catch(JSONException e){
             e.printStackTrace();
             return null;
         }
     }
 
-    private EmissionsReport etContentToJson(JSONObject jsonResponse){
+    private EmissionsReport etPetrolToJson(JSONObject jsonResponse){
         try{
             int id = jsonResponse.getInt("id");
             JSONObject content = jsonResponse.getJSONObject("content");
@@ -143,6 +145,8 @@ public class ReportRepository implements Repository {
             String fuelSystem = data.getString("Fuel System");
             String NMHCCatalyst = data.getString("NMHC Catalyst");
             String boostPressure = data.getString("Boost Pressure");
+            String reserved1 = data.getString("Reserved1");
+            String reserved2 = data.getString("Reserved2");
             String EGRVVTSystem = data.getString("EGR/VVT System");
             String exhaustSensor = data.getString("Exhaust Sensor");
             String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
@@ -150,9 +154,39 @@ public class ReportRepository implements Repository {
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
-            return new EmissionsReport(id, misfire, ignition, components
-                    , fuelSystem, NMHCCatalyst, boostPressure, EGRVVTSystem
-                    , exhaustSensor, NOxSCRMonitor, PMFilterMonitoring, createdAt, pass);
+            return new PetrolEmissionsReport(id, misfire, ignition, components, fuelSystem
+                    , createdAt, pass, NMHCCatalyst, components, NOxSCRMonitor, boostPressure
+                    , reserved1, reserved2, exhaustSensor, PMFilterMonitoring);
+        }catch(JSONException | ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private EmissionsReport etDieselToJson(JSONObject jsonResponse){
+        try{
+            int id = jsonResponse.getInt("id");
+            JSONObject content = jsonResponse.getJSONObject("content");
+            JSONObject data = content.getJSONObject("data");
+            String misfire = data.getString("Misfire");
+            String ignition = data.getString("Ignition");
+            String components = data.getString("Components");
+            String fuelSystem = data.getString("Fuel System");
+            String heatedCatalyst = data.getString("Heated Catalyst");
+            String catalyst = data.getString("Catalyst");
+            String evap = data.getString("Evap");
+            String secondaryAir = data.getString("SecondaryAir");
+            String ACRefrigerant = data.getString("A/C Refrigerant");
+            String O2Sensor = data.getString("O2 Sensor");
+            String O2SensorHeater = data.getString("O2SensorHeater");
+            String EGR = data.getString("EGR");
+            boolean pass = content.getBoolean("pass");
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                    .parse(jsonResponse.getString("createdAt"));
+            return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
+                    , createdAt, pass, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
+                    , O2Sensor, O2SensorHeater, EGR);
         }catch(JSONException | ParseException e){
             e.printStackTrace();
             return null;
@@ -165,7 +199,7 @@ public class ReportRepository implements Repository {
         try{
             JSONArray response = new JSONObject(stringResponse).getJSONArray("response");
             for (int i=0;i<response.length();i++){
-                EmissionsReport et = etContentToJson(response.getJSONObject(i));
+                EmissionsReport et = etPetrolToJson(response.getJSONObject(i));
                 if (et != null){
                     JSONObject meta = null;
                     if (!response.getJSONObject(i).isNull("meta"))

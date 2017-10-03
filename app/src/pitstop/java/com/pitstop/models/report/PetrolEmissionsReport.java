@@ -27,7 +27,7 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
         this.NMHCCatalyst = NMHCCatalyst;
         this.components = components1;
         this.NOxSCRMonitor = NOxSCRMonitor;
-        this.boostPressure = boostPressure;
+        this.boostPressure =Die boostPressure;
         this.reserved1 = reserved1;
         this.reserved2 = reserved2;
         this.exhaustSensor = exhaustSensor;
