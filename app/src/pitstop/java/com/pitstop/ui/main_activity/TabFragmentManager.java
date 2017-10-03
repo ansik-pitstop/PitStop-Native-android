@@ -50,7 +50,8 @@ public class TabFragmentManager {
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
-                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
+                = new TabViewPagerAdapter(mActivity, mActivity.getSupportFragmentManager());
+        tabViewPagerAdapter.setContext(mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(3);

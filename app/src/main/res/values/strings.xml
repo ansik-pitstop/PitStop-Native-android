@@ -473,5 +473,6 @@
     <string name="vin_location_message">Your VIN can be seen at one of the following location close to whats indicated below</string>
     <string name="add_car_for_services">Add a car to view \nyour services</string>
     <string name="error_loading_information">Error occurred \nloading information</string>
-
+    <string name="dashboard">Dashboard</string>
+    
 </resources>
