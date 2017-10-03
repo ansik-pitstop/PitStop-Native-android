@@ -141,7 +141,7 @@ public abstract class EmissionsReport implements Parcelable{
                             ", fuel system: %s, catalyst:%s, boost pressure:%s, egr/vvt system:%s" +
                             ", exhaust sensor:%s, NOx/SCR monitor:%s, PM fiter monitoring:%s, createdAt:%s" +
                             ", pass:%b",getId(), getVhrId(), getMisfire(), getIgnition(), getComponents()
-                    , getFuelSystem(), getNMHCCatalyst(), getCreatedAt().toString(), isPass());
+                    , getFuelSystem(), getCreatedAt().toString(), isPass());
         }catch(NullPointerException e){
             return "null";
         }
