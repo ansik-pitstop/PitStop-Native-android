@@ -35,12 +35,12 @@
                         android:text="N/A" />
                 </RelativeLayout>
 
-                <ImageView
-                    android:id="@+id/imageView38"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/right_chevron" />
+                <!--<ImageView-->
+                    <!--android:id="@+id/imageView38"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--app:srcCompat="@drawable/right_chevron" />-->
 
             </LinearLayout>
 
@@ -112,11 +112,11 @@
                         android:text="N/A" />
                 </RelativeLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/right_chevron" />
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--app:srcCompat="@drawable/right_chevron" />-->
 
             </LinearLayout>
 
@@ -186,11 +186,11 @@
                         android:text="N/A" />
                 </RelativeLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/right_chevron" />
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--app:srcCompat="@drawable/right_chevron" />-->
 
             </LinearLayout>
 
@@ -260,11 +260,11 @@
                         android:text="N/A" />
                 </RelativeLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/right_chevron" />
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--app:srcCompat="@drawable/right_chevron" />-->
 
             </LinearLayout>
 
