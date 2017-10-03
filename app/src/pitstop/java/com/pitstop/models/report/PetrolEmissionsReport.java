@@ -36,7 +36,7 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
 
     public PetrolEmissionsReport(int id, int vhrId, String misfire, String ignition
             , String components, String fuelSystem, Date createdAt, boolean pass
-            , String NMHCCatalyst, String components1, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
+            , String NMHCCatalyst, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
             , String reserved1, String reserved2, String exhaustSensor, String PMFilterMonitoring) {
         super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass);
         this.NMHCCatalyst = NMHCCatalyst;

@@ -14,7 +14,9 @@ import android.widget.TextView;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
+import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -167,12 +169,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         emissionsContent.setVisibility(View.VISIBLE);
 
         //egr.setText(emissionsReport.getEGRVVTSystem());
-        evap.setText(emissionsReport.getFuelSystem());
-        misfire.setText(emissionsReport.getMisfire());
+
         //catalyst.setText(emissionsReport.getNMHCCatalyst());
         //o2sensor.setText(emissionsReport.getNOxSCRMonitor());
-        components.setText(emissionsReport.getComponents());
-        pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
+
     }
 
     @Override
@@ -190,5 +190,20 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 .setPositiveButton("Ok",null)
                 .create()
                 .show();
+    }
+
+    @Override
+    public void displayDieselEmissionsReport(DieselEmissionsReport dieselEmissionsReport) {
+        emissionsContent.setVisibility(View.VISIBLE);
+        evap.setText(dieselEmissionsReport.getFuelSystem());
+        misfire.setText(dieselEmissionsReport.getMisfire());
+        components.setText(dieselEmissionsReport.getComponents());
+
+        pass.setText(dieselEmissionsReport.isPass() ? "Pass" : "Fail");
+    }
+
+    @Override
+    public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
+
     }
 }

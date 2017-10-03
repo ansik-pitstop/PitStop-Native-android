@@ -44,6 +44,6 @@
 
     <include
         android:id="@+id/emissions_content"
-        layout="@layout/layout_emissions_content"/>
+        layout="@layout/layout_petrol_emissions_content"/>
 
 </LinearLayout>
