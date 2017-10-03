@@ -127,7 +127,11 @@ public class ReportRepository implements Repository {
 
     private EmissionsReport jsonToEmissionsReport(String stringResponse){
         try{
-            return etPetrolToJson(new JSONObject(stringResponse).getJSONObject("response"));
+            JSONObject response = new JSONObject(stringResponse).getJSONObject("response");
+            if (isPetrolResponse(response))
+                return etPetrolToJson(response);
+            else
+                return etDieselToJson(response);
         }catch(JSONException e){
             e.printStackTrace();
             return null;
@@ -185,10 +189,10 @@ public class ReportRepository implements Repository {
             String heatedCatalyst = data.getString("Heated Catalyst");
             String catalyst = data.getString("Catalyst");
             String evap = data.getString("Evap");
-            String secondaryAir = data.getString("SecondaryAir");
+            String secondaryAir = data.getString("Secondary Air");
             String ACRefrigerant = data.getString("A/C Refrigerant");
             String O2Sensor = data.getString("O2 Sensor");
-            String O2SensorHeater = data.getString("O2SensorHeater");
+            String O2SensorHeater = data.getString("O2 Sensor Heater");
             String EGR = data.getString("EGR");
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
