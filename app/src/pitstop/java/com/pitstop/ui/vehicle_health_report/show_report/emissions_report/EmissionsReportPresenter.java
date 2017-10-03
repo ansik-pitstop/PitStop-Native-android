@@ -58,7 +58,7 @@ public class EmissionsReportPresenter {
 
     public void onEmissionResultHolderClicked() {
         Log.d(TAG,"onEmissionResultHolderClicked()");
-        if (view != null)
+        if (view != null && view.getEmissionsReport() == null)
             view.displayEmissionsUnavailableDialog();
     }
 }
