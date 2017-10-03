@@ -268,7 +268,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().hideLoading();
                     updating = false;
                     getView().hideLoading();
-                    getView().toast(error.getMessage());
                 }
             });
         }

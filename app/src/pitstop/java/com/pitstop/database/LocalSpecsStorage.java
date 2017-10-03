@@ -64,9 +64,9 @@ public class LocalSpecsStorage {
         db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values);
     }
 
-    public void deleteAllRecords(Repository.Callback<Void> callback){
+    public void deleteAllRows() {
+        Log.d(TAG,"deleteAllRows()");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, null);
+        db.delete(TABLES.TRIP_DEVICE.TABLE_NAME, null, null);
     }
-
 }
