@@ -196,6 +196,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayDieselEmissionsReport(DieselEmissionsReport dieselEmissionsReport) {
+        Log.d(TAG,"displayDieselEmissionsReport() dieselEmissionsReport: "+dieselEmissionsReport);
         //Holders
         emissionsContentHolder.setVisibility(View.VISIBLE);
         petrolEmissionsContent.setVisibility(View.GONE);
@@ -226,6 +227,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
+        Log.d(TAG,"displayPetrolEmissionsReport() petrolEmissionsReport: "+petrolEmissionsReport);
         emissionsContentHolder.setVisibility(View.VISIBLE);
         dieselEmissionsContent.setVisibility(View.VISIBLE);
         petrolEmissionsContent.setVisibility(View.GONE);
