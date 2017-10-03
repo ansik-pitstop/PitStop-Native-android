@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class PetrolEmissionsReport extends EmissionsReport implements Parcelable{
     private String NMHCCatalyst;
-    private String components;
+    private String EGRVTTSystem;
     private String NOxSCRMonitor;
     private String boostPressure;
     private String reserved1;
@@ -19,15 +19,15 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     private String exhaustSensor;
     private String PMFilterMonitoring;
 
-    public PetrolEmissionsReport(int id, String misfire, String ignition, String components
+    public PetrolEmissionsReport(int id, String misfire, String ignition
             , String fuelSystem, Date createdAt, boolean pass, String NMHCCatalyst
-            , String components1, String NOxSCRMonitor, String boostPressure, String reserved1
-            , String reserved2, String exhaustSensor, String PMFilterMonitoring) {
+            , String components, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
+            , String reserved1, String reserved2, String exhaustSensor, String PMFilterMonitoring) {
         super(id, misfire, ignition, components, fuelSystem, createdAt, pass);
         this.NMHCCatalyst = NMHCCatalyst;
-        this.components = components1;
+        this.EGRVTTSystem = EGRVTTSystem;
         this.NOxSCRMonitor = NOxSCRMonitor;
-        this.boostPressure =Die boostPressure;
+        this.boostPressure = boostPressure;
         this.reserved1 = reserved1;
         this.reserved2 = reserved2;
         this.exhaustSensor = exhaustSensor;
@@ -36,11 +36,11 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
 
     public PetrolEmissionsReport(int id, int vhrId, String misfire, String ignition
             , String components, String fuelSystem, Date createdAt, boolean pass
-            , String NMHCCatalyst, String components1, String NOxSCRMonitor, String boostPressure
+            , String NMHCCatalyst, String components1, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
             , String reserved1, String reserved2, String exhaustSensor, String PMFilterMonitoring) {
         super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass);
         this.NMHCCatalyst = NMHCCatalyst;
-        this.components = components1;
+        this.EGRVTTSystem = EGRVTTSystem;
         this.NOxSCRMonitor = NOxSCRMonitor;
         this.boostPressure = boostPressure;
         this.reserved1 = reserved1;
@@ -52,7 +52,7 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     protected PetrolEmissionsReport(Parcel in) {
         super(in);
         NMHCCatalyst = in.readString();
-        components = in.readString();
+        EGRVTTSystem = in.readString();
         NOxSCRMonitor = in.readString();
         boostPressure = in.readString();
         reserved1 = in.readString();
@@ -65,7 +65,7 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(NMHCCatalyst);
-        dest.writeString(components);
+        dest.writeString(EGRVTTSystem);
         dest.writeString(NOxSCRMonitor);
         dest.writeString(boostPressure);
         dest.writeString(reserved1);
@@ -91,22 +91,20 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
         }
     };
 
+    public String getEGRVTTSystem() {
+        return EGRVTTSystem;
+    }
+
+    public void setEGRVTTSystem(String EGRVTTSystem) {
+        this.EGRVTTSystem = EGRVTTSystem;
+    }
+
     public String getNMHCCatalyst() {
         return NMHCCatalyst;
     }
 
     public void setNMHCCatalyst(String NMHCCatalyst) {
         this.NMHCCatalyst = NMHCCatalyst;
-    }
-
-    @Override
-    public String getComponents() {
-        return components;
-    }
-
-    @Override
-    public void setComponents(String components) {
-        this.components = components;
     }
 
     public String getNOxSCRMonitor() {

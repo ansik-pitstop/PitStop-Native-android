@@ -134,6 +134,15 @@ public class ReportRepository implements Repository {
         }
     }
 
+    private boolean isPetrolResponse(JSONObject jsonResponse){
+        try{
+            return jsonResponse.getJSONObject("content").has("NMHC Catalyst");
+        }catch (JSONException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private EmissionsReport etPetrolToJson(JSONObject jsonResponse){
         try{
             int id = jsonResponse.getInt("id");
@@ -154,9 +163,9 @@ public class ReportRepository implements Repository {
             boolean pass = content.getBoolean("pass");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
-            return new PetrolEmissionsReport(id, misfire, ignition, components, fuelSystem
-                    , createdAt, pass, NMHCCatalyst, components, NOxSCRMonitor, boostPressure
-                    , reserved1, reserved2, exhaustSensor, PMFilterMonitoring);
+            return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass
+                    ,NMHCCatalyst,components,EGRVVTSystem, NOxSCRMonitor, boostPressure, reserved1
+                    , reserved2, exhaustSensor, PMFilterMonitoring);
         }catch(JSONException | ParseException e){
             e.printStackTrace();
             return null;
@@ -199,7 +208,12 @@ public class ReportRepository implements Repository {
         try{
             JSONArray response = new JSONObject(stringResponse).getJSONArray("response");
             for (int i=0;i<response.length();i++){
-                EmissionsReport et = etPetrolToJson(response.getJSONObject(i));
+                EmissionsReport et;
+                if (isPetrolResponse(response.getJSONObject(i))){
+                    et = etPetrolToJson(response.getJSONObject(i));
+                }else{
+                    et = etDieselToJson(response.getJSONObject(i));
+                }
                 if (et != null){
                     JSONObject meta = null;
                     if (!response.getJSONObject(i).isNull("meta"))
