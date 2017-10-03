@@ -154,4 +154,17 @@ public class DieselEmissionsReport extends EmissionsReport implements Parcelable
     public void setEGR(String EGR) {
         this.EGR = EGR;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return super.toString() + String.format("heated catalyst:%s, catalyst:%s, evap:%s" +
+                    ", secondary air:%s, A/C refrigerant:%s, O2 sensor:%s, O2 sensor heater:%s" +
+                    ", egr:%s", heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigirator
+                    , O2Sensor, O2SensorHeater, EGR);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
+
 }

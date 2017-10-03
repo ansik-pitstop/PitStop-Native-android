@@ -154,4 +154,16 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     public void setPMFilterMonitoring(String PMFilterMonitoring) {
         this.PMFilterMonitoring = PMFilterMonitoring;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return super.toString() + String.format("NMHC catalyst:%s, EGRVTT system:%s" +
+                    ", NOxSCR monitor:%s, boost pressure:%s, exhaust sensor:%s" +
+                    ", PM filter monitoring:%s", NMHCCatalyst, EGRVTTSystem, NOxSCRMonitor
+                    , boostPressure, exhaustSensor, PMFilterMonitoring);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }
