@@ -85,6 +85,7 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
 
                                     }
                                 }
+                                Log.d(TAG,"Got full reports: "+fullReports);
                                 vehicleHealthReports.removeAll(toRemove);
                                 GetReportUseCaseImpl.this
                                         .onGotReports(vehicleHealthReports,fullReports);

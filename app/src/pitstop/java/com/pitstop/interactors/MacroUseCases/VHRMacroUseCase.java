@@ -49,6 +49,7 @@ public class VHRMacroUseCase {
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
     private final int TIME_PADDING = 4;
+    private final int TIME_PID_PADDING_EXTRA = 4;
 
     private Callback callback;
     private Queue<Interactor> interactorQueue;
@@ -80,7 +81,8 @@ public class VHRMacroUseCase {
                         , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_PID
-                        ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID+TIME_PADDING));
+                        ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID
+                                +TIME_PADDING+TIME_PID_PADDING_EXTRA));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
 
