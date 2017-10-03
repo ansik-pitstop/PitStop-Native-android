@@ -23,6 +23,7 @@ public class TabFragmentManager {
     public static final int TAB_SCAN = 2;
     public static final int TAB_NOTIF = 3;
 
+
     public static final String[] TAB_NAMES = {"Dashboard","Services","Scan","Notifications"};
 
     @BindView(R.id.main_tablayout)
@@ -48,7 +49,8 @@ public class TabFragmentManager {
         ButterKnife.bind(this,mActivity);
 
         tabViewPagerAdapter
-                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
+                = new TabViewPagerAdapter(mActivity, mActivity.getSupportFragmentManager());
+        tabViewPagerAdapter.setContext(mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(3);

@@ -349,7 +349,7 @@
                                 android:id="@+id/city_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/city_title"
+                                android:text="@string/city"
                                 android:textStyle="bold"
                                 android:layout_marginBottom="4dp"
                                 android:layout_gravity="center_vertical"/>

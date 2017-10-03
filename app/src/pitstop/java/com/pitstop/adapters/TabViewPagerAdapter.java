@@ -1,10 +1,12 @@
 package com.pitstop.adapters;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.pitstop.R;
 import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
@@ -19,9 +21,12 @@ import com.pitstop.ui.services.MainServicesFragment;
  */
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
-
-    public TabViewPagerAdapter(FragmentManager fm) {
+    private Context context;
+    public TabViewPagerAdapter(Context ctx, FragmentManager fm) {
         super(fm);
+    }
+    public void setContext(Context ctx){
+        this.context = ctx;
     }
 
     @Override
@@ -56,13 +61,13 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return "Dashboard";
+                return context.getString(R.string.dashboard);
             case TabFragmentManager.TAB_NOTIF:
-                return "Notifications";
+                return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:
-                return "Scan";
+                return context.getString(R.string.scan);
             case TabFragmentManager.TAB_SERVICES:
-                return "Services";
+                return context.getString(R.string.services_nav_text);
         }
         return "";
     }
