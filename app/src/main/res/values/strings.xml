@@ -474,5 +474,15 @@
     <string name="add_car_for_services">Add a car to view \nyour services</string>
     <string name="error_loading_information">Error occurred \nloading information</string>
     <string name="dashboard">Dashboard</string>
-    
+    <string name="select_as_current">Select as Current Car</string>
+    <string name="change_dealership">Change Dealership</string>
+    <string name="change_dealership_hint">Change the shop of this car</string>
+    <string name="edit">Edit</string>
+    <string name="tap_to_change_name">Tap to change your name</string>
+    <string name="tap_to_change_email">Tap to change your email Address</string>
+    <string name="tap_to_change_phone">Tap to change your phone Number</string>
+    <string name="app_info">App Info</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="app_version">App Version</string>
 </resources>
