@@ -45,17 +45,31 @@ public class LocalSpecsStorage {
         Log.d(TAG, "getLicensePlate " + Integer.toString(carID));
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         String[] values = {String.valueOf(carID)};
+        if (doesTableExist(db,TABLES.LOCAL_SPECS_DATA.TABLE_NAME )) {
 
-        Cursor c = db.query(TABLES.LOCAL_SPECS_DATA.TABLE_NAME,null,TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID +"=?" , values,null,null,null);
-        if (c.moveToFirst()){
-            callback.onSuccess(c.getString(c.getColumnIndex(TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE)));
-        }
-        else{
-            Log.d(TAG, "failure");
-            c.close();
-            callback.onError(RequestError.getUnknownError());
+            Cursor c = db.query(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values, null, null, null);
+            if (c.moveToFirst()) {
+                callback.onSuccess(c.getString(c.getColumnIndex(TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE)));
+            } else {
+                Log.d(TAG, "failure");
+                c.close();
+                callback.onError(RequestError.getUnknownError());
+            }
         }
     }
+
+    public boolean doesTableExist(SQLiteDatabase db, String tableName) {
+        Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + tableName + "'", null);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.close();
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
+    }
+
 
     public void deleteRecord(int carID){
         Log.d(TAG, "deleteLicensePlate " + Integer.toString(carID));
