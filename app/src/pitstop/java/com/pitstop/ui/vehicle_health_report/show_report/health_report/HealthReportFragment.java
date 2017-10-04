@@ -1,7 +1,8 @@
-package com.pitstop.ui.vehicle_health_report.health_report_view;
+package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -104,6 +105,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
 
     @BindView(R.id.report_services_loading)
     ProgressBar servicesLoading;
+    @BindView(R.id.summary)
+    TextView summary;
 
     private int engineListHolderHeight;
 
@@ -302,6 +305,20 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
         startActivity(intent);
 
+    }
+
+    @Override
+    public void setVehicleHealthSummary(State state) {
+        if (state == State.GOOD){
+            this.summary.setText("Good");
+            this.summary.setTextColor(Color.YELLOW);
+        }else if (state == State.NEEDS_WORK){
+            this.summary.setText("Needs Work");
+            this.summary.setTextColor(Color.RED);
+        }else if (state == State.PERFECT){
+            this.summary.setText("Perfect");
+            this.summary.setTextColor(Color.GREEN);
+        }
     }
 
     @Override

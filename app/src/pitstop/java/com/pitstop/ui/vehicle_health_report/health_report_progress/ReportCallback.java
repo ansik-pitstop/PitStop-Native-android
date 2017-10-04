@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 
 /**
@@ -8,5 +9,6 @@ import com.pitstop.models.report.VehicleHealthReport;
 
 public interface ReportCallback {
     void setReportView(VehicleHealthReport vehicleHealthReport);
+    void setReportView(VehicleHealthReport vehicleHealthReport, EmissionsReport emissionsReport);
     void finishActivity();
 }

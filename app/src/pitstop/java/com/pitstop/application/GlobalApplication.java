@@ -11,6 +11,7 @@ import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -102,17 +103,20 @@ public class GlobalApplication extends Application {
 
         Stetho.initializeWithDefaults(this);
 
-        //Begin Crashlytics
-        Fabric.with(this, new Crashlytics());
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build();
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             Log.d(TAG,"Release build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Release");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
         }
         else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
             Log.d(TAG,"Beta build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Beta");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
+
+        Fabric.with(this, crashlyticsKit);
 
         MultiDex.install(this);
 

@@ -13,8 +13,8 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
+import com.pitstop.interactors.add.GenerateReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -43,6 +43,8 @@ import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCaseImpl;
+import com.pitstop.interactors.get.GetReportUseCaseImpl;
+import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
@@ -53,8 +55,6 @@ import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
-import com.pitstop.interactors.get.GetVehicleHealthReportUseCaseImpl;
-import com.pitstop.interactors.get.GetVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
@@ -67,8 +67,8 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
-import com.pitstop.interactors.other.SortVehicleHealthReportUseCaseImpl;
-import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
+import com.pitstop.interactors.other.SortReportsUseCaseImpl;
+import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -446,28 +446,28 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddVehicleHealthReportUseCase addVehicleHealthReportUseCase(ReportRepository reportRepository
+    GenerateReportUseCase addVehicleHealthReportUseCase(ReportRepository reportRepository
             , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
             , @Named("useCaseHandler")Handler useCaseHandler){
 
-        return new AddVehicleHealthReportUseCaseImpl(reportRepository,userRepository
+        return new GenerateReportUseCaseImpl(reportRepository,userRepository
                 ,mainHandler,useCaseHandler);
     }
 
     @Provides
-    GetVehicleHealthReportsUseCase getVehicleHealthReportsUseCase(ReportRepository reportRepository
+    GetReportsUseCase getReportsUseCase(ReportRepository reportRepository
             , UserRepository userRepository, @Named("mainHandler") Handler mainHandler
             , @Named("useCaseHandler")Handler useCaseHandler){
 
-        return new GetVehicleHealthReportUseCaseImpl(userRepository,reportRepository
+        return new GetReportUseCaseImpl(userRepository,reportRepository
                 ,useCaseHandler,mainHandler);
     }
 
     @Provides
-    SortVehicleHealthReportsUseCase sortVehicleHealthReportsUseCase(
+    SortReportsUseCase sortVehicleHealthReportsUseCase(
             @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
 
-        return new SortVehicleHealthReportUseCaseImpl(useCaseHandler, mainHandler);
+        return new SortReportsUseCaseImpl(useCaseHandler, mainHandler);
     }
 }

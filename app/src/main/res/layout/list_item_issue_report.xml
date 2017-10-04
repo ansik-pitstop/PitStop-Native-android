@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#f6f6f6"
-    android:layout_marginBottom="2dp"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -57,7 +56,7 @@
     <ImageView
         android:id="@+id/imageView47"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
-        app:srcCompat="@color/dark_grey" />
+        android:layout_height="1dp"
+        app:srcCompat="@color/grey" />
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.health_report_view;
+package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
 import android.util.Log;
 
@@ -63,10 +63,24 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     public void setLists(){
         Log.d(TAG,"setLists()");
+        if (view == null) return;
+
         VehicleHealthReport vehicleHealthReport = view.getVehicleHealthReport();
         view.setServicesList(vehicleHealthReport.getServices());
         view.setRecallList(vehicleHealthReport.getRecalls());
         view.setEngineList(vehicleHealthReport.getEngineIssues());
+
+        if (vehicleHealthReport.getServices().size() > 5
+                || vehicleHealthReport.getEngineIssues().size() > 1
+                || vehicleHealthReport.getRecalls().size() > 1){
+
+            view.setVehicleHealthSummary(HealthReportView.State.NEEDS_WORK);
+        }else if (vehicleHealthReport.getServices().size() == 0){
+            view.setVehicleHealthSummary(HealthReportView.State.PERFECT);
+        }
+        else{
+            view.setVehicleHealthSummary(HealthReportView.State.GOOD);
+        }
     }
 
     public void unsubscribe(){

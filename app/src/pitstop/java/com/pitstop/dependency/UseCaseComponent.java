@@ -4,7 +4,7 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
@@ -19,19 +19,19 @@ import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
+import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserShopsUseCase;
-import com.pitstop.interactors.get.GetVehicleHealthReportsUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
-import com.pitstop.interactors.other.SortVehicleHealthReportsUseCase;
+import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -137,11 +137,11 @@ public interface UseCaseComponent {
 
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
 
-    AddVehicleHealthReportUseCase getAddVehicleReportUseCase();
+    GenerateReportUseCase getGenerateReportUseCase();
 
-    GetVehicleHealthReportsUseCase getGetVehicleHealthReportsUseCase();
+    GetReportsUseCase getGetVehicleHealthReportsUseCase();
 
-    SortVehicleHealthReportsUseCase getSortVehicleHealthReportsUseCase();
+    SortReportsUseCase getSortReportsUseCase();
 
     GetCarByVinUseCase getGetCarByVinUseCase();
 }

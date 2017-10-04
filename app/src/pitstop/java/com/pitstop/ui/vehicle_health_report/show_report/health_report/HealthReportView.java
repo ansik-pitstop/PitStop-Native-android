@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.health_report_view;
+package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
@@ -14,6 +14,9 @@ import java.util.List;
  */
 
 public interface HealthReportView {
+
+    enum State{ NEEDS_WORK, GOOD, PERFECT }
+
     void setServicesList(List<Service> services);
     void setRecallList(List<Recall> recalls);
     void setEngineList(List<EngineIssue> engineIssues);
@@ -22,5 +25,6 @@ public interface HealthReportView {
     void toggleEngineList();
     void servicesLoading(boolean show);
     void startIssueDetails(Car car, CarIssue issue);
+    void setVehicleHealthSummary(State summary);
     VehicleHealthReport getVehicleHealthReport();
 }

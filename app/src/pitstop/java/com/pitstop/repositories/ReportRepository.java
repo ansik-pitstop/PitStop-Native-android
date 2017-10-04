@@ -6,7 +6,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.report.DieselEmissionsReport;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
+import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
@@ -41,22 +44,202 @@ public class ReportRepository implements Repository {
 
     public void getVehicleHealthReports(int carId, Callback<List<VehicleHealthReport>> callback){
         Log.d(TAG,"getVehicleHealthReports() carId: "+carId);
-        networkHelper.get("v1/report/?carId=" + carId, (response, requestError) -> {
-            if (requestError == null){
-                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
-                List<VehicleHealthReport> vehicleHealthReports
-                        = jsonToVehicleHealthReportList(response);
-                if (vehicleHealthReports == null){
-                    callback.onError(RequestError.getUnknownError());
-                    return;
-                }else{
-                    callback.onSuccess(vehicleHealthReports);
-                }
-            }else{
-                Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
-                callback.onError(requestError);
-            }
+        networkHelper.get(String.format("v1/report/?carId=%d&type=vhr",carId)
+                , (response, requestError) -> {
+                        if (requestError == null){
+                            Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
+                            List<VehicleHealthReport> vehicleHealthReports
+                                    = jsonToVehicleHealthReportList(response);
+                            if (vehicleHealthReports == null){
+                                callback.onError(RequestError.getUnknownError());
+                                return;
+                            }else{
+                                callback.onSuccess(vehicleHealthReports);
+                            }
+                        }else{
+                            Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
+                            callback.onError(requestError);
+                        }
         });
+    }
+
+    public void getEmissionReports(int carId, Callback<List<EmissionsReport>> callback){
+        Log.d(TAG,"getEmissionReports() carId: "+carId);
+        networkHelper.get(String.format("v1/report/?carId=%d&type=emission",carId)
+                , (response, requestError) -> {
+                        if (requestError == null){
+                                Log.d(TAG,"networkHelper.get() SUCCESS response: "+response);
+                            List<EmissionsReport> emissionsReports
+                                    = jsonToEmissionsReportList(response);
+                            if (emissionsReports == null){
+                                callback.onError(RequestError.getUnknownError());
+                            }else{
+                                callback.onSuccess(emissionsReports);
+                            }
+                        }else{
+                            Log.d(TAG,"networkHelper.get() ERROR error: "+requestError.getMessage());
+                            callback.onError(requestError);
+                        }
+        });
+    }
+
+    public void createEmissionsReport(int carId, int vhrId, boolean isInternal
+            , DtcPackage dtc, PidPackage pid, Callback<EmissionsReport> callback){
+        Log.d(TAG,"createEmissionsReport() carId: "+carId+", isInternal: "
+                +isInternal+", dtc: "+dtc+", pid: "+pid);
+        JSONObject body = new JSONObject();
+        JSONObject meta = new JSONObject();
+
+        try {
+            meta.put("vhrId",vhrId);
+            body.put("meta", meta);
+            body.put("engineCodes", dtcPackageToJSON(dtc));
+            body.put("pid", pidPackageToJSON(pid));
+            body.put("isInternal", isInternal);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,"createEmissionsReport() body: "+body);
+
+        networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
+                , (response, requestError) -> {
+
+                    if (requestError == null){
+                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
+                        EmissionsReport emissionsReport = jsonToEmissionsReport(response);
+                        if (emissionsReport instanceof PetrolEmissionsReport){
+                            PetrolEmissionsReport per = (PetrolEmissionsReport)emissionsReport;
+                            Log.d(TAG,"Got petrol emissions report: " + per);
+                        }else{
+                            DieselEmissionsReport der = (DieselEmissionsReport)emissionsReport;
+                            Log.d(TAG,"Got diesel emissions report: " + der);
+                        }
+
+                        if (emissionsReport == null){
+                            Log.d(TAG,"Error parsing response.");
+                            callback.onError(RequestError.getUnknownError());
+                        }
+                        else{
+                            callback.onSuccess(emissionsReport);
+                        }
+
+                    }else{
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage()
+                                +", error: "+requestError.getError()+", response code: "+requestError.getStatusCode());
+                        callback.onError(requestError);
+                    }
+
+                }, body);
+    }
+
+    private EmissionsReport jsonToEmissionsReport(String stringResponse){
+        try{
+            JSONObject response = new JSONObject(stringResponse).getJSONObject("response");
+            if (isPetrolResponse(response))
+                return etPetrolToJson(response);
+            else
+                return etDieselToJson(response);
+        }catch(JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean isPetrolResponse(JSONObject jsonResponse){
+        try{
+            return jsonResponse.getJSONObject("content").has("NMHC Catalyst");
+        }catch (JSONException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private EmissionsReport etPetrolToJson(JSONObject jsonResponse){
+        try{
+            int id = jsonResponse.getInt("id");
+            JSONObject content = jsonResponse.getJSONObject("content");
+            JSONObject data = content.getJSONObject("data");
+            String misfire = data.getString("Misfire");
+            String ignition = data.getString("Ignition");
+            String components = data.getString("Components");
+            String fuelSystem = data.getString("Fuel System");
+            String NMHCCatalyst = data.getString("NMHC Catalyst");
+            String boostPressure = data.getString("Boost Pressure");
+            String reserved1 = data.getString("Reserved1");
+            String reserved2 = data.getString("Reserved2");
+            String EGRVVTSystem = data.getString("EGR/VVT System");
+            String exhaustSensor = data.getString("Exhaust Sensor");
+            String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
+            String PMFilterMonitoring= data.getString("PM Filter Monitoring");
+            boolean pass = content.getBoolean("pass");
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                    .parse(jsonResponse.getString("createdAt"));
+            return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass
+                    ,NMHCCatalyst,components,EGRVVTSystem, NOxSCRMonitor, boostPressure, reserved1
+                    , reserved2, exhaustSensor, PMFilterMonitoring);
+        }catch(JSONException | ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private EmissionsReport etDieselToJson(JSONObject jsonResponse){
+        try{
+            int id = jsonResponse.getInt("id");
+            JSONObject content = jsonResponse.getJSONObject("content");
+            JSONObject data = content.getJSONObject("data");
+            String misfire = data.getString("Misfire");
+            String ignition = data.getString("Ignition");
+            String components = data.getString("Components");
+            String fuelSystem = data.getString("Fuel System");
+            String heatedCatalyst = data.getString("Heated Catalyst");
+            String catalyst = data.getString("Catalyst");
+            String evap = data.getString("Evap");
+            String secondaryAir = data.getString("Secondary Air");
+            String ACRefrigerant = data.getString("A/C Refrigerant");
+            String O2Sensor = data.getString("O2 Sensor");
+            String O2SensorHeater = data.getString("O2 Sensor Heater");
+            String EGR = data.getString("EGR");
+            boolean pass = content.getBoolean("pass");
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                    .parse(jsonResponse.getString("createdAt"));
+            return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
+                    , createdAt, pass, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
+                    , O2Sensor, O2SensorHeater, EGR);
+        }catch(JSONException | ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private List<EmissionsReport> jsonToEmissionsReportList(String stringResponse){
+        List<EmissionsReport> emissionsReportList = new ArrayList<>();
+        try{
+            JSONArray response = new JSONObject(stringResponse).getJSONArray("response");
+            for (int i=0;i<response.length();i++){
+                EmissionsReport et;
+                if (isPetrolResponse(response.getJSONObject(i))){
+                    et = etPetrolToJson(response.getJSONObject(i));
+                }else{
+                    et = etDieselToJson(response.getJSONObject(i));
+                }
+                if (et != null){
+                    JSONObject meta = null;
+                    if (!response.getJSONObject(i).isNull("meta"))
+                        meta = response.getJSONObject(i).getJSONObject("meta");
+                        if (meta != null && meta.has("vhrId"))
+                            et.setVhrId(meta.getInt("vhrId"));
+                    emissionsReportList.add(et);
+                }
+            }
+            return emissionsReportList;
+        }catch(JSONException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void createVehicleHealthReport(int carId, boolean isInternal
@@ -67,7 +250,7 @@ public class ReportRepository implements Repository {
 
         try {
             body.put("engineCodes", dtcPackageToJSON(dtc));
-            body.put("isInternal", pidPackageToJSON(pid));
+            body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -79,7 +262,6 @@ public class ReportRepository implements Repository {
                 , (response, requestError) -> {
 
                     if (requestError == null){
-                        Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
                         if (vehicleHealthReport == null){
                             Log.d(TAG,"Error parsing response.");
@@ -122,7 +304,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("id",entry.getKey());
                 dtcJson.put("data",entry.getValue());
-                dtcJson.put("rtcTime",pidPackage.rtcTime);
+                dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime));
                 pidArr.put(dtcJson);
             }catch(JSONException e){
                 e.printStackTrace();
@@ -133,49 +315,29 @@ public class ReportRepository implements Repository {
     }
 
     private List<VehicleHealthReport> jsonToVehicleHealthReportList(String response){
-        try{
-            List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
-            JSONArray reportList = new JSONObject(response).getJSONArray("response");
-
+        List<VehicleHealthReport> vehicleHealthReports = new ArrayList<>();
+        JSONArray reportList;
+        try {
+            reportList = new JSONObject(response).getJSONArray("response");
             for (int i=0;i<reportList.length();i++){
-
-                JSONObject healthReportJson = reportList.getJSONObject(i);
-                int id = healthReportJson.getInt("id");
-                Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                        .parse(healthReportJson.getString("createdAt"));
-                JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
-
-                List<EngineIssue> engineIssues
-                        = gson.fromJson(healthReportContentJson.get("dtc").toString()
-                        ,new TypeToken<List<EngineIssue>>() {}.getType());
-                List<Recall> recalls
-                        = gson.fromJson(healthReportContentJson.get("recall").toString()
-                        ,new TypeToken<List<Recall>>() {}.getType());
-                List<Service> services
-                        = gson.fromJson(healthReportContentJson.get("services").toString()
-                        ,new TypeToken<List<Service>>() {}.getType());
-
-                vehicleHealthReports.add(
-                        new VehicleHealthReport(id, createdAt, engineIssues,recalls,services));
+                VehicleHealthReport vhr = vhrContentToJson(reportList.getJSONObject(i));
+                if (vhr != null){
+                    vehicleHealthReports.add(vhr);
+                }
             }
-            return vehicleHealthReports;
-
         }catch (JSONException e){
             e.printStackTrace();
             return null;
-        }catch(ParseException e){
-            e.printStackTrace();
-            return null;
         }
+        return vehicleHealthReports;
     }
 
-    private VehicleHealthReport jsonToVehicleHealthReport(String response){
+    private VehicleHealthReport vhrContentToJson(JSONObject vhrResponse){
         try{
-            JSONObject healthReportJson = new JSONObject(response).getJSONObject("response");
-            int id = healthReportJson.getInt("id");
+            int id = vhrResponse.getInt("id");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-                    .parse(healthReportJson.getString("createdAt"));
-            JSONObject healthReportContentJson = healthReportJson.getJSONObject("content");
+                    .parse(vhrResponse.getString("createdAt"));
+            JSONObject healthReportContentJson = vhrResponse.getJSONObject("content");
 
             List<EngineIssue> engineIssues
                     = gson.fromJson(healthReportContentJson.get("dtc").toString()
@@ -191,6 +353,15 @@ public class ReportRepository implements Repository {
             e.printStackTrace();
             return null;
         }catch(ParseException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private VehicleHealthReport jsonToVehicleHealthReport(String response){
+        try{
+            return vhrContentToJson(new JSONObject(response).getJSONObject("response"));
+        }catch (JSONException e){
             e.printStackTrace();
             return null;
         }

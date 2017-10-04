@@ -7,12 +7,13 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.Interactor;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCase;
-import com.pitstop.interactors.add.AddVehicleHealthReportUseCaseImpl;
+import com.pitstop.interactors.add.GenerateReportUseCase;
+import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -30,7 +31,8 @@ public class VHRMacroUseCase {
 
     public interface Callback{
         void onStartGeneratingReport();
-        void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport);
+        void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport
+                , EmissionsReport emissionsReport);
         void onErrorGeneratingReport();
         void onStartGetDTC();
         void onGotDTC();
@@ -46,13 +48,15 @@ public class VHRMacroUseCase {
     private final int TYPE_GENERATE_REPORT = 0;
     private final int TYPE_GET_DTC = 1;
     private final int TYPE_GET_PID = 2;
-    private final int TIME_PADDING = 2;
+    private final int TIME_PADDING = 4;
+    private final int TIME_PID_PADDING_EXTRA = 4;
 
     private Callback callback;
     private Queue<Interactor> interactorQueue;
     private Queue<ProgressTimer> progressTimerQueue;
     private BluetoothConnectionObservable bluetooth;
-    private VehicleHealthReport generatedReport;
+    private VehicleHealthReport vehicleHealthReport;
+    private EmissionsReport emissionsReport;
 
     //Lists for progress timers to communicate results
     private DtcPackage retrievedDtc;
@@ -68,7 +72,7 @@ public class VHRMacroUseCase {
         interactorQueue = new LinkedList<>();
         interactorQueue.add(component.getGetDTCUseCase());
         interactorQueue.add(component.getGetPIDUseCase());
-        interactorQueue.add(component.getAddVehicleReportUseCase());
+        interactorQueue.add(component.getGenerateReportUseCase());
 
         //Timer queue
         progressTimerQueue = new LinkedList<>();
@@ -77,7 +81,8 @@ public class VHRMacroUseCase {
                         , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GET_PID
-                        ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID+TIME_PADDING));
+                        ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID
+                                +TIME_PADDING+TIME_PID_PADDING_EXTRA));
         progressTimerQueue.add(
                 new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
 
@@ -130,21 +135,35 @@ public class VHRMacroUseCase {
                 }
             });
         }
-        else if (current instanceof AddVehicleHealthReportUseCaseImpl){
+        else if (current instanceof GenerateReportUseCaseImpl){
             callback.onStartGeneratingReport();
             if (retrievedPid == null || retrievedDtc == null){
                 callback.onErrorGeneratingReport();
+                if (progressTimerQueue.peek() != null) progressTimerQueue.peek().cancel();
                 return;
             }
-            ((AddVehicleHealthReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
-                    , new AddVehicleHealthReportUseCase.Callback() {
+            ((GenerateReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
+                    , new GenerateReportUseCase.Callback() {
                         @Override
-                        public void onReportAdded(VehicleHealthReport vehicleHealthReport) {
-                            generatedReport = vehicleHealthReport;
+                        public void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport) {
+                            Log.d(TAG,"generateReportUseCase.onReportAddedWithoutEmissions() " +
+                                    "vhr: "+vehicleHealthReport);
+                            VHRMacroUseCase.this.vehicleHealthReport = vehicleHealthReport;
+                        }
+
+                        @Override
+                        public void onReportAdded(VehicleHealthReport vehicleHealthReport
+                                , EmissionsReport emissionsReport) {
+                            VHRMacroUseCase.this.vehicleHealthReport = vehicleHealthReport;
+                            VHRMacroUseCase.this.emissionsReport = emissionsReport;
+                            Log.d(TAG,"generateReportUseCase.onReportAdded() vhr: "
+                                    +vehicleHealthReport+", et: "+emissionsReport);
                         }
 
                         @Override
                         public void onError(RequestError requestError) {
+                            Log.d(TAG,"generateReportUseCase.onError() vhr null!");
+                            callback.onErrorGeneratingReport();
                         }
             });
         }
@@ -226,12 +245,12 @@ public class VHRMacroUseCase {
                 case TYPE_GENERATE_REPORT:
                     Log.d(TAG,"progressTimer.onFinish() type: TYPE_GENERATE_REPORT dtc: "
                             +retrievedDtc+", pid: "+retrievedPid);
-                    if (retrievedDtc == null || retrievedPid == null || generatedReport == null){
+                    if (retrievedDtc == null || retrievedPid == null || vehicleHealthReport == null){
                         callback.onErrorGeneratingReport();
                         finish();
                     }
                     else{
-                        callback.onFinishGeneratingReport(generatedReport);
+                        callback.onFinishGeneratingReport(vehicleHealthReport, emissionsReport);
                         progressTimerQueue.remove();
                         next();
                     }

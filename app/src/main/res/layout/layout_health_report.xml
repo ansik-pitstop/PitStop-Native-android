@@ -1,50 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:id="@+id/summary_holder"
-            android:background="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
-                android:text="Perfect"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="#32CD32" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="Health Summary"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/black" />
-        </RelativeLayout>
-
-        <include
-            layout="@layout/divider" />
-
-    </LinearLayout>
 
     <!-- Engine Codes -->
     <RelativeLayout
         android:id="@+id/engine_list_button"
         android:background="@color/white"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -120,9 +85,17 @@
             android:layout_height="match_parent" />
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/imageView42"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:srcCompat="@color/grey" />
+
     <RelativeLayout
         android:id="@+id/recall_list_button"
         android:background="@color/white"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -198,8 +171,16 @@
             android:layout_height="match_parent" />
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/imageView44"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:srcCompat="@color/grey" />
+
     <RelativeLayout
         android:id="@+id/service_list_button"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

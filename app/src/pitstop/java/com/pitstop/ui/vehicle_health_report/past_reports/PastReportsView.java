@@ -1,6 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.past_reports;
 
-import com.pitstop.models.report.VehicleHealthReport;
+import com.pitstop.models.report.FullReport;
 
 import java.util.List;
 
@@ -9,13 +9,13 @@ import java.util.List;
  */
 
 public interface PastReportsView{
-    void displayHealthReports(List<VehicleHealthReport> vehicleHealthReports);
-    void displayHealthReport(VehicleHealthReport vehicleHealthReport);
+    void displayReports(List<FullReport> fullReports);
     void notifyReportDataChange();
     void displayNoHealthReports();
-    void onReportClicked(VehicleHealthReport vehicleHealthReport);
+    void onReportClicked(FullReport report);
     void displayError();
     void displayLoading(boolean display);
-    List<VehicleHealthReport> getDisplayedReports();
+    void displayReport(FullReport report);
+    List<FullReport> getDisplayedReports();
 
 }

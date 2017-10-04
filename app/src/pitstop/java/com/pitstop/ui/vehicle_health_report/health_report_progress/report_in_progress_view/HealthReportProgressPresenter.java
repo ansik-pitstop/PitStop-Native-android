@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
@@ -29,6 +30,7 @@ public class HealthReportProgressPresenter {
 
     private MixpanelHelper mixpanelHelper;
     private VehicleHealthReport vehicleHealthReport;
+    private EmissionsReport emissionsReport;
     private BluetoothConnectionObservable bluetooth;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
@@ -65,10 +67,12 @@ public class HealthReportProgressPresenter {
            }
 
            @Override
-           public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport){
-               Log.d(TAG,"onFinishGeneratingReport() vehicleHealthReport: "
-                       +vehicleHealthReport);
+           public void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport
+                , EmissionsReport emissionsReport){
+               Log.d(TAG,"onFinishGeneratingReport() vhr: "
+                       +vehicleHealthReport+" \n et: "+emissionsReport);
                HealthReportProgressPresenter.this.vehicleHealthReport = vehicleHealthReport;
+               HealthReportProgressPresenter.this.emissionsReport = emissionsReport;
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.SUCCESS);
 
@@ -133,7 +137,7 @@ public class HealthReportProgressPresenter {
                if (success){
                    changeStep("Completed");
                    mainHandler.postDelayed(()
-                           -> setViewReport(vehicleHealthReport),DELAY_SET_VIEW_REPORT);
+                           -> setViewReport(vehicleHealthReport, emissionsReport),DELAY_SET_VIEW_REPORT);
                }
            }
 
@@ -167,10 +171,15 @@ public class HealthReportProgressPresenter {
         },ERR_DELAY_LEN);
     }
 
-    private void setViewReport(VehicleHealthReport vehicleHealthReport){
-        Log.d(TAG,"setViewReport()");
+    private void setViewReport(VehicleHealthReport vehicleHealthReport
+            , EmissionsReport emissionsReport){
+        Log.d(TAG,"setViewReport() et: "+emissionsReport+", vhr: "+vehicleHealthReport);
         if(view == null || callback == null || vehicleHealthReport == null) return;
-        callback.setReportView(vehicleHealthReport);
+        if (emissionsReport == null){
+            callback.setReportView(vehicleHealthReport);
+        }else{
+            callback.setReportView(vehicleHealthReport, emissionsReport);
+        }
     }
 
 }

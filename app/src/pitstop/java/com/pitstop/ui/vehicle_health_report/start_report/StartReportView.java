@@ -1,4 +1,4 @@
-package com.pitstop.ui.vehicle_health_report.start_report_view;
+package com.pitstop.ui.vehicle_health_report.start_report;
 
 import com.pitstop.observer.BluetoothConnectionObservable;
 

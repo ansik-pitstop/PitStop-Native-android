@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pitstop.R;
+import com.pitstop.models.report.FullReport;
 import com.pitstop.models.report.VehicleHealthReport;
 
 import java.text.SimpleDateFormat;
@@ -19,12 +20,12 @@ import java.util.List;
 
 public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.ReportViewHolder> {
 
-    private List<VehicleHealthReport> vehicleHealthReports;
+    private List<FullReport> reports;
     private PastReportsView pastReportsView;
 
     public PastReportsAdapter(PastReportsView pastReportsView
-            , List<VehicleHealthReport> vehicleHealthReports) {
-        this.vehicleHealthReports = vehicleHealthReports;
+            , List<FullReport> reports) {
+        this.reports = reports;
         this.pastReportsView = pastReportsView;
     }
 
@@ -37,13 +38,13 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
 
     @Override
     public void onBindViewHolder(ReportViewHolder holder, int position) {
-        holder.bind(vehicleHealthReports.get(position));
+        holder.bind(reports.get(position));
         holder.setOnClickListener(pastReportsView);
     }
 
     @Override
     public int getItemCount() {
-        return vehicleHealthReports.size();
+        return reports.size();
     }
 
     public class ReportViewHolder extends RecyclerView.ViewHolder{
@@ -52,7 +53,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         private TextView description;
         private TextView date;
         private ImageView icon;
-        private VehicleHealthReport vehicleHealthReport;
+        private FullReport report;
         private View thisView;
 
         public ReportViewHolder(View itemView) {
@@ -64,8 +65,9 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
             icon = itemView.findViewById(R.id.icon);
         }
 
-        public void bind(VehicleHealthReport vehicleHealthReport){
-            this.vehicleHealthReport = vehicleHealthReport;
+        public void bind(FullReport report){
+            this.report = report;
+            VehicleHealthReport vehicleHealthReport = report.getVehicleHealthReport();
             title.setText("Vehicle Health Report");
 
             description.setText(String.format("Contains %d engine issues" +
@@ -89,8 +91,8 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         }
 
         public void setOnClickListener(PastReportsView callback){
-            if (vehicleHealthReport != null){
-                thisView.setOnClickListener(view1 -> callback.onReportClicked(vehicleHealthReport));
+            if (report != null){
+                thisView.setOnClickListener(view1 -> callback.onReportClicked(report));
             }
         }
     }
