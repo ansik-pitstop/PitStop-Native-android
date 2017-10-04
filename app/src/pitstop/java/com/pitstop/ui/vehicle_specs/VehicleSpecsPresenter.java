@@ -131,7 +131,6 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             }
         });
     }
-
     public void deleteCar(int carID){
         Log.d(TAG, "deleteCar()");
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
