@@ -10,5 +10,6 @@ public interface VehicleSpecsView {
     void toast(String message);
     void showImage(String s);
     void showDealershipBanner();
-    void closeSpecsFragment();
+    void closeSpecsFragmentAfterDeletion();
+    void closeSpecsFragmentAfterSettingCurrent();
 }

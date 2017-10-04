@@ -17,5 +17,5 @@ public interface AddLicensePlateUseCase extends Interactor{
         void onError(RequestError error);
         void onLicensePlateStored(String licensePlate);
     }
-    public void execute(int carid, String plate, AddLicensePlateUseCase.Callback callback);
+    public void execute(int carid, String plate, Callback callback);
 }

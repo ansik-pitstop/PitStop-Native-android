@@ -44,7 +44,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.smooch.ui.ConversationActivity;
 
-import static com.pitstop.R.array.car;
 import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
@@ -55,32 +54,31 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     private static final String TAG = MyGarageFragment.class.getSimpleName();
     @BindView(R.id.appointments_view)
-    View appointmentsView;
+    protected View appointmentsView;
 
     @BindView(R.id.contact_view)
-    View contactView;
+    protected View contactView;
 
     @BindView(R.id.contents_container)
-    LinearLayout mainLayout;
+    protected LinearLayout mainLayout;
 
     @BindView(R.id.car_recycler_view)
-    RecyclerView carRecyclerView;
+    protected RecyclerView carRecyclerView;
 
     @BindView(R.id.add_car_garage)
-    View addCar;
+    protected View addCar;
 
     @BindView(R.id.progress)
-    RelativeLayout loadingView;
+    protected RelativeLayout loadingView;
 
     @BindView(R.id.swiper)
-    SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
 
     private MyGaragePresenter presenter;
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
     private CarsAdapter carsAdapter;
-
-    List <Car> carList = new ArrayList<>();
+    private List <Car> carList = new ArrayList<>();
 
     public static MyGarageFragment newInstance(){
         return new MyGarageFragment();
@@ -90,9 +88,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-        View view = inflater.inflate(R.layout.my_garage_fragment, null);
+        View view = inflater.inflate(R.layout.fragment_my_garage, null);
         ButterKnife.bind(this, view);
-
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -115,7 +112,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         presenter.onAppStateChanged();
-
     }
 
     @Override
@@ -135,7 +131,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
-
     }
 
     @Override
@@ -154,49 +149,61 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void openMyAppointments() {
         Log.d(TAG, "openMyAppointments()");
+        if(getActivity() == null) return;
         ((MainActivity)getActivity()).openAppointments();
     }
 
     @Override
     public void openRequestService() {
         Log.d(TAG, "onRequestService()");
+        if(getActivity() == null) return;
         ((MainActivity)getActivity()).requestMultiService(null);
     }
 
     @Override
     public void toast(String message) {
         Log.d(TAG, "toast: " + message);
+        if(getActivity() == null) return;
         Toast.makeText(getActivity(),message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean isUserNull() {
+        if(getActivity()!= null) {
         if(((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser() == null)
             return true;
         else
             return false;
+        }
+        return false;
     }
 
     @Override
     public String getUserPhone() {
-        return  ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getPhone();
+        if(getActivity()!= null)
+            return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getPhone();
+        return "";
     }
 
     @Override
     public String getUserFirstName() {
-        return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getFirstName();
+        if(getActivity()!= null)
+            return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getFirstName();
+        return "";
     }
 
     @Override
     public String getUserEmail() {
-        return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getEmail();
+        if(getActivity()!= null)
+            return ((GlobalApplication)getActivity().getApplicationContext()).getCurrentUser().getEmail();
+    return "";
     }
 
     @Override
     public void openSmooch() {
         Log.d(TAG, "openSmooch()");
-        ConversationActivity.show(getActivity());
-        Car car = new Car();
+        if (getActivity()!=null)
+            ConversationActivity.show(getActivity());
     }
 
     @Override
@@ -204,8 +211,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         Log.d(TAG, "callDealership()");
         Intent intent = new Intent(Intent.ACTION_DIAL,
                 Uri.parse("tel:" + dealership.getPhone()));
-        getActivity().startActivity(intent);
-
+        if(getActivity()!= null)
+            getActivity().startActivity(intent);
     }
 
     @Override
@@ -252,8 +259,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         dealershipDirectionsDialog.show();
     }
 
-
-
     @Override
     public void openDealershipDirections(Dealership dealership) {
         Log.d(TAG, "openDealershipDirections()");
@@ -261,7 +266,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
                     "http://maps.google.com/maps?daddr=%s",
                     dealership.getAddress());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        getActivity().startActivityForResult(intent, 0 );
+        if(getActivity()!= null)
+            getActivity().startActivityForResult(intent, 0 );
     }
 
     @Override
@@ -276,14 +282,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void stopRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    public void onCarClicked(Car car) {
+    public void onCarClicked(Car car, int position) {
         Log.d(TAG, "onCarClicked()");
-        presenter.onCarClicked(car);
+        presenter.onCarClicked(car, position);
     }
 
     @Override
@@ -311,18 +312,44 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         // requestcode set as 0 in "openSpecsActivity Method"
         if(requestCode == 0){
             if(resultCode == Activity.RESULT_OK){
-                if(data.getExtras().getBoolean(VehicleSpecsFragment.CAR_DELETED_OR_SELECTED_AS_CURRENT)){
-                    presenter.onAppStateChanged();
+                if(data.getExtras().getBoolean(VehicleSpecsFragment.CAR_DELETED)){
+                    notifyCarRemoved(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
+
                 }
+                else if (data.getExtras().getBoolean(VehicleSpecsFragment.CAR_SELECTED)){
+                    notifyCarSetAscurrent(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
+                }
+            }
+
+        }
+    }
+
+    private void notifyCarSetAscurrent(int anInt) {
+        for (int i = 0 ;i < carList.size(); i++){
+            carList.get(i).setCurrentCar(false);
+        }
+        carList.get(anInt).setCurrentCar(true);
+    }
+
+    private void notifyCarRemoved(int anInt) {
+        if (carList.get(anInt).isCurrentCar()){
+            onUpdateNeeded();
+        }
+        else {
+        carList.remove(anInt);
+        carsAdapter.notifyDataSetChanged();
+        if (carList.size() == 0) {
+            appointmentsView.setVisibility(View.GONE);
             }
         }
     }
 
     @Override
-    public void openSpecsActivity(Car car) {
+    public void openSpecsActivity(Car car, int position) {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
         Bundle bundle  = new Bundle();
+        bundle.putInt(VehicleSpecsFragment.CAR_POSITION_KEY, position);
         bundle.putBoolean(VehicleSpecsFragment.IS_CURRENT_KEY, car.isCurrentCar());
         bundle.putInt(VehicleSpecsFragment.CAR_ID_KEY, car.getId());
         bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
@@ -374,8 +401,10 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @OnClick(R.id.add_car_garage)
     public void onAddCarClicked(){
-        Log.d(TAG, "onAddCarClicked()");
-        Intent intent = new Intent(this.getActivity(),AddCarActivity.class);
-        startActivityForResult(intent,RC_ADD_CAR);
+        if(getActivity()!= null) {
+            Log.d(TAG, "onAddCarClicked()");
+            Intent intent = new Intent(this.getActivity(), AddCarActivity.class);
+            startActivityForResult(intent, RC_ADD_CAR);
+        }
     }
 }

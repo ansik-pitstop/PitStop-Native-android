@@ -13,7 +13,6 @@ import com.pitstop.repositories.Repository;
 /**
  * Created by ishan on 2017-09-26.
  */
-
 public class LocalSpecsStorage {
 
     private static final String TAG = LocalSpecsStorage.class.getSimpleName();
@@ -23,7 +22,6 @@ public class LocalSpecsStorage {
             +TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE + " TEXT" +")";
 
     private LocalDatabaseHelper databaseHelper;
-
     public LocalSpecsStorage(Context context){
         this.databaseHelper = LocalDatabaseHelper.getInstance(context);
     }
@@ -38,7 +36,6 @@ public class LocalSpecsStorage {
         Log.d("LocalSpecsStorage", Integer.toString(carID) + " " + licensePlate);
         long result = db.insert(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, values);
         callback.onSuccess(licensePlate);
-
     }
 
     public void getLicensePlate(int carID, Repository.Callback<String> callback){
@@ -69,7 +66,6 @@ public class LocalSpecsStorage {
         }
         return false;
     }
-
 
     public void deleteRecord(int carID){
         Log.d(TAG, "deleteLicensePlate " + Integer.toString(carID));

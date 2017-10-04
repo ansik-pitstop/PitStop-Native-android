@@ -56,6 +56,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             @Override
             public void onLicensePlateStored(String licensePlate) {
                 updating = false;
+                if (view == null)return;
                 view.showLicensePlate(licensePlate);
             }
 
@@ -71,18 +72,19 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         useCaseComponent.getCarStyleIDUseCase().execute(Vin, new GetCarStyleIDUseCase.Callback() {
             @Override
             public void onStyleIDGot(String styleID) {
+                if (view == null)return;
                 Log.d(TAG, styleID);
                 useCaseComponent.getCarImagesArrayUseCase().execute(styleID, new GetCarImagesArrayUseCase.Callback() {
                     @Override
                     public void onArrayGot(String imageLink) {
-                        if (view == null) return;
                         updating = false;
+                        if (view == null) return;
                         view.showImage(BASE_URL_PHOTO + imageLink);
                     }
                     @Override
                     public void onError(RequestError error) {
-                        if (view ==null) return;
                         updating = false;
+                        if (view ==null) return;
                         view.showDealershipBanner();
                        // Log.d(TAG, error.getMessage());
                     }
@@ -90,28 +92,28 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             }
             @Override
             public void onError(RequestError error) {
-                if (view == null) return;
                 updating = false;
+                if (view == null) return;
                 view.showDealershipBanner();
                 Log.d(TAG, error.getMessage());
             }
         });
     }
 
-
-
     public void getLicensePlate(int carID){
         Log.d(TAG, "getLicensePlate()");
-        if (this.view == null) return;
+        if (view == null) return;
 
         useCaseComponent.getLicensePlateUseCase().execute(carID, new GetLicensePlateUseCase.Callback() {
             @Override
             public void onLicensePlateGot(String licensePlate) {
+                if (view == null) return;
                 Log.d(TAG, "licensePlateGot");
                 view.showLicensePlate(licensePlate);
             }
             @Override
             public void onError(RequestError error) {
+                if (view == null) return;
                 Log.d(TAG, "gettingLicensePlateFailed");
             }
         });
@@ -122,29 +124,31 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         useCaseComponent.setUseCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new SetUserCarUseCase.Callback() {
             @Override
             public void onUserCarSet() {
+                if (view == null)return;
                 view.toast("Current Car Set");
-                view.closeSpecsFragment();
+                view.closeSpecsFragmentAfterSettingCurrent();
             }
             @Override
             public void onError(RequestError error) {
+                if (view == null)return;
                 view.toast(error.getMessage());
             }
         });
     }
     public void deleteCar(int carID){
+        if(view == null)return;
         Log.d(TAG, "deleteCar()");
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
-                view.closeSpecsFragment();
+                if (view == null)return;
+                view.closeSpecsFragmentAfterDeletion();
             }
-
             @Override
             public void onError(RequestError error) {
+                if (view == null) return;
                 view.toast(error.getMessage());
             }
         });
     }
-
-
 }

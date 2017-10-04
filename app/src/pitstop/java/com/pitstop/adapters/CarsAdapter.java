@@ -31,12 +31,11 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     @Override
     public CarsAdapter.CarViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_car_garage, parent, false);
         CarsAdapter.CarViewHolder carViewHolder = new CarViewHolder((view));
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> myGarageView
-                .onCarClicked(carList.get(position)));
+                .onCarClicked(carList.get(position), position));
         return carViewHolder;
     }
 
@@ -56,12 +55,9 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
     }
 
     public class CarViewHolder extends RecyclerView.ViewHolder{
-
         TextView carNameView;
         TextView scanner;
         TextView dealershipName;
-
-
         public CarViewHolder(View itemView) {
             super(itemView);
             this.carNameView = itemView.findViewById(R.id.car_name);

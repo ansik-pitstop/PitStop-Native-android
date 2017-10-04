@@ -14,5 +14,5 @@ public interface GetCarStyleIDUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(String VIN, GetCarStyleIDUseCase.Callback callback);
+    void execute(String VIN, Callback callback);
 }

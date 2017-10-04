@@ -40,9 +40,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     private HashMap<String, Object> customProperties;
     private List<Dealership> dealershipList;
     private List<Car> carList;
-
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_MY_GARAGE);
-
     public final EventType[] ignoredEvents = {
             new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
             new EventTypeImpl(EventType.EVENT_DTC_NEW),
@@ -71,7 +69,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         Log.d(TAG, "onAppStateChanged()");
         dealershipList = null;
         carList = null;
-        getView().onUpdateNeeded();
+        if (getView()!=null)
+            getView().onUpdateNeeded();
 
     }
 
@@ -80,16 +79,17 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         return EVENT_SOURCE;
     }
 
-
     public void onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()");
-        getView().openMyAppointments();
+        if (getView()!= null)
+            getView().openMyAppointments();
 
     }
 
     public void onRequestServiceClicked() {
         Log.d(TAG, "onRequestServiceClicked()");
-        getView().openRequestService();
+        if (getView()!= null)
+            getView().openRequestService();
     }
 
     public void onMessageClicked() {
@@ -103,6 +103,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 public void onCarRetrieved(Car car) {
                     Log.d(TAG, "onCarRetrieved()");
                     updating = false;
+                    if (getView() == null)return;
                     //mixpanelHelper.trackFabClicked("Message");
                     customProperties = new HashMap<>();
                     customProperties.put("VIN", car.getVin());
@@ -112,7 +113,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     Log.i(TAG, car.getDealership().getEmail());
                     customProperties.put("Email", car.getDealership().getEmail());
                     User.getCurrentUser().addProperties(customProperties);
-
                     if (!getView().isUserNull()) {
                         customProperties.put("Phone", getView().getUserPhone());
                         User.getCurrentUser().setFirstName(getView().getUserFirstName());
@@ -121,26 +121,23 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     getView().hideLoading();
                     getView().openSmooch();
                 }
-
                 @Override
                 public void onNoCarSet() {
                     Log.d(TAG, "noCarSet()");
                     updating = false;
+                    if (getView() == null) return;
                     getView().hideLoading();
                     getView().toast("Please Select a Car");
                 }
-
                 @Override
                 public void onError(RequestError error) {
-
                     updating = false;
+                    if (getView() == null) return;
                     getView().hideLoading();
-                    getView().toast(error.getMessage());
-                }
-            });
-        }
+                }});}
         else{
             updating = false;
+            if (getView() == null) return;
             getView().hideLoading();
             getView().openSmooch();
         }
@@ -156,11 +153,14 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 public void onCarsRetrieved(List<Car> cars) {
                     Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
+                    if (getView()== null) return;
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (c.getDealership().getId()!=1) {
-                            dealershipList.add(c.getDealership());
+                        if (c.getDealership()!=null) {
+                            if (c.getDealership().getId() != 1) {
+                                dealershipList.add(c.getDealership());
+                            }
                         }
                     }
                     if (dealershipList.size() == 0)
@@ -170,17 +170,18 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     else
                         getView().showDealershipsCallDialog(dealershipList);
                 }
-
                 @Override
                 public void onError(RequestError error) {
                     Log.d(TAG, error.getMessage());
                     updating = false;
+                    if (getView() == null) return;
                     getView().toast(error.getMessage());
                 }
             });
         }
         else {
             updating = false;
+            if (getView() == null)return;
             Log.d(TAG, "dealershipsAlreadyGot");
             if (dealershipList.size() == 0)
                 getView().toast("Please add a dealership");
@@ -191,22 +192,22 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         }
     }
 
-
     public void onFindDirectionsClicked() {
         Log.d(TAG, "onFindDirectionClicked()");
-
         if(getView() == null || updating) return;
         if (dealershipList == null) {
             updating = true;
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
-
                     updating = false;
+                    if (getView() == null) return;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (c.getDealership().getId()!=1) {
-                            dealershipList.add(c.getDealership());
+                        if (c.getDealership()!=null) {
+                            if (c.getDealership().getId() != 1) {
+                                dealershipList.add(c.getDealership());
+                            }
                         }
                     }
                     if (dealershipList.size() == 0)
@@ -220,12 +221,14 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 @Override
                 public void onError(RequestError error) {
                     updating = false;
+                    if (getView() == null) return;
                     getView().toast(error.getMessage());
                 }
             });
         }
         else {
             updating = false;
+            if (getView() == null)return;
             if (dealershipList.size() == 0)
                 getView().toast("Please add a dealership");
             else if (dealershipList.size() == 1)
@@ -234,19 +237,20 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 getView().showDealershipsDirectionDialog(dealershipList);
         }
     }
+
     public void loadCars() {
         Log.d(TAG, "loadCars()");
-        if(getView() == null|| updating){
-            getView().hideLoading();
-            return;}
+        if(getView() == null|| updating)return;
         if (carList ==null){
             getView().showLoading();
             updating = true;
             useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
                 @Override
                 public void onCarsRetrieved(List<Car> cars) {
-                    getView().hideLoading();
+                    Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
+                    if (getView()  == null) return;
+                    getView().hideLoading();
                     if (cars.size() == 0){
                         getView().noCarsView();
                     }else
@@ -254,9 +258,11 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     carList = cars;
                     dealershipList = new ArrayList<Dealership>();
                     for (Car c : cars) {
-                        if (c.getDealership().getId()!=1 ) {
-                            dealershipList.add(c.getDealership());
-                            Log.d(TAG, c.getDealership().getName());
+                        if (c.getDealership()!=null) {
+                            if (c.getDealership().getId() != 1) {
+                                dealershipList.add(c.getDealership());
+                                Log.d(TAG, c.getDealership().getName());
+                            }
                         }
                     }
                     getView().hideLoading();
@@ -265,26 +271,28 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 }
                 @Override
                 public void onError(RequestError error) {
-                    getView().hideLoading();
+                    if (getView() == null)return;
                     updating = false;
                     getView().hideLoading();
                 }
             });
         }
         else {
+            if (getView() == null) return;
             getView().hideLoading();
         }
     }
 
-    public void onCarClicked(Car car) {
+    public void onCarClicked(Car car, int position) {
         Log.d(TAG, "onCarClicked()");
-        getView().openSpecsActivity(car);
-
+        if (getView()!=null)
+            getView().openSpecsActivity(car, position);
     }
 
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
-        getView().onUpdateNeeded();
+        if (getView()!=null)
+            getView().onUpdateNeeded();
     }
 
     public void makeCarListNull() {

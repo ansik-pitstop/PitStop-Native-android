@@ -1,5 +1,7 @@
 package com.pitstop.interactors.get;
 
+import android.os.Handler;
+
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
@@ -7,8 +9,6 @@ import com.pitstop.utils.NetworkHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.logging.Handler;
 
 /**
  * Created by ishan on 2017-09-28.
@@ -19,14 +19,13 @@ public class GetCarImagesArrayUseCaseImpl implements GetCarImagesArrayUseCase{
     public static final String BASE_URL = "https://api.edmunds.com/v1/api/vehiclephoto/service/findphotosbystyleid?styleId=";
     public static final String FORMAT_URL ="&fmt=json&api_key=";
     public static final String API_KEY = "9mu2f8rw93jaxtsj9dqkbtsx";
-
-    private android.os.Handler useCaseHandler;
-    private android.os.Handler mainHandler;
+    private Handler useCaseHandler;
+    private Handler mainHandler;
     private NetworkHelper networkHelper;
     private String stylesID;
     private GetCarImagesArrayUseCase.Callback callback;
 
-    public GetCarImagesArrayUseCaseImpl(android.os.Handler useCaseHandler, android.os.Handler mainHandler,
+    public GetCarImagesArrayUseCaseImpl(Handler useCaseHandler, Handler mainHandler,
                                     NetworkHelper networkHelper) {
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;

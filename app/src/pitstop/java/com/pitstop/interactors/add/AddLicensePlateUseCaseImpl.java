@@ -21,11 +21,8 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     private Handler mainHandler;
     private Handler useCaseHandler;
     private LocalSpecsStorage localSpecsStorage;
-
     private int carID;
     private String carLicensePlate;
-
-
 
     public AddLicensePlateUseCaseImpl(Handler mainHandler, Handler useCasehandler,
                                       LocalSpecsStorage localSpecsStorage){
@@ -41,9 +38,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
         useCaseHandler.post(this);
     }
 
-
     public void onError(RequestError error){
-
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -69,11 +64,9 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
             public void onSuccess(String data) {
                 AddLicensePlateUseCaseImpl.this.onLicensePlateStored(data);
             }
-
             @Override
             public void onError(RequestError error) {
                 AddLicensePlateUseCaseImpl.this.onError(error);
-
             }
         });
     }
