@@ -131,12 +131,11 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
         presenter = new ShopSearchPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
-        presenter.loadNearbyShops();
+        presenter.filterLists("");
 
 
 
         searchBar.setOnClickListener(v -> presenter.focusSearch());
-        presenter.getPitstopShops();
         return view;
     }
 

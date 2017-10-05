@@ -86,11 +86,7 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
 
     @Override
     public void run(){
-        String uri;
-        if (query == null)
-            uri = "&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
-        else
-            uri = "&query="+query+"&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
+        String uri = "&query="+query+"&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
         networkHelper.getWithCustomUrl(PLACES_SEARCH_URL, uri, (response, requestError) -> {
             if(response != null){
                 try {
