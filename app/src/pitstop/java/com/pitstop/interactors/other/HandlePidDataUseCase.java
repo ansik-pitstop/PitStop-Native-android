@@ -10,8 +10,10 @@ import com.pitstop.network.RequestError;
 
 public interface HandlePidDataUseCase extends Interactor {
     interface Callback{
-        void onSuccess();
+        void onDataStored();
+        void onDataSent();
         void onError(RequestError error);
+
     }
 
     //Executes the use case

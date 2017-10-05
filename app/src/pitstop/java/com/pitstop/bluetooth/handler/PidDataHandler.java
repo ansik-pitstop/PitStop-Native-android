@@ -1,7 +1,10 @@
 package com.pitstop.bluetooth.handler;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
@@ -15,6 +18,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.BluetoothDataVisualizer;
 import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.PIDParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +34,18 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class PidDataHandler {
 
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private static boolean pidDataSentVisible = false;
+
+
+
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
     private final int TIME_INTERVAL_DEFAULT = 4;
     private final int TIME_INTERVAL_SAFE = 120;
 
-    private final String TAG = getClass().getSimpleName();
+    private final static  String TAG = PidDataHandler.class.getSimpleName();
 
     private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
     private final String DEFAULT_PIDS_SAFE = "2105,2106,210b,210c,210d";
@@ -61,9 +71,18 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
+
+
     public void handlePidData(PidPackage pidPackage){
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
+        // logging the pid based on receiving data from device
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
+            LogUtils.debugLogD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
+                            + " real time?  " + pidPackage.realTime
+                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+            visualizePidReceived(pidPackage,getApplicationContext());
+        }
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
@@ -72,13 +91,19 @@ public class PidDataHandler {
                     , getApplicationContext());
             return;
         }
-
         for (PidPackage p: pendingPidPackages){
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
-                public void onSuccess() {
-                    if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
-                        BluetoothDataVisualizer.visualizePidDataSent(true,context);
+                public void onDataSent() {
+                    if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
+                        if (pendingPidPackages.size() > 0) {
+                            Log.d(TAG, p.timestamp + "Data sent to Server");
+                            visualizePidDataSent(true, context, p.timestamp);
+                        }
+                        else {Log.d(TAG, "???????????");}
+                    }
+                    else {
+                        Log.d(TAG, "notRightBuildB");
                     }
                     Log.d(TAG,"Successfully handled pids.");
                 }
@@ -87,11 +112,17 @@ public class PidDataHandler {
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
                     if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-                        BluetoothDataVisualizer.visualizePidDataSent(false,context);
+                        visualizePidDataSent(false,context, null);
                     }
                     if (error.getMessage().contains("not found")){
                         //Let trip handler know to get his shit together
                     }
+                }
+
+                @Override
+                public void onDataStored() {
+                    Log.d(TAG, p + " Stored in local database");
+
                 }
             });
         }
@@ -210,5 +241,37 @@ public class PidDataHandler {
             return DEFAULT_PIDS;
         }
     }
+
+    public static void visualizePidReceived(PidPackage pidPackage, Context context){
+        if (pidPackage == null){
+            Log.d(TAG,"visualizePidReceived() pidPackage = null");
+            Toast.makeText(context,"NULL pid values received",Toast.LENGTH_LONG).show();
+        }else{
+            Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
+            int rpm = Integer.parseInt(pidPackage.pids.get("210C"),16);
+            Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static void visualizePidDataSent(boolean success, Context context, String timeStampFirst){
+        Log.d(TAG,"visualizePidDataSent() success ? "+success);
+        if (pidDataSentVisible) return;
+        if (success&& timeStampFirst!= null) {
+            Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
+                    .show();
+            LogUtils.debugLogD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
+                    ,true, DebugMessage.TYPE_NETWORK, context);
+        }
+        else {
+            Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
+                    .show();
+            LogUtils.debugLogD(TAG, "Pid values failed to send to server: "
+                    , true, DebugMessage.TYPE_NETWORK, context);
+        }
+        pidDataSentVisible = true;
+        //Only allow one toast showing failure every 15 seconds
+        mainHandler.postDelayed(() -> pidDataSentVisible = false, 15000);
+    }
+
 
 }

@@ -74,19 +74,21 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         useCaseHandler.post(this);
     }
-
-    private void onSuccess(){
-        mainHandler.post(() -> callback.onSuccess());
-    }
+    private void onDataStored(){mainHandler.post(() -> callback.onDataStored());}
 
     private void onError(RequestError error){
         mainHandler.post(() -> callback.onError(error));
+    }
+
+    private void onDataSent(){
+        mainHandler.post(() -> callback.onDataSent());
     }
 
     @Override
     public void run() {
 
         localPidStorage.createPIDData(getPidDataObject(pidPackage));
+        HandlePidDataUseCaseImpl.this.onDataStored();
         if(localPidStorage.getPidDataEntryCount() < PID_CHUNK_SIZE) {
             return;
         }
@@ -162,7 +164,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     @Override
                     public void onSuccess(List<Pid> pid){
                         Log.d(TAG,"PIDS added!");
-                        HandlePidDataUseCaseImpl.this.onSuccess();
+                        HandlePidDataUseCaseImpl.this.onDataSent();
                         localPidStorage.deletePidEntries(pid);
                     }
                     @Override

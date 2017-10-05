@@ -26,6 +26,10 @@ public class PidPackage {
         this.pids = pidPackage.pids;
     }
 
+    public void setPids(HashMap<String, String> newpids){
+        this.pids = newpids;
+    }
+
     @Override
     public String toString() {
         return "PidPackage{" +
