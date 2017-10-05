@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,14 +82,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
             /*Has to be handled because when the ProgressDialog
             * is open onBackPressed() is not invoked */
-            progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                    if (presenter != null){
-                        presenter.onProgressDialogKeyPressed(keyCode);
-                    }
-                    return false;
+            progressDialog.setOnKeyListener((dialog, keyCode, event) -> {
+                if (presenter != null){
+                    presenter.onProgressDialogKeyPressed(keyCode);
                 }
+                return false;
             });
         }
 
@@ -116,6 +112,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             presenter = new VinEntryPresenter(useCaseComponent,mixpanelHelper);
         }
         presenter.subscribe(this);
+        presenter.loadInfo();
         return rootView;
     }
 
@@ -320,6 +317,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void displayMileage(int mileage) {
+        Log.d(TAG,"displayMileage()");
         mileageEditText.setText(mileage);
     }
 

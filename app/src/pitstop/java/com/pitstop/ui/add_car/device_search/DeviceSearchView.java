@@ -9,7 +9,7 @@ import com.pitstop.ui.LoadingView;
 
 public interface DeviceSearchView extends LoadingView{
 
-    void onVinRetrievalFailed(String scannerName, String scannerId);
+    void onVinRetrievalFailed(String scannerName, String scannerId, int mileage);
     void onCannotFindDevice();
     String getMileage();
     void onMileageInvalid();

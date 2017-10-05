@@ -136,24 +136,19 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void onVinRetrievalFailed(String scannerName, String scannerId) {
+    public void onVinRetrievalFailed(String scannerName, String scannerId, int mileage) {
 
         Log.d(TAG,"onVinRetrievalFailed() scannerName: "+scannerName+", scannerId: "+scannerId);
 
         //Fragment switcher, go toVinEntryFragment
         if (fragmentSwitcher == null || getActivity() == null ) return;
-        fragmentSwitcher.setViewVinEntry(scannerName, scannerId);
+        fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
 
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
                 .setTitle("Could not retrieve VIN")
                 .setMessage("VIN could not be retrieved from your device, please input it manually")
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.cancel())
                 .setNegativeButton("", null).create();
         dialog.show();
     }

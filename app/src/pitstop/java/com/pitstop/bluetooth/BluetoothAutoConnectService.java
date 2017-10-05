@@ -1025,7 +1025,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
-    private void notifyVin(String vin) {
+    private void notifyVin(String vin1) {
+        final String vin = "";
         Log.d(TAG,"notifyVin() vin: "+vin);
         if (!vinRequested) return;
 
