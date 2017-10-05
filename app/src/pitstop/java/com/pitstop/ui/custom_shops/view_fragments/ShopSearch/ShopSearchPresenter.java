@@ -55,11 +55,6 @@ public class ShopSearchPresenter implements ShopPresnter {
         shopSearch.focusSearch();
     }
 
-    public void setViewShopForm(Dealership dealership){
-        if(shopSearch == null){return;}
-        switcher.setViewShopForm(dealership);
-    }
-
     @Override
     public void onShopClicked(Dealership dealership) {
         if(shopSearch == null){return;}

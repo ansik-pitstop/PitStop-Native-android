@@ -2,7 +2,6 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
-
 
 import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.R;
@@ -72,12 +70,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @BindView(R.id.search_results_category)
     CardView searchCategory;
 
-
     @BindView(R.id.search_bar)
     SearchView searchBar;
-
-    @BindView(R.id.add_own_button)
-    CardView addOwnButton;
 
     @Override
     public void setSwitcher(CustomShopActivityCallback switcher) {
@@ -108,12 +102,6 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
         View view = inflater.inflate(R.layout.fragment_shop_search, container, false);
         ButterKnife.bind(this,view);
-        addOwnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.setViewShopForm(null);
-            }
-        });
         searchBar.setFocusableInTouchMode(true);
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -127,8 +115,6 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
                 return false;
             }
         });
-
-
 
         pitstopShops.setNestedScrollingEnabled(false);
         myShopsList.setNestedScrollingEnabled(false);
@@ -145,12 +131,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
 
 
-        searchBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.focusSearch();
-            }
-        });
+        searchBar.setOnClickListener(v -> presenter.focusSearch());
         presenter.getMyShops();
         presenter.getPitstopShops();
         return view;
@@ -253,18 +234,11 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
         alertDialogBuilder
                 .setMessage("Change the shop of this car")
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        dialog.cancel();
-                        presenter.changeShop(dealership);
-                    }
+                .setPositiveButton("Yes", (dialog, id) -> {
+                    dialog.cancel();
+                    presenter.changeShop(dealership);
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        dialog.cancel();
-
-                    }
-                });
+                .setNegativeButton("No", (dialog, id) -> dialog.cancel());
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
