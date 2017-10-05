@@ -338,11 +338,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         && !deviceConnState.equals(State.VERIFYING)){
                     clearInvalidDeviceData();
                     resetConnectionVars();
+                    if (!deviceManager.isConnectedTo215()) //Sync time for 212 devices
+                        deviceManager.setRtc(System.currentTimeMillis());
                     requestVin();                //Get VIN to validate car
                     deviceConnState = State.CONNECTED_UNVERIFIED;
                     notifyVerifyingDevice();     //Verification in progress
                     requestDeviceTime();          //Get RTC and mileage once connected
                     deviceManager.requestData(); //Request data upon connecting
+
                 }
 
                 break;
@@ -674,6 +677,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void appendDtc(DtcPackage dtcPackage){
+        Log.d(TAG,"appendDtc() dtcPackage: "+dtcPackage);
         if (dtcPackage == null) return;
 
         if (requestedDtcs == null){
@@ -689,6 +693,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     && !(requestedDtcs.dtcs.containsKey(dtc.getKey())
                             && requestedDtcs.dtcs.get(dtc.getKey()).equals(dtc.getValue()))){
 
+                Log.d(TAG,"appendDtc() <String,Value>: "+dtc.getKey()+", "+dtc.getValue());
                 requestedDtcs.dtcs.put(dtc.getKey(),dtc.getValue());
             }
         }
@@ -749,6 +754,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = new ReadyDevice(vin, currentDeviceId, currentDeviceId);
         notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
         deviceManager.getSupportedPids();
+
     }
 
     @Override

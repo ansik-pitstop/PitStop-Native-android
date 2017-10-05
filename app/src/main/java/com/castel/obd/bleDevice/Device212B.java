@@ -59,7 +59,7 @@ public class Device212B implements AbstractDevice {
 
     @Override
     public BluetoothDeviceManager.CommType commType() {
-        return BluetoothDeviceManager.CommType.CLASSIC;
+        return BluetoothDeviceManager.CommType.LE;
     }
 
     @Override
