@@ -236,7 +236,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 dataListener.getBluetoothState(btConnectionState);
                 Log.i(TAG, "Connecting to Classic device");
-                communicator = new BluetoothClassicComm(mContext, this);
+                if (communicator == null){
+                    communicator = new BluetoothClassicComm(mContext, this);
+                }
                 break;
         }
 
