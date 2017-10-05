@@ -71,8 +71,6 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
-
-
     public void handlePidData(PidPackage pidPackage){
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
@@ -240,6 +238,7 @@ public class PidDataHandler {
         //Only allow one toast showing failure every 15 seconds
         mainHandler.postDelayed(() -> pidDataSentVisible = false, 15000);
     }
+
 
     private void setDevicePIDs(String[] pids, String vin, int interval){
 
