@@ -629,11 +629,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void idrPidData(PidPackage pidPackage) {
-        LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            BluetoothDataVisualizer.visualizePidReceived(pidPackage,getApplicationContext());
-        }
+
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
         if (pidPackage == null) return;
