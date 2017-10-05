@@ -20,7 +20,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.custom_shops.view_fragments.ShopForm.ShopFormFragment;
+import com.pitstop.ui.custom_shops.view_fragments.ShopForm_del.ShopFormFragment;
 import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
 import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;

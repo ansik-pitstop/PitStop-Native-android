@@ -22,7 +22,6 @@ public class CustomShopPresenter {
     private final static int DEBUG_NO_DEALER = 1;
     private final static int PROD_NO_DEALER = 19;
 
-
     public CustomShopPresenter(CustomShopActivityCallback fragmentSwitcher
             , UseCaseComponent component, String startSource){
         this.fragmentSwitcher = fragmentSwitcher;
@@ -39,7 +38,8 @@ public class CustomShopPresenter {
         }else{
             dealership.setId(PROD_NO_DEALER);
         }
-        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
+        component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership
+                , EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
             @Override
             public void onCarDealerUpdated() {
                 if(customShop != null){

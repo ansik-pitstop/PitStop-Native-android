@@ -8,7 +8,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
-import com.pitstop.ui.custom_shops.ShopPresnter;
+import com.pitstop.ui.custom_shops.ShopPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by Matt on 2017-06-08.
  */
 
-public class PitstopShopsPresenter implements ShopPresnter {
+public class PitstopShopsPresenter implements ShopPresenter {
 
     private PitstopShopsView pitstopShops;
     private CustomShopActivityCallback switcher;

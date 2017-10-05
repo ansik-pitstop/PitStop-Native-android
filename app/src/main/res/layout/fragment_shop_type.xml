@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:maxLines="1"
-                    android:text="Add Custom Shop"
+                    android:text="Find Shop Near Me"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
                     android:textColor="@color/white_text"
                     android:textSize="25sp" />

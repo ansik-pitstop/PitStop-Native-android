@@ -1,13 +1,11 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
-
+import android.util.Log;
 
 import com.pitstop.models.Dealership;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +21,9 @@ import java.util.List;
  */
 
 public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseCase {
-    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
+    private final String TAG = getClass().getSimpleName();
 
+    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
     private static final String PLACES_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
     private static final String PLACES_TEXT_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/search/json?";
     private static final String PLACES_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
@@ -90,38 +89,40 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
     @Override
     public void run(){
         String uri = "&query="+query+"&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
-        networkHelper.getWithCustomUrl(PLACES_SEARCH_URL, uri, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try {
-                        JSONObject responseJson = new JSONObject(response);
-                        if(responseJson.getString("status").equals("OK")){
-                            JSONArray shops = responseJson.getJSONArray("results");
-                            List<Dealership> dealerships = new ArrayList<Dealership>();
-                            for(int i = 0 ; i<shops.length() ; i++){
-                                JSONObject shop = shops.getJSONObject(i);
-                                Dealership dealership = new Dealership();
-                                dealership.setCustom(true);
-                                dealership.setName(shop.getString("name"));
-                                dealership.setAddress(addressFormat(shop.getString("formatted_address")));
-                                dealership.setGooglePlaceId(shop.getString("place_id"));
+        networkHelper.getWithCustomUrl(PLACES_SEARCH_URL, uri, (response, requestError) -> {
+            if(response != null){
+                Log.d(TAG,"response: "+response);
+                try {
+                    JSONObject responseJson = new JSONObject(response);
+                    if(responseJson.getString("status").equals("OK")){
+                        JSONArray shops = responseJson.getJSONArray("results");
+                        List<Dealership> dealerships = new ArrayList<Dealership>();
+                        for(int i = 0 ; i<shops.length() ; i++){
+                            JSONObject shop = shops.getJSONObject(i);
+                            Dealership dealership = new Dealership();
+                            dealership.setCustom(true);
+                            dealership.setName(shop.getString("name"));
+                            dealership.setAddress(addressFormat(shop.getString("formatted_address")));
+                            dealership.setGooglePlaceId(shop.getString("place_id"));
+                            if (shop.has("rating"))
                                 dealership.setRating(shop.getDouble("rating"));
-                                dealerships.add(dealership);
-                            }
-                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(dealerships);
-                        }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
-                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(new ArrayList<Dealership>());
-                        }else{
-                            GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
+                            else
+                                dealership.setRating(0);
+                            dealerships.add(dealership);
                         }
-                    }catch (JSONException e){
+                        GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(dealerships);
+                    }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
+                        GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(new ArrayList<Dealership>());
+                    }else{
                         GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                     }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                    GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                 }
-                else{
-                    GetGooglePlacesShopsUseCaseImpl.this.onError(requestError);
-                }
+            }
+            else{
+                GetGooglePlacesShopsUseCaseImpl.this.onError(requestError);
             }
         });
     }

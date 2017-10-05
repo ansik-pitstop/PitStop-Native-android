@@ -1,4 +1,4 @@
-package com.pitstop.ui.custom_shops.view_fragments.ShopForm;
+package com.pitstop.ui.custom_shops.view_fragments.ShopForm_del;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
