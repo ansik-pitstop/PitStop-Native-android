@@ -47,14 +47,13 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.name.setText("No Matching Shops");
             holder.address.setText("");
+            holder.rating.setVisibility(View.INVISIBLE);
+            holder.ratingBar.setVisibility(View.INVISIBLE);
         } else {
+            holder.rating.setVisibility(View.VISIBLE);
+            holder.ratingBar.setVisibility(View.VISIBLE);
             Dealership dealership = dealerships.get(position);
-                holder.setClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        shopPresnter.onShopClicked(dealership);
-                    }
-                });
+                holder.setClickListener(v -> shopPresnter.onShopClicked(dealership));
                 holder.name.setText(dealership.getName());
                 holder.address.setText(dealership.getAddress());
                 if(dealership.getRating()==0){
