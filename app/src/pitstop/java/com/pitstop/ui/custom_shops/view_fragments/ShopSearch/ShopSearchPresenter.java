@@ -1,5 +1,7 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
@@ -23,6 +25,9 @@ import java.util.List;
  */
 
 class ShopSearchPresenter implements ShopPresnter {
+
+    private final String TAG = getClass().getSimpleName();
+
     private ShopSearchView shopSearch;
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
@@ -42,20 +47,24 @@ class ShopSearchPresenter implements ShopPresnter {
     }
 
     public void subscribe(ShopSearchView shopSearch){
+        Log.d(TAG,"subscribe()");
         mixpanelHelper.trackViewAppeared("ShopSearch");
         loadingCounter = 0;
         this.shopSearch = shopSearch;
     }
-    public void unsubscribe(){
+    public void unsubscribe() {
+        Log.d(TAG,"unsubscribe()");
         this.shopSearch = null;
     }
     void focusSearch(){
+        Log.d(TAG,"focusSearch()");
         if(shopSearch == null){return;}
         shopSearch.focusSearch();
     }
 
     @Override
     public void onShopClicked(Dealership dealership) {
+        Log.d(TAG,"onShopClicked() dealership: "+dealership.getName());
         if(shopSearch == null){return;}
         if(dealership.isCustom()){
             if(dealership.getGooglePlaceId()!= null){
@@ -86,6 +95,7 @@ class ShopSearchPresenter implements ShopPresnter {
     }
 
     void changeShop(Dealership dealership){
+        Log.d(TAG,"changeShop() dealership: "+dealership);
         if(shopSearch == null){return;}
         Car car = shopSearch.getCar();
         component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
@@ -104,7 +114,41 @@ class ShopSearchPresenter implements ShopPresnter {
         });
     }
 
+    void loadNearbyShops(){
+        Log.d(TAG,"load nearby shops()");
+        LatLng location = shopSearch.getLocation();
+        if(location == null){
+            return;
+        }
+        shopSearch.loadingGoogle(true);
+        loadingCounter+=1;
+        component.getGetGooglePlacesShopsUseCase().execute(location.latitude,location.longitude, null
+                , new GetGooglePlacesShopsUseCase.CallbackShops() {
+            @Override
+            public void onShopsGot(List<Dealership> dealerships) {
+                if(shopSearch != null){
+                    shopSearch.showSearchCategory(dealerships.size()>0 && !emptySearch);
+                    shopSearch.setUpSearchList(dealerships);
+                    loadingCounter-=1;
+                    if(loadingCounter == 0){
+                        shopSearch.loadingGoogle(false);
+                    }
+                }
+            }
+            @Override
+            public void onError(RequestError error) {
+                if(shopSearch != null){
+                    loadingCounter-=1;
+                    if(loadingCounter == 0){
+                        shopSearch.loadingGoogle(false);
+                    }
+                }
+            }
+        });
+    }
+
     void filterLists(String filter){//search for filter
+        Log.d(TAG,"filterLists() filter: "+filter);
         if(shopSearch == null){return;}
         filter = filter.toLowerCase();
         emptySearch = filter.equals("");
@@ -134,7 +178,8 @@ class ShopSearchPresenter implements ShopPresnter {
         }
         shopSearch.loadingGoogle(true);
         loadingCounter+=1;
-        component.getGetGooglePlacesShopsUseCase().execute(location.latitude,location.longitude, filter, new GetGooglePlacesShopsUseCase.CallbackShops() {
+        component.getGetGooglePlacesShopsUseCase().execute(location.latitude,location.longitude
+                , filter, new GetGooglePlacesShopsUseCase.CallbackShops() {
             @Override
             public void onShopsGot(List<Dealership> dealerships) {
                 if(shopSearch != null){
@@ -159,6 +204,7 @@ class ShopSearchPresenter implements ShopPresnter {
     }
 
     void getPitstopShops(){
+        Log.d(TAG,"getPitstopShops()");
         if(shopSearch == null){return;}
         component.getGetPitstopShopsUseCase().execute(new GetPitstopShopsUseCase.Callback() {
             @Override

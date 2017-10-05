@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,9 @@ import butterknife.ButterKnife;
  */
 
 public class ShopSearchFragment extends Fragment implements ShopSearchView {
+
+    private final String TAG = getClass().getSimpleName();
+
     private ShopSearchPresenter presenter;
     private CustomShopActivityCallback switcher;
 
@@ -44,9 +48,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     private GlobalApplication application;
 
     private ShopAdapter shopAdapter;
-
     private Car car;
-
     private LatLng location;
 
     private MixpanelHelper mixpanelHelper;
@@ -59,8 +61,6 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @BindView(R.id.search_results_list)
     RecyclerView searchResults;
 
-    @BindView(R.id.my_shops_category)
-    CardView shopCategory;
     @BindView(R.id.pitstop_category)
     CardView pitstopCategory;
     @BindView(R.id.search_results_category)
@@ -71,28 +71,36 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void setSwitcher(CustomShopActivityCallback switcher) {
+        Log.d(TAG,"setSwitcher()");
         this.switcher = switcher;
     }
 
-    public void setCar(Car car){
+    public void setCar(Car car) {
+        Log.d(TAG,"setCar() car: "+car);
         this.car = car;
     }
-    public void setLocation(LatLng location){
+    public void setLocation(LatLng location) {
+        Log.d(TAG,"setLocation() location.lat: "+location.latitude
+                +", location.long: "+location.longitude);
         this.location = location;
     }
 
     @Override
     public LatLng getLocation() {
+        Log.d(TAG,"getLocation() location.lat: "+location.latitude
+                +", location.long: "+location.longitude);
         return location;
     }
 
     @Override
     public Car getCar() {
+        Log.d(TAG,"getCar()");
         return car;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView()");
         context = getActivity().getApplicationContext();
         application = (GlobalApplication) context;
 
@@ -123,6 +131,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
         presenter = new ShopSearchPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
+        presenter.loadNearbyShops();
 
 
 
@@ -133,6 +142,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void loadingGoogle(boolean show) {
+        Log.d(TAG,"loadingGoogle() show: "+show);
         if(show){
             shopSearchProgress.setVisibility(View.VISIBLE);
         }else{
@@ -148,28 +158,26 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        searchBar.setQuery("",true);
-    }
-
-    @Override
     public void focusSearch() {
+        Log.d(TAG,"focusSearch()");
         searchBar.onActionViewExpanded();
     }
 
     @Override
     public void unFocusSearch() {
+        Log.d(TAG,"unfocusSearch()");
         searchBar.onActionViewCollapsed();
     }
 
     @Override
     public void showPitstopCategory(boolean show) {
+        Log.d(TAG,"showPitstopCategory() show: "+show);
         if(show){
             pitstopCategory.setVisibility(View.VISIBLE);
             pitstopShops.setVisibility(View.VISIBLE);
@@ -182,6 +190,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void showSearchCategory(boolean show) {
+        Log.d(TAG,"showSearchCategory() show: "+show);
         if(show){
             searchCategory.setVisibility(View.VISIBLE);
             searchResults.setVisibility(View.VISIBLE);
@@ -192,17 +201,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     }
 
     @Override
-    public void showShopCategory(boolean show) {
-        if(show){
-            shopCategory.setVisibility(View.VISIBLE);
-            return;
-        }
-        shopCategory.setVisibility(View.GONE);
-
-    }
-
-    @Override
     public void showConfirmation(Dealership dealership) {
+        Log.d(TAG,"showConfirmation() dealership: "+dealership.getName());
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
         alertDialogBuilder.setTitle("Set shop to "+dealership.getName());
         alertDialogBuilder
@@ -219,6 +219,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void setUpPitstopList(List<Dealership> dealerships) {
+        Log.d(TAG,"setUpPitstopList() dealerships: "+dealerships);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         shopAdapter = new ShopAdapter(dealerships,presenter);
@@ -229,6 +230,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public void setUpSearchList(List<Dealership> dealerships) {
+        Log.d(TAG,"setUpSearchList() dealerships: "+dealerships);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         shopAdapter = new ShopAdapter(dealerships,presenter);

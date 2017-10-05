@@ -2,12 +2,9 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-
 import com.pitstop.models.Dealership;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,39 +86,40 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
 
     @Override
     public void run(){
-        String uri = "&query="+query+"&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
-        networkHelper.getWithCustomUrl(PLACES_SEARCH_URL, uri, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try {
-                        JSONObject responseJson = new JSONObject(response);
-                        if(responseJson.getString("status").equals("OK")){
-                            JSONArray shops = responseJson.getJSONArray("results");
-                            List<Dealership> dealerships = new ArrayList<Dealership>();
-                            for(int i = 0 ; i<shops.length() ; i++){
-                                JSONObject shop = shops.getJSONObject(i);
-                                Dealership dealership = new Dealership();
-                                dealership.setCustom(true);
-                                dealership.setName(shop.getString("name"));
-                                dealership.setAddress(addressFormat(shop.getString("formatted_address")));
-                                dealership.setGooglePlaceId(shop.getString("place_id"));
-                                dealership.setRating(shop.getDouble("rating"));
-                                dealerships.add(dealership);
-                            }
-                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(dealerships);
-                        }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
-                            GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(new ArrayList<Dealership>());
-                        }else{
-                            GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
+        String uri;
+        if (query == null)
+            uri = "&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
+        else
+            uri = "&query="+query+"&key="+API_KEY+"&type=car_repair|car_dealer&location="+latitude+","+longitude+"&radius=10000";
+        networkHelper.getWithCustomUrl(PLACES_SEARCH_URL, uri, (response, requestError) -> {
+            if(response != null){
+                try {
+                    JSONObject responseJson = new JSONObject(response);
+                    if(responseJson.getString("status").equals("OK")){
+                        JSONArray shops = responseJson.getJSONArray("results");
+                        List<Dealership> dealerships = new ArrayList<Dealership>();
+                        for(int i = 0 ; i<shops.length() ; i++){
+                            JSONObject shop = shops.getJSONObject(i);
+                            Dealership dealership = new Dealership();
+                            dealership.setCustom(true);
+                            dealership.setName(shop.getString("name"));
+                            dealership.setAddress(addressFormat(shop.getString("formatted_address")));
+                            dealership.setGooglePlaceId(shop.getString("place_id"));
+                            dealership.setRating(shop.getDouble("rating"));
+                            dealerships.add(dealership);
                         }
-                    }catch (JSONException e){
+                        GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(dealerships);
+                    }else if(responseJson.getString("status").equals("ZERO_RESULTS")){
+                        GetGooglePlacesShopsUseCaseImpl.this.onShopsGot(new ArrayList<Dealership>());
+                    }else{
                         GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                     }
+                }catch (JSONException e){
+                    GetGooglePlacesShopsUseCaseImpl.this.onError(RequestError.getUnknownError());
                 }
-                else{
-                    GetGooglePlacesShopsUseCaseImpl.this.onError(requestError);
-                }
+            }
+            else{
+                GetGooglePlacesShopsUseCaseImpl.this.onError(requestError);
             }
         });
     }

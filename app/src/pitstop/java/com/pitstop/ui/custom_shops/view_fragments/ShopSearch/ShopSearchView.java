@@ -17,7 +17,6 @@ public interface ShopSearchView {
     void unFocusSearch();
     void showConfirmation(Dealership dealership);
     Car getCar();
-    void showShopCategory(boolean show);
     void showSearchCategory(boolean show);
     void showPitstopCategory(boolean show);
     void setUpPitstopList(List<Dealership> dealerships);
