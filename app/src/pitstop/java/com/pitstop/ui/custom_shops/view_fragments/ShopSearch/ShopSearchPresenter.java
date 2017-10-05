@@ -102,8 +102,6 @@ class ShopSearchPresenter implements ShopPresenter {
 
             @Override
             public void onError(RequestError error) {
-
-
             }
         });
     }
@@ -129,7 +127,6 @@ class ShopSearchPresenter implements ShopPresenter {
                     if(loadingCounter == 0){
                         view.loadingGoogle(false);
                     }
-                    view.showSearchCategory(dealerships.size()>0 );
                     view.setUpSearchList(dealerships);
                 }
             }

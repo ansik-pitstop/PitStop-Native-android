@@ -169,18 +169,6 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     }
 
     @Override
-    public void showSearchCategory(boolean show) {
-        Log.d(TAG,"showSearchCategory() show: "+show);
-        if(show){
-            searchCategory.setVisibility(View.VISIBLE);
-            searchResults.setVisibility(View.VISIBLE);
-            return;
-        }
-        searchCategory.setVisibility(View.GONE);
-        searchResults.setVisibility(View.GONE);
-    }
-
-    @Override
     public void showConfirmation(Dealership dealership) {
         Log.d(TAG,"showConfirmation() dealership: "+dealership.getName());
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity

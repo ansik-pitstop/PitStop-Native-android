@@ -17,7 +17,6 @@ public interface ShopSearchView {
     void unFocusSearch();
     void showConfirmation(Dealership dealership);
     Car getCar();
-    void showSearchCategory(boolean show);
     void setUpSearchList(List<Dealership> dealerships);
     LatLng getLocation();
     void loadingGoogle(boolean show);
