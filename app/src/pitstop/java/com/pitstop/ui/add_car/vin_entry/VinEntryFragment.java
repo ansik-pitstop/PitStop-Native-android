@@ -1,7 +1,6 @@
 package com.pitstop.ui.add_car.vin_entry;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -52,7 +51,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     Button addVehicleButton;
     @BindView(R.id.VIN)
     EditText vinEditText;
-    @BindView(R.id.input_mileage)
+    @BindView(R.id.input_mileage2)
     EditText mileageEditText;
 
     private ViewGroup rootView;
@@ -65,6 +64,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     //These are empty UNLESS we enter this fragment from SearchDeviceFragment which retrieved them
     private String scannerId = "";
     private String scannerName = "";
+    private int mileage = 0;
 
     public static VinEntryFragment getInstance(){
         return new VinEntryFragment();
@@ -72,7 +72,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
+            , @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
 
         if (progressDialog == null){
@@ -119,6 +120,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @Override
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
+        //Reset data in memory;
+        this.scannerName = "";
+        this.scannerId = "";
+        this.mileage = 0;
         if (presenter != null){
             presenter.unsubscribe();
         }
@@ -230,12 +235,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setTitle("Invalid Mileage")
                 .setMessage("Please input a mileage between 0 and 3,000,000")
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
+                .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
                 .setNegativeButton("", null).create();
         invalidMileageDialog.show();
     }
@@ -247,6 +247,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
         this.scannerId = scannerId;
         this.scannerName = scannerName;
+        this.mileage = mileage;
 
         if (presenter != null){
             presenter.gotDeviceInfo(scannerId,scannerName,mileage);
@@ -277,12 +278,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setTitle("Add Car Error")
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
+                .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
                 .setNegativeButton("", null).create();
         invalidMileageDialog.show();
     }
@@ -296,12 +292,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
                 .setMessage("This car has already been added and is in use." +
                         " If this is your vehicle please remove it and try again.")
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
                 .setNegativeButton("",null)
                 .create();
 
@@ -317,8 +308,8 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void displayMileage(int mileage) {
-        Log.d(TAG,"displayMileage()");
-        mileageEditText.setText(mileage);
+        Log.d(TAG,"displayMileage() mileage: "+mileage);
+        mileageEditText.setText(""+mileage);
     }
 
     @Override
@@ -350,6 +341,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         intent.putExtra(PendingAddCarActivity.ADD_CAR_SCANNER, scannerId);
         intent.putExtra(PendingAddCarActivity.ADD_CAR_VIN, vin);
         startActivityForResult(intent, RC_PENDING_ADD_CAR);
+    }
+
+    @Override
+    public int getTransferredMileage() {
+        return mileage; //mileage transferred from search for car fragment
     }
 
     @Override

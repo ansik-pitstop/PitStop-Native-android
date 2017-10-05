@@ -69,7 +69,7 @@ public class VinEntryPresenter {
 
     void loadInfo(){
         if (view != null)
-            view.displayMileage(mileage);
+            view.displayMileage(view.getTransferredMileage());
     }
 
     private void addVehicleToServer(String vin, int mileage, String scannerId, String scannerName){

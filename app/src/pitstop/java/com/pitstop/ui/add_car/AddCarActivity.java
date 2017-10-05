@@ -133,7 +133,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     public void setViewVinEntry(String scannerId, String scannerName, int mileage) {
-        Log.d(TAG,"setViewVinEntry() scannerId: "+scannerId+", scannerName: "+scannerName);
+        Log.d(TAG,"setViewVinEntry() scannerId: "+scannerId+", scannerName: "+scannerName
+                    +", mileage: "+mileage);
 
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
 

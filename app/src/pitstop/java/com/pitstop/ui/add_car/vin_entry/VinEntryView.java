@@ -23,6 +23,7 @@ public interface VinEntryView extends LoadingView{
     void displayScannedVinInvalid();
     void showAskHasDeviceView();
     void beginPendingAddCarActivity(String vin, double mileage, String scannerId);
+    int getTransferredMileage();
     String getVin();
     String getScannerId();
     String getScannerName();
