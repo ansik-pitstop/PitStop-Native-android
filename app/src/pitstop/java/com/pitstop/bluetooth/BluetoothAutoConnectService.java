@@ -303,8 +303,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         } catch (Exception e) {
             Log.d(TAG, "Receiver not registered");
         }
-
-        deviceManager.close();
+        if (deviceManager != null)
+            deviceManager.close();
         deviceManager = null;
         super.onDestroy();
     }
