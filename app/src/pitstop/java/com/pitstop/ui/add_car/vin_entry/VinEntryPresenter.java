@@ -27,6 +27,7 @@ public class VinEntryPresenter {
     private String scannerName = "";
     private String scannerId = "";
     private boolean addingCar = false;
+    private int mileage = 0;
 
 
     public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
@@ -51,6 +52,7 @@ public class VinEntryPresenter {
         this.view = null;
         this.scannerId = "";
         this.scannerName = "";
+        this.mileage = 0;
     }
 
     public void vinChanged(String vin){
@@ -63,6 +65,11 @@ public class VinEntryPresenter {
         else{
             view.onInvalidVinInput();
         }
+    }
+
+    void loadInfo(){
+        if (view != null)
+            view.displayMileage(view.getTransferredMileage());
     }
 
     private void addVehicleToServer(String vin, int mileage, String scannerId, String scannerName){
@@ -184,11 +191,16 @@ public class VinEntryPresenter {
         }
     }
 
-    public void gotDeviceInfo(String scannerName, String scannerId){
-        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId);
+    public void gotDeviceInfo(String scannerName, String scannerId, int mileage){
+        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId
+                +", mileage: "+mileage);
 
         this.scannerName = scannerName;
         this.scannerId = scannerId;
+        this.mileage = mileage;
+
+        if (view != null)
+            view.displayMileage(mileage);
     }
 
     public void onProgressDialogKeyPressed(int keyCode){

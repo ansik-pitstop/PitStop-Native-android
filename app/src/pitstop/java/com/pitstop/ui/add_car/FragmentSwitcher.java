@@ -9,7 +9,7 @@ import com.pitstop.models.Car;
 public interface FragmentSwitcher {
     void setViewAskHasDevice();
     void setViewDeviceSearch();
-    void setViewVinEntry(String scannerId, String scannerName);
+    void setViewVinEntry(String scannerId, String scannerName, int mileage);
     void setViewVinEntry();
     void endAddCarSuccess(Car car, boolean hasDealership);
     void endAddCarFailure();

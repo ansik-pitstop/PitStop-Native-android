@@ -53,11 +53,19 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             if (view == null) return;
 
+            int mileage = 0;
+            try{
+                mileage = Integer.valueOf(view.getMileage());
+            }catch(NumberFormatException e){
+                e.printStackTrace();
+            }
             if (readyDevice == null){
-                view.onVinRetrievalFailed("","");
+
+                view.onVinRetrievalFailed("", "", mileage);
             }
             else{
-                view.onVinRetrievalFailed(readyDevice.getScannerName(),readyDevice.getScannerId());
+                view.onVinRetrievalFailed(readyDevice.getScannerName()
+                        , readyDevice.getScannerId(), mileage);
             }
 
             view.hideLoading(null);
