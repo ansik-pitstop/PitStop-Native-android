@@ -647,6 +647,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         pidPackage.deviceId = currentDeviceId;
         pidDataHandler.handlePidData(pidPackage);
+        if (!deviceManager.isConnectedTo215()){
+            notifyGotAllPid(pidPackage);
+        }
     }
 
     @Override
