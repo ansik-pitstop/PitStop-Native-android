@@ -18,8 +18,6 @@ public interface ShopSearchView {
     void showConfirmation(Dealership dealership);
     Car getCar();
     void showSearchCategory(boolean show);
-    void showPitstopCategory(boolean show);
-    void setUpPitstopList(List<Dealership> dealerships);
     void setUpSearchList(List<Dealership> dealerships);
     LatLng getLocation();
     void loadingGoogle(boolean show);

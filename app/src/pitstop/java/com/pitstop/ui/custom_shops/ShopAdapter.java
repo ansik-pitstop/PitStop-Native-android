@@ -25,10 +25,10 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
 
     private final List<Dealership> dealerships;
 
-    private ShopPresnter shopPresnter;
+    private ShopPresenter shopPresnter;
 
 
-    public ShopAdapter(@NonNull List<Dealership> dealerships, ShopPresnter shopPresnter) {
+    public ShopAdapter(@NonNull List<Dealership> dealerships, ShopPresenter shopPresnter) {
         this.dealerships = dealerships;
         this.shopPresnter = shopPresnter;
     }

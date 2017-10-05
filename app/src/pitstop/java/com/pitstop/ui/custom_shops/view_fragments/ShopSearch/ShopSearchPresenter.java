@@ -12,7 +12,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
-import com.pitstop.ui.custom_shops.ShopPresnter;
+import com.pitstop.ui.custom_shops.ShopPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
  * Created by matt on 2017-06-08.
  */
 
-class ShopSearchPresenter implements ShopPresnter {
+class ShopSearchPresenter implements ShopPresenter {
 
     private final String TAG = getClass().getSimpleName();
 
