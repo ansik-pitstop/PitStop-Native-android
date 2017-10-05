@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -54,7 +53,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     private MixpanelHelper mixpanelHelper;
 
     @BindView(R.id.shop_search_progress)
-    ProgressBar shopSearchProgress;
+    View shopSearchProgress;
 
     @BindView(R.id.search_results_list)
     RecyclerView searchResults;

@@ -125,12 +125,12 @@ class ShopSearchPresenter implements ShopPresenter {
             public void onShopsGot(List<Dealership> dealerships) {
                 Log.d(TAG,"onShopsGot() dealerships size: "+dealerships.size());
                 if(view != null){
-                    view.showSearchCategory(dealerships.size()>0 );
-                    view.setUpSearchList(dealerships);
                     loadingCounter-=1;
                     if(loadingCounter == 0){
                         view.loadingGoogle(false);
                     }
+                    view.showSearchCategory(dealerships.size()>0 );
+                    view.setUpSearchList(dealerships);
                 }
             }
             @Override
