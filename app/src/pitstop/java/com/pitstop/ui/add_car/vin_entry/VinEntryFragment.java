@@ -244,7 +244,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
-    public void onGotDeviceInfo(String scannerId, String scannerName) {
+    public void onGotDeviceInfo(String scannerId, String scannerName, int mileage) {
         Log.d(TAG,"onGotDeviceInfo() presenter == null?"+(presenter == null)
                 +", scannerId: "+scannerId+", scannerName: "+scannerName);
 
@@ -252,7 +252,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         this.scannerName = scannerName;
 
         if (presenter != null){
-            presenter.gotDeviceInfo(scannerId,scannerName);
+            presenter.gotDeviceInfo(scannerId,scannerName,mileage);
         }
     }
 
@@ -316,6 +316,11 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG,"displayVin() vin: "+vin);
         if (vin == null) vin = "";
         vinEditText.setText(vin);
+    }
+
+    @Override
+    public void displayMileage(int mileage) {
+        mileageEditText.setText(mileage);
     }
 
     @Override

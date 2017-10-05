@@ -12,12 +12,13 @@ public interface VinEntryView extends LoadingView{
     void onInvalidVinInput();
     String getMileage();
     void onInvalidMileage();
-    void onGotDeviceInfo(String scannerId, String scannerName);
+    void onGotDeviceInfo(String scannerId, String scannerName, int mileage);
     void onCarAddedWithShop(Car car);
     void onCarAddedWithoutShop(Car car);
     void onErrorAddingCar(String message);
     void onCarAlreadyAdded(Car car);
     void displayVin(String vin);
+    void displayMileage(int mileage);
     void displayScannedVinValid();
     void displayScannedVinInvalid();
     void showAskHasDeviceView();

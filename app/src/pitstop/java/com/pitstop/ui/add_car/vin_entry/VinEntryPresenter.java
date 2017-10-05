@@ -184,11 +184,15 @@ public class VinEntryPresenter {
         }
     }
 
-    public void gotDeviceInfo(String scannerName, String scannerId){
-        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId);
+    public void gotDeviceInfo(String scannerName, String scannerId, int mileage){
+        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId
+                +", mileage: "+mileage);
 
         this.scannerName = scannerName;
         this.scannerId = scannerId;
+        if (view != null){
+            view.displayMileage(mileage);
+        }
     }
 
     public void onProgressDialogKeyPressed(int keyCode){
