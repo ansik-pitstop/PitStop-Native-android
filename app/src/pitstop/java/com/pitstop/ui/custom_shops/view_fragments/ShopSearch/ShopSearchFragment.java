@@ -53,11 +53,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @BindView(R.id.shop_search_progress)
     ProgressBar shopSearchProgress;
-    @BindView(R.id.myshop_search_progress)
-    ProgressBar myShopSearchProgress;
 
-    @BindView(R.id.my_shops_list)
-    RecyclerView myShopsList;
     @BindView(R.id.pitstop_search_list)
     RecyclerView pitstopShops;
     @BindView(R.id.search_results_list)
@@ -117,7 +113,6 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
         });
 
         pitstopShops.setNestedScrollingEnabled(false);
-        myShopsList.setNestedScrollingEnabled(false);
         searchResults.setNestedScrollingEnabled(false);
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
@@ -132,18 +127,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
 
         searchBar.setOnClickListener(v -> presenter.focusSearch());
-        presenter.getMyShops();
         presenter.getPitstopShops();
         return view;
-    }
-
-    @Override
-    public void loadingMyShops(boolean show) {
-        if(show){
-            myShopSearchProgress.setVisibility(View.VISIBLE);
-        }else{
-            myShopSearchProgress.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -209,24 +194,13 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     @Override
     public void showShopCategory(boolean show) {
         if(show){
-            myShopsList.setVisibility(View.VISIBLE);
             shopCategory.setVisibility(View.VISIBLE);
             return;
         }
-        myShopsList.setVisibility(View.GONE);
         shopCategory.setVisibility(View.GONE);
 
     }
 
-    @Override
-    public void setUpMyShopsList(List<Dealership> dealerships) {
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        shopAdapter = new ShopAdapter(dealerships,presenter);
-        myShopsList.setAdapter(shopAdapter);
-        myShopsList.setLayoutManager(linearLayoutManager);
-
-    }
     @Override
     public void showConfirmation(Dealership dealership) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity

@@ -22,9 +22,7 @@ public interface ShopSearchView {
     void showPitstopCategory(boolean show);
     void setUpPitstopList(List<Dealership> dealerships);
     void setUpSearchList(List<Dealership> dealerships);
-    void setUpMyShopsList(List<Dealership> dealerships);
     LatLng getLocation();
     void loadingGoogle(boolean show);
-    void loadingMyShops(boolean show);
     void toast(String message);
 }

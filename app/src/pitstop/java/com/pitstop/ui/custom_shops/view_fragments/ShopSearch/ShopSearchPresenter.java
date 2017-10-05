@@ -6,7 +6,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
-import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -23,7 +22,7 @@ import java.util.List;
  * Created by matt on 2017-06-08.
  */
 
-public class ShopSearchPresenter implements ShopPresnter {
+class ShopSearchPresenter implements ShopPresnter {
     private ShopSearchView shopSearch;
     private CustomShopActivityCallback switcher;
     private UseCaseComponent component;
@@ -36,7 +35,7 @@ public class ShopSearchPresenter implements ShopPresnter {
 
     private int loadingCounter;
 
-    public ShopSearchPresenter(CustomShopActivityCallback switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
+    ShopSearchPresenter(CustomShopActivityCallback switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
@@ -50,7 +49,7 @@ public class ShopSearchPresenter implements ShopPresnter {
     public void unsubscribe(){
         this.shopSearch = null;
     }
-    public void focusSearch(){
+    void focusSearch(){
         if(shopSearch == null){return;}
         shopSearch.focusSearch();
     }
@@ -86,7 +85,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         }
     }
 
-    public void changeShop(Dealership dealership){
+    void changeShop(Dealership dealership){
         if(shopSearch == null){return;}
         Car car = shopSearch.getCar();
         component.getUpdateCarDealershipUseCase().execute(car.getId(), dealership, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
@@ -105,7 +104,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         });
     }
 
-    public void filterLists(String filter){//search for filter
+    void filterLists(String filter){//search for filter
         if(shopSearch == null){return;}
         filter = filter.toLowerCase();
         emptySearch = filter.equals("");
@@ -159,28 +158,7 @@ public class ShopSearchPresenter implements ShopPresnter {
         });
     }
 
-    public void getMyShops(){
-        if(shopSearch == null){return;}
-        shopSearch.loadingMyShops(true);
-        component.getGetUserShopsUseCase().execute(new GetUserShopsUseCase.Callback() {
-            @Override
-            public void onShopGot(List<Dealership> dealerships) {
-                if(shopSearch != null){
-                    shopSearch.showShopCategory(dealerships.size()>0);
-                    shopSearch.setUpMyShopsList(dealerships);
-                    shopSearch.loadingMyShops(false);
-                }
-            }
-            @Override
-            public void onError(RequestError error) {
-                if(shopSearch != null){
-                    shopSearch.loadingMyShops(false);
-                    shopSearch.toast("There was an error loading your shops");
-                }
-            }
-        });
-    }
-    public void getPitstopShops(){
+    void getPitstopShops(){
         if(shopSearch == null){return;}
         component.getGetPitstopShopsUseCase().execute(new GetPitstopShopsUseCase.Callback() {
             @Override
