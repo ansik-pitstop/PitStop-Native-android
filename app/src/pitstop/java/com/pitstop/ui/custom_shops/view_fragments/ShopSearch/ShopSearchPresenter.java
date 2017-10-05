@@ -135,6 +135,7 @@ class ShopSearchPresenter implements ShopPresnter {
             }
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"getGooglePlacesShops onError() error: "+error.getMessage());
                 if(view != null){
                     loadingCounter-=1;
                     if(loadingCounter == 0){
