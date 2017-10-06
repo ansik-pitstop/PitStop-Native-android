@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @BindView(R.id.contact_view)
     protected View contactView;
+
+    @BindView(R.id.main_linear_layout)
+    protected LinearLayout mainLinearLayout;
 
     @BindView(R.id.contents_container)
     protected LinearLayout mainLayout;
@@ -123,9 +127,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void showLoading() {
-        Log.d(TAG, "showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             Log.d(TAG, "showLoading()");
+            mainLinearLayout.setGravity(Gravity.CENTER_VERTICAL);
             mainLayout.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
@@ -137,6 +141,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void hideLoading(){
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setGravity(Gravity.TOP);
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
@@ -229,7 +234,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             });
             dealershipCallDialog = builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Select a Dealership")
+                    .setTitle(getContext().getString(R.string.select_dealership_toast_text))
                     .setPositiveButton("", null)
                     .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
                     .create();
@@ -251,7 +256,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             });
             dealershipDirectionsDialog= builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Select a Dealership")
+                    .setTitle(getContext().getString(R.string.select_dealership_toast_text))
                     .setPositiveButton("", null)
                     .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
                     .create();
@@ -314,7 +319,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             if(resultCode == Activity.RESULT_OK){
                 if(data.getExtras().getBoolean(VehicleSpecsFragment.CAR_DELETED)){
                     notifyCarRemoved(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
-
                 }
                 else if (data.getExtras().getBoolean(VehicleSpecsFragment.CAR_SELECTED)){
                     notifyCarSetAscurrent(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));

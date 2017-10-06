@@ -2,6 +2,7 @@ package com.pitstop.ui.my_garage;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -9,6 +10,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -127,7 +129,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     updating = false;
                     if (getView() == null) return;
                     getView().hideLoading();
-                    getView().toast("Please Select a Car");
+                    getView().toast(((Fragment)getView()).getContext().getString(R.string.select_car_request_toast));
                 }
                 @Override
                 public void onError(RequestError error) {
@@ -164,7 +166,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                         }
                     }
                     if (dealershipList.size() == 0)
-                        getView().toast("Please add a dealership");
+                        getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
                     else if (dealershipList.size() == 1)
                         getView().callDealership(dealershipList.get(0));
                     else
@@ -184,7 +186,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             if (getView() == null)return;
             Log.d(TAG, "dealershipsAlreadyGot");
             if (dealershipList.size() == 0)
-                getView().toast("Please add a dealership");
+                getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
             else if (dealershipList.size() == 1)
                 getView().callDealership(dealershipList.get(0));
             else
@@ -211,7 +213,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                         }
                     }
                     if (dealershipList.size() == 0)
-                        getView().toast("Please add a dealership");
+                        getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
                     else if (dealershipList.size() == 1)
                         getView().openDealershipDirections(dealershipList.get(0));
                     else
@@ -230,7 +232,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             updating = false;
             if (getView() == null)return;
             if (dealershipList.size() == 0)
-                getView().toast("Please add a dealership");
+                getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
             else if (dealershipList.size() == 1)
                 getView().openDealershipDirections(dealershipList.get(0));
             else

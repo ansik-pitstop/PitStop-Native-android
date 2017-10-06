@@ -1,10 +1,12 @@
 package com.pitstop.ui.vehicle_specs;
 
 import android.app.Dialog;
+import android.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
@@ -121,31 +123,38 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
 
     public void makeCarCurrent(int carID) {
         Log.d(TAG, "makeCarCurrent()");
+        if (view == null|| updating)return;
+        updating = true;
         useCaseComponent.setUseCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new SetUserCarUseCase.Callback() {
             @Override
             public void onUserCarSet() {
+                updating = false;
                 if (view == null)return;
-                view.toast("Current Car Set");
+                view.toast(((Fragment)view).getString(R.string.current_car_set));
                 view.closeSpecsFragmentAfterSettingCurrent();
             }
             @Override
             public void onError(RequestError error) {
+                updating = false;
                 if (view == null)return;
                 view.toast(error.getMessage());
             }
         });
     }
     public void deleteCar(int carID){
-        if(view == null)return;
+        if(view == null||updating)return;
+        updating = true;
         Log.d(TAG, "deleteCar()");
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
+                updating = false;
                 if (view == null)return;
                 view.closeSpecsFragmentAfterDeletion();
             }
             @Override
             public void onError(RequestError error) {
+                updating = false;
                 if (view == null) return;
                 view.toast(error.getMessage());
             }
