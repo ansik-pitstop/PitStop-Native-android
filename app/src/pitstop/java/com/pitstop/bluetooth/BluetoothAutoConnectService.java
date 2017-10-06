@@ -647,8 +647,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         pidPackage.deviceId = currentDeviceId;
         pidDataHandler.handlePidData(pidPackage);
+
+        //212 pid "snapshot" broadcast logic
         if (!deviceManager.isConnectedTo215()){
-            notifyGotAllPid(pidPackage);
+            if (pidPackage.pids == null){
+                pidPackage.pids = new HashMap<>();
+                notifyGotAllPid(pidPackage);
+            }else{
+                notifyGotAllPid(pidPackage);
+            }
         }
     }
 
@@ -660,6 +667,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void dtcData(DtcPackage dtcPackage) {
+        Log.d(TAG,"dtcData() dtcPackage: "+dtcPackage);
         if (dtcPackage == null) return;
         LogUtils.debugLogD(TAG, "DTC data: " + dtcPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
