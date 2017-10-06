@@ -11,6 +11,7 @@ import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -102,16 +103,19 @@ public class GlobalApplication extends Application {
 
         Stetho.initializeWithDefaults(this);
 
-        //Begin Crashlytics
-        Fabric.with(this, new Crashlytics());
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build();
+
+        Fabric.with(this, crashlyticsKit);
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             Log.d(TAG,"Release build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Release");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
         }
         else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
             Log.d(TAG,"Beta build.");
-            Crashlytics.setString(BuildConfig.VERSION_NAME,"Beta");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
 
         MultiDex.install(this);
@@ -122,8 +126,7 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings, (response)
-                -> Log.d(TAG,"Smooch.init() response err: "+response.getError()));
+        Smooch.init(this, settings);
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -245,8 +248,7 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), accessToken, response
-                    -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
+            Smooch.login(String.valueOf(userId), null);
         }
 
         setCurrentUser(currentUser);
@@ -330,7 +332,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout(response -> Log.d(TAG,"smooch logout err:  "+response.getError()));
+        Smooch.logout();
 
         cleanUpDatabase();
     }
