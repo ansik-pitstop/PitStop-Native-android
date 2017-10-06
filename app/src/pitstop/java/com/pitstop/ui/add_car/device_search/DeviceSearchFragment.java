@@ -145,10 +145,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
 
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
-                .setTitle("Could not retrieve VIN")
-                .setMessage("VIN could not be retrieved from your device, please input it manually")
+                .setTitle(getString(R.string.vin_retrieval_failed_alert_title))
+                .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("OK", (dialog1, which) -> dialog1.cancel())
+                .setPositiveButton(getString(R.string.ok_button), (dialog1, which) -> dialog1.cancel())
                 .setNegativeButton("", null).create();
         dialog.show();
     }
@@ -160,11 +160,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Could not find OBD device")
-                .setMessage("We were unable to find a Pitstop OBD device, please make sure that the " +
-                        "device is plugged in and that the lights are flashing. Try again?")
+                .setTitle(getString(R.string.cannot_find_device_alert_title))
+                .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.cannot_find_cevice_alert_yesbtn), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (presenter != null){
@@ -172,7 +171,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                         }
                     }
                 })
-                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cannot_find_cevice_alert_nobtn), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -200,10 +199,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Invalid Mileage")
-                .setMessage("Please input a mileage between 0 and 3,000,000.")
+                .setTitle(getString(R.string.invalid_mileage_alert_title))
+                .setMessage(getString(R.string.invalid_mileage_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.device_search_fragment_alert_okbutton), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -239,7 +238,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Add Car Error")
+                .setTitle(getString(R.string.add_car_error_alert_title))
                 .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -260,11 +259,10 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (getActivity() == null) return;
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Car Already Added")
-                .setMessage("This car has already been added and is in use." +
-                        " If this is your vehicle please remove it and try again.")
+                .setTitle(getString(R.string.car_already_added_alert_title))
+                .setMessage(getString(R.string.car_already_added_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.device_search_fragment_alert_okbutton), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

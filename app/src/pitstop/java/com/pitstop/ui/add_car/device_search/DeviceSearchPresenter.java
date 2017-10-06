@@ -1,9 +1,11 @@
 package com.pitstop.ui.add_car.device_search;
 
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.models.Car;
@@ -301,7 +303,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (view == null) return;
 
                         view.onCarAddedWithoutShop(car);
-                        view.hideLoading("Car Successfully Added");
+                        view.hideLoading(Resources.getSystem().getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override
@@ -315,7 +317,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
                             view.beginPendingAddCarActivity(readyDevice.getVin(),mileage
                                     ,readyDevice.getScannerId());
-                            view.hideLoading("Please connect to the internet");
+                            view.hideLoading(Resources.getSystem().getString(R.string.connect_to_internet_toast_message));
                         }
                         else{
                             view.onErrorAddingCar(error.getMessage());

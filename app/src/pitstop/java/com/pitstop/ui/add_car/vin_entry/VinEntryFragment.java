@@ -152,7 +152,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
 
         if (!checkBackCamera()) {
-            Toast.makeText(getContext(), "This device does not have a back facing camera",
+            Toast.makeText(getContext(), getString(R.string.no_back_camera_toast_message),
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -232,10 +232,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG,"onInvalidMileage()");
 
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Invalid Mileage")
-                .setMessage("Please input a mileage between 0 and 3,000,000")
+                .setTitle(getString(R.string.invalid_mileage_alert_title))
+                .setMessage(getString(R.string.invalid_mileage_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
+                .setPositiveButton(getString(R.string.ok_button), (dialog, which) -> dialog.cancel())
                 .setNegativeButton("", null).create();
         invalidMileageDialog.show();
     }
@@ -275,10 +275,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG,"onErrorAddingCar()");
 
         AlertDialog invalidMileageDialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Add Car Error")
+                .setTitle(getString(R.string.add_car_error_alert_title))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
+                .setPositiveButton(getString(R.string.ok_button), (dialog, which) -> dialog.cancel())
                 .setNegativeButton("", null).create();
         invalidMileageDialog.show();
     }
@@ -288,11 +288,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG, "onCarAlreadyAdded() car: "+car);
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
-                .setTitle("Car Already Added")
-                .setMessage("This car has already been added and is in use." +
-                        " If this is your vehicle please remove it and try again.")
+                .setTitle(getString(R.string.car_already_added_alert_title))
+                .setMessage(getString(R.string.car_already_added_alert_message))
                 .setCancelable(false)
-                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .setPositiveButton(getString(R.string.ok_button), (dialog1, which) -> dialog1.dismiss())
                 .setNegativeButton("",null)
                 .create();
 
