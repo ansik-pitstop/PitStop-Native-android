@@ -1,12 +1,16 @@
 package com.pitstop.dependency;
 
 import android.os.Handler;
+import android.support.v4.widget.CircularProgressDrawable;
 
 import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
+import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -21,6 +25,10 @@ import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
@@ -35,6 +43,8 @@ import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
@@ -440,6 +450,18 @@ public class UseCaseModule {
     }
 
     @Provides
+    AddLicensePlateUseCase addLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new AddLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
+    }
+
+    @Provides
+    GetLicensePlateUseCase getLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new GetLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
+    }
+
+    @Provides
     GetCarByVinUseCase getCarByVinUseCase(@Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler, CarRepository carRepository){
         return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository);
@@ -470,4 +492,18 @@ public class UseCaseModule {
 
         return new SortReportsUseCaseImpl(useCaseHandler, mainHandler);
     }
+
+    @Provides
+    GetCarStyleIDUseCase getCarStyleIDUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler,NetworkHelper networkHelper){
+        return new GetCarStyleIDUSeCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+    @Provides
+    GetCarImagesArrayUseCase getCarImagesArrayUseCase (@Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, NetworkHelper networkHelper){
+        return new GetCarImagesArrayUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+
 }

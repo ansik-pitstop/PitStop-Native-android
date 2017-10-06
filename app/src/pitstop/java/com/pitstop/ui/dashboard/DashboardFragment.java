@@ -162,7 +162,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         presenter.unsubscribe();
     }
 
-    private int getDealerSpecificBanner(String name) {
+    public static int getDealerSpecificBanner(String name) {
         Log.d(TAG,"getDealerSpecificBanner()");
         if (name.equalsIgnoreCase("Waterloo Dodge")) {
             return R.drawable.waterloo_dodge;
@@ -202,7 +202,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     }
 
-    private int getCarSpecificLogo(String make) {
+    public static int getCarSpecificLogo(String make) {
         Log.d(TAG,"getCarSpecificLogo()");
         if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
@@ -467,8 +467,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
         mMileageIcon.setImageResource(R.drawable.odometer);
         mEngineIcon.setImageResource(R.drawable.car_engine);
-        mHighwayIcon.setImageResource(R.drawable.highwaymileage);
-        mCityIcon.setImageResource(R.drawable.citymileage);
+        mHighwayIcon.setImageResource(R.drawable.highway_mileage2x);
+        mCityIcon.setImageResource(R.drawable.traffic_lights_2x);
         mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
         mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
         mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
@@ -497,8 +497,8 @@ public class DashboardFragment extends Fragment implements DashboardView {
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
         mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
         mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-        mHighwayIcon.setImageResource(R.drawable.mercedes_h);
-        mCityIcon.setImageResource(R.drawable.mercedes_c);
+        mHighwayIcon.setImageResource(R.drawable.highway_mileage_mercedes_2x);
+        mCityIcon.setImageResource(R.drawable.traffic_lights_mercedes_2x);
         mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
         mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
         mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);

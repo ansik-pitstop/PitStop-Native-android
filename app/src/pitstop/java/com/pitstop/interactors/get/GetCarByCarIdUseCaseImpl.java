@@ -15,7 +15,6 @@ import com.pitstop.repositories.UserRepository;
 
 public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     private CarRepository carRepository;
-
     private UserRepository userRepository;
     private Callback callback;
     private Handler useCaseHandler;

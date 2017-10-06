@@ -2,12 +2,16 @@ package com.pitstop.dependency;
 
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
+import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
+import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
@@ -15,6 +19,7 @@ import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
@@ -144,4 +149,12 @@ public interface UseCaseComponent {
     SortReportsUseCase getSortReportsUseCase();
 
     GetCarByVinUseCase getGetCarByVinUseCase();
+
+    AddLicensePlateUseCase addLicensePlateUseCase();
+
+    GetLicensePlateUseCase getLicensePlateUseCase();
+
+    GetCarStyleIDUseCase getCarStyleIDUseCase();
+
+    GetCarImagesArrayUseCase getCarImagesArrayUseCase();
 }

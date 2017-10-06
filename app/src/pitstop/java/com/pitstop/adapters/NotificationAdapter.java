@@ -21,14 +21,16 @@ import java.util.List;
 public class NotificationAdapter extends RecyclerView.Adapter<
         NotificationAdapter.NotificationViewHolder> {
 
-    NotificationView notificationView;
-    List<Notification> notificationList;
+    private NotificationView notificationView;
+    private List<Notification> notificationList;
 
     public NotificationAdapter(NotificationView notifView, List<Notification> notiflist){
         this.notificationList = notiflist;
         this.notificationView = notifView;
 
     }
+
+
 
     @Override
     public NotificationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,7 +41,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<
                 .onNotificationClicked(notificationList.get(position).getPushType()));
 
         return notificationViewHolder;
-
     }
 
     @Override

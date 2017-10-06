@@ -58,7 +58,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onError(error);
+                if(error!=null)
+                    callback.onError(error);
             }
         });
     }
@@ -96,7 +97,6 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         }
                         else{
                             GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0));
-
                             //Fix corrupted user settings
                             userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
                                     , new Repository.Callback<Object>() {

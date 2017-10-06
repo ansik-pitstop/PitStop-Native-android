@@ -96,19 +96,18 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (getView().hasBeenPopulated()){
-                        getView().displayOfflineErrorDialog();
-                    }
-                    else{
-                        getView().displayOfflineView();
+                if (error.getError()!=null) {
+                    if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                        if (getView().hasBeenPopulated()) {
+                            getView().displayOfflineErrorDialog();
+                        } else {
+                            getView().displayOfflineView();
+                        }
                     }
                 }
                 else{
                     getView().displayUnknownErrorView();
                 }
-
                 getView().hideLoading();
             }
         });
