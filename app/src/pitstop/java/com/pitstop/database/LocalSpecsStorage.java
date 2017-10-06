@@ -43,7 +43,6 @@ public class LocalSpecsStorage {
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         String[] values = {String.valueOf(carID)};
         if (doesTableExist(db,TABLES.LOCAL_SPECS_DATA.TABLE_NAME )) {
-
             Cursor c = db.query(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, null, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values, null, null, null);
             if (c.moveToFirst()) {
                 callback.onSuccess(c.getString(c.getColumnIndex(TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE)));
@@ -71,7 +70,8 @@ public class LocalSpecsStorage {
         Log.d(TAG, "deleteLicensePlate " + Integer.toString(carID));
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         String[] values = {String.valueOf(carID)};
-        db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values);
+        if (doesTableExist(db, TABLES.LOCAL_SPECS_DATA.TABLE_NAME))
+            db.delete(TABLES.LOCAL_SPECS_DATA.TABLE_NAME, TABLES.LOCAL_SPECS_DATA.KEY_CAR_ID + "=?", values);
     }
 
     public void deleteAllRows() {

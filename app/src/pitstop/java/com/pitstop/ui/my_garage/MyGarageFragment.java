@@ -11,11 +11,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -73,7 +75,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     protected View addCar;
 
     @BindView(R.id.progress)
-    protected RelativeLayout loadingView;
+    protected View loadingView;
 
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
@@ -128,8 +130,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void showLoading() {
         if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setGravity(Gravity.CENTER);
+            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                                                                        LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER;
+            mainLinearLayout.setLayoutParams(params);
             Log.d(TAG, "showLoading()");
-            mainLinearLayout.setGravity(Gravity.CENTER_VERTICAL);
             mainLayout.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
@@ -141,8 +148,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void hideLoading(){
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setGravity(Gravity.TOP);
             swipeRefreshLayout.setEnabled(true);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.NO_GRAVITY;
+            mainLinearLayout.setLayoutParams(params);
             loadingView.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
         }
