@@ -71,7 +71,7 @@ public class ShopTypePresenter {
             @Override
             public void onCarDealerUpdated() {
                 if(view != null){
-                    switcher.endCustomShops();
+                    switcher.endCustomShops("No Shop");
                 }
             }
 
