@@ -148,7 +148,12 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 .setTitle(getString(R.string.vin_retrieval_failed_alert_title))
                 .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.ok_button), (dialog1, which) -> dialog1.cancel())
+                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
                 .setNegativeButton("", null).create();
         dialog.show();
     }

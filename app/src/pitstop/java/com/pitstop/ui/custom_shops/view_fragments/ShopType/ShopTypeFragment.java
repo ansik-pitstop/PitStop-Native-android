@@ -2,6 +2,7 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopType;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -61,9 +62,24 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
 
         View view = inflater.inflate(R.layout.fragment_shop_type, container, false);
         ButterKnife.bind(this,view);
-        selectPitstopShop.setOnClickListener(v -> presenter.setViewPitstopShops());
-        selectCustomShop.setOnClickListener(v -> presenter.setViewShopSearch());
-        selectNoShop.setOnClickListener(v -> presenter.showNoShopWarning());
+        selectPitstopShop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.setViewPitstopShops();
+            }
+        });
+        selectCustomShop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.setViewShopSearch();
+            }
+        });
+        selectNoShop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               presenter.showNoShopWarning();
+            }
+        });
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
@@ -91,12 +107,19 @@ public class ShopTypeFragment extends Fragment implements ShopTypeView {
         alertDialogBuilder
                 .setMessage(getString(R.string.no_shop_alert_dialog_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.yes_button_text), (dialog, id) -> {
-                    presenter.setCarNoDealer(car);
-                    dialog.cancel();
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        presenter.setCarNoDealer(car);
+                        dialog.cancel();
 
+                    }
                 })
-                .setNegativeButton(getString(R.string.no_button_text), (dialog, id) -> dialog.cancel());
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        dialog.cancel();
+                    }
+
+                });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }

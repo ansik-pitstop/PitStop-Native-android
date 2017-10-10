@@ -1,15 +1,10 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 
-import android.util.Log;
-
-import android.content.res.Resources;
-
 import android.app.Fragment;
 import android.content.res.Resources;
 
 import com.pitstop.EventBus.EventSource;
-import com.pitstop.R;
 import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -35,9 +30,6 @@ import java.util.List;
  */
 
 public class ServiceFormPresenter implements PresenterCallback{
-
-    private final String TAG = getClass().getSimpleName();
-
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
 
@@ -90,9 +82,9 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void timeButtonClicked(){
-        mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
         if(view == null || callback == null){return;}
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
+        mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
+        if(localDealership.getName().equals("No Shop")){
             view.showReminder(((Fragment)view).getString(R.string.set_shop_request));
             return;
         }
@@ -103,19 +95,14 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.toggleTimeList();
     }
     public void dateButtonClicked(){
-        mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
         if(view == null || callback == null){return;}
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
-            view.showReminder("Please set a shop for this car first");
-            return;
-        }
+        mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
         view.toggleCalender();
     }
 
     public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
+        if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
-        if(view == null || callback == null || localDealership == null){return;}
-
         String date = year+"/"+month+"/"+dayOfMonth;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
@@ -171,8 +158,8 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     @Override
     public void onTimeClicked(String time) {
-        mixpanelHelper.trackButtonTapped("TimeItemButton","RequestServiceForm");
         if(view == null || callback == null){return;}
+        mixpanelHelper.trackButtonTapped("TimeItemButton","RequestServiceForm");
         view.showTime(time);
         view.hideTimeList();
         this.time = time;
@@ -190,14 +177,8 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void onSubmitClicked(){
-        Log.d(TAG,"onSubmitClicked()");
-        mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(view == null || callback == null){return;}
-
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
-            view.showReminder("Please set a shop for this car first");
-            return;
-        }
+        mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(localDealership.getEmail().equals("")){
             view.showReminder(((Fragment)view).getString(R.string.select_email_for_shop));
             return;
@@ -212,47 +193,36 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
         String outDate = date+" "+time;
         view.disableButton(true);
-        component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate)
-                , view.getComments(), new RequestServiceUseCase.Callback() {
-                    @Override
-                    public void onServicesRequested() {
-                        Log.d(TAG,"onServiceRequested()");
-                        if(view == null || callback == null){return;}
-                        if(callback.getIssue()!= null){
-                            view.disableButton(false);
-                            callback.finishActivity();
-                            view.toast("Service requested successfully.");
-                            return;
-                        }
-                       component.getAddServicesUseCase().execute(issues
-                               , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
-                           @Override
-                           public void onServicesAdded() {
-                               Log.d(TAG,"onServicesAdded()");
-                               if(view == null || callback == null){return;}
-                               view.disableButton(false);
-                               callback.finishActivity();
-                               view.toast("Service requested successfully.");
-                           }
+        component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate), view.getComments(), new RequestServiceUseCase.Callback() {
+            @Override
+            public void onServicesRequested() {
+                if(view == null || callback == null){return;}
+                if(callback.getIssue()!= null){return;}
+               component.getAddServicesUseCase().execute(issues
+                       , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
+                   @Override
+                   public void onServicesAdded() {
+                       if(view == null || callback == null){return;}
+                       view.disableButton(false);
+                       callback.finishActivity();
+                   }
 
-                           @Override
-                           public void onError(RequestError error) {
-                               Log.d(TAG,"onError() error: "+error.getMessage());
-                               if(view == null || callback == null){return;}
-                               view.disableButton(false);
-                               view.toast(((Fragment)view).getString(R.string.add_service_error));
-                           }
-                       });
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        Log.d(TAG,"onServiceRequested() error: "+error.getMessage());
-                        if(view == null || callback == null){return;}
-                        view.disableButton(false);
+                   @Override
+                   public void onError(RequestError error) {
+                       if(view == null || callback == null){return;}
+                       view.disableButton(false);
                       view.toast(((Fragment)view).getString(R.string.add_service_error));
-                    }
-                });
+                   }
+               });
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                if(view == null || callback == null){return;}
+                view.disableButton(false);
+              view.toast(((Fragment)view).getString(R.string.add_service_error));
+            }
+        });
     }
 
     @Override
