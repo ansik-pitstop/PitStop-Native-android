@@ -27,14 +27,6 @@ allprojects {
 }
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'pitstopandroidkey'
-            keyPassword 'Ansik.23'
-            storeFile file('C:/Users/Work/Downloads/pitstopkeystore (1).jks')
-            storePassword 'Ansik.23'
-        }
-    }
     lintOptions {
         checkReleaseBuilds false
     }
@@ -93,7 +85,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {
