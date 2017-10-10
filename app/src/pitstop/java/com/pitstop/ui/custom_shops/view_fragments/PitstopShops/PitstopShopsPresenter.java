@@ -94,7 +94,7 @@ public class PitstopShopsPresenter implements ShopPresnter {
             @Override
             public void onCarDealerUpdated() {
                 if(pitstopShops != null){
-                    switcher.endCustomShops();
+                    switcher.endCustomShops(dealership.getName());
                 }
             }
 
