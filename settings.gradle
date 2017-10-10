@@ -1,2 +1,2 @@
 include ':app'
-include ':libs:MaterialShowcaseView'
+include ':Pitstop-Native-android'
