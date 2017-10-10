@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
+apply plugin: 'kotlin-android'
 apply plugin: 'me.tatarka.retrolambda'
 
 
@@ -29,7 +29,7 @@ allprojects {
 android {
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    buildToolsVersion '26.0.2'
     def endpointTypeStaging = '\"staging\"'
     def endpointTypeSnapshot = '\"snapshot\"'
     def endpointTypeRelease = '\"release\"'
@@ -37,13 +37,13 @@ android {
     def buildTypeDebug = '\"debug\"'
     def buildTypeBeta = '\"beta\"'
     def isStaging = true
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            def file = output.outputFile
-            output.outputFile = new File(file.parent,
-                    file.name.replace(".apk", "_${variant.versionName}.apk").replace("app-", "Pitstop_"))
-        }
-    }
+//    applicationVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            def file = output.outputFile
+//            output.outputFile = new File(file.parent,
+//                    file.name.replace(".apk", "_${variant.versionName}.apk").replace("app-", "Pitstop_"))
+//        }
+//    }
     defaultConfig {
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
@@ -94,8 +94,10 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/rxjava.properties'
     }
+    flavorDimensions "mode"
     productFlavors {
         pitstop {
+            dimension "mode"
             minSdkVersion 18
         }
     }
@@ -123,8 +125,8 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
-    compile 'com.google.dagger:dagger:2.9'
-    apt 'com.google.dagger:dagger-compiler:2.9'
+    implementation 'com.google.dagger:dagger:2.9'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
     provided 'javax.annotation:jsr250-api:1.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.android.support:support-annotations:26.0.2'
@@ -146,11 +148,11 @@ dependencies {
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'
-    compile project(':libs:MaterialShowcaseView')
+//    compile project(':libs:MaterialShowcaseView')
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
-    compile 'com.jakewharton:butterknife:8.4.0'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    implementation 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
@@ -167,6 +169,7 @@ dependencies {
     }
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 apply plugin: 'com.google.gms.google-services'

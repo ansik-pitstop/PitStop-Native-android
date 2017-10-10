@@ -55,7 +55,6 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -85,11 +84,6 @@ import java.util.Map;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
-import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
-
-;
 
 /**
  * Created by David on 6/8/2016.
@@ -165,7 +159,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     private boolean userSignedUp;
     private TabFragmentManager tabFragmentManager;
-    private MaterialShowcaseSequence tutorialSequence;
 
     private UseCaseComponent useCaseComponent;
 
@@ -452,39 +445,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
-        if (tutorialSequence != null && tutorialSequence.hasStarted()) {
-            new AnimatedDialogBuilder(this)
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle(getString(R.string.first_service_booking_cancel_title))
-                    .setMessage(getString(R.string.first_service_booking_cancel_message))
-                    .setNegativeButton("Continue booking", null) // Do nothing on continue
-                    .setPositiveButton("Quit booking", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                JSONObject properties = new JSONObject();
-                                properties.put("Button", "Cancel Service Request");
-                                properties.put("State", "Tentative");
-                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
-                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            tutorialSequence.dismissAllItems();
-                            try {
-                                JSONObject properties = new JSONObject();
-                                properties.put("Button", "Confirm Service Request");
-                                properties.put("State", "Tentative");
-                                properties.put("View", MixpanelHelper.DASHBOARD_VIEW);
-                                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_BUTTON_TAPPED, properties);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    })
-                    .show();
-            return;
-        }
 
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
@@ -823,171 +783,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
     }
 
-    /**
-     * Given the tutorial should be shown to the user, show tutorial sequence
-     */
-    private void presentShowcaseSequence(boolean discountAvailable, String discountUnit, float discountAmount) {
-        Log.i(TAG, "running present show case");
-
-        tutorialSequence = new MaterialShowcaseSequence(this);
-        mixpanelHelper.trackViewAppeared(MixpanelHelper.TUTORIAL_VIEW_APPEARED);
-
-        StringBuilder firstServicePromotion = new StringBuilder();
-        firstServicePromotion.append(getResources().getString(R.string.first_service_booking_1));
-
-        if (discountAvailable) {
-            if (discountAmount != 0 && discountUnit != null) {
-                firstServicePromotion.append(" You can also receive a discount of ");
-                if (discountUnit.contains("%")) {
-                    firstServicePromotion.append((int) discountAmount)
-                            .append(discountUnit).append(" towards your first service");
-                } else {
-                    firstServicePromotion.append(discountUnit)
-                            .append(String.format("%.2f", discountAmount)).append(" towards your first service.");
-                }
-            }
-        }
-
-        final MaterialShowcaseView firstBookingDiscountShowcase = new MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.dashboard_request_service_btn))
-                .setTitleText("Request Service")
-                .setContentText(firstServicePromotion.toString())
-                .setDismissOnTouch(true)
-                .setDismissText("Get Started")
-                .withRectangleShape(true)
-                .setMaskColour(ContextCompat.getColor(this, R.color.darkBlueTrans))
-                .build();
-
-        final MaterialShowcaseView tentativeDateShowcase = new MaterialShowcaseView.Builder(this)
-                .withoutShape()
-                .setContentText(R.string.first_service_booking_2)
-                .setDismissOnTouch(true)
-                .setMaskColour(ContextCompat.getColor(this, R.color.darkBlueTrans))
-                .setListener(new IShowcaseListener() {
-                    @Override
-                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-                    }
-
-                    @Override
-                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                        requestMultiService(null);
-                    }
-                })
-                .build();
-
-        tutorialSequence.addSequenceItem(firstBookingDiscountShowcase)
-                .addSequenceItem(tentativeDateShowcase);
-
-        tutorialSequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-            @Override
-            public void onShow(MaterialShowcaseView materialShowcaseView, int i) {
-                if (materialShowcaseView.equals(firstBookingDiscountShowcase)) {
-                    try {
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    mixpanelHelper.trackButtonTapped(MixpanelHelper.TUTORIAL_GET_STARTED_TAPPED, MixpanelHelper.DASHBOARD_VIEW);
-                }
-            }
-        });
-
-        tutorialSequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-            @Override
-            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-
-                if (!materialShowcaseView.equals(firstBookingDiscountShowcase)) return;
-
-                //Change the color and text back to the original request service button
-                try {
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-        //viewPager.setCurrentItem(0);
-        isFirstAppointment = true;
-        tutorialSequence.start();
-    }
-
-    /**
-     * <p>This method is supposed to retrieve the necessary shop settings from the api and
-     * stored them locally in the SharePreferences</p>
-     * Including
-     * <ul>
-     * <li>boolean enableDiscountTutorial</li>
-     * <li>float amount</li>
-     * <li>String unit</li>
-     * </ul>
-     */
-
+    @Override
     public void prepareAndStartTutorialSequence() {
 
-        final MainActivity thisInstance = this;
-
-        showLoading("Loading dealership information...");
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                if (!checkDealership(car)) return;
-
-                networkHelper.getUserSettingsById(application.getCurrentUserId(), new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        hideLoading();
-                        String unit = "";
-                        float amount = 0f;
-                        boolean enableDiscountTutorial = false;
-
-                        if (response != null) Log.d("FSB", response);
-                        if (requestError != null) Log.d("FSB", requestError.toString());
-
-                        if (isLoading) hideLoading();
-
-                        if (requestError == null && response != null) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                if (jsonObject.has("shop")) {
-                                    JSONObject shop = jsonObject.getJSONObject("shop");
-                                    JSONObject firstAppointmentDiscount = shop.getJSONObject("firstAppointmentDiscount");
-                                    if (firstAppointmentDiscount.has("amount")) amount = (float) firstAppointmentDiscount.getDouble("amount");
-                                    if (firstAppointmentDiscount.has("unit")) unit = firstAppointmentDiscount.getString("unit");
-                                }
-                            } catch (JSONException je) {
-                                je.printStackTrace();
-                                Log.d(TAG, "Error occurred in retrieving first service booking promotion");
-                            }
-                        } else {
-                            Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
-                        }
-
-                        enableDiscountTutorial = (unit != null && !unit.isEmpty()) && (amount > 0);
-
-                        //Show the tutorial
-                        try {
-                            presentShowcaseSequence(enableDiscountTutorial, unit, amount);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-            }
-
-            @Override
-            public void onNoCarSet() {
-                hideLoading();
-                Toast.makeText(thisInstance,"Please add car",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     @Override
@@ -1030,12 +828,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         if (car.getDealership() == null) {
             Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
-                    .setAction("Select", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            selectDealershipForDashboardCar(car);
-                        }
-                    })
+                    .setAction("Select", view -> selectDealershipForDashboardCar(car))
                     .show();
             return false;
         }
@@ -1048,31 +841,28 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         final List<String> shopIds = new ArrayList<>();
 
         showLoading("Getting shop information..");
-        networkHelper.getShops(new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                hideLoading();
-                if (requestError == null) {
-                    try {
-                        List<Dealership> dealers = Dealership.createDealershipList(response);
-                        shopLocalStore.deleteAllDealerships();
-                        shopLocalStore.storeDealerships(dealers);
-                        for (Dealership dealership : dealers) {
-                            shops.add(dealership.getName());
-                            shopIds.add(String.valueOf(dealership.getId()));
-                        }
-                        showSelectDealershipDialog(car, shops.toArray(new String[shops.size()]),
-                                shopIds.toArray(new String[shopIds.size()]));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
-                                .show();
+        networkHelper.getShops((response, requestError) -> {
+            hideLoading();
+            if (requestError == null) {
+                try {
+                    List<Dealership> dealers = Dealership.createDealershipList(response);
+                    shopLocalStore.deleteAllDealerships();
+                    shopLocalStore.storeDealerships(dealers);
+                    for (Dealership dealership : dealers) {
+                        shops.add(dealership.getName());
+                        shopIds.add(String.valueOf(dealership.getId()));
                     }
-                } else {
-                    Log.e(TAG, "Get shops: " + requestError.getMessage());
+                    showSelectDealershipDialog(car, shops.toArray(new String[shops.size()]),
+                            shopIds.toArray(new String[shopIds.size()]));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                     Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
                             .show();
                 }
+            } else {
+                Log.e(TAG, "Get shops: " + requestError.getMessage());
+                Toast.makeText(MainActivity.this, "An error occurred, please try again", Toast.LENGTH_SHORT)
+                        .show();
             }
         });
     }
@@ -1082,64 +872,48 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         final AlertDialog dialog = new AnimatedDialogBuilder(this)
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                .setSingleChoiceItems(shops, -1, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        pickedPosition[0] = which;
-                    }
-                })
+                .setSingleChoiceItems(shops, -1, (dialogInterface, which) -> pickedPosition[0] = which)
                 .setNegativeButton("CANCEL", null)
                 .setPositiveButton("CONFIRM", null)
                 .create();
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (pickedPosition[0] == -1) {
-                            Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
-
-                        try {
-                            mixpanelHelper.trackCustom("Button Tapped",
-                                    new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                            MixpanelHelper.SETTINGS_VIEW, car.getMake(), car.getModel())));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        networkHelper.updateCarShop(car.getId(), shopId, new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                dialog.dismiss();
-                                if (requestError == null) {
-                                    Log.i(TAG, "Dealership updated - carId: " + car.getId() + ", dealerId: " + shopId);
-                                    // Update car in local database
-                                    car.setShopId(shopId);
-                                    car.setDealership(shopLocalStore.getDealership(shopId));
-                                    carLocalStore.updateCar(car);
-
-                                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
-                                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
-                                    User.getCurrentUser().addProperties(properties);
-
-                                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
-
-                                } else {
-                                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
-                                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-                });
+        dialog.setOnShowListener(dialogInterface -> dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            if (pickedPosition[0] == -1) {
+                Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
+
+            final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
+
+            try {
+                mixpanelHelper.trackCustom("Button Tapped",
+                        new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+                                MixpanelHelper.SETTINGS_VIEW, car.getMake(), car.getModel())));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            networkHelper.updateCarShop(car.getId(), shopId, (response, requestError) -> {
+                dialog.dismiss();
+                if (requestError == null) {
+                    Log.i(TAG, "Dealership updated - carId: " + car.getId() + ", dealerId: " + shopId);
+                    // Update car in local database
+                    car.setShopId(shopId);
+                    car.setDealership(shopLocalStore.getDealership(shopId));
+                    carLocalStore.updateCar(car);
+
+                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
+                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
+                    User.getCurrentUser().addProperties(properties);
+
+                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
+                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }));
 
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
