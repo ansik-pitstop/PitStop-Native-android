@@ -9,7 +9,6 @@ import com.pitstop.models.Dealership;
 
 public interface FragmentSwitcher {
     void setViewMainSettings();
-    void setViewCarSettings();
     void setViewShopSettings();
     void setViewShopForm(Dealership dealership);
     void loading(boolean show);
