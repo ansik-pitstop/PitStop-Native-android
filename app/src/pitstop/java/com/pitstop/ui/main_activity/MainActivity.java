@@ -236,9 +236,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         tabFragmentManager = new TabFragmentManager(this,mixpanelHelper);
         tabFragmentManager.createTabs();
 
-        FabMenu fabMenu = new FabMenu(application,this,useCaseComponent
-                ,mixpanelHelper);
-        fabMenu.createMenu();
+
 
     }
 
