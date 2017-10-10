@@ -54,8 +54,8 @@
     <style name="DialogAnimations"/>
 
     <style name="DialogAnimations.slide">
-        <item name="@android:windowEnterAnimation">@anim/dialog_slide_in_right</item>
-        <item name="@android:windowExitAnimation">@anim/dialog_slide_out_left</item>
+        <item name="android:windowEnterAnimation">@anim/dialog_slide_in_right</item>
+        <item name="android:windowExitAnimation">@anim/dialog_slide_out_left</item>
     </style>
 
     <style name="SplashTheme" parent="AppNoActionBarTheme">
