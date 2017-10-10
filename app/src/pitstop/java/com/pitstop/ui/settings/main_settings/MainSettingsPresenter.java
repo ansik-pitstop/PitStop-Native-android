@@ -1,21 +1,13 @@
 package com.pitstop.ui.settings.main_settings;
 
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
-import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
-import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
-import com.pitstop.ui.settings.PrefMaker;
 import com.pitstop.utils.MixpanelHelper;
-
-import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -32,16 +24,16 @@ public class MainSettingsPresenter {
 
     private MainSettingsView mainSettings;
     private FragmentSwitcher switcher;
-    private PrefMaker prefMaker;
+
     private UseCaseComponent component;
 
 
     private MixpanelHelper mixpanelHelper;
 
 
-    public MainSettingsPresenter(FragmentSwitcher switcher, PrefMaker prefMaker, UseCaseComponent component, MixpanelHelper mixpanelHelper){
+    public MainSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
-        this.prefMaker = prefMaker;
+
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
     }
@@ -86,34 +78,10 @@ public class MainSettingsPresenter {
         if(mainSettings == null || switcher == null){return;}
         switcher.loading(true);
         getUser();
-        getCars();
-        getShops();
+
     }
 
 
-    public void getCars(){// this needs to be changed
-        if(mainSettings == null || switcher == null){return;}
-        component.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback(){
-            @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                if(mainSettings != null && switcher != null){
-                    mainSettings.resetCars();
-                    Collections.reverse(cars);
-                    for(Car c:cars) {
-                        mainSettings.addCar(prefMaker.carToPref(c,c.isCurrentCar()));
-                    }
-                    switcher.loading(false);
-                }
-            }
-            @Override
-            public void onError(RequestError error) {
-                if(mainSettings != null && switcher != null){
-                    switcher.loading(false);
-                    mainSettings.toast("There was an error loading your cars");
-                }
-            }
-        });
-    }
     public void getUser(){
         if(mainSettings == null){return;}
         component.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
@@ -126,46 +94,20 @@ public class MainSettingsPresenter {
                     mainSettings.showPhone(phone);
                     mainSettings.showEmail(user.getEmail());
                     mainSettings.setPrefs(username,phone);
+                    switcher.loading(false);
                 }
             }
 
             @Override
             public void onError(RequestError error) {
                 if(mainSettings != null){
+                    switcher.loading(false);
                     mainSettings.toast("There was an error loading your details");
                 }
             }
         });
     }
 
-    public void getShops(){
-        if(mainSettings == null){return;}
-        component.getGetUserShopsUseCase().execute(new GetUserShopsUseCase.Callback() {
-            @Override
-            public void onShopGot(List<Dealership> dealerships) {
-                if(mainSettings != null){
-                    mainSettings.resetShops();
-                    if(dealerships.size()>0){
-                        for(Dealership d : dealerships){
-                            if(!d.getName().contains("No Shop") && !d.getName().contains("No Dealership")){
-                                mainSettings.addShop(prefMaker.shopToPref(d));
-                            }
-                        }
-                    }else{
-                        mainSettings.addShop(prefMaker.noShops());
-                    }
-                }
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                if(mainSettings != null){
-                    mainSettings.toast("There was an error loading your shops");
-                }
-            }
-        });
-
-    }
 
     public void preferenceInput(String text, String key){
         if(mainSettings == null){return;}
