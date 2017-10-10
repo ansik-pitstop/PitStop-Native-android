@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.R;
-import com.pitstop.ui.NotificationsFragment;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
@@ -27,20 +26,22 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
     NotificationFragment notificationFragment;
-
-    public TabViewPagerAdapter(FragmentManager fm) {
     private Context context;
+
+
     public TabViewPagerAdapter(Context ctx, FragmentManager fm) {
         super(fm);
+        this.context = ctx;
+
     }
+
+
     public void setContext(Context ctx){
         this.context = ctx;
     }
 
     @Override
     public Fragment getItem(int position) {
-
-
 
         // getItem is called to instantiate the fragment for the given page.
         switch(position){

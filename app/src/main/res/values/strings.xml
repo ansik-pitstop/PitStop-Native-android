@@ -485,4 +485,13 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="app_version">App Version</string>
+    <string name="no_notifications">You Have No Notifications!</string>
+    <string name="bluetooth_search_in_progress">Bluetooth search in progress</string>
+    <string name="bluetooth_search_dialog_message">Bluetooth device search in progress, please try again when completed.</string>
+    <string name="no_device_connection">No device connection</string>
+    <string name="no_device_dialog_message">No connection with bluetooth device found. Would you like to start a search?</string>
+    <string name="tap_to_begin">Tap to begin</string>
+    <string name="past_reports">Past Reports</string>
+    <string name="error_reports_dialog_messsage">Error loading reports, please check connection</string>
+    <string name="no_health_reports">You have no vehicle health reports</string>
 </resources>
