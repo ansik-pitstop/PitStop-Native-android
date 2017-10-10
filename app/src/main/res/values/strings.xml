@@ -1,10 +1,6 @@
 <resources>
-    <string name="app_name">Pitstop</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_add_car">Add Car</string>
-    <string name="title_activity_splash_screen">SplashScreen</string>
-    <string name="title_activity_car_details">CarDetailsActivity</string>
+
+    <!--dont change -->
     <string name="title_activity_receive_debug">ReceiveDebugActivity</string>
     <string name="title_activity_piddebug">PIDDebugActivity</string>
     <string name="title_activity_enviornmental_check">EnviornmentalCheckActivity</string>
@@ -16,9 +12,39 @@
     <string name="pref_username_key">pref_username_key</string>
     <string name="pref_phone_number_key">pref_phone_number_key</string>
     <string name="pref_privacy_policy">pref_privacy_policy</string>
-    <string name="pref_term_of_use">pref_term_of_use</string> <!--Term of use-->
+    <string name="pref_term_of_use">pref_term_of_use</string>
+    <string name="debug_toast_message">This is a debug build - </string>
+
+    <string-array name="permissions_location">
+        <item>android.permission.ACCESS_FINE_LOCATION</item>
+        <item>android.permission.ACCESS_COARSE_LOCATION</item>
+    </string-array>
+
+    <string name="request_permission_message_default">Please grant our permission requests to allow Pitstop app to function.</string>
+    <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device, we need the permission to access your location. We will not actually use or share your location with others.</string>
 
 
+    <!--Debug-->
+    <string name="debug_drawer_header">Debug</string>
+    <string name="debug_clear_prefs">Clear Prefs</string>
+    <string name="debug_clear_db">Clear DB</string>
+    <string name="debug_random_vin">Random Vin</string>
+    <string name="debug_log_header">Logging</string>
+    <string name="debug_log_bt">Log Bluetooth</string>
+    <string name="debug_log_network">Log Network</string>
+    <string name="debug_log_other">Log Other</string>
+    <string name="debug_message_bluetooth_toggle">Toggle Bluetooth Logs</string>
+    <string name="debug_message_network_toggle">Toggle Network Logs</string>
+    <string name="debug_message_other_toggle">Toggle Other Logs</string>
+
+    <string name="app_name">Pitstop</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_add_car">Add Car</string>
+
+
+
+
+    <!--Term of use-->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
     <string name="appinfo">appinfo</string>
@@ -28,65 +54,42 @@
     <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
 
     <!-- Severity indicators -->
-    <string-array name="severity_indicators">
-        <item>Low</item>
-        <item>Medium</item>
-        <item>High</item>
-        <item>Critical</item>
-    </string-array>
+    <string name="severity_indicator_low">Low</string>
+    <string name="severity_indicator_medium">Medium</string>
+    <string name="severity_indicator_high">High</string>
+    <string name="severity_indicator_critical">Critical</string>
+
 
     <!--Barcode scanner Request Permission Rationale -->
     <string name="camera_request_rationale">Access to the camera is needed for barcode detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
-    <string name="title_activity_barcode_capture">BarcodeCaptureActivity</string>
-    <string name="read_barcode">Read Barcode</string>
-    <string name="auto_focus">Auto Focus</string>
-    <string name="use_flash">Use Flash</string>
-    <string name="barcode_success">Barcode read successfully</string>
-    <string name="barcode_failure">No barcode captured</string>
-    <string name="barcode_error">"Error reading barcode: %1$s"</string>
-    <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
     
     <string name="appversion">app_version</string>
-    <string name="title_activity_select_dealership">Select Dealership</string>
-    <string name="title_activity_car_scan">Car Scan</string>
-    <string name="notification_reply">Feel Free to Reply</string>
+
 
     <!-- Strings for welcome screen -->
-    <string name="welcome">Welcome to Pitstop</string>
+
     <string name="description1">With Pitstop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
-    <string name="whathappen">What\'s About to Happen?</string>
-    <string name="description2">With PitStop, we deliver the power of service to the convenience of the smartphone. Pitstop provides real-time notifications on recommended services and diagnostic reports, directly to the user\'s smartphone.</string>
     <string name="whatneeded">What is needed from you</string>
     <string name="bluetooth_header">Bluetooth for Module</string>
     <string name="internet_header">Internet Connection</string>
     <string name="car_header">Car for Diagnostics</string>
-    <string name="bluetooth_desc">Turn on your bluetooth connection in order to connect to the module.</string>
+    <string name="bluetooth_desc">Please go to settings to turn your bluetooth on.</string>
     <string name="internet_desc">Turn on your internet connection in order for us to tell you what\'s going on with your car</string>
     <string name="car_desc">Turn your car on in order for the module to send data back to the app</string>
 
     <!-- UartService -->
-    <string name="report_data">Terminal upload data:</string>
 
     <!-- Service request dialog-->
-    <string name="service_request_dialog_pick_date_hint">Tap to pick a date</string>
-    <string name="service_request_dialog_pick_time_hint">Tap to pick a time</string>
-    <string name="service_request_dialog_additional_comments_hint_comments">Additional comments</string>
-    <string name="service_request_dialog_additional_comments_hint_salesperson">The name of your salesman</string>
-    <string name="service_request_dialog_time_picker_title">Please pick a time for your service</string>
-    <string name="service_request_dialog_date_picker_title">Please pick a date for your service</string>
-    <string name="service_request_dialog_summary_title">Request Summary</string>
-    <string name="service_request_dialog_prompt_title">Request Service</string>
-    <string name="service_request_dialog_prompt_message">Do you want to book your service appointment right now?</string>
+
 
     <!--First time service booking-->
     <!--<string name="first_service_booking_1">Welcome to Pitstop!\n\nLet\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
     <!--discount-->
     <!--<string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today and receive $20.00 towards your service.</string>-->
     <string name="first_service_booking_1">Let\'s be proactive and book your vehicle\'s 1st service appointment today. </string>
-    <string name="first_service_booking_2">Pitstop has calculated an estimated time we believe you will be due for your 1st service appointment.\n\nWhen your appointment is getting close, we will send you a reminder letting you know you whether or not you are due for service.\n\nThe power of being connected.</string>
-    <string name="first_service_booking_tutorial_button_text">Book 1st service appointment</string>
+    <string name="first_service_booking_2">Pitstop has calculated an estimated time we believe you will be due for your 1st service appointment.\n\nWhen your appointment is getting close, we will send you a reminder letting you know whether or not you are due for service.\n\nThe power of being connected.</string>
     <string name="first_service_booking_cancel_title">Quit Booking</string>
     <string name="first_service_booking_cancel_message">Are you sure you don\'t want to book your 1st service appointment? By booking your tentative appointment you are securing your preferred date and time and creating a on \"vehicle maintenance\" reminder for yourself.</string>
 
@@ -99,8 +102,6 @@
     <string name="wipers_fluids_description">Visibility is a critical part of safety while driving. Making sure your fluids are topped up and windshield wipers are intact is an important way to make sure your car is safe to drive.</string>
     <string name="tow_truck_description">Send an emergency request to the dealership to help you get your vehicle into the shop. Breakdowns are frustrating we are here to help. Be aware of the hours of operation of the dealership, after hours you may need to call a tow truck yourself.</string>
     <string name="shuttle_service_description">Request for the dealership to coordinate a loaner vehicle or a shuttle to pick you up from your location.</string>
-    <string name="title_activity_add_custom_issue">Add Custom Service</string>
-    <string name="add_preset_issue_dialog_title">Add Custom Service</string>
     <string name="preset_issue_service_emergency">Emergency</string>
     <string name="preset_issue_service_replace">Replace</string>
     <string name="preset_issue_service_request">Request</string>
@@ -114,19 +115,6 @@
     <!--clear issue dialog-->
     <string name="dialog_clear_issue_title">When was this service completed?</string>
 
-    <string name="start_dialog_setup_title">Setup</string>
-    <string name="start_dialog_setup_description"> This test app is design for technicians to collect vehicle data which is allows Pitstop to predict engine failures. Enter your email so we can send you a $100 gift card on every 30 vehicles that you test.</string>
-    <string name="start_dialog_connect_title">Connect to Device</string>
-    <string name="start_dialog_connect_description">Connect to the device to start testing.  Please make sure the device is plugged in and the vehicle engine is running.</string>
-    <string name="add_preset_issue_dialog_detail_title">Detail</string>
-
-    <string-array name="permissions_location">
-        <item>android.permission.ACCESS_FINE_LOCATION</item>
-        <item>android.permission.ACCESS_COARSE_LOCATION</item>
-    </string-array>
-
-    <string name="request_permission_message_default">Please grant our permission requests to allow Pitstop app to function.</string>
-    <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device, we need the permission to access your location. We will not actually use or share your location with others.</string>
 
     <string name="transition_name_issue_card">transition_name_issue_card</string>
     <string name="transition_name_issue_title">transition_name_issue_title</string>
@@ -142,8 +130,9 @@
     <string name="feature_bluetooth">Pitstop uses a device that is installed into the diagnostic port of your vehicle which transmits the vehicle\'s engine and sensor data to your phone over bluetooth.</string>
     <string name="feature_cloud">"Pitstop is thoroughly compiling data sources from manufacturers, dealerships, and other vehicles to consistently provide with you with the most accurate information about your vehicle.</string>
     <string name="feature_notification">Pitstop alerts you when your vehicle is due for service, when there\'s a manufacturing recall, and when there is an issue with your engine.</string>
-    <string name="debug_toast_message">This is a debug build - </string>
-    <string name="logging_in_message">Logging in...</string>
+
+
+    <string name="logging_in_message">Logging in..&#8230;.</string>
     <string name="sign_up_fb">Sign up with facebook</string>
     <string name="log_in_button">LOG IN</string>
     <string name="log_in_fb">Log in with Facebook</string>
@@ -160,7 +149,7 @@
     <string name="facebook_login_error">An error occurred, please try again later</string>
     <string name="update_fail_error">Update failed. Please contact us at info@getpitstop.io.</string>
     <string name="cancel_button">Cancel</string>
-    <string name="try_again_button">Try again</string>
+
     <string name="updating_app_message">We are updating the app, this may take a few minutes. Feel free to leave the app during this time.</string>
     <string name="retry_button">Retry</string>
     <string name="email_hint">Email</string>
@@ -179,7 +168,7 @@
     <!--Upcoming Timeline-->
     
     <string name="kilometers_unit">KMs</string>
-    <string name="timeline_error_message">Something went wrong...</string>
+    <string name="timeline_error_message">Something went wrong&#8230;</string>
     <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
 
     <!--Dashboard-->
@@ -215,33 +204,299 @@
     <!--Services-->
     <string name="services_nav_text">Services</string>
     <string name="action_refresh">Refresh</string>
-    <string name="scan_nav_text">Scan</string>
-    <string name="connected_device">Connected</string>
-    <string name="disconnected_device">Disconnected</string>
 
-    <!--Debug-->
-    <string name="debug_drawer_header">Debug</string>
-    <string name="debug_clear_prefs">Clear Prefs</string>
-    <string name="debug_clear_db">Clear DB</string>
-    <string name="debug_random_vin">Random Vin</string>
-    <string name="debug_log_header">Logging</string>
-    <string name="debug_log_bt">Log Bluetooth</string>
-    <string name="debug_log_network">Log Network</string>
-    <string name="debug_log_other">Log Other</string>
-    <string name="debug_message_bluetooth_toggle">Toggle Bluetooth Logs</string>
-    <string name="debug_message_network_toggle">Toggle Network Logs</string>
-    <string name="debug_message_other_toggle">Toggle Other Logs</string>
+
+
+
+
     <string name="offline_error">Cannot perform this action while offline, please connect to the internet and try again.</string>
     <string name="offline_error_title">Offline Error</string>
-    <string name="ok">Ok</string>
+
     <string name="unknown_error">Unknown error occurred, please try re-starting application and try again</string>
     <string name="unknown_error_title">Unknown Error</string>
-    <string name="please_connect_to_the_internet">Please connect to the internet</string>
-    <string name="no_notifications">You have no notifications!</string>
     <string name="service_date_picker_title">Select when you completed this service.</string>
-    <string name="current_car_set">Current Car Set</string>
-    <string name="select_dealership_toast_text">Please Select or Add a dealership</string>
+
+    <!-- tab names -->
+
+
+    <!-- device search fragment-->
+    <!-- on vin retrieval failed-->
+    <string name="vin_retrieval_failed_alert_title">Could not retrieve VIN</string>
+    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device, please input it manually</string>
+    <!-- on cannot find device -->
+    <string name="cannot_find_device_alert_title">Could not find OBD device</string>
+    <string name="cannot_find_device_alert_message">We were unable to find a Pitstop OBD device, please make sure that the device is plugged in and that the lights are flashing. Try again?</string>
+
+    <!--invalid mileage-->
+    <string name="invalid_mileage_alert_title">Invalid Mileage</string>
+    <string name="invalid_mileage_alert_message">Please input a mileage between 0 and 3,000,000.</string>
+    <!-- add car error-->
+    <string name="add_car_error_alert_title">Add Car Error</string>
+    <!-- car already added error-->
+    <string name="car_already_added_alert_title">Car Already Added</string>
+    <string name="car_already_added_alert_message">This car has already been added and is in use. If this is your vehicle please remove it and try again.</string>
+    <string name="car_added_successfully_toast_message">Car Successfully Added</string>
+    <string name="connect_to_internet_toast_message">Please connect to the internet</string>
+    <string name="saving_car_message">Saving Car</string>
+    <string name="unexpected_car_adding_error_message">Unexpected error occurred adding car please restart the app and try again.</string>
+
+
+
+    <!-- vin entry fragment-->
+    <string name="no_back_camera_toast_message">This device does not have a back facing camera</string>
+
+
+    <!-- custom shops-->
+    <string name="error_loading_pitstop_shops_toast_message">There was an error loading the pitstop shops</string>
+    <string name="error_selecting_shop_toast_message">There was an error selecting this shop</string>
+    <string name="unable_to_add_shop_toast_message">Unable to add shop please try again</string>
+    <string name="shop_fragment_field_missing_title">Field Missing</string>
+    <string name="enter_shop_name_message">Please enter the shop name</string>
+    <string name="enter_shop_email_or_phone_message">Please enter the shop name</string>
+    <string name="error_updating_shop_details_toast_massage">There was an error updating your shop details</string>
+    <string name="error_adding_shops_toast_massage">There was an error adding your shop</string>
+    <string name="error_loading_shops_toast_massage">There was an error loading your shop</string>
+    <string name="set_shop_alert_intro">Set shop to </string>
+    <string name="change_shop_alert_message">Change the shop of this car</string>
+    <string name="yes_button_text">Yes</string>
+    <string name="no_button_text">No</string>
+    <string name="no_shop_alert_dialog_title">Are you sure you do not wish to select a shop?</string>
+    <string name="no_shop_alert_dialog_message">You won\'t be able to request services. You can add a shop in the settings page at any time</string>
+    <string name="no_matching_shops_text_">No Matching Shops</string>
+
+    <!--Main activity and FAB menu -->
     <string name="select_car_request_toast">Please select a car</string>
+    <!--Action bar titles-->
+    <string name="device_connected_action_bar">Device connected</string>
+    <string name="verifying_device_action_bar">Verifying device</string>
+    <string name="searching_for_device_action_bar">Searching for device</string>
+    <string name="device_not_connected_action_bar">Device not connected</string>
+    <!-- invalid device alert dialog-->
+    <string name="invalid_device_alert_title">Device Id Invalid</string>
+    <string name="invalid_device_alert_message">Your OBD device has lost its ID or is invalid, please input the ID found on the front of the device so our algorithm can fix it.</string>
+    <string name="ignore_button_text">Ignore</string>
+    <string name="request_permission_alert_title">Request Permissions</string>
+    <string name="show_loading_string">Loading&#8230;</string>
+    <string name="add_car_toast_text">Please add a car</string>
+    <string name="error_loading_car_toast_text">Error loading car</string>
+    <string name="request_service_get_started_button">Get Started</string>
+    <string name="select_snackbar_action_text">Select</string>
+    <string name="confirm_button">Confirm</string>
+    <string name="select_dealership_toast_text">Please select a dealership</string>
+    <string name="dealership_updated_toast_text">Car dealership updated</string>
 
 
+    <!-- add trip-->
+    <string name="tripsMade">Trips made: </string>
+    <string name="total_distance_travelled">Total distance traveled:</string>
+    <string name="no_appointments">You have no appointments</string>
+    <string name="no_salesperson">No Salesperson</string>
+    <string name="no_comments">No Comments</string>
+    <string name="done">Done</string>
+    <string name="dealership_not_found">Couldn\'t find any dealerships</string>
+    <string name="delete">Delete</string>
+    <string name="delete_car">Are you sure you want to delete this car?</string>
+    <string name="car_error_update_toast">An error occurred while updating your car</string>
+    <string name="car_load_error_toast">There was an error loading your car details</string>
+    <string name="car_remove_error_toast">There was an error removing your car</string>
+    <string name="no_services_text">You have no pending Engine Code, Recalls or Routine Services</string>
+    <string name="congrats">Congrats!</string>
+    <string name="book_tentative_appointment">Book Tentative Appointment</string>
+    <string name="update_mileage">Update Mileage</string>
+    <string name="getting_vin">Retrieving VIN</string>
+    <string name="no_date">No date</string>
+    <string name="log_in_again_toast">Your session has expired.  Please log in again.</string>
+    <string name="continue_booking">Continue booking</string>
+    <string name="upcoming_services">Upcoming</string>
+    <string name="current_services">Current</string>
+    <string name="history_services">History</string>
+    <string name="log_out">Log Out</string>
+    <string name="log_out_confirm_message">Are you sure you want to log out?</string>
+    <string name="shops_load_error_toast">There was an error loading your shops</string>
+    <string name="location_lost_trip_saved">Location services lost trip saved</string>
+    <string name="trip_history">Trip History</string>
+    <string name="unable_to_get_location">Unable to get your location</string>
+    <string name="add_trip">Add Trip</string>
+    <string name="vin_get_fail">Couldn\'t get VIN</string>
+    <string name="email_us">Email Us</string>
+    <string name="cancel_trip_title">Cancel your trip</string>
+    <string name="cancel_trip_message">Are you sure you want to cancel your trip? Your trip data will be lost</string>
+    <string name="unable_to_share_trip">Unable to share trip</string>
+    <string name="set_shop_to">Set shop to</string>
+    <string name="delete_trip_title">Delete trip</string>
+    <string name="delete_trip_message">Are you sure you want to delete this trip?</string>
+    <string name="start_address">Starting Address:</string>
+    <string name="end_address">End Address:</string>
+    <string name="add_new_car">Add New Car</string>
+    <string name="scan_failed">Scan failed</string>
+    <string name="scan_error_message">Your device disconnected during the scan. Please re-connect and try again.</string>
+    <string name="checking_recalls">Checking for recalls</string>
+    <string name="checking_services">Checking for services</string>
+    <string name="checking_engine_issues">Checking for engine issues</string>
+    <string name="engine_issues">Engine issues</string>
+    <string name="no_issues">No Issues Found</string>
+    <string name="recalls">Recalls</string>
+    <string name="no_recalls">No Recalls</string>
+    <string name="no_services">No Services Due</string>
+    <string name="dealership_info_failed">Failed to get dealership info</string>
+    <string name="description">Description</string>
+    <string name="reminder">Reminder</string>
+    <string name="set_shop_request">Please select a shop in settings for this vehicle</string>
+    <string name="select_appointment_date">Select Appointment Date</string>
+    <string name="no_times_for_date">No appointment slots available for this day</string>
+    <string name="error_loading_times">There was an error loading these times</string>
+    <string name="select_appt_time">Select available Appointment time</string>
+    <string name="select_date">Select date</string>
+    <string name="select_email_for_shop">Please set an email for this shop</string>
+    <string name="choose_time">Please choose a time</string>
+    <string name="add_service_error">There was an error adding your services</string>
+    <string name="cant_delete">Can\'t Delete</string>
+    <string name="shop_associated_with_car">This shop is associated with one of your cars</string>
+    <string name="shop_delete_title">Delete this shop</string>
+    <string name="shop_delete_message">Are you sure you want to delete this shop?</string>
+    <string name="error_removing_shop_toast">There was an error removing this shop</string>
+    <string name="no_available_times">No available times</string>
+    <string name="no_trips">No trips recorded yet</string>
+    <string name="no_trips_title">No Trips</string>
+    <string name="speed_title">Speed:</string>
+    <string name="distance">Distance:</string>
+    <string name="invalid_vin">Couldn\'t Process VIN</string>
+    <string name="preset_issue_service_rotate">Rotate</string>
+    <string name="preset_issue_service_perform">Perform</string>
+    <string name="preset_issue_service_inspect">Inspect</string>
+    <string name="preset_issue_service_other">Other</string>
+    <string name="air_filter">Air Filter</string>
+    <string name="brakes">Brakes</string>
+    <string name="coolant">Coolant</string>
+    <string name="exhaust">Exhaust</string>
+    <string name="lights">Lights</string>
+    <string name="spark_plugs">Spark Plugs</string>
+    <string name="suspension">Suspension</string>
+    <string name="tires">Tires</string>
+    <string name="transmission">Transmission</string>
+    <string name="select_priority">Please select a priority for your custom issue</string>
+    <string name="what_car_part">On what part of your car?</string>
+    <string name="error_logging_issue">An error occurred logging your issue</string>
+    <string name="have_pitstop_device">Do you have the Pitstop Device?</string>
+    <string name="car_found_enter_vin">Car was found, however, VIN retrival failed. Please Input VIN manually below.</string>
+    <string name="search_for_car">SEARCH FOR CAR</string>
+    <string name="scan_vin_barcode">SCAN VIN BARCODE</string>
+    <string name="step_1_3">STEP 1/3</string>
+    <string name="your_car">Your car</string>
+    <string name="dealership">Dealership</string>
+    <string name="issues">Issues</string>
+    <string name="no_history">No History</string>
+    <string name="message_service_center">Message Service Center</string>
+    <string name="navigate_service_center">Navigate to Service Center</string>
+    <string name="call_service_center">Call Service Center</string>
+    <string name="severity">Severity</string>
+    <string name="potential_engine_issue">This is a potential engine issue which you don\'t have to worry about at the moment.</string>
+    <string name="finished_at">Finished At</string>
+    <string name="car_pending_added">You have 1 car pending to be added!</string>
+    <string name="connect_to_internet">Please connect to internet to complete the process and see more details about your car.</string>
+    <string name="no_cars_dashboard">There are no cars \n in your dashboard</string>
+    <string name="or">OR</string>
+    <string name="contact_us_for_support">Contact us for support</string>
+    <string name="car_connected">Car is Connected</string>
+    <string name="address">Address</string>
+    <string name="input_mileage_dashboard">Please input the mileage in the dashboard</string>
+    <string name="change_later">You can change this anytime later</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="additional_comments">Additional comments</string>
+    <string name="email_or_name">Email or Name</string>
+    <string name="choose_car_fail">Please choose the fail that this car has:</string>
+    <string name="anything_else">Anything Else?</string>
+    <string name="enter_email_select_failures">Please enter your email or name and select the failures this vehicle has:</string>
+    <string name="search">Search</string>
+    <string name="select_dealership">Select Dealership</string>
+    <string name="scan_car">Scan Car</string>
+    <string name="action">Action</string>
+    <string name="what_service_to_perform">What service would you like to perform?</string>
+    <string name="part_name">Part Name</string>
+    <string name="priority">Priority</string>
+    <string name="service_importance">How important is this service?</string>
+    <string name="create">Create</string>
+    <string name="enter_mileage">Enter your mileage</string>
+    <string name="make_sure_following">Please make sure of the following</string>
+    <string name="car_turned_on">Your car is turned on</string>
+    <string name="device_plugged_in_30_seconds">Pitstop device is plugged in for at least 30 seconds</string>
+    <string name="device_plugin_location">Your Pitstop device should be plugged into your car at a location close to what is indicated below</string>
+    <string name="log_service">Log Service</string>
+    <string name="add_occurred_service">Add a custom service that has occured</string>
+    <string name="add_vehicle">ADD VEHICLE</string>
+    <string name="refresh_storage">Refresh Storage</string>
+    <string name="settings">SETTINGS</string>
+    <string name="couldnt_get_cars">We couldn\'t get your cars</string>
+    <string name="my_trips">My Trips</string>
+    <string name="message_dealer">Message Dealer</string>
+    <string name="vehicle_support">VEHICLE SUPPORT</string>
+    <string name="vehicle_overview">Vehicle Overview</string>
+    <string name="scan_vehicle">Scan Your Vehicle</string>
+    <string name="scan_vehicle_message">Scan your vehicle for potential issues</string>
+    <string name="request_pending_services">Request all your pending services</string>
+    <string name="service_history">Service History</string>
+    <string name="service_history_message">Check your service history recorded with us</string>
+    <string name="upcoming_service">Upcoming Services</string>
+    <string name="upcoming_service_message">Check your upcoming services that we have predicted</string>
+    <string name="my_services">My Services</string>
+    <string name="create_service">Create Service</string>
+    <string name="add_service_message">Add any services that you don\'t see below</string>
+    <string name="potential_engine_issues">Potential Engine Issues</string>
+    <string name="routine_services">Routine Services</string>
+    <string name="appointment">Appointment</string>
+    <string name="shop">Shop</string>
+    <string name="select_time">Select Time</string>
+    <string name="add_more_services">Add More Services</string>
+    <string name="additional_info">Additional Info</string>
+    <string name="submit_button">Submit</string>
+    <string name="shop_name">Shop Name</string>
+    <string name="enter_shop_email">Enter your shops email</string>
+    <string name="city">City</string>
+    <string name="province_or_state">Province/State</string>
+    <string name="postal_code">Postal Code</string>
+    <string name="country">Country</string>
+    <string name="enter_shop_email_to_request_service">Please enter an email for this shop in order to   request service for your vehicle</string>
+    <string name="add_own_shop">I\'ll add my own</string>
+    <string name="pitstop_shops">Pitstop Shops</string>
+    <string name="search_results">Search Results</string>
+    <string name="my_shops">My Shops</string>
+    <string name="select_pitstop_shop_message">Associate your \nvehicle with a shop  on our platform</string>
+    <string name="select_pitstop_shop_title">Select Pitstop Shop</string>
+    <string name="add_custom_shop_title">Add Custom Shop</string>
+    <string name="add_custom_shop_message">Associate your \nvehicle with a shop in  your area</string>
+    <string name="no_shop_title">No Shop</string>
+    <string name="no_shop_message">Don\'t associate your \nvehicle with any  dealership or shop</string>
+    <string name="save_trip">Save Trip</string>
+    <string name="enter_vin">Please Enter Your Vehicle\'s VIN Number</string>
+    <string name="enter_vehicle_vin">Enter your Vehicle\'s VIN</string>
+    <string name="vin_location_message">Your VIN can be seen at one of the following location close to whats indicated below</string>
+    <string name="add_car_for_services">Add a car to view \nyour services</string>
+    <string name="error_loading_information">Error occurred \nloading information</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="select_as_current">Select as Current Car</string>
+    <string name="change_dealership">Change Dealership</string>
+    <string name="change_dealership_hint">Change the shop of this car</string>
+    <string name="edit">Edit</string>
+    <string name="tap_to_change_name">Tap to change your name</string>
+    <string name="tap_to_change_email">Tap to change your email Address</string>
+    <string name="tap_to_change_phone">Tap to change your phone Number</string>
+    <string name="app_info">App Info</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="app_version">App Version</string>
+    <string name="no_notifications">You Have No Notifications!</string>
+    <string name="bluetooth_search_in_progress">Bluetooth search in progress</string>
+    <string name="bluetooth_search_dialog_message">Bluetooth device search in progress, please try again when completed.</string>
+    <string name="no_device_connection">No device connection</string>
+    <string name="no_device_dialog_message">No connection with bluetooth device found. Would you like to start a search?</string>
+    <string name="tap_to_begin">Tap to begin</string>
+    <string name="past_reports">Past Reports</string>
+    <string name="error_reports_dialog_messsage">Error loading reports, please check connection</string>
+    <string name="no_health_reports">You have no vehicle health reports</string>
+
+    <string name="hello_world">Hello world</string>
+    <string name="try_again_button"> Try again</string>
+    <string name="please_connect_to_the_internet">Please connect to the internet</string>
+    <string name="current_car_set">Current Car set</string>
 </resources>

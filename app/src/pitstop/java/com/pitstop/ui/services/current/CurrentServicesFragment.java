@@ -208,7 +208,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             alertDialogBuilder
                     .setMessage(R.string.offline_error)
                     .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, id) -> {
                         dialog.dismiss();
                     });
             offlineAlertDialog = alertDialogBuilder.create();
@@ -226,7 +226,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             alertDialogBuilder
                     .setMessage(R.string.unknown_error)
                     .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, id) -> {
                         dialog.dismiss();
                     });
             unknownErrorDialog = alertDialogBuilder.create();
