@@ -113,7 +113,7 @@ public class ShopFormPresenter {
                             @Override
                             public void onCarDealerUpdated() {
                                 if(shopForm != null){
-                                    switcher1.endCustomShops();
+                                    switcher1.endCustomShops(dealership.getName());
                                 }
                             }
 
