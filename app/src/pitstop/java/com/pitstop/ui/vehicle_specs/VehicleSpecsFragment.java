@@ -134,6 +134,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @BindView(R.id.tank_size)
     protected TextView tankSize;
 
+    @BindView(R.id.progress)
+    protected View imageLoadingView;
+
     private Bundle bundle;
 
     private boolean carPicgetError;
@@ -437,7 +440,16 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         changeDealershipAlertDialog.show();
 
 
-        }
+    }
+
+    public void showImageLoading(){
+        imageLoadingView.bringToFront();
+        imageLoadingView.setVisibility(View.VISIBLE);
+    }
+
+    public void hideImageLoading(){
+        imageLoadingView.setVisibility(View.GONE);
+    }
 
 
 

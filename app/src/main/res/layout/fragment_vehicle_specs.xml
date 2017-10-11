@@ -43,6 +43,12 @@
                 android:layout_centerInParent="true"
                 android:paddingTop="10dp"
                 android:orientation="vertical">
+                <include
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:id="@+id/progress"
+                    android:visibility="gone"
+                    layout="@layout/layout_load"/>
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/car_logo_imageview"
