@@ -10,9 +10,7 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.database.LocalCarStorage;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerTempNetworkComponent;
-import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dtc;
 import com.pitstop.models.issue.CarIssue;
@@ -41,20 +39,14 @@ public class DtcDataHandler{
 
     private ArrayList<Dtc> dtcsToSend = new ArrayList<>();
     private List<DtcPackage> pendingDtcPackages = new ArrayList<>();
-    private LocalCarStorage localCarStorage;
     private BluetoothDataHandlerManager bluetoothDataHandlerManager;
-    private NetworkHelper networkHelper;
+    private UseCaseComponent useCaseComponent;
 
-    public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager, Context context){
+    public DtcDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
+            , UseCaseComponent useCaseComponent){
 
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
-        this.localCarStorage = new LocalCarStorage(context);
-
-        TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
-                .contextModule(new ContextModule(context))
-                .build();
-        this.networkHelper = tempNetworkComponent.networkHelper();
-
+        this.useCaseComponent = useCaseComponent;
     }
 
     public void handleDtcData(DtcPackage dtcPackage){
@@ -87,6 +79,8 @@ public class DtcDataHandler{
     private void saveDtcs(final DtcPackage dtcPackage) {
         Car car = localCarStorage.getCarByScanner(dtcPackage.deviceId);
         Log.d(TAG,"saveDtcs() called, car retrieved from local storage: "+car);
+
+        useCaseComponent.
 
         if(networkHelper.isConnected()) {
             if (car != null) {
