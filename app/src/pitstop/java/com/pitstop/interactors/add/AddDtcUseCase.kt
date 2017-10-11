@@ -1,5 +1,6 @@
 package com.pitstop.interactors.add
 
+import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.interactors.Interactor
 import com.pitstop.network.RequestError
 
@@ -13,5 +14,5 @@ interface AddDtcUseCase: Interactor {
         fun onError(requestError: RequestError)
     }
 
-    fun execute(dtc: String, isPending: Boolean, rtcTime: Long, callback: Callback)
+    fun execute(dtcPackage: DtcPackage, callback: Callback)
 }
