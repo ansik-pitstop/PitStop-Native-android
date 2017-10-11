@@ -95,12 +95,9 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
-            android:padding="10dp"
-            android:text="Your Car"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+
         <android.support.v7.widget.CardView
+            android:layout_marginTop="10dp"
             android:id="@+id/make_car_current"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -547,7 +544,7 @@
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="8dp"
             android:layout_gravity="center_horizontal"
             >
             <TextView

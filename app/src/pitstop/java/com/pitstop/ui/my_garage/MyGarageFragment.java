@@ -1,6 +1,7 @@
 package com.pitstop.ui.my_garage;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -84,6 +85,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
     private CarsAdapter carsAdapter;
+    private ProgressDialog progressDialog;
     private List <Car> carList = new ArrayList<>();
 
     public static MyGarageFragment newInstance(){
@@ -105,6 +107,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             presenter = new MyGaragePresenter(useCaseComponent, mixpanelHelper);
 
         }
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
         carRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
         carsAdapter = new CarsAdapter(this, carList);
         carRecyclerView.setAdapter(carsAdapter);
@@ -419,6 +424,25 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             Log.d(TAG, "onAddCarClicked()");
             Intent intent = new Intent(this.getActivity(), AddCarActivity.class);
             startActivityForResult(intent, RC_ADD_CAR);
+        }
+    }
+
+    public void showLoadingDialog(String text) {
+        if (progressDialog == null) {
+            return;
+        }
+        progressDialog.setMessage(text);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    public void hideLoadingDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        } else {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCanceledOnTouchOutside(false);
         }
     }
 }

@@ -220,15 +220,15 @@ public class TimelineActivity extends AppCompatActivity {
         switch (upcomingIssue.getPriority()) {
             case 1:
                 mIssueSeverityContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_low_indicator));
-                mIssueSeverityText.setText(this.getResources().getStringArray(R.array.severity_indicators)[0]);
+                mIssueSeverityText.setText(this.getResources().getString(R.string.severity_indicator_low));
                 break;
             case 2:
                 mIssueSeverityContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_medium_indicator));
-                mIssueSeverityText.setText(this.getResources().getStringArray(R.array.severity_indicators)[1]);
+                mIssueSeverityText.setText(this.getResources().getString(R.string.severity_indicator_medium));
                 break;
             default:
                 mIssueSeverityContainer.setBackground(ContextCompat.getDrawable(this, R.drawable.severity_critical_indicator));
-                mIssueSeverityText.setText(this.getResources().getStringArray(R.array.severity_indicators)[3]);
+                mIssueSeverityText.setText(this.getResources().getString(R.string.severity_indicator_critical));
                 break;
         }
         ObjectAnimator showIssueDetailsAnimation = ObjectAnimator.ofFloat(mIssueDetailsView, View.TRANSLATION_X, UiUtils.getScreenWidth(this), 0)
