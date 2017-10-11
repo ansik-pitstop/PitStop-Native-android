@@ -172,7 +172,6 @@ dependencies {
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'
-    //    compile project(':libs:MaterialShowcaseView')
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'
