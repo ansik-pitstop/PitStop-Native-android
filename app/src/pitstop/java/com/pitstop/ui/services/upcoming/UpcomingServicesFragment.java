@@ -25,8 +25,10 @@ import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,14 +60,15 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
 
-    private List<Object> timelineDisplayList;
+
     private TimelineAdapter timelineAdapter;
 
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
 
     private UpcomingServicesPresenter presenter;
-    private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
+    private LinkedHashMap<Integer, List<UpcomingService>> upcomingServices = new LinkedHashMap<>();
+    private List<Integer> listOfMileages =  new ArrayList<>();
     private boolean hasBeenPopulated = false;
     private boolean isRefreshing = false;
 
@@ -87,8 +90,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         }
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-        timelineDisplayList = new ArrayList<>();
-        timelineAdapter = new TimelineAdapter(timelineDisplayList);
+
+        timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages );
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
@@ -258,15 +261,13 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void populateUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
         Log.d(TAG,"populateUpcomingServices() size: "+upcomingServices.size());
         hasBeenPopulated = true;
-        timelineDisplayList.clear();
         this.upcomingServices.clear();
         this.upcomingServices.putAll(upcomingServices);
-
-        for (Integer mileage : upcomingServices.keySet()){
-            timelineDisplayList.add(String.valueOf(mileage));
-            timelineDisplayList.addAll(upcomingServices.get(mileage));
+        this.listOfMileages.clear();
+        Set<Integer> mileageSet = upcomingServices.keySet();
+        for (int i: mileageSet){
+            this.listOfMileages.add(i);
         }
-
         timelineAdapter.notifyDataSetChanged();
 
     }

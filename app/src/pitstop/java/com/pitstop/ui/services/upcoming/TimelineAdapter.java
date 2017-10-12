@@ -1,6 +1,8 @@
 package com.pitstop.ui.services.upcoming;
 
+import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,91 +12,74 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.models.service.UpcomingService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by Karol Zdebel on 8/31/2017.
  */
 public class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public static final String TAG = TimelineAdapter.class.getSimpleName();
 
-    private static final int MILEAGE = 0;
-    private static final int ISSUE = 1;
+    private List<Integer> mileageList;
+    private LinkedHashMap<Integer, List<UpcomingService>> upcomingServices;
 
-    private List<Object> mTimelineDisplayList;
-
-    public TimelineAdapter(List<Object> mTimelineDisplayList) {
-        this.mTimelineDisplayList = mTimelineDisplayList;
+    public TimelineAdapter(LinkedHashMap<Integer, List<UpcomingService>> upcomingservices, List<Integer> MileageList) {
+        this.mileageList = MileageList;
+        this.upcomingServices = upcomingservices;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        int layoutId;
-        switch (viewType) {
-            case MILEAGE:
-                layoutId = R.layout.mileage_timeline_list_item;
-                return new MileageViewHolder(inflateLayout(parent, layoutId));
-            case ISSUE:
-                layoutId = R.layout.issue_timeline_list_item;
-                return new IssueViewHolder(inflateLayout(parent, layoutId));
-            default:
-                return null;
-        }
-    }
 
-    private View inflateLayout(ViewGroup parent, @LayoutRes int layoutResId) {
-        return LayoutInflater.from(parent.getContext()).inflate(layoutResId, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mileage_timeline_list_item, parent, false);
+        MileageIssuesHolder mileageIssuesHolder = new MileageIssuesHolder(view, parent.getContext());
+        return mileageIssuesHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof MileageViewHolder) {
-            ((MileageViewHolder) holder).bind((String) mTimelineDisplayList.get(position));
-        } else if (holder instanceof IssueViewHolder) {
-            ((IssueViewHolder) holder).bind((UpcomingService) mTimelineDisplayList.get(position));
-        }
+       int mileage = getItemViewType(position);
+        ((MileageIssuesHolder)holder).bind(upcomingServices.get(mileage), mileage);
     }
 
     @Override
     public int getItemCount() {
-        return mTimelineDisplayList.size();
+        return upcomingServices.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mTimelineDisplayList.get(position) instanceof String)
-            return MILEAGE;
-        else
-            return ISSUE;
+        // returns the mileage corresponding to the position
+        return mileageList.get(position);
     }
 
-    private class MileageViewHolder extends RecyclerView.ViewHolder{
+    public class MileageIssuesHolder extends RecyclerView.ViewHolder{
 
-        TextView mileageTextView;
-
-        public MileageViewHolder(View itemView) {
+        TextView mileageTV;
+        private List<UpcomingService> services;
+        private int mileage;
+        RecyclerView mRecyclerView;
+        UpcomingServicesAdapter adapter;
+        private Context context;
+        public MileageIssuesHolder(View itemView, Context con) {
             super(itemView);
-            mileageTextView = (TextView) itemView;
+            this.context = con;
+            mileageTV = itemView.findViewById(R.id.mileage_timeline_list_item_text_view);
+            mRecyclerView = itemView.findViewById(R.id.mileage_specific_issues_recycler_view);
         }
 
-        public void bind(String s) {
-            String mileage = s + " " + "KM";
-            mileageTextView.setText(mileage);
-        }
-    }
+        public void bind(List<UpcomingService> serviceList, int Mileage){
+            this.services = serviceList;
+            this.mileage = Mileage;
+            mileageTV.setText(Integer.toString(this.mileage) + " KM");
+            adapter = new UpcomingServicesAdapter(this.services);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this.context));
 
-    private class IssueViewHolder extends RecyclerView.ViewHolder{
-
-        TextView mTitleTextView;
-        UpcomingService upcomingService;
-
-        public IssueViewHolder(View itemView) {
-            super(itemView);
-            mTitleTextView = (TextView) itemView.findViewById(R.id.title);
-        }
-
-        public void bind(UpcomingService upcomingService) {
-            this.upcomingService = upcomingService;
-            mTitleTextView.setText(upcomingService.getAction() + " " + upcomingService.getItem());
         }
     }
 }
