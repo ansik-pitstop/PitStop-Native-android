@@ -35,8 +35,10 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
     private static final String TAG = MyGaragePresenter.class.getSimpleName();
     private HashMap<String, Object> customProperties;
-    private List<Dealership> dealershipList = null;
-    private List<Car> carList = null;
+    private boolean dealershipsLoaded = false;
+    private boolean carsLoaded = false;
+    private List<Dealership> dealershipList = new ArrayList<>();
+    private List<Car> carList = new ArrayList<>();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_MY_GARAGE);
     public final EventType[] ignoredEvents = {
             new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
@@ -64,8 +66,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     @Override
     public void onAppStateChanged() {
         Log.d(TAG, "onAppStateChanged()");
-        dealershipList = null;
-        carList = null;
+        dealershipsLoaded = false;
+        carsLoaded = false;
         if (getView()!=null)
             getView().onUpdateNeeded();
 
@@ -143,7 +145,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void onCallClicked() {
         Log.d(TAG, "onCallClicked()");
         if(getView() == null || updating) return;
-        if (dealershipList == null) {
+        if (!dealershipsLoaded) {
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
@@ -151,8 +153,12 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
                     if (getView()== null) return;
+
                     mergeSetWithCarList(data.keySet());
+                    dealershipsLoaded = true;
+                    carsLoaded = true;
                     mergeSetWithDealershipList(new ArrayList<>(data.values()));
+
                     if (dealershipList.size() == 0)
                         getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
                     else if (dealershipList.size() == 1)
@@ -186,14 +192,17 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void onFindDirectionsClicked() {
         Log.d(TAG, "onFindDirectionClicked()");
         if(getView() == null || updating) return;
-        if (dealershipList == null) {
+        if (!dealershipsLoaded) {
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
                 public void onGotCarsWithDealerships(@NotNull Map<Car, ? extends Dealership> data) {
                     updating = false;
                     if (getView() == null) return;
+
                     mergeSetWithDealershipList(new ArrayList<>(data.values()));
+                    dealershipsLoaded = true;
+
                     if (dealershipList.size() == 0)
                         getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
                     else if (dealershipList.size() == 1)
@@ -225,7 +234,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void loadCars() {
         Log.d(TAG, "loadCars()");
         if(getView() == null|| updating)return;
-        if (carList ==null){
+        if (!carsLoaded){
             getView().showLoading();
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
@@ -242,6 +251,9 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                     mergeSetWithCarList(data.keySet());
                     mergeSetWithDealershipList(new ArrayList<>(data.values()));
+                    dealershipsLoaded = false;
+                    carsLoaded = true;
+
                     getView().hideLoading();
                     getView().showCars(carList);
                 }
@@ -261,7 +273,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     private void mergeSetWithDealershipList(List<Dealership> data){
-        if (dealershipList == null) dealershipList = new ArrayList<>();
         dealershipList.clear();
         for (Dealership d: data)
             if (d.getId() != 1)
@@ -269,7 +280,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     private void mergeSetWithCarList(Set<Car> data){
-        if (carList == null) carList = new ArrayList<>();
         carList.clear();
         List<Car> toAdd = new ArrayList<>();
         for (Car c: data){
@@ -296,12 +306,11 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     public void makeCarListNull() {
-        carList = null;
+        carsLoaded = false;
     }
 
     List<Car> getCars(){
-        if (carList == null) return new ArrayList<>();
-        else return carList;
+        return carList;
     }
 
     List<Dealership> getDealerships(){
@@ -309,7 +318,6 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     void onCarSetAsCurrent(int pos){
-        if (carList == null) return;
         for (Car c: carList){
             c.setCurrentCar(false);
         }
