@@ -56,6 +56,7 @@ public class CarIssueRepository implements Repository{
 
     public void insertDtc(int carId, double mileage,long rtcTime, String dtcCode, boolean isPending
             , Callback<String> callback){
+        Log.d(TAG,"insertDtc() dtcCode: "+dtcCode);
         JSONObject body = new JSONObject();
 
         try {
@@ -71,12 +72,13 @@ public class CarIssueRepository implements Repository{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         networkHelper.post("issue", (response, requestError) -> {
             if (requestError == null){
                 callback.onSuccess(dtcCode);
             }else{
                 callback.onError(requestError);
+                Log.d(TAG,"insertDtc() ERROR: "
+                        +requestError.getMessage()+", body: "+body.toString());
             }
         }, body);
     }

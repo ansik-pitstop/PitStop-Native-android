@@ -22,7 +22,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
     private var callback: AddDtcUseCase.Callback? = null
 
     override fun execute(dtcPackage: DtcPackage, callback: AddDtcUseCase.Callback) {
-
+        Log.d(tag,"execute() dtcPackage: "+dtcPackage)
         this.dtcPackage = dtcPackage
         this.callback = callback
         useCaseHandler.post(this)
@@ -43,6 +43,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     override fun onSuccess(car: Car){
 
                         for ((dtc, isPending) in dtcPackage!!.dtcs){
+                            Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
                             carIssueRepository.insertDtc(settings.carId, car.totalMileage
                                     , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
 
@@ -56,6 +57,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                                 }
                                 override fun onError(error: RequestError){
                                     Log.d(tag,"Error adding dtc err: "+error.message)
+                                    Log.d(tag,"dtcPackage: "+dtcPackage)
                                     mainHandler.post({callback?.onError(error)})
                                 }
 
