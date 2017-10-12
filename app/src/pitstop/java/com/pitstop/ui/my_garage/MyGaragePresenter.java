@@ -20,9 +20,10 @@ import com.pitstop.utils.MixpanelHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import io.smooch.core.User;
@@ -149,7 +150,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
-                public void onGotCarsWithDealerships(@NotNull Map<Car, ? extends Dealership> data) {
+                public void onGotCarsWithDealerships(@NotNull LinkedHashMap<Car, Dealership> data) {
                     Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
                     if (getView()== null) return;
@@ -157,14 +158,14 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     mergeSetWithCarList(data.keySet());
                     dealershipsLoaded = true;
                     carsLoaded = true;
-                    mergeSetWithDealershipList(new ArrayList<>(data.values()));
+                    mergeSetWithDealershipList(data.values());
 
                     if (dealershipList.size() == 0)
                         getView().toast(((Fragment)getView()).getContext().getString(R.string.select_dealership_toast_text));
                     else if (dealershipList.size() == 1)
                         getView().callDealership(dealershipList.get(0));
                     else
-                        getView().showDealershipsCallDialog(dealershipList);
+                        getView().showDealershipsCallDialog(getValidDealershipList());
                 }
 
                 @Override
@@ -185,7 +186,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             else if (dealershipList.size() == 1)
                 getView().callDealership(dealershipList.get(0));
             else
-                getView().showDealershipsCallDialog(dealershipList);
+                getView().showDealershipsCallDialog(getValidDealershipList());
         }
     }
 
@@ -196,11 +197,11 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
-                public void onGotCarsWithDealerships(@NotNull Map<Car, ? extends Dealership> data) {
+                public void onGotCarsWithDealerships(@NotNull LinkedHashMap<Car, Dealership> data) {
                     updating = false;
                     if (getView() == null) return;
 
-                    mergeSetWithDealershipList(new ArrayList<>(data.values()));
+                    mergeSetWithDealershipList(data.values());
                     dealershipsLoaded = true;
 
                     if (dealershipList.size() == 0)
@@ -208,7 +209,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     else if (dealershipList.size() == 1)
                         getView().openDealershipDirections(dealershipList.get(0));
                     else
-                        getView().showDealershipsDirectionDialog(dealershipList);
+                        getView().showDealershipsDirectionDialog(getValidDealershipList());
                 }
 
                 @Override
@@ -227,7 +228,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             else if (dealershipList.size() == 1)
                 getView().openDealershipDirections(dealershipList.get(0));
             else
-                getView().showDealershipsDirectionDialog(dealershipList);
+                getView().showDealershipsDirectionDialog(getValidDealershipList());
         }
     }
 
@@ -239,7 +240,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
-                public void onGotCarsWithDealerships(@NotNull Map<Car, ? extends Dealership> data) {
+                public void onGotCarsWithDealerships(@NotNull LinkedHashMap<Car, Dealership> data) {
                     Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
                     if (getView()  == null) return;
@@ -250,7 +251,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                         getView().appointmentsVisible();
 
                     mergeSetWithCarList(data.keySet());
-                    mergeSetWithDealershipList(new ArrayList<>(data.values()));
+                    mergeSetWithDealershipList(data.values());
                     dealershipsLoaded = false;
                     carsLoaded = true;
 
@@ -272,25 +273,14 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         }
     }
 
-    private void mergeSetWithDealershipList(List<Dealership> data){
+    private void mergeSetWithDealershipList(Collection<Dealership> data){
         dealershipList.clear();
-        for (Dealership d: data)
-            if (d.getId() != 1)
-                dealershipList.add(d);
+        dealershipList.addAll(data);
     }
 
     private void mergeSetWithCarList(Set<Car> data){
         carList.clear();
-        List<Car> toAdd = new ArrayList<>();
-        for (Car c: data){
-            boolean add = true;
-            for (Car c2: carList){
-                if (c.getId() == c2.getId())
-                    add = false;
-            }
-            if (add) toAdd.add(c);
-        }
-        carList.addAll(toAdd);
+        carList.addAll(data);
     }
 
     public void onCarClicked(Car car, int position) {
@@ -339,5 +329,14 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
 
         }
+    }
+
+    private List<Dealership> getValidDealershipList(){
+        List<Dealership> validList = new ArrayList<>();
+        for (Dealership d: dealershipList){
+            if (d.getId() != 1)
+                validList.add(d);
+        }
+        return validList;
     }
 }

@@ -28,7 +28,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     }
 
     override fun run() {
-        val map = HashMap<Car,Dealership>()
+        val map = LinkedHashMap<Car,Dealership>()
         userRepository.getCurrentUser(object : Repository.Callback<User> {
 
             override fun onSuccess(user: User) {
