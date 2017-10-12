@@ -23,5 +23,5 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
     void removeCarIssue(CarIssue issue);
     void addCustomIssue(CarIssue issue);
     boolean hasBeenPopulated();
-    void startDisplayIssueActivity(CarIssue issue);
+    void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }

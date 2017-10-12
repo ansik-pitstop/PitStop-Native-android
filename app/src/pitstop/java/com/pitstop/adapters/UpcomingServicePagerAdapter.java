@@ -58,8 +58,13 @@ public class UpcomingServicePagerAdapter extends PagerAdapter {
         String title = service.getAction() + " " + service.getItem();
         String description  = service.getDescription();
         int severity  = service.getPriority();
+
         /*int mileage = service.getMileage();*/
         ((TextView)rootView.findViewById(R.id.issue_title)).setText(title);
+        if (description != null){
+            rootView.findViewById(R.id.description_layout).setVisibility(View.VISIBLE);
+            ((TextView)rootView.findViewById(R.id.description)).setText(description);
+        }
         RelativeLayout severityLayout = (RelativeLayout)rootView.findViewById(R.id.severity_indicator_layout);
         TextView severityTV = (TextView)rootView.findViewById(R.id.severity_text);
         switch (severity) {

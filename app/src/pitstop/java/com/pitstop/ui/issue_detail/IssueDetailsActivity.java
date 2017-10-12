@@ -35,14 +35,11 @@ import butterknife.ButterKnife;
 public class IssueDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = IssueDetailsActivity.class.getSimpleName();
-
-    private Car dashboardCar;
-    private CarIssue carIssue;
     private List<CarIssue> allIssues;
     public static final String SOURCE = "source";
-
     private int positionClicked;
     ArrayList<UpcomingService> upcomingServicesList;
+    Car dashboardCar;
 
     private boolean fromHistory; // opened from history (no request service)
 
@@ -92,33 +89,19 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
 
         else {
-            dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
-            carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+            positionClicked = intent.getExtras().getInt(MainActivity.CAR_ISSUE_POSITION);
+            allIssues = intent.getParcelableArrayListExtra(MainActivity.CAR_ISSUE_KEY);
             fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
-            allIssues = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
+            //allIssues = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
             issueAdapter = new IssuePagerAdapter(this, allIssues);
-
-            if (!allIssues.contains(carIssue)) {
-                allIssues.add(carIssue);
-            }
-
             if (fromHistory) {
                 findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);
-
             }
-
+            dashboardCar = intent.getExtras().getParcelable(MainActivity.CAR_KEY);
             issuesPager.setAdapter(issueAdapter);
             issuesPager.setOffscreenPageLimit(5);
             issuesPager.setPageMargin(-(int) (1.5 * UiUtils.convertDpToPixel(24, this)));
-            for (int index = 0; index < allIssues.size(); index++) {
-                //Todo: below needs better logic which requires some redesigning
-                if (carIssue.getDescription().equals(allIssues.get(index).getDescription())
-                        && carIssue.getPriority() == allIssues.get(index).getPriority()
-                        && carIssue.getItem().equals(allIssues.get(index).getItem())) {
-                    issuesPager.setCurrentItem(index);
-                    break;
-                }
-            }
+           issuesPager.setCurrentItem(positionClicked);
         }
 
     }
@@ -131,9 +114,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
             try {
                 JSONObject properties = new JSONObject();
                 properties.put("View", MixpanelHelper.ISSUE_DETAIL_VIEW);
-                properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
+                properties.put("Issue", allIssues.get(positionClicked).getAction() + " " + allIssues.get(positionClicked).getItem());
                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
             } catch (JSONException e) {
+                e.printStackTrace();
                 e.printStackTrace();
             }
         }
@@ -209,7 +193,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
         final Intent intent = new Intent(this, RequestServiceActivity.class);
         intent.putExtra(RequestServiceActivity.EXTRA_CAR, dashboardCar);
         intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
-        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA,carIssue);
+        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA,allIssues.get(positionClicked));
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
     }
 

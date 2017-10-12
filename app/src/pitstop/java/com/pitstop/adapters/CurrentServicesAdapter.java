@@ -95,7 +95,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
 
             holder.container.setOnClickListener((View view) -> {
-                issueHolderListener.onServiceClicked(carIssue);
+                issueHolderListener.onServiceClicked(carIssues, position);
 
             });
 
