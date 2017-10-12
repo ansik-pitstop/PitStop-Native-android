@@ -10,7 +10,7 @@ import com.pitstop.network.RequestError
 interface AddDtcUseCase: Interactor {
 
     interface Callback{
-        fun onDtcAdded()
+        fun onDtcPackageAdded(dtc: DtcPackage)
         fun onError(requestError: RequestError)
     }
 
