@@ -34,6 +34,8 @@ import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -512,6 +514,15 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler) {
 
         return new AddDtcUseCaseImpl(userRepository, carIssueRepository, carRepository
+                , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCarsWithDealershipsUseCase getGetCarsWithDealershipsUseCase(UserRepository userRepository
+            , CarRepository carRepository, ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new GetCarsWithDealershipsUseCaseImpl(userRepository, carRepository, shopRepository
                 , useCaseHandler, mainHandler);
     }
 }
