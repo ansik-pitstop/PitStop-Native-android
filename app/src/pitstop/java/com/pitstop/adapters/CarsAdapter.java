@@ -1,7 +1,6 @@
 package com.pitstop.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.my_garage.MyGarageView;
 
 import java.util.List;
@@ -23,10 +23,12 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     private MyGarageView myGarageView;
     private List<Car> carList;
+    private List<Dealership> dealershipList;
 
-    public CarsAdapter (MyGarageView view, List<Car> list){
+    public CarsAdapter (MyGarageView view, List<Dealership> dealershipList, List<Car> carList){
         this.myGarageView = view;
-        this.carList = list;
+        this.carList = carList;
+        this.dealershipList = dealershipList;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     @Override
     public void onBindViewHolder(CarsAdapter.CarViewHolder holder, int position) {
-        holder.bind(carList.get(position));
+        holder.bind(carList.get(position),dealershipList.get(position));
     }
 
     @Override
@@ -64,7 +66,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             this.scanner = itemView.findViewById(R.id.device_paired_id);
             this.dealershipName = itemView.findViewById(R.id.car_dealership_id);
         }
-        public void bind(Car car){
+        public void bind(Car car, Dealership dealership){
             carNameView.setText(car.getYear() + " " + car.getMake() + " " + car.getModel());
             if(car.getScannerId() == null){
                 scanner.setText("No Paired Device");
@@ -72,7 +74,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             else {
                 scanner.setText(car.getScannerId());
             }
-            if (!car.getDealership().getName().equalsIgnoreCase("No Dealership") || !car.getDealership().getName().equalsIgnoreCase("No Shop") ) {
+            if (dealership.getName().equalsIgnoreCase("No Dealership")
+                    || !dealership.getName().equalsIgnoreCase("No Shop") ) {
                 dealershipName.setText(car.getDealership().getName());
             }
             else {

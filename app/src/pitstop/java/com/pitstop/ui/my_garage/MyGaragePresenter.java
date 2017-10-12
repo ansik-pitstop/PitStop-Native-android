@@ -281,4 +281,36 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void makeCarListNull() {
         carList = null;
     }
+
+    List<Car> getCars(){
+        return carList;
+    }
+
+    List<Dealership> getDealerships(){
+        return dealershipList;
+    }
+
+    void onCarSetAsCurrent(int pos){
+        for (Car c: carList){
+            c.setCurrentCar(false);
+        }
+        carList.get(pos).setCurrentCar(true);
+        if (getView() != null) getView().notifyCarDataChanged();
+    }
+
+    public void onCarRemoved(int anInt) {
+        if (getView() != null){
+            if (carList.get(anInt).isCurrentCar()){
+                getView().onUpdateNeeded();
+            }else{
+                carList.remove(anInt);
+                getView().notifyCarDataChanged();
+                if (carList.size() == 0)
+                    getView().appointmentsInvisible();
+            }
+
+
+
+        }
+    }
 }
