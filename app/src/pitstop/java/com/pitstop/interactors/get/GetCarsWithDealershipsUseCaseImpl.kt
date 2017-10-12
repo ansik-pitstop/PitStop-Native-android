@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.models.User
@@ -18,6 +19,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                         , val useCaseHandler: Handler, val mainHandler: Handler)
     : GetCarsWithDealershipsUseCase {
 
+    val tag = javaClass.simpleName
     var callback: GetCarsWithDealershipsUseCase.Callback? = null
 
     override fun execute(callback: GetCarsWithDealershipsUseCase.Callback) {
@@ -43,6 +45,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                             .filter { car.shopId == it.id }
                                             .forEach { map.put(car, it) }
                                 }
+                                Log.d(tag,"Resulting map: "+map)
                                 mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
                             }
 

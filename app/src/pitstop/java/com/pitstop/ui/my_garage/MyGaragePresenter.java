@@ -283,7 +283,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     }
 
     List<Car> getCars(){
-        return carList;
+        if (carList == null) return new ArrayList<>();
+        else return carList;
     }
 
     List<Dealership> getDealerships(){
