@@ -76,7 +76,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             }
             if (dealership.getName().equalsIgnoreCase("No Dealership")
                     || !dealership.getName().equalsIgnoreCase("No Shop") ) {
-                dealershipName.setText(car.getDealership().getName());
+                dealershipName.setText(dealership.getName());
             }
             else {
                 dealershipName.setText("No Associated Shop");
