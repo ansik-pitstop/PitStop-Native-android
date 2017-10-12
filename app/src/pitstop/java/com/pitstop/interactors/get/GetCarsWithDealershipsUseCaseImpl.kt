@@ -40,6 +40,8 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         shopRepository.getShopsByUserId(user.id,object : Repository.Callback<List<Dealership>>{
 
                             override fun onSuccess(dealershipList: List<Dealership>) {
+                                Log.d(tag,"cars for user: "+carList);
+                                Log.d(tag,"shops for user: "+dealershipList)
                                 for (car in carList){
                                     dealershipList
                                             .filter { car.shopId == it.id }

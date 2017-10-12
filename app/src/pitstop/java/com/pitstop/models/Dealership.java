@@ -184,7 +184,7 @@ public class Dealership implements Parcelable {
     @Override
     public String toString(){
         try{
-            return String.format("id: %d, address: %s, phone: %s, email:%s, longitude: %s, latitude: %s"
+            return String.format("{id: %d, address: %s, phone: %s, email:%s, longitude: %s, latitude: %s}"
                     , id, address, phone, email, longitude, latitude);
         }catch(NullPointerException e){
             return "null";
