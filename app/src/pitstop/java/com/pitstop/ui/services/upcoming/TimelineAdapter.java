@@ -26,31 +26,24 @@ public class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<Integer> mileageList;
     private LinkedHashMap<Integer, List<UpcomingService>> upcomingServices;
-    UpcomingServicesView upcomingServicesView;
 
-    public TimelineAdapter(LinkedHashMap<Integer, List<UpcomingService>> upcomingservices, List<Integer> MileageList,
-                            UpcomingServicesView servicesView) {
+    public TimelineAdapter(LinkedHashMap<Integer, List<UpcomingService>> upcomingservices, List<Integer> MileageList) {
         this.mileageList = MileageList;
         this.upcomingServices = upcomingservices;
-        this.upcomingServicesView = servicesView;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mileage_timeline_list_item, parent, false);
-        MileageIssuesHolder mileageIssuesHolder = new MileageIssuesHolder(view, parent.getContext(), this.upcomingServicesView);
+        MileageIssuesHolder mileageIssuesHolder = new MileageIssuesHolder(view, parent.getContext());
         return mileageIssuesHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
        int mileage = getItemViewType(position);
-       ArrayList<UpcomingService> arrayList  = new ArrayList<UpcomingService>();
-       for (UpcomingService service: upcomingServices.get(mileage)){
-           arrayList.add(service);
-       }
-        ((MileageIssuesHolder)holder).bind(arrayList, mileage);
+        ((MileageIssuesHolder)holder).bind(upcomingServices.get(mileage), mileage);
     }
 
     @Override
@@ -67,26 +60,23 @@ public class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class MileageIssuesHolder extends RecyclerView.ViewHolder{
 
         TextView mileageTV;
-        private ArrayList<UpcomingService> services;
+        private List<UpcomingService> services;
         private int mileage;
         RecyclerView mRecyclerView;
         UpcomingServicesAdapter adapter;
         private Context context;
-        UpcomingServicesView upcomingServicesView;
-        public MileageIssuesHolder(View itemView, Context con, UpcomingServicesView servicesView) {
+        public MileageIssuesHolder(View itemView, Context con) {
             super(itemView);
             this.context = con;
             mileageTV = itemView.findViewById(R.id.mileage_timeline_list_item_text_view);
             mRecyclerView = itemView.findViewById(R.id.mileage_specific_issues_recycler_view);
-            this.upcomingServicesView = servicesView;
-
         }
 
-        public void bind(ArrayList<UpcomingService> serviceList, int Mileage){
+        public void bind(List<UpcomingService> serviceList, int Mileage){
             this.services = serviceList;
             this.mileage = Mileage;
             mileageTV.setText(Integer.toString(this.mileage) + " KM");
-            adapter = new UpcomingServicesAdapter(this.services, this.upcomingServicesView );
+            adapter = new UpcomingServicesAdapter(this.services);
             mRecyclerView.setAdapter(adapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this.context));
 
