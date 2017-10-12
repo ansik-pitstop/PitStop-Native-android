@@ -21,6 +21,9 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
+import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -29,6 +32,8 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -55,13 +60,16 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     public static final String CAR_POSITION ="position" ;
     public static final String CAR_SELECTED ="carCurrent" ;
 
+    public static final int START_CUSTOM = 347;
     private int carId;
     private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
     private AlertDialog dealershipAlertDialog;
     private AlertDialog deleteCarAlertDialog;
+    private AlertDialog changeDealershipAlertDialog;
     private VehicleSpecsPresenter presenter;
     private AlertDialog currentCarConfirmDialog;
+    private Car myCar;
 
     @BindView(R.id.car_logo_imageview)
     protected ImageView carLogo;
@@ -126,7 +134,12 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @BindView(R.id.tank_size)
     protected TextView tankSize;
 
+    @BindView(R.id.progress)
+    protected View imageLoadingView;
+
     private Bundle bundle;
+
+    private boolean carPicgetError;
 
     @Nullable
     @Override
@@ -146,6 +159,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
             presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
         }
         this.carId = bundle.getInt(CAR_ID_KEY);
+        this.myCar = new Car();
+        setCar();
         setView();
         return view;
     }
@@ -174,6 +189,24 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         carName.setVisibility(View.GONE);
         if (getActivity()!=null)
             Picasso.with(getActivity()).load(s).into(carPic);
+    }
+
+    public void setCar(){
+        this.myCar.setCurrentCar(bundle.getBoolean(IS_CURRENT_KEY));
+        this.myCar.setId(bundle.getInt(CAR_ID_KEY));
+        this.myCar.setVin(bundle.getString(CAR_VIN_KEY));
+        this.myCar.setScannerId(bundle.getString(SCANNER_ID_KEY));
+        this.myCar.setEngine(bundle.getString(ENGINE_KEY));
+        this.myCar.setCityMileage(bundle.getString(CITY_MILEAGE_KEY));
+        this.myCar.setHighwayMileage(bundle.getString(HIGHWAY_MILEAGE_KEY));
+        this.myCar.setTrim(bundle.getString(TRIM_KEY));
+        this.myCar.setTankSize(bundle.getString(TANK_SIZE_KEY));
+        this.myCar.setYear(bundle.getInt(YEAR_KEY));
+        this.myCar.setMake(bundle.getString(MAKE_KEY));
+        this.myCar.setModel(bundle.getString(MODEL_KEY));
+
+
+
     }
 
     public void setView(){
@@ -231,14 +264,15 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @Override
     public void showDealershipBanner() {
         Log.d(TAG, "showDealershipBanner()");
+        carPicgetError = true;
         carLogo.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);
         carName.setVisibility(View.VISIBLE);
-        carName.setText(Integer.toString(bundle.getInt(YEAR_KEY)) + " " +
-                        bundle.getString(MAKE_KEY) + " " +
-                        bundle.getString(MODEL_KEY));
+        carName.setText(Integer.toString(myCar.getYear()) + " " +
+                        myCar.getMake() + " " +
+                        myCar.getModel());
+        carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( myCar.getMake()));
         dealershipName.setText(bundle.getString(DEALERSHIP_KEY));
-        carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( bundle.getString(MAKE_KEY)));
         carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(bundle.getString(DEALERSHIP_KEY)));
         bannerOverlay.setVisibility(View.VISIBLE);
     }
@@ -253,6 +287,24 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         if(getActivity() == null) return;
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
         getActivity().finish();
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult()");
+        if(requestCode == START_CUSTOM && (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)) {
+            dealership.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
+            dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
+            if (carPicgetError) {
+                showDealershipBanner();
+                dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
+                carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY)));
+            }
+            Log.d(TAG,data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY) );
+
+        }
     }
 
     @Override
@@ -363,4 +415,44 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
         startActivity(browserIntent);
     }
+
+    public void startCustomShop(){
+        Intent intent = new Intent(getActivity(), CustomShopActivity.class);
+        intent.putExtra(CAR_EXTRA,this.myCar);
+        startActivityForResult(intent,START_CUSTOM);
+    }
+
+    @OnClick(R.id.dealership_view)
+    public void showDealershipChangeDialog(){
+        if (changeDealershipAlertDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            changeDealershipAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Change Dealership")
+                    .setView(dialogLayout)
+                    .setMessage("Are you sure you want to change the dealership of this car?")
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
+                            -> startCustomShop())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        changeDealershipAlertDialog.show();
+
+
+    }
+
+    public void showImageLoading(){
+        imageLoadingView.bringToFront();
+        imageLoadingView.setVisibility(View.VISIBLE);
+    }
+
+    public void hideImageLoading(){
+        imageLoadingView.setVisibility(View.GONE);
+    }
+
+
+
+
+
 }

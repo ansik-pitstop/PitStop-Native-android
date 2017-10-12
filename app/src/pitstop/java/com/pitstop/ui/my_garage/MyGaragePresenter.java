@@ -97,8 +97,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
     public void onMessageClicked() {
         Log.d(TAG, "onMessageClicked()");
         if (getView() == null||updating )return;
-        updating = true;
-        getView().showLoading();
+        updating = true;;
+        getView().showLoadingDialog("Loading...");
         if (customProperties == null){
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
@@ -120,7 +120,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                         User.getCurrentUser().setFirstName(getView().getUserFirstName());
                         User.getCurrentUser().setEmail(getView().getUserEmail());
                     }
-                    getView().hideLoading();
+                    getView().hideLoadingDialog();
                     getView().openSmooch();
                 }
                 @Override
@@ -128,19 +128,19 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     Log.d(TAG, "noCarSet()");
                     updating = false;
                     if (getView() == null) return;
-                    getView().hideLoading();
+                    getView().hideLoadingDialog();
                     getView().toast(((Fragment)getView()).getContext().getString(R.string.select_car_request_toast));
                 }
                 @Override
                 public void onError(RequestError error) {
                     updating = false;
                     if (getView() == null) return;
-                    getView().hideLoading();
+                    getView().hideLoadingDialog();
                 }});}
         else{
             updating = false;
             if (getView() == null) return;
-            getView().hideLoading();
+            getView().hideLoadingDialog();
             getView().openSmooch();
         }
     }

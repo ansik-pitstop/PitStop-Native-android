@@ -48,6 +48,10 @@ android {
 //        }
 //    }
     defaultConfig {
+
+        lintOptions {
+            disable 'MissingTranslation'
+        }
         applicationId "com.ansik.pitstop"
         minSdkVersion 18
         targetSdkVersion 24
