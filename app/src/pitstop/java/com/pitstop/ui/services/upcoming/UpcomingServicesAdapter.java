@@ -23,11 +23,13 @@ import java.util.List;
 
 public class UpcomingServicesAdapter extends RecyclerView.Adapter<UpcomingServicesAdapter.IssueViewHolder> {
 
-    private List<UpcomingService> servicesList = new ArrayList<>();
+    private ArrayList<UpcomingService> servicesList = new ArrayList<>();
     private int mileage;
+    UpcomingServicesView upcomingServicesView;
 
-    public UpcomingServicesAdapter(List<UpcomingService> list){
+    public UpcomingServicesAdapter(ArrayList<UpcomingService> list, UpcomingServicesView servicesView){
         this.servicesList =list;
+        this.upcomingServicesView = servicesView;
     }
 
 
@@ -35,11 +37,10 @@ public class UpcomingServicesAdapter extends RecyclerView.Adapter<UpcomingServic
     public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.issue_timeline_list_item, parent, false);
-
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                upcomingServicesView.onUpcomingServiceClicked(servicesList, getItemViewType(viewType));
             }
         });
         IssueViewHolder issueViewHolder = new IssueViewHolder(view);
@@ -49,6 +50,11 @@ public class UpcomingServicesAdapter extends RecyclerView.Adapter<UpcomingServic
     @Override
     public void onBindViewHolder(IssueViewHolder holder, int position) {
         holder.bind(servicesList.get(position));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @Override

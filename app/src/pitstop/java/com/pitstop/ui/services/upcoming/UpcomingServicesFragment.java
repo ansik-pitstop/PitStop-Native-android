@@ -55,6 +55,9 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     RelativeLayout relativeLayout;
 */
 
+    @BindView(R.id.upcoming_service_rel_layout)
+    RelativeLayout relativeLayout;
+
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
 
@@ -147,6 +150,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noServicesView.bringToFront();
     }
 
@@ -158,6 +162,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             unknownErrorView.setVisibility(View.GONE);
             offlineView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
+            relativeLayout.bringToFront();
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
@@ -169,6 +174,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
+            relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
         }else{
             swipeRefreshLayout.setRefreshing(false);
@@ -229,6 +235,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         unknownErrorView.bringToFront();
     }
 
@@ -240,6 +247,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         offlineView.bringToFront();
     }
 
@@ -275,6 +283,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noCarView.bringToFront();
     }
 
