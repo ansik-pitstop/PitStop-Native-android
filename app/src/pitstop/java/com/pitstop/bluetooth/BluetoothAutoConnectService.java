@@ -765,6 +765,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = new ReadyDevice(vin, currentDeviceId, currentDeviceId);
         notifyDeviceReady(vin,currentDeviceId,currentDeviceId);
         deviceManager.getSupportedPids();
+        requestDtcData();
 
     }
 

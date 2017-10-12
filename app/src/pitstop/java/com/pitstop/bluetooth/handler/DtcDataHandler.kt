@@ -20,7 +20,7 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
     private val eventSource = EventSourceImpl(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT)
     private val pendingDtcPackages = ArrayList<DtcPackage>()
     private val tag = javaClass.simpleName
-    private val dtcToSend = ArrayList<DtcPackage>() //dtc from offline error that havent been sent
+    private val dtcToSend = mutableListOf<DtcPackage>() //dtc from offline error that havent been sent
     private val periodicHandler = Handler()
     private val sendInterval: Long = 30000
     private var isSending = false
@@ -38,20 +38,22 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
     }
 
     fun sendLocalDtc(){
+        Log.d(tag, "sendLocalDtc() localDtc: $dtcToSend, isSending? $isSending")
         if (isSending) return
         isSending = true
-        dtcToSend.iterator().forEach { pendingDtcPackage ->
-            useCaseComponent.addDtcUseCase().execute(pendingDtcPackage, object : AddDtcUseCase.Callback {
-                override fun onDtcPackageAdded(dtc: DtcPackage) {
-                    Log.d(tag,"pending dtc added dtc: "+dtc)
-                    dtcToSend.remove(dtc)
+        val dtcListCopy = ArrayList(dtcToSend)
+        for (dtc in dtcListCopy){
+            useCaseComponent.addDtcUseCase().execute(dtc, object : AddDtcUseCase.Callback {
+                override fun onDtcPackageAdded(addedDtc: DtcPackage) {
+                    Log.d(tag,"pending addedDtc added addedDtc: "+ addedDtc)
+                    this@DtcDataHandler.dtcToSend.remove(addedDtc)
                     isSending = false
                 }
 
                 override fun onError(requestError: RequestError) {
                     Log.d(tag,"error adding pending dtc err: "+requestError.message)
                     if (requestError.error != RequestError.ERR_OFFLINE)
-                        dtcToSend.clear()
+                        this@DtcDataHandler.dtcToSend.clear()
                     isSending = false
                 }
 
