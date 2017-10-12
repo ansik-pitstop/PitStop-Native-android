@@ -7,21 +7,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import com.pitstop.R;
+import com.pitstop.adapters.UpcomingServicePagerAdapter;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.service_request.RequestServiceActivity;
+import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UiUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,6 +39,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private Car dashboardCar;
     private CarIssue carIssue;
     private List<CarIssue> allIssues;
+    public static final String SOURCE = "source";
+
+    private int positionClicked;
+    ArrayList<UpcomingService> upcomingServicesList;
 
     private boolean fromHistory; // opened from history (no request service)
 
@@ -43,9 +52,16 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private boolean needToRefresh = false;
 
     private View rootView;
+    private String source;
 
-    @BindView(R.id.issues_vp) ViewPager issuesPager;
+    @BindView(R.id.issues_vp)
+    ViewPager issuesPager;
+
+    @BindView(R.id.request_service_bn)
+    Button requestServicebutton;
+
     private IssuePagerAdapter issueAdapter;
+    private UpcomingServicePagerAdapter upcomingServicePagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,47 +74,68 @@ public class IssueDetailsActivity extends AppCompatActivity {
         application     = (GlobalApplication) getApplicationContext();
         mixpanelHelper  = new MixpanelHelper(application);
 
+
         Intent intent   = getIntent();
-        dashboardCar    = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
-        carIssue        = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
-        fromHistory     = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
-        allIssues       = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
-        issueAdapter    = new IssuePagerAdapter(this, allIssues);
+        source = intent.getExtras().getString(SOURCE);
 
-        if(!allIssues.contains(carIssue)){
-            allIssues.add(carIssue);
+        if (source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE)) {
+            upcomingServicesList = intent.getParcelableArrayListExtra(UpcomingServicesFragment.UPCOMING_SERVICE_KEY);
+            positionClicked = intent.getExtras().getInt(UpcomingServicesFragment.UPCOMING_SERVICE_POSITION);
+
+            upcomingServicePagerAdapter = new UpcomingServicePagerAdapter(upcomingServicesList, this);
+            issuesPager.setAdapter(upcomingServicePagerAdapter);
+            issuesPager.setOffscreenPageLimit(5);
+            issuesPager.setPageMargin(-(int) (1.5 * UiUtils.convertDpToPixel(24, this)));
+            issuesPager.setCurrentItem(positionClicked);
+            requestServicebutton.setVisibility(View.INVISIBLE);
         }
 
-        if (fromHistory) {
-            findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);
-        }
 
-        issuesPager.setAdapter(issueAdapter);
-        issuesPager.setOffscreenPageLimit(5);
-        issuesPager.setPageMargin(- (int) (1.5 * UiUtils.convertDpToPixel(24, this)));
-        for (int index = 0; index < allIssues.size(); index++){
-            //Todo: below needs better logic which requires some redesigning
-            if (carIssue.getDescription().equals(allIssues.get(index).getDescription())
-                    && carIssue.getPriority() == allIssues.get(index).getPriority()
-                    && carIssue.getItem().equals(allIssues.get(index).getItem())){
-                issuesPager.setCurrentItem(index);
-                break;
+        else {
+            dashboardCar = intent.getParcelableExtra(MainActivity.CAR_EXTRA);
+            carIssue = intent.getParcelableExtra(MainActivity.CAR_ISSUE_EXTRA);
+            fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
+            allIssues = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
+            issueAdapter = new IssuePagerAdapter(this, allIssues);
+
+            if (!allIssues.contains(carIssue)) {
+                allIssues.add(carIssue);
+            }
+
+            if (fromHistory) {
+                findViewById(R.id.request_service_bn).setVisibility(View.INVISIBLE);
+
+            }
+
+            issuesPager.setAdapter(issueAdapter);
+            issuesPager.setOffscreenPageLimit(5);
+            issuesPager.setPageMargin(-(int) (1.5 * UiUtils.convertDpToPixel(24, this)));
+            for (int index = 0; index < allIssues.size(); index++) {
+                //Todo: below needs better logic which requires some redesigning
+                if (carIssue.getDescription().equals(allIssues.get(index).getDescription())
+                        && carIssue.getPriority() == allIssues.get(index).getPriority()
+                        && carIssue.getItem().equals(allIssues.get(index).getItem())) {
+                    issuesPager.setCurrentItem(index);
+                    break;
+                }
             }
         }
-    }
 
+    }
     @Override
     protected void onResume() {
         super.onResume();
 
-        // Track view appeared
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put("View", MixpanelHelper.ISSUE_DETAIL_VIEW);
-            properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
-            mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (!(source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE))){
+            // Track view appeared
+            try {
+                JSONObject properties = new JSONObject();
+                properties.put("View", MixpanelHelper.ISSUE_DETAIL_VIEW);
+                properties.put("Issue", carIssue.getAction() + " " + carIssue.getItem());
+                mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

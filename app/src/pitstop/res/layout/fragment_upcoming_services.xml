@@ -6,7 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.upcoming_timeline.TimelineActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/timeline_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <RelativeLayout
+        android:id="@+id/upcoming_service_rel_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -25,22 +31,10 @@
             layout="@layout/layout_unknown_error"
             android:visibility="gone"/>
 
-        <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/timeline_recyclerview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
 
-            </RelativeLayout>
 
-        </android.support.v4.widget.NestedScrollView>
 
         <LinearLayout
             android:id="@+id/no_services"

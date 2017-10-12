@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -20,6 +22,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -37,10 +40,18 @@ import butterknife.OnClick;
 
 public class UpcomingServicesFragment extends Fragment implements UpcomingServicesView {
 
+    public static final String UPCOMING_SERVICE_KEY = "upcomingService" ;
+    public static final String SOURCE = "source";
+    public static final String UPCOMING_SERVICE_SOURCE ="fromUpcomingService" ;
+    public static final String UPCOMING_SERVICE_POSITION = "position" ;
+
     private final String TAG = getClass().getSimpleName();
 
     @BindView(R.id.no_car)
     View noCarView;
+
+    @BindView(R.id.upcoming_service_rel_layout)
+    RelativeLayout relativeLayout;
 
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
@@ -91,7 +102,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
-        timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages );
+        timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages, this);
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
@@ -123,6 +134,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noServicesView.bringToFront();
     }
 
@@ -131,6 +143,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
+            relativeLayout.bringToFront();
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
@@ -142,6 +155,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
+            relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
         }else{
             swipeRefreshLayout.setRefreshing(false);
@@ -202,6 +216,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         unknownErrorView.bringToFront();
     }
 
@@ -213,6 +228,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         offlineView.bringToFront();
     }
 
@@ -247,6 +263,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noCarView.bringToFront();
     }
 
@@ -269,6 +286,23 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             this.listOfMileages.add(i);
         }
         timelineAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onUpcomingServiceClicked(ArrayList<UpcomingService> services, int positionClicked) {
+        Log.d(TAG, "onUpcomingServiceClicked()");
+        presenter.onUpcomingServiceClicked(services, positionClicked);
+    }
+
+    @Override
+    public void openIssueDetailsActivity(ArrayList<UpcomingService> services, int position) {
+        Log.d(TAG, "openIssueDetailsActivity()");
+        Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
+        intent.putParcelableArrayListExtra(UPCOMING_SERVICE_KEY, services);
+        intent.putExtra(UPCOMING_SERVICE_POSITION, position);
+        intent.putExtra(IssueDetailsActivity.SOURCE, UPCOMING_SERVICE_SOURCE);
+        startActivity(intent);
 
     }
 

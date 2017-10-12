@@ -55,6 +55,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.IssueDetail;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -92,6 +93,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         , Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher{
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    private static final String CURRENT_ISSUE_SOURCE = "currentService";
 
     private GlobalApplication application;
     private boolean serviceIsBound = false;
@@ -796,6 +798,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             public void onCarRetrieved(Car car) {
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
                 intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
+                intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE); 
                 startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
             }
 
