@@ -35,11 +35,12 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
 
     init{
         periodicHandler.post(periodicPendingDtcSender)
+        isSending = false
     }
 
     fun sendLocalDtc(){
         Log.d(tag, "sendLocalDtc() localDtc: $dtcToSend, isSending? $isSending")
-        if (isSending) return
+        if (isSending || dtcToSend.isEmpty()) return
         isSending = true
         val dtcListCopy = ArrayList(dtcToSend)
         for (dtc in dtcListCopy){
