@@ -84,6 +84,7 @@ public class UpcomingServicePagerAdapter extends PagerAdapter {
                 severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_medium_indicator));
                 severityTV.setText(context.getResources().getString(R.string.severity_indicator_medium));
                 break;
+
         }
         rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.GONE);
     }
