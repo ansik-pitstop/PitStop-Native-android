@@ -90,10 +90,8 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
                 updating = false;
                 if (getView() == null) return;
-
                 getView().hideLoading();
                 getView().displayOnlineView();
-
 
                 if (!serviceMap.isEmpty()){
                     getView().populateUpcomingServices(serviceMap);

@@ -49,9 +49,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @BindView(R.id.no_car)
     View noCarView;
+/*
 
     @BindView(R.id.upcoming_service_rel_layout)
     RelativeLayout relativeLayout;
+*/
 
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
@@ -107,6 +109,17 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
 
+        RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager manager = ((LinearLayoutManager)recyclerView.getLayoutManager());
+                boolean enabled =manager.findFirstCompletelyVisibleItemPosition() == 0;
+                swipeRefreshLayout.setEnabled(enabled);
+            }
+        };
+
+        timelineRecyclerView.setOnScrollListener(scrollListener);
+
         return view;
     }
 
@@ -134,7 +147,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
-        relativeLayout.bringToFront();
         noServicesView.bringToFront();
     }
 
@@ -142,8 +154,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
+            timelineRecyclerView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
-            relativeLayout.bringToFront();
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
@@ -155,7 +169,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         if (!swipeRefreshLayout.isRefreshing()){
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
-            relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
         }else{
             swipeRefreshLayout.setRefreshing(false);
@@ -216,7 +229,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
-        relativeLayout.bringToFront();
         unknownErrorView.bringToFront();
     }
 
@@ -228,18 +240,18 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
-        relativeLayout.bringToFront();
         offlineView.bringToFront();
     }
 
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
-        timelineRecyclerView.setVisibility(View.VISIBLE);
+
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.setVisibility(View.VISIBLE);
         timelineRecyclerView.bringToFront();
     }
 
@@ -263,7 +275,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
-        relativeLayout.bringToFront();
         noCarView.bringToFront();
     }
 

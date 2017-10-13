@@ -6,15 +6,19 @@
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.upcoming_timeline.TimelineActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/timeline_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+
+
+
 
     <RelativeLayout
+        android:visibility="visible"
         android:id="@+id/upcoming_service_rel_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
+        <!--<android.support.v7.widget.RecyclerView
+            android:id="@+id/timeline_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />-->
 
         <include
             android:id="@+id/no_car"
@@ -22,19 +26,15 @@
             layout="@layout/layout_no_car_services"/>
 
         <include
+            android:visibility="gone"
             android:id="@+id/offline_view"
             layout="@layout/layout_offline"
-            android:visibility="gone" />
+            />
 
         <include
             android:id="@+id/unknown_error_view"
             layout="@layout/layout_unknown_error"
             android:visibility="gone"/>
-
-
-
-
-
 
         <LinearLayout
             android:id="@+id/no_services"
@@ -61,6 +61,19 @@
             android:id="@+id/progress"
             android:visibility="gone"
             layout="@layout/layout_load"/>
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:visibility="gone"
+                android:id="@+id/timeline_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </android.support.v4.widget.NestedScrollView>
+
+
 
     </RelativeLayout>
 
