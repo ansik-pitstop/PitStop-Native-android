@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
@@ -16,6 +17,9 @@ import java.util.List;
  */
 
 public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
     private Callback callback;
@@ -72,6 +76,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                             @Override
                             public void onError(RequestError error) {
+                                Log.d(TAG,"getDoneCarIssues.onError() err: "+error);
                                 GetDoneServicesUseCaseImpl.this.onError(error);
                             }
                         });
@@ -79,6 +84,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"getCurrentUserSettings.onError() err: "+error);
                 GetDoneServicesUseCaseImpl.this.onError(error);
             }
         });

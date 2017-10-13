@@ -142,7 +142,7 @@ public class CarIssueRepository implements Repository{
 
     private RequestCallback getInsertCarIssuesRequestCallback(Callback<Object> callback){
         RequestCallback requestCallback = (response, requestError) -> {
-            if(requestError == null && response != null){
+            if(requestError == null){
                 callback.onSuccess(response);
 
             }else{
@@ -192,7 +192,7 @@ public class CarIssueRepository implements Repository{
     }
     public RequestCallback getInsertCustomRequestCallback(Callback<CarIssue> callback,int carId){
         RequestCallback requestCallback = (response, requestError) -> {
-            if(requestError == null && response != null){
+            if(requestError == null){
                 CarIssue issue = new CarIssue();
                 try{
                     JSONObject responseJson = new JSONObject(response);
