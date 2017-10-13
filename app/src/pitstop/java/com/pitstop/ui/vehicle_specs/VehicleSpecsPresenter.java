@@ -71,6 +71,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         if (view == null || updating)return;
         updating = true;
         Log.d(TAG, "getCarImage()");
+        view.showImageLoading();
         useCaseComponent.getCarStyleIDUseCase().execute(Vin, new GetCarStyleIDUseCase.Callback() {
             @Override
             public void onStyleIDGot(String styleID) {
@@ -81,12 +82,14 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
                     public void onArrayGot(String imageLink) {
                         updating = false;
                         if (view == null) return;
+                        view.hideImageLoading();
                         view.showImage(BASE_URL_PHOTO + imageLink);
                     }
                     @Override
                     public void onError(RequestError error) {
                         updating = false;
                         if (view ==null) return;
+                        view.hideImageLoading();
                         view.showDealershipBanner();
                        // Log.d(TAG, error.getMessage());
                     }
@@ -96,6 +99,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             public void onError(RequestError error) {
                 updating = false;
                 if (view == null) return;
+                view.hideImageLoading();
                 view.showDealershipBanner();
                 Log.d(TAG, error.getMessage());
             }

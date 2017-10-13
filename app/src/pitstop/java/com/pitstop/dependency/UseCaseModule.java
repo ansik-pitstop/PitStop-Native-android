@@ -1,7 +1,6 @@
 package com.pitstop.dependency;
 
 import android.os.Handler;
-import android.support.v4.widget.CircularProgressDrawable;
 
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -9,6 +8,8 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
+import com.pitstop.interactors.add.AddDtcUseCase;
+import com.pitstop.interactors.add.AddDtcUseCaseImpl;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
@@ -25,14 +26,16 @@ import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarByVinUseCase;
+import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCaseImpl;
 import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
-import com.pitstop.interactors.get.GetCarByVinUseCase;
-import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -77,8 +80,8 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
-import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
+import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -505,5 +508,21 @@ public class UseCaseModule {
         return new GetCarImagesArrayUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
     }
 
+    @Provides
+    AddDtcUseCase getAddDtcUseCase(UserRepository userRepository, CarIssueRepository carIssueRepository
+            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler) {
 
+        return new AddDtcUseCaseImpl(userRepository, carIssueRepository, carRepository
+                , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCarsWithDealershipsUseCase getGetCarsWithDealershipsUseCase(UserRepository userRepository
+            , CarRepository carRepository, ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new GetCarsWithDealershipsUseCaseImpl(userRepository, carRepository, shopRepository
+                , useCaseHandler, mainHandler);
+    }
 }

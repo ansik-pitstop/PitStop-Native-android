@@ -1,6 +1,7 @@
 package com.pitstop.ui.my_garage;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,7 +12,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -38,7 +37,6 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,7 +82,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     private AlertDialog dealershipCallDialog;
     private AlertDialog dealershipDirectionsDialog;
     private CarsAdapter carsAdapter;
-    private List <Car> carList = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     public static MyGarageFragment newInstance(){
         return new MyGarageFragment();
@@ -105,8 +103,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             presenter = new MyGaragePresenter(useCaseComponent, mixpanelHelper);
 
         }
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
         carRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
-        carsAdapter = new CarsAdapter(this, carList);
+        carsAdapter = new CarsAdapter(this, presenter.getDealerships(), presenter.getCars());
         carRecyclerView.setAdapter(carsAdapter);
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
         return view;
@@ -288,8 +289,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     @Override
     public void showCars(List<Car> list) {
         Log.d(TAG, "showCars()");
-        carList.clear();
-        carList.addAll(list);
         carsAdapter.notifyDataSetChanged();
         if (list.size() == 0){
             appointmentsView.setVisibility(View.GONE);
@@ -328,34 +327,19 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         if(requestCode == 0){
             if(resultCode == Activity.RESULT_OK){
                 if(data.getExtras().getBoolean(VehicleSpecsFragment.CAR_DELETED)){
-                    notifyCarRemoved(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
+                    presenter.onCarRemoved(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
                 }
                 else if (data.getExtras().getBoolean(VehicleSpecsFragment.CAR_SELECTED)){
-                    notifyCarSetAscurrent(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
+                    presenter.onCarSetAsCurrent(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
                 }
             }
 
         }
     }
 
-    private void notifyCarSetAscurrent(int anInt) {
-        for (int i = 0 ;i < carList.size(); i++){
-            carList.get(i).setCurrentCar(false);
-        }
-        carList.get(anInt).setCurrentCar(true);
-    }
-
-    private void notifyCarRemoved(int anInt) {
-        if (carList.get(anInt).isCurrentCar()){
-            onUpdateNeeded();
-        }
-        else {
-        carList.remove(anInt);
+    @Override
+    public void notifyCarDataChanged(){
         carsAdapter.notifyDataSetChanged();
-        if (carList.size() == 0) {
-            appointmentsView.setVisibility(View.GONE);
-            }
-        }
     }
 
     @Override
@@ -395,6 +379,12 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         appointmentsView.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void appointmentsInvisible() {
+        Log.d(TAG, "appointmentsInvisible()");
+        appointmentsView.setVisibility(View.INVISIBLE);
+    }
+
     @OnClick (R.id.message_my_garage)
     public void onMessageClicked(){
         Log.d(TAG, "onMessageClicked()");
@@ -419,6 +409,25 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             Log.d(TAG, "onAddCarClicked()");
             Intent intent = new Intent(this.getActivity(), AddCarActivity.class);
             startActivityForResult(intent, RC_ADD_CAR);
+        }
+    }
+
+    public void showLoadingDialog(String text) {
+        if (progressDialog == null) {
+            return;
+        }
+        progressDialog.setMessage(text);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    public void hideLoadingDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        } else {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCanceledOnTouchOutside(false);
         }
     }
 }

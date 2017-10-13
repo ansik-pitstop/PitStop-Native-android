@@ -35,6 +35,7 @@ import com.pitstop.ui.custom_shops.view_fragments.ShopType.ShopTypeFragment;
 
 public class CustomShopActivity extends AppCompatActivity implements CustomShopView,CustomShopActivityCallback{
 
+    public static final String DEALERSHIP_NAME_KEY = "dealershipName";
     private final String TAG = getClass().getSimpleName();
 
     public static final String CAR_EXTRA = "car";
@@ -183,10 +184,12 @@ public class CustomShopActivity extends AppCompatActivity implements CustomShopV
     }
 
     @Override
-    public void endCustomShops() {
+    public void endCustomShops(String dealershipName) {
+        Log.d(TAG, "endCustomShops");
         Intent intent = new Intent();
         intent.putExtra(CAR_EXTRA,car);
         setResult(AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER,intent);
+        intent.putExtra(DEALERSHIP_NAME_KEY, dealershipName);
         finish();
     }
 

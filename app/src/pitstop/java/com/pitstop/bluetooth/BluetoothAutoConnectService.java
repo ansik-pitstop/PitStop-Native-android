@@ -278,7 +278,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         registerReceiver(connectionReceiver, intentFilter);
 
         this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
-        this.dtcDataHandler = new DtcDataHandler(this,getApplicationContext());
+        this.dtcDataHandler = new DtcDataHandler(this,useCaseComponent);
         this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
@@ -908,7 +908,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
-        dtcDataHandler.sendLocalDtcs();
+        dtcDataHandler.sendLocalDtc();
     }
 
     @Override

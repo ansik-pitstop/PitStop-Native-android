@@ -12,4 +12,7 @@ public interface VehicleSpecsView {
     void showDealershipBanner();
     void closeSpecsFragmentAfterDeletion();
     void closeSpecsFragmentAfterSettingCurrent();
+
+    void showImageLoading();
+    void hideImageLoading();
 }

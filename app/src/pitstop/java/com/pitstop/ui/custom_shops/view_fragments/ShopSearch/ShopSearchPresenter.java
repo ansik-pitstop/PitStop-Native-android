@@ -96,7 +96,7 @@ class ShopSearchPresenter implements ShopPresenter {
             @Override
             public void onCarDealerUpdated() {
                 if(view != null){
-                    switcher.endCustomShops();
+                    switcher.endCustomShops(dealership.getName());
                 }
             }
 

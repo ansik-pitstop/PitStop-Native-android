@@ -32,5 +32,8 @@ public interface MyGarageView {
     void showLoading();
     void hideLoading();
     void appointmentsVisible();
-
+    void appointmentsInvisible();
+    void showLoadingDialog(String s);
+    void hideLoadingDialog();
+    void notifyCarDataChanged();
 }
