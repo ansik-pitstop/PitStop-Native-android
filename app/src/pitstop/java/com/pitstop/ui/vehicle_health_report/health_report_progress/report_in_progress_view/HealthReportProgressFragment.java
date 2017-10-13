@@ -142,9 +142,10 @@ public class HealthReportProgressFragment extends Fragment implements HealthRepo
                 .duration(500L)
                 .andAnimate(progressBar)
                 .fadeOut()
+                .andAnimate(progressReportAnimation)
+                .fadeOut()
                 .duration(500L)
                 .onStop(() -> {
-                    progressReportAnimation.hide();
                     startReportAnimation.show();
                     progressBar.setProgress(View.GONE);
                     stepHolder.setVisibility(View.GONE);

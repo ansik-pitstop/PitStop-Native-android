@@ -83,7 +83,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"onErrorGeneratingReport()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error generating report"
+               handleError("Error","Error generating report" +
+                               ", please check your network connection"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
