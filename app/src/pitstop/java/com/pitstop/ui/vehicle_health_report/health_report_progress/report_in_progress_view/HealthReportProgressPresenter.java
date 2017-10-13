@@ -84,7 +84,7 @@ public class HealthReportProgressPresenter {
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.FAIL);
                handleError("Error","Error generating report" +
-                               ", please check your network connection"
+                               ", check your network connection"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
@@ -106,7 +106,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"VHRMacrouseCase.onDTCError()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_DTC
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error retrieving engine codes"
+               handleError("Error","Error retrieving engine codes" +
+                               ", make sure device lights are on before scanning"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
@@ -128,7 +129,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"VHRMacrouseCase.onPidError()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_PID
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error retrieving real time car data"
+               handleError("Error","Error retrieving real time car data" +
+                               ", make sure device lights are on before scanning"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
