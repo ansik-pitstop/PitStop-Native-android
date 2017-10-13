@@ -9,9 +9,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -49,11 +52,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @BindView(R.id.no_car)
     View noCarView;
-/*
 
-    @BindView(R.id.upcoming_service_rel_layout)
-    RelativeLayout relativeLayout;
-*/
+
 
     @BindView(R.id.upcoming_service_rel_layout)
     RelativeLayout relativeLayout;
@@ -112,17 +112,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
 
-        RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager manager = ((LinearLayoutManager)recyclerView.getLayoutManager());
-                boolean enabled =manager.findFirstCompletelyVisibleItemPosition() == 0;
-                swipeRefreshLayout.setEnabled(enabled);
-            }
-        };
-
-        timelineRecyclerView.setOnScrollListener(scrollListener);
-
         return view;
     }
 
@@ -145,6 +134,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @Override
     public void displayNoServices() {
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayNoServices()");
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
@@ -158,6 +152,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER_VERTICAL;
+            relativeLayout.setLayoutParams(params);
             timelineRecyclerView.setVisibility(View.GONE);
             unknownErrorView.setVisibility(View.GONE);
             offlineView.setVisibility(View.GONE);
@@ -172,6 +170,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER_VERTICAL;
+            relativeLayout.setLayoutParams(params);
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
             relativeLayout.bringToFront();
@@ -229,6 +231,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @Override
     public void displayUnknownErrorView() {
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayUnknownErrorView()");
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.setVisibility(View.GONE);
@@ -242,6 +248,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
@@ -254,7 +264,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
-
+        relativeLayout.setGravity(Gravity.NO_GRAVITY);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.NO_GRAVITY;
+        relativeLayout.setLayoutParams(params);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
