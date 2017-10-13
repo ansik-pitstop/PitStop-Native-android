@@ -70,19 +70,19 @@ public class UpcomingServicePagerAdapter extends PagerAdapter {
         switch (severity) {
             case 1:
                 severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_low_indicator));
-                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[0]);
+                severityTV.setText(context.getResources().getString(R.string.severity_indicator_low));
                 break;
             case 2:
                 severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_medium_indicator));
-                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[1]);
+                severityTV.setText(context.getResources().getString(R.string.severity_indicator_medium));
                 break;
           case 3:
                 severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_high_indicator));
-              severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[2]);
+              severityTV.setText(context.getResources().getString(R.string.severity_indicator_high));
              break;
             default:
                 severityLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.severity_medium_indicator));
-                severityTV.setText(context.getResources().getStringArray(R.array.severity_indicators)[1]);
+                severityTV.setText(context.getResources().getString(R.string.severity_indicator_medium));
                 break;
         }
         rootView.findViewById(R.id.issue_pending_hint).setVisibility(View.GONE);
