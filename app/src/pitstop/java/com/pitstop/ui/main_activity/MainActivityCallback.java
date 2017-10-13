@@ -2,6 +2,8 @@ package com.pitstop.ui.main_activity;
 
 import com.pitstop.models.issue.CarIssue;
 
+import java.util.List;
+
 /**
  * Created by Karol Zdebel on 6/5/2017.
  */
@@ -9,5 +11,5 @@ import com.pitstop.models.issue.CarIssue;
 public interface MainActivityCallback {
     void prepareAndStartTutorialSequence();
 
-    void startDisplayIssueActivity(CarIssue issue);
+    void startDisplayIssueActivity(List<CarIssue> issue, int position);
 }

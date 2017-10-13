@@ -155,6 +155,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
                 updating = false;
                 if (view == null)return;
                 view.closeSpecsFragmentAfterDeletion();
+
             }
             @Override
             public void onError(RequestError error) {

@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mileage_timeline_list_item"
-    android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
-    tools:text="150000"
-    android:paddingLeft="8dp"
-    android:paddingTop="8dp"
-    android:textSize="15sp"
-    android:textStyle="bold"
-    android:gravity="center_vertical"/>
+    android:orientation="vertical"
+    android:layout_width="match_parent">
+    <TextView
+        android:id="@+id/mileage_timeline_list_item_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="150000"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:gravity="center_vertical"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mileage_specific_issues_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

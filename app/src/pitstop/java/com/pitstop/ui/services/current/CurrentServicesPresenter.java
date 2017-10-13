@@ -55,11 +55,11 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             getView().startAddCarActivity();
     }
 
-    void onServiceClicked(CarIssue issue){
+    void onServiceClicked(List<CarIssue> issues, int position){
         if (getView() == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_LIST_ITEM
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
-        getView().startDisplayIssueActivity(issue);
+        getView().startDisplayIssueActivity(issues, position);
     }
 
     void onCustomServiceButtonClicked(){
