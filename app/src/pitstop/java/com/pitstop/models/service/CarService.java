@@ -12,28 +12,28 @@ import com.pitstop.models.issue.Issue;
 
 public abstract class CarService {
 
-    private Issue issue;
+    private Issue realIssue;
 
     public CarService(Issue issue) {
-        this.issue = issue;
+        this.realIssue = issue;
     }
 
     public String getDescription(){
-        return issue.getDescription();
+        return realIssue.getDescription();
     }
 
     public int getPriority(){
-        return issue.getPriority();
+        return realIssue.getPriority();
     }
 
     public String getAction(){
-        return issue.getAction();
+        return realIssue.getAction();
     }
 
     public String getItem(){
-        return issue.getItem();
+        return realIssue.getItem();
     }
 
-    public int getId() { return issue.getIssueId(); }
+    public int getId() { return realIssue.getIssueId(); }
 
 }

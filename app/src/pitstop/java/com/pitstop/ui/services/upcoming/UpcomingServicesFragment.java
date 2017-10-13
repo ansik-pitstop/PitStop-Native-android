@@ -9,9 +9,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -20,13 +25,16 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,10 +43,20 @@ import butterknife.OnClick;
 
 public class UpcomingServicesFragment extends Fragment implements UpcomingServicesView {
 
+    public static final String UPCOMING_SERVICE_KEY = "upcomingService" ;
+    public static final String SOURCE = "source";
+    public static final String UPCOMING_SERVICE_SOURCE ="fromUpcomingService" ;
+    public static final String UPCOMING_SERVICE_POSITION = "position" ;
+
     private final String TAG = getClass().getSimpleName();
 
     @BindView(R.id.no_car)
     View noCarView;
+
+
+
+    @BindView(R.id.upcoming_service_rel_layout)
+    RelativeLayout relativeLayout;
 
     @BindView(R.id.timeline_recyclerview)
     RecyclerView timelineRecyclerView;
@@ -58,14 +76,15 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
 
-    private List<Object> timelineDisplayList;
+
     private TimelineAdapter timelineAdapter;
 
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
 
     private UpcomingServicesPresenter presenter;
-    private Map<Integer, List<UpcomingService>> upcomingServices = new HashMap<>();
+    private LinkedHashMap<Integer, List<UpcomingService>> upcomingServices = new LinkedHashMap<>();
+    private List<Integer> listOfMileages =  new ArrayList<>();
     private boolean hasBeenPopulated = false;
     private boolean isRefreshing = false;
 
@@ -87,8 +106,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         }
 
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-        timelineDisplayList = new ArrayList<>();
-        timelineAdapter = new TimelineAdapter(timelineDisplayList);
+
+        timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages, this);
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
@@ -115,11 +134,17 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @Override
     public void displayNoServices() {
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayNoServices()");
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noServicesView.bringToFront();
     }
 
@@ -127,7 +152,15 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void showLoading() {
         Log.d(TAG,"showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER_VERTICAL;
+            relativeLayout.setLayoutParams(params);
+            timelineRecyclerView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
+            relativeLayout.bringToFront();
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
@@ -137,8 +170,13 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()){
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER_VERTICAL;
+            relativeLayout.setLayoutParams(params);
             swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
+            relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
         }else{
             swipeRefreshLayout.setRefreshing(false);
@@ -193,34 +231,49 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @Override
     public void displayUnknownErrorView() {
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayUnknownErrorView()");
         offlineView.setVisibility(View.GONE);
         timelineRecyclerView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         unknownErrorView.bringToFront();
     }
 
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         timelineRecyclerView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         offlineView.bringToFront();
     }
 
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
-        timelineRecyclerView.setVisibility(View.VISIBLE);
+        relativeLayout.setGravity(Gravity.NO_GRAVITY);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.NO_GRAVITY;
+        relativeLayout.setLayoutParams(params);
         noCarView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
+        timelineRecyclerView.setVisibility(View.VISIBLE);
         timelineRecyclerView.bringToFront();
     }
 
@@ -244,6 +297,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
+        relativeLayout.bringToFront();
         noCarView.bringToFront();
     }
 
@@ -258,16 +312,31 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void populateUpcomingServices(Map<Integer, List<UpcomingService>> upcomingServices) {
         Log.d(TAG,"populateUpcomingServices() size: "+upcomingServices.size());
         hasBeenPopulated = true;
-        timelineDisplayList.clear();
         this.upcomingServices.clear();
         this.upcomingServices.putAll(upcomingServices);
-
-        for (Integer mileage : upcomingServices.keySet()){
-            timelineDisplayList.add(String.valueOf(mileage));
-            timelineDisplayList.addAll(upcomingServices.get(mileage));
+        this.listOfMileages.clear();
+        Set<Integer> mileageSet = upcomingServices.keySet();
+        for (int i: mileageSet){
+            this.listOfMileages.add(i);
         }
-
         timelineAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onUpcomingServiceClicked(ArrayList<UpcomingService> services, int positionClicked) {
+        Log.d(TAG, "onUpcomingServiceClicked()");
+        presenter.onUpcomingServiceClicked(services, positionClicked);
+    }
+
+    @Override
+    public void openIssueDetailsActivity(ArrayList<UpcomingService> services, int position) {
+        Log.d(TAG, "openIssueDetailsActivity()");
+        Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
+        intent.putParcelableArrayListExtra(UPCOMING_SERVICE_KEY, services);
+        intent.putExtra(UPCOMING_SERVICE_POSITION, position);
+        intent.putExtra(IssueDetailsActivity.SOURCE, UPCOMING_SERVICE_SOURCE);
+        startActivity(intent);
 
     }
 

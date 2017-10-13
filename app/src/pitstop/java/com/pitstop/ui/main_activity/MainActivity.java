@@ -55,6 +55,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.IssueDetail;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -92,6 +93,10 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         , Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher{
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    public static final String CURRENT_ISSUE_SOURCE = "currentService";
+    public static final String CAR_ISSUE_KEY = "carIssues";
+    public static final String CAR_ISSUE_POSITION = "issuePosition";
+    public static final String CAR_KEY = "car";
 
     private GlobalApplication application;
     private boolean serviceIsBound = false;
@@ -127,7 +132,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     public static final int RC_ADD_CAR = 50;
     public static final int RC_SCAN_CAR = 51;
     public static final int RC_SETTINGS = 52;
-    public static final int RC_DISPLAY_ISSUE = 53;
     public static final int RC_ADD_CUSTOM_ISSUE = 54;
     public static final int RC_REQUEST_SERVICE = 55;
     public static final String FROM_NOTIF = "from_notfftfttfttf";
@@ -789,27 +793,29 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     @Override
-    public void startDisplayIssueActivity(CarIssue issue) {
+    public void startDisplayIssueActivity(List<CarIssue> issues, int position) {
         Intent intent = new Intent(this, IssueDetailsActivity.class);
+        ArrayList<CarIssue> carIssueArrayList = new ArrayList<>(issues);
+        intent.putParcelableArrayListExtra(CAR_ISSUE_KEY, carIssueArrayList);
+        intent.putExtra(CAR_ISSUE_POSITION, position);
+        intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE);
+
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car) {
-                intent.putExtra(MainActivity.CAR_EXTRA, car);
-                intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, issue);
-                startActivityForResult(intent, MainActivity.RC_DISPLAY_ISSUE);
+                intent.putExtra(CAR_KEY, car);
+                startActivity(intent);
             }
-
             @Override
             public void onNoCarSet() {
-
+            // this should never happen because this function only gets called when service clicked and if user doesnt have a car he cant have services for it
             }
 
             @Override
             public void onError(RequestError error) {
-
+                Toast.makeText(getApplicationContext(), "An error occured. Please try again", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     @Override

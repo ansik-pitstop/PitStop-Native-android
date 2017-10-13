@@ -461,16 +461,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void onServiceClicked(CarIssue carIssue) {
+    public void onServiceClicked(List<CarIssue> carIssues, int position) {
         Log.d(TAG,"onServiceClicked()");
-        presenter.onServiceClicked(carIssue);
+        presenter.onServiceClicked(carIssues, position);
 
     }
 
     @Override
-    public void startDisplayIssueActivity(CarIssue issue){
+    public void startDisplayIssueActivity(List<CarIssue> issues, int position){
         if (getActivity() == null) return;
-        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issue);
+        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issues, position);
     }
 
     @Override
