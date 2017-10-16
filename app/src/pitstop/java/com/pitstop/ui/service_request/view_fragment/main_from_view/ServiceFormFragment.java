@@ -25,7 +25,6 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
@@ -103,8 +102,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
     private RequestServiceCallback callback;
 
-    private Car dashCar;
-
     private TimeAdapter timeAdapter;
 
     private Context context;
@@ -118,12 +115,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         Log.d(TAG, "setActivityCallback()");
         this.callback = callback;
     }
-
-    public void setCar(Car car) {
-        Log.d(TAG, "setCar() car: " + car);
-        this.dashCar = car;
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -145,7 +136,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ServiceFormPresenter(callback, component, mixpanelHelper, dashCar);
+        presenter = new ServiceFormPresenter(callback, component, mixpanelHelper);
 
         timeButton.setOnClickListener(v -> presenter.timeButtonClicked());
         dateButton.setOnClickListener(v -> presenter.dateButtonClicked());
