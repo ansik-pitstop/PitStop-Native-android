@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -32,6 +33,7 @@ public class VehicleSpecsActivity extends AppCompatActivity {
         specsFragment = new VehicleSpecsFragment();
         specsFragment.setArguments(bundle);
         setSpecsFragment();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void setSpecsFragment() {
@@ -41,5 +43,12 @@ public class VehicleSpecsActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem)
+    {
+        onBackPressed();
+        return true;
+    }
 
 }
