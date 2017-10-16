@@ -7,6 +7,7 @@ import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public interface HealthReportView {
     void toggleRecallList();
     void toggleEngineList();
     void servicesLoading(boolean show);
-    void startIssueDetails(Car car, CarIssue issue);
+    void startIssueDetails(Car car, ArrayList<CarIssue> issues, int position);
     void setVehicleHealthSummary(State summary);
     VehicleHealthReport getVehicleHealthReport();
 }
