@@ -249,8 +249,13 @@ public class ServiceFormPresenter implements PresenterCallback{
                     @Override
                     public void onServicesRequested() {
                         Log.d(TAG,"onServiceRequested()");
+                        ArrayList<CarIssue> toAdd = new ArrayList<>();
+                        for (CarIssue c: issues){
+                            if (c.getIssueType().equals(CarIssue.TYPE_PRESET))
+                                toAdd.add(c);
+                        }
                         if(view == null || callback == null){return;}
-                       component.getAddServicesUseCase().execute(issues
+                       component.getAddServicesUseCase().execute(toAdd
                                , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                            @Override
                            public void onServicesAdded() {
