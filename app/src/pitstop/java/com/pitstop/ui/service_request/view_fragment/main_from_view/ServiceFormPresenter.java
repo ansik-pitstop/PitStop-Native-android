@@ -6,9 +6,8 @@ import android.util.Log;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
-import com.pitstop.interactors.get.GetCurrentServicesUseCase;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
-import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -17,6 +16,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     private String time;
     private String state;
 
-    private Dealership localDealership;
+    private Dealership dealership;
 
     private List<CarIssue> issues;
 
@@ -82,37 +83,41 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(callback.checkTentative().equals(STATE_TENTATIVE)){
             setCommentHint("Salesperson");
         }
-        setDealer();
-        setIssues();
+        view.showLoading(true);
+        component.getDealershipWithCarIssuesUseCase().execute(new GetDealershipWithCarIssuesUseCase.Callback() {
+            @Override
+            public void onGotDealershipAndIssues(@NotNull Dealership dealership, @NotNull List<? extends CarIssue> carIssues) {
+                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onGotDealershipAndIssues()" +
+                        " dealership: "+dealership+", issues: "+carIssues);
+                if (view == null) return;
+                view.showLoading(false);
+                ServiceFormPresenter.this.dealership = dealership;
+                view.showShop(dealership.getName(), dealership.getAddress());
+                issues.clear();
+                issues.addAll(carIssues);
+                view.setupSelectedIssues(issues);
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onError() err: "+error.getMessage());
+                //show error
+            }
+        });
+
+        if(view == null || callback == null){return;}
+        view.setupPresetIssues(view.getPresetList());
+
         if(callback.getIssue() != null){
             onIssueClicked(callback.getIssue());
         }
-        component.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
-            @Override
-            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
-                if (view != null){
-                    issues.clear();
-                    issues.addAll(currentServices);
-                    issues.addAll(customIssues);
-                    view.setupSelectedIssues(issues);
-                }
-            }
-
-            @Override
-            public void onNoCarAdded() {
-            }
-
-            @Override
-            public void onError(RequestError error) {
-            }
-        });
     }
 
     public void timeButtonClicked(){
         Log.d(TAG,"timeButtonClicked()");
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
-        if(view == null || callback == null){return;}
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
+        if(view == null || callback == null || dealership == null){return;}
+        if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
             return;
         }
@@ -126,8 +131,8 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void dateButtonClicked(){
         Log.d(TAG,"dateButtonClicked()");
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
-        if(view == null || callback == null){return;}
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
+        if(view == null || callback == null || dealership == null){return;}
+        if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
             return;
         }
@@ -137,7 +142,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
         Log.d(TAG,"dateSelected() year: "+year+", month: "+month+", dayOfMonth: "+dayOfMonth);
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
-        if(view == null || callback == null || localDealership == null){return;}
+        if(view == null || callback == null || dealership == null){return;}
 
         String date = year+"/"+month+"/"+dayOfMonth;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -148,7 +153,8 @@ public class ServiceFormPresenter implements PresenterCallback{
             String outDate = newFormat.format(inDate);
             String day = dayInWeek.format(inDate);
             view.showLoading(true);
-            component.getGetShopHoursUseCase().execute(year,month,dayOfMonth,localDealership.getId(), day, new GetShopHoursUseCase.Callback() {
+            component.getGetShopHoursUseCase().execute(year,month,dayOfMonth, dealership.getId()
+                    , day, new GetShopHoursUseCase.Callback() {
                @Override
                public void onHoursGot(List<String> hours) {
                    if(view == null || callback == null){return;}
@@ -218,10 +224,14 @@ public class ServiceFormPresenter implements PresenterCallback{
     void onSubmitClicked(){
         Log.d(TAG,"onSubmitClicked()");
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
-        if(view == null || callback == null){return;}
+        if(view == null || callback == null || dealership == null){return;}
 
-        if(localDealership.getName().equals("No Shop") || localDealership == null){
+        if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
+            return;
+        }
+        if(dealership.getEmail().equals("")){
+            view.showReminder("Please set an email for this shop");
             return;
         }
         if(!dateSelected){
@@ -303,13 +313,6 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.setupSelectedIssues(issues);
     }
 
-
-    void setIssues(){
-        Log.d(TAG,"setIssues()");
-        if(view == null || callback == null){return;}
-        view.setupPresetIssues(view.getPresetList());
-    }
-
     void addButtonClicked(){
         Log.d(TAG,"addButtonClicked()");
         if(view == null || callback == null){return;}
@@ -331,30 +334,4 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
 
-    void setDealer(){
-        Log.d(TAG,"setDealer()");
-        if(view == null || callback == null){return;}
-        view.showLoading(true);
-        component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                if (car.getDealership() == null || car.getDealership().getName() == null
-                        || car.getDealership().getAddress() == null || view == null) {
-                    return;
-                }
-                view.showLoading(false);
-                view.showShop(car.getDealership().getName(), car.getDealership().getAddress());
-            }
-
-            @Override
-            public void onNoCarSet() {
-
-            }
-
-            @Override
-            public void onError(RequestError error) {
-            }
-        });
-
-    }
 }
