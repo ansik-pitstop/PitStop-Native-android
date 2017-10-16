@@ -129,7 +129,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        Calendar calendar = Calendar.getInstance();
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
             presenter.dateSelected(date.getYear(), date.getMonth() + 1, date.getDay(), calendarView);//month is 0 based
         });
