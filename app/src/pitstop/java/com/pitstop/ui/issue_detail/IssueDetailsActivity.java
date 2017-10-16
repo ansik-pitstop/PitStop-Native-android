@@ -108,7 +108,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (!(source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE))){
+        if (source != null && !(source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE))){
             // Track view appeared
             try {
                 JSONObject properties = new JSONObject();
