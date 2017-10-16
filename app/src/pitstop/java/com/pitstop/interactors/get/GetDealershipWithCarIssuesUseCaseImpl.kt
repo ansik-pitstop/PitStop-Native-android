@@ -2,7 +2,6 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
-import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.models.Settings
 import com.pitstop.models.issue.CarIssue
@@ -31,48 +30,38 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
 
             override fun onSuccess(settings: Settings) {
-                Log.d(tag,"got settings")
-                carRepository.get(settings.carId, settings.userId, object: Repository.Callback<Car>{
+                Log.d(tag, "got settings")
 
-                    override fun onSuccess(car: Car) {
-                        Log.d(tag,"got car car: "+car)
-                        carIssueRepository.getCurrentCarIssues(car.id, object: Repository.Callback<List<CarIssue>>{
+                carIssueRepository.getCurrentCarIssues(settings.carId, object : Repository.Callback<List<CarIssue>> {
 
-                            override fun onSuccess(carIssueList: List<CarIssue>) {
+                    override fun onSuccess(carIssueList: List<CarIssue>) {
 
-                                Log.d(tag,"got car issues")
-                                shopRepository.get(car.shopId, object: Repository.Callback<Dealership>{
+                        Log.d(tag, "got car issues")
+                        shopRepository.getByCarId(settings.carId, object : Repository.Callback<Dealership> {
 
-                                    override fun onSuccess(dealership: Dealership) {
-                                        Log.d(tag,"got dealership, callback.onSuccess()")
-                                        mainHandler.post({callback!!.onGotDealershipAndIssues(dealership, carIssueList)})
-                                    }
-
-                                    override fun onError(error: RequestError) {
-                                        Log.d(tag,"onError() err: ${error.message}")
-                                        mainHandler.post({callback!!.onError(error)})
-                                    }
-                                })
+                            override fun onSuccess(dealership: Dealership) {
+                                Log.d(tag, "got dealership, callback.onSuccess()")
+                                mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssueList) })
                             }
 
                             override fun onError(error: RequestError) {
-                                Log.d(tag,"onError() err: ${error.message}")
-                                mainHandler.post({callback!!.onError(error)})
+                                Log.d(tag, "onError() err: ${error.message}")
+                                mainHandler.post({ callback!!.onError(error) })
                             }
                         })
                     }
 
                     override fun onError(error: RequestError) {
-                        Log.d(tag,"onError() err: ${error.message}")
-                        mainHandler.post({callback!!.onError(error)})
+                        mainHandler.post({ callback!!.onError(error) })
                     }
+
                 })
             }
-
             override fun onError(error: RequestError) {
                 Log.d(tag,"onError() err: ${error.message}")
                 mainHandler.post({callback!!.onError(error)})
             }
+
         })
     }
 }
