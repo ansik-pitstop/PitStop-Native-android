@@ -62,6 +62,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void subscribe(ServiceFormView view ){
+        Log.d(TAG,"subscribe()");
         if(callback == null){return;}
         mixpanelHelper.trackViewAppeared("RequestServiceForm");
         dateSelected = false;
@@ -79,10 +80,12 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         view = null;
     }
 
     public void timeButtonClicked(){
+        Log.d(TAG,"timeButtonClicked()");
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
         if(view == null || callback == null){return;}
         if(localDealership.getName().equals("No Shop") || localDealership == null){
@@ -96,6 +99,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.toggleTimeList();
     }
     public void dateButtonClicked(){
+        Log.d(TAG,"dateButtonClicked()");
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
         if(view == null || callback == null){return;}
         if(localDealership.getName().equals("No Shop") || localDealership == null){
@@ -106,6 +110,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
+        Log.d(TAG,"dateSelected() year: "+year+", month: "+month+", dayOfMonth: "+dayOfMonth);
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
         if(view == null || callback == null || localDealership == null){return;}
 
@@ -153,6 +158,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
     private void finalizeDate(String sendDate){
+        Log.d(TAG,"finalizeDate() sendDate: "+sendDate);
         if(view == null || callback == null){return;}
         view.hideCalender();
         view.showDate(sendDate);
@@ -164,6 +170,7 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     @Override
     public void onTimeClicked(String time) {
+        Log.d(TAG,"onTimeClicked time: "+time);
         mixpanelHelper.trackButtonTapped("TimeItemButton","RequestServiceForm");
         if(view == null || callback == null){return;}
         view.showTime(time);
@@ -250,6 +257,7 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     @Override
     public void onIssueClicked(CarIssue issue) {
+        Log.d(TAG,"onIssueClicked() issue: "+issue);
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("IssueItemButton","RequestServiceForm");
         if(!issues.contains(issue)){
@@ -258,12 +266,14 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
     public void setCommentHint(String hint){
+        Log.d(TAG,"setCommentHint() hint: "+hint);
         if(view == null || callback == null){return;}
         view.setCommentHint(hint);
     }
 
     @Override
     public void onRemoveClicked(CarIssue issue) {
+        Log.d(TAG,"onRemoveClicked() ");
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("RemoveIssueItemButton","RequestServiceForm");
         issues.remove(issue);
@@ -272,11 +282,13 @@ public class ServiceFormPresenter implements PresenterCallback{
 
 
     public void setIssues(){
+        Log.d(TAG,"setIssues()");
         if(view == null || callback == null){return;}
         view.setupPresetIssues(view.getPresetList());
     }
 
     public void addButtonClicked(){
+        Log.d(TAG,"addButtonClicked()");
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("IssueMenuButton","RequestServiceForm");
         view.toggleServiceList();
@@ -284,6 +296,7 @@ public class ServiceFormPresenter implements PresenterCallback{
 
 
     public String timeStamp(String inTime){
+        Log.d(TAG,"timeStamp() inTime(): "+inTime);
         SimpleDateFormat inFormat = new SimpleDateFormat("EEEE dd MMM yyyy hh:mm aa");
         SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try{
@@ -296,6 +309,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void setDealer(Car car){
+        Log.d(TAG,"setDealer() car: "+car);
         if(view == null || callback == null){return;}
         if(car.getDealership() == null){return;}
         Dealership dealership = car.getDealership();
