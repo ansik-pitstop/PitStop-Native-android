@@ -37,7 +37,7 @@ public class PidDataHandler {
 
     private final String TAG = getClass().getSimpleName();
 
-    private final String DEFAULT_PIDS = "2141,2106,210b,210c,210d,210e,210f,2105,2124,212d";
+    private final String DEFAULT_PIDS = "2105,2106,210b,210c,210d,210e,210f,2110,2124,212d";
     private final String DEFAULT_PIDS_SAFE = "2105,2106,210b,210c,210d";
     private final LinkedList<String> PID_PRIORITY = new LinkedList<>();
 
@@ -100,7 +100,7 @@ public class PidDataHandler {
 
     // hardcoded linked list that is in the order of priority
     private void initPidPriorityList() {
-        PID_PRIORITY.add("2141");
+        PID_PRIORITY.add("210C");
         PID_PRIORITY.add("210D");
         PID_PRIORITY.add("2106");
         PID_PRIORITY.add("2107");
@@ -115,7 +115,7 @@ public class PidDataHandler {
         PID_PRIORITY.add("2104");
         PID_PRIORITY.add("2111");
         PID_PRIORITY.add("212C");
-        PID_PRIORITY.add("2141");
+        PID_PRIORITY.add("212D");
         PID_PRIORITY.add("215C");
         PID_PRIORITY.add("2103");
         PID_PRIORITY.add("212E");

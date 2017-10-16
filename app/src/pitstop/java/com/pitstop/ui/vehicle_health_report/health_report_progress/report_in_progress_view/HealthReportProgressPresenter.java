@@ -31,7 +31,6 @@ public class HealthReportProgressPresenter {
     private MixpanelHelper mixpanelHelper;
     private VehicleHealthReport vehicleHealthReport;
     private EmissionsReport emissionsReport;
-    private BluetoothConnectionObservable bluetooth;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
 
@@ -57,7 +56,6 @@ public class HealthReportProgressPresenter {
     }
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
-       this.bluetooth = bluetooth;
        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
 
            @Override

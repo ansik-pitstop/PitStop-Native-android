@@ -194,7 +194,7 @@ public class VHRMacroUseCase {
         private int type;
 
         ProgressTimer(int type, double useCaseTime){
-            super((long)useCaseTime*1000,300);
+            super((long)useCaseTime*1000,600);
             this.useCaseTime = useCaseTime;
             this.type = type;
             switch(type){
