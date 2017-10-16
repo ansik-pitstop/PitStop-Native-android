@@ -1,6 +1,8 @@
 package com.pitstop.ui.vehicle_specs;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -140,6 +142,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     private Bundle bundle;
 
     private boolean carPicgetError;
+    private ProgressDialog progressDialog;
 
     @Nullable
     @Override
@@ -158,6 +161,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
             presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
         }
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
         this.carId = bundle.getInt(CAR_ID_KEY);
         this.myCar = new Car();
         setCar();
@@ -215,28 +221,27 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
             selectCarAsCurrent.setVisibility(View.GONE);
         }
         carVin.setText(bundle.getString(CAR_VIN_KEY));
-        if (bundle.getString(SCANNER_ID_KEY) == null)
+        if (this.myCar.getScannerId() == null)
             scannerID.setText("No scanner connected");
         else
-            scannerID.setText(bundle.getString(SCANNER_ID_KEY));
+            scannerID.setText(this.myCar.getScannerId());
         if (bundle.getString(ENGINE_KEY) == null){
-
             engine.setVisibility(View.GONE);
         }
         else
-            engine.setText(bundle.getString(ENGINE_KEY));
+            engine.setText(this.myCar.getEngine());
 
-        cityMileage.setText(bundle.getString(CITY_MILEAGE_KEY));
-        highwayMileage.setText(bundle.getString(HIGHWAY_MILEAGE_KEY));
+        cityMileage.setText(this.myCar.getCityMileage());
+        highwayMileage.setText(this.myCar.getHighwayMileage());
         if (bundle.getString(TRIM_KEY) == null)
             trimView.setVisibility(View.GONE);
         else
-            trim.setText(bundle.getString(TRIM_KEY));
+            trim.setText(this.myCar.getTrim());
 
         if (bundle.getString(TANK_SIZE_KEY) == null)
             tankSizeView.setVisibility(View.GONE);
         else
-            tankSize.setText(bundle.getString(TANK_SIZE_KEY));
+            tankSize.setText(this.myCar.getTankSize());
 
         if(bundle.getString(DEALERSHIP_KEY)!= null) {
             dealerhsipView.setVisibility(View.VISIBLE);
@@ -245,6 +250,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         else{
             dealerhsipView.setVisibility(View.GONE);
         }
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(Integer.valueOf(this.myCar.getYear()) + " " +
+                        this.myCar.getMake() + " " + this.myCar.getModel());
     }
 
     @Override
@@ -445,6 +452,25 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     public void showImageLoading(){
         imageLoadingView.bringToFront();
         imageLoadingView.setVisibility(View.VISIBLE);
+    }
+
+    public void showLoadingDialog(String text) {
+        if (progressDialog == null) {
+            return;
+        }
+        progressDialog.setMessage(text);
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    public void hideLoadingDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        } else {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
     }
 
     public void hideImageLoading(){

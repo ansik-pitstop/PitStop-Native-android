@@ -129,11 +129,13 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
         Log.d(TAG, "makeCarCurrent()");
         if (view == null|| updating)return;
         updating = true;
+        view.showLoadingDialog("Loading...");
         useCaseComponent.setUseCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new SetUserCarUseCase.Callback() {
             @Override
             public void onUserCarSet() {
                 updating = false;
                 if (view == null)return;
+                view.hideLoadingDialog();
                 view.toast(((Fragment)view).getString(R.string.current_car_set));
                 view.closeSpecsFragmentAfterSettingCurrent();
             }
@@ -141,6 +143,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             public void onError(RequestError error) {
                 updating = false;
                 if (view == null)return;
+                view.hideLoadingDialog();
                 view.toast(error.getMessage());
             }
         });
@@ -148,12 +151,14 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
     public void deleteCar(int carID){
         if(view == null||updating)return;
         updating = true;
+        view.showLoadingDialog("Loading...");
         Log.d(TAG, "deleteCar()");
         useCaseComponent.removeCarUseCase().execute(carID, EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
                 updating = false;
                 if (view == null)return;
+                view.hideLoadingDialog();
                 view.closeSpecsFragmentAfterDeletion();
 
             }
@@ -161,6 +166,7 @@ public class VehicleSpecsPresenter implements Presenter<VehicleSpecsView>{
             public void onError(RequestError error) {
                 updating = false;
                 if (view == null) return;
+                view.hideLoadingDialog();
                 view.toast(error.getMessage());
             }
         });
