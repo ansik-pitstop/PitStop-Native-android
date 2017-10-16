@@ -41,7 +41,7 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
                             override fun onSuccess(carIssueList: List<CarIssue>) {
 
                                 Log.d(tag,"got car issues")
-                                shopRepository.get(car.shopId, settings.userId, object: Repository.Callback<Dealership>{
+                                shopRepository.get(car.shopId, object: Repository.Callback<Dealership>{
 
                                     override fun onSuccess(dealership: Dealership) {
                                         Log.d(tag,"got dealership, callback.onSuccess()")
@@ -49,24 +49,28 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
                                     }
 
                                     override fun onError(error: RequestError) {
+                                        Log.d(tag,"onError() err: ${error.message}")
                                         mainHandler.post({callback!!.onError(error)})
                                     }
                                 })
                             }
 
                             override fun onError(error: RequestError) {
+                                Log.d(tag,"onError() err: ${error.message}")
                                 mainHandler.post({callback!!.onError(error)})
                             }
                         })
                     }
 
                     override fun onError(error: RequestError) {
+                        Log.d(tag,"onError() err: ${error.message}")
                         mainHandler.post({callback!!.onError(error)})
                     }
                 })
             }
 
             override fun onError(error: RequestError) {
+                Log.d(tag,"onError() err: ${error.message}")
                 mainHandler.post({callback!!.onError(error)})
             }
         })

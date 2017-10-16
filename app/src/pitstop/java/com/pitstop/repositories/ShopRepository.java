@@ -340,9 +340,9 @@ public class ShopRepository implements Repository{
     }
 
 
-    public void get(int dealerId, int userId, Callback<Dealership> callback){
+    public void get(int dealerId, Callback<Dealership> callback){
 
-        networkHelper.get(END_POINT_SHOP+"?id="+dealerId,getGetShopRequestCallback(callback));
+        networkHelper.get(END_POINT_SHOP+"&id="+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
