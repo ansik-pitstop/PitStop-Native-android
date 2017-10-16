@@ -44,6 +44,8 @@ import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCaseImpl;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
@@ -533,5 +535,15 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
 
         return new CheckNetworkConnectionUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetDealershipWithCarIssuesUseCase getDealershipWithCarIssuesUseCase(UserRepository userRepository
+            , CarRepository carRepository, CarIssueRepository carIssueRepository
+            , ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetDealershipWithCarIssuesUseCaseImpl(userRepository, carRepository
+                , carIssueRepository, shopRepository, useCaseHandler, mainHandler);
     }
 }
