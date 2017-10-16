@@ -95,6 +95,9 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @BindView(R.id.service_submit)
     Button submitButton;
 
+    @BindView(R.id.service_time_loading)
+    View timeLoading;
+
     private ProgressDialog progressDialog;
 
     private ServiceFormPresenter presenter;
@@ -297,6 +300,14 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     public void disableButton(boolean disable) {
         Log.d(TAG,"disableButton() disable: "+disable);
         submitButton.setClickable(!disable);
+    }
+
+    @Override
+    public void showLoadingTime(boolean show) {
+        if (show)
+            timeLoading.setVisibility(View.VISIBLE);
+        else
+            timeLoading.setVisibility(View.GONE);
     }
 
     @Override

@@ -151,35 +151,35 @@ public class ServiceFormPresenter implements PresenterCallback{
             Date inDate = oldFormat.parse(date);
             String outDate = newFormat.format(inDate);
             String day = dayInWeek.format(inDate);
-            view.showLoading(true);
+            view.showLoadingTime(true);
             component.getGetShopHoursUseCase().execute(year,month,dayOfMonth, dealership.getId()
                     , day, new GetShopHoursUseCase.Callback() {
                @Override
                public void onHoursGot(List<String> hours) {
                    if(view == null || callback == null){return;}
                    view.setupTimeList(hours);
-                   view.showLoading(false);
+                   view.showLoadingTime(false);
                }
 
                @Override
                public void onNoHoursAvailable(List<String> defaultHours) {
                    if(view == null || callback == null){return;}
                    view.setupTimeList(defaultHours);
-                   view.showLoading(false);
+                   view.showLoadingTime(false);
                }
 
                 @Override
                 public void onNotOpen() {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,"There are no times available for this date");
-                    view.showLoading(false);
+                    view.showLoadingTime(false);
                 }
 
                 @Override
                public void onError(RequestError error) {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,"There was an error loading these times");
-                    view.showLoading(false);
+                    view.showLoadingTime(false);
                }
             });
             finalizeDate(outDate);
