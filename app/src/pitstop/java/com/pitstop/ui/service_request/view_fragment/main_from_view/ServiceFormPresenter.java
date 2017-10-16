@@ -6,6 +6,7 @@ import android.util.Log;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
+import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
@@ -69,6 +70,14 @@ public class ServiceFormPresenter implements PresenterCallback{
         timeSelected = false;
         issues = new ArrayList<>();
         this.view = view;
+    }
+
+    public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
+        view = null;
+    }
+
+    void populateViews(){
         if(callback.checkTentative().equals(STATE_TENTATIVE)){
             setCommentHint("Salesperson");
         }
@@ -77,11 +86,23 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(callback.getIssue()!=null){
             onIssueClicked(callback.getIssue());
         }
-    }
+        component.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
+            @Override
+            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+                if (view != null){
+                    currentServices.addAll(customIssues);
+                    view.setupSelectedIssues(currentServices);
+                }
+            }
 
-    public void unsubscribe(){
-        Log.d(TAG,"unsubscribe()");
-        view = null;
+            @Override
+            public void onNoCarAdded() {
+            }
+
+            @Override
+            public void onError(RequestError error) {
+            }
+        });
     }
 
     public void timeButtonClicked(){
@@ -189,7 +210,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.showReminder(message);
     }
 
-    public void onSubmitClicked(){
+    void onSubmitClicked(){
         Log.d(TAG,"onSubmitClicked()");
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(view == null || callback == null){return;}
@@ -261,7 +282,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.setupSelectedIssues(issues);
         }
     }
-    public void setCommentHint(String hint){
+    void setCommentHint(String hint){
         Log.d(TAG,"setCommentHint() hint: "+hint);
         if(view == null || callback == null){return;}
         view.setCommentHint(hint);
@@ -277,13 +298,13 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
 
-    public void setIssues(){
+    void setIssues(){
         Log.d(TAG,"setIssues()");
         if(view == null || callback == null){return;}
         view.setupPresetIssues(view.getPresetList());
     }
 
-    public void addButtonClicked(){
+    void addButtonClicked(){
         Log.d(TAG,"addButtonClicked()");
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("IssueMenuButton","RequestServiceForm");
@@ -291,7 +312,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
 
-    public String timeStamp(String inTime){
+    String timeStamp(String inTime){
         Log.d(TAG,"timeStamp() inTime(): "+inTime);
         SimpleDateFormat inFormat = new SimpleDateFormat("EEEE dd MMM yyyy hh:mm aa");
         SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -304,7 +325,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
 
-    public void setDealer(Car car){
+    void setDealer(Car car){
         Log.d(TAG,"setDealer() car: "+car);
         if(view == null || callback == null){return;}
         if(car.getDealership() == null){return;}
