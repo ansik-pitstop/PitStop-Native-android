@@ -8,6 +8,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -54,11 +55,11 @@ public class ServiceFormPresenter implements PresenterCallback{
     private MixpanelHelper mixpanelHelper;
 
 
-    public ServiceFormPresenter(RequestServiceCallback callback, UseCaseComponent component, MixpanelHelper mixpanelHelper, Car dashCar){
+    public ServiceFormPresenter(RequestServiceCallback callback, UseCaseComponent component
+            , MixpanelHelper mixpanelHelper){
         this.component = component;
         this.callback = callback;
         this.mixpanelHelper = mixpanelHelper;
-        this.dashCar = dashCar;
 
     }
 
@@ -81,17 +82,19 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(callback.checkTentative().equals(STATE_TENTATIVE)){
             setCommentHint("Salesperson");
         }
-        setDealer(dashCar);
+        setDealer();
         setIssues();
-        if(callback.getIssue()!=null){
+        if(callback.getIssue() != null){
             onIssueClicked(callback.getIssue());
         }
         component.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
                 if (view != null){
-                    currentServices.addAll(customIssues);
-                    view.setupSelectedIssues(currentServices);
+                    issues.clear();
+                    issues.addAll(currentServices);
+                    issues.addAll(customIssues);
+                    view.setupSelectedIssues(issues);
                 }
             }
 
@@ -119,6 +122,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
         view.toggleTimeList();
     }
+
     public void dateButtonClicked(){
         Log.d(TAG,"dateButtonClicked()");
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
@@ -178,6 +182,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             finalizeDate(date);
         }
     }
+
     private void finalizeDate(String sendDate){
         Log.d(TAG,"finalizeDate() sendDate: "+sendDate);
         if(view == null || callback == null){return;}
@@ -282,6 +287,7 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.setupSelectedIssues(issues);
         }
     }
+
     void setCommentHint(String hint){
         Log.d(TAG,"setCommentHint() hint: "+hint);
         if(view == null || callback == null){return;}
@@ -325,13 +331,30 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
 
-    void setDealer(Car car){
-        Log.d(TAG,"setDealer() car: "+car);
+    void setDealer(){
+        Log.d(TAG,"setDealer()");
         if(view == null || callback == null){return;}
-        if(car.getDealership() == null){return;}
-        Dealership dealership = car.getDealership();
-        if(dealership.getName() == null || dealership.getAddress() == null){return;}
-        localDealership = car.getDealership();
-        view.showShop(dealership.getName(),dealership.getAddress());
+        view.showLoading(true);
+        component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car) {
+                if (car.getDealership() == null || car.getDealership().getName() == null
+                        || car.getDealership().getAddress() == null || view == null) {
+                    return;
+                }
+                view.showLoading(false);
+                view.showShop(car.getDealership().getName(), car.getDealership().getAddress());
+            }
+
+            @Override
+            public void onNoCarSet() {
+
+            }
+
+            @Override
+            public void onError(RequestError error) {
+            }
+        });
+
     }
 }

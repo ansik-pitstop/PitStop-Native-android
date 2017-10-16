@@ -679,34 +679,10 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     public void requestMultiService(View view) {
 
         MainActivity thisInstance = this;
-
-        showLoading("Loading...");
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car) {
-                if (!checkDealership(car)) return;
-
-                // view is null for request from tutorial
-                final Intent intent = new Intent(thisInstance, RequestServiceActivity.class);
-                intent.putExtra(RequestServiceActivity.EXTRA_CAR, car);
-                intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
-                isFirstAppointment = false;
-                startActivityForResult(intent, RC_REQUEST_SERVICE);
-                hideLoading();
-            }
-
-            @Override
-            public void onNoCarSet() {
-                hideLoading();
-                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
-            }
-        });
+        final Intent intent = new Intent(thisInstance, RequestServiceActivity.class);
+        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment);
+        isFirstAppointment = false;
+        startActivityForResult(intent, RC_REQUEST_SERVICE);
 
     }
 
