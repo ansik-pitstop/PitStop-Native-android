@@ -67,6 +67,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private Context context;
     private AlertDialog promptBluetoothSearchDialog;
     private AlertDialog promptSearchInProgressDialog;
+    private AlertDialog promptOfflineDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -146,6 +147,22 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .create();
         }
         promptSearchInProgressDialog.show();
+    }
+
+    @Override
+    public void displayOffline() {
+        Log.d(TAG,"displayOffline()");
+        if (promptOfflineDialog == null) {
+            promptOfflineDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Couldn't Connect to Internet")
+                    .setMessage("We couldn't establish a connection with our servers. " +
+                            "Please make sure you're connected to the internet before starting")
+                    .setCancelable(false)
+                    .setPositiveButton("OK",null)
+                    .create();
+        }
+        promptOfflineDialog.show();
     }
 
     @Override
