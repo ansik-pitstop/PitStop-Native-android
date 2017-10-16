@@ -71,11 +71,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
         application     = (GlobalApplication) getApplicationContext();
         mixpanelHelper  = new MixpanelHelper(application);
 
-
         Intent intent   = getIntent();
         source = intent.getExtras().getString(SOURCE);
 
-        if (source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE)) {
+        if (source != null && source.equalsIgnoreCase(UpcomingServicesFragment.UPCOMING_SERVICE_SOURCE)) {
             upcomingServicesList = intent.getParcelableArrayListExtra(UpcomingServicesFragment.UPCOMING_SERVICE_KEY);
             positionClicked = intent.getExtras().getInt(UpcomingServicesFragment.UPCOMING_SERVICE_POSITION);
 
