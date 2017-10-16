@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,7 +42,7 @@ import butterknife.ButterKnife;
  * Created by Matthew on 2017-07-11.
  */
 
-public class ServiceFormFragment extends Fragment implements ServiceFormView{
+public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
     private final String TAG = getClass().getSimpleName();
     public static final String STATE_TENTATIVE = "tentative";
@@ -113,24 +114,24 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     private IssueAdapter serviceChosenAdapter;
 
-    public void setActivityCallback(RequestServiceCallback callback){
-        Log.d(TAG,"setActivityCallback()");
+    public void setActivityCallback(RequestServiceCallback callback) {
+        Log.d(TAG, "setActivityCallback()");
         this.callback = callback;
     }
 
-    public void setCar(Car car){
-        Log.d(TAG,"setCar() car: "+car);
+    public void setCar(Car car) {
+        Log.d(TAG, "setCar() car: " + car);
         this.dashCar = car;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG,"onCreateView()");
+        Log.d(TAG, "onCreateView()");
         context = getActivity().getApplicationContext();
-        application = (GlobalApplication)context;
+        application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragment_service_form, container, false);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
         calendarView.setVisibility(View.GONE);
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
@@ -139,12 +140,12 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
                 .build();
         Calendar calendar = Calendar.getInstance();
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
-            presenter.dateSelected(date.getYear(),date.getMonth()+1,date.getDay(),calendarView);//month is 0 based
+            presenter.dateSelected(date.getYear(), date.getMonth() + 1, date.getDay(), calendarView);//month is 0 based
         });
 
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
+        presenter = new ServiceFormPresenter(callback, component, mixpanelHelper, dashCar);
 
         timeButton.setOnClickListener(v -> presenter.timeButtonClicked());
         dateButton.setOnClickListener(v -> presenter.dateButtonClicked());
@@ -155,10 +156,10 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     }
 
     @Override
-    public void onResume() {
-        Log.d(TAG,"onResume()");
-        super.onResume();
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.populateViews();
         Calendar calendar = Calendar.getInstance();
         calendarView.state().edit().setMinimumDate(calendar).commit();
     }
