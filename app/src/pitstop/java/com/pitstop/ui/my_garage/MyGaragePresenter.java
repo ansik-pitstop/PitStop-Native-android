@@ -252,7 +252,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                     mergeSetWithCarList(data.keySet());
                     mergeSetWithDealershipList(data.values());
-                    dealershipsLoaded = false;
+                    dealershipsLoaded = true;
                     carsLoaded = true;
 
                     getView().hideLoading();
@@ -263,6 +263,9 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 public void onError(@NotNull RequestError error) {
                     if (getView() == null)return;
                     updating = false;
+                    if (getView().hasBeenPopulated()){
+                        getView().showErrorDialog();
+                    }
                     getView().hideLoading();
                 }
             });
