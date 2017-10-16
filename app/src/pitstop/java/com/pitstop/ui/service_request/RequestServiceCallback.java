@@ -10,5 +10,4 @@ public interface RequestServiceCallback {
     void setViewMainForm();
     String checkTentative();
     void finishActivity();
-    CarIssue getIssue();
 }

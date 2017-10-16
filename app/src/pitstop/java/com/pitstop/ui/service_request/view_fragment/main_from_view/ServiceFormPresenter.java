@@ -100,6 +100,9 @@ public class ServiceFormPresenter implements PresenterCallback{
 
             @Override
             public void onError(@NotNull RequestError error) {
+                if (view != null){
+                    view.showLoading(false);
+                }
                 Log.d(TAG,"getDealershipWithCarIssuesUseCase.onError() err: "+error.getMessage());
                 //show error
             }
@@ -107,10 +110,6 @@ public class ServiceFormPresenter implements PresenterCallback{
 
         if(view == null || callback == null){return;}
         view.setupPresetIssues(view.getPresetList());
-
-        if(callback.getIssue() != null){
-            onIssueClicked(callback.getIssue());
-        }
     }
 
     public void timeButtonClicked(){
@@ -250,12 +249,6 @@ public class ServiceFormPresenter implements PresenterCallback{
                     public void onServicesRequested() {
                         Log.d(TAG,"onServiceRequested()");
                         if(view == null || callback == null){return;}
-                        if(callback.getIssue()!= null){
-                            view.disableButton(false);
-                            callback.finishActivity();
-                            view.toast("Service requested successfully.");
-                            return;
-                        }
                        component.getAddServicesUseCase().execute(issues
                                , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                            @Override

@@ -1,5 +1,7 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -340,15 +342,7 @@ public class ShopRepository implements Repository{
 
     public void get(int dealerId, Callback<Dealership> callback){
 
-        networkHelper.get("v1/car/shop?shopid="+dealerId,getGetShopRequestCallback(callback));
-
-        //Offline logic below, not being used for now
-        //return localShopAdapter.getDealership(dealerId);
-    }
-
-    public void getByCarId(int carId, Callback<Dealership> callback){
-
-        networkHelper.get("v1/car/shop?carId="+carId,getGetShopRequestCallback(callback));
+        networkHelper.get(END_POINT_SHOP+"&id="+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
@@ -358,7 +352,10 @@ public class ShopRepository implements Repository{
         RequestCallback requestCallback = (response, requestError) -> {
             if(response != null){
                 try{
-                    Dealership dealership = Dealership.jsonToDealershipObject(new JSONArray(response).get(0).toString());
+                    Log.d(TAG,"get shops response: "+response +", after conversion: "
+                            + new JSONArray(response).get(0).toString());
+                    Dealership dealership = Dealership.jsonToDealershipObject(
+                            new JSONArray(response).get(0).toString());
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
                     }else{
