@@ -243,6 +243,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
         String outDate = date+" "+time;
         view.disableButton(true);
+        view.showLoadingTime(true);
         component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate)
                 , view.getComments(), new RequestServiceUseCase.Callback() {
                     @Override
@@ -255,6 +256,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                            public void onServicesAdded() {
                                Log.d(TAG,"onServicesAdded()");
                                if(view == null || callback == null){return;}
+                               view.showLoadingTime(false);
                                view.disableButton(false);
                                callback.finishActivity();
                                view.toast("Service requested successfully.");
@@ -264,6 +266,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                            public void onError(RequestError error) {
                                Log.d(TAG,"onError() error: "+error.getMessage());
                                if(view == null || callback == null){return;}
+                               view.showLoadingTime(false);
                                view.disableButton(false);
                                view.toast("There was an error adding your services");
                            }
@@ -274,6 +277,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                     public void onError(RequestError error) {
                         Log.d(TAG,"onServiceRequested() error: "+error.getMessage());
                         if(view == null || callback == null){return;}
+                        view.showLoadingTime(false);
                         view.disableButton(false);
                       view.toast("There was an error requesting this service");
                     }
