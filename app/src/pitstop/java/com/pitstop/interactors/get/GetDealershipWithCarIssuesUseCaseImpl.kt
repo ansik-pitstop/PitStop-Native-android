@@ -35,20 +35,28 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
                 carIssueRepository.getCurrentCarIssues(settings.carId, object : Repository.Callback<List<CarIssue>> {
 
                     override fun onSuccess(carIssueList: List<CarIssue>) {
+                        carRepository.getShopId(settings.carId, object: Repository.Callback<Int>{
+                            override fun onSuccess(shopId: Int) {
+                                shopRepository.get(shopId, object : Repository.Callback<Dealership> {
 
-                        Log.d(tag, "got car issues")
-                        shopRepository.getByCarId(settings.carId, object : Repository.Callback<Dealership> {
+                                    override fun onSuccess(dealership: Dealership) {
+                                        Log.d(tag, "got dealership, callback.onSuccess()")
+                                        mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssueList) })
+                                    }
 
-                            override fun onSuccess(dealership: Dealership) {
-                                Log.d(tag, "got dealership, callback.onSuccess()")
-                                mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssueList) })
+                                    override fun onError(error: RequestError) {
+                                        Log.d(tag, "onError() err: ${error.message}")
+                                        mainHandler.post({ callback!!.onError(error) })
+                                    }
+                                })
                             }
 
                             override fun onError(error: RequestError) {
-                                Log.d(tag, "onError() err: ${error.message}")
-                                mainHandler.post({ callback!!.onError(error) })
+                                callback!!.onError(error)
                             }
                         })
+                        Log.d(tag, "got car issues")
+
                     }
 
                     override fun onError(error: RequestError) {

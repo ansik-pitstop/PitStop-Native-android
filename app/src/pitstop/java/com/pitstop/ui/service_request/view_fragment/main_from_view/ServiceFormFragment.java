@@ -2,6 +2,7 @@ package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -95,8 +95,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @BindView(R.id.service_submit)
     Button submitButton;
 
-    @BindView(R.id.service_time_loading)
-    ProgressBar timeLoading;
+    private ProgressDialog progressDialog;
 
     private ServiceFormPresenter presenter;
 
@@ -181,9 +180,13 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     public void showLoading(boolean show) {
         Log.d(TAG,"showLoading() show? "+show);
         if(show){
-            timeLoading.setVisibility(View.VISIBLE);
+            if (progressDialog == null)
+                progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Loading...");
+            progressDialog.show();
         }else{
-            timeLoading.setVisibility(View.GONE);
+            progressDialog.hide();
         }
     }
 
