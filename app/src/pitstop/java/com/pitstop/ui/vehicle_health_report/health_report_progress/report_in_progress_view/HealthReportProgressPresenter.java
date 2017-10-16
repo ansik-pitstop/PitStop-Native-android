@@ -31,7 +31,6 @@ public class HealthReportProgressPresenter {
     private MixpanelHelper mixpanelHelper;
     private VehicleHealthReport vehicleHealthReport;
     private EmissionsReport emissionsReport;
-    private BluetoothConnectionObservable bluetooth;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
 
@@ -57,7 +56,6 @@ public class HealthReportProgressPresenter {
     }
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
-       this.bluetooth = bluetooth;
        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
 
            @Override
@@ -83,7 +81,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"onErrorGeneratingReport()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error generating report"
+               handleError("Error","Error generating report" +
+                               ", check your network connection"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
@@ -105,7 +104,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"VHRMacrouseCase.onDTCError()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_DTC
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error retrieving engine codes"
+               handleError("Error","Error retrieving engine codes" +
+                               ", make sure device lights are on before scanning"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
@@ -127,7 +127,8 @@ public class HealthReportProgressPresenter {
                Log.d(TAG,"VHRMacrouseCase.onPidError()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GET_PID
                        ,MixpanelHelper.FAIL);
-               handleError("Error","Error retrieving real time car data"
+               handleError("Error","Error retrieving real time car data" +
+                               ", make sure device lights are on before scanning"
                        ,(DialogInterface dialog, int which) -> callback.finishActivity());
            }
 
