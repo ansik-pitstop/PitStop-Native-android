@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
@@ -74,7 +77,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
         emissionsMode = false;
         MixpanelHelper mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
-        presenter = new StartReportPresenter(mixpanelHelper);
+        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+        presenter = new StartReportPresenter(useCaseComponent, mixpanelHelper);
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));

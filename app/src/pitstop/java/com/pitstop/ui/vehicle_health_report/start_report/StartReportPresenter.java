@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -16,8 +17,10 @@ public class StartReportPresenter {
 
     private StartReportView view;
     private MixpanelHelper mixpanelHelper;
+    private UseCaseComponent useCaseComponent;
 
-    public StartReportPresenter(MixpanelHelper mixpanelHelper) {
+    public StartReportPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+        this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
     }
 

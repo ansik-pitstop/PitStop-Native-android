@@ -22,6 +22,8 @@ import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
+import com.pitstop.interactors.check.CheckNetworkConnectionUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
@@ -524,5 +526,12 @@ public class UseCaseModule {
 
         return new GetCarsWithDealershipsUseCaseImpl(userRepository, carRepository, shopRepository
                 , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    CheckNetworkConnectionUseCase checkNetworkConnectionUseCase(NetworkHelper networkHelper
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+
+        return new CheckNetworkConnectionUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 }
