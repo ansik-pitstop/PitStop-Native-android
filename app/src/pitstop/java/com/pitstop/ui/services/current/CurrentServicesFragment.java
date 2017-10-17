@@ -58,6 +58,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.progress)
     View loadingView;
 
+    @BindView(R.id.service_launch_custom)
+    LinearLayout customServiceButton;
+
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
 
@@ -93,12 +96,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
-
-    @BindView(R.id.my_services_text)
-    View myServicesText;
-
-    @BindView(R.id.my_services_divider)
-    View myServicesDivider;
 
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
@@ -146,10 +143,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         presenter.onUpdateNeeded();
     }
 
-    @OnClick(R.id.fab)
+    @OnClick(R.id.service_launch_custom)
     public void onCustomServiceButtonClicked(){
-        Log.d(TAG,"onFabClicked()");
-        presenter.onFabClicked();
+        Log.d(TAG,"onCustomServiceButtonClicked()");
+        presenter.onCustomServiceButtonClicked();
     }
 
     @Override
@@ -193,12 +190,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             potentialEngineIssueAdapter.notifyDataSetChanged();
         } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
             customIssueList.remove(issue);
-            if (customIssueList.isEmpty()){
+            if (customIssueList.isEmpty())
                 customIssueListRecyclerView.setVisibility(View.GONE);
-                myServicesDivider.setVisibility(View.GONE);
-                myServicesText.setVisibility(View.GONE);
-
-            }
             customIssueAdapter.notifyDataSetChanged();
         } else {
             carIssueList.remove(issue);
@@ -310,12 +303,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void addCustomIssue(CarIssue issue) {
         Log.d(TAG,"addCustomIssue()");
         customIssueListRecyclerView.setVisibility(View.VISIBLE);
-        myServicesText.setVisibility(View.VISIBLE);
-        myServicesDivider.setVisibility(View.VISIBLE);
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
-
-
     }
 
     @Override
@@ -395,12 +384,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
         if(customIssueList.isEmpty()){
             customIssueListRecyclerView.setVisibility(View.GONE);
-            myServicesText.setVisibility(View.GONE);
-            myServicesDivider.setVisibility(View.GONE);
         }else{
             customIssueListRecyclerView.setVisibility(View.VISIBLE);
-            myServicesText.setVisibility(View.VISIBLE);
-            myServicesDivider.setVisibility(View.VISIBLE);
         }
 
     }
