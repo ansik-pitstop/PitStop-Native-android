@@ -126,7 +126,7 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
                         || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
                         || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
                         || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
@@ -157,7 +157,7 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.CHEVROLET)
+                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
                         || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
                         || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
                         || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
