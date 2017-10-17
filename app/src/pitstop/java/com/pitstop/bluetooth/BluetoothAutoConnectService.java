@@ -624,11 +624,24 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
                 && readyDevice != null){
-
+            Log.d(TAG, "parameter.value is supportedPIDS");
+            notifyGotSupportedPids(parameterPackage.value);
             pidDataHandler.setPidCommunicationParameters(parameterPackage.value.split(",")
                     ,readyDevice.getVin());
         }
     }
+
+    private void notifyGotSupportedPids(String value) {
+        Log.d(TAG, "notifyGotSUpportedPIDs()");
+
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onGotSuportedPIDs(value));
+            }
+        }
+    }
+
 
     @Override
     public void idrPidData(PidPackage pidPackage) {
@@ -1155,6 +1168,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = null;
         deviceIsVerified = false;
         currentDeviceId = null;
+    }
+
+    @Override
+    public void getSupportedPids() {
+
+        deviceManager.getSupportedPids();
+
+
     }
 
     private void trackIdrPidData(PidPackage pidPackage){

@@ -22,4 +22,6 @@ public interface BluetoothConnectionObserver extends Observer{
 
     //Device has been verified and is now syncing rtc time
     void onDeviceSyncing();
+
+    void onGotSuportedPIDs(String value);
 }
