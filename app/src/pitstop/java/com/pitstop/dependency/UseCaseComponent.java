@@ -8,6 +8,7 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
+import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
@@ -162,4 +163,6 @@ public interface UseCaseComponent {
     AddDtcUseCase addDtcUseCase();
 
     GetCarsWithDealershipsUseCase getCarsWithDealershipsUseCase();
+
+    CheckNetworkConnectionUseCase getCheckNetworkConnectionUseCase();
 }

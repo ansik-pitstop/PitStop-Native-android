@@ -298,11 +298,13 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     }
 
     @Override
-    public void startIssueDetails(Car car, CarIssue carIssue) {
-        Log.d(TAG,"startIssueDetails()");
+    public void startIssueDetails(Car car, ArrayList<CarIssue> issues, int position) {
+        Log.d(TAG,"startIssueDetails() car: "+car+", issues: "+issues+", position: "+position);
         Intent intent = new Intent(getActivity(), IssueDetailsActivity.class);
         intent.putExtra(MainActivity.CAR_EXTRA, car);
-        intent.putExtra(MainActivity.CAR_ISSUE_EXTRA, carIssue);
+        intent.putParcelableArrayListExtra(MainActivity.CAR_ISSUE_KEY, issues);
+        intent.putExtra(MainActivity.CAR_ISSUE_POSITION, position);
+        intent.putExtra(IssueDetailsActivity.SOURCE, "");
         startActivity(intent);
 
     }

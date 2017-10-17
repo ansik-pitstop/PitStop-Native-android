@@ -36,4 +36,7 @@ public interface MyGarageView {
     void showLoadingDialog(String s);
     void hideLoadingDialog();
     void notifyCarDataChanged();
+    boolean hasBeenPopulated();
+
+    void showErrorDialog();
 }

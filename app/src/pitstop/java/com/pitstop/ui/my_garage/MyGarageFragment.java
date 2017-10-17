@@ -83,6 +83,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     private AlertDialog dealershipDirectionsDialog;
     private CarsAdapter carsAdapter;
     private ProgressDialog progressDialog;
+    private AlertDialog errorDialog;
+    private boolean hasBeenPopulated = false;
 
     public static MyGarageFragment newInstance(){
         return new MyGarageFragment();
@@ -293,6 +295,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         if (list.size() == 0){
             appointmentsView.setVisibility(View.GONE);
         }
+        hasBeenPopulated = true;
     }
 
     @Override
@@ -385,6 +388,12 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         appointmentsView.setVisibility(View.INVISIBLE);
     }
 
+    @Override
+    public boolean hasBeenPopulated(){
+        Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
+        return hasBeenPopulated;
+    }
+
     @OnClick (R.id.message_my_garage)
     public void onMessageClicked(){
         Log.d(TAG, "onMessageClicked()");
@@ -429,5 +438,22 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCanceledOnTouchOutside(false);
         }
+    }
+
+    @Override
+    public void showErrorDialog(){
+        Log.d(TAG,"displayUnknownErrorDialog()");
+        if (errorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            errorDialog = alertDialogBuilder.create();
+        }
+        errorDialog.show();
     }
 }

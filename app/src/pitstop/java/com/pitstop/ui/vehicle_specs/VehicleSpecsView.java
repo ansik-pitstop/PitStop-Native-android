@@ -15,4 +15,7 @@ public interface VehicleSpecsView {
 
     void showImageLoading();
     void hideImageLoading();
+
+    void showLoadingDialog(String message);
+    void hideLoadingDialog();
 }
