@@ -209,7 +209,7 @@ public class PidDataHandler {
 
             @Override
             public void onNoCarFound() {
-                Log.d(TAG,"setPidCommunicationParameters() getCarByVinUseCase().onNoCarFound()");
+                Log.d(TAG,"setPidCommunicationdParameters() getCarByVinUseCase().onNoCarFound()");
                 //Do nothing, car is probably being added and will handle supported pids again
             }
 
@@ -241,6 +241,16 @@ public class PidDataHandler {
             return DEFAULT_PIDS;
         }
     }
+
+
+
+
+
+
+
+
+
+
 
     public static void visualizePidReceived(PidPackage pidPackage, Context context){
         if (pidPackage == null){

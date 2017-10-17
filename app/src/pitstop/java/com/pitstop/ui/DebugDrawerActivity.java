@@ -1,13 +1,19 @@
 package com.pitstop.ui;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,12 +23,17 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.DebugMessage;
+import com.pitstop.models.ReadyDevice;
+import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.NetworkHelper;
@@ -34,7 +45,8 @@ import java.util.Calendar;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-public abstract class DebugDrawerActivity extends AppCompatActivity {
+public abstract class DebugDrawerActivity extends AppCompatActivity implements BluetoothConnectionObserver{
+    public static final String TAG = DebugDrawerActivity.class.getSimpleName();
 
     private NetworkHelper mNetworkHelper;
 
@@ -49,7 +61,29 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     private QueryObservable mQueryOtherObservable;
     private Subscription mQueryOtherSubscription;
 
+    private Intent serviceIntent;
     private boolean mLogsEnabled;
+    BluetoothConnectionObservable bluetoothConnectionObservable;
+    EditText editText;
+
+
+    protected ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.i(TAG, "connecting: onServiceConnected");
+            // cast the IBinder and get MyService instance
+            bluetoothConnectionObservable = ((BluetoothConnectionObservable)((BluetoothAutoConnectService.BluetoothBinder) service).getService());
+            bluetoothConnectionObservable.subscribe(DebugDrawerActivity.this);
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.i(TAG, "Disconnecting: onServiceConnection");
+            bluetoothConnectionObservable = null;
+        }
+    };
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -94,21 +128,19 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);
 
-        View clearPrefsButton = findViewById(R.id.debugClearPrefs); // Only default prefs for now
-        clearPrefsButton.setOnClickListener(v -> {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
-            Toast.makeText(this, "Preferences Cleared", Toast.LENGTH_SHORT).show();
-        });
 
-        View clearDbButton = findViewById(R.id.debugClearDB);
-        clearDbButton.setOnClickListener(v -> {
-            LocalDatabaseHelper databaseHelper = LocalDatabaseHelper.getInstance(this);
-            SQLiteDatabase db = databaseHelper.getWritableDatabase();
-            databaseHelper.onUpgrade(db, 0, 0);
-            Toast.makeText(this, "Database Cleared", Toast.LENGTH_SHORT).show();
-        });
+        serviceIntent = new Intent(DebugDrawerActivity.this, BluetoothAutoConnectService.class);
+        startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         EditText vinField = ViewUtils.findView(mDrawerLayout, R.id.debugVinField);
+       editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
+        Button setInterval = ViewUtils.findView(mDrawerLayout, R.id.debugSetInterval);
+        setInterval.setOnClickListener(v -> {
+
+            bluetoothConnectionObservable.getSupportedPids();
+            Toast.makeText(this, "setDeviceInterval: " + editText.getText().toString(), Toast.LENGTH_SHORT).show();
+        });
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
                 (response, requestError) -> {
@@ -229,4 +261,41 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onSearchingForDevice() {
+
+    }
+
+    @Override
+    public void onDeviceReady(ReadyDevice readyDevice) {
+
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+
+    }
+
+    @Override
+    public void onDeviceVerifying() {
+
+    }
+
+    @Override
+    public void onDeviceSyncing() {
+
+    }
+
+    @Override
+    public void onGotSuportedPIDs(String value) {
+        editText.setText(value);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (bluetoothConnectionObservable != null){
+            bluetoothConnectionObservable.unsubscribe(this);
+        }
+    }
 }

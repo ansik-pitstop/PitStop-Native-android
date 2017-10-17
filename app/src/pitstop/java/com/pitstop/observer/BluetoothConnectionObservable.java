@@ -42,6 +42,8 @@ public interface BluetoothConnectionObservable extends Subject{
     //Invoked when an observer wants to retrieve the device rtc time
     boolean requestDeviceTime();
 
+    void getSupportedPids();
+
     //Request scan for device
     void requestDeviceSearch(boolean urgent, boolean ignoreVerification);
 

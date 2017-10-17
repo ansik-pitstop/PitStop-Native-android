@@ -17,6 +17,7 @@
             android:orientation="vertical"
             android:padding="8dp">
 
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -25,17 +26,21 @@
                 android:textColor="@color/white"
                 android:textSize="18sp" />
 
-            <Button
-                android:id="@+id/debugClearPrefs"
+            <EditText
+                android:id="@+id/debug_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/debug_clear_prefs"/>
+                android:background="@color/white80"
+                android:padding="8dp"
+                />
 
             <Button
-                android:id="@+id/debugClearDB"
+                android:id="@+id/debugSetInterval"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/debug_clear_db" />
+                android:text="Set interval" />
+
+
 
             <Button
                 android:id="@+id/debugRandomVin"
