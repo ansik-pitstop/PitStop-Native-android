@@ -8,7 +8,7 @@
     android:layout_marginBottom="0.5dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
-    android:layout_marginTop="2dp"
+    android:layout_marginTop="8dp"
     android:clipToPadding="false"
     card_view:cardElevation="2dp">
 
@@ -20,7 +20,6 @@
         android:padding="10dp">
 
         <ImageView
-            android:visibility="gone"
             android:id="@+id/image_done_issue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,21 +30,12 @@
             android:clickable="true"
             />
 
-        <CheckBox
-            android:id="@+id/checkbox"
-            android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:padding="15dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
         <RelativeLayout
             android:id="@+id/issue_info_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:layout_toRightOf="@+id/checkbox"
+            android:layout_toRightOf="@+id/issue_image_layout"
             android:orientation ="horizontal">
 
             <TextView
