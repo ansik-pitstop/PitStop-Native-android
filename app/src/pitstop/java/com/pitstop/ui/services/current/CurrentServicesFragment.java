@@ -94,6 +94,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
 
+    @BindView(R.id.my_services_text)
+    View myServicesText;
+
+    @BindView(R.id.my_services_divider)
+    View myServicesDivider;
+
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
@@ -187,8 +193,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             potentialEngineIssueAdapter.notifyDataSetChanged();
         } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
             customIssueList.remove(issue);
-            if (customIssueList.isEmpty())
+            if (customIssueList.isEmpty()){
                 customIssueListRecyclerView.setVisibility(View.GONE);
+                myServicesDivider.setVisibility(View.GONE);
+                myServicesText.setVisibility(View.GONE);
+
+            }
             customIssueAdapter.notifyDataSetChanged();
         } else {
             carIssueList.remove(issue);
@@ -300,8 +310,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void addCustomIssue(CarIssue issue) {
         Log.d(TAG,"addCustomIssue()");
         customIssueListRecyclerView.setVisibility(View.VISIBLE);
+        myServicesText.setVisibility(View.VISIBLE);
+        myServicesDivider.setVisibility(View.VISIBLE);
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
+
+
     }
 
     @Override
@@ -381,8 +395,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
         if(customIssueList.isEmpty()){
             customIssueListRecyclerView.setVisibility(View.GONE);
+            myServicesText.setVisibility(View.GONE);
+            myServicesDivider.setVisibility(View.GONE);
         }else{
             customIssueListRecyclerView.setVisibility(View.VISIBLE);
+            myServicesText.setVisibility(View.VISIBLE);
+            myServicesDivider.setVisibility(View.VISIBLE);
         }
 
     }

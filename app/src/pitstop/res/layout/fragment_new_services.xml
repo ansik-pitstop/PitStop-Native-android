@@ -55,14 +55,18 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView27"
+                    android:visibility="invisible"
+                    android:id="@+id/my_services_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:text="My Services"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-                <include layout="@layout/divider" />
+                <include
+                    android:visibility="invisible"
+                    android:id="@+id/my_services_divider"
+                    layout="@layout/divider" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
