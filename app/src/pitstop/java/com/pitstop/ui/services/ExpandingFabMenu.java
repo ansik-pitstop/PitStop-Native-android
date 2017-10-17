@@ -7,7 +7,6 @@ import android.view.animation.AnimationUtils;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +19,28 @@ import butterknife.ButterKnife;
 
 public class ExpandingFabMenu {
 
-    private final String TAG = getClass().getSimpleName();
     private final int FAB_DELAY = 50;
+    private final List<FloatingActionButton> expandingFabs;
+    private final Activity activity;
+    private final GlobalApplication application;
+    private final OnFabClickedListener onFabClickedListener;
 
     private boolean isFabOpen = false;
 
-    interface OnFabClickedListener{
+    public interface OnFabClickedListener{
         void onFabClicked(int position);
     }
 
-    public ExpandingFabMenu(List<FloatingActionButton> expandingFabs, MixpanelHelper mixpanelHelper
-            , GlobalApplication application, Activity activity, OnFabClickedListener onFabClickedListener) {
+    public ExpandingFabMenu(List<FloatingActionButton> expandingFabs, Activity activity, GlobalApplication application
+            , OnFabClickedListener onFabClickedListener) {
+        this.expandingFabs = expandingFabs;
+        this.activity = activity;
+        this.application = application;
+        this.onFabClickedListener = onFabClickedListener;
 
+    }
+
+    public void display(){
         ButterKnife.bind(this,activity);
 
         final ArrayList<Animation> open_anims = new ArrayList<>();
