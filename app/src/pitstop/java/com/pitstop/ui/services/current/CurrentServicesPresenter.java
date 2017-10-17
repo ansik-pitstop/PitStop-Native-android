@@ -62,8 +62,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         getView().startDisplayIssueActivity(issues, position);
     }
 
-    void onCustomServiceButtonClicked(){
-        Log.d(TAG,"onCustomServiceButtonClicked()");
+    void onFabClicked(){
+        Log.d(TAG,"onFabClicked()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_CREATE_CUSTOM
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null) return;
@@ -237,4 +237,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         getView().displayCalendar(carIssue);
     }
 
+    public void onFabClicked(int position) {
+        Log.d(TAG,"onFabClicked() position: "+position);
+    }
 }

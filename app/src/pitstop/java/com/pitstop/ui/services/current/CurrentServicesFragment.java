@@ -58,9 +58,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.progress)
     View loadingView;
 
-    @BindView(R.id.service_launch_custom)
-    LinearLayout customServiceButton;
-
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
 
@@ -143,10 +140,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         presenter.onUpdateNeeded();
     }
 
-    @OnClick(R.id.service_launch_custom)
+    @OnClick(R.id.fab)
     public void onCustomServiceButtonClicked(){
-        Log.d(TAG,"onCustomServiceButtonClicked()");
-        presenter.onCustomServiceButtonClicked();
+        Log.d(TAG,"onFabClicked()");
+        presenter.onFabClicked();
     }
 
     @Override
