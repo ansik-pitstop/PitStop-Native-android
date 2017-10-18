@@ -1,6 +1,10 @@
 package com.pitstop.adapters;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +29,14 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
     private List<Car> carList;
     private List<Dealership> dealershipList;
 
+
     public CarsAdapter (MyGarageView view, List<Dealership> dealershipList, List<Car> carList){
         this.myGarageView = view;
         this.carList = carList;
         this.dealershipList = dealershipList;
     }
+
+
 
     @Override
     public CarsAdapter.CarViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -45,6 +52,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
     public void onBindViewHolder(CarsAdapter.CarViewHolder holder, int position) {
         holder.bind(carList.get(position),dealershipList.get(position));
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -67,7 +76,18 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             this.dealershipName = itemView.findViewById(R.id.car_dealership_id);
         }
         public void bind(Car car, Dealership dealership){
+            boolean isCarCurrent  = car.isCurrentCar();
+            Log.d(TAG, car.getModel() + isCarCurrent);
             carNameView.setText(car.getYear() + " " + car.getMake() + " " + car.getModel());
+            if (isCarCurrent){
+                carNameView.setTextColor(Color.rgb(43,131,226));
+                scanner.setTextColor(Color.rgb(43,131,226));
+                dealershipName.setTextColor(Color.rgb(43,131,226));
+            }else{
+                carNameView.setTextColor(Color.BLACK);
+                scanner.setTextColor(Color.GRAY);
+                dealershipName.setTextColor(Color.GRAY);
+            }
             if(car.getScannerId() == null){
                 scanner.setText("No Paired Device");
             }
