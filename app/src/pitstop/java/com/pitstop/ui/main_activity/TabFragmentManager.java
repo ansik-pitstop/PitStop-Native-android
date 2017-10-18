@@ -73,7 +73,7 @@ public class TabFragmentManager {
             public void onPageSelected(int position) {
                 switch(position){
                     case TAB_DASHBOARD:
-
+                        mMixpanelHelper.trackSwitchedToTab("Dashboard");
                         break;
                     case TAB_SERVICES:
                         mMixpanelHelper.trackSwitchedToTab("Services");
@@ -120,23 +120,25 @@ public class TabFragmentManager {
     }
 
     private void setupBottomNavBar(){
-        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch(item.getItemId()){
                 case R.id.action_dashboard:
                     mViewPager.setCurrentItem(TAB_DASHBOARD);
-                    break;
+                    return true;
                 case R.id.action_services:
                     mViewPager.setCurrentItem(TAB_SERVICES);
-                    break;
+                    return true;
                 case R.id.action_scan:
                     mViewPager.setCurrentItem(TAB_SCAN);
-                    break;
+                    return true;
                 case R.id.action_garage:
                     mViewPager.setCurrentItem(TAB_GARAGE);
-                    break;
+                    return true;
                 case R.id.action_notifications:
                     mViewPager.setCurrentItem(TAB_NOTIF);
-                    break;
+                    return true;
+                default:
+                    return false;
             }
         });
     }
