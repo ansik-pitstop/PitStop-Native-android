@@ -35,10 +35,18 @@
                 />
 
             <Button
+                android:id="@+id/debugGetSupportedPids"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Get supported PIDs" />
+
+            <Button
                 android:id="@+id/debugSetInterval"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Set interval" />
+                android:text="Get supported PIDs" />
+
+
 
 
 

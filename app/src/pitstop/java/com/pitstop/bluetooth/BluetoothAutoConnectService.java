@@ -72,13 +72,16 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver {
+        , DeviceVerificationObserver, BluetoothWriter {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
             return BluetoothAutoConnectService.this;
         }
     }
+
+    private boolean overWriteInterval = false;
+    private int debugDrawerInterval = 4;
 
     public static final int notifID = 1360119;
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
@@ -168,7 +171,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
                 }
-
                 onConnectedDeviceInvalid();
             }
         }
@@ -597,6 +599,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+        Log.d(TAG, "parameter value: " + parameterPackage.value);
         if (parameterPackage == null) return;
         if (parameterPackage.paramType == null) return;
         if (parameterPackage.value == null) parameterPackage.value = "";
@@ -624,16 +627,23 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
                 && readyDevice != null){
-            Log.d(TAG, "parameter.value is supportedPIDS");
-            notifyGotSupportedPids(parameterPackage.value);
-            pidDataHandler.setPidCommunicationParameters(parameterPackage.value.split(",")
-                    ,readyDevice.getVin());
+            if (overWriteInterval){
+                pidDataHandler.setDeviceRtcInterval(parameterPackage.value.split(",")
+                        ,readyDevice.getVin(), debugDrawerInterval);
+                overWriteInterval = false;
+            }
+            else {
+                notifyGotSupportedPids(parameterPackage.value);
+                pidDataHandler.setPidCommunicationParameters(parameterPackage.value.split(",")
+                        , readyDevice.getVin());
+            }
         }
     }
 
+
+
     private void notifyGotSupportedPids(String value) {
         Log.d(TAG, "notifyGotSUpportedPIDs()");
-
         for (Observer o: observerList ){
             if (o instanceof BluetoothConnectionObserver){
                 mainHandler.post(() -> ((BluetoothConnectionObserver)o)
@@ -1171,11 +1181,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void getSupportedPids() {
-
+    public boolean writeRTCInterval(int interval) {
+        overWriteInterval = true;
         deviceManager.getSupportedPids();
+        debugDrawerInterval = interval;
+        return false;
+    }
 
+    @Override
+    public boolean resetMemory() {
+        return false;
+    }
 
+    @Override
+    public boolean toggleHistoricalData(boolean toggle) {
+        return false;
+    }
+
+    @Override
+    public boolean setChunkSize(int chunkSize) {
+        return false;
+    }
+
+    @Override
+    public void getSupportedPids() {
+        deviceManager.getSupportedPids();
     }
 
     private void trackIdrPidData(PidPackage pidPackage){

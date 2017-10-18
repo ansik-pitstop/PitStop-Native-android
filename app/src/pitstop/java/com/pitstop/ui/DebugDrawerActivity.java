@@ -2,6 +2,7 @@ package com.pitstop.ui;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -12,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
@@ -60,6 +63,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     private Subscription mQueryNetworkSubscription;
     private QueryObservable mQueryOtherObservable;
     private Subscription mQueryOtherSubscription;
+    private AlertDialog confirmRTCAlertDialog;
+    private BluetoothWriter bluetoothWriter;
 
     private Intent serviceIntent;
     private boolean mLogsEnabled;
@@ -75,6 +80,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             // cast the IBinder and get MyService instance
             bluetoothConnectionObservable = ((BluetoothConnectionObservable)((BluetoothAutoConnectService.BluetoothBinder) service).getService());
             bluetoothConnectionObservable.subscribe(DebugDrawerActivity.this);
+            bluetoothWriter = ((BluetoothWriter)((BluetoothAutoConnectService.BluetoothBinder) service).getService());
 
         }
 
@@ -135,11 +141,15 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
         EditText vinField = ViewUtils.findView(mDrawerLayout, R.id.debugVinField);
        editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
-        Button setInterval = ViewUtils.findView(mDrawerLayout, R.id.debugSetInterval);
-        setInterval.setOnClickListener(v -> {
-
+        Button getSupportedPids = ViewUtils.findView(mDrawerLayout, R.id.debugGetSupportedPids);
+        getSupportedPids.setOnClickListener(v -> {
             bluetoothConnectionObservable.getSupportedPids();
-            Toast.makeText(this, "setDeviceInterval: " + editText.getText().toString(), Toast.LENGTH_SHORT).show();
+        });
+
+        Button setInterval = ViewUtils.findView(mDrawerLayout, R.id.debugSetInterval);
+        setInterval.setOnClickListener(v->{
+            showRTCOverWriteCOnfirmDialog();
+
         });
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
@@ -148,6 +158,34 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                 })
         );
         setupLogging();
+    }
+
+    private void showRTCOverWriteCOnfirmDialog() {
+        int Interval;
+        try {
+            Interval =  Integer.parseInt(editText.getText().toString());
+        } catch (NumberFormatException e) {
+            Interval = 0;
+            Toast.makeText(this, "Make sure there is a number in the box", Toast.LENGTH_SHORT).show();
+            return;
+        }
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("Confirm RTC Overwrite");
+            alertDialogBuilder
+                    .setMessage("Are you sure you want to set the RTC Time to " + Interval)
+                    .setCancelable(true)
+                    .setNegativeButton("NO", (dialog, id) -> {
+                        dialog.dismiss();})
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            bluetoothWriter.writeRTCInterval(Integer.parseInt(editText.getText().toString()));
+                        }
+                    });
+        confirmRTCAlertDialog = alertDialogBuilder.create();
+        confirmRTCAlertDialog.show();
+
+
     }
 
     @Override
@@ -288,6 +326,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
     @Override
     public void onGotSuportedPIDs(String value) {
+        Log.d(TAG, "onGotSupportedPID");
         editText.setText(value);
     }
 
