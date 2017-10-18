@@ -17,7 +17,6 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         app:elevation="2dp"
-        app:cardCornerRadius="10dp"
         app:cardBackgroundColor="@color/white" >
 
         <RelativeLayout
@@ -48,7 +47,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
-                    android:text="Services that require your attention now"
+                    android:text="Services that require attention at this moment"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -56,27 +55,29 @@
                 android:id="@+id/current_services_num_layout"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
                 android:layout_marginRight="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/recall_green"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:visibility="invisible"
                     android:layout_gravity="center"
                     app:srcCompat="@drawable/color_button_green_highlight" />
 
                 <ImageView
                     android:id="@+id/recall_red"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="center"
-                    android:visibility="invisible"
                     app:srcCompat="@drawable/color_button_red_highlight" />
 
                 <TextView
                     android:id="@+id/recall_list_count"
+                    style="@style/Base.TextAppearance.AppCompat.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -94,7 +95,67 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         app:elevation="2dp"
-        app:cardCornerRadius="10dp"
+        app:cardBackgroundColor="@color/white" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_toLeftOf="@id/mileage_till_service"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="Upcoming Services"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                    android:textSize="25sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="3"
+                    android:text="Services that will require attention at a future mileage"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/mileage_till_service"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:text="600km"
+                    android:textColor="@color/red"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:elevation="2dp"
         app:cardBackgroundColor="@color/white" >
 
         <LinearLayout
@@ -124,49 +185,6 @@
                     android:layout_height="wrap_content"
                     android:maxLines="3"
                     android:text="Services that have already been performed on your vehicle"
-                    android:textSize="20sp" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        app:elevation="2dp"
-        app:cardCornerRadius="10dp"
-        app:cardBackgroundColor="@color/white" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingRight="5dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:text="Upcoming Services"
-                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-                    android:textSize="25sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="3"
-                    android:text="These services will require your attention at a future mileage"
                     android:textSize="20sp" />
             </LinearLayout>
 
