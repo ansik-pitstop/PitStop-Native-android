@@ -9,5 +9,6 @@ interface BluetoothWriter {
     fun resetMemory(): Boolean
     fun toggleHistoricalData(toggle: Boolean): Boolean
     fun setChunkSize(chunkSize: Int): Boolean
+    fun clearDTCs() : Boolean
 
 }

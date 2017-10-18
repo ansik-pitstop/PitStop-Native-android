@@ -44,7 +44,19 @@
                 android:id="@+id/debugSetInterval"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Get supported PIDs" />
+                android:text="Set device Interval" />
+
+            <Button
+                android:id="@+id/debugClearDeviceMemory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear Device Memory" />
+
+            <Button
+                android:id="@+id/debugClearDTC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear DTCs" />
 
 
 

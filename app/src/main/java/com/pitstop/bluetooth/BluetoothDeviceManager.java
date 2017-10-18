@@ -488,6 +488,32 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
+    public void clearDeviceMemory(){
+        Log.d(TAG, "clearDeviceMemory() ");
+        if (isConnectedTo215()){
+            Log.d(TAG, "clearing Device Memory, command:  " + deviceInterface.clearDeviceMemory());
+            writeToObd(deviceInterface.clearDeviceMemory());
+        }
+    }
+
+    public void resetDeviceToDefaults(){
+
+        Log.d(TAG, "resetToDefualts() ");
+        if (isConnectedTo215()){
+            Log.d(TAG, "resetting to defaults, command:  " + deviceInterface.resetDeviceToDefaults());
+            writeToObd(deviceInterface.resetDeviceToDefaults());
+        }
+
+    }
+
+    public void resetDevice(){
+        Log.d(TAG, "resetDevice() ");
+        if (isConnectedTo215()){
+            Log.d(TAG, "resetting Device, command:  " + deviceInterface.resetDevice());
+            writeToObd(deviceInterface.resetDevice());
+        }
+
+    }
     public void setRtc(long rtcTime) {
         Log.d(TAG,"setRtc() rtc: "+rtcTime);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -506,6 +532,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         writeToObd(deviceInterface.getPids(pids));
     }
 
+    public void clearDtcs(){
+        Log.d(TAG, "clearDTCs");
+        if (isConnectedTo215()){
+            Log.d(TAG, "clearing DTC, command:  " + deviceInterface.clearDtcs());
+            writeToObd(deviceInterface.clearDtcs());
+        }
+    }
     public void getSupportedPids() {
         Log.d(TAG,"getSupportedPids()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {

@@ -125,14 +125,16 @@ repositories {
     }
 }
 
+kapt {
+    generateStubs = true
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
-    implementation 'com.google.dagger:dagger:2.9'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
+    compile 'com.google.dagger:dagger:2.9'
+    kapt 'com.google.dagger:dagger-compiler:2.9'
     provided 'javax.annotation:jsr250-api:1.0'
-    compile 'com.android.support:multidex:1.0.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.android.support:support-annotations:26.0.2'
     compile 'com.android.support:appcompat-v7:26.0.2'
@@ -156,8 +158,8 @@ dependencies {
 //    compile project(':libs:MaterialShowcaseView')
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
-    implementation 'com.jakewharton:butterknife:8.4.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    kapt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
