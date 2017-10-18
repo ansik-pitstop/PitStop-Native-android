@@ -143,13 +143,30 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
        editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
         Button getSupportedPids = ViewUtils.findView(mDrawerLayout, R.id.debugGetSupportedPids);
         getSupportedPids.setOnClickListener(v -> {
-            bluetoothConnectionObservable.getSupportedPids();
+            if (bluetoothConnectionObservable!=null)
+                bluetoothConnectionObservable.getSupportedPids();
         });
 
         Button setInterval = ViewUtils.findView(mDrawerLayout, R.id.debugSetInterval);
         setInterval.setOnClickListener(v->{
             showRTCOverWriteCOnfirmDialog();
 
+        });
+
+        Button resetDTC = ViewUtils.findView(mDrawerLayout, R.id.debugClearDTC);
+        resetDTC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showConfirmResetDTCDialog();
+
+            }
+        });
+        Button resetMemory = ViewUtils.findView(mDrawerLayout, R.id.debugClearDeviceMemory);
+        resetMemory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showConfirmResetMemoryDialog();
+            }
         });
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
@@ -160,13 +177,60 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         setupLogging();
     }
 
+    private void showConfirmResetDTCDialog() {
+        if (bluetoothWriter==null)
+            return;
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Confirm Clear DTC");
+        alertDialogBuilder
+                .setMessage("Are you sure you want to clear DTCs")
+                .setCancelable(true)
+                .setNegativeButton("NO", (dialog, id) -> {
+                    dialog.dismiss();})
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        bluetoothWriter.clearDTCs();
+                    }
+                });
+        confirmRTCAlertDialog = alertDialogBuilder.create();
+        confirmRTCAlertDialog.show();
+
+    }
+
+    private void showConfirmResetMemoryDialog() {
+        if (bluetoothWriter==null)
+            return;
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Confirm Clear Memory");
+        alertDialogBuilder
+                .setMessage("Are you sure you want to reset device memory and historical Data")
+                .setCancelable(true)
+                .setNegativeButton("NO", (dialog, id) -> {
+                    dialog.dismiss();})
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        bluetoothWriter.resetMemory();
+                    }
+                });
+        confirmRTCAlertDialog = alertDialogBuilder.create();
+        confirmRTCAlertDialog.show();
+    }
+
     private void showRTCOverWriteCOnfirmDialog() {
+        if (bluetoothWriter==null)
+            return;
         int Interval;
         try {
             Interval =  Integer.parseInt(editText.getText().toString());
         } catch (NumberFormatException e) {
             Interval = 0;
             Toast.makeText(this, "Make sure there is a number in the box", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (Interval%2==1){
+            editText.setText("Please input an even number");
             return;
         }
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -179,13 +243,12 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            Log.d(TAG, "yes OverwriteRTC");
                             bluetoothWriter.writeRTCInterval(Integer.parseInt(editText.getText().toString()));
                         }
                     });
         confirmRTCAlertDialog = alertDialogBuilder.create();
         confirmRTCAlertDialog.show();
-
-
     }
 
     @Override

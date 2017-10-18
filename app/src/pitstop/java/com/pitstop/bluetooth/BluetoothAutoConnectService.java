@@ -1190,7 +1190,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean resetMemory() {
-        return false;
+        Log.d(TAG, "resetMemory()");
+        deviceManager.clearDeviceMemory();
+        return true;
+    }
+
+    @Override
+    public boolean clearDTCs() {
+        deviceManager.clearDtcs();
+        return true;
     }
 
     @Override
