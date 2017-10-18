@@ -55,7 +55,6 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.models.issue.IssueDetail;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -503,8 +502,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
 
         //Set other changed UI elements back to original color
-        ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
-        ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
+        findViewById(R.id.main_tablayout).setBackgroundColor(defaultColor.data);
+        findViewById(R.id.appbar).setBackgroundColor(defaultColor.data);
     }
 
 
