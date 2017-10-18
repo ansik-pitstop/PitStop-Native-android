@@ -1,6 +1,6 @@
 package com.pitstop.ui.main_activity;
 
-import android.support.design.widget.TabLayout;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -27,14 +27,14 @@ public class TabFragmentManager {
 
     public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
 
-    @BindView(R.id.main_tablayout)
-    TabLayout mTabLayout;
-
     @BindView(R.id.main_container)
     ViewPager mViewPager;
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+
+    @BindView(R.id.appbar)
+    BottomNavigationView bottomNavigationView;
 
     private TabViewPagerAdapter tabViewPagerAdapter;
     private FragmentActivity mActivity;
@@ -58,8 +58,7 @@ public class TabFragmentManager {
 
         setupSwitchActions();
         setupActionBar();
-        setupTabIcons();
-        setupTabTappable();
+        setupBottomNavBar();
 
     }
 
@@ -120,63 +119,24 @@ public class TabFragmentManager {
         });
     }
 
-    private void setupTabIcons(){
-        mTabLayout.setupWithViewPager(mViewPager);
-
-        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
-                ,R.drawable.scan_icon,R.drawable.garage_white,R.drawable.ic_notifications_white_24dp};
-
-        for (int i=0;i<tabIcons.length;i++){
-            try{
-                mTabLayout.getTabAt(i).setIcon(tabIcons[i]);
-            }catch(java.lang.NullPointerException e){
-
-            }
-        }
-    }
-
-    private void setupTabTappable(){
-        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                switch(tab.getPosition()){
-
-                    case TAB_DASHBOARD:
-                        //Go to dashboard fragment
-                        mViewPager.setCurrentItem(TAB_DASHBOARD);
-                        break;
-
-                    case TAB_SERVICES:
-                        //Go to services fragment
-                        mViewPager.setCurrentItem(TAB_SERVICES);
-                        break;
-
-                    case TAB_SCAN:
-                        //Go to scan fragment
-                        mViewPager.setCurrentItem(TAB_SCAN);
-                        break;
-
-                    case TAB_GARAGE:
-                        //Go to my garage fragment
-                        mViewPager.setCurrentItem(TAB_GARAGE);
-                        break;
-
-                    case TAB_NOTIF:
-                        //Go to notifications fragment
-                        mViewPager.setCurrentItem(TAB_NOTIF);
-                        break;
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //do nothing
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
+    private void setupBottomNavBar(){
+        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {
+            switch(item.getItemId()){
+                case R.id.action_dashboard:
+                    mViewPager.setCurrentItem(TAB_DASHBOARD);
+                    break;
+                case R.id.action_services:
+                    mViewPager.setCurrentItem(TAB_SERVICES);
+                    break;
+                case R.id.action_scan:
+                    mViewPager.setCurrentItem(TAB_SCAN);
+                    break;
+                case R.id.action_garage:
+                    mViewPager.setCurrentItem(TAB_GARAGE);
+                    break;
+                case R.id.action_notifications:
+                    mViewPager.setCurrentItem(TAB_NOTIF);
+                    break;
             }
         });
     }

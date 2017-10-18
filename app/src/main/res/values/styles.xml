@@ -91,7 +91,7 @@
     </style>
 
     <style name="NavigationTabTextAppeareance" parent="TextAppearance.Design.Tab">
-        <item name="android:textSize">9sp</item>
+        <item name="android:textSize">8sp</item>
     </style>
 
     <style name="RatingBar" parent="Theme.AppCompat">
