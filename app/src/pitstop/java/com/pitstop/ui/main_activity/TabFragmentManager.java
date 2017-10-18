@@ -110,6 +110,23 @@ public class TabFragmentManager {
             public void onPageSelected(int position) {
                 //Change actionbar title
                 mToolbar.setTitle(TAB_NAMES[position]);
+                switch(position){
+                    case TAB_DASHBOARD:
+                        bottomNavigationView.setSelectedItemId(R.id.action_dashboard);
+                        break;
+                    case TAB_SERVICES:
+                        bottomNavigationView.setSelectedItemId(R.id.action_services);
+                        break;
+                    case TAB_SCAN:
+                        bottomNavigationView.setSelectedItemId(R.id.action_scan);
+                        break;
+                    case TAB_GARAGE:
+                        bottomNavigationView.setSelectedItemId(R.id.action_garage);
+                        break;
+                    case TAB_NOTIF:
+                        bottomNavigationView.setSelectedItemId(R.id.action_notifications);
+                        break;
+                }
             }
 
             @Override
@@ -142,6 +159,7 @@ public class TabFragmentManager {
             }
         });
     }
+
     public void openServices() {
         mViewPager.setCurrentItem(TAB_SERVICES);
         setCurrentServices();
