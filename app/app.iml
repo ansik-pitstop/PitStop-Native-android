@@ -39,6 +39,7 @@
           <option name="pluginClasspaths">
             <array />
           </option>
+          <option name="version" value="true" />
         </compilerArguments>
       </configuration>
     </facet>
@@ -155,6 +156,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/build-info" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes-jar" />
@@ -269,5 +271,6 @@
     <orderEntry type="library" name="core-4.8.1" level="project" />
     <orderEntry type="library" name="design-26.0.2" level="project" />
     <orderEntry type="library" name="multidex-1.0.2" level="project" />
+    <orderEntry type="library" name="android-android-26" level="project" />
   </component>
 </module>

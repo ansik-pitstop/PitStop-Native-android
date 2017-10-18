@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -248,8 +249,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             dealershipCallDialog = builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle(getContext().getString(R.string.select_dealership_toast_text))
-                    .setPositiveButton("", null)
-                    .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton("Dismiss", (dialog, which) -> dialog.cancel())
                     .create();
         }
         dealershipCallDialog.show();
@@ -270,11 +270,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             dealershipDirectionsDialog= builder
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle(getContext().getString(R.string.select_dealership_toast_text))
-                    .setPositiveButton("", null)
-                    .setNegativeButton("Dissmiss", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton("Dismiss", (dialog, which) -> dialog.cancel())
+
                     .create();
+
         }
         dealershipDirectionsDialog.show();
+
     }
 
     @Override
@@ -336,7 +338,6 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
                     presenter.onCarSetAsCurrent(data.getExtras().getInt(VehicleSpecsFragment.CAR_POSITION));
                 }
             }
-
         }
     }
 
