@@ -33,7 +33,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="1dp"
             android:background="@color/dark_grey"/>
 
         <android.support.design.widget.BottomNavigationView
@@ -41,10 +41,14 @@
             app:menu="@menu/menu_tabs_main"
             app:itemIconTint="@color/tab_selector"
             app:itemTextColor="@color/tab_selector"
+            android:background="@android:color/white"
+            app:elevation="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
+
+
 
 
 </RelativeLayout>
