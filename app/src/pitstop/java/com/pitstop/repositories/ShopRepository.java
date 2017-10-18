@@ -1,11 +1,12 @@
 package com.pitstop.repositories;
 
+import android.util.Log;
+
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,8 @@ import java.util.List;
  */
 
 public class ShopRepository implements Repository{
+
+    private final String TAG = getClass().getSimpleName();
 
     private final String END_POINT_SHOP_PITSTOP = "shop?shopType=partner";
     private final String END_POINT_SHOP = "shop?shopType=all";
@@ -337,45 +340,34 @@ public class ShopRepository implements Repository{
     }
 
 
-    public void get(int dealerId, int userId, Callback<Dealership> callback){
+    public void get(int dealerId, Callback<Dealership> callback){
 
-        networkHelper.getUserSettingsById(userId,getGetShopRequestCallback(callback, dealerId));
+        networkHelper.get(END_POINT_SHOP+"&id="+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
     }
 
-    private RequestCallback getGetShopRequestCallback(Callback<Dealership> callback, int dealerId){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                        for(int i = 0; i<customShops.length();i++){
-                            JSONObject shop = customShops.getJSONObject(i);
-                            if(shop.getInt("id") == dealerId){
-                                Dealership dealership = new Dealership();
-                                dealership.setId(shop.getInt("id"));
-                                dealership.setName(shop.getString("name"));
-                                dealership.setAddress(shop.getString("address"));
-                                dealership.setEmail(shop.getString("email"));
-                                dealership.setPhoneNumber(shop.getString("phone_number"));
-                                dealership.setCustom(true);
-                                localShopStorage.removeById(dealership.getId());
-                                localShopStorage.storeCustom(dealership);
-                                callback.onSuccess(dealership);
-                                break;
-                            }
-                        }
-                    }catch(JSONException e){
+    private RequestCallback getGetShopRequestCallback(Callback<Dealership> callback){
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    Log.d(TAG,"get shops response: "+response +", after conversion: "
+                            + new JSONArray(response).get(0).toString());
+                    Dealership dealership = Dealership.jsonToDealershipObject(
+                            new JSONArray(response).get(0).toString());
+                    if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
+                    }else{
+                        callback.onSuccess(dealership);
                     }
-                }else{
-                    callback.onError(requestError);
+                }catch (JSONException e){
+                    e.printStackTrace();
+                    callback.onError(RequestError.getUnknownError());
                 }
+
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
