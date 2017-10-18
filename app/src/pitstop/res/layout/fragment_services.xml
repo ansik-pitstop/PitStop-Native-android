@@ -53,7 +53,7 @@
 
             <FrameLayout
                 android:id="@+id/current_services_num_layout"
-                android:layout_alignParentEnd="true"
+                android:layout_toLeftOf="@id/current_services_right_chevron"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="5dp"
@@ -83,7 +83,18 @@
                     android:layout_gravity="center"
                     android:text="0"
                     android:textColor="@color/white_text" />
+
             </FrameLayout>
+
+            <ImageView
+                android:id="@+id/current_services_right_chevron"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/right_chevron" />
 
         </RelativeLayout>
     </android.support.v7.widget.CardView>
@@ -144,6 +155,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
+                <ImageView
+                    android:id="@+id/upcoming_services_right_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/right_chevron" />
+
             </LinearLayout>
 
         </RelativeLayout>
@@ -158,7 +177,7 @@
         app:elevation="2dp"
         app:cardBackgroundColor="@color/white" >
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
@@ -170,6 +189,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/past_services_right_chevron"
                 android:orientation="vertical">
 
                 <TextView
@@ -188,7 +208,18 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/past_services_right_chevron"
+                android:layout_marginRight="10dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/right_chevron" />
+
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
 
 </LinearLayout>
