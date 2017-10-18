@@ -7,7 +7,6 @@ import android.support.v7.widget.Toolbar;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
-import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -185,7 +184,7 @@ public class TabFragmentManager {
         setCurrentServices();
     }
     public void setCurrentServices(){
-        ((MainServicesFragment) tabViewPagerAdapter.getItem(1)).setCurrent();
+        //((MainServicesFragment) tabViewPagerAdapter.getItem(1)).setCurrent();
     }
 
     public void openScanTab() {
