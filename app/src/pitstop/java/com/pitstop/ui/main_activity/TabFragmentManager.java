@@ -128,7 +128,7 @@ public class TabFragmentManager {
         mTabLayout.setupWithViewPager(mViewPager);
 
         int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.ic_services
-                ,R.drawable.ic_scan,R.drawable.ic_garage,R.drawable.ic_notifications};
+                ,R.drawable.ic_scan,R.drawable.ic_garage,R.drawable.ic_notification};
 
         ColorStateList colors;
         if (Build.VERSION.SDK_INT >= 23) {

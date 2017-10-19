@@ -15,14 +15,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -484,25 +482,14 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     private void bindMercedesDealerUI(){
-        BottomNavigationView bottomNavigationView = findViewById(R.id.appbar);
-        bottomNavigationView.setBackgroundColor(Color.BLACK);
         changeTheme(true);
     }
 
     private void bindDefaultDealerUI(){
         Log.d(TAG,"Binding deafult dealer UI.");
         //Change theme elements back to default
-        //changeTheme(false);
-
-        //Get the themes default primary color
-        TypedValue defaultColor = new TypedValue();
-        getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
-
-        //Set other changed UI elements back to original color
-//        findViewById(R.id.main_tablayout).setBackgroundColor(Color.rgb(255,255,255));
-//        findViewById(R.id.appbar).setBackgroundColor(Color.rgb(255,255,255));
+        changeTheme(false);
     }
-
 
     private void updateScannerLocalStore(){
         useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {

@@ -18,6 +18,6 @@
         android:title="Garage" />
     <item
         android:id="@+id/action_notifications"
-        android:icon="@drawable/ic_notifications"
+        android:icon="@drawable/ic_notification"
         android:title="@string/notifications" />
 </menu>
