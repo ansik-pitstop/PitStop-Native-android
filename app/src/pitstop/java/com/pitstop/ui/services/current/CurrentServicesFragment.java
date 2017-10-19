@@ -285,6 +285,46 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
+    public void showMyServicesView(boolean show) {
+        if (show)
+            myServicesHolder.setVisibility(View.VISIBLE);
+        else
+            myServicesHolder.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showRoutineServicesView(boolean show) {
+        if (show)
+            routineServicesHolder.setVisibility(View.VISIBLE);
+        else
+            routineServicesHolder.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showPotentialEngineIssuesView(boolean show) {
+        if (show)
+            potentialEngineIssuesHolder.setVisibility(View.VISIBLE);
+        else
+            potentialEngineIssuesHolder.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showStoredEngineIssuesView(boolean show) {
+        if (show)
+            storedEngineIssuesHolder.setVisibility(View.VISIBLE);
+        else
+            storedEngineIssuesHolder.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showRecallsView(boolean show) {
+        if (show)
+            recallsHolder.setVisibility(View.VISIBLE);
+        else
+            recallsHolder.setVisibility(View.GONE);
+    }
+
+    @Override
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated()");
         return hasBeenPopulated;

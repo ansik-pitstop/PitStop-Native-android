@@ -22,6 +22,11 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
     void startCustomServiceActivity();
     void notifyIssueDataChanged();
     void displayNoServices(boolean visible);
+    void showMyServicesView(boolean show);
+    void showRoutineServicesView(boolean show);
+    void showPotentialEngineIssuesView(boolean show);
+    void showStoredEngineIssuesView(boolean show);
+    void showRecallsView(boolean show);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }
