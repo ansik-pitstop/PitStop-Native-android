@@ -48,6 +48,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/create_service"
                         android:text="Create Service"
                         android:textColor="@color/primary"
                         android:layout_alignParentEnd="true"
@@ -56,6 +57,7 @@
                         android:layout_height="wrap_content" />
 
                     <TextView
+                        android:id="@+id/move_history"
                         android:text="Move to History"
                         android:textColor="@color/primary"
                         android:layout_alignParentStart="true"

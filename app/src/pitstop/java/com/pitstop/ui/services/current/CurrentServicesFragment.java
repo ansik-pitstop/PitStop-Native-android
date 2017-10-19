@@ -58,7 +58,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.progress)
     View loadingView;
 
-    @BindView(R.id.service_launch_custom)
+    @BindView(R.id.create_service)
     LinearLayout customServiceButton;
 
     @BindView(R.id.custom_issues_list)
