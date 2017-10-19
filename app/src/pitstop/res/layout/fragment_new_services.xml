@@ -50,6 +50,7 @@
                     <TextView
                         android:id="@+id/create_service"
                         android:text="Create Service"
+                        android:textStyle="bold"
                         android:textColor="@color/primary"
                         android:layout_alignParentEnd="true"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
@@ -59,6 +60,7 @@
                     <TextView
                         android:id="@+id/move_history"
                         android:text="Move to History"
+                        android:textStyle="bold"
                         android:textColor="@color/primary"
                         android:layout_alignParentStart="true"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
@@ -69,27 +71,35 @@
 
                 <include layout="@layout/divider" />
 
-                <TextView
-                    android:id="@+id/textView27"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="My Services"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                <include layout="@layout/divider" />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/my_services_holder"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/custom_issues_list"
+                    <TextView
+                        android:id="@+id/textView27"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:overScrollMode="never"
-                        android:visibility="gone" />
-                </RelativeLayout>
+                        android:layout_margin="10dp"
+                        android:text="My Services"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                    <include layout="@layout/divider" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/custom_issues_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:overScrollMode="never"/>
+                    </RelativeLayout>
+
+                </LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"

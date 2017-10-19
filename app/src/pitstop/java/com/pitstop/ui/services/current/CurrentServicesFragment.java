@@ -58,11 +58,11 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.progress)
     View loadingView;
 
-    @BindView(R.id.create_service)
-    View customServiceButton;
-
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
+
+    @BindView(R.id.my_services_holder)
+    View myServicesHolder;
 
     @BindView(R.id.engine_list_view)
     RecyclerView engineListView;
@@ -191,10 +191,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
             customIssueList.remove(issue);
             if (customIssueList.isEmpty())
-                customIssueListRecyclerView.setVisibility(View.GONE);
+                myServicesHolder.setVisibility(View.GONE);
             customIssueAdapter.notifyDataSetChanged();
         } else {
             carIssueList.remove(issue);
+            if (carIssueList.isEmpty()){
+                routineListHolder.setVisibility(View.GONE);
+            }
             carIssuesAdapter.notifyDataSetChanged();
         }
     }
@@ -302,7 +305,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void addCustomIssue(CarIssue issue) {
         Log.d(TAG,"addCustomIssue()");
-        customIssueListRecyclerView.setVisibility(View.VISIBLE);
+        myServicesHolder.setVisibility(View.VISIBLE);
         customIssueList.add(issue);
         customIssueAdapter.notifyDataSetChanged();
     }
@@ -383,9 +386,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         customIssueAdapter.notifyDataSetChanged();
 
         if(customIssueList.isEmpty()){
-            customIssueListRecyclerView.setVisibility(View.GONE);
+            myServicesHolder.setVisibility(View.GONE);
         }else{
-            customIssueListRecyclerView.setVisibility(View.VISIBLE);
+            myServicesHolder.setVisibility(View.VISIBLE);
         }
 
     }
