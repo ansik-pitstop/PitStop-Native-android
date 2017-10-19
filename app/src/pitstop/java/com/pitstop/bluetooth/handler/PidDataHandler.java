@@ -73,6 +73,8 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
+
+
     public void handlePidData(PidPackage pidPackage){
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
@@ -210,6 +212,7 @@ public class PidDataHandler {
         }
     }
 
+
     public static void visualizePidReceived(PidPackage pidPackage, Context context){
         if (pidPackage == null){
             Log.d(TAG,"visualizePidReceived() pidPackage = null");
@@ -240,7 +243,6 @@ public class PidDataHandler {
         //Only allow one toast showing failure every 15 seconds
         mainHandler.postDelayed(() -> pidDataSentVisible = false, 15000);
     }
-
 
     private void setDevicePIDs(String[] pids, String vin, int interval){
 
@@ -285,13 +287,11 @@ public class PidDataHandler {
             }
         });
 
-
     }
 
     public void setDeviceRtcInterval(String[] pids, String vin, int interval){
        setDevicePIDs(pids, vin, interval);
     }
-
 
     public void setChunkSize(int size) {
         this.networkChunkSize = size;
