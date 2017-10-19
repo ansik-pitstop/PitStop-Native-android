@@ -136,7 +136,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             title = v.findViewById(R.id.title);
             description = v.findViewById(R.id.description);
             imageView = v.findViewById(R.id.image_icon);
-            checkBox = v.findViewById(R.id.checkBox);
+            checkBox = v.findViewById(R.id.checkbox);
             container = v.findViewById(R.id.list_car_item);
             date = v.findViewById(R.id.date);
         }
