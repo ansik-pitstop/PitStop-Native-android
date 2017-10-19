@@ -78,7 +78,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null || getView() == null) return;
-        getView().addCustomIssue(issue);
+        getView().addMyService(issue);
     }
 
     void onRefresh(){
@@ -135,8 +135,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 }
                 customIssueList.addAll(customIssues);
 
-                getView().displayCarIssues(carIssueList);
-                getView().displayCustomIssues(customIssueList);
+                getView().displayRoutineServices(carIssueList);
+                getView().displayMyServices(customIssueList);
                 getView().displayPotentialEngineIssues(potentialEngineIssues);
                 getView().displayStoredEngineIssues(engineIssueList);
                 getView().displayRecalls(recallList);

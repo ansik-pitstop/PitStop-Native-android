@@ -73,7 +73,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ImageView serviceRightChevron;
 
     private int recallListHolderHeight;
-    @BindView(R.id.recall_list_holder)
+    @BindView(R.id.recalls_holder)
     RelativeLayout recallListHolder;
     @BindView(R.id.recall_list_button)
     RelativeLayout recallListButton;

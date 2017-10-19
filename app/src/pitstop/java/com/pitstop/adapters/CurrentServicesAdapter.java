@@ -47,59 +47,37 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        int viewType = getItemViewType(position);
-
         holder.date.setVisibility(View.GONE);
 
-        if (viewType == VIEW_TYPE_EMPTY) {
-            holder.description.setMaxLines(2);
-            holder.description.setText("You have no pending Engine Code, Recalls or Routine Services");
-            holder.title.setText("Congrats!");
-            holder.checkBox.setVisibility(View.INVISIBLE);
-            holder.imageView.setImageDrawable(
-                    ContextCompat.getDrawable(holder.container.getContext()
-                            , R.drawable.ic_check_circle_green_400_36dp));
-        } else if (viewType == VIEW_TYPE_TENTATIVE) {
-            holder.checkBox.setVisibility(View.INVISIBLE);
-            holder.description.setMaxLines(2);
-            holder.description.setText("Tap to start");
-            holder.title.setText("Book your first tentative service");
-            holder.imageView.setImageDrawable(
-                    ContextCompat.getDrawable(holder.container.getContext(), R.drawable.ic_announcement_blue_600_24dp));
-            holder.container.setOnClickListener(v -> issueHolderListener.onTentativeServiceClicked());
+        final CarIssue carIssue = carIssues.get(position);
+
+        holder.description.setText(carIssue.getDescription());
+        holder.description.setEllipsize(TextUtils.TruncateAt.END);
+        if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
+            holder.imageView.setImageDrawable(ContextCompat
+                    .getDrawable(holder.container.getContext(), R.drawable.recall_yellow3x));
+
+        } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
+            holder.imageView.setImageDrawable(ContextCompat
+                    .getDrawable(holder.container.getContext(), R.drawable.car_engine_red));
+
+        } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
+            holder.imageView.setImageDrawable(ContextCompat
+                    .getDrawable(holder.container.getContext(), R.drawable.car_engine_yellow));
         } else {
-            final CarIssue carIssue = carIssues.get(position);
-
             holder.description.setText(carIssue.getDescription());
-            holder.description.setEllipsize(TextUtils.TruncateAt.END);
-            if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
-                holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(holder.container.getContext(), R.drawable.recall_yellow3x));
-
-            } else if (carIssue.getIssueType().equals(CarIssue.DTC)) {
-                holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(holder.container.getContext(), R.drawable.car_engine_red));
-
-            } else if (carIssue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-                holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(holder.container.getContext(), R.drawable.car_engine_yellow));
-            } else {
-                holder.description.setText(carIssue.getDescription());
-                holder.imageView.setImageDrawable(ContextCompat
-                        .getDrawable(holder.container.getContext(), R.drawable.ic_warning_amber_300_24dp));
-            }
-
-            holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
-
-            holder.container.setOnClickListener((View view) -> {
-                issueHolderListener.onServiceClicked(carIssues, position);
-
-            });
-
-            //Get the done image view
-            holder.checkBox.setOnClickListener((View view)
-                    -> issueHolderListener.onServiceDoneClicked(carIssue));
+            holder.imageView.setImageDrawable(ContextCompat
+                    .getDrawable(holder.container.getContext(), R.drawable.ic_warning_amber_300_24dp));
         }
+
+        holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
+
+        holder.container.setOnClickListener((View view)
+                -> issueHolderListener.onServiceClicked(carIssues, position));
+
+        //Get the done image view
+        holder.checkBox.setOnClickListener((View view)
+                -> issueHolderListener.onServiceDoneClicked(carIssue));
     }
 
     @Override

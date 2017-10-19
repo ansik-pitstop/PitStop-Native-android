@@ -13,15 +13,15 @@ import java.util.List;
 
 public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
         , NoCarAddedHandlingView{
-    void displayCarIssues(List<CarIssue> carIssues);
-    void displayCustomIssues(List<CarIssue> customIssueList);
-    void displayStoredEngineIssues(List<CarIssue> storedEngineIssues);
+    void displayRoutineServices(List<CarIssue> routineServicesList);
+    void displayMyServices(List<CarIssue> myServicesList);
+    void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList);
     void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList);
-    void displayRecalls(List<CarIssue> displayRecalls);
+    void displayRecalls(List<CarIssue> displayRecallsList);
     void displayCalendar(CarIssue carIssue);
     void startCustomServiceActivity();
     void removeCarIssue(CarIssue issue);
-    void addCustomIssue(CarIssue issue);
+    void addMyService(CarIssue issue);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }
