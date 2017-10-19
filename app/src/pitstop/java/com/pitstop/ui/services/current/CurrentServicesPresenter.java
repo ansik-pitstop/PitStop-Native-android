@@ -130,8 +130,14 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 recallList.clear();
 
                 getView().displayOnlineView();
-                if (currentServices.isEmpty() && customIssues.isEmpty())
+                if (currentServices.isEmpty() && customIssues.isEmpty()){
                     getView().displayNoServices(true);
+                    getView().showMyServicesView(false);
+                    getView().showPotentialEngineIssuesView(false);
+                    getView().showRecallsView(false);
+                    getView().showRoutineServicesView(false);
+                    getView().showStoredEngineIssuesView(false);
+                }
                 else{
                     getView().displayNoServices(false);
                     for(CarIssue c:currentServices){
@@ -151,6 +157,17 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                         }
                     }
                     myServicesList.addAll(customIssues);
+
+                    if (routineServicesList.isEmpty()){
+
+                    }else{
+
+                    }
+                    if (myServicesList.isEmpty()){
+
+                    }else{
+
+                    }
 
                     getView().displayRoutineServices(routineServicesList);
                     getView().displayMyServices(myServicesList);
