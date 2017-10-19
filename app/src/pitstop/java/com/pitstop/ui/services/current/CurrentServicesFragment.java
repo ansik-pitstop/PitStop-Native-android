@@ -59,7 +59,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     View loadingView;
 
     @BindView(R.id.create_service)
-    LinearLayout customServiceButton;
+    View customServiceButton;
 
     @BindView(R.id.custom_issues_list)
     RecyclerView customIssueListRecyclerView;
@@ -143,7 +143,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         presenter.onUpdateNeeded();
     }
 
-    @OnClick(R.id.service_launch_custom)
+    @OnClick(R.id.create_service)
     public void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
         presenter.onCustomServiceButtonClicked();
