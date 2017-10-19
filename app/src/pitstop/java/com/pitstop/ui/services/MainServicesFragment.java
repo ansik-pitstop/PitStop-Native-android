@@ -1,6 +1,5 @@
 package com.pitstop.ui.services;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -75,7 +74,7 @@ public class MainServicesFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View rootview = inflater.inflate(R.layout.activity_services,null);
+        View rootview = inflater.inflate(R.layout.fragment_services,null);
         mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
@@ -146,7 +145,7 @@ public class MainServicesFragment extends Fragment{
     }
 
     //Return data associated with fragment of the provided tab
-    private class ServicesAdapter extends FragmentPagerAdapter {
+    class ServicesAdapter extends FragmentPagerAdapter {
 
         private final int FRAGMENT_UPCOMING = 0;
         private final int FRAGMENT_CURRENT = 1;
@@ -182,7 +181,8 @@ public class MainServicesFragment extends Fragment{
         if (mServicesPager == null){
             return;
         }
-        mServicesPager.setCurrentItem(1);
+        tabLayout.getTabAt(1).select();
+        //mServicesPager.setCurrentItem(1);
     }
 
 }

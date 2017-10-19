@@ -1,7 +1,11 @@
 package com.pitstop.ui.main_activity;
 
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 
@@ -74,7 +78,7 @@ public class TabFragmentManager {
             public void onPageSelected(int position) {
                 switch(position){
                     case TAB_DASHBOARD:
-
+                        mMixpanelHelper.trackSwitchedToTab("Dashboard");
                         break;
                     case TAB_SERVICES:
                         mMixpanelHelper.trackSwitchedToTab("Services");
@@ -123,14 +127,26 @@ public class TabFragmentManager {
     private void setupTabIcons(){
         mTabLayout.setupWithViewPager(mViewPager);
 
-        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.history
-                ,R.drawable.scan_icon,R.drawable.garage_white,R.drawable.ic_notifications_white_24dp};
+        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.ic_services
+                ,R.drawable.ic_scan,R.drawable.ic_garage,R.drawable.ic_notification};
+
+        ColorStateList colors;
+        if (Build.VERSION.SDK_INT >= 23) {
+            colors = mActivity.getResources().getColorStateList(R.color.tab_selector
+                    , mActivity.getTheme());
+        }
+        else {
+            colors = mActivity.getResources().getColorStateList(R.color.tab_selector);
+        }
 
         for (int i=0;i<tabIcons.length;i++){
-            try{
-                mTabLayout.getTabAt(i).setIcon(tabIcons[i]);
-            }catch(java.lang.NullPointerException e){
+            TabLayout.Tab tab = mTabLayout.getTabAt(i);
+            tab.setIcon(tabIcons[i]);
+            Drawable icon = tab.getIcon();
 
+            if (icon != null) {
+                icon = DrawableCompat.wrap(icon);
+                DrawableCompat.setTintList(icon, colors);
             }
         }
     }

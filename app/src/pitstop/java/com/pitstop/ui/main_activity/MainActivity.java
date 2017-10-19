@@ -15,15 +15,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,7 +52,6 @@ import com.pitstop.models.Dealership;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.models.issue.IssueDetail;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
@@ -486,10 +482,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     private void bindMercedesDealerUI(){
-        TabLayout tabLayout = (TabLayout)findViewById(R.id.main_tablayout);
-        tabLayout.setBackgroundColor(Color.BLACK);
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-        appBarLayout.setBackgroundColor(Color.DKGRAY);
         changeTheme(true);
     }
 
@@ -497,16 +489,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         Log.d(TAG,"Binding deafult dealer UI.");
         //Change theme elements back to default
         changeTheme(false);
-
-        //Get the themes default primary color
-        TypedValue defaultColor = new TypedValue();
-        getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
-
-        //Set other changed UI elements back to original color
-        ((TabLayout)findViewById(R.id.main_tablayout)).setBackgroundColor(defaultColor.data);
-        ((AppBarLayout) findViewById(R.id.appbar)).setBackgroundColor(defaultColor.data);
     }
-
 
     private void updateScannerLocalStore(){
         useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
