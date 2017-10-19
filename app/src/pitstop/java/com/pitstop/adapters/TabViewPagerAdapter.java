@@ -43,7 +43,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return dashboardFragment;
             case TabFragmentManager.TAB_SERVICES:
                 if (mainServicesFragment == null){
-                    mainServicesFragment = MainServicesFragment.newInstance();
+                    mainServicesFragment = new MainServicesFragment();
                 }
                 return mainServicesFragment;
             case TabFragmentManager.TAB_SCAN:
