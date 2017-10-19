@@ -281,7 +281,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         if (visible)
             noServicesCard.setVisibility(View.VISIBLE);
         else
-            noServicesCard.setVisibility(View.INVISIBLE);
+            noServicesCard.setVisibility(View.GONE);
     }
 
     @Override

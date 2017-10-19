@@ -92,9 +92,6 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        if (carIssues.isEmpty()) {
-            return 1;
-        }
         return carIssues.size();
     }
 
