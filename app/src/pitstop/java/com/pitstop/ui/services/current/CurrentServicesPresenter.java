@@ -122,6 +122,13 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
                 updating = false;
                 if (getView() == null) return;
+
+                routineServicesList.clear();
+                myServicesList.clear();
+                potentialEngineIssuesList.clear();
+                storedEngineIssueList.clear();
+                recallList.clear();
+
                 getView().displayOnlineView();
                 if (currentServices.isEmpty() && customIssues.isEmpty())
                     getView().displayNoServices(true);
