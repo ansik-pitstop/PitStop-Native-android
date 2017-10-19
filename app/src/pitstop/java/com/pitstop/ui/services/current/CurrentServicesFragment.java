@@ -203,6 +203,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             }
             carIssuesAdapter.notifyDataSetChanged();
         }
+        if (carIssueList.isEmpty() && carIssueList.isEmpty() && storedEngineIssueList.isEmpty()
+                && potentialEngineIssuesList.isEmpty() && customIssueList.isEmpty()){
+            carIssueListView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -392,6 +396,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         customIssueListRecyclerView.setAdapter(customIssueAdapter);
         customIssueAdapter.notifyDataSetChanged();
 
+        if (carIssueList.isEmpty())
+            carIssueListView.setVisibility(View.GONE);
+
         if(customIssueList.isEmpty()){
             myServicesHolder.setVisibility(View.GONE);
         }else{
@@ -410,6 +417,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         storedEngineIssuesAdapter = new CurrentServicesAdapter(this.storedEngineIssueList,this);
         engineListView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         engineListView.setAdapter(storedEngineIssuesAdapter);
+
+        if(customIssueList.isEmpty()){
+            myServicesHolder.setVisibility(View.GONE);
+        }else{
+            myServicesHolder.setVisibility(View.VISIBLE);
+        }
 
         if(storedEngineIssues.isEmpty()){
             engineIssueHolder.setVisibility(View.GONE);
@@ -431,6 +444,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                 new LinearLayoutManager(getActivity().getApplicationContext()));
         potentialListView.setAdapter(potentialEngineIssueAdapter);
 
+        if(customIssueList.isEmpty()){
+            myServicesHolder.setVisibility(View.GONE);
+        }else{
+            myServicesHolder.setVisibility(View.VISIBLE);
+        }
+
         if(potentialEngineIssueList.isEmpty()){
             potentialEngineList.setVisibility(View.GONE);
         }else{
@@ -449,6 +468,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         recallListView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
         recallListView.setAdapter(recallAdapter);
+
+        if(customIssueList.isEmpty()){
+            myServicesHolder.setVisibility(View.GONE);
+        }else{
+            myServicesHolder.setVisibility(View.VISIBLE);
+        }
 
         if(displayRecalls.isEmpty()){
             recallListHolder.setVisibility(View.GONE);
