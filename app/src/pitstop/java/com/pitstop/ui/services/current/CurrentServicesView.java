@@ -20,8 +20,8 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
     void displayRecalls(List<CarIssue> displayRecallsList);
     void displayCalendar(CarIssue carIssue);
     void startCustomServiceActivity();
-    void removeCarIssue(CarIssue issue);
-    void addMyService(CarIssue issue);
+    void notifyIssueDataChanged();
+    void displayNoServices(boolean visible);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }

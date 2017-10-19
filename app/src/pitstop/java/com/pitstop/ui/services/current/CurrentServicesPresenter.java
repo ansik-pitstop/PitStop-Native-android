@@ -34,6 +34,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
 
+    List<CarIssue> routineServicesList = new ArrayList<>();
+    List<CarIssue> myServicesList = new ArrayList<>();
+    List<CarIssue> storedEngineIssueList = new ArrayList<>();
+    List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
+    List<CarIssue> recallList = new ArrayList<>();
+
     CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
@@ -78,7 +84,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null || getView() == null) return;
-        getView().addMyService(issue);
+        myServicesList.add(issue);
+        getView().notifyIssueDataChanged();
     }
 
     void onRefresh(){
@@ -109,12 +116,6 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         else updating = true;
         getView().showLoading();
 
-        List<CarIssue> carIssueList = new ArrayList<>();
-        List<CarIssue> customIssueList = new ArrayList<>();
-        List<CarIssue> engineIssueList = new ArrayList<>();
-        List<CarIssue> potentialEngineIssues = new ArrayList<>();
-        List<CarIssue> recallList = new ArrayList<>();
-
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
@@ -122,24 +123,34 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
                 getView().displayOnlineView();
-                for(CarIssue c:currentServices){
-                    if(c.getIssueType().equals(CarIssue.DTC)){
-                        engineIssueList.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.PENDING_DTC)){
-                        potentialEngineIssues.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.RECALL)){
-                        recallList.add(c);
-                    }else{
-                        carIssueList.add(c);
+                if (currentServices.isEmpty() && customIssues.isEmpty())
+                    getView().displayNoServices(true);
+                else{
+                    getView().displayNoServices(false);
+                    for(CarIssue c:currentServices){
+                        switch (c.getIssueType()) {
+                            case CarIssue.DTC:
+                                storedEngineIssueList.add(c);
+                                break;
+                            case CarIssue.PENDING_DTC:
+                                potentialEngineIssuesList.add(c);
+                                break;
+                            case CarIssue.RECALL:
+                                recallList.add(c);
+                                break;
+                            default:
+                                routineServicesList.add(c);
+                                break;
+                        }
                     }
-                }
-                customIssueList.addAll(customIssues);
+                    myServicesList.addAll(customIssues);
 
-                getView().displayRoutineServices(carIssueList);
-                getView().displayMyServices(customIssueList);
-                getView().displayPotentialEngineIssues(potentialEngineIssues);
-                getView().displayStoredEngineIssues(engineIssueList);
-                getView().displayRecalls(recallList);
+                    getView().displayRoutineServices(routineServicesList);
+                    getView().displayMyServices(myServicesList);
+                    getView().displayPotentialEngineIssues(potentialEngineIssuesList);
+                    getView().displayStoredEngineIssues(storedEngineIssueList);
+                    getView().displayRecalls(recallList);
+                }
 
                 getView().hideLoading();
             }
@@ -187,6 +198,26 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         }
     }
 
+    private void removeCarIssue(CarIssue c){
+        switch (c.getIssueType()) {
+            case CarIssue.DTC:
+                storedEngineIssueList.remove(c);
+                break;
+            case CarIssue.PENDING_DTC:
+                potentialEngineIssuesList.remove(c);
+                break;
+            case CarIssue.RECALL:
+                recallList.remove(c);
+                break;
+            case CarIssue.SERVICE_USER:
+                myServicesList.remove(c);
+                break;
+            default:
+                routineServicesList.remove(c);
+                break;
+        }
+    }
+
     void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
@@ -208,7 +239,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 if (getView() == null) return;
                 getView().displayOnlineView();
                 getView().hideLoading();
-                getView().removeCarIssue(carIssue);
+                removeCarIssue(carIssue);
+                getView().notifyIssueDataChanged();
             }
 
             @Override

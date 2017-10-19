@@ -20,14 +20,14 @@ import java.util.List;
 /**
  * Created by Karol Zdebel on 5/31/2017.
  */
-public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServicesAdapter.ViewHolder> {
+public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHolder> {
 
     private IssueHolderListener issueHolderListener;
     private List<CarIssue> carIssues;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public CurrentServicesAdapter(List<CarIssue> carIssues
+    public ServicesAdapter(List<CarIssue> carIssues
             , IssueHolderListener issueHolderListener) {
         this.carIssues = carIssues;
         this.issueHolderListener = issueHolderListener;

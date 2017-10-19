@@ -17,7 +17,7 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
 import com.pitstop.R;
-import com.pitstop.adapters.CurrentServicesAdapter;
+import com.pitstop.adapters.ServicesAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -30,7 +30,6 @@ import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -97,19 +96,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.my_services_holder)
     View myServicesHolder;
 
-    /*Adapters used to convert CarIssue list into RecyclerView*/
-    private CurrentServicesAdapter carIssuesAdapter;
-    private CurrentServicesAdapter customIssueAdapter;
-    private CurrentServicesAdapter storedEngineIssuesAdapter;
-    private CurrentServicesAdapter potentialEngineIssueAdapter;
-    private CurrentServicesAdapter recallAdapter;
+    @BindView(R.id.no_services_card)
+    View noServicesCard;
 
-    /*Displayed services, these lists are referenced through the adapter*/
-    List<CarIssue> carIssueList = new ArrayList<>();
-    List<CarIssue> customIssueList = new ArrayList<>();
-    List<CarIssue> storedEngineIssueList = new ArrayList<>();
-    List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
-    List<CarIssue> recallList = new ArrayList<>();
+    /*Adapters used to convert CarIssue list into RecyclerView*/
+    private ServicesAdapter routineServicesAdapter;
+    private ServicesAdapter myServicesAdapter;
+    private ServicesAdapter storedEngineIssuesAdapter;
+    private ServicesAdapter potentialEngineIssueAdapter;
+    private ServicesAdapter recallAdapter;
 
     private CurrentServicesPresenter presenter;
     private AlertDialog offlineAlertDialog;
@@ -158,6 +153,17 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
+    public void notifyIssueDataChanged() {
+        Log.d(TAG,"notifyIssueDataChanged()");
+        recallAdapter.notifyDataSetChanged();
+        potentialEngineIssueAdapter.notifyDataSetChanged();
+        storedEngineIssuesAdapter.notifyDataSetChanged();
+        myServicesAdapter.notifyDataSetChanged();
+        routineServicesAdapter.notifyDataSetChanged();
+    }
+
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
         super.onActivityResult(requestCode, resultCode, data);
@@ -167,37 +173,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             if (carIssue != null){
                 presenter.onCustomIssueCreated(carIssue);
             }
-        }
-    }
-
-    @Override
-    public void removeCarIssue(CarIssue issue) {
-        Log.d(TAG,"removeCarIssue() carIssue: "+issue.getIssueType());
-        if (issue.getIssueType().equals(CarIssue.RECALL)) {
-            recallList.remove(issue);
-            if (recallList.isEmpty())
-                recallsHolder.setVisibility(View.GONE);
-            recallAdapter.notifyDataSetChanged();
-        } else if (issue.getIssueType().equals(CarIssue.DTC)) {
-            storedEngineIssueList.remove(issue);
-            if (storedEngineIssueList.isEmpty())
-                storedEngineIssuesHolder.setVisibility(View.GONE);
-            storedEngineIssuesAdapter.notifyDataSetChanged();
-        } else if (issue.getIssueType().equals(CarIssue.PENDING_DTC)) {
-            potentialEngineIssuesList.remove(issue);
-            if (potentialEngineIssuesList.isEmpty())
-                potentialEngineIssuesHolder.setVisibility(View.GONE);
-            potentialEngineIssueAdapter.notifyDataSetChanged();
-        } else if (issue.getIssueType().equals(CarIssue.SERVICE_USER)){
-            customIssueList.remove(issue);
-            if (customIssueList.isEmpty())
-                myServicesHolder.setVisibility(View.GONE);
-            customIssueAdapter.notifyDataSetChanged();
-        } else {
-            carIssueList.remove(issue);
-            if (carIssueList.isEmpty())
-                routineServicesHolder.setVisibility(View.GONE);
-            carIssuesAdapter.notifyDataSetChanged();
         }
     }
 
@@ -302,11 +277,11 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void addMyService(CarIssue issue) {
-        Log.d(TAG,"addMyService()");
-        myServicesHolder.setVisibility(View.VISIBLE);
-        customIssueList.add(issue);
-        customIssueAdapter.notifyDataSetChanged();
+    public void displayNoServices(boolean visible) {
+        if (visible)
+            noServicesCard.setVisibility(View.VISIBLE);
+        else
+            noServicesCard.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -360,13 +335,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayRoutineServices() size(): "+ routineServicesList.size());
 
         hasBeenPopulated = true;
-        this.carIssueList.clear();
-        this.carIssueList.addAll(routineServicesList);
 
-        carIssuesAdapter = new CurrentServicesAdapter(this.carIssueList,this);
+        if (routineServicesAdapter == null){
+            routineServicesAdapter = new ServicesAdapter(routineServicesList,this);
+        }
         routineServicesRecyclerView.setLayoutManager(new LinearLayoutManager(
                 getActivity().getApplicationContext()));
-        routineServicesRecyclerView.setAdapter(carIssuesAdapter);
+        routineServicesRecyclerView.setAdapter(routineServicesAdapter);
         if (routineServicesList.isEmpty()){
             routineServicesHolder.setVisibility(View.GONE);
         }
@@ -380,13 +355,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayMyServices() size(): "+ myServicesList.size());
 
         hasBeenPopulated = true;
-        this.customIssueList.clear();
-        this.customIssueList.addAll(myServicesList);
-        customIssueAdapter = new CurrentServicesAdapter(this.customIssueList,this);
+        if (myServicesAdapter == null)
+            myServicesAdapter = new ServicesAdapter(myServicesList,this);
         myServicesRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
-        myServicesRecyclerView.setAdapter(customIssueAdapter);
-        customIssueAdapter.notifyDataSetChanged();
+        myServicesRecyclerView.setAdapter(myServicesAdapter);
+        myServicesAdapter.notifyDataSetChanged();
 
         if(myServicesList.isEmpty()){
             myServicesHolder.setVisibility(View.GONE);
@@ -401,9 +375,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayStoredEngineIssues() size(): "+ storedEngineIssuesList.size());
 
         hasBeenPopulated = true;
-        this.storedEngineIssueList.clear();
-        this.storedEngineIssueList.addAll(storedEngineIssuesList);
-        storedEngineIssuesAdapter = new CurrentServicesAdapter(this.storedEngineIssueList,this);
+        if (storedEngineIssuesAdapter == null)
+            storedEngineIssuesAdapter = new ServicesAdapter(storedEngineIssuesList,this);
         storedEngineIssuesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         storedEngineIssuesRecyclerView.setAdapter(storedEngineIssuesAdapter);
 
@@ -419,10 +392,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
 
         hasBeenPopulated = true;
-        this.potentialEngineIssuesList.clear();
-        this.potentialEngineIssuesList.addAll(potentialEngineIssueList);
-        potentialEngineIssueAdapter
-                = new CurrentServicesAdapter(this.potentialEngineIssuesList,this);
+        if (potentialEngineIssueAdapter == null)
+            potentialEngineIssueAdapter
+                = new ServicesAdapter(potentialEngineIssueList,this);
         potentialEngineIssuesRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
         potentialEngineIssuesRecyclerView.setAdapter(potentialEngineIssueAdapter);
@@ -439,9 +411,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayRecalls() size(): "+ displayRecallsList.size());
 
         hasBeenPopulated = true;
-        this.recallList.clear();
-        this.recallList.addAll(displayRecallsList);
-        recallAdapter = new CurrentServicesAdapter(this.recallList,this);
+        if (recallAdapter == null)
+            recallAdapter = new ServicesAdapter(displayRecallsList,this);
         recallsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity().getApplicationContext()));
         recallsRecyclerView.setAdapter(recallAdapter);
