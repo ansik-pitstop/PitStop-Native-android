@@ -368,8 +368,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         carIssueListView.setLayoutManager(new LinearLayoutManager(
                 getActivity().getApplicationContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
-
-        routineListHolder.setVisibility(View.VISIBLE);
+        if (carIssues.isEmpty()){
+            routineListHolder.setVisibility(View.GONE);
+        }
+        else{
+            routineListHolder.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
