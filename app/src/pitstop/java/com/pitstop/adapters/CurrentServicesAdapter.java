@@ -60,6 +60,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
                     ContextCompat.getDrawable(holder.container.getContext()
                             , R.drawable.ic_check_circle_green_400_36dp));
         } else if (viewType == VIEW_TYPE_TENTATIVE) {
+            holder.checkBox.setVisibility(View.INVISIBLE);
             holder.description.setMaxLines(2);
             holder.description.setText("Tap to start");
             holder.title.setText("Book your first tentative service");
