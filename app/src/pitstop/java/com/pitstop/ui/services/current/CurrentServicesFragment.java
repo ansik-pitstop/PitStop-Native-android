@@ -61,9 +61,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.my_services_recycler_view)
     RecyclerView myServicesRecyclerView;
 
-    @BindView(R.id.my_services_holder)
-    View myServicesHolder;
-
     @BindView(R.id.stored_engine_issues_recycler_view)
     RecyclerView storedEngineIssuesRecyclerView;
 
@@ -97,8 +94,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
 
-    @BindView(R.id.routine_services_text_holder)
-    View routineServicesTextHolder;
+    @BindView(R.id.my_services_holder)
+    View myServicesHolder;
 
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
