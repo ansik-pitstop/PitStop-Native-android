@@ -145,7 +145,7 @@ public class MainServicesFragment extends Fragment{
     }
 
     //Return data associated with fragment of the provided tab
-    private class ServicesAdapter extends FragmentPagerAdapter {
+    class ServicesAdapter extends FragmentPagerAdapter {
 
         private final int FRAGMENT_UPCOMING = 0;
         private final int FRAGMENT_CURRENT = 1;
@@ -181,7 +181,8 @@ public class MainServicesFragment extends Fragment{
         if (mServicesPager == null){
             return;
         }
-        mServicesPager.setCurrentItem(1);
+        tabLayout.getTabAt(1).select();
+        //mServicesPager.setCurrentItem(1);
     }
 
 }
