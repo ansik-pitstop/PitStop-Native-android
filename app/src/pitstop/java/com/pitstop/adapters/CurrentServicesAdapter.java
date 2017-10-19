@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,9 +53,9 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
 
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.description.setMaxLines(2);
-            holder.doneImageView.setVisibility(View.INVISIBLE);
             holder.description.setText("You have no pending Engine Code, Recalls or Routine Services");
             holder.title.setText("Congrats!");
+            holder.checkBox.setVisibility(View.INVISIBLE);
             holder.imageView.setImageDrawable(
                     ContextCompat.getDrawable(holder.container.getContext()
                             , R.drawable.ic_check_circle_green_400_36dp));
@@ -64,12 +65,7 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             holder.title.setText("Book your first tentative service");
             holder.imageView.setImageDrawable(
                     ContextCompat.getDrawable(holder.container.getContext(), R.drawable.ic_announcement_blue_600_24dp));
-            holder.container.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    issueHolderListener.onTentativeServiceClicked();
-                }
-            });
+            holder.container.setOnClickListener(v -> issueHolderListener.onTentativeServiceClicked());
         } else {
             final CarIssue carIssue = carIssues.get(position);
 
@@ -100,9 +96,8 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
             });
 
             //Get the done image view
-            holder.doneImageView.setOnClickListener((View view) -> {
-                issueHolderListener.onServiceDoneClicked(carIssue);
-            });
+            holder.checkBox.setOnClickListener((View view)
+                    -> issueHolderListener.onServiceDoneClicked(carIssue));
         }
     }
 
@@ -132,15 +127,15 @@ public class CurrentServicesAdapter extends RecyclerView.Adapter<CurrentServices
         public View container;
         public CardView card;
         public View date; // Not used here so it is set to GONE
-        public ImageView doneImageView;
+        public CheckBox checkBox;
 
         public ViewHolder(View v) {
             super(v);
-            card =(CardView) v.findViewById(R.id.list_car_item);
-            title = (TextView) v.findViewById(R.id.title);
-            description = (TextView) v.findViewById(R.id.description);
-            imageView = (ImageView) v.findViewById(R.id.image_icon);
-            doneImageView = (ImageView) v.findViewById(R.id.image_done_issue);
+            card = v.findViewById(R.id.list_car_item);
+            title = v.findViewById(R.id.title);
+            description = v.findViewById(R.id.description);
+            imageView = v.findViewById(R.id.image_icon);
+            checkBox = v.findViewById(R.id.checkBox);
             container = v.findViewById(R.id.list_car_item);
             date = v.findViewById(R.id.date);
         }

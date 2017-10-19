@@ -20,16 +20,14 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <ImageView
-            android:id="@+id/image_done_issue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_issue_close"
-            android:layout_alignParentRight="true"
             android:clickable="true"
-            />
+            android:focusable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <RelativeLayout
             android:id="@+id/issue_info_box"
@@ -37,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/issue_image_layout"
-            android:layout_toLeftOf="@id/image_done_issue"
+            android:layout_toLeftOf="@id/checkbox"
             android:orientation="horizontal">
 
             <TextView

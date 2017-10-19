@@ -97,6 +97,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
 
+    @BindView(R.id.routine_services_text_holder)
+    View routineServicesTextHolder;
+
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private CurrentServicesAdapter carIssuesAdapter;
     private CurrentServicesAdapter customIssueAdapter;
@@ -196,7 +199,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         } else {
             carIssueList.remove(issue);
             if (carIssueList.isEmpty()){
-                routineListHolder.setVisibility(View.GONE);
+                routineServicesTextHolder.setVisibility(View.GONE);
             }
             carIssuesAdapter.notifyDataSetChanged();
         }
@@ -369,10 +372,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                 getActivity().getApplicationContext()));
         carIssueListView.setAdapter(carIssuesAdapter);
         if (carIssues.isEmpty()){
-            routineListHolder.setVisibility(View.GONE);
+            routineServicesTextHolder.setVisibility(View.GONE);
         }
         else{
-            routineListHolder.setVisibility(View.VISIBLE);
+            routineServicesTextHolder.setVisibility(View.VISIBLE);
         }
     }
 
