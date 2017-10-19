@@ -7,8 +7,7 @@ interface BluetoothWriter {
 
     fun writeRTCInterval(interval: Int): Boolean
     fun resetMemory(): Boolean
-    fun toggleHistoricalData(toggle: Boolean): Boolean
-    fun setChunkSize(chunkSize: Int): Boolean
     fun clearDTCs() : Boolean
+    fun setChunkSize(size: Int): Boolean
 
 }

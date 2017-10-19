@@ -1202,12 +1202,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public boolean toggleHistoricalData(boolean toggle) {
-        return false;
-    }
-
-    @Override
-    public boolean setChunkSize(int chunkSize) {
+    public boolean setChunkSize(int size) {
+        pidDataHandler.setChunkSize(size);
         return false;
     }
 
