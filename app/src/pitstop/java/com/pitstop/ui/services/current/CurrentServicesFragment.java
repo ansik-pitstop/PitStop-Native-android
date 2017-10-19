@@ -338,10 +338,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
         if (routineServicesAdapter == null){
             routineServicesAdapter = new ServicesAdapter(routineServicesList,this);
+            routineServicesRecyclerView.setLayoutManager(new LinearLayoutManager(
+                    getActivity().getApplicationContext()));
+            routineServicesRecyclerView.setAdapter(routineServicesAdapter);
+        }else{
+            routineServicesAdapter.notifyDataSetChanged();
         }
-        routineServicesRecyclerView.setLayoutManager(new LinearLayoutManager(
-                getActivity().getApplicationContext()));
-        routineServicesRecyclerView.setAdapter(routineServicesAdapter);
+
         if (routineServicesList.isEmpty()){
             routineServicesHolder.setVisibility(View.GONE);
         }
@@ -355,12 +358,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayMyServices() size(): "+ myServicesList.size());
 
         hasBeenPopulated = true;
-        if (myServicesAdapter == null)
+        if (myServicesAdapter == null){
             myServicesAdapter = new ServicesAdapter(myServicesList,this);
-        myServicesRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        myServicesRecyclerView.setAdapter(myServicesAdapter);
-        myServicesAdapter.notifyDataSetChanged();
+            myServicesRecyclerView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            myServicesRecyclerView.setAdapter(myServicesAdapter);
+        }
+        else{
+            myServicesAdapter.notifyDataSetChanged();
+        }
 
         if(myServicesList.isEmpty()){
             myServicesHolder.setVisibility(View.GONE);
@@ -375,10 +381,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayStoredEngineIssues() size(): "+ storedEngineIssuesList.size());
 
         hasBeenPopulated = true;
-        if (storedEngineIssuesAdapter == null)
+        if (storedEngineIssuesAdapter == null){
             storedEngineIssuesAdapter = new ServicesAdapter(storedEngineIssuesList,this);
-        storedEngineIssuesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        storedEngineIssuesRecyclerView.setAdapter(storedEngineIssuesAdapter);
+            storedEngineIssuesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+            storedEngineIssuesRecyclerView.setAdapter(storedEngineIssuesAdapter);
+        }else{
+            storedEngineIssuesAdapter.notifyDataSetChanged();
+        }
 
         if(storedEngineIssuesList.isEmpty()){
             storedEngineIssuesHolder.setVisibility(View.GONE);
@@ -392,12 +401,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
 
         hasBeenPopulated = true;
-        if (potentialEngineIssueAdapter == null)
+        if (potentialEngineIssueAdapter == null){
             potentialEngineIssueAdapter
-                = new ServicesAdapter(potentialEngineIssueList,this);
-        potentialEngineIssuesRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        potentialEngineIssuesRecyclerView.setAdapter(potentialEngineIssueAdapter);
+                    = new ServicesAdapter(potentialEngineIssueList,this);
+            potentialEngineIssuesRecyclerView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            potentialEngineIssuesRecyclerView.setAdapter(potentialEngineIssueAdapter);
+        }else{
+            potentialEngineIssueAdapter.notifyDataSetChanged();
+        }
 
         if(potentialEngineIssueList.isEmpty()){
             potentialEngineIssuesHolder.setVisibility(View.GONE);
@@ -411,11 +423,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"displayRecalls() size(): "+ displayRecallsList.size());
 
         hasBeenPopulated = true;
-        if (recallAdapter == null)
+        if (recallAdapter == null){
             recallAdapter = new ServicesAdapter(displayRecallsList,this);
-        recallsRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getApplicationContext()));
-        recallsRecyclerView.setAdapter(recallAdapter);
+            recallsRecyclerView.setLayoutManager(
+                    new LinearLayoutManager(getActivity().getApplicationContext()));
+            recallsRecyclerView.setAdapter(recallAdapter);
+        }else{
+            recallAdapter.notifyDataSetChanged();
+        }
 
         if(displayRecallsList.isEmpty()){
             recallsHolder.setVisibility(View.GONE);
