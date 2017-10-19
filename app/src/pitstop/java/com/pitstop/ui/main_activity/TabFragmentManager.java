@@ -1,7 +1,11 @@
 package com.pitstop.ui.main_activity;
 
-import android.support.design.widget.BottomNavigationView;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 
@@ -27,14 +31,14 @@ public class TabFragmentManager {
 
     public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
 
+    @BindView(R.id.main_tablayout)
+    TabLayout mTabLayout;
+
     @BindView(R.id.main_container)
     ViewPager mViewPager;
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-
-    @BindView(R.id.appbar)
-    BottomNavigationView bottomNavigationView;
 
     private TabViewPagerAdapter tabViewPagerAdapter;
     private FragmentActivity mActivity;
@@ -58,7 +62,8 @@ public class TabFragmentManager {
 
         setupSwitchActions();
         setupActionBar();
-        setupBottomNavBar();
+        setupTabIcons();
+        setupTabTappable();
 
     }
 
@@ -110,23 +115,6 @@ public class TabFragmentManager {
             public void onPageSelected(int position) {
                 //Change actionbar title
                 mToolbar.setTitle(TAB_NAMES[position]);
-                switch(position){
-                    case TAB_DASHBOARD:
-                        bottomNavigationView.setSelectedItemId(R.id.action_dashboard);
-                        break;
-                    case TAB_SERVICES:
-                        bottomNavigationView.setSelectedItemId(R.id.action_services);
-                        break;
-                    case TAB_SCAN:
-                        bottomNavigationView.setSelectedItemId(R.id.action_scan);
-                        break;
-                    case TAB_GARAGE:
-                        bottomNavigationView.setSelectedItemId(R.id.action_garage);
-                        break;
-                    case TAB_NOTIF:
-                        bottomNavigationView.setSelectedItemId(R.id.action_notifications);
-                        break;
-                }
             }
 
             @Override
@@ -136,30 +124,78 @@ public class TabFragmentManager {
         });
     }
 
-    private void setupBottomNavBar(){
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch(item.getItemId()){
-                case R.id.action_dashboard:
-                    mViewPager.setCurrentItem(TAB_DASHBOARD);
-                    return true;
-                case R.id.action_services:
-                    mViewPager.setCurrentItem(TAB_SERVICES);
-                    return true;
-                case R.id.action_scan:
-                    mViewPager.setCurrentItem(TAB_SCAN);
-                    return true;
-                case R.id.action_garage:
-                    mViewPager.setCurrentItem(TAB_GARAGE);
-                    return true;
-                case R.id.action_notifications:
-                    mViewPager.setCurrentItem(TAB_NOTIF);
-                    return true;
-                default:
-                    return false;
+    private void setupTabIcons(){
+        mTabLayout.setupWithViewPager(mViewPager);
+
+        int[] tabIcons = {R.drawable.ic_dashboard,R.drawable.ic_services
+                ,R.drawable.ic_scan,R.drawable.ic_garage,R.drawable.ic_notifications};
+
+        ColorStateList colors;
+        if (Build.VERSION.SDK_INT >= 23) {
+            colors = mActivity.getResources().getColorStateList(R.color.tab_selector
+                    , mActivity.getTheme());
+        }
+        else {
+            colors = mActivity.getResources().getColorStateList(R.color.tab_selector);
+        }
+
+        for (int i=0;i<tabIcons.length;i++){
+            TabLayout.Tab tab = mTabLayout.getTabAt(i);
+            tab.setIcon(tabIcons[i]);
+            Drawable icon = tab.getIcon();
+
+            if (icon != null) {
+                icon = DrawableCompat.wrap(icon);
+                DrawableCompat.setTintList(icon, colors);
+            }
+        }
+    }
+
+    private void setupTabTappable(){
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch(tab.getPosition()){
+
+                    case TAB_DASHBOARD:
+                        //Go to dashboard fragment
+                        mViewPager.setCurrentItem(TAB_DASHBOARD);
+                        break;
+
+                    case TAB_SERVICES:
+                        //Go to services fragment
+                        mViewPager.setCurrentItem(TAB_SERVICES);
+                        break;
+
+                    case TAB_SCAN:
+                        //Go to scan fragment
+                        mViewPager.setCurrentItem(TAB_SCAN);
+                        break;
+
+                    case TAB_GARAGE:
+                        //Go to my garage fragment
+                        mViewPager.setCurrentItem(TAB_GARAGE);
+                        break;
+
+                    case TAB_NOTIF:
+                        //Go to notifications fragment
+                        mViewPager.setCurrentItem(TAB_NOTIF);
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                //do nothing
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
     }
-
     public void openServices() {
         mViewPager.setCurrentItem(TAB_SERVICES);
         setCurrentServices();
