@@ -38,6 +38,8 @@ public class PidDataHandler {
 
     private static boolean pidDataSentVisible = false;
 
+    private int networkChunkSize = 10;
+
 
 
     private final int PID_COUNT_DEFAULT = 10;
@@ -103,7 +105,7 @@ public class PidDataHandler {
                         else {Log.d(TAG, "???????????");}
                     }
                     else {
-                        Log.d(TAG, "notRightBuildB");
+                        Log.d(TAG, "notRightBuild");
                     }
                     Log.d(TAG,"Successfully handled pids.");
                 }
@@ -124,7 +126,7 @@ public class PidDataHandler {
                     Log.d(TAG, p + " Stored in local database");
 
                 }
-            });
+            }, this.networkChunkSize);
         }
         pendingPidPackages.clear();
     }
@@ -292,4 +294,7 @@ public class PidDataHandler {
     }
 
 
+    public void setChunkSize(int size) {
+        this.networkChunkSize = size;
+    }
 }

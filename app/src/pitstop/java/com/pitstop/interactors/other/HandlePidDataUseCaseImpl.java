@@ -28,7 +28,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     private static final String TAG = HandlePidDataUseCaseImpl.class.getSimpleName();
 
-    private static final int PID_CHUNK_SIZE = 10;
+    private int pidChunkSize = 10;
     private static final int SEND_INTERVAL = 300000;
 
     private PidRepository pidRepository;
@@ -62,9 +62,10 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     @Override
-    public void execute(PidPackage pidPackage, Callback callback) {
+    public void execute(PidPackage pidPackage, Callback callback, int chunkSize) {
         this.callback = callback;
         this.pidPackage = pidPackage;
+        this.pidChunkSize = chunkSize;
 
         //This will only happen for one use case execution
         if (periodicHandler == null){
@@ -89,7 +90,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         localPidStorage.createPIDData(getPidDataObject(pidPackage));
         HandlePidDataUseCaseImpl.this.onDataStored();
-        if(localPidStorage.getPidDataEntryCount() < PID_CHUNK_SIZE) {
+        if(localPidStorage.getPidDataEntryCount() < pidChunkSize) {
             return;
         }
 
@@ -158,7 +159,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             counter ++;
 
             //Send if its the last element or we hit max chunk size
-            if (counter == PID_CHUNK_SIZE || allPids.indexOf(p) == allPids.size()-1){
+            if (counter == pidChunkSize || allPids.indexOf(p) == allPids.size()-1){
                 counter = 0;
                 pidRepository.insertPid(chunk, new Repository.Callback<List<Pid>>() {
                     @Override

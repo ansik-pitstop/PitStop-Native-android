@@ -17,5 +17,5 @@ public interface HandlePidDataUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(PidPackage pidPackage, Callback callback);
+    void execute(PidPackage pidPackage, Callback callback, int chunkSize);
 }

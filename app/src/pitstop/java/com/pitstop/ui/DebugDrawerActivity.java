@@ -139,7 +139,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         startService(serviceIntent);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        EditText vinField = ViewUtils.findView(mDrawerLayout, R.id.debugVinField);
+
        editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
         Button getSupportedPids = ViewUtils.findView(mDrawerLayout, R.id.debugGetSupportedPids);
         getSupportedPids.setOnClickListener(v -> {
@@ -171,10 +171,25 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
                 (response, requestError) -> {
-                    vinField.setText(requestError == null ? response : "error: " + requestError.getMessage());
+                    editText.setText(requestError == null ? response : "error: " + requestError.getMessage());
                 })
         );
+
+        Button setChunkSizeButton = ViewUtils.findView(mDrawerLayout, R.id.debugSetNetworkChunkSize);
+        setChunkSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setChunkSize(Integer.valueOf(editText.getText().toString()));
+
+            }
+        });
         setupLogging();
+    }
+
+    private void setChunkSize(int chunkSize) {
+        if(bluetoothWriter!= null){
+            bluetoothWriter.setChunkSize(chunkSize);
+        }
     }
 
     private void showConfirmResetDTCDialog() {
@@ -225,7 +240,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         try {
             Interval =  Integer.parseInt(editText.getText().toString());
         } catch (NumberFormatException e) {
-            Interval = 0;
             Toast.makeText(this, "Make sure there is a number in the box", Toast.LENGTH_SHORT).show();
             return;
         }
