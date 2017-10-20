@@ -1,6 +1,7 @@
 package com.pitstop.interactors.set
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.EventBus.EventBusNotifier
 import com.pitstop.EventBus.EventSource
 import com.pitstop.EventBus.EventType
@@ -16,6 +17,7 @@ import com.pitstop.repositories.Repository
 class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
                                  ,val useCaseHandler: Handler,val mainHandler: Handler): SetServicesDoneUseCase {
 
+    val tag: String? = javaClass.simpleName
     var carIssues: List<CarIssue>? = null
     var eventSource: EventSource? = null
     var callback: SetServicesDoneUseCase.Callback? = null
@@ -32,10 +34,12 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
         while (issuesIterator.hasNext()){
             val hasNext = issuesIterator.hasNext()
             val issue = issuesIterator.next()
+            Log.d(tag,"calling updateCarIssue() on issue: $issue")
             carIssueRepository.updateCarIssue(issue, object : Repository.Callback<CarIssue>{
                 override fun onSuccess(carIssueReturned: CarIssue) {
                     issue.doneAt = carIssueReturned.doneAt
                     issue.status = carIssueReturned.status
+                    Log.d(tag,"updateCarIssue, hasNext? $hasNext, onSuccess, issue: $issue")
                     mainHandler.post({callback!!.onServiceMarkedAsDone(issue)})
                     if (!hasNext){
                         EventBusNotifier.notifyCarDataChanged(
