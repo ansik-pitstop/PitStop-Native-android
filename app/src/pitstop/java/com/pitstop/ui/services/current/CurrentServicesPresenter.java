@@ -285,7 +285,10 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
                 getView().showMyServicesView(!myServicesList.isEmpty());
                 getView().showRecallsView(!recallList.isEmpty());
-
+                getView().displayNoServices(routineServicesList.isEmpty()
+                        && storedEngineIssueList.isEmpty() && potentialEngineIssuesList.isEmpty()
+                        && myServicesList.isEmpty() && recallList.isEmpty()
+                        && routineServicesList.isEmpty());
                 getView().displayOnlineView();
                 getView().hideLoading();
                 getView().showMoveToHistory(false);
