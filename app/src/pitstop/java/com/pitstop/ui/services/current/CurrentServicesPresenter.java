@@ -137,56 +137,42 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 recallList.clear();
 
                 getView().displayOnlineView();
-                if (currentServices.isEmpty() && customIssues.isEmpty()){
-                    getView().displayNoServices(true);
-                    getView().showMyServicesView(false);
-                    getView().showPotentialEngineIssuesView(false);
-                    getView().showRecallsView(false);
-                    getView().showRoutineServicesView(false);
-                    getView().showStoredEngineIssuesView(false);
-                }
-                else{
-                    getView().displayNoServices(false);
-                    for(CarIssue c:currentServices){
-                        if (!selectionMap.keySet().contains(c))
-                            selectionMap.put(c,false);
-                        switch (c.getIssueType()) {
-                            case CarIssue.DTC:
-                                storedEngineIssueList.add(c);
-                                break;
-                            case CarIssue.PENDING_DTC:
-                                potentialEngineIssuesList.add(c);
-                                break;
-                            case CarIssue.RECALL:
-                                recallList.add(c);
-                                break;
-                            default:
-                                routineServicesList.add(c);
-                                break;
-                        }
+                getView().displayNoServices(currentServices.isEmpty() && customIssues.isEmpty());
+                for(CarIssue c:currentServices){
+                    if (!selectionMap.keySet().contains(c))
+                        selectionMap.put(c,false);
+                    switch (c.getIssueType()) {
+                        case CarIssue.DTC:
+                            storedEngineIssueList.add(c);
+                            break;
+                        case CarIssue.PENDING_DTC:
+                            potentialEngineIssuesList.add(c);
+                            break;
+                        case CarIssue.RECALL:
+                            recallList.add(c);
+                            break;
+                        default:
+                            routineServicesList.add(c);
+                            break;
                     }
-                    for (CarIssue c: customIssues){
-                        if (!selectionMap.keySet().contains(c))
-                            selectionMap.put(c,false);
-                        myServicesList.add(c);
-                    }
-
-                    getView().showRoutineServicesView(!routineServicesList.isEmpty());
-                    getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
-                    getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
-                    getView().showMyServicesView(!myServicesList.isEmpty());
-                    getView().showRecallsView(!recallList.isEmpty());
-                    if (routineServicesList.isEmpty() && storedEngineIssueList.isEmpty()
-                            && potentialEngineIssuesList.isEmpty() && myServicesList.isEmpty()
-                            && recallList.isEmpty())
-                        getView().displayNoServices(true);
-
-                    getView().displayRoutineServices(routineServicesList, selectionMap);
-                    getView().displayMyServices(myServicesList, selectionMap);
-                    getView().displayPotentialEngineIssues(potentialEngineIssuesList, selectionMap);
-                    getView().displayStoredEngineIssues(storedEngineIssueList, selectionMap);
-                    getView().displayRecalls(recallList, selectionMap);
                 }
+                for (CarIssue c: customIssues){
+                    if (!selectionMap.keySet().contains(c))
+                        selectionMap.put(c,false);
+                    myServicesList.add(c);
+                }
+
+                getView().showRoutineServicesView(!routineServicesList.isEmpty());
+                getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                getView().showMyServicesView(!myServicesList.isEmpty());
+                getView().showRecallsView(!recallList.isEmpty());
+
+                getView().displayRoutineServices(routineServicesList, selectionMap);
+                getView().displayMyServices(myServicesList, selectionMap);
+                getView().displayPotentialEngineIssues(potentialEngineIssuesList, selectionMap);
+                getView().displayStoredEngineIssues(storedEngineIssueList, selectionMap);
+                getView().displayRecalls(recallList, selectionMap);
                 getView().showMoveToHistory(selectionMap.values().contains(true));
 
                 getView().hideLoading();
