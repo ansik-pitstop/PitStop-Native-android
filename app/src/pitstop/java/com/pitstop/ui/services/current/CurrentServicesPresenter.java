@@ -171,6 +171,9 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
                     getView().showRoutineServicesView(!routineServicesList.isEmpty());
                     getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                    getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                    getView().showMyServicesView(!myServicesList.isEmpty());
+                    getView().showRecallsView(!recallList.isEmpty());
 
                     getView().displayRoutineServices(routineServicesList, selectionMap);
                     getView().displayMyServices(myServicesList, selectionMap);
@@ -284,6 +287,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     selectionMap.remove(c);
                 }
 
+                getView().showRoutineServicesView(!routineServicesList.isEmpty());
+                getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                getView().showMyServicesView(!myServicesList.isEmpty());
+                getView().showRecallsView(!recallList.isEmpty());
+
                 getView().displayOnlineView();
                 getView().hideLoading();
                 getView().showMoveToHistory(false);
@@ -315,13 +324,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
 
-        boolean showMoveToHistory = true;
-        for (Map.Entry<CarIssue,Boolean> entry: selectionMap.entrySet()){
-            if (entry.getValue())
-                showMoveToHistory = false;
-
-        }
-        getView().showMoveToHistory(showMoveToHistory);
+        if (!selectionMap.get(carIssue))
+            getView().showMoveToHistory(true);
 
         for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
             if (e.getKey().equals(carIssue)){
