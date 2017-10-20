@@ -89,6 +89,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null || getView() == null) return;
+        if (myServicesList.isEmpty())
+            getView().showMyServicesView(true);
         myServicesList.add(issue);
         getView().notifyIssueDataChanged();
     }
