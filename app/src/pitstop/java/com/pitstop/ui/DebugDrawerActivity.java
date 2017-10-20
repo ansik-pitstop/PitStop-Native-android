@@ -82,10 +82,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)
-                && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+       if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
             return;
-        }
+
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))
@@ -109,7 +108,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity {
             databaseHelper.onUpgrade(db, 0, 0);
             Toast.makeText(this, "Database Cleared", Toast.LENGTH_SHORT).show();
         });
-
+        //TODO write use case for get random vin
         EditText vinField = ViewUtils.findView(mDrawerLayout, R.id.debugVinField);
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(

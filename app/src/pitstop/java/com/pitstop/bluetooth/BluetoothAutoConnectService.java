@@ -783,7 +783,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             return;
         }
 
-        MainActivity.allowDeviceOverwrite = true;
+        MainActivity.Companion.setAllowDeviceOverwrite(true);
         deviceIsVerified = true;
         deviceConnState = BluetoothConnectionObservable.State.CONNECTED_VERIFIED;
         deviceManager.onConnectDeviceValid();

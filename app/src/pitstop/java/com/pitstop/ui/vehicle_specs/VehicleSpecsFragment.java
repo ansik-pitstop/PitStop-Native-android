@@ -27,6 +27,7 @@ import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.dashboard.DashboardFragment;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.squareup.picasso.Picasso;
@@ -35,7 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
+
 
 /**
  * Created by ishan on 2017-09-25.
@@ -425,7 +426,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
 
     public void startCustomShop(){
         Intent intent = new Intent(getActivity(), CustomShopActivity.class);
-        intent.putExtra(CAR_EXTRA,this.myCar);
+        intent.putExtra(MainActivity.CAR_EXTRA,this.myCar);
         startActivityForResult(intent,START_CUSTOM);
     }
 
