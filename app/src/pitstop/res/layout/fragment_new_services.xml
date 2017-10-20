@@ -91,7 +91,7 @@
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:tint="@color/primary"
-                            app:srcCompat="@drawable/ic_move_history" />
+                            app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
 
                         <TextView
                             android:text="Move to History"
