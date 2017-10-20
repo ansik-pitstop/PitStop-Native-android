@@ -5,6 +5,7 @@ import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
 import com.pitstop.ui.NoCarAddedHandlingView;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -13,11 +14,16 @@ import java.util.List;
 
 public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
         , NoCarAddedHandlingView{
-    void displayRoutineServices(List<CarIssue> routineServicesList);
-    void displayMyServices(List<CarIssue> myServicesList);
-    void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList);
-    void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList);
-    void displayRecalls(List<CarIssue> displayRecallsList);
+    void displayRoutineServices(List<CarIssue> routineServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayMyServices(List<CarIssue> myServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayRecalls(List<CarIssue> displayRecallsList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
     void displayCalendar(CarIssue carIssue);
     void startCustomServiceActivity();
     void notifyIssueDataChanged();

@@ -15,7 +15,9 @@ import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 8/30/2017.
@@ -34,7 +36,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
 
-    private List<Boolean> serviceSelectionList = new ArrayList<>();
+    private LinkedHashMap<CarIssue, Boolean> selectionMap = new LinkedHashMap<>();
     private List<CarIssue> routineServicesList = new ArrayList<>();
     private List<CarIssue> myServicesList = new ArrayList<>();
     private List<CarIssue> storedEngineIssueList = new ArrayList<>();
@@ -133,10 +135,17 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().displayOnlineView();
                 if (currentServices.isEmpty() && customIssues.isEmpty()){
                     getView().displayNoServices(true);
+                    getView().showMyServicesView(false);
+                    getView().showPotentialEngineIssuesView(false);
+                    getView().showRecallsView(false);
+                    getView().showRoutineServicesView(false);
+                    getView().showStoredEngineIssuesView(false);
                 }
                 else{
                     getView().displayNoServices(false);
                     for(CarIssue c:currentServices){
+                        if (!selectionMap.keySet().contains(c))
+                            selectionMap.put(c,false);
                         switch (c.getIssueType()) {
                             case CarIssue.DTC:
                                 storedEngineIssueList.add(c);
@@ -152,19 +161,20 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                                 break;
                         }
                     }
-                    myServicesList.addAll(customIssues);
+                    for (CarIssue c: customIssues){
+                        if (!selectionMap.keySet().contains(c))
+                            selectionMap.put(c,false);
+                        myServicesList.add(c);
+                    }
 
                     getView().showRoutineServicesView(!routineServicesList.isEmpty());
                     getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
-                    getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
-                    getView().showRecallsView(!recallList.isEmpty());
-                    getView().showMyServicesView(!myServicesList.isEmpty());
 
-                    getView().displayRoutineServices(routineServicesList);
-                    getView().displayMyServices(myServicesList);
-                    getView().displayPotentialEngineIssues(potentialEngineIssuesList);
-                    getView().displayStoredEngineIssues(storedEngineIssueList);
-                    getView().displayRecalls(recallList);
+                    getView().displayRoutineServices(routineServicesList, selectionMap);
+                    getView().displayMyServices(myServicesList, selectionMap);
+                    getView().displayPotentialEngineIssues(potentialEngineIssuesList, selectionMap);
+                    getView().displayStoredEngineIssues(storedEngineIssueList, selectionMap);
+                    getView().displayRecalls(recallList, selectionMap);
                 }
 
                 getView().hideLoading();
@@ -281,7 +291,17 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
-        getView().displayCalendar(carIssue);
+        for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
+            if (e.getKey().equals(carIssue)){
+                e.setValue(!e.getValue());
+            }
+        }
+        Log.d(TAG,"selection map after selecting: "+selectionMap.values());
+        getView().notifyIssueDataChanged();
     }
 
+    public void onMoveToHistoryClicked() {
+        Log.d(TAG,"onMoveToHistoryClicked()");
+
+    }
 }

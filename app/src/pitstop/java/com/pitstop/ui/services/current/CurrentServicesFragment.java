@@ -31,6 +31,7 @@ import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -142,6 +143,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void onCustomServiceButtonClicked(){
         Log.d(TAG,"onCustomServiceButtonClicked()");
         presenter.onCustomServiceButtonClicked();
+    }
+
+    @OnClick(R.id.move_history)
+    public void onMoveToHistoryClicked(){
+        Log.d(TAG,"onMoveToHistoryClicked()");
+        presenter.onMoveToHistoryClicked();
     }
 
     @Override
@@ -371,13 +378,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
 
     @Override
-    public void displayRoutineServices(List<CarIssue> routineServicesList) {
+    public void displayRoutineServices(List<CarIssue> routineServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap) {
         Log.d(TAG,"displayRoutineServices() size(): "+ routineServicesList.size());
 
         hasBeenPopulated = true;
 
         if (routineServicesAdapter == null){
-            routineServicesAdapter = new ServicesAdapter(routineServicesList,this);
+            routineServicesAdapter = new ServicesAdapter(routineServicesList, selectionMap
+                    ,this);
             routineServicesRecyclerView.setLayoutManager(new LinearLayoutManager(
                     getActivity().getApplicationContext()));
             routineServicesRecyclerView.setAdapter(routineServicesAdapter);
@@ -387,12 +396,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayMyServices(List<CarIssue> myServicesList) {
+    public void displayMyServices(List<CarIssue> myServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap) {
         Log.d(TAG,"displayMyServices() size(): "+ myServicesList.size());
 
         hasBeenPopulated = true;
         if (myServicesAdapter == null){
-            myServicesAdapter = new ServicesAdapter(myServicesList,this);
+            myServicesAdapter = new ServicesAdapter(myServicesList, selectionMap
+                    , this);
             myServicesRecyclerView.setLayoutManager(
                     new LinearLayoutManager(getActivity().getApplicationContext()));
             myServicesRecyclerView.setAdapter(myServicesAdapter);
@@ -403,12 +414,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList) {
+    public void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap) {
         Log.d(TAG,"displayStoredEngineIssues() size(): "+ storedEngineIssuesList.size());
 
         hasBeenPopulated = true;
         if (storedEngineIssuesAdapter == null){
-            storedEngineIssuesAdapter = new ServicesAdapter(storedEngineIssuesList,this);
+            storedEngineIssuesAdapter = new ServicesAdapter(storedEngineIssuesList, selectionMap
+                    , this);
             storedEngineIssuesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
             storedEngineIssuesRecyclerView.setAdapter(storedEngineIssuesAdapter);
         }else{
@@ -417,13 +430,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList) {
+    public void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap) {
         Log.d(TAG,"displayPotentialEngineIssues() size(): "+potentialEngineIssueList.size());
 
         hasBeenPopulated = true;
         if (potentialEngineIssueAdapter == null){
             potentialEngineIssueAdapter
-                    = new ServicesAdapter(potentialEngineIssueList,this);
+                    = new ServicesAdapter(potentialEngineIssueList, selectionMap
+                    ,this);
             potentialEngineIssuesRecyclerView.setLayoutManager(
                     new LinearLayoutManager(getActivity().getApplicationContext()));
             potentialEngineIssuesRecyclerView.setAdapter(potentialEngineIssueAdapter);
@@ -433,12 +448,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayRecalls(List<CarIssue> displayRecallsList) {
+    public void displayRecalls(List<CarIssue> displayRecallsList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap) {
         Log.d(TAG,"displayRecalls() size(): "+ displayRecallsList.size());
 
         hasBeenPopulated = true;
         if (recallAdapter == null){
-            recallAdapter = new ServicesAdapter(displayRecallsList,this);
+            recallAdapter = new ServicesAdapter(displayRecallsList, selectionMap
+                    ,this);
             recallsRecyclerView.setLayoutManager(
                     new LinearLayoutManager(getActivity().getApplicationContext()));
             recallsRecyclerView.setAdapter(recallAdapter);

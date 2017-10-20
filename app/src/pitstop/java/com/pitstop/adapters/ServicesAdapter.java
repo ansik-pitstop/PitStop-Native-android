@@ -15,6 +15,7 @@ import com.pitstop.R;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.services.current.IssueHolderListener;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -24,12 +25,14 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
 
     private IssueHolderListener issueHolderListener;
     private List<CarIssue> carIssues;
+    private LinkedHashMap<CarIssue,Boolean> selectionMap;
     static final int VIEW_TYPE_EMPTY = 100;
     static final int VIEW_TYPE_TENTATIVE = 101;
 
-    public ServicesAdapter(List<CarIssue> carIssues
+    public ServicesAdapter(List<CarIssue> carIssues, LinkedHashMap<CarIssue,Boolean> selectionMap
             , IssueHolderListener issueHolderListener) {
         this.carIssues = carIssues;
+        this.selectionMap = selectionMap;
         this.issueHolderListener = issueHolderListener;
     }
 
@@ -51,6 +54,7 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
 
         final CarIssue carIssue = carIssues.get(position);
 
+        holder.checkBox.setChecked(selectionMap.get(carIssue));
         holder.description.setText(carIssue.getDescription());
         holder.description.setEllipsize(TextUtils.TruncateAt.END);
         if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
