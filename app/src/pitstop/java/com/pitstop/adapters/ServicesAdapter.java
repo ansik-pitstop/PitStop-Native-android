@@ -54,7 +54,8 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
 
         final CarIssue carIssue = carIssues.get(position);
 
-        holder.checkBox.setChecked(selectionMap.get(carIssue));
+        if (selectionMap.get(carIssue) != null)
+            holder.checkBox.setChecked(selectionMap.get(carIssue));
         holder.description.setText(carIssue.getDescription());
         holder.description.setEllipsize(TextUtils.TruncateAt.END);
         if (carIssue.getIssueType().equals(CarIssue.RECALL)) {
