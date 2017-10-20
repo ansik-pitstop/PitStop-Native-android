@@ -50,6 +50,7 @@
                     <LinearLayout
                         android:id="@+id/create_service"
                         android:orientation="horizontal"
+                        android:layout_centerVertical="true"
                         android:layout_alignParentEnd="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
@@ -58,7 +59,6 @@
                             android:id="@+id/create_service_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:tint="@color/primary"
@@ -77,6 +77,7 @@
                     <LinearLayout
                         android:id="@+id/move_history"
                         android:layout_toLeftOf="@id/create_service"
+                        android:layout_centerVertical="true"
                         android:visibility="invisible"
                         android:orientation="horizontal"
                         android:layout_alignParentStart="true"
@@ -87,7 +88,6 @@
                             android:id="@+id/move_history_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:tint="@color/primary"
