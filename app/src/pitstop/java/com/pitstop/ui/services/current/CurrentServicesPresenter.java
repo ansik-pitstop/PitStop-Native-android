@@ -176,6 +176,10 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
                     getView().showMyServicesView(!myServicesList.isEmpty());
                     getView().showRecallsView(!recallList.isEmpty());
+                    if (routineServicesList.isEmpty() && storedEngineIssueList.isEmpty()
+                            && potentialEngineIssuesList.isEmpty() && myServicesList.isEmpty()
+                            && recallList.isEmpty())
+                        getView().displayNoServices(true);
 
                     getView().displayRoutineServices(routineServicesList, selectionMap);
                     getView().displayMyServices(myServicesList, selectionMap);
@@ -183,6 +187,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     getView().displayStoredEngineIssues(storedEngineIssueList, selectionMap);
                     getView().displayRecalls(recallList, selectionMap);
                 }
+                getView().showMoveToHistory(selectionMap.values().contains(true));
 
                 getView().hideLoading();
             }
