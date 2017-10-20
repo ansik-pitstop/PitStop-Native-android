@@ -324,14 +324,13 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
 
-        if (!selectionMap.get(carIssue))
-            getView().showMoveToHistory(true);
 
         for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
             if (e.getKey().equals(carIssue)){
                 e.setValue(!e.getValue());
             }
         }
+        getView().showMoveToHistory(selectionMap.values().contains(true));
         Log.d(TAG,"selection map after selecting: "+selectionMap.values());
         getView().notifyIssueDataChanged();
     }
