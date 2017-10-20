@@ -92,6 +92,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         if (myServicesList.isEmpty())
             getView().showMyServicesView(true);
         myServicesList.add(issue);
+        selectionMap.put(issue,false);
         getView().notifyIssueDataChanged();
     }
 

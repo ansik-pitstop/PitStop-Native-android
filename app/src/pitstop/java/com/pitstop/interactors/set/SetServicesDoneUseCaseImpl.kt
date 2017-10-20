@@ -34,6 +34,7 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
         val issuesIterator = carIssues!!.iterator()
         while (issuesIterator.hasNext()){
             val issue = issuesIterator.next()
+            issue.issueType = CarIssue.ISSUE_DONE
             val hasNext = issuesIterator.hasNext()
             Log.d(tag,"calling updateCarIssue() on issue: $issue")
             carIssueRepository.updateCarIssue(issue, object : Repository.Callback<CarIssue>{
