@@ -125,6 +125,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             return;
         }
 
+
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))
                 .build();

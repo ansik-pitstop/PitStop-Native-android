@@ -417,7 +417,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         if(getActivity()!= null) {
             Log.d(TAG, "onAddCarClicked()");
             Intent intent = new Intent(this.getActivity(), AddCarActivity.class);
-            startActivityForResult(intent, RC_ADD_CAR);
+            startActivityForResult(intent, MainActivity.RC_ADD_CAR);
         }
     }
 
