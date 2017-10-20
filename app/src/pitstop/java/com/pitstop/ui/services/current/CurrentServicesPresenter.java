@@ -8,11 +8,13 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
-import com.pitstop.interactors.other.MarkServiceDoneUseCase;
+import com.pitstop.interactors.set.SetServicesDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -243,34 +245,55 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         }
     }
 
-    void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
+    void onServiceDoneDatePicked(int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null) return;
-        carIssue.setYear(year);
-        carIssue.setMonth(month);
-        carIssue.setDay(day);
-
         getView().showLoading();
+
+        List<CarIssue> doneCarIssues = new ArrayList<>();
+        for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
+            if (e.getValue()){
+                e.getKey().setYear(year);
+                e.getKey().setMonth(month);
+                e.getKey().setDay(day);
+                doneCarIssues.add(e.getKey());
+            }
+        }
+        if (doneCarIssues.isEmpty()) return;
+
         updating = true;
-        //When the date is set, update issue to done on that date
-        useCaseComponent.markServiceDoneUseCase().execute(carIssue, EVENT_SOURCE
-                , new MarkServiceDoneUseCase.Callback() {
+        List<CarIssue> markedDoneList = new ArrayList<>();
+
+        useCaseComponent.getSetServicesDoneUseCase().execute(doneCarIssues, EVENT_SOURCE, new SetServicesDoneUseCase.Callback() {
             @Override
-            public void onServiceMarkedAsDone(CarIssue carIssue) {
-                Log.d(TAG,"markServiceDoneUseCase().onServiceSelected()");
-                updating = false;
-                if (getView() == null) return;
-                getView().displayOnlineView();
-                getView().hideLoading();
-                removeCarIssue(carIssue);
-                getView().notifyIssueDataChanged();
+            public void onServiceMarkedAsDone(@NotNull CarIssue carIssue) {
+                //This is invoked several times, after each POST succeeds
+                Log.d(TAG,"setServicesDoneUseCase.onServiceMarkedAsDone() carIssue: "+carIssue);
+                markedDoneList.add(carIssue);
             }
 
             @Override
-            public void onError(RequestError error) {
-                Log.d(TAG,"markServiceDoneUseCase().onError() error: "+error.getMessage());
+            public void onComplete() {
+                Log.d(TAG,"setServicesDoneUseCase.onComplete()");
+                updating = false;
+                if (getView() == null) return;
+                for (CarIssue c: markedDoneList){
+                    removeCarIssue(c);
+                    selectionMap.remove(c);
+                }
+
+                getView().displayOnlineView();
+                getView().hideLoading();
+                getView().showMoveToHistory(false);
+                getView().notifyIssueDataChanged();
+
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"setServicesDoneUseCase.onError() err: "+error);
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoading();
@@ -291,6 +314,15 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
+
+        boolean showMoveToHistory = true;
+        for (Map.Entry<CarIssue,Boolean> entry: selectionMap.entrySet()){
+            if (entry.getValue())
+                showMoveToHistory = false;
+
+        }
+        getView().showMoveToHistory(showMoveToHistory);
+
         for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
             if (e.getKey().equals(carIssue)){
                 e.setValue(!e.getValue());
@@ -302,6 +334,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
     public void onMoveToHistoryClicked() {
         Log.d(TAG,"onMoveToHistoryClicked()");
-
+        if (getView() == null) return;
+        getView().displayCalendar();
     }
 }

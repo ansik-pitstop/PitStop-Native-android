@@ -30,10 +30,11 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
     }
 
     override fun run() {
+        Log.d(tag,"run()")
         val issuesIterator = carIssues!!.iterator()
         while (issuesIterator.hasNext()){
-            val hasNext = issuesIterator.hasNext()
             val issue = issuesIterator.next()
+            val hasNext = issuesIterator.hasNext()
             Log.d(tag,"calling updateCarIssue() on issue: $issue")
             carIssueRepository.updateCarIssue(issue, object : Repository.Callback<CarIssue>{
                 override fun onSuccess(carIssueReturned: CarIssue) {

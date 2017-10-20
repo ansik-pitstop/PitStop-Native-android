@@ -100,6 +100,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.no_services_card)
     View noServicesCard;
 
+    @BindView(R.id.move_history)
+    View moveToHistoryView;
+
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private ServicesAdapter routineServicesAdapter;
     private ServicesAdapter myServicesAdapter;
@@ -332,6 +335,14 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
+    public void showMoveToHistory(boolean show) {
+        if (show)
+            moveToHistoryView.setVisibility(View.VISIBLE);
+        else
+            moveToHistoryView.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated()");
         return hasBeenPopulated;
@@ -465,14 +476,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void displayCalendar(CarIssue carIssue) {
+    public void displayCalendar() {
         Log.d(TAG,"displayCalendar()");
         DatePickerDialog servicesDatePickerDialog = new ServicesDatePickerDialog(getContext()
                 , Calendar.getInstance()
-                , (DatePicker datePicker, int year, int month, int day) -> {
-
-                     presenter.onServiceDoneDatePicked(carIssue,year,month,day);
-        });
+                , (DatePicker datePicker, int year, int month, int day)
+                    -> presenter.onServiceDoneDatePicked(year,month,day));
         servicesDatePickerDialog.setTitle(getString(R.string.service_date_picker_title));
         servicesDatePickerDialog.show();
     }

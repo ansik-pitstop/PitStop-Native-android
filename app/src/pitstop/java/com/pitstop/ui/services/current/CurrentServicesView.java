@@ -24,7 +24,7 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
             , LinkedHashMap<CarIssue,Boolean> selectionMap);
     void displayRecalls(List<CarIssue> displayRecallsList
             , LinkedHashMap<CarIssue,Boolean> selectionMap);
-    void displayCalendar(CarIssue carIssue);
+    void displayCalendar();
     void startCustomServiceActivity();
     void notifyIssueDataChanged();
     void displayNoServices(boolean visible);
@@ -33,6 +33,7 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
     void showPotentialEngineIssuesView(boolean show);
     void showStoredEngineIssuesView(boolean show);
     void showRecallsView(boolean show);
+    void showMoveToHistory(boolean show);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }
