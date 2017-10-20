@@ -77,7 +77,7 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
 
         //Get the done image view
         holder.checkBox.setOnClickListener((View view)
-                -> issueHolderListener.onServiceDoneClicked(carIssue));
+                -> issueHolderListener.onServiceSelected(carIssue));
     }
 
     @Override

@@ -384,13 +384,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         }else{
             routineServicesAdapter.notifyDataSetChanged();
         }
-
-        if (routineServicesList.isEmpty()){
-            routineServicesHolder.setVisibility(View.GONE);
-        }
-        else{
-            routineServicesHolder.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override
@@ -407,13 +400,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         else{
             myServicesAdapter.notifyDataSetChanged();
         }
-
-        if(myServicesList.isEmpty()){
-            myServicesHolder.setVisibility(View.GONE);
-        }else{
-            myServicesHolder.setVisibility(View.VISIBLE);
-        }
-
     }
 
     @Override
@@ -427,12 +413,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             storedEngineIssuesRecyclerView.setAdapter(storedEngineIssuesAdapter);
         }else{
             storedEngineIssuesAdapter.notifyDataSetChanged();
-        }
-
-        if(storedEngineIssuesList.isEmpty()){
-            storedEngineIssuesHolder.setVisibility(View.GONE);
-        }else{
-            storedEngineIssuesHolder.setVisibility(View.VISIBLE);
         }
     }
 
@@ -450,12 +430,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         }else{
             potentialEngineIssueAdapter.notifyDataSetChanged();
         }
-
-        if(potentialEngineIssueList.isEmpty()){
-            potentialEngineIssuesHolder.setVisibility(View.GONE);
-        }else{
-            potentialEngineIssuesHolder.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override
@@ -470,12 +444,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             recallsRecyclerView.setAdapter(recallAdapter);
         }else{
             recallAdapter.notifyDataSetChanged();
-        }
-
-        if(displayRecallsList.isEmpty()){
-            recallsHolder.setVisibility(View.GONE);
-        }else{
-            recallsHolder.setVisibility(View.VISIBLE);
         }
     }
 
@@ -506,9 +474,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     }
 
     @Override
-    public void onServiceDoneClicked(CarIssue carIssue) {
-        Log.d(TAG,"onServiceDoneClicked()");
-        presenter.onServiceMarkedAsDone(carIssue);
+    public void onServiceSelected(CarIssue carIssue) {
+        Log.d(TAG,"onServiceSelected()");
+        presenter.onServiceSelected(carIssue);
     }
 
     @Override

@@ -34,11 +34,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
 
-    List<CarIssue> routineServicesList = new ArrayList<>();
-    List<CarIssue> myServicesList = new ArrayList<>();
-    List<CarIssue> storedEngineIssueList = new ArrayList<>();
-    List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
-    List<CarIssue> recallList = new ArrayList<>();
+    private List<Boolean> serviceSelectionList = new ArrayList<>();
+    private List<CarIssue> routineServicesList = new ArrayList<>();
+    private List<CarIssue> myServicesList = new ArrayList<>();
+    private List<CarIssue> storedEngineIssueList = new ArrayList<>();
+    private List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
+    private List<CarIssue> recallList = new ArrayList<>();
 
     CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -132,11 +133,6 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().displayOnlineView();
                 if (currentServices.isEmpty() && customIssues.isEmpty()){
                     getView().displayNoServices(true);
-                    getView().showMyServicesView(false);
-                    getView().showPotentialEngineIssuesView(false);
-                    getView().showRecallsView(false);
-                    getView().showRoutineServicesView(false);
-                    getView().showStoredEngineIssuesView(false);
                 }
                 else{
                     getView().displayNoServices(false);
@@ -158,16 +154,11 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     }
                     myServicesList.addAll(customIssues);
 
-                    if (routineServicesList.isEmpty()){
-
-                    }else{
-
-                    }
-                    if (myServicesList.isEmpty()){
-
-                    }else{
-
-                    }
+                    getView().showRoutineServicesView(!routineServicesList.isEmpty());
+                    getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                    getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                    getView().showRecallsView(!recallList.isEmpty());
+                    getView().showMyServicesView(!myServicesList.isEmpty());
 
                     getView().displayRoutineServices(routineServicesList);
                     getView().displayMyServices(myServicesList);
@@ -258,7 +249,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 , new MarkServiceDoneUseCase.Callback() {
             @Override
             public void onServiceMarkedAsDone(CarIssue carIssue) {
-                Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
+                Log.d(TAG,"markServiceDoneUseCase().onServiceSelected()");
                 updating = false;
                 if (getView() == null) return;
                 getView().displayOnlineView();
@@ -285,8 +276,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         });
     }
 
-    void onServiceMarkedAsDone(CarIssue carIssue){
-        Log.d(TAG,"onServiceMarkedAsDone()");
+    void onServiceSelected(CarIssue carIssue){
+        Log.d(TAG,"onServiceSelected()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
