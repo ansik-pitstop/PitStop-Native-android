@@ -113,7 +113,7 @@
             <TextView
                 android:id="@+id/engine_codes_subtitle"
                 android:layout_below="@id/textView61"
-                android:text="Includes what was retrieved during the generation of this report"
+                android:text="Engine codes retrieved from your vehicle at the time this report was generated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -208,7 +208,7 @@
             <TextView
                 android:id="@+id/recalls_subtitle"
                 android:layout_below="@id/textView61"
-                android:text="Includes recalls that were found prior to the generation of this report"
+                android:text="Recalls that were found during and prior to the generation of this report"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -305,7 +305,7 @@
             <TextView
                 android:id="@+id/services_subtitle"
                 android:layout_below="@id/textView61"
-                android:text="Includes due services that were present prior to the generation of this report"
+                android:text="Services that were due during and prior to the generation of this report"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
