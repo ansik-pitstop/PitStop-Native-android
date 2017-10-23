@@ -313,7 +313,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     public void setVehicleHealthSummary(State state) {
         if (state == State.GOOD){
             this.summary.setText("Good");
-            this.summary.setTextColor(Color.YELLOW);
+            this.summary.setTextColor(Color.rgb(255,165,0));
         }else if (state == State.NEEDS_WORK){
             this.summary.setText("Needs Work");
             this.summary.setTextColor(Color.RED);

@@ -252,12 +252,19 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/services_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="Services"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/services_subtitle"
+            android:layout_below="@id/services_title"
+            android:text="This includes services that were due before the generation of this report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 
     <ImageView
