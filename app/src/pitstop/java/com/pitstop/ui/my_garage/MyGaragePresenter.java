@@ -261,8 +261,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
 
                 @Override
                 public void onError(@NotNull RequestError error) {
-                    if (getView() == null)return;
                     updating = false;
+                    if (getView() == null)return;
                     if (getView().hasBeenPopulated()){
                         getView().showErrorDialog();
                     }
