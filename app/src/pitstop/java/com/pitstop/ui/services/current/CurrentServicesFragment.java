@@ -103,6 +103,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.move_history)
     View moveToHistoryView;
 
+    @BindView(R.id.move_history_hidden)
+    View moveToHistoryHiddenView;
+
     /*Adapters used to convert CarIssue list into RecyclerView*/
     private ServicesAdapter routineServicesAdapter;
     private ServicesAdapter myServicesAdapter;
@@ -336,10 +339,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public void showMoveToHistory(boolean show) {
-        if (show)
+        if (show){
             moveToHistoryView.setVisibility(View.VISIBLE);
-        else
-            moveToHistoryView.setVisibility(View.INVISIBLE);
+            moveToHistoryHiddenView.setVisibility(View.GONE);
+        }
+        else{
+            moveToHistoryView.setVisibility(View.GONE);
+            moveToHistoryHiddenView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @Override
