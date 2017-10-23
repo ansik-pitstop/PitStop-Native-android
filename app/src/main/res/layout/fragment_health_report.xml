@@ -49,6 +49,7 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
+            android:id="@+id/num_engine_issues_holder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -94,14 +95,30 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView61"
+        <LinearLayout
+            android:layout_toLeftOf="@id/num_engine_issues_holder"
+            android:padding="10dp"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="New Engine Codes"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/black" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textView61"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Engine Codes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/engine_codes_subtitle"
+                android:layout_below="@id/textView61"
+                android:text="Engine codes retrieved from your vehicle at the time this report was generated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
     </RelativeLayout>
 
     <ImageView
@@ -127,6 +144,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/num_recalls_holder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -172,13 +190,30 @@
 
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
+            android:layout_toLeftOf="@id/num_recalls_holder"
+            android:padding="10dp"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Recalls"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/black" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/recalls_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recalls"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/recalls_subtitle"
+                android:layout_below="@id/textView61"
+                android:text="Recalls that were found during and prior to the generation of this report"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
     </RelativeLayout>
 
     <ImageView
@@ -205,6 +240,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/num_services_holder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -251,13 +287,29 @@
 
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
+            android:layout_toLeftOf="@id/num_services_holder"
+            android:padding="10dp"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Services"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/black" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/services_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Services"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/services_subtitle"
+                android:layout_below="@id/textView61"
+                android:text="Services that were due during and prior to the generation of this report"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
     </RelativeLayout>
 
     <ImageView
