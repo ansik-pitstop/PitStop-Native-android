@@ -70,21 +70,34 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
             VehicleHealthReport vehicleHealthReport = report.getVehicleHealthReport();
             title.setText("Vehicle Health Report");
 
-            description.setText(String.format("Contains %d engine issues" +
-                    ", %d services and %d recalls",vehicleHealthReport.getEngineIssues().size()
-                    , vehicleHealthReport.getServices().size()
-                    ,vehicleHealthReport.getRecalls().size()));
+            if (report.getEmissionsReport() == null)
+                description.setText(String.format("Contains %d engine issues" +
+                        ", %d services and %d recalls",vehicleHealthReport.getEngineIssues().size()
+                        , vehicleHealthReport.getServices().size()
+                        ,vehicleHealthReport.getRecalls().size()));
+            else
+                description.setText(String.format("Contains %d engine issues" +
+                                ", %d services and %d recalls. Emission result: %s",vehicleHealthReport.getEngineIssues().size()
+                        , vehicleHealthReport.getServices().size()
+                        ,vehicleHealthReport.getRecalls().size()
+                        , report.getEmissionsReport().isPass() ? "Pass" : "Fail"));
+
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
             date.setText(simpleDateFormat.format(vehicleHealthReport.getDate()));
 
             if (vehicleHealthReport.getEngineIssues().size() > 0
                     || vehicleHealthReport.getRecalls().size() > 0
-                    || vehicleHealthReport.getServices().size() > 0){
+                    || vehicleHealthReport.getServices().size() > 0 ){
 
                 icon.setImageDrawable(thisView.getContext()
                         .getResources().getDrawable(R.drawable.ic_report_unhealthy));
-            }else{
+            }
+            else if (report.getEmissionsReport() != null && report.getEmissionsReport().isPass()){
+                icon.setImageDrawable(thisView.getContext()
+                        .getResources().getDrawable(R.drawable.ic_report_unhealthy));
+            }
+            else{
                 icon.setImageDrawable(thisView.getContext()
                         .getResources().getDrawable(R.drawable.ic_report_healthy));
             }
