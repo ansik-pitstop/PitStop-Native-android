@@ -191,10 +191,6 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.showReminder("Please set a shop for this car first");
             return;
         }
-        if(localDealership.getEmail().equals("")){
-            view.showReminder("Please set an email for this shop");
-            return;
-        }
         if(!dateSelected){
             view.showReminder("Please choose a date");
             return;
