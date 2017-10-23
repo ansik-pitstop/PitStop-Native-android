@@ -5,16 +5,16 @@
 
     <item
         android:id="@+id/action_request_service"
-        android:icon="@drawable/request_service_button"
+        android:icon="@drawable/ic_mechanic"
         app:tint="@color/white"
         android:title="Request Service"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
 
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_request_service"
+        android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/action_settings"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
 </menu>
