@@ -77,7 +77,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
                         ,vehicleHealthReport.getRecalls().size()));
             else
                 description.setText(String.format("Contains %d engine issues" +
-                                ", %d services and %d recalls. Emission result: %s",vehicleHealthReport.getEngineIssues().size()
+                                ", %d services and %d recalls. Emissions results: %s",vehicleHealthReport.getEngineIssues().size()
                         , vehicleHealthReport.getServices().size()
                         ,vehicleHealthReport.getRecalls().size()
                         , report.getEmissionsReport().isPass() ? "Pass" : "Fail"));
