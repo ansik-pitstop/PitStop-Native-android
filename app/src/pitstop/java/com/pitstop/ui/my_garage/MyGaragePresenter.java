@@ -100,7 +100,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         if (customProperties == null){
             useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
                 @Override
-                public void onCarRetrieved(Car car, Dealership dealership) {
+                public void onCarRetrieved(Car car) {
                     Log.d(TAG, "onCarRetrieved()");
                     updating = false;
                     if (getView() == null)return;
@@ -110,8 +110,8 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                     customProperties.put("Car Make", car.getMake());
                     customProperties.put("Car Model", car.getModel());
                     customProperties.put("Car Year", car.getYear());
-                    Log.i(TAG, dealership.getEmail());
-                    customProperties.put("Email", dealership.getEmail());
+                    Log.i(TAG, car.getDealership().getEmail());
+                    customProperties.put("Email", car.getDealership().getEmail());
                     User.getCurrentUser().addProperties(customProperties);
                     if (!getView().isUserNull()) {
                         customProperties.put("Phone", getView().getUserPhone());
@@ -286,13 +286,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         carList.addAll(data);
     }
 
-    public void onCarClicked(Car car, Dealership dealership, int position) {
-        Log.d(TAG, "onCarClicked()");
-        if (getView()!=null){
-            getView().openSpecsActivity(car, dealership, position);
 
-        }
-    }
 
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");

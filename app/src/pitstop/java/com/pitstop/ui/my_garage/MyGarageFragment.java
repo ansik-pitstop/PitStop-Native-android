@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -32,7 +33,6 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.vehicle_specs.VehicleSpecsActivity;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -300,9 +300,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void onCarClicked(Car car, Dealership dealership, int position) {
+    public void onCarClicked(Car car, int position) {
         Log.d(TAG, "onCarClicked()");
-        presenter.onCarClicked(car, dealership, position);
+
     }
 
     @Override
@@ -344,9 +344,10 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void notifyCarDataChanged(){
         carsAdapter.notifyDataSetChanged();
     }
+/*
 
     @Override
-    public void openSpecsActivity(Car car, Dealership dealership, int position) {
+    public void openSpecsActivity(Car car, int position) {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
         Bundle bundle  = new Bundle();
@@ -363,12 +364,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         bundle.putInt(VehicleSpecsFragment.YEAR_KEY, car.getYear());
         bundle.putString(VehicleSpecsFragment.MAKE_KEY, car.getMake());
         bundle.putString(VehicleSpecsFragment.MODEL_KEY, car.getModel());
-        if (dealership != null)
-            bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, dealership.getName());
+        if (car.getDealership() != null)
+            bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
         intent.putExtras(bundle);
         // the zero is the requestcode sent
         startActivityForResult(intent, 0);
     }
+*/
 
     @Override
     public void noCarsView() {
