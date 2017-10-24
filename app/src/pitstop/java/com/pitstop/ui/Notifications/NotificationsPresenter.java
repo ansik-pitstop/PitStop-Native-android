@@ -13,9 +13,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -148,10 +146,15 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
             return "unknown";
     }
 
-    public void onNotificationClicked(String pushType) {
-        Log.d(TAG, "NotificationClicked()" + pushType);
-        if (getView() == null) return;
+    public void onNotificationClicked(Notification notification) {
+        String pushType = notification.getPushType();
+        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+notification.getTitle());
         mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
+        useCaseComponent.getSetNotificationReadUseCase().execute(notification, true, () -> {
+            if (getView() != null) getView().onReadStatusChanged();
+            Log.d(TAG,"setNotificationUseCase.success()");
+        });
+        if (getView() == null) return;
         if (convertPushType(pushType).equalsIgnoreCase("serviceUpdate"))
             getView().openCurrentServices();
         else if (convertPushType(pushType).equalsIgnoreCase("scanReminder"))

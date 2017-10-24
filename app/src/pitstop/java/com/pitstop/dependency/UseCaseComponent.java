@@ -44,6 +44,7 @@ import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
+import com.pitstop.interactors.set.SetNotificationReadUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -168,4 +169,6 @@ public interface UseCaseComponent {
     CheckNetworkConnectionUseCase getCheckNetworkConnectionUseCase();
 
     SetServicesDoneUseCase getSetServicesDoneUseCase();
+
+    SetNotificationReadUseCase getSetNotificationReadUseCase();
 }

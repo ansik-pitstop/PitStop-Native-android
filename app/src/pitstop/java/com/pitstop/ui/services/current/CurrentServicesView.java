@@ -24,6 +24,7 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
             , LinkedHashMap<CarIssue,Boolean> selectionMap);
     void displayRecalls(List<CarIssue> displayRecallsList
             , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayBadge(int count);
     void displayCalendar();
     void startCustomServiceActivity();
     void notifyIssueDataChanged();

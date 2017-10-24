@@ -1,21 +1,15 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
-import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 

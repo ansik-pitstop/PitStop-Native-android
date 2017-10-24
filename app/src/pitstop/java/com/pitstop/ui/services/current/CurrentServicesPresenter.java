@@ -135,6 +135,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
+                getView().displayBadge(currentServices.size() + customIssues.size());
+
                 routineServicesList.clear();
                 myServicesList.clear();
                 potentialEngineIssuesList.clear();

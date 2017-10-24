@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
  * Created by Karol Zdebel on 6/23/2017.
  */
 
-public class TabFragmentManager {
+public class TabFragmentManager implements BadgeDisplayer{
 
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
@@ -165,5 +165,19 @@ public class TabFragmentManager {
 
     public void openScanTab() {
         mViewPager.setCurrentItem(TAB_SCAN);
+    }
+
+    @Override
+    public void displayServicesBadgeCount(int count) {
+        if (bottomBar != null){
+            bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
+        }
+    }
+
+    @Override
+    public void displayNotificationsBadgeCount(int count) {
+        if (bottomBar != null){
+            bottomBar.getTabWithId(R.id.tab_notifications).setBadgeCount(count);
+        }
     }
 }
