@@ -143,12 +143,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 potentialEngineIssuesList.clear();
                 storedEngineIssueList.clear();
                 recallList.clear();
+                selectionMap.clear();
 
                 getView().displayOnlineView();
                 getView().displayNoServices(currentServices.isEmpty() && customIssues.isEmpty());
                 for(CarIssue c:currentServices){
-                    if (!selectionMap.keySet().contains(c))
-                        selectionMap.put(c,false);
+                    selectionMap.put(c,false);
                     switch (c.getIssueType()) {
                         case CarIssue.DTC:
                             storedEngineIssueList.add(c);
@@ -165,8 +165,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     }
                 }
                 for (CarIssue c: customIssues){
-                    if (!selectionMap.keySet().contains(c))
-                        selectionMap.put(c,false);
+                    selectionMap.put(c,false);
                     myServicesList.add(c);
                 }
 
