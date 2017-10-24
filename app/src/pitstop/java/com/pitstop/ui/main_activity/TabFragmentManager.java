@@ -3,6 +3,7 @@ package com.pitstop.ui.main_activity;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
@@ -19,6 +20,8 @@ import butterknife.ButterKnife;
  */
 
 public class TabFragmentManager implements BadgeDisplayer{
+
+    private final String TAG = getClass().getSimpleName();
 
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
@@ -170,6 +173,7 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     @Override
     public void displayServicesBadgeCount(int count) {
+        Log.d(TAG,"displayServicesBadgeCount() count: "+count);
         if (bottomBar != null){
             BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_services);
             if (count == 0) tab.removeBadge();
@@ -179,10 +183,11 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     @Override
     public void displayNotificationsBadgeCount(int count) {
+        Log.d(TAG,"displayNotificationsBadgeCount() count: "+count);
         if (bottomBar != null){
             BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_notifications);
             if (count == 0) tab.removeBadge();
-            else bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
+            else bottomBar.getTabWithId(R.id.tab_notifications).setBadgeCount(count);
         }
     }
 }
