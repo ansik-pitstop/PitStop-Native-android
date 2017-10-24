@@ -5,6 +5,7 @@ import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
 import com.pitstop.ui.NoCarAddedHandlingView;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -13,15 +14,26 @@ import java.util.List;
 
 public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
         , NoCarAddedHandlingView{
-    void displayCarIssues(List<CarIssue> carIssues);
-    void displayCustomIssues(List<CarIssue> customIssueList);
-    void displayStoredEngineIssues(List<CarIssue> storedEngineIssues);
-    void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList);
-    void displayRecalls(List<CarIssue> displayRecalls);
-    void displayCalendar(CarIssue carIssue);
+    void displayRoutineServices(List<CarIssue> routineServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayMyServices(List<CarIssue> myServicesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayStoredEngineIssues(List<CarIssue> storedEngineIssuesList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayPotentialEngineIssues(List<CarIssue> potentialEngineIssueList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayRecalls(List<CarIssue> displayRecallsList
+            , LinkedHashMap<CarIssue,Boolean> selectionMap);
+    void displayCalendar();
     void startCustomServiceActivity();
-    void removeCarIssue(CarIssue issue);
-    void addCustomIssue(CarIssue issue);
+    void notifyIssueDataChanged();
+    void displayNoServices(boolean visible);
+    void showMyServicesView(boolean show);
+    void showRoutineServicesView(boolean show);
+    void showPotentialEngineIssuesView(boolean show);
+    void showStoredEngineIssuesView(boolean show);
+    void showRecallsView(boolean show);
+    void showMoveToHistory(boolean show);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
 }

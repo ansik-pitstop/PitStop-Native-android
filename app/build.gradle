@@ -132,6 +132,7 @@ kapt {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
+    compile 'com.roughike:bottom-bar:2.3.1'
     compile 'com.google.dagger:dagger:2.9'
     kapt 'com.google.dagger:dagger-compiler:2.9'
     provided 'javax.annotation:jsr250-api:1.0'

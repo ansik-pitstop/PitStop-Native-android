@@ -94,6 +94,8 @@ import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.set.SetServicesDoneUseCase;
+import com.pitstop.interactors.set.SetServicesDoneUseCaseImpl;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -533,5 +535,12 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
 
         return new CheckNetworkConnectionUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SetServicesDoneUseCase setServicesDoneUseCase(CarIssueRepository carIssueRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+
+        return new SetServicesDoneUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
     }
 }

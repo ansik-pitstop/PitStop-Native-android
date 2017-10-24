@@ -73,7 +73,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     ImageView serviceRightChevron;
 
     private int recallListHolderHeight;
-    @BindView(R.id.recall_list_holder)
+    @BindView(R.id.recalls_holder)
     RelativeLayout recallListHolder;
     @BindView(R.id.recall_list_button)
     RelativeLayout recallListButton;
@@ -313,7 +313,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
     public void setVehicleHealthSummary(State state) {
         if (state == State.GOOD){
             this.summary.setText("Good");
-            this.summary.setTextColor(Color.YELLOW);
+            this.summary.setTextColor(Color.rgb(255,165,0));
         }else if (state == State.NEEDS_WORK){
             this.summary.setText("Needs Work");
             this.summary.setTextColor(Color.RED);

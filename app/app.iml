@@ -161,6 +161,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes-jar" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-runtime-classes" />
@@ -184,6 +185,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/kotlin" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
+      <excludeFolder url="file://$MODULE_DIR$/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/build/retrolambda" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
@@ -231,6 +233,7 @@
     <orderEntry type="library" name="david-webb-1.3.0" level="project" />
     <orderEntry type="library" name="play-services-tasks-10.0.1" level="project" />
     <orderEntry type="library" name="rxjava2-interop-0.10.0" level="project" />
+    <orderEntry type="library" name="bottom-bar-2.3.1" level="project" />
     <orderEntry type="library" name="stetho-1.5.0" level="project" />
     <orderEntry type="library" name="play-services-base-10.0.1" level="project" />
     <orderEntry type="library" name="bolts-tasks-1.4.0" level="project" />

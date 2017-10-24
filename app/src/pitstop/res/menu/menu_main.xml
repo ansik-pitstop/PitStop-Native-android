@@ -4,10 +4,17 @@
     tools:context=".MainDashboardFragment">
 
     <item
+        android:id="@+id/action_request_service"
+        android:icon="@drawable/ic_mechanic"
+        app:tint="@color/white"
+        android:title="Request Service"
+        app:showAsAction="ifRoom"/>
+
+
+    <item
         android:id="@+id/action_settings"
-        android:orderInCategory="200"
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/action_settings"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
 </menu>

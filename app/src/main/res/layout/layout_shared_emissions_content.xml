@@ -198,7 +198,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Misfire"
+                android:text="Components"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>
@@ -272,7 +272,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Catalyst"
+                android:text="Fuel System"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/black" />
         </RelativeLayout>

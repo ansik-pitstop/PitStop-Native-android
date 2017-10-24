@@ -1,21 +1,15 @@
 package com.pitstop.ui.services.upcoming;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.adapters.NotificationAdapter;
 import com.pitstop.models.service.UpcomingService;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ishan on 2017-10-11.
@@ -37,12 +31,7 @@ public class UpcomingServicesAdapter extends RecyclerView.Adapter<UpcomingServic
     public IssueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.issue_timeline_list_item, parent, false);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                upcomingServicesView.onUpcomingServiceClicked(servicesList, getItemViewType(viewType));
-            }
-        });
+        view.setOnClickListener(view1 -> upcomingServicesView.onUpcomingServiceClicked(servicesList, getItemViewType(viewType)));
         IssueViewHolder issueViewHolder = new IssueViewHolder(view);
         return issueViewHolder;
     }
