@@ -11,5 +11,5 @@ interface SetNotificationReadUseCase: Interactor {
         fun onMarkedAsRead()
     }
 
-    fun execute(notification: Notification, read: Boolean, callback: Callback)
+    fun execute(notifications: List<Notification>, read: Boolean, callback: Callback)
 }

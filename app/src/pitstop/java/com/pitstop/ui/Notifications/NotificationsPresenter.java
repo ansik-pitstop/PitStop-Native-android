@@ -13,6 +13,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
     private static final String SERVICE_APPOINTMENT_REMINDER = "service appointment reminder";
     private static final String NEW_VEHICLE_ISSUE = "new vehicle issues";
     private static final String VEHICLE_HEALTH_UPDATE = "vehicle health update";
+
+    private List<Notification> notifications = new ArrayList<>();
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_NOTIFICATIONS);
@@ -85,9 +88,11 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                     Log.d("notifications", "return");
                     return;
                 }
+                notifications.clear();
+                notifications.addAll(list);
 
                 int badgeCount = 0;
-                for (Notification n: list)
+                for (Notification n: notifications)
                     if (n.isRead() != null && n.isRead())
                         badgeCount++;
                 getView().displayBadgeCount(badgeCount);
@@ -103,8 +108,8 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                 }
                 else {
                     Log.d("notifications", "display");
-                    Collections.sort(list, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
-                    getView().displayNotifications(list);
+                    Collections.sort(notifications, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
+                    getView().displayNotifications(notifications);
                 }
 
             }
@@ -152,11 +157,11 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
             return "unknown";
     }
 
-    public void onNotificationClicked(Notification notification) {
-        String pushType = notification.getPushType();
-        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+notification.getTitle());
+    public void onNotificationClicked(Notification n) {
+        String pushType = n.getPushType();
+        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+n.getTitle());
         mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
-        useCaseComponent.getSetNotificationReadUseCase().execute(notification, true, () -> {
+        useCaseComponent.getSetNotificationReadUseCase().execute(notifications, true, () -> {
             if (getView() != null){
                 getView().onReadStatusChanged();
                 getView().displayBadgeCount(0);
