@@ -66,8 +66,15 @@
 
             </RelativeLayout>
 
-            <RelativeLayout
+            <include
+                android:id="@+id/action_holder_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
                 android:layout_below="@id/service_launch_custom"
+                layout="@layout/divider" />
+
+            <RelativeLayout
+                android:layout_below="@id/action_holder_divider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
