@@ -65,13 +65,8 @@ public class Notification extends ParseObject {
         HashMap dataKey = (HashMap)get(DATA_KEY);
         if (dataKey != null){
             dataKey.put("isRead",read);
+            put(DATA_KEY,dataKey);
         }
         saveEventually();
     }
-
-    @Override
-    public String toString(){
-        return "isRead: "+((HashMap)get(DATA_KEY)).get("isRead");
-    }
-
 }

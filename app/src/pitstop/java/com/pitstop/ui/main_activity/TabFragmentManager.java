@@ -9,6 +9,7 @@ import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.BottomBarTab;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -170,14 +171,18 @@ public class TabFragmentManager implements BadgeDisplayer{
     @Override
     public void displayServicesBadgeCount(int count) {
         if (bottomBar != null){
-            bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
+            BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_services);
+            if (count == 0) tab.removeBadge();
+            else bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
         }
     }
 
     @Override
     public void displayNotificationsBadgeCount(int count) {
         if (bottomBar != null){
-            bottomBar.getTabWithId(R.id.tab_notifications).setBadgeCount(count);
+            BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_notifications);
+            if (count == 0) tab.removeBadge();
+            else bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
         }
     }
 }

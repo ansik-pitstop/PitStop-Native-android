@@ -27,7 +27,6 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
     private static final String NEW_VEHICLE_ISSUE = "new vehicle issues";
     private static final String VEHICLE_HEALTH_UPDATE = "vehicle health update";
 
-
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_NOTIFICATIONS);
 
@@ -86,6 +85,13 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                     Log.d("notifications", "return");
                     return;
                 }
+
+                int badgeCount = 0;
+                for (Notification n: list)
+                    if (n.isRead() != null && n.isRead())
+                        badgeCount++;
+                getView().displayBadgeCount(badgeCount);
+
                 getView().hideLoading();
                 if (list == null){
                     getView().displayUnknownErrorView();
@@ -151,7 +157,10 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
         Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+notification.getTitle());
         mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
         useCaseComponent.getSetNotificationReadUseCase().execute(notification, true, () -> {
-            if (getView() != null) getView().onReadStatusChanged();
+            if (getView() != null){
+                getView().onReadStatusChanged();
+                getView().displayBadgeCount(0);
+            }
             Log.d(TAG,"setNotificationUseCase.success()");
         });
         if (getView() == null) return;
