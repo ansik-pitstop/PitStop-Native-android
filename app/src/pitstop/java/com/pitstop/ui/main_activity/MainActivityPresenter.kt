@@ -197,28 +197,32 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun makeCarCurrent(car: Car) {
-
         Log.d(TAG, "makeCarCurrent()")
         if (view == null || isLoading) return
+        if (car.isCurrentCar)return
         isLoading = true
-        view?.showCarsLoading()
-       useCaseCompnent?.setUseCarUseCase().execute(car.id, EventSource.SOURCE_MY_GARAGE, object : SetUserCarUseCase.Callback {
+       useCaseCompnent.setUseCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
             override fun onUserCarSet() {
+                for (currCar in carList){
+                    if (currCar.id == car.id){
+                        currCar.isCurrentCar = true
+                        mCar = currCar
+                    }
+                    else
+                        currCar.isCurrentCar = false
+                }
+                view?.notifyCarDataChanged()
                 isLoading = false
                 if (view == null) return
-                view?.hideCarsLoading()
                 view?.toast("Current car set")
             }
 
             override fun onError(error: RequestError) {
                 isLoading = false
                 if (view == null) return
-                view?.hideCarsLoading()
                 view?.toast(error.message)
             }
         })
-
-
     }
 
 
