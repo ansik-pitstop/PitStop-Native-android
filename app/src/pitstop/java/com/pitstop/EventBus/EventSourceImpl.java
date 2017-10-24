@@ -22,7 +22,9 @@ public class EventSourceImpl implements EventSource {
                 && !eventSource.equals(EventSource.SOURCE_SETTINGS)
                 && !eventSource.equals(EventSource.SOURCE_ADD_CAR)
                 && !eventSource.equals(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT)
-                && !eventSource.equals(EventSource.SOURCE_MY_GARAGE)){
+                && !eventSource.equals(EventSource.SOURCE_MY_GARAGE)
+                && !eventSource.equals(EventSource.SOURCE_DRAWER)
+        ){
 
             throw new IllegalArgumentException();
         }

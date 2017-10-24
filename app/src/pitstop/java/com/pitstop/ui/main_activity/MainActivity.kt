@@ -317,7 +317,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     fun makeCarCurrent(car: Car){
         Log.d(TAG, "make car Current " + car.year + " " + car.make  + " " + car.model)
         presenter?.makeCarCurrent(car)
+    }
 
+    override fun notifyCarDataChanged() {
+        carsAdapter?.notifyDataSetChanged()
     }
 
 

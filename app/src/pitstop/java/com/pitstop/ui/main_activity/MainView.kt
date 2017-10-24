@@ -25,4 +25,5 @@ interface MainView  {
     fun openDealershipDirections(dealership: Dealership?)
     fun showCarsLoading()
     fun hideCarsLoading()
+    fun notifyCarDataChanged()
 }
