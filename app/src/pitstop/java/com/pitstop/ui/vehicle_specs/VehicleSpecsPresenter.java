@@ -129,7 +129,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     public void getLicensePlate(int carID){
         Log.d(TAG, "getLicensePlate()");
         if (getView() == null) return;
-
         useCaseComponent.getLicensePlateUseCase().execute(carID, new GetLicensePlateUseCase.Callback() {
             @Override
             public void onLicensePlateGot(String licensePlate) {
@@ -141,6 +140,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             public void onError(RequestError error) {
                 if (getView() == null) return;
                 Log.d(TAG, "gettingLicensePlateFailed");
+                getView().showLicensePlate("");
             }
         });
     }
@@ -189,16 +189,17 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             public void onNoCarSet() {
                 updating = false;
                 if (getView()!=null)
-                    getView().hideLoading();
-                //TODO  :
+                    getView().showNoCarView();
             }
 
             @Override
             public void onError(RequestError error) {
                 updating = false;
-                if (getView()!=null)
-                    getView().hideLoading();
-                //TODO
+                if (getView() == null) return;
+                if (error.getError() == RequestError.ERR_OFFLINE)
+                    getView().showOfflineErrorView();
+                else
+                    getView().showUnknownErrorView();
             }
         });
 

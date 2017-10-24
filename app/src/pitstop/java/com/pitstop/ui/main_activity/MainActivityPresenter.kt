@@ -147,6 +147,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             if (view == null) return
             view?.hideLoading()
             customProperties = HashMap()
+            if (mCar == null) {
+                //TODO
+                return
+            }
             customProperties?.put("VIN", mCar!!.getVin())
             customProperties?.put("Car Make", mCar!!.getMake())
             customProperties?.put("Car Model", mCar!!.getModel())
