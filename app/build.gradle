@@ -27,6 +27,13 @@ allprojects {
 }
 
 android {
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
@@ -45,7 +52,6 @@ android {
 //        }
 //    }
     defaultConfig {
-
         lintOptions {
             disable 'MissingTranslation'
         }
@@ -53,8 +59,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
-        versionCode 174
-        versionName "3.5.6"
+        versionCode 177
+        versionName "4.0.0"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
@@ -63,10 +69,10 @@ android {
         buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
         buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
         buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
-
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86"
         }
+        signingConfig signingConfigs.config
     }
     buildTypes {
         debug { // for development, dev backend, no mixpanel
@@ -86,6 +92,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -155,7 +162,7 @@ dependencies {
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'
-//    compile project(':libs:MaterialShowcaseView')
+    //    compile project(':libs:MaterialShowcaseView')
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'
