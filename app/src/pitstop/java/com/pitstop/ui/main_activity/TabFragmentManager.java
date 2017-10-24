@@ -3,11 +3,16 @@ package com.pitstop.ui.main_activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
@@ -40,6 +45,9 @@ public class TabFragmentManager {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
+    @BindView(R.id.appbar)
+    BottomNavigationView bottomNavigationView;
+
     private TabViewPagerAdapter tabViewPagerAdapter;
     private FragmentActivity mActivity;
     private MixpanelHelper mMixpanelHelper;
@@ -59,6 +67,16 @@ public class TabFragmentManager {
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
+
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
+        View v = bottomNavigationMenuView.getChildAt(3);
+        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+
+        View badge = LayoutInflater.from(mActivity)
+                .inflate(R.layout.notification_badge, bottomNavigationMenuView, false);
+
+        itemView.addView(badge);
 
         setupSwitchActions();
         setupActionBar();
