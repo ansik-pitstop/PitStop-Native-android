@@ -24,4 +24,7 @@ public interface VehicleSpecsView {
     void setCarView(Car car);
 
     void showBuyDeviceDialog();
+    void showNoCarView();
+    void showOfflineErrorView();
+    void showUnknownErrorView();
 }

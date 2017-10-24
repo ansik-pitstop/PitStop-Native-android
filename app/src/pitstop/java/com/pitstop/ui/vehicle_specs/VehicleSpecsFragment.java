@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -77,7 +78,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     protected LinearLayout mainLayout;
 
     @BindView(R.id.main_linear_layout)
-    protected LinearLayout mainLinearLayout;
+    protected RelativeLayout mainLinearLayout;
 
     @BindView(R.id.loading_view_main)
     protected View loadingView;
@@ -90,6 +91,15 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
     @BindView(R.id.background_image)
     protected ImageView carPic;
+
+    @BindView(R.id.no_car)
+    protected View noCarView;
+
+    @BindView(R.id.offline_view)
+    protected View offlineView;
+
+    @BindView(R.id.unknown_error_view)
+    protected View unknownErrorView;
 
     @BindView(R.id.dealership_tv)
     protected TextView dealership;
@@ -187,7 +197,63 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         presenter.unsubscribe();
         super.onDestroyView();
     }
+    @Override
+    public void showNoCarView(){
+        if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setGravity(Gravity.CENTER);
+            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.gravity = Gravity.CENTER;
+            mainLinearLayout.setLayoutParams(params);
+            Log.d(TAG, "showNoCarView()");
+            mainLayout.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+            swipeRefreshLayout.setEnabled(true);
+        }
 
+    }
+
+    public void showOfflineErrorView(){
+        if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.gravity = Gravity.CENTER;
+            mainLinearLayout.setLayoutParams(params);
+            Log.d(TAG, "showNoCarView()");
+            mainLayout.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.VISIBLE);
+            offlineView.bringToFront();
+            swipeRefreshLayout.setEnabled(true);
+        }
+    }
+
+    public void showUnknownErrorView(){
+        if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setGravity(Gravity.CENTER);
+            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.gravity = Gravity.CENTER;
+            mainLinearLayout.setLayoutParams(params);
+            Log.d(TAG, "showNoCarView()");
+            mainLayout.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+            swipeRefreshLayout.setEnabled(true);
+        }
+    }
 
     @Override
     public void showLoading() {
@@ -195,11 +261,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             mainLinearLayout.setGravity(Gravity.CENTER);
             mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.CENTER;
             mainLinearLayout.setLayoutParams(params);
             Log.d(TAG, "showLoading()");
             mainLayout.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
@@ -210,12 +279,15 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     public void hideLoading(){
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setEnabled(true);
+          /*  swipeRefreshLayout.setEnabled(true);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.NO_GRAVITY;
-            mainLinearLayout.setLayoutParams(params);
+            mainLinearLayout.setLayoutParams(params);*/
             loadingView.setVisibility(View.GONE);
+            unknownErrorView.setVisibility(View.GONE);
+            offlineView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
         }
         else {
@@ -229,24 +301,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         carLogo.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
         carName.setVisibility(View.GONE);
+        bannerOverlay.setVisibility(View.VISIBLE);
         if (getActivity()!=null)
             Picasso.with(getActivity()).load(s).into(carPic);
     }
-/*
-    public void setCar(){
-        this.myCar.setCurrentCar(bundle.getBoolean(IS_CURRENT_KEY));
-        this.myCar.setId(bundle.getInt(CAR_ID_KEY));
-        this.myCar.setVin(bundle.getString(CAR_VIN_KEY));
-        this.myCar.setScannerId(bundle.getString(SCANNER_ID_KEY));
-        this.myCar.setEngine(bundle.getString(ENGINE_KEY));
-        this.myCar.setCityMileage(bundle.getString(CITY_MILEAGE_KEY));
-        this.myCar.setHighwayMileage(bundle.getString(HIGHWAY_MILEAGE_KEY));
-        this.myCar.setTrim(bundle.getString(TRIM_KEY));
-        this.myCar.setTankSize(bundle.getString(TANK_SIZE_KEY));
-        this.myCar.setYear(bundle.getInt(YEAR_KEY));
-        this.myCar.setMake(bundle.getString(MAKE_KEY));
-        this.myCar.setModel(bundle.getString(MODEL_KEY));
-    }*/
 
     @Override
     public void setCarView(Car car) {
