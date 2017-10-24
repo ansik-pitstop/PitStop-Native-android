@@ -86,7 +86,7 @@ import io.smooch.core.User;
  * Created by David on 6/8/2016.
  */
 public class MainActivity extends IBluetoothServiceActivity implements MainActivityCallback
-        , Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher{
+        , Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher, BadgeDisplayer{
 
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String CURRENT_ISSUE_SOURCE = "currentService";
@@ -971,5 +971,18 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     @Override
     public void openScanTab() {
         tabFragmentManager.openScanTab();
+    }
+
+    @Override
+    public void displayServicesBadgeCount(int count) {
+        if (tabFragmentManager != null)
+            tabFragmentManager.displayServicesBadgeCount(count);
+    }
+
+    @Override
+    public void displayNotificationsBadgeCount(int count) {
+        if (tabFragmentManager != null)
+            tabFragmentManager.displayNotificationsBadgeCount(count);
+
     }
 }
