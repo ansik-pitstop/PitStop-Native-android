@@ -465,6 +465,8 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             case R.id.action_settings:
                 settingsClicked(null);
                 return true;
+            case R.id.action_request_service:
+                requestMultiService(null);
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface IssueHolderListener {
     void onServiceClicked(List<CarIssue> carIssues, int position);
-    void onServiceDoneClicked(CarIssue carIssue);
+    void onServiceSelected(CarIssue carIssue);
     void onTentativeServiceClicked();
 }

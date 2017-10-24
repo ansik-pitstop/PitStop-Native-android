@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -30,7 +29,6 @@ import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +51,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.no_car)
     View noCarView;
 
-
-
     @BindView(R.id.upcoming_service_rel_layout)
     RelativeLayout relativeLayout;
 
@@ -75,7 +71,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
-
 
     private TimelineAdapter timelineAdapter;
 
