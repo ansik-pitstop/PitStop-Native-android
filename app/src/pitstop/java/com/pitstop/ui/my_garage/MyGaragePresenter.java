@@ -286,11 +286,7 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
         carList.addAll(data);
     }
 
-    public void onCarClicked(Car car, int position) {
-        Log.d(TAG, "onCarClicked()");
-        if (getView()!=null)
-            getView().openSpecsActivity(car, position);
-    }
+
 
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");

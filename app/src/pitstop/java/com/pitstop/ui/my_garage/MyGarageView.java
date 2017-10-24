@@ -26,7 +26,6 @@ public interface MyGarageView {
     void openDealershipDirections(Dealership dealership);
     void onCarClicked(Car car, int position);
     void showCars(List<Car> carList);
-    void openSpecsActivity(Car car, int position);
     void noCarsView();
     void onUpdateNeeded();
     void showLoading();

@@ -24,6 +24,7 @@ public class EventSourceImpl implements EventSource {
                 && !eventSource.equals(EventSource.SOURCE_BLUETOOTH_AUTO_CONNECT)
                 && !eventSource.equals(EventSource.SOURCE_MY_GARAGE)
                 && !eventSource.equals(EventSource.SOURCE_DRAWER)
+                && !eventSource.equals(EventSource.SOURCE_MY_CAR)
         ){
 
             throw new IllegalArgumentException();

@@ -2,6 +2,8 @@ package com.pitstop.ui.vehicle_specs;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,11 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +32,7 @@ import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.my_garage.MyGarageFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.squareup.picasso.Picasso;
@@ -42,29 +47,15 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends android.app.Fragment implements VehicleSpecsView {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
-    public static final String CAR_POSITION_KEY = "position";
-    public static final String CAR_ID_KEY = "carid";
-    public static final String CAR_VIN_KEY = "carVin";
-    public static final String SCANNER_ID_KEY = "scannerId";
-    public static final String CITY_MILEAGE_KEY = "cityMieage";
-    public static final String HIGHWAY_MILEAGE_KEY = "highwayMileage";
-    public static final String ENGINE_KEY = "engine";
-    public static final String TRIM_KEY = "trim";
-    public static final String TANK_SIZE_KEY = "tankSize";
-    public static final String DEALERSHIP_KEY = "dealership";
-    public static final String MODEL_KEY = "model";
-    public static final String MAKE_KEY = "make";
-    public static final String YEAR_KEY = "year";
+
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
-    public static final String IS_CURRENT_KEY = "isCurrent?";
     public static final String CAR_DELETED = "deleted";
     public static final String CAR_POSITION ="position" ;
     public static final String CAR_SELECTED ="carCurrent" ;
 
     public static final int START_CUSTOM = 347;
-    private int carId;
     private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
     private AlertDialog dealershipAlertDialog;
@@ -72,13 +63,24 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     private AlertDialog changeDealershipAlertDialog;
     private VehicleSpecsPresenter presenter;
     private AlertDialog currentCarConfirmDialog;
-    private Car myCar;
+
+    @BindView(R.id.swiper)
+    protected SwipeRefreshLayout swipeRefreshLayout;
 
     @BindView(R.id.car_logo_imageview)
     protected ImageView carLogo;
 
     @BindView(R.id.car_name_banner)
     protected TextView carName;
+
+    @BindView(R.id.main_view_lin_layout)
+    protected LinearLayout mainLayout;
+
+    @BindView(R.id.main_linear_layout)
+    protected LinearLayout mainLinearLayout;
+
+    @BindView(R.id.loading_view_main)
+    protected View loadingView;
 
     @BindView(R.id.banner_overlay)
     protected FrameLayout bannerOverlay;
@@ -101,8 +103,6 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @BindView(R.id.scanner_view)
     protected View scannerView;
 
-    @BindView(R.id.make_car_current)
-    protected View selectCarAsCurrent;
 
     @BindView(R.id.delete_car)
     protected View deleteCarView;
@@ -140,7 +140,10 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @BindView(R.id.progress)
     protected View imageLoadingView;
 
-    private Bundle bundle;
+
+    public static VehicleSpecsFragment newInstance(){
+        return new VehicleSpecsFragment();
+    }
 
     private boolean carPicgetError;
     private ProgressDialog progressDialog;
@@ -151,7 +154,6 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Log.d(TAG, "onCreateView()");
         View view  = inflater.inflate(R.layout.fragment_vehicle_specs, null);
         ButterKnife.bind(this, view);
-        bundle  = getArguments();
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -165,10 +167,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        this.carId = bundle.getInt(CAR_ID_KEY);
-        this.myCar = new Car();
-        setCar();
-        setView();
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
+
         return view;
     }
 
@@ -177,8 +177,8 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-        presenter.getLicensePlate(carId);
-        presenter.getCarImage(bundle.getString(CAR_VIN_KEY));
+        presenter.onUpdateNeeded();
+
     }
 
     @Override
@@ -186,6 +186,41 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         Log.d(TAG, "onDestroyView()");
         presenter.unsubscribe();
         super.onDestroyView();
+    }
+
+
+    @Override
+    public void showLoading() {
+        if (!swipeRefreshLayout.isRefreshing()) {
+            mainLinearLayout.setGravity(Gravity.CENTER);
+            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER;
+            mainLinearLayout.setLayoutParams(params);
+            Log.d(TAG, "showLoading()");
+            mainLayout.setVisibility(View.GONE);
+            loadingView.setVisibility(View.VISIBLE);
+            loadingView.bringToFront();
+            swipeRefreshLayout.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void hideLoading(){
+        Log.d(TAG, "hideLoading()");
+        if (!swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setEnabled(true);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.NO_GRAVITY;
+            mainLinearLayout.setLayoutParams(params);
+            loadingView.setVisibility(View.GONE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
+        else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
@@ -197,7 +232,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         if (getActivity()!=null)
             Picasso.with(getActivity()).load(s).into(carPic);
     }
-
+/*
     public void setCar(){
         this.myCar.setCurrentCar(bundle.getBoolean(IS_CURRENT_KEY));
         this.myCar.setId(bundle.getInt(CAR_ID_KEY));
@@ -211,48 +246,43 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         this.myCar.setYear(bundle.getInt(YEAR_KEY));
         this.myCar.setMake(bundle.getString(MAKE_KEY));
         this.myCar.setModel(bundle.getString(MODEL_KEY));
+    }*/
 
-
-
-    }
-
-    public void setView(){
+    @Override
+    public void setCarView(Car car) {
         Log.d(TAG, "setView()");
-        if (bundle.getBoolean(IS_CURRENT_KEY)){
-            selectCarAsCurrent.setVisibility(View.GONE);
-        }
-        carVin.setText(bundle.getString(CAR_VIN_KEY));
-        if (this.myCar.getScannerId() == null)
+
+        carVin.setText(car.getVin());
+        if (car.getScannerId() == null)
             scannerID.setText("No scanner connected");
         else
-            scannerID.setText(this.myCar.getScannerId());
-        if (bundle.getString(ENGINE_KEY) == null){
+            scannerID.setText(car.getScannerId());
+        if (car.getEngine() == null){
             engine.setVisibility(View.GONE);
         }
         else
-            engine.setText(this.myCar.getEngine());
+            engine.setText(car.getEngine());
 
-        cityMileage.setText(this.myCar.getCityMileage());
-        highwayMileage.setText(this.myCar.getHighwayMileage());
-        if (bundle.getString(TRIM_KEY) == null)
+        cityMileage.setText(car.getCityMileage());
+        highwayMileage.setText(car.getHighwayMileage());
+        if (car.getTrim() == null)
             trimView.setVisibility(View.GONE);
         else
-            trim.setText(this.myCar.getTrim());
+            trim.setText(car.getTrim());
 
-        if (bundle.getString(TANK_SIZE_KEY) == null)
+        if (car.getTankSize() == null)
             tankSizeView.setVisibility(View.GONE);
         else
-            tankSize.setText(this.myCar.getTankSize());
+            tankSize.setText(car.getTankSize());
 
-        if(bundle.getString(DEALERSHIP_KEY)!= null) {
+        if(!(car.getDealership()== null)) {
             dealerhsipView.setVisibility(View.VISIBLE);
-            dealership.setText(bundle.getString(DEALERSHIP_KEY));
+            dealership.setText(car.getDealership().getName());
         }
         else{
             dealerhsipView.setVisibility(View.GONE);
         }
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(Integer.valueOf(this.myCar.getYear()) + " " +
-                        this.myCar.getMake() + " " + this.myCar.getModel());
+        presenter.getLicensePlate(car.getId());
     }
 
     @Override
@@ -276,26 +306,16 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         carLogo.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);
         carName.setVisibility(View.VISIBLE);
-        carName.setText(Integer.toString(myCar.getYear()) + " " +
-                        myCar.getMake() + " " +
-                        myCar.getModel());
-        carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( myCar.getMake()));
-        dealershipName.setText(bundle.getString(DEALERSHIP_KEY));
-        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(bundle.getString(DEALERSHIP_KEY)));
+        carName.setText(Integer.toString(presenter.getCar().getYear()) + " " +
+                        presenter.getCar().getMake() + " " +
+                        presenter.getCar().getModel());
+        carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( presenter.getCar().getMake()));
+        dealershipName.setText(presenter.getCar().getDealership().getName());
+        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getCar().getDealership().getName()));
         bannerOverlay.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void closeSpecsFragmentAfterDeletion() {
-        Log.d(TAG, "closeSpecsFragmentAfterDeletion");
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra(CAR_DELETED, true);
-        resultIntent.putExtra(CAR_SELECTED, false);
-        resultIntent.putExtra(CAR_POSITION, bundle.getInt(CAR_POSITION_KEY));
-        if(getActivity() == null) return;
-        getActivity().setResult(Activity.RESULT_OK, resultIntent);
-        getActivity().finish();
-    }
+
 
 
     @Override
@@ -315,17 +335,6 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         }
     }
 
-    @Override
-    public void closeSpecsFragmentAfterSettingCurrent() {
-        Log.d(TAG, "closeSpecsFragmentAfterSettingCurrent");
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra(CAR_DELETED, false);
-        resultIntent.putExtra(CAR_SELECTED, true);
-        resultIntent.putExtra(CAR_POSITION, bundle.getInt(CAR_POSITION_KEY));
-        if(getActivity() == null) return;
-        getActivity().setResult(Activity.RESULT_OK, resultIntent);
-        getActivity().finish();
-    }
 
     @OnClick(R.id.license_plate_cardview)
     public void showLicensePlateDialog(){
@@ -341,7 +350,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     .setTitle("Update License Plate")
                     .setView(dialogLayout)
                     .setPositiveButton("Confirm", (dialog, which)
-                            -> presenter.onUpdateLicensePlateDialogConfirmClicked(carId,
+                            -> presenter.onUpdateLicensePlateDialogConfirmClicked(presenter.getCar().getId(),
                             textInputEditText.getText().toString()))
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
                     .create();
@@ -352,30 +361,9 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     @OnClick(R.id.scanner_view)
     public void onScannerViewClicked(){
         Log.d(TAG, "onScannerViewClicked()");
-        if (bundle.getString(SCANNER_ID_KEY) == null){
-            showBuyDeviceDialog();
-        }
+        presenter.onScannerViewClicked();
     }
 
-    @OnClick(R.id.make_car_current)
-    public void onMakeCarCurrentClicked(){
-        Log.d(TAG, "makeCarCurrentClicked");
-        if(currentCarConfirmDialog == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.buy_device_dialog, null);
-            currentCarConfirmDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Select as Current Car")
-                    .setView(dialogLayout)
-                    .setMessage("Are you sure you want to select this as your current car?")
-                    .setPositiveButton("Yes", (dialog, which)
-                            -> presenter.makeCarCurrent(bundle.getInt(CAR_ID_KEY)))
-                    .setNegativeButton("No", (dialog, which) -> dialog.cancel())
-                    .create();
-        }
-        currentCarConfirmDialog.show();
-
-    }
 
     @OnClick(R.id.delete_car)
     public void onDeleteCarClicked(){
@@ -389,14 +377,15 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     .setView(dialogLayout)
                     .setMessage("Are you sure you want to delete this car")
                     .setPositiveButton("Yes", (dialog, which)
-                            -> presenter.deleteCar(bundle.getInt(CAR_ID_KEY)))
+                            -> presenter.deleteCar())
                     .setNegativeButton("No", (dialog, which) -> dialog.cancel())
                     .create();
         }
         deleteCarAlertDialog.show();
     }
 
-    private void showBuyDeviceDialog() {
+    @Override
+    public void showBuyDeviceDialog() {
         Log.d(TAG, "showBuyDeviceDialog()");
         if (buyDeviceDialog == null){
             final View dialogLayout = LayoutInflater.from(
@@ -425,9 +414,11 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
     }
 
     public void startCustomShop(){
-        Intent intent = new Intent(getActivity(), CustomShopActivity.class);
-        intent.putExtra(MainActivity.CAR_EXTRA,this.myCar);
-        startActivityForResult(intent,START_CUSTOM);
+        if (presenter.getCar()!=null) {
+            Intent intent = new Intent(getActivity(), CustomShopActivity.class);
+            intent.putExtra(MainActivity.CAR_EXTRA, presenter.getCar());
+            startActivityForResult(intent, START_CUSTOM);
+        }
     }
 
     @OnClick(R.id.dealership_view)

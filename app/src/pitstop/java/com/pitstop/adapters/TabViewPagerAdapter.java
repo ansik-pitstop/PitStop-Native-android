@@ -11,6 +11,7 @@ import com.pitstop.ui.my_garage.MyGarageFragment;
 
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
 /**
  * Class responsible for providing fragments, and their associated data
@@ -24,7 +25,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     DashboardFragment dashboardFragment;
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
-    MyGarageFragment myGarageFragment;
+    VehicleSpecsFragment vehicleSpecsFragment;
     NotificationFragment notificationFragment;
 
     public TabViewPagerAdapter(FragmentManager fm) {
@@ -52,11 +53,11 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 }
                 return startReportFragment;
 
-            case TabFragmentManager.TAB_GARAGE:
-                if (myGarageFragment == null){
-                    myGarageFragment = MyGarageFragment.newInstance();
+            case TabFragmentManager.TAB_VEHICLE_SPECS:
+                if (vehicleSpecsFragment == null){
+                    vehicleSpecsFragment = vehicleSpecsFragment.newInstance();
                 }
-                return myGarageFragment;
+                return vehicleSpecsFragment;
 
             case TabFragmentManager.TAB_NOTIF:
                 if (notificationFragment == null){
@@ -82,8 +83,8 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return "Notifications";
             case TabFragmentManager.TAB_SCAN:
                 return "Scan";
-            case TabFragmentManager.TAB_GARAGE:
-                return "Garage";
+            case TabFragmentManager.TAB_VEHICLE_SPECS:
+                return "My Car";
             case TabFragmentManager.TAB_SERVICES:
                 return "Services";
         }

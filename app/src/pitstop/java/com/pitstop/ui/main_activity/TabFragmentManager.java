@@ -26,10 +26,10 @@ public class TabFragmentManager {
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
-    public static final int TAB_GARAGE = 3;
+    public static final int TAB_VEHICLE_SPECS = 3;
     public static final int TAB_NOTIF = 4;
 
-    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
+    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","My Car", "Notifications"};
 
     @BindView(R.id.main_tablayout)
     TabLayout mTabLayout;
@@ -86,8 +86,8 @@ public class TabFragmentManager {
                     case TAB_SCAN:
                         mMixpanelHelper.trackSwitchedToTab("Health");
                         break;
-                    case TAB_GARAGE:
-                        mMixpanelHelper.trackSwitchedToTab("My Garage");
+                    case TAB_VEHICLE_SPECS:
+                        mMixpanelHelper.trackSwitchedToTab("My Car");
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");
@@ -173,9 +173,9 @@ public class TabFragmentManager {
                         mViewPager.setCurrentItem(TAB_SCAN);
                         break;
 
-                    case TAB_GARAGE:
+                    case TAB_VEHICLE_SPECS:
                         //Go to my garage fragment
-                        mViewPager.setCurrentItem(TAB_GARAGE);
+                        mViewPager.setCurrentItem(TAB_VEHICLE_SPECS);
                         break;
 
                     case TAB_NOTIF:
