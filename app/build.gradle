@@ -72,7 +72,6 @@ android {
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86"
         }
-        signingConfig signingConfigs.config
     }
     buildTypes {
         debug { // for development, dev backend, no mixpanel
@@ -92,7 +91,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {
