@@ -100,14 +100,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/assets" type="java-test-resource" />
@@ -116,6 +108,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -161,6 +161,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes-jar" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-runtime-classes" />
