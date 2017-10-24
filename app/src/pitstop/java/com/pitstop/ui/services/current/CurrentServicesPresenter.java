@@ -97,6 +97,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             getView().displayNoServices(false);
         myServicesList.add(issue);
         selectionMap.put(issue,false);
+        getView().displayBadge(selectionMap.keySet().size());
         getView().notifyIssueDataChanged();
     }
 
@@ -289,6 +290,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     selectionMap.remove(c);
                 }
 
+                getView().displayBadge(selectionMap.keySet().size());
                 getView().showRoutineServicesView(!routineServicesList.isEmpty());
                 getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
                 getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
