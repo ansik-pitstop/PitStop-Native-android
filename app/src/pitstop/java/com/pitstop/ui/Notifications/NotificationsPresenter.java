@@ -88,27 +88,30 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                     Log.d("notifications", "return");
                     return;
                 }
-                notifications.clear();
-                notifications.addAll(list);
-
-                int badgeCount = 0;
-                for (Notification n: notifications)
-                    if (n.isRead() != null && n.isRead())
-                        badgeCount++;
-                getView().displayBadgeCount(badgeCount);
 
                 getView().hideLoading();
-                if (list == null){
+                if (notifications == null){
                     getView().displayUnknownErrorView();
+                    getView().displayBadgeCount(0);
                     return;
                 }
                 else if (list.size() == 0) {
                     getView().noNotifications();
+                    getView().displayBadgeCount(0);
                     Log.d("notifications", "zerolist");
                 }
                 else {
                     Log.d("notifications", "display");
+                    notifications.clear();
+                    notifications.addAll(list);
                     Collections.sort(notifications, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
+
+                    int badgeCount = 0;
+                    for (Notification n: notifications)
+                        if (n.isRead() != null && n.isRead())
+                            badgeCount++;
+
+                    getView().displayBadgeCount(badgeCount);
                     getView().displayNotifications(notifications);
                 }
 
