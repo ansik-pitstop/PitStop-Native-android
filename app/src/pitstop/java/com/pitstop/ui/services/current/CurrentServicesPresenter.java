@@ -189,6 +189,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             public void onNoCarAdded() {
                 updating = false;
                 if (getView() == null) return;
+                getView().displayBadge(0);
                 getView().hideLoading();
                 getView().displayNoCarView();
             }
@@ -199,6 +200,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
+                getView().displayBadge(0);
                 getView().hideLoading();
                 if (error.getError()!=null) {
                     if (error.getError().equals(RequestError.ERR_OFFLINE)) {

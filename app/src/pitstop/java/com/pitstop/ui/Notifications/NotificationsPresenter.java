@@ -107,9 +107,10 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
                     Collections.sort(notifications, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
 
                     int badgeCount = 0;
-                    for (Notification n: notifications)
-                        if (n.isRead() != null && n.isRead())
+                    for (Notification n: notifications){
+                        if (n.isRead() != null && !n.isRead())
                             badgeCount++;
+                    }
 
                     getView().displayBadgeCount(badgeCount);
                     getView().displayNotifications(notifications);

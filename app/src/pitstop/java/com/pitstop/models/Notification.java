@@ -69,4 +69,12 @@ public class Notification extends ParseObject {
         }
         saveEventually();
     }
+
+    @Override
+    public String toString(){
+        HashMap dataKey = (HashMap)get(DATA_KEY);
+        if (dataKey != null)
+            return "title: "+getTitle()+" dataKey: "+dataKey.toString();
+        else return "title: "+getTitle()+", null data";
+    }
 }
