@@ -17,6 +17,7 @@
             android:orientation="vertical"
             android:padding="8dp">
 
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -25,31 +26,50 @@
                 android:textColor="@color/white"
                 android:textSize="18sp" />
 
-            <Button
-                android:id="@+id/debugClearPrefs"
+            <EditText
+                android:id="@+id/debug_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/debug_clear_prefs"/>
+                android:background="@color/white80"
+                android:padding="8dp"
+                />
 
             <Button
-                android:id="@+id/debugClearDB"
+                android:id="@+id/debugGetSupportedPids"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/debug_clear_db" />
+                android:text="Get supported PIDs" />
+
+            <Button
+                android:id="@+id/debugSetInterval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set device Interval" />
+
+            <Button
+                android:id="@+id/debugClearDeviceMemory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear Device Memory" />
+
+            <Button
+                android:id="@+id/debugClearDTC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear DTCs" />
+
+            <Button
+                android:id="@+id/debugSetNetworkChunkSize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set Network Chunk Size" />
+
 
             <Button
                 android:id="@+id/debugRandomVin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/debug_random_vin" />
-            
-            <EditText
-                android:id="@+id/debugVinField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white80"
-                android:padding="8dp"
-                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -59,7 +79,6 @@
                 android:text="@string/debug_log_header"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
-
             <Button
                 android:id="@+id/debugEnableLogs"
                 android:layout_width="match_parent"

@@ -433,4 +433,28 @@ public class Device212B implements AbstractDevice {
 
 //        dataListener.getIOData(dataPackageInfo);
     }
+
+    @Override
+    public String resetDeviceToDefaults() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public String resetDevice() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public String clearDeviceMemory() {
+        //TODO: add this
+        return null;
+    }
+
+    @Override
+    public String clearDtcs() {
+        //TODO
+        return null;
+    }
 }

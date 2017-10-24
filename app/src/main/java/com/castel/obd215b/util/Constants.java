@@ -26,5 +26,4 @@ public class Constants {
 	
 	public final static String CONTROL_EVENT_ID_PID_SNAPSHOT = "0";
 	public final static String CONTROL_EVENT_ID_PID_APPOINTED = "1";
-
 }
