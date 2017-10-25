@@ -354,8 +354,11 @@ public class UseCaseModule {
 
     @Provides
     GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,CarRepository carRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetUserCarUseCaseImpl(userRepository,carRepository, useCaseHandler, mainHandler);
+            , ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            ,@Named("mainHandler") Handler mainHandler){
+
+        return new GetUserCarUseCaseImpl(userRepository,carRepository, shopRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
