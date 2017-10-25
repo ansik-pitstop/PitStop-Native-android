@@ -3,10 +3,12 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
 /**
@@ -16,15 +18,17 @@ import com.pitstop.repositories.UserRepository;
 public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     private CarRepository carRepository;
     private UserRepository userRepository;
+    private ShopRepository shopRepository;
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
     private int carId;
 
     public GetCarByCarIdUseCaseImpl(CarRepository carRepository, UserRepository userRepository
-            , Handler useCaseHandler, Handler mainHandler) {
+            , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
         this.useCaseHandler = useCaseHandler;
         this.carRepository = carRepository;
+        this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.mainHandler = mainHandler;
     }
@@ -36,33 +40,47 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
         useCaseHandler.post(this);
     }
 
-    private void onCarGot(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarGot(car);
-            }
-        });
+    private void onCarGot(Car car, Dealership dealership){
+        mainHandler.post(() -> callback.onCarGot(car, dealership));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     };
 
     @Override
     public void run() {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
+
             @Override
             public void onSuccess(User user) {
                 carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
+
                     @Override
                     public void onSuccess(Car car) {
-                        GetCarByCarIdUseCaseImpl.this.onCarGot(car);
+                        carRepository.getShopId(car.getId(), new Repository.Callback<Integer>() {
+
+                            @Override
+                            public void onSuccess(Integer shopId) {
+                                shopRepository.get(shopId, new Repository.Callback<Dealership>() {
+
+                                    @Override
+                                    public void onSuccess(Dealership dealership) {
+                                        GetCarByCarIdUseCaseImpl.this.onCarGot(car, dealership);
+                                    }
+
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        GetCarByCarIdUseCaseImpl.this.onError(error);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                GetCarByCarIdUseCaseImpl.this.onError(error);
+                            }
+                        });
                     }
 
                     @Override
