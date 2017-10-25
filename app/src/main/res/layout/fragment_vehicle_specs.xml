@@ -15,7 +15,9 @@
         android:id="@+id/main_linear_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+
+
         <RelativeLayout
             android:id="@+id/loading_rel_layout"
             android:gravity="center"
@@ -338,6 +340,51 @@
 
         </android.support.v7.widget.CardView>
 
+        <android.support.v7.widget.CardView
+            android:id="@+id/car_mileage_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="2dp"
+            android:layout_gravity="center_horizontal"
+            >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    tools:src="@drawable/odometer"
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Mileage"
+                    android:textSize="22sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+            </LinearLayout>
+            <TextView
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:id="@+id/total_mileage_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
         <TextView
             android:padding="10dp"
             android:text="Vehicle Specs"
@@ -379,6 +426,7 @@
 
             </LinearLayout>
             <TextView
+                android:maxLength="24"
                 android:layout_marginLeft="2dp"
                 android:id="@+id/car_engine"
                 android:layout_gravity="right"
