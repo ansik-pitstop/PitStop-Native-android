@@ -19,6 +19,5 @@ public interface UpcomingServicesView extends LoadingTabView, ErrorHandlingView
     void displayNoServices();
     boolean hasBeenPopulated();
     void onUpcomingServiceClicked(ArrayList<UpcomingService> services, int position);
-
     void openIssueDetailsActivity(ArrayList<UpcomingService> services, int position);
 }
