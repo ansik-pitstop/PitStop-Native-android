@@ -80,23 +80,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         @Override
                         public void onSuccess(Car car) {
 
-                            carRepository.getShopId(car.getShopId(), new Repository.Callback<Integer>() {
+                            shopRepository.get(car.getShopId(), new Repository.Callback<Dealership>() {
 
                                 @Override
-                                public void onSuccess(Integer shopId) {
-                                    shopRepository.get(shopId, new Repository.Callback<Dealership>() {
-
-                                        @Override
-                                        public void onSuccess(Dealership dealership) {
-                                            GetUserCarUseCaseImpl.this.onCarRetrieved(car, dealership);
-
-                                        }
-
-                                        @Override
-                                        public void onError(RequestError error) {
-                                            GetUserCarUseCaseImpl.this.onError(error);
-                                        }
-                                    });
+                                public void onSuccess(Dealership dealership) {
+                                    GetUserCarUseCaseImpl.this.onCarRetrieved(car, dealership);
                                 }
 
                                 @Override

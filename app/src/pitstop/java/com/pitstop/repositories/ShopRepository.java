@@ -282,7 +282,7 @@ public class ShopRepository implements Repository{
 
 
     public void get(int dealerId, Callback<Dealership> callback){
-
+        Log.d(TAG,"get() "+END_POINT_SHOP+"/"+dealerId);
         networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
@@ -292,20 +292,18 @@ public class ShopRepository implements Repository{
     private RequestCallback getGetShopRequestCallback(Callback<Dealership> callback){
         RequestCallback requestCallback = (response, requestError) -> {
             if(response != null){
-                try{
-                    Log.d(TAG,"get shops response: "+response +", after conversion: "
-                            + new JSONArray(response).get(0).toString());
-                    Dealership dealership = Dealership.jsonToDealershipObject(
-                            new JSONArray(response).get(0).toString());
+                //try{
+                    Log.d(TAG,"get shops response: "+response);
+                    Dealership dealership = Dealership.jsonToDealershipObject(response);
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
                     }else{
                         callback.onSuccess(dealership);
                     }
-                }catch (JSONException e){
-                    e.printStackTrace();
-                    callback.onError(RequestError.getUnknownError());
-                }
+                //}catch (JSONException e){
+                   // e.printStackTrace();
+                   // callback.onError(RequestError.getUnknownError());
+                //}
 
             }else{
                 callback.onError(requestError);
