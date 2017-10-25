@@ -2,21 +2,19 @@ package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CalendarView;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -27,13 +25,10 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,8 +41,9 @@ import butterknife.ButterKnife;
  * Created by Matthew on 2017-07-11.
  */
 
-public class ServiceFormFragment extends Fragment implements ServiceFormView{
+public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
+    private final String TAG = getClass().getSimpleName();
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
 
@@ -100,13 +96,13 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
     Button submitButton;
 
     @BindView(R.id.service_time_loading)
-    ProgressBar timeLoading;
+    View timeLoading;
+
+    private ProgressDialog progressDialog;
 
     private ServiceFormPresenter presenter;
 
     private RequestServiceCallback callback;
-
-    private Car dashCar;
 
     private TimeAdapter timeAdapter;
 
@@ -117,88 +113,65 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     private IssueAdapter serviceChosenAdapter;
 
-    public void setActivityCallback(RequestServiceCallback callback){
-     this.callback = callback;
+    public void setActivityCallback(RequestServiceCallback callback) {
+        Log.d(TAG, "setActivityCallback()");
+        this.callback = callback;
     }
-
-    public void setCar(Car car){
-        this.dashCar = car;
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView()");
         context = getActivity().getApplicationContext();
-        application = (GlobalApplication)context;
+        application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragment_service_form, container, false);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
         calendarView.setVisibility(View.GONE);
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
-        Calendar calendar = Calendar.getInstance();
-        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
-            @Override
-            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-                presenter.dateSelected(date.getYear(),date.getMonth()+1,date.getDay(),calendarView);//month is 0 based
-            }
+        calendarView.setOnDateChangedListener((widget, date, selected) -> {
+            presenter.dateSelected(date.getYear(), date.getMonth() + 1, date.getDay(), calendarView);//month is 0 based
         });
 
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ServiceFormPresenter(callback,component,mixpanelHelper,dashCar);
+        presenter = new ServiceFormPresenter(callback, component, mixpanelHelper);
 
-        timeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.timeButtonClicked();
-            }
-        });
-        dateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.dateButtonClicked();
-            }
-        });
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.addButtonClicked();
-            }
-        });
+        timeButton.setOnClickListener(v -> presenter.timeButtonClicked());
+        dateButton.setOnClickListener(v -> presenter.dateButtonClicked());
+        addButton.setOnClickListener(v -> presenter.addButtonClicked());
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.onSubmitClicked();
-            }
-        });
+        submitButton.setOnClickListener(v -> presenter.onSubmitClicked());
         return view;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.populateViews();
         Calendar calendar = Calendar.getInstance();
         calendarView.state().edit().setMinimumDate(calendar).commit();
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
     }
 
     @Override
     public String getComments() {
+        Log.d(TAG,"getComments()");
         return additionalComments.getText().toString();
     }
 
     @Override
     public void showReminder(String message) {
+        Log.d(TAG,"showReminder() message: "+message);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(message)
                 .setTitle("Reminder");
@@ -208,20 +181,27 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void showLoading(boolean show) {
+        Log.d(TAG,"showLoading() show? "+show);
         if(show){
-            timeLoading.setVisibility(View.VISIBLE);
+            if (progressDialog == null)
+                progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Loading...");
+            progressDialog.show();
         }else{
-            timeLoading.setVisibility(View.GONE);
+            progressDialog.hide();
         }
     }
 
     @Override
     public void toast(String message) {
+        Log.d(TAG,"toast() message: "+message);
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public  List<CarIssue> getPresetList() {
+        Log.d(TAG,"getPresetList()");
         List<CarIssue> presetIssues = new ArrayList<>();
         presetIssues.add(new CarIssue.Builder()
                 .setId(4)
@@ -263,6 +243,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void setupTimeList(List<String> times) {
+        Log.d(TAG,"setupTimeList()");
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         timeAdapter = new TimeAdapter(times,presenter);
@@ -272,6 +253,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void setupPresetIssues(List<CarIssue> issues) {
+        Log.d(TAG,"setupPresetIssues() issues: "+issues);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         serviceAdapter = new IssueAdapter(issues,false,presenter,context);
@@ -281,6 +263,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void setupSelectedIssues(List<CarIssue> issues) {
+        Log.d(TAG,"setupSelectedIssues() issues: "+issues);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         serviceChosenAdapter= new IssueAdapter(issues,true,presenter,context);
@@ -290,47 +273,64 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void showShop(String name,String address) {
+        Log.d(TAG,"showShop() name: "+name+", address: "+address);
         shopName.setText(name);
         shopAddress.setText(address);
     }
 
     @Override
     public void setCommentHint(String hint) {
+        Log.d(TAG,"setCommentHint() hint: "+hint);
         additionalComments.setHint(hint);
     }
 
     @Override
     public void hideTimeList() {
+        Log.d(TAG,"hideTimeList()");
         timeListHolder.setVisibility(View.GONE);
     }
 
     @Override
     public void hideCalender() {
+        Log.d(TAG,"hideCalendar()");
         calendarView.setVisibility(View.GONE);
     }
 
     @Override
     public void disableButton(boolean disable) {
-            submitButton.setClickable(!disable);
+        Log.d(TAG,"disableButton() disable: "+disable);
+        submitButton.setClickable(!disable);
+    }
+
+    @Override
+    public void showLoadingTime(boolean show) {
+        if (show)
+            timeLoading.setVisibility(View.VISIBLE);
+        else
+            timeLoading.setVisibility(View.GONE);
     }
 
     @Override
     public void showCalender() {
+        Log.d(TAG,"showCalednar()");
         calendarView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showDate(String date) {
+        Log.d(TAG,"showDate() date: "+date);
         dateText.setText(date);
     }
 
     @Override
     public void showTime(String time) {
+        Log.d(TAG,"showTime() time: "+time);
         timeText.setText(time);
     }
 
     @Override
     public void toggleTimeList() {
+        Log.d(TAG,"toggleTimeList()");
         if(timeListHolder.getVisibility()== View.GONE){
             timeListHolder.setVisibility(View.VISIBLE);
         }else{
@@ -340,6 +340,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void toggleCalender() {
+        Log.d(TAG,"toggleCaledar()");
         if(calendarView.getVisibility()== View.GONE){
             calendarView.setVisibility(View.VISIBLE);
         }else{
@@ -349,6 +350,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView{
 
     @Override
     public void toggleServiceList() {
+        Log.d(TAG,"toggleServiceList()");
         if(serviceListHolder.getVisibility() == View.GONE){
             serviceListHolder.setVisibility(View.VISIBLE);
         }else{
