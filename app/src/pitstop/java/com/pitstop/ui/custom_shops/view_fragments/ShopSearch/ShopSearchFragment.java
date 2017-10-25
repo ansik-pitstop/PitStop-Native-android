@@ -83,8 +83,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public LatLng getLocation() {
-        Log.d(TAG,"getLocation() location.lat: "+location.latitude
-                +", location.long: "+location.longitude);
+        Log.d(TAG,"getLocation() location.lat: "+(location == null ? "location is null" : location.latitude)
+                +", location.long: "+(location == null ? "location is null" : location.longitude));
         return location;
     }
 
