@@ -16,6 +16,7 @@ import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDTCUseCase;
@@ -174,4 +175,6 @@ public interface UseCaseComponent {
     SetNotificationReadUseCase getSetNotificationReadUseCase();
 
     GetDealershipWithCarIssuesUseCase getDealershipWithCarIssuesUseCase();
+
+    GetCurrentCarDealershipUseCase getGetCurrentDealershipUseCase();
 }

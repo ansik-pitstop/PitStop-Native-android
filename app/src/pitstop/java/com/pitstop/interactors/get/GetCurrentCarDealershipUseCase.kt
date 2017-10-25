@@ -7,7 +7,7 @@ import com.pitstop.network.RequestError
 /**
  * Created by Karol Zdebel on 10/25/2017.
  */
-interface GetCurrentCarsDealershipUseCase: Interactor {
+interface GetCurrentCarDealershipUseCase : Interactor {
     interface Callback{
         fun onGotDealership(dealership: Dealership)
         fun onNoCarExists()

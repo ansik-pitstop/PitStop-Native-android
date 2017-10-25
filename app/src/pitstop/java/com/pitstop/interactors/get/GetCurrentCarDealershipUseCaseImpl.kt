@@ -13,14 +13,14 @@ import com.pitstop.repositories.UserRepository
 /**
  * Created by Karol Zdebel on 10/25/2017.
  */
-class GetCurrentCarsDealershipUseCaseImpl(val userRepository: UserRepository, val carRepository: CarRepository
-                                          , val shopRepository: ShopRepository, val useCaseHandler: Handler, val mainHandler: Handler)
-    : GetCurrentCarsDealershipUseCase {
+class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val carRepository: CarRepository
+                                         , val shopRepository: ShopRepository, val useCaseHandler: Handler, val mainHandler: Handler)
+    : GetCurrentCarDealershipUseCase {
 
     val tag: String? = javaClass.simpleName
-    private var callback: GetCurrentCarsDealershipUseCase.Callback? = null
+    private var callback: GetCurrentCarDealershipUseCase.Callback? = null
 
-    override fun execute(callback: GetCurrentCarsDealershipUseCase.Callback) {
+    override fun execute(callback: GetCurrentCarDealershipUseCase.Callback) {
         this.callback = callback
         useCaseHandler.post(this)
     }
