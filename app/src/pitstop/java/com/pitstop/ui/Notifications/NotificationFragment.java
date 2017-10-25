@@ -1,5 +1,6 @@
 package com.pitstop.ui.Notifications;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -22,6 +22,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Notification;
+import com.pitstop.ui.main_activity.BadgeDisplayer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
@@ -40,7 +41,6 @@ import butterknife.OnClick;
 public class NotificationFragment extends Fragment implements NotificationView{
 
     private final String TAG = getClass().getSimpleName();
-
 
 
     @BindView(R.id.unknown_error_view)
@@ -75,9 +75,10 @@ public class NotificationFragment extends Fragment implements NotificationView{
         return fragment;
     }
 
-    public void onNotificationClicked(String title){
-        Log.d(TAG, "onNotificationClicked() title: "+title);
-        presenter.onNotificationClicked(title);
+    @Override
+    public void onNotificationClicked(Notification notification){
+        Log.d(TAG, "onNotificationClicked() title: "+notification.getTitle());
+        presenter.onNotificationClicked(notification);
     }
 
     @Nullable
@@ -264,6 +265,27 @@ public class NotificationFragment extends Fragment implements NotificationView{
     public void openAppointments() {
         Log.d(TAG,"openAppointments()");
         tabSwitcher.openAppointments();
+    }
+
+    @Override
+    public void displayBadgeCount(int count) {
+        Log.d(TAG,"displayBadgeCount() count: "+count);
+        Activity activity = getActivity();
+        try{
+            if (activity != null){
+                BadgeDisplayer badgeDisplayer = (BadgeDisplayer)activity;
+                badgeDisplayer.displayNotificationsBadgeCount(count);
+            }
+        }catch(ClassCastException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onReadStatusChanged() {
+        if (notificationAdapter != null)
+            notificationAdapter.notifyDataSetChanged();
     }
 
     @Override

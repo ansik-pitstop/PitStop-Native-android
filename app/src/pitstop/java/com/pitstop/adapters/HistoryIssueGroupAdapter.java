@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -169,10 +170,10 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         TextView desc = (TextView) convertView.findViewById(R.id.description);
         TextView date = (TextView) convertView.findViewById(R.id.date);
         ImageView imageView = (ImageView) convertView.findViewById(R.id.image_icon);
-        ImageView doneImageView = (ImageView) convertView.findViewById((R.id.image_done_issue));
+        CheckBox checkBox = convertView.findViewById((R.id.checkbox));
 
         //Do not show done button inside history since services are already considered completed
-        doneImageView.setVisibility(View.INVISIBLE);
+        checkBox.setVisibility(View.INVISIBLE);
 
         desc.setText(issue.getDescription());
         if (issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {

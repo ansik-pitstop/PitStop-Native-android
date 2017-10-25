@@ -161,7 +161,7 @@
         app:srcCompat="@color/grey" />
 
     <RelativeLayout
-        android:id="@+id/recall_list_holder"
+        android:id="@+id/recalls_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

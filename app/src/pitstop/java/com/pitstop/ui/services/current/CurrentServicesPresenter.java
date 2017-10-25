@@ -8,14 +8,18 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
-import com.pitstop.interactors.other.MarkServiceDoneUseCase;
+import com.pitstop.interactors.set.SetServicesDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 8/30/2017.
@@ -33,6 +37,13 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private boolean updating = false;
+
+    private LinkedHashMap<CarIssue, Boolean> selectionMap = new LinkedHashMap<>();
+    private List<CarIssue> routineServicesList = new ArrayList<>();
+    private List<CarIssue> myServicesList = new ArrayList<>();
+    private List<CarIssue> storedEngineIssueList = new ArrayList<>();
+    private List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
+    private List<CarIssue> recallList = new ArrayList<>();
 
     CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -78,7 +89,16 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     void onCustomIssueCreated(CarIssue issue){
         Log.d(TAG,"onCustomIssueCreated()");
         if (issue == null || getView() == null) return;
-        getView().addCustomIssue(issue);
+        if (myServicesList.isEmpty())
+            getView().showMyServicesView(true);
+        if (myServicesList.isEmpty() && potentialEngineIssuesList.isEmpty()
+                && storedEngineIssueList.isEmpty() && routineServicesList.isEmpty()
+                && recallList.isEmpty())
+            getView().displayNoServices(false);
+        myServicesList.add(issue);
+        selectionMap.put(issue,false);
+        getView().displayBadge(selectionMap.keySet().size());
+        getView().notifyIssueDataChanged();
     }
 
     void onRefresh(){
@@ -109,37 +129,58 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         else updating = true;
         getView().showLoading();
 
-        List<CarIssue> carIssueList = new ArrayList<>();
-        List<CarIssue> customIssueList = new ArrayList<>();
-        List<CarIssue> engineIssueList = new ArrayList<>();
-        List<CarIssue> potentialEngineIssues = new ArrayList<>();
-        List<CarIssue> recallList = new ArrayList<>();
-
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
                 updating = false;
                 if (getView() == null) return;
+
+                getView().displayBadge(currentServices.size() + customIssues.size());
+
+                routineServicesList.clear();
+                myServicesList.clear();
+                potentialEngineIssuesList.clear();
+                storedEngineIssueList.clear();
+                recallList.clear();
+                selectionMap.clear();
+
                 getView().displayOnlineView();
+                getView().displayNoServices(currentServices.isEmpty() && customIssues.isEmpty());
                 for(CarIssue c:currentServices){
-                    if(c.getIssueType().equals(CarIssue.DTC)){
-                        engineIssueList.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.PENDING_DTC)){
-                        potentialEngineIssues.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.RECALL)){
-                        recallList.add(c);
-                    }else{
-                        carIssueList.add(c);
+                    selectionMap.put(c,false);
+                    switch (c.getIssueType()) {
+                        case CarIssue.DTC:
+                            storedEngineIssueList.add(c);
+                            break;
+                        case CarIssue.PENDING_DTC:
+                            potentialEngineIssuesList.add(c);
+                            break;
+                        case CarIssue.RECALL:
+                            recallList.add(c);
+                            break;
+                        default:
+                            routineServicesList.add(c);
+                            break;
                     }
                 }
-                customIssueList.addAll(customIssues);
+                for (CarIssue c: customIssues){
+                    selectionMap.put(c,false);
+                    myServicesList.add(c);
+                }
 
-                getView().displayCarIssues(carIssueList);
-                getView().displayCustomIssues(customIssueList);
-                getView().displayPotentialEngineIssues(potentialEngineIssues);
-                getView().displayStoredEngineIssues(engineIssueList);
-                getView().displayRecalls(recallList);
+                getView().showRoutineServicesView(!routineServicesList.isEmpty());
+                getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                getView().showMyServicesView(!myServicesList.isEmpty());
+                getView().showRecallsView(!recallList.isEmpty());
+
+                getView().displayRoutineServices(routineServicesList, selectionMap);
+                getView().displayMyServices(myServicesList, selectionMap);
+                getView().displayPotentialEngineIssues(potentialEngineIssuesList, selectionMap);
+                getView().displayStoredEngineIssues(storedEngineIssueList, selectionMap);
+                getView().displayRecalls(recallList, selectionMap);
+                getView().showMoveToHistory(selectionMap.values().contains(true));
 
                 getView().hideLoading();
             }
@@ -148,6 +189,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             public void onNoCarAdded() {
                 updating = false;
                 if (getView() == null) return;
+                getView().displayBadge(0);
                 getView().hideLoading();
                 getView().displayNoCarView();
             }
@@ -158,6 +200,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
+                getView().displayBadge(0);
                 getView().hideLoading();
                 if (error.getError()!=null) {
                     if (error.getError().equals(RequestError.ERR_OFFLINE)) {
@@ -187,33 +230,85 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         }
     }
 
-    void onServiceDoneDatePicked(CarIssue carIssue, int year, int month, int day){
+    private void removeCarIssue(CarIssue c){
+        switch (c.getIssueType()) {
+            case CarIssue.DTC:
+                storedEngineIssueList.remove(c);
+                break;
+            case CarIssue.PENDING_DTC:
+                potentialEngineIssuesList.remove(c);
+                break;
+            case CarIssue.RECALL:
+                recallList.remove(c);
+                break;
+            case CarIssue.SERVICE_USER:
+                myServicesList.remove(c);
+                break;
+            default:
+                routineServicesList.remove(c);
+                break;
+        }
+    }
+
+    void onServiceDoneDatePicked(int year, int month, int day){
         Log.d(TAG,"onServiceDoneDatePicked() year: "+year+", month: "+month+", day: "+day);
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_DONE_DATE_PICKED
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null) return;
-        carIssue.setYear(year);
-        carIssue.setMonth(month);
-        carIssue.setDay(day);
-
         getView().showLoading();
+
+        List<CarIssue> doneCarIssues = new ArrayList<>();
+        for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
+            if (e.getValue()){
+                e.getKey().setYear(year);
+                e.getKey().setMonth(month);
+                e.getKey().setDay(day);
+                doneCarIssues.add(e.getKey());
+            }
+        }
+        if (doneCarIssues.isEmpty()) return;
+
         updating = true;
-        //When the date is set, update issue to done on that date
-        useCaseComponent.markServiceDoneUseCase().execute(carIssue, EVENT_SOURCE
-                , new MarkServiceDoneUseCase.Callback() {
+        List<CarIssue> markedDoneList = new ArrayList<>();
+
+        useCaseComponent.getSetServicesDoneUseCase().execute(doneCarIssues, EVENT_SOURCE, new SetServicesDoneUseCase.Callback() {
             @Override
-            public void onServiceMarkedAsDone(CarIssue carIssue) {
-                Log.d(TAG,"markServiceDoneUseCase().onServiceMarkedAsDone()");
-                updating = false;
-                if (getView() == null) return;
-                getView().displayOnlineView();
-                getView().hideLoading();
-                getView().removeCarIssue(carIssue);
+            public void onServiceMarkedAsDone(@NotNull CarIssue carIssue) {
+                //This is invoked several times, after each POST succeeds
+                Log.d(TAG,"setServicesDoneUseCase.onServiceMarkedAsDone() carIssue: "+carIssue);
+                markedDoneList.add(carIssue);
             }
 
             @Override
-            public void onError(RequestError error) {
-                Log.d(TAG,"markServiceDoneUseCase().onError() error: "+error.getMessage());
+            public void onComplete() {
+                Log.d(TAG,"setServicesDoneUseCase.onComplete()");
+                updating = false;
+                if (getView() == null) return;
+                for (CarIssue c: markedDoneList){
+                    removeCarIssue(c);
+                    selectionMap.remove(c);
+                }
+
+                getView().displayBadge(selectionMap.keySet().size());
+                getView().showRoutineServicesView(!routineServicesList.isEmpty());
+                getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
+                getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());
+                getView().showMyServicesView(!myServicesList.isEmpty());
+                getView().showRecallsView(!recallList.isEmpty());
+                getView().displayNoServices(routineServicesList.isEmpty()
+                        && storedEngineIssueList.isEmpty() && potentialEngineIssuesList.isEmpty()
+                        && myServicesList.isEmpty() && recallList.isEmpty()
+                        && routineServicesList.isEmpty());
+                getView().displayOnlineView();
+                getView().hideLoading();
+                getView().showMoveToHistory(false);
+                getView().notifyIssueDataChanged();
+
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"setServicesDoneUseCase.onError() err: "+error);
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoading();
@@ -229,12 +324,26 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         });
     }
 
-    void onServiceMarkedAsDone(CarIssue carIssue){
-        Log.d(TAG,"onServiceMarkedAsDone()");
+    void onServiceSelected(CarIssue carIssue){
+        Log.d(TAG,"onServiceSelected()");
         mixpanelHelper.trackButtonTapped(MixpanelHelper.SERVICE_CURRENT_MARK_DONE
                 ,MixpanelHelper.SERVICE_CURRENT_VIEW);
         if (getView() == null || updating) return;
-        getView().displayCalendar(carIssue);
+
+
+        for (Map.Entry<CarIssue,Boolean> e: selectionMap.entrySet()){
+            if (e.getKey().equals(carIssue)){
+                e.setValue(!e.getValue());
+            }
+        }
+        getView().showMoveToHistory(selectionMap.values().contains(true));
+        Log.d(TAG,"selection map after selecting: "+selectionMap.values());
+        getView().notifyIssueDataChanged();
     }
 
+    public void onMoveToHistoryClicked() {
+        Log.d(TAG,"onMoveToHistoryClicked()");
+        if (getView() == null) return;
+        getView().displayCalendar();
+    }
 }

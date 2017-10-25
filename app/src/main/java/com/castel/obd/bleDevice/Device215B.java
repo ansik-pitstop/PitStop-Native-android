@@ -164,6 +164,11 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
+    public String clearDtcs() {
+        return dtcPackage("1", "0");
+    }
+
+    @Override
     public String getDtcs() {
         return dtcPackage("0", "0");
     }
@@ -337,17 +342,49 @@ public class Device215B implements AbstractDevice {
         return msg;
     }
 
+
+
+
+
     public static String dtcPackage(String controlEventID, String terminalSN) {
         String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
                 + Constants.INSTRUCTION_DTC + "," + controlEventID + ","
                 + Constants.INSTRUCTION_STAR;
-
         // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
         String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
         return msg;
+    }
+
+    @Override
+    public String clearDeviceMemory() {
+        return ciSingle(Constants.CONTROL_EVENT_ID_CHD);
+    }
+    public String resetDeviceToDefaults(){
+        return ciSingle(Constants.CONTROL_EVENT_ID_RTD);
+
+    }
+
+    public String resetDevice(){
+        return ciSingle(Constants.CONTROL_EVENT_ID_RESET);
+
+    }
+
+    private String ciSingle(String command){
+
+        String crcData =  Constants.INSTRUCTION_HEAD +
+                "0," +
+                Constants.INSTRUCTION_CI +
+                "," +
+                command +
+                "," +
+                Constants.INSTRUCTION_STAR ;
+
+        String crc = Utils.toHexString(OBD.CRC(crcData));
+        return crcData + crc + Constants.INSTRUCTION_FOOD;
+
     }
 
     public static String pidtPackage(String terminalSN) {

@@ -24,8 +24,6 @@ public class Notification extends ParseObject {
     public Notification() {
     }
 
-
-
     public String getTitle()
     {
         if (getString(TITLE_KEY)!=null) {
@@ -57,9 +55,26 @@ public class Notification extends ParseObject {
         return "";
     }
 
-    @Override
-    public String toString(){
-        return "hasDataKey ? "+(get(DATA_KEY) == null);
+    public Boolean isRead(){
+        HashMap dataKey = (HashMap)get(DATA_KEY);
+        if (dataKey == null) return null;
+        else return (boolean)(dataKey.get("isRead"));
     }
 
+    public void setRead(boolean read){
+        HashMap dataKey = (HashMap)get(DATA_KEY);
+        if (dataKey != null){
+            dataKey.put("isRead",read);
+            put(DATA_KEY,dataKey);
+        }
+        saveEventually();
+    }
+
+    @Override
+    public String toString(){
+        HashMap dataKey = (HashMap)get(DATA_KEY);
+        if (dataKey != null)
+            return "title: "+getTitle()+" dataKey: "+dataKey.toString();
+        else return "title: "+getTitle()+", null data";
+    }
 }
