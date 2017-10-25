@@ -5,6 +5,7 @@ import android.util.Log;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.report.CarHealthItem;
 import com.pitstop.models.report.EngineIssue;
@@ -47,7 +48,7 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
         Log.d(TAG,"getDashboardCar()");
         component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 dashCar = car;
             }
 

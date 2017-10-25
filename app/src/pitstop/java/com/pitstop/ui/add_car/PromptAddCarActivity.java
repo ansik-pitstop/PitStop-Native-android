@@ -17,6 +17,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.LoginActivity;
 
@@ -81,7 +82,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
         Log.d(TAG,"checkCarWasAdded()");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 finish();
             }
 
