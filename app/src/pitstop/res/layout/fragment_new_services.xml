@@ -38,6 +38,7 @@
 
             <RelativeLayout
                 android:id="@+id/action_holder"
+                android:background="@color/white"
                 android:orientation="horizontal"
                 android:layout_alignParentStart="true"
                 android:padding="10dp"
