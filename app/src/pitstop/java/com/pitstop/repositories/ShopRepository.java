@@ -2,6 +2,7 @@ package com.pitstop.repositories;
 
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -283,6 +284,14 @@ public class ShopRepository implements Repository{
 
     public void get(int dealerId, Callback<Dealership> callback){
         Log.d(TAG,"get() "+END_POINT_SHOP+"/"+dealerId);
+
+        if (dealerId == 0 && (BuildConfig.DEBUG
+                || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))){
+            dealerId = 1;
+        }
+        else if (dealerId == 0 && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            dealerId = 19;
+        }
         networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
@@ -293,7 +302,7 @@ public class ShopRepository implements Repository{
         RequestCallback requestCallback = (response, requestError) -> {
             if(response != null){
                 //try{
-                    Log.d(TAG,"get shops response: "+response);
+                    Log.d(TAG,"get shop response: "+response);
                     Dealership dealership = Dealership.jsonToDealershipObject(response);
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());

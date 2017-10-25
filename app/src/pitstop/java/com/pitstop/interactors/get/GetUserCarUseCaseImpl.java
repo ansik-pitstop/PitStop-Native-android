@@ -43,28 +43,15 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     }
 
     private void onCarRetrieved(Car car, Dealership dealership){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarRetrieved(car, dealership);
-            }
-        });
+        mainHandler.post(() -> callback.onCarRetrieved(car, dealership));
     }
     private void onNoCarSet(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNoCarSet();
-            }
-        });
+        mainHandler.post(() -> callback.onNoCarSet());
     }
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(error!=null)
-                    callback.onError(error);
-            }
+        mainHandler.post(() -> {
+            if(error!=null)
+                callback.onError(error);
         });
     }
 
