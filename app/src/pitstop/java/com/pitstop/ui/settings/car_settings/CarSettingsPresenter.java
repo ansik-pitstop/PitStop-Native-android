@@ -27,15 +27,11 @@ public class CarSettingsPresenter {
 
     private MixpanelHelper mixpanelHelper;
 
-
-
-
     public CarSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
     }
-
 
     public void subscribe(CarSettingsView carSettings){
         mixpanelHelper.trackViewAppeared("CarSettings");

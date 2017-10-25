@@ -47,7 +47,7 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     private Car car;
     private Dealership dealership;
 
-    MixpanelHelper mixpanelHelper;
+    private MixpanelHelper mixpanelHelper;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
