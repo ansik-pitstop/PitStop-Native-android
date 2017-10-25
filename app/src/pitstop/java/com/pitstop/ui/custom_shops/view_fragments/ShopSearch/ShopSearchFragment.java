@@ -74,6 +74,7 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
         Log.d(TAG,"setData() car: "+car);
         this.car = car;
     }
+
     public void setLocation(LatLng location) {
         if (location == null) return;
         Log.d(TAG,"setLocation() location.lat: "+location.latitude
