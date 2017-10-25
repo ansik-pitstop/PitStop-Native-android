@@ -176,16 +176,6 @@
         </activity>
 
         <activity
-            android:name=".ui.CarHistoryActivity"
-            android:label="History"
-            android:parentActivityName=".ui.main_activity.MainActivity"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main_activity.MainActivity" />
-        </activity>
-
-        <activity
             android:name=".ui.service_request.RequestServiceActivity"
             android:label="Request Service"
             android:windowSoftInputMode="adjustResize"
