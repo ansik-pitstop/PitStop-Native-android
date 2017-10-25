@@ -16,7 +16,6 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.UpcomingService;
-import com.pitstop.ui.CarHistoryActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.RequestServiceActivity;
@@ -90,7 +89,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
         else {
             positionClicked = intent.getExtras().getInt(MainActivity.CAR_ISSUE_POSITION);
             allIssues = intent.getParcelableArrayListExtra(MainActivity.CAR_ISSUE_KEY);
-            fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
             //allIssues = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
             issueAdapter = new IssuePagerAdapter(this, allIssues);
             if (fromHistory) {
