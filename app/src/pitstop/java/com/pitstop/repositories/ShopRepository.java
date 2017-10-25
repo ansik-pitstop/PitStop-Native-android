@@ -12,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -185,97 +184,55 @@ public class ShopRepository implements Repository{
         return requestCallback;
     }
 
-    private  RequestCallback getGetShopsRequestCallback(Callback<List<Dealership>> callback){
-     RequestCallback requestCallback = new RequestCallback() {
-         @Override
-         public void done(String response, RequestError requestError) {
-             if(response != null){
-                 try{
-                     JSONObject responseJson = new JSONObject(response);
-                     if(!responseJson.getJSONObject("user").has("customShops")){
-                         callback.onSuccess(new ArrayList<Dealership>());
-                     }else{
-                         JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                         List<Dealership> dealershipArray  = new ArrayList<>();
-                         for(int i = 0; i<customShops.length();i++){
-                             Dealership dealership = new Dealership();
-                             JSONObject shop = customShops.getJSONObject(i);
-                             dealership.setId(shop.getInt("id"));
-                             dealership.setName(shop.getString("name"));
-                             dealership.setAddress(shop.getString("address"));
-                             dealership.setEmail(shop.getString("email"));
-                             dealership.setPhoneNumber(shop.getString("phone_number"));
-                             dealership.setCustom(true);
-                             dealershipArray.add(dealership);
-                             localShopStorage.removeById(dealership.getId());
-                             localShopStorage.storeCustom(dealership);
-                         }
-                         callback.onSuccess(dealershipArray);
-                     }
-                 }catch (JSONException e){
-                     callback.onError(RequestError.getUnknownError());
-                     e.printStackTrace();
-                 }
-             }else{
-                 callback.onError(requestError);
-             }
-         }
-     };
-     return requestCallback;
-    }
-
     public void update(Dealership dealership,int userId, Callback<Object> callback ){
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
 
     }
 
     private RequestCallback getUpdateShopRequestCallback(Dealership dealership,int userId, Callback<Object> callback){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        JSONObject userJson = responseJson.getJSONObject("user");
-                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                        JSONArray shopsToSend = new JSONArray();
-                        JSONObject userSettingsDealer = new JSONObject();
-                        userSettingsDealer.put("id",dealership.getId());
-                        userSettingsDealer.put("name",dealership.getName());
-                        userSettingsDealer.put("email",dealership.getEmail());
-                        userSettingsDealer.put("phone_number",dealership.getPhone());
-                        userSettingsDealer.put("address",dealership.getAddress());
-                        for(int i = 0; i<customShops.length();i++){
-                            JSONObject shop = customShops.getJSONObject(i);
-                            if(shop.getInt("id") != dealership.getId()){
-                                shopsToSend.put(shop);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    JSONObject userJson = responseJson.getJSONObject("user");
+                    JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                    JSONArray shopsToSend = new JSONArray();
+                    JSONObject userSettingsDealer = new JSONObject();
+                    userSettingsDealer.put("id",dealership.getId());
+                    userSettingsDealer.put("name",dealership.getName());
+                    userSettingsDealer.put("email",dealership.getEmail());
+                    userSettingsDealer.put("phone_number",dealership.getPhone());
+                    userSettingsDealer.put("address",dealership.getAddress());
+                    for(int i = 0; i<customShops.length();i++){
+                        JSONObject shop = customShops.getJSONObject(i);
+                        if(shop.getInt("id") != dealership.getId()){
+                            shopsToSend.put(shop);
+                        }
+                    }
+                    shopsToSend.put(userSettingsDealer);
+                    userJson.remove("customShops");
+                    userJson.put("customShops",shopsToSend);
+                    JSONObject userSettings = new JSONObject();
+                    userSettings.put("settings",userJson);
+                    networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if(response != null){
+                                callback.onSuccess(response);
+                                localShopStorage.removeById(dealership.getId());
+                                localShopStorage.storeCustom(dealership);
+                            }else{
+                                callback.onError(requestError);
                             }
                         }
-                        shopsToSend.put(userSettingsDealer);
-                        userJson.remove("customShops");
-                        userJson.put("customShops",shopsToSend);
-                        JSONObject userSettings = new JSONObject();
-                        userSettings.put("settings",userJson);
-                        networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if(response != null){
-                                    callback.onSuccess(response);
-                                    localShopStorage.removeById(dealership.getId());
-                                    localShopStorage.storeCustom(dealership);
-                                }else{
-                                    callback.onError(requestError);
-                                }
-                            }
-                        },userSettings);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    callback.onError(requestError);
+                    },userSettings);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
+
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
@@ -288,38 +245,35 @@ public class ShopRepository implements Repository{
     }
 
     private RequestCallback getDeleteShopRequestCallback(Callback<Object> callback, int userId, int shopId){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        JSONObject userJson = responseJson.getJSONObject("user");
-                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                        JSONArray shopsToSend = new JSONArray();
-                        for(int i = 0; i <customShops.length();i++){
-                            JSONObject shop = customShops.getJSONObject(i);
-                            if(shop.getInt("id") != shopId){
-                                shopsToSend.put(shop);
-                            }
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    JSONObject userJson = responseJson.getJSONObject("user");
+                    JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                    JSONArray shopsToSend = new JSONArray();
+                    for(int i = 0; i <customShops.length();i++){
+                        JSONObject shop = customShops.getJSONObject(i);
+                        if(shop.getInt("id") != shopId){
+                            shopsToSend.put(shop);
                         }
-                        userJson.remove("customShops");
-                        JSONObject userSettings = new JSONObject();
-                        userJson.put("customShops",shopsToSend);
-                        userSettings.put("settings",userJson);
-                        networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                callback.onSuccess(response);
-                            }
-                        },userSettings);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
                     }
-                }else{
-                    callback.onError(requestError);
+                    userJson.remove("customShops");
+                    JSONObject userSettings = new JSONObject();
+                    userJson.put("customShops",shopsToSend);
+                    userSettings.put("settings",userJson);
+                    networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            callback.onSuccess(response);
+                        }
+                    },userSettings);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
