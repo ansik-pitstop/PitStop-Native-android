@@ -52,6 +52,10 @@ public class ShopRepository implements Repository{
         return true;
     }
 
+    public void getAllShops(Callback<List<Dealership>> callback){
+        networkHelper.get(END_POINT_SHOP_ALL, getGetShopsCallback(callback));
+    }
+
     public void getPitstopShops(Callback<List<Dealership>> callback){
         networkHelper.get(END_POINT_SHOP_PITSTOP, getGetShopsCallback(callback));
 
@@ -67,23 +71,20 @@ public class ShopRepository implements Repository{
     }
 
     private RequestCallback getGetShopsCallback(Callback<List<Dealership>> callback){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        List<Dealership> dealerships = Dealership.createDealershipList(response);
-                        localShopStorage.storeDealerships(dealerships);
-                        callback.onSuccess(dealerships);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
-                    }
-                }else{
-                    callback.onError(requestError);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    List<Dealership> dealerships = Dealership.createDealershipList(response);
+                    localShopStorage.storeDealerships(dealerships);
+                    callback.onSuccess(dealerships);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
-
+            }else{
+                callback.onError(requestError);
             }
+
         };
         return requestCallback;
     }
