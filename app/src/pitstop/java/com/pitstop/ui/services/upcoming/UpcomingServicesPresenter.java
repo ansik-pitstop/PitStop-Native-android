@@ -84,7 +84,6 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         if (getView() == null || updating) return;
         updating = true;
         getView().showLoading();
-
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
@@ -102,6 +101,7 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
 
             @Override
             public void onNoCarAdded() {
+                Log.d(TAG, "noCarAdded()");
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoading();
