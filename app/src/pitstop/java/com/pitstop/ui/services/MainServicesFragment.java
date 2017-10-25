@@ -17,12 +17,14 @@ import com.pitstop.R;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetUserCarUseCase;
-import com.pitstop.models.Car;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.current.CurrentServicesFragment;
 import com.pitstop.ui.services.history.HistoryServicesFragment;
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 public class MainServicesFragment extends Fragment{
 
@@ -86,21 +88,18 @@ public class MainServicesFragment extends Fragment{
     }
 
     private void loadDealershipCustomDesign(){
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-
+        useCaseComponent.getGetCurrentDealershipUseCase().execute(new GetCurrentCarDealershipUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-
-                //Update tab design to the current dealerships custom design if applicable
-                if (car.getDealership() != null){
+            public void onGotDealership(@NotNull Dealership dealership) {
+                if (dealership != null){
                     if (BuildConfig.DEBUG
-                            && (car.getDealership().getId() == 4
-                            || car.getDealership().getId() == 18)){
+                            && (dealership.getId() == 4
+                            || dealership.getId() == 18)){
 
                         bindMercedesDealerUI();
 
                     }else if (!BuildConfig.DEBUG
-                            && car.getDealership().getId() == 14) {
+                            && dealership.getId() == 14) {
 
                         bindMercedesDealerUI();
 
@@ -112,12 +111,12 @@ public class MainServicesFragment extends Fragment{
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarExists() {
 
             }
 
             @Override
-            public void onError(RequestError error) {
+            public void onError(@NotNull RequestError error) {
 
             }
         });

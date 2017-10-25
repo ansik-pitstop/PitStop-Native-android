@@ -184,11 +184,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.main_activity.MainActivity" />
         </activity>
-        <activity
-            android:name=".ui.SelectDealershipActivity"
-            android:label="Select Dealership"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppNoActionBarTheme" />
 
         <activity
             android:name=".ui.service_request.RequestServiceActivity"

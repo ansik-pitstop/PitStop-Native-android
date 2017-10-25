@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
@@ -148,7 +147,7 @@ public class CarRepository implements Repository{
         try {
             body.put("carId", car.getId());
             body.put("totalMileage", car.getTotalMileage());
-            body.put("shopId", car.getDealership().getId());
+            body.put("shopId", car.getShopId());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -202,70 +201,9 @@ public class CarRepository implements Repository{
 
                         }
                     }
-                    networkHelper.getUserSettingsById(userId, new RequestCallback() {
-                        @Override
-                        public void done(String response, RequestError requestError) {
-                            if(response != null && requestError == null){
-                                try{
-                                    JSONObject responseJson = new JSONObject(response);
-                                    JSONObject userJson = responseJson.getJSONObject("user");
-                                    int mainCarId;
-                                    if(userJson.has("mainCar")){
-                                        mainCarId = userJson.getInt("mainCar");
-                                    } else{
-                                        mainCarId = 0;
-                                    }
-                                    JSONArray customShops;
-                                    if(userJson.has("customShops")) {
-                                        customShops = userJson.getJSONArray("customShops");
-                                        for (Car c : cars) {
-                                            if (c.getId() == mainCarId) {
-                                                c.setCurrentCar(true);
-                                            }
-                                            if (c.getDealership() != null) {//stops crash for cars with no shop
-                                                for (int i = 0; i < customShops.length(); i++) {
-                                                    JSONObject shop = customShops.getJSONObject(i);
-                                                    if (c.getDealership().getId() == shop.getInt("id")) {
-                                                        Dealership d = Dealership.jsonToDealershipObject(shop.toString());
-                                                        d.setCustom(true);
-                                                        c.setDealership(d);
-                                                    }
-                                                }
-                                            } else {
-                                                Dealership noDealer = new Dealership();
-                                                noDealer.setName("No Dealership");
-                                                noDealer.setId(19);
-                                                noDealer.setEmail("info@getpitstop.io");
-                                                noDealer.setCustom(true);
-                                                c.setDealership(noDealer);
-                                            }
-                                        }
-                                    }else{
-                                        for (Car c : cars) {
-                                            if (c.getId() == mainCarId) {
-                                                c.setCurrentCar(true);
-                                            }
-                                            if(c.getDealership() == null){
-                                                Dealership noDealer = new Dealership();
-                                                noDealer.setName("No Dealership");
-                                                noDealer.setId(19);
-                                                noDealer.setEmail("info@getpitstop.io");
-                                                noDealer.setCustom(true);
-                                                c.setDealership(noDealer);
-                                            }
-                                        }
-                                    }
-                                    localCarStorage.deleteAllCars();
-                                    localCarStorage.storeCars(cars);
-                                    callback.onSuccess(cars);
-                                }catch (JSONException e){
-                                    callback.onError(RequestError.getUnknownError());
-                                }
-                            }else{
-                                callback.onError(requestError);
-                            }
-                        }
-                    });
+                    localCarStorage.deleteAllCars();
+                    localCarStorage.storeCars(cars);
+                    callback.onSuccess(cars);
                 }
                 else{
                     callback.onError(requestError);
@@ -276,79 +214,25 @@ public class CarRepository implements Repository{
     }
 
     public void get(int id,int userId, Callback<Car> callback) {
-        networkHelper.getCarsById(id,getGetCarRequestCallback(callback,userId));
+        networkHelper.getCarsById(id,getGetCarRequestCallback(callback));
     }
 
-    private RequestCallback getGetCarRequestCallback(Callback<Car> callback, int userId){
+    private RequestCallback getGetCarRequestCallback(Callback<Car> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        Car car = Car.createCar(response);
-                        networkHelper.getUserSettingsById(userId, new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null
-                                        && (response == null || response.equals("{}"))){
-                                    callback.onSuccess(null);
-                                }
-                                else if(requestError == null){
-                                    try{
-                                        JSONObject responseJson = new JSONObject(response);
-                                        JSONArray customShops;
-                                        if(responseJson.getJSONObject("user").has("customShops")) {
-                                            customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                                            for (int i = 0; i < customShops.length(); i++) {
-                                                JSONObject shop = customShops.getJSONObject(i);
-                                                if (car.getDealership() != null) {
-                                                    if (car.getDealership().getId() == shop.getInt("id")) {
-                                                        Dealership dealership = Dealership.jsonToDealershipObject(shop.toString());
-                                                        dealership.setCustom(true);
-                                                        car.setDealership(dealership);
-                                                    }
-                                                } else {
-                                                    Dealership noDealer = new Dealership();
-                                                    noDealer.setName("No Dealership");
-                                                    noDealer.setId(19);
-                                                    noDealer.setEmail("info@getpitstop.io");
-                                                    noDealer.setCustom(true);
-                                                    car.setDealership(noDealer);
-                                                }
-                                            }
-                                        }else{
-                                            if(car.getDealership() == null){
-                                                Dealership noDealer = new Dealership();
-                                                noDealer.setName("No Dealership");
-                                                noDealer.setId(19);
-                                                noDealer.setEmail("info@getpitstop.io");
-                                                noDealer.setCustom(true);
-                                                car.setDealership(noDealer);
-                                            }
-                                        }
-                                        localCarStorage.deleteCar(car.getId());
-                                        localCarStorage.storeCarData(car);
-                                        callback.onSuccess(car);
-                                    }catch (JSONException e){
-                                        callback.onError(RequestError.getUnknownError());
-                                        e.printStackTrace();
-                                    }
-                                }else{
-                                    callback.onError(requestError);
-                                }
-                            }
-                        });
-
-
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    Car car = Car.createCar(response);
+                    localCarStorage.deleteCar(car.getId());
+                    localCarStorage.storeCarData(car);
+                    callback.onSuccess(car);
                 }
-                catch(JSONException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
+            }
+            catch(JSONException e){
+                callback.onError(RequestError.getUnknownError());
             }
         };
         return requestCallback;

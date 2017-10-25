@@ -17,7 +17,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -347,7 +346,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void openSpecsActivity(Car car, int position) {
+    public void openSpecsActivity(Car car, Dealership dealership, int position) {
         Log.d(TAG, "openSpecsActivity()" + car.getModel());
         Intent intent = new Intent(getContext(), VehicleSpecsActivity.class);
         Bundle bundle  = new Bundle();
@@ -364,8 +363,8 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         bundle.putInt(VehicleSpecsFragment.YEAR_KEY, car.getYear());
         bundle.putString(VehicleSpecsFragment.MAKE_KEY, car.getMake());
         bundle.putString(VehicleSpecsFragment.MODEL_KEY, car.getModel());
-        if (car.getDealership() != null)
-            bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, car.getDealership().getName());
+        if (dealership != null)
+            bundle.putString(VehicleSpecsFragment.DEALERSHIP_KEY, dealership.getName());
         intent.putExtras(bundle);
         // the zero is the requestcode sent
         startActivityForResult(intent, 0);

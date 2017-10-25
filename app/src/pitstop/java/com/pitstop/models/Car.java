@@ -62,7 +62,6 @@ public class Car implements Parcelable {
     private int userId;
     private int shopId;
 
-    private Dealership dealership;
     private boolean serviceDue;
 
     private String scannerId;
@@ -180,17 +179,6 @@ public class Car implements Parcelable {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public Dealership getDealership() {
-        return dealership;
-    }
-
-    public void setDealership(Dealership dealership) {
-        this.dealership = dealership;
-        if ( dealership != null ) {
-            this.shopId = dealership.getId();
-        }
     }
 
     public boolean isServiceDue() {
@@ -315,7 +303,6 @@ public class Car implements Parcelable {
 
         if(!jsonObject.isNull("shop")) {
             Dealership dealer = Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString());
-            car.setDealership(dealer);
             car.setShopId(dealer.getId());
         }
 
@@ -387,7 +374,6 @@ public class Car implements Parcelable {
         dest.writeByte(this.currentCar ? (byte) 1 : (byte) 0);
         dest.writeInt(this.userId);
         dest.writeInt(this.shopId);
-        dest.writeParcelable(this.dealership, 0);
         dest.writeByte(this.serviceDue ? (byte) 1 : (byte) 0);
         dest.writeString(this.scannerId);
         dest.writeList(this.issues);
@@ -412,7 +398,6 @@ public class Car implements Parcelable {
         this.currentCar = in.readByte() != 0;
         this.userId = in.readInt();
         this.shopId = in.readInt();
-        this.dealership = in.readParcelable(Dealership.class.getClassLoader());
         this.serviceDue = in.readByte() != 0;
         this.scannerId = in.readString();
         this.issues = new ArrayList<CarIssue>();

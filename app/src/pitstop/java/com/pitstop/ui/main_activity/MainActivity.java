@@ -45,6 +45,7 @@ import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
@@ -71,6 +72,7 @@ import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -259,14 +261,14 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         }
     }
 
-    private void loadDealerDesign(Car car){
+    private void loadDealerDesign(Dealership dealership){
         //Update tab design to the current dealerships custom design if applicable
-        if (car.getDealership() != null){
-            if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
-                    || car.getDealership().getId() == 18)){
+        if (dealership != null){
+            if (BuildConfig.DEBUG && (dealership.getId() == 4
+                    || dealership.getId() == 18)){
 
                 bindMercedesDealerUI();
-            }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
+            }else if (!BuildConfig.DEBUG && dealership.getId() == 14) {
                 bindMercedesDealerUI();
             }
             else{
@@ -318,19 +320,19 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             autoConnectService.requestDeviceSearch(false, false);
         }
 
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getGetCurrentDealershipUseCase().execute(new GetCurrentCarDealershipUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-                loadDealerDesign(car);
+            public void onGotDealership(@NotNull Dealership dealership) {
+                loadDealerDesign(dealership);
             }
 
             @Override
-            public void onNoCarSet(){
-                //startPromptAddCarActivity();
+            public void onNoCarExists() {
+
             }
 
             @Override
-            public void onError(RequestError error) {
+            public void onError(@NotNull RequestError error) {
 
             }
         });

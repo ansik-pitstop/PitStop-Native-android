@@ -12,6 +12,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
@@ -63,20 +64,20 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 updating = false;
                 if (getView() == null) return;
                 getView().displayOnlineView();
 
                 Log.d(TAG, Integer.toString(car.getId()));
 
-                if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
-                        || car.getDealership().getId() == 18)){
-                    getView().displayMercedesDealershipVisuals(car.getDealership());
-                } else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14){
-                    getView().displayMercedesDealershipVisuals(car.getDealership());
+                if (BuildConfig.DEBUG && (dealership.getId() == 4
+                        || dealership.getId() == 18)){
+                    getView().displayMercedesDealershipVisuals(dealership);
+                } else if (!BuildConfig.DEBUG && dealership.getId() == 14){
+                    getView().displayMercedesDealershipVisuals(dealership);
                 } else {
-                    getView().displayDefaultDealershipVisuals(car.getDealership());
+                    getView().displayDefaultDealershipVisuals(dealership);
                 }
 
                 getView().displayCarDetails(car);
