@@ -33,7 +33,6 @@ import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
-import com.pitstop.interactors.get.GetUserShopsUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
@@ -97,8 +96,6 @@ public interface UseCaseComponent {
     GetPlaceDetailsUseCase getGetPlaceDetailsUseCase();
 
     GetGooglePlacesShopsUseCase getGetGooglePlacesShopsUseCase();
-
-    GetUserShopsUseCase getGetUserShopsUseCase();
 
     UpdateShopUseCase getUpdateShopUseCase();
 

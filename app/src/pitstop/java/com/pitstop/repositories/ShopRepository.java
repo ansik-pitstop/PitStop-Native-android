@@ -25,7 +25,8 @@ public class ShopRepository implements Repository{
     private final String TAG = getClass().getSimpleName();
 
     private final String END_POINT_SHOP_PITSTOP = "shop?shopType=partner";
-    private final String END_POINT_SHOP = "shop?shopType=all";
+    private final String END_POINT_SHOP_ALL = "shop?shopType=all";
+    private final String END_POINT_SHOP = "shop";
 
     private static ShopRepository INSTANCE;
     private LocalShopStorage localShopStorage;
@@ -184,21 +185,6 @@ public class ShopRepository implements Repository{
         return requestCallback;
     }
 
-    public void getShopsByUserId(int userId, Callback<List<Dealership>> callback){
-
-        networkHelper.get(END_POINT_SHOP, getGetShopsCallback(callback));
-        //Offline logic below, not being used for now
-        List<Dealership> dealerships = localShopStorage.getAllDealerships();
-        Iterator<Dealership> iterator = dealerships.iterator();
-        while(iterator.hasNext()){
-            Dealership d = iterator.next();
-            if(!d.isCustom()){
-                iterator.remove();
-            }
-        }
-        //return dealerships;
-    }
-
     private  RequestCallback getGetShopsRequestCallback(Callback<List<Dealership>> callback){
      RequestCallback requestCallback = new RequestCallback() {
          @Override
@@ -342,7 +328,7 @@ public class ShopRepository implements Repository{
 
     public void get(int dealerId, Callback<Dealership> callback){
 
-        networkHelper.get(END_POINT_SHOP+"&id="+dealerId,getGetShopRequestCallback(callback));
+        networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
