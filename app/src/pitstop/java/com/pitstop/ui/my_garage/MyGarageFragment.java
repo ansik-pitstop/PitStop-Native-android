@@ -300,9 +300,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     }
 
     @Override
-    public void onCarClicked(Car car, int position) {
+    public void onCarClicked(Car car, Dealership dealership, int position) {
         Log.d(TAG, "onCarClicked()");
-        presenter.onCarClicked(car, position);
+        presenter.onCarClicked(car, dealership, position);
     }
 
     @Override
