@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
@@ -18,6 +19,7 @@ import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
+import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.Presenter;
@@ -25,6 +27,8 @@ import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.my_garage.MyGarageFragment;
 
 import com.pitstop.utils.MixpanelHelper;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -53,15 +57,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     @Override
     public void onAppStateChanged() {
         onUpdateNeeded();
-
     }
 
     @Override
     public EventSource getSourceType() {
         return EVENT_SOURCE;
     }
-
-
 
     public static final String BASE_URL_PHOTO = "https://media.ed.edmunds-media.com";
 
@@ -157,6 +158,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 if (getView() == null)return;
                 getView().hideLoadingDialog();
                 onUpdateNeeded();
+
             }
             @Override
             public void onError(RequestError error) {
@@ -196,10 +198,18 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-                if (error.getError() == RequestError.ERR_OFFLINE)
-                    getView().showOfflineErrorView();
-                else
-                    getView().showUnknownErrorView();
+                if (error.getError() == RequestError.ERR_OFFLINE) {
+                    if (getView().hasBeenPopulated())
+                        getView().displayOfflineErrorDialog();
+                    else
+                        getView().showOfflineErrorView();
+                }
+                else {
+                    if (getView().hasBeenPopulated())
+                        getView().displayUnknownErrorDialog();
+                    else
+                        getView().showUnknownErrorView();
+                }
             }
         });
 
@@ -233,4 +243,76 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         onUpdateNeeded();
     }
 
+    void onUpdateMileageDialogConfirmClicked(String mileageText){
+        Log.d(TAG,"onUpdateMileageDialogConfirmClicked()");
+        if (updating) return;
+        updating = true;
+        getView().showLoading();
+        double mileage;
+        try{
+            mileage = Double.valueOf(mileageText);
+        }catch(NumberFormatException e){
+            e.printStackTrace();
+            getView().displayUpdateMileageError();
+            getView().hideLoading();
+            updating = false;
+            return;
+        }
+
+        if (mileage < 0 || mileage > 3000000){
+            getView().hideLoading();
+            getView().displayUpdateMileageError();
+            updating = false;
+            return;
+        }
+
+        useCaseComponent.updateCarMileageUseCase().execute(mileage
+                , new UpdateCarMileageUseCase.Callback() {
+
+                    @Override
+                    public void onMileageUpdated() {
+                        updating = false;
+                        EventBus.getDefault().post(new CarDataChangedEvent(
+                                new EventTypeImpl(EventType.EVENT_MILEAGE),EVENT_SOURCE));
+                        if (getView() == null) return;
+                        getView().hideLoading();
+
+                        try{
+                            getView().displayMileage(mileage);
+                        }catch(NumberFormatException e){
+                            e.printStackTrace();
+                            getView().displayUnknownErrorDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onNoCarAdded() {
+                        updating = false;
+                        if (getView() == null) return;
+                        getView().hideLoading();
+                        getView().showNoCarView();
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        updating = false;
+                        if (getView() == null) return;
+
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                            if (getView().hasBeenPopulated()){
+                                getView().displayOfflineErrorDialog();
+                            }
+                            else{
+                                getView().showOfflineErrorView();
+                            }
+                        }
+                        else{
+                            getView().hideLoading();
+                            getView().displayUnknownErrorDialog();
+                        }
+
+                        getView().hideLoading();
+                    }
+                });
+    }
 }

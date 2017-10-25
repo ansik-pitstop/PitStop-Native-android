@@ -27,4 +27,11 @@ public interface VehicleSpecsView {
     void showNoCarView();
     void showOfflineErrorView();
     void showUnknownErrorView();
+    void displayUpdateMileageError();
+
+    void displayMileage(double mileage);
+    void displayUnknownErrorDialog();
+
+    void displayOfflineErrorDialog();
+    boolean hasBeenPopulated();
 }

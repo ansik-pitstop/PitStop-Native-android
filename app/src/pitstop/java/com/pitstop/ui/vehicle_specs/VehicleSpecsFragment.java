@@ -59,12 +59,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     public static final int START_CUSTOM = 347;
     private AlertDialog buyDeviceDialog;
     private AlertDialog licensePlateDialog;
-    private AlertDialog dealershipAlertDialog;
+    private AlertDialog updateMileageDialog;
     private AlertDialog deleteCarAlertDialog;
     private AlertDialog changeDealershipAlertDialog;
     private VehicleSpecsPresenter presenter;
-    private AlertDialog currentCarConfirmDialog;
-
+    private AlertDialog mileageErrorDialog;
+    private AlertDialog unknownErrorDialog;
+    private AlertDialog offlineErrorDialog;
+    private boolean isPoppulated = false;
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -100,6 +102,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
     @BindView(R.id.unknown_error_view)
     protected View unknownErrorView;
+
+    @BindView(R.id.total_mileage_tv)
+    protected TextView totalMileagetv;
 
     @BindView(R.id.dealership_tv)
     protected TextView dealership;
@@ -196,6 +201,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         Log.d(TAG, "onDestroyView()");
         presenter.unsubscribe();
         super.onDestroyView();
+        isPoppulated = false;
     }
     @Override
     public void showNoCarView(){
@@ -214,6 +220,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             noCarView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(true);
+        }
+        else {
+            swipeRefreshLayout.setRefreshing(false);
         }
 
     }
@@ -234,6 +243,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             offlineView.bringToFront();
             swipeRefreshLayout.setEnabled(true);
         }
+        else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     public void showUnknownErrorView(){
@@ -252,6 +264,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             unknownErrorView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(true);
+        }
+
+        else {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -273,17 +289,21 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
+
+        else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
     public void hideLoading(){
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-          /*  swipeRefreshLayout.setEnabled(true);
+           swipeRefreshLayout.setEnabled(true);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.NO_GRAVITY;
-            mainLinearLayout.setLayoutParams(params);*/
+            mainLinearLayout.setLayoutParams(params);
             loadingView.setVisibility(View.GONE);
             unknownErrorView.setVisibility(View.GONE);
             offlineView.setVisibility(View.GONE);
@@ -301,7 +321,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         carLogo.setVisibility(View.GONE);
         dealershipName.setVisibility(View.GONE);
         carName.setVisibility(View.GONE);
-        bannerOverlay.setVisibility(View.VISIBLE);
+        bannerOverlay.setVisibility(View.GONE);
         if (getActivity()!=null)
             Picasso.with(getActivity()).load(s).into(carPic);
     }
@@ -341,6 +361,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             dealerhsipView.setVisibility(View.GONE);
         }
         presenter.getLicensePlate(car.getId());
+
+        totalMileagetv.setText(String.format("%.2fkm", car.getTotalMileage()));
+        isPoppulated = true;
     }
 
     @Override
@@ -349,6 +372,25 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         licensePlate.setText(s);
         licensePlate.setVisibility(View.VISIBLE);
     }
+
+    @Override
+    public void displayUnknownErrorDialog() {
+        Log.d(TAG,"displayUnknownErrorDialog()");
+        if (unknownErrorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
+
+        unknownErrorDialog.show();
+    }
+
 
     @Override
     public void toast(String message) {
@@ -495,9 +537,65 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
                     .create();
         }
         changeDealershipAlertDialog.show();
-
-
     }
+
+    @OnClick(R.id.car_mileage_view)
+    public void displayUpdateMileageDialog() {
+        Log.d(TAG,"displayUpdateMileageDialog()");
+        if (updateMileageDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
+            final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
+                    .findViewById(R.id.mileage_input);
+            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Update Mileage")
+                    .setView(dialogLayout)
+                    .setPositiveButton("Confirm", (dialog, which)
+                            -> presenter.onUpdateMileageDialogConfirmClicked(
+                            textInputEditText.getText().toString()))
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+
+        updateMileageDialog.show();
+    }
+
+
+    @Override
+    public void displayOfflineErrorDialog() {
+        Log.d(TAG,"displayOfflineErrorDialog()");
+        if (offlineErrorDialog == null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineErrorDialog = alertDialogBuilder.create();
+        }
+
+        offlineErrorDialog.show();
+    }
+
+    @Override
+    public void displayUpdateMileageError() {
+        Log.d(TAG,"displayUpdateMileageError()");
+        if (mileageErrorDialog == null){
+            mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Invalid Mileage")
+                    .setMessage("Please input a valid mileage.")
+                    .setPositiveButton("OK", (dialog, which)
+                            -> dialog.dismiss())
+                    .create();
+        }
+
+        mileageErrorDialog.show();
+    }
+
 
     public void showImageLoading(){
         imageLoadingView.bringToFront();
@@ -527,8 +625,31 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         imageLoadingView.setVisibility(View.GONE);
     }
 
+    @OnClick(R.id.addCarButton)
+    public void startaddCarActivity(){
+        Log.d(TAG, "onAddCarClicked()");
+        Intent intent = new Intent(getActivity(), AddCarActivity.class);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+    }
 
+    @Override
+    public void displayMileage(double mileage) {
+        Log.d(TAG,"displayMileage() mileage: "+mileage);
+        totalMileagetv.setText(String.format("%.2f km",mileage));
+    }
 
+    @Override
+    public boolean hasBeenPopulated() {
+        return isPoppulated;
+    }
 
+    @OnClick(R.id.offline_try_again)
+    public void onOfflineTryAgainClicked(){
+        presenter.onUpdateNeeded();
+    }
 
+    @OnClick(R.id.unknown_error_try_again)
+    public void onUnknownTryAgainClicked(){
+        presenter.onUpdateNeeded();
+    }
 }

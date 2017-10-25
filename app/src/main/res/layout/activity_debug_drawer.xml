@@ -195,10 +195,6 @@
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp" />
             </LinearLayout>
-
-
-
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/car_recycler_view"
                 android:layout_width="match_parent"

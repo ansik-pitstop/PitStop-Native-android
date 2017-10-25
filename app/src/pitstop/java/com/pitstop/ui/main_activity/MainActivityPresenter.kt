@@ -4,7 +4,7 @@ import android.app.Fragment
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import com.pitstop.EventBus.EventSource
+import com.pitstop.EventBus.*
 import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetCarByCarIdUseCase
@@ -19,6 +19,9 @@ import com.pitstop.ui.my_garage.MyGarageView
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.utils.MixpanelHelper
 import io.smooch.core.User
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -37,16 +40,47 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     private var dealershipListLoaded  = false
     var carList: MutableList<Car> = ArrayList()
     var dealershipList: MutableList<Dealership> = ArrayList()
+    val EVENT_SOURCE: EventSource = EventSourceImpl(EventSource.SOURCE_DRAWER)
+    val ignoredEvents = mutableListOf<EventType>(EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
+                    EventTypeImpl(EventType.EVENT_DTC_NEW), EventTypeImpl(EventType.EVENT_MILEAGE),
+                    EventTypeImpl(EventType.EVENT_SERVICES_NEW))
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onCarDataChangedEvent(event: CarDataChangedEvent) {
+
+        /*Respond to event only if its EventType isn't being ignored
+        * AND if it wasn't sent by this fragment*/
+        if (!ignoredEvents.contains(event.eventType) && event.eventSource != EVENT_SOURCE) {
+            onUpdateNeeded()
+        }
+    }
+
+    fun getSourceType(): EventSource {
+        return EVENT_SOURCE
+    }
 
 
     override fun subscribe(view: MainView?) {
         this.view = view
+        setNoUpdateOnEventTypes(ignoredEvents)
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+
+    }
+
+    private fun setNoUpdateOnEventTypes(eventTypes: MutableList<EventType>) {
+        for (e in eventTypes) {
+            if (!ignoredEvents.contains(e)) {
+                ignoredEvents.add(e)
+            }
+        }
     }
 
     override fun unsubscribe() {
-        Log.d(TAG, "unsubscribe()")
+        Log.d(TAG, "unSubscribe()")
         this.view = null
+        EventBus.getDefault().unregister(this)
     }
 
     fun onUpdateNeeded(){

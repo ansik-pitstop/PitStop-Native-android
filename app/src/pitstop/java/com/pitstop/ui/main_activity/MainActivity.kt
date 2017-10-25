@@ -297,7 +297,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun noCarsView() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun showCars(carList: MutableList<Car>) {
