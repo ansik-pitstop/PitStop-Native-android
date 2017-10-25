@@ -3,6 +3,7 @@ package com.pitstop.repositories;
 import android.util.Log;
 
 import com.google.gson.JsonIOException;
+import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
@@ -196,7 +197,14 @@ public class CarRepository implements Repository{
 
                     for(int i = 0;i<carsJson.length();i++){
                         try{
+                            //Todo: remove correcting shop id below
                             cars.add(Car.createCar(carsJson.getString(i)));
+                            if (cars.get(i).getShopId() == 0)
+                                if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)
+                                        || BuildConfig.DEBUG)
+                                    cars.get(i).setShopId(1);
+                                else
+                                    cars.get(i).setShopId(19);
                         }catch (Exception e){
 
                         }
@@ -223,6 +231,14 @@ public class CarRepository implements Repository{
             try {
                 if (requestError == null){
                     Car car = Car.createCar(response);
+                    if (car.getShopId() == 0)
+                        //Todo: remove correcting shopId below
+                        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)
+                                || BuildConfig.DEBUG)
+                            car.setShopId(1);
+                        else
+                            car.setShopId(19);
+
                     localCarStorage.deleteCar(car.getId());
                     localCarStorage.storeCarData(car);
                     callback.onSuccess(car);
