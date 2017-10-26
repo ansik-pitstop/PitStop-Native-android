@@ -39,6 +39,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                     override fun onSuccess(carList: List<Car>) {
                         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                             override fun onSuccess(settings: Settings) {
+                                if (carList.isEmpty()) mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
                                 for (c in carList){
                                     c.isCurrentCar = c.id == settings.carId
                                     shopRepository.getAllShops(object : Repository.Callback<List<Dealership>>{
