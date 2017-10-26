@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,13 +12,12 @@ import android.widget.Button;
 
 import com.pitstop.R;
 import com.pitstop.adapters.UpcomingServicePagerAdapter;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.service.UpcomingService;
-import com.pitstop.ui.CarHistoryActivity;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.service_request.RequestServiceActivity;
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -31,6 +31,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class IssueDetailsActivity extends AppCompatActivity {
 
@@ -85,12 +86,9 @@ public class IssueDetailsActivity extends AppCompatActivity {
             issuesPager.setCurrentItem(positionClicked);
             requestServicebutton.setVisibility(View.INVISIBLE);
         }
-
-
         else {
             positionClicked = intent.getExtras().getInt(MainActivity.CAR_ISSUE_POSITION);
             allIssues = intent.getParcelableArrayListExtra(MainActivity.CAR_ISSUE_KEY);
-            fromHistory = intent.getBooleanExtra(CarHistoryActivity.ISSUE_FROM_HISTORY, false);
             //allIssues = fromHistory ? dashboardCar.getDoneIssues() : dashboardCar.getActiveIssues();
             issueAdapter = new IssuePagerAdapter(this, allIssues);
             if (fromHistory) {
@@ -168,11 +166,19 @@ public class IssueDetailsActivity extends AppCompatActivity {
         finish();
     }
 
-    public void requestService(View view) {
+    @OnClick(R.id.request_service_bn)
+    public void requestServiceButtonClicked() {
+        Log.d(TAG,"requestServiceButtonClicked()");
         if (isFinishing()) return;
         mixpanelHelper.trackButtonTapped("Request Service", MixpanelHelper.ISSUE_DETAIL_VIEW);
         startRequestServiceActivity();
     }
+
+    @OnClick(R.id.move_history_bn)
+    public void moveHistoryButtonClicked() {
+        Log.d(TAG,"moveHistoryButtonClicked()");
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

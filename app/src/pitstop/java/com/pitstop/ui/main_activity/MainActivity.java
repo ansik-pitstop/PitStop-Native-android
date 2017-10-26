@@ -45,6 +45,7 @@ import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.models.Car;
@@ -71,13 +72,12 @@ import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
@@ -259,14 +259,14 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         }
     }
 
-    private void loadDealerDesign(Car car){
+    private void loadDealerDesign(Dealership dealership){
         //Update tab design to the current dealerships custom design if applicable
-        if (car.getDealership() != null){
-            if (BuildConfig.DEBUG && (car.getDealership().getId() == 4
-                    || car.getDealership().getId() == 18)){
+        if (dealership != null){
+            if (BuildConfig.DEBUG && (dealership.getId() == 4
+                    || dealership.getId() == 18)){
 
                 bindMercedesDealerUI();
-            }else if (!BuildConfig.DEBUG && car.getDealership().getId() == 14) {
+            }else if (!BuildConfig.DEBUG && dealership.getId() == 14) {
                 bindMercedesDealerUI();
             }
             else{
@@ -318,19 +318,19 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             autoConnectService.requestDeviceSearch(false, false);
         }
 
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getGetCurrentDealershipUseCase().execute(new GetCurrentCarDealershipUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-                loadDealerDesign(car);
+            public void onGotDealership(@NotNull Dealership dealership) {
+                loadDealerDesign(dealership);
             }
 
             @Override
-            public void onNoCarSet(){
-                //startPromptAddCarActivity();
+            public void onNoCarExists() {
+
             }
 
             @Override
-            public void onError(RequestError error) {
+            public void onError(@NotNull RequestError error) {
 
             }
         });
@@ -359,9 +359,21 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         if (data != null && requestCode == RC_ADD_CAR) {
 
             if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
-                Car addedCar = data.getParcelableExtra(CAR_EXTRA);
 
-                updateSmoochUser(application.getCurrentUser(),addedCar);
+                useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                    @Override
+                    public void onCarRetrieved(Car car, Dealership dealership) {
+                        updateSmoochUser(application.getCurrentUser(),car, dealership);
+                    }
+
+                    @Override
+                    public void onNoCarSet() {
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                    }
+                });
 
                 useCaseComponent
                         .checkFirstCarAddedUseCase()
@@ -410,7 +422,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                         "" : (" " + user.getLastName())) + " has signed up for Pitstop!"));
     }
 
-    private void updateSmoochUser(com.pitstop.models.User user, Car car){
+    private void updateSmoochUser(com.pitstop.models.User user, Car car, Dealership dealership){
         if (car == null || user == null) return;
 
         final HashMap<String, Object> customProperties = new HashMap<>();
@@ -424,9 +436,9 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         Log.d(TAG, String.valueOf(car.getYear()));
 
         //Add custom user properties
-        if (car.getDealership() != null) {
-            customProperties.put("Email", car.getDealership().getEmail());
-            Log.d(TAG, car.getDealership().getEmail());
+        if (dealership != null) {
+            customProperties.put("Email", dealership.getEmail());
+            Log.d(TAG, dealership.getEmail());
         }
 
         if (user != null) {
@@ -696,8 +708,12 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-                if (!checkDealership(car)) return;
+            public void onCarRetrieved(Car car, Dealership dealership) {
+                if (dealership == null){
+                    Toast.makeText(MainActivity.this,"Select a dealership first", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                //if (!checkDealership(car)) return;
                 final Intent intent = new Intent(thisInstance, MyAppointmentActivity.class);
                 intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
@@ -726,7 +742,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         showLoading("Loading...");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 final Intent intent = new Intent(thisInstance, MyTripsActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
                 startActivity(intent);
@@ -763,7 +779,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 intent.putExtra(CAR_KEY, car);
                 startActivity(intent);
             }
@@ -793,12 +809,12 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             return false;
         }
 
-        if (car.getDealership() == null) {
-            Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
-                    .setAction("Select", view -> selectDealershipForDashboardCar(car))
-                    .show();
-            return false;
-        }
+//        if (car.getDealership() == null) {
+//            Snackbar.make(rootView, "Please select your dealership first!", Snackbar.LENGTH_LONG)
+//                    .setAction("Select", view -> selectDealershipForDashboardCar(car))
+//                    .show();
+//            return false;
+//        }
         return true;
     }
 
@@ -835,55 +851,55 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     }
 
     private void showSelectDealershipDialog(Car car, final String[] shops, final String[] shopIds) {
-        final int[] pickedPosition = {-1};
-
-        final AlertDialog dialog = new AnimatedDialogBuilder(this)
-                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                .setSingleChoiceItems(shops, -1, (dialogInterface, which) -> pickedPosition[0] = which)
-                .setNegativeButton("CANCEL", null)
-                .setPositiveButton("CONFIRM", null)
-                .create();
-
-        dialog.setOnShowListener(dialogInterface -> dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
-            if (pickedPosition[0] == -1) {
-                Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
-
-            try {
-                mixpanelHelper.trackCustom("Button Tapped",
-                        new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                MixpanelHelper.SETTINGS_VIEW, car.getMake(), car.getModel())));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            networkHelper.updateCarShop(car.getId(), shopId, (response, requestError) -> {
-                dialog.dismiss();
-                if (requestError == null) {
-                    Log.i(TAG, "Dealership updated - carId: " + car.getId() + ", dealerId: " + shopId);
-                    // Update car in local database
-                    car.setShopId(shopId);
-                    car.setDealership(shopLocalStore.getDealership(shopId));
-                    carLocalStore.updateCar(car);
-
-                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
-                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
-                    User.getCurrentUser().addProperties(properties);
-
-                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
-                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }));
-
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
+//        final int[] pickedPosition = {-1};
+//
+//        final AlertDialog dialog = new AnimatedDialogBuilder(this)
+//                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+//                .setSingleChoiceItems(shops, -1, (dialogInterface, which) -> pickedPosition[0] = which)
+//                .setNegativeButton("CANCEL", null)
+//                .setPositiveButton("CONFIRM", null)
+//                .create();
+//
+//        dialog.setOnShowListener(dialogInterface -> dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+//            if (pickedPosition[0] == -1) {
+//                Toast.makeText(MainActivity.this, "Please select a dealership", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            final int shopId = Integer.parseInt(shopIds[pickedPosition[0]]);
+//
+//            try {
+//                mixpanelHelper.trackCustom("Button Tapped",
+//                        new JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
+//                                MixpanelHelper.SETTINGS_VIEW, car.getMake(), car.getModel())));
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//
+//            networkHelper.updateCarShop(car.getId(), shopId, (response, requestError) -> {
+//                dialog.dismiss();
+//                if (requestError == null) {
+//                    Log.i(TAG, "Dealership updated - carId: " + car.getId() + ", dealerId: " + shopId);
+//                    // Update car in local database
+//                    car.setShopId(shopId);
+//                    car.setDealership(shopLocalStore.getDealership(shopId));
+//                    carLocalStore.updateCar(car);
+//
+//                    final Map<String, Object> properties = User.getCurrentUser().getProperties();
+//                    properties.put("Email", shopLocalStore.getDealership(shopId).getEmail());
+//                    User.getCurrentUser().addProperties(properties);
+//
+//                    Toast.makeText(MainActivity.this, "Car dealership updated", Toast.LENGTH_SHORT).show();
+//
+//                } else {
+//                    Log.e(TAG, "Dealership updateCarIssue error: " + requestError.getError());
+//                    Toast.makeText(MainActivity.this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }));
+//
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.show();
     }
 
     private void logAuthInfo(){

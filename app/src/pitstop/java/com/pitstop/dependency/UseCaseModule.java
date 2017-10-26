@@ -38,6 +38,8 @@ import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCaseImpl;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -70,8 +72,6 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
-import com.pitstop.interactors.get.GetUserShopsUseCase;
-import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
@@ -237,10 +237,10 @@ public class UseCaseModule {
 
     @Provides
     GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository
-            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
-            ,@Named("mainHandler") Handler mainHandler){
+            , CarRepository carRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository
+        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository, shopRepository
                 , useCaseHandler, mainHandler);
     }
 
@@ -256,15 +256,6 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
         return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
-    }
-
-    @Provides
-    GetUserShopsUseCase getUserShopsUseCase(ShopRepository shopRepository
-            ,UserRepository userRepository,NetworkHelper networkHelper
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new GetUserShopsUseCaseImpl(shopRepository,userRepository,networkHelper
-                ,useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -352,8 +343,11 @@ public class UseCaseModule {
 
     @Provides
     GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,CarRepository carRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetUserCarUseCaseImpl(userRepository,carRepository, useCaseHandler, mainHandler);
+            , ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            ,@Named("mainHandler") Handler mainHandler){
+
+        return new GetUserCarUseCaseImpl(userRepository,carRepository, shopRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -563,5 +557,14 @@ public class UseCaseModule {
 
         return new GetDealershipWithCarIssuesUseCaseImpl(userRepository, carRepository
                 , carIssueRepository, shopRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCurrentCarDealershipUseCase getCurrentCarDealershipUseCase(UserRepository userRepository
+            , CarRepository carRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetCurrentCarDealershipUseCaseImpl(userRepository, carRepository
+                , shopRepository, useCaseHandler, mainHandler);
     }
 }

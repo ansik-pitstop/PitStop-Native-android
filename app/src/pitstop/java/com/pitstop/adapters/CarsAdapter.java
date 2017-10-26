@@ -1,7 +1,5 @@
 package com.pitstop.adapters;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -44,7 +42,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         CarsAdapter.CarViewHolder carViewHolder = new CarViewHolder((view));
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> myGarageView
-                .onCarClicked(carList.get(position), position));
+                .onCarClicked(carList.get(position), dealershipList.get(position),position));
         return carViewHolder;
     }
 

@@ -20,6 +20,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -44,19 +45,19 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     private CarSettingsPresenter presenter;
 
     private Car car;
+    private Dealership dealership;
 
-    MixpanelHelper mixpanelHelper;
+    private MixpanelHelper mixpanelHelper;
 
     @Override
     public void setSwitcher(FragmentSwitcher switcher) {
         this.switcher = switcher;
     }
 
-
-
     @Override
-    public void setCar(Car car) {
+    public void setData(Car car, Dealership dealership) {
         this.car = car;
+        this.dealership = dealership;
     }
 
     @Override
@@ -88,10 +89,10 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
         changeDealer = (Preference) findPreference(CHANGE_SHOP);
         if(car != null){
             carCatagory.setTitle(car.getMake()+" "+car.getModel());
-            if(car.getDealership() == null){
+            if(dealership == null){
                 changeDealer.setTitle("No Dealership");
             }else{
-                changeDealer.setTitle(car.getDealership().getName());
+                changeDealer.setTitle(dealership.getName());
             }
         }
         return view;

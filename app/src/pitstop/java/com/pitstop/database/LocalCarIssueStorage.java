@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 
 import java.util.ArrayList;
@@ -47,13 +46,6 @@ public class LocalCarIssueStorage {
 
     }
 
-    public void storeCarIssues(List<Car> cars) {
-        for(Car car : cars) {
-            for(CarIssue issue : car.getIssues()) {
-                storeCarIssue(issue);
-            }
-        }
-    }
     public void storeIssues(List<CarIssue> issues){
         for(CarIssue c : issues){
             storeCarIssue(c);

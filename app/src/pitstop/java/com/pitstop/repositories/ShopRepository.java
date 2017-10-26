@@ -2,6 +2,7 @@ package com.pitstop.repositories;
 
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
@@ -12,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +25,8 @@ public class ShopRepository implements Repository{
     private final String TAG = getClass().getSimpleName();
 
     private final String END_POINT_SHOP_PITSTOP = "shop?shopType=partner";
-    private final String END_POINT_SHOP = "shop?shopType=all";
+    private final String END_POINT_SHOP_ALL = "shop?shopType=all";
+    private final String END_POINT_SHOP = "shop";
 
     private static ShopRepository INSTANCE;
     private LocalShopStorage localShopStorage;
@@ -52,6 +53,10 @@ public class ShopRepository implements Repository{
         return true;
     }
 
+    public void getAllShops(Callback<List<Dealership>> callback){
+        networkHelper.get(END_POINT_SHOP_ALL, getGetShopsCallback(callback));
+    }
+
     public void getPitstopShops(Callback<List<Dealership>> callback){
         networkHelper.get(END_POINT_SHOP_PITSTOP, getGetShopsCallback(callback));
 
@@ -67,23 +72,20 @@ public class ShopRepository implements Repository{
     }
 
     private RequestCallback getGetShopsCallback(Callback<List<Dealership>> callback){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        List<Dealership> dealerships = Dealership.createDealershipList(response);
-                        localShopStorage.storeDealerships(dealerships);
-                        callback.onSuccess(dealerships);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
-                    }
-                }else{
-                    callback.onError(requestError);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    List<Dealership> dealerships = Dealership.createDealershipList(response);
+                    localShopStorage.storeDealerships(dealerships);
+                    callback.onSuccess(dealerships);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
-
+            }else{
+                callback.onError(requestError);
             }
+
         };
         return requestCallback;
     }
@@ -184,112 +186,55 @@ public class ShopRepository implements Repository{
         return requestCallback;
     }
 
-    public void getShopsByUserId(int userId, Callback<List<Dealership>> callback){
-
-        networkHelper.get(END_POINT_SHOP, getGetShopsCallback(callback));
-        //Offline logic below, not being used for now
-        List<Dealership> dealerships = localShopStorage.getAllDealerships();
-        Iterator<Dealership> iterator = dealerships.iterator();
-        while(iterator.hasNext()){
-            Dealership d = iterator.next();
-            if(!d.isCustom()){
-                iterator.remove();
-            }
-        }
-        //return dealerships;
-    }
-
-    private  RequestCallback getGetShopsRequestCallback(Callback<List<Dealership>> callback){
-     RequestCallback requestCallback = new RequestCallback() {
-         @Override
-         public void done(String response, RequestError requestError) {
-             if(response != null){
-                 try{
-                     JSONObject responseJson = new JSONObject(response);
-                     if(!responseJson.getJSONObject("user").has("customShops")){
-                         callback.onSuccess(new ArrayList<Dealership>());
-                     }else{
-                         JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                         List<Dealership> dealershipArray  = new ArrayList<>();
-                         for(int i = 0; i<customShops.length();i++){
-                             Dealership dealership = new Dealership();
-                             JSONObject shop = customShops.getJSONObject(i);
-                             dealership.setId(shop.getInt("id"));
-                             dealership.setName(shop.getString("name"));
-                             dealership.setAddress(shop.getString("address"));
-                             dealership.setEmail(shop.getString("email"));
-                             dealership.setPhoneNumber(shop.getString("phone_number"));
-                             dealership.setCustom(true);
-                             dealershipArray.add(dealership);
-                             localShopStorage.removeById(dealership.getId());
-                             localShopStorage.storeCustom(dealership);
-                         }
-                         callback.onSuccess(dealershipArray);
-                     }
-                 }catch (JSONException e){
-                     callback.onError(RequestError.getUnknownError());
-                     e.printStackTrace();
-                 }
-             }else{
-                 callback.onError(requestError);
-             }
-         }
-     };
-     return requestCallback;
-    }
-
     public void update(Dealership dealership,int userId, Callback<Object> callback ){
         networkHelper.getUserSettingsById(userId,getUpdateShopRequestCallback(dealership, userId, callback));
 
     }
 
     private RequestCallback getUpdateShopRequestCallback(Dealership dealership,int userId, Callback<Object> callback){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        JSONObject userJson = responseJson.getJSONObject("user");
-                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                        JSONArray shopsToSend = new JSONArray();
-                        JSONObject userSettingsDealer = new JSONObject();
-                        userSettingsDealer.put("id",dealership.getId());
-                        userSettingsDealer.put("name",dealership.getName());
-                        userSettingsDealer.put("email",dealership.getEmail());
-                        userSettingsDealer.put("phone_number",dealership.getPhone());
-                        userSettingsDealer.put("address",dealership.getAddress());
-                        for(int i = 0; i<customShops.length();i++){
-                            JSONObject shop = customShops.getJSONObject(i);
-                            if(shop.getInt("id") != dealership.getId()){
-                                shopsToSend.put(shop);
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    JSONObject userJson = responseJson.getJSONObject("user");
+                    JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                    JSONArray shopsToSend = new JSONArray();
+                    JSONObject userSettingsDealer = new JSONObject();
+                    userSettingsDealer.put("id",dealership.getId());
+                    userSettingsDealer.put("name",dealership.getName());
+                    userSettingsDealer.put("email",dealership.getEmail());
+                    userSettingsDealer.put("phone_number",dealership.getPhone());
+                    userSettingsDealer.put("address",dealership.getAddress());
+                    for(int i = 0; i<customShops.length();i++){
+                        JSONObject shop = customShops.getJSONObject(i);
+                        if(shop.getInt("id") != dealership.getId()){
+                            shopsToSend.put(shop);
+                        }
+                    }
+                    shopsToSend.put(userSettingsDealer);
+                    userJson.remove("customShops");
+                    userJson.put("customShops",shopsToSend);
+                    JSONObject userSettings = new JSONObject();
+                    userSettings.put("settings",userJson);
+                    networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            if(response != null){
+                                callback.onSuccess(response);
+                                localShopStorage.removeById(dealership.getId());
+                                localShopStorage.storeCustom(dealership);
+                            }else{
+                                callback.onError(requestError);
                             }
                         }
-                        shopsToSend.put(userSettingsDealer);
-                        userJson.remove("customShops");
-                        userJson.put("customShops",shopsToSend);
-                        JSONObject userSettings = new JSONObject();
-                        userSettings.put("settings",userJson);
-                        networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if(response != null){
-                                    callback.onSuccess(response);
-                                    localShopStorage.removeById(dealership.getId());
-                                    localShopStorage.storeCustom(dealership);
-                                }else{
-                                    callback.onError(requestError);
-                                }
-                            }
-                        },userSettings);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
-                    }
-
-                }else{
-                    callback.onError(requestError);
+                    },userSettings);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
+
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
@@ -302,38 +247,35 @@ public class ShopRepository implements Repository{
     }
 
     private RequestCallback getDeleteShopRequestCallback(Callback<Object> callback, int userId, int shopId){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if(response != null){
-                    try{
-                        JSONObject responseJson = new JSONObject(response);
-                        JSONObject userJson = responseJson.getJSONObject("user");
-                        JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
-                        JSONArray shopsToSend = new JSONArray();
-                        for(int i = 0; i <customShops.length();i++){
-                            JSONObject shop = customShops.getJSONObject(i);
-                            if(shop.getInt("id") != shopId){
-                                shopsToSend.put(shop);
-                            }
+        RequestCallback requestCallback = (response, requestError) -> {
+            if(response != null){
+                try{
+                    JSONObject responseJson = new JSONObject(response);
+                    JSONObject userJson = responseJson.getJSONObject("user");
+                    JSONArray customShops = responseJson.getJSONObject("user").getJSONArray("customShops");
+                    JSONArray shopsToSend = new JSONArray();
+                    for(int i = 0; i <customShops.length();i++){
+                        JSONObject shop = customShops.getJSONObject(i);
+                        if(shop.getInt("id") != shopId){
+                            shopsToSend.put(shop);
                         }
-                        userJson.remove("customShops");
-                        JSONObject userSettings = new JSONObject();
-                        userJson.put("customShops",shopsToSend);
-                        userSettings.put("settings",userJson);
-                        networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                callback.onSuccess(response);
-                            }
-                        },userSettings);
-                    }catch(JSONException e){
-                        callback.onError(RequestError.getUnknownError());
-                        e.printStackTrace();
                     }
-                }else{
-                    callback.onError(requestError);
+                    userJson.remove("customShops");
+                    JSONObject userSettings = new JSONObject();
+                    userJson.put("customShops",shopsToSend);
+                    userSettings.put("settings",userJson);
+                    networkHelper.put("user/" + userId + "/settings", new RequestCallback() {
+                        @Override
+                        public void done(String response, RequestError requestError) {
+                            callback.onSuccess(response);
+                        }
+                    },userSettings);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
                 }
+            }else{
+                callback.onError(requestError);
             }
         };
         return requestCallback;
@@ -341,8 +283,16 @@ public class ShopRepository implements Repository{
 
 
     public void get(int dealerId, Callback<Dealership> callback){
+        Log.d(TAG,"get() "+END_POINT_SHOP+"/"+dealerId);
 
-        networkHelper.get(END_POINT_SHOP+"&id="+dealerId,getGetShopRequestCallback(callback));
+        if (dealerId == 0 && (BuildConfig.DEBUG
+                || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))){
+            dealerId = 1;
+        }
+        else if (dealerId == 0 && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            dealerId = 19;
+        }
+        networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
@@ -351,20 +301,18 @@ public class ShopRepository implements Repository{
     private RequestCallback getGetShopRequestCallback(Callback<Dealership> callback){
         RequestCallback requestCallback = (response, requestError) -> {
             if(response != null){
-                try{
-                    Log.d(TAG,"get shops response: "+response +", after conversion: "
-                            + new JSONArray(response).get(0).toString());
-                    Dealership dealership = Dealership.jsonToDealershipObject(
-                            new JSONArray(response).get(0).toString());
+                //try{
+                    Log.d(TAG,"get shop response: "+response);
+                    Dealership dealership = Dealership.jsonToDealershipObject(response);
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
                     }else{
                         callback.onSuccess(dealership);
                     }
-                }catch (JSONException e){
-                    e.printStackTrace();
-                    callback.onError(RequestError.getUnknownError());
-                }
+                //}catch (JSONException e){
+                   // e.printStackTrace();
+                   // callback.onError(RequestError.getUnknownError());
+                //}
 
             }else{
                 callback.onError(requestError);
