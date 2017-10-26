@@ -66,7 +66,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     carRepository.get(userSettings.getCarId(), userSettings.getUserId(), new CarRepository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
-
+                            car.setCurrentCar(true);
                             shopRepository.get(car.getShopId(), new Repository.Callback<Dealership>() {
 
                                 @Override

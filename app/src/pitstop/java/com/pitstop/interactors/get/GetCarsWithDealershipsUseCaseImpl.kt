@@ -4,6 +4,7 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
+import com.pitstop.models.Settings
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
@@ -36,27 +37,35 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                 carRepository.getCarsByUserId(user.id, object : Repository.Callback<List<Car>>{
 
                     override fun onSuccess(carList: List<Car>) {
+                        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+                            override fun onSuccess(settings: Settings) {
+                                for (c in carList){
+                                    c.isCurrentCar = c.id == settings.carId
+                                    shopRepository.getAllShops(object : Repository.Callback<List<Dealership>>{
 
-                        for (car in carList){
-                            shopRepository.getAllShops(object : Repository.Callback<List<Dealership>>{
+                                        override fun onSuccess(dealershipList: List<Dealership>) {
+                                            Log.d(tag,"cars for user: "+carList)
+                                            Log.d(tag,"shops for user: "+dealershipList)
+                                            for (car in carList){
+                                                dealershipList
+                                                        .filter { car.shopId == it.id }
+                                                        .forEach { map.put(car, it) }
+                                            }
+                                            Log.d(tag,"Resulting map: "+map)
+                                            mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                        }
 
-                                override fun onSuccess(dealershipList: List<Dealership>) {
-                                    Log.d(tag,"cars for user: "+carList)
-                                    Log.d(tag,"shops for user: "+dealershipList)
-                                    for (car in carList){
-                                        dealershipList
-                                                .filter { car.shopId == it.id }
-                                                .forEach { map.put(car, it) }
-                                    }
-                                    Log.d(tag,"Resulting map: "+map)
-                                    mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                        override fun onError(error: RequestError) {
+                                            mainHandler.post({callback!!.onError(error)})
+                                        }
+                                    })
                                 }
+                            }
 
-                                override fun onError(error: RequestError) {
-                                    mainHandler.post({callback!!.onError(error)})
-                                }
-                            })
-                        }
+                            override fun onError(error: RequestError) {
+                                mainHandler.post({callback!!.onError(error)})
+                            }
+                        })
 
                     }
 
