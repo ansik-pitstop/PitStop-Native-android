@@ -3,10 +3,12 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.List;
@@ -19,15 +21,17 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     private UserRepository userRepository;
     private CarRepository carRepository;
+    private ShopRepository shopRepository;
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
-            , Handler useCaseHandler, Handler mainHandler) {
+            , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
 
         this.userRepository = userRepository;
         this.carRepository = carRepository;
+        this.shopRepository = shopRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
     }
@@ -38,29 +42,16 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
         useCaseHandler.post(this);
     }
 
-    private void onCarRetrieved(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarRetrieved(car);
-            }
-        });
+    private void onCarRetrieved(Car car, Dealership dealership){
+        mainHandler.post(() -> callback.onCarRetrieved(car, dealership));
     }
     private void onNoCarSet(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNoCarSet();
-            }
-        });
+        mainHandler.post(() -> callback.onNoCarSet());
     }
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(error!=null)
-                    callback.onError(error);
-            }
+        mainHandler.post(() -> {
+            if(error!=null)
+                callback.onError(error);
         });
     }
 
@@ -75,7 +66,20 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     carRepository.get(userSettings.getCarId(), userSettings.getUserId(), new CarRepository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
-                            GetUserCarUseCaseImpl.this.onCarRetrieved(car);
+                            car.setCurrentCar(true);
+                            shopRepository.get(car.getShopId(), new Repository.Callback<Dealership>() {
+
+                                @Override
+                                public void onSuccess(Dealership dealership) {
+                                    GetUserCarUseCaseImpl.this.onCarRetrieved(car, dealership);
+                                }
+
+                                @Override
+                                public void onError(RequestError error) {
+                                    GetUserCarUseCaseImpl.this.onError(error);
+                                }
+                            });
+
                         }
 
                         @Override
@@ -96,7 +100,19 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             GetUserCarUseCaseImpl.this.onNoCarSet();
                         }
                         else{
-                            GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0));
+                            shopRepository.get(carList.get(0).getShopId(), new Repository.Callback<Dealership>() {
+                                @Override
+                                public void onSuccess(Dealership dealership) {
+                                    GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
+                                            , dealership);
+
+                                }
+
+                                @Override
+                                public void onError(RequestError error) {
+                                    GetUserCarUseCaseImpl.this.onError(error);
+                                }
+                            });
                             //Fix corrupted user settings
                             userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
                                     , new Repository.Callback<Object>() {

@@ -71,9 +71,10 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
     }
 
     public void setCar(Car car) {
-        Log.d(TAG,"setCar() car: "+car);
+        Log.d(TAG,"setData() car: "+car);
         this.car = car;
     }
+
     public void setLocation(LatLng location) {
         if (location == null) return;
         Log.d(TAG,"setLocation() location.lat: "+location.latitude
@@ -83,8 +84,8 @@ public class ShopSearchFragment extends Fragment implements ShopSearchView {
 
     @Override
     public LatLng getLocation() {
-        Log.d(TAG,"getLocation() location.lat: "+location.latitude
-                +", location.long: "+location.longitude);
+        Log.d(TAG,"getLocation() location.lat: "+(location == null ? "location is null" : location.latitude)
+                +", location.long: "+(location == null ? "location is null" : location.longitude));
         return location;
     }
 

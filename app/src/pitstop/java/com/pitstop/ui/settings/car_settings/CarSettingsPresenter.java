@@ -6,6 +6,7 @@ import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
@@ -26,15 +27,11 @@ public class CarSettingsPresenter {
 
     private MixpanelHelper mixpanelHelper;
 
-
-
-
     public CarSettingsPresenter(FragmentSwitcher switcher, UseCaseComponent component, MixpanelHelper mixpanelHelper){
         this.switcher = switcher;
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
     }
-
 
     public void subscribe(CarSettingsView carSettings){
         mixpanelHelper.trackViewAppeared("CarSettings");
@@ -78,11 +75,11 @@ public class CarSettingsPresenter {
         if(carSettings == null){return;}
         component.getGetCarByCarIdUseCase().execute(carId, new GetCarByCarIdUseCase.Callback() {
             @Override
-            public void onCarGot(Car car) {
+            public void onCarGot(Car car, Dealership dealership) {
                 if(carSettings != null){
-                    carSettings.setCar(car);
-                    if(car.getDealership() != null) {
-                        carSettings.showCarText(car.getMake() + " " + car.getModel(), car.getDealership().getName());
+                    carSettings.setData(car, dealership);
+                    if(dealership != null) {
+                        carSettings.showCarText(car.getMake() + " " + car.getModel(), dealership.getName());
                     }
                 }
             }

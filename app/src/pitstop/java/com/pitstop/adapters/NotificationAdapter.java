@@ -1,7 +1,7 @@
 package com.pitstop.adapters;
 
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,15 +30,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<
 
     }
 
-
-
     @Override
     public NotificationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_notification, parent ,false);
         NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view, notificationView);
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> notificationView
-                .onNotificationClicked(notificationList.get(position).getPushType()));
+                .onNotificationClicked(notificationList.get(position)));
 
         return notificationViewHolder;
     }
@@ -71,16 +69,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<
 
         public NotificationViewHolder(View itemView, NotificationView notificationView){
             super(itemView);
-            titleTV = (TextView)itemView.findViewById(R.id.notificationTitle);
-            descriptionTV = (TextView)itemView.findViewById(R.id.notificationDescription);
-            dateTV = (TextView)itemView.findViewById(R.id.dateTV);
+            titleTV = itemView.findViewById(R.id.notificationTitle);
+            descriptionTV = itemView.findViewById(R.id.notificationDescription);
+            dateTV = itemView.findViewById(R.id.dateTV);
             this.notificationView = notificationView;
-            imageView = (ImageView) itemView.findViewById(R.id.notification_image);
+            imageView = itemView.findViewById(R.id.notification_image);
 
 
         }
         public void bind(Notification notification) {
             titleTV.setText(notification.getTitle());
+            if (notification.isRead() != null){
+                titleTV.setTypeface(null, notification.isRead() ? Typeface.NORMAL : Typeface.BOLD);
+            }
             descriptionTV.setText(notification.getContent());
             dateTV.setText(notification.getDateCreated());
             imageView.setImageResource(notificationView.changeimage(notification.getPushType()));

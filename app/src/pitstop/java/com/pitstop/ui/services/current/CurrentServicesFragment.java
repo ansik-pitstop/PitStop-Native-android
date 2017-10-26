@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.current;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.main_activity.BadgeDisplayer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
@@ -481,6 +483,21 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         }else{
             recallAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void displayBadge(int count) {
+        Log.d(TAG,"displayBadge() count: "+count);
+        Activity activity = getActivity();
+        try{
+            if (activity != null){
+                BadgeDisplayer badgeDisplayer = (BadgeDisplayer)activity;
+                badgeDisplayer.displayServicesBadgeCount(count);
+            }
+        }catch(ClassCastException e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override

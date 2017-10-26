@@ -19,7 +19,6 @@ import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.pitstop.BuildConfig;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -37,6 +36,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
@@ -51,7 +51,6 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.utils.BluetoothDataVisualizer;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
@@ -72,13 +71,16 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver {
+        , DeviceVerificationObserver, BluetoothWriter {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
             return BluetoothAutoConnectService.this;
         }
     }
+
+    private boolean overWriteInterval = false;
+    private int debugDrawerInterval = 4;
 
     public static final int notifID = 1360119;
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
@@ -168,7 +170,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     deviceConnState = State.DISCONNECTED;
                     notifyDeviceDisconnected();
                 }
-
                 onConnectedDeviceInvalid();
             }
         }
@@ -597,6 +598,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void parameterData(ParameterPackage parameterPackage) {
+        Log.d(TAG, "parameter value: " + parameterPackage.value);
         if (parameterPackage == null) return;
         if (parameterPackage.paramType == null) return;
         if (parameterPackage.value == null) parameterPackage.value = "";
@@ -624,19 +626,35 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
                 && readyDevice != null){
-
-            pidDataHandler.setPidCommunicationParameters(parameterPackage.value.split(",")
-                    ,readyDevice.getVin());
+            if (overWriteInterval){
+                pidDataHandler.setDeviceRtcInterval(parameterPackage.value.split(",")
+                        ,readyDevice.getVin(), debugDrawerInterval);
+                overWriteInterval = false;
+            }
+            else {
+                notifyGotSupportedPids(parameterPackage.value);
+                pidDataHandler.setPidCommunicationParameters(parameterPackage.value.split(",")
+                        , readyDevice.getVin());
+            }
         }
     }
 
+
+
+    private void notifyGotSupportedPids(String value) {
+        Log.d(TAG, "notifyGotSUpportedPIDs()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onGotSuportedPIDs(value));
+            }
+        }
+    }
+
+
     @Override
     public void idrPidData(PidPackage pidPackage) {
-        LogUtils.debugLogD(TAG, "Received idr pid data: "+pidPackage
-                , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            BluetoothDataVisualizer.visualizePidReceived(pidPackage,getApplicationContext());
-        }
+
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
         if (pidPackage == null) return;
@@ -1106,7 +1124,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 String carName = "Click here to find out more" +
                         car.getYear() + " " + car.getMake() + " " + car.getModel();
                 NotificationsHelper.sendNotification(getApplicationContext()
@@ -1159,6 +1177,38 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = null;
         deviceIsVerified = false;
         currentDeviceId = null;
+    }
+
+    @Override
+    public boolean writeRTCInterval(int interval) {
+        overWriteInterval = true;
+        deviceManager.getSupportedPids();
+        debugDrawerInterval = interval;
+        return false;
+    }
+
+    @Override
+    public boolean resetMemory() {
+        Log.d(TAG, "resetMemory()");
+        deviceManager.clearDeviceMemory();
+        return true;
+    }
+
+    @Override
+    public boolean clearDTCs() {
+        deviceManager.clearDtcs();
+        return true;
+    }
+
+    @Override
+    public boolean setChunkSize(int size) {
+        pidDataHandler.setChunkSize(size);
+        return false;
+    }
+
+    @Override
+    public void getSupportedPids() {
+        deviceManager.getSupportedPids();
     }
 
     private void trackIdrPidData(PidPackage pidPackage){

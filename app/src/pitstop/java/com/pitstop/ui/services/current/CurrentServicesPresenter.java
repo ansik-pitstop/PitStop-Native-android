@@ -97,6 +97,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             getView().displayNoServices(false);
         myServicesList.add(issue);
         selectionMap.put(issue,false);
+        getView().displayBadge(selectionMap.keySet().size());
         getView().notifyIssueDataChanged();
     }
 
@@ -135,17 +136,19 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
+                getView().displayBadge(currentServices.size() + customIssues.size());
+
                 routineServicesList.clear();
                 myServicesList.clear();
                 potentialEngineIssuesList.clear();
                 storedEngineIssueList.clear();
                 recallList.clear();
+                selectionMap.clear();
 
                 getView().displayOnlineView();
                 getView().displayNoServices(currentServices.isEmpty() && customIssues.isEmpty());
                 for(CarIssue c:currentServices){
-                    if (!selectionMap.keySet().contains(c))
-                        selectionMap.put(c,false);
+                    selectionMap.put(c,false);
                     switch (c.getIssueType()) {
                         case CarIssue.DTC:
                             storedEngineIssueList.add(c);
@@ -162,8 +165,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     }
                 }
                 for (CarIssue c: customIssues){
-                    if (!selectionMap.keySet().contains(c))
-                        selectionMap.put(c,false);
+                    selectionMap.put(c,false);
                     myServicesList.add(c);
                 }
 
@@ -187,6 +189,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
             public void onNoCarAdded() {
                 updating = false;
                 if (getView() == null) return;
+                getView().displayBadge(0);
                 getView().hideLoading();
                 getView().displayNoCarView();
             }
@@ -197,6 +200,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
+                getView().displayBadge(0);
                 getView().hideLoading();
                 if (error.getError()!=null) {
                     if (error.getError().equals(RequestError.ERR_OFFLINE)) {
@@ -285,6 +289,7 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                     selectionMap.remove(c);
                 }
 
+                getView().displayBadge(selectionMap.keySet().size());
                 getView().showRoutineServicesView(!routineServicesList.isEmpty());
                 getView().showStoredEngineIssuesView(!storedEngineIssueList.isEmpty());
                 getView().showPotentialEngineIssuesView(!potentialEngineIssuesList.isEmpty());

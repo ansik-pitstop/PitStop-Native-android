@@ -287,10 +287,14 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayNoCarView() {
         Log.d(TAG,"displayNoCarView()");
-        offlineView.setVisibility(View.GONE);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        relativeLayout.setLayoutParams(params);
         timelineRecyclerView.setVisibility(View.GONE);
         noServicesView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
         relativeLayout.bringToFront();
         noCarView.bringToFront();

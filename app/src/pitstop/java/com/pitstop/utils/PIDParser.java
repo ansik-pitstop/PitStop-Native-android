@@ -2,6 +2,8 @@ package com.pitstop.utils;
 
 import android.util.Log;
 
+import com.pitstop.bluetooth.dataPackages.PidPackage;
+
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
@@ -11,6 +13,8 @@ import java.util.HashMap;
 public class PIDParser {
     private static final String DTAG = "PIDParser";
 
+    private static final String pidTypes[] = {"210C", "210D", "2106", "2107", "2110", "2124", "2105",
+    "210E", "210F", "2142", "210A", "210B", "2104", "2111", "212C", "212D", "215C", "2103", "212E"};
     /**
      * Takes PID string and returns converted value for PID
      // 2102: DTC
@@ -158,5 +162,25 @@ public class PIDParser {
         public void setValue(U value){
             this.value=value;
         }
+    }
+
+    public static PidPackage pidPackageToDecimalValue(PidPackage original) {
+        if (original == null){
+            return null;
+        }
+        HashMap<String, String> DecimalhashMap = new HashMap<String, String>();
+        PidPackage DecimalPidPackage = new PidPackage(original);
+        if (DecimalPidPackage.pids != null) {
+            for (String s : pidTypes) {
+                if (original.pids.containsKey(s)) {
+                    String decimalValue = Integer.toString(Integer.parseInt(original.pids.get(s), 16));
+                    DecimalhashMap.put(s,decimalValue );
+                }
+
+            }
+
+        }
+        DecimalPidPackage.setPids(DecimalhashMap);
+        return DecimalPidPackage;
     }
 }

@@ -75,7 +75,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                     @Override
                     public void onSuccess(List<Car> cars) {
                         for(Car c : cars){
-                            if(c.getDealership().getId() == dealership.getId()){
+                            if(c.getShopId() == dealership.getId()){
                                 RemoveShopUseCaseImpl.this.onCantRemoveShop();
                                 return;
                             }

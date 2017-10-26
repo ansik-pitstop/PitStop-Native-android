@@ -1,6 +1,7 @@
 package com.pitstop.ui.settings.car_settings;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
 
 /**
@@ -8,7 +9,7 @@ import com.pitstop.ui.settings.FragmentSwitcher;
  */
 
 public interface CarSettingsView {
-    void setCar(Car car);
+    void setData(Car car, Dealership dealership);
     void setSwitcher(FragmentSwitcher switcher);
     void showCarText(String name, String shop);
     void update();
