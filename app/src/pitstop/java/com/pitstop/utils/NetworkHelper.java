@@ -15,12 +15,18 @@ import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
+import com.pitstop.retrofit.PitstopCarApi;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.pitstop.utils.LogUtils.LOGI;
 import static com.pitstop.utils.LogUtils.LOGV;
@@ -46,6 +52,27 @@ public class NetworkHelper {
 
     private String getAccessToken() {
         return sharedPreferences.getString(PreferenceKeys.KEY_ACCESS_TOKEN, "");
+    }
+
+    public PitstopCarApi getCarApi(){
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+
+                    Request.Builder builder = original.newBuilder()
+                            .header("client-id", SecretUtils.getClientId(context))
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", "Bearer "+getAccessToken());
+
+                    return chain.proceed(builder.build());
+                }).build();
+
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context)+"v1/car")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build()
+                .create(PitstopCarApi.class);
     }
 
     public void getWithCustomUrl(String url, String uri, RequestCallback callback) {

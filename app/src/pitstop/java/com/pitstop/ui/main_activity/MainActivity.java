@@ -57,8 +57,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
-import com.pitstop.retrofit.PitstopApiService;
-import com.pitstop.retrofit.PitstopResponse;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -73,23 +71,16 @@ import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.utils.SecretUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import io.smooch.core.Smooch;
 import io.smooch.core.User;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by David on 6/8/2016.
@@ -237,43 +228,6 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         tabFragmentManager = new TabFragmentManager(this,mixpanelHelper);
         tabFragmentManager.createTabs();
-
-        //Todo: Remove example code
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .addInterceptor(chain -> {
-            Request original = chain.request();
-
-            Request request = original.newBuilder()
-                    .header("client-id", SecretUtils.getClientId(this))
-                    .header("Authorization", "Bearer "+application.getAccessToken())
-                    .header("Content-Type", "application/json")
-                    .method(original.method(), original.body())
-                    .build();
-
-            return chain.proceed(request);
-        }).build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(SecretUtils.getEndpointUrl(MainActivity.this))
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build();
-        PitstopApiService api = retrofit.create(PitstopApiService.class);
-
-        new Thread(() -> {
-            Log.d(TAG,"TEST inside runnable");
-            try{
-                Log.d(TAG,"TEST inside try block");
-                Response<PitstopResponse<com.pitstop.retrofit.Car>> response
-                        = api.getCar("v1/car/5172").execute();
-                Log.d(TAG,"TEST response: "+response.body().getResponse());
-
-            }
-            catch(IOException e){
-                Log.d(TAG,"TEST exception");
-                e.printStackTrace();
-            }
-        }).start();
     }
 
    // public void removeBluetoothFragmentCallback

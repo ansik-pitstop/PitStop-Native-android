@@ -40,6 +40,11 @@ public final class TABLES {
         String KEY_VIN = "vin";
         String KEY_SHOP_ID = "shopId";
         String KEY_MILEAGE = "totalMileage";
+        String KEY_BASE_MILEAGE = "baseMileage";
+        String KEY_HIGHWAY_MILEAGE = "highwayMileage";
+        String KEY_CITY_MILEAGE = "highwayMileage";
+        String KEY_SALES_PERSON = "salesPerson";
+        String KEY_TANK_SIZE = "tankSize";
         String KEY_DISPLAYED_MILEAGE = "displayedMileage";
         String KEY_SCANNER_ID = "scannerId";
         String KEY_MAKE = "make";

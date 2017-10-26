@@ -41,7 +41,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LocalPidStorage.CREATE_TABLE_PID_DATA);
         db.execSQL(LocalPidResult4Storage.CREATE_TABLE_PID_DATA);
-        db.execSQL(LocalCarStorage.CREATE_TABLE_CAR);
+        db.execSQL(LocalCarStorage.Companion.getCREATE_TABLE_CAR());
         db.execSQL(LocalCarIssueStorage.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalAppointmentStorage.CREATE_TABLE_APPOINTMENT);
         db.execSQL(LocalTripStorage.CREATE_TABLE_APPOINTMENT);

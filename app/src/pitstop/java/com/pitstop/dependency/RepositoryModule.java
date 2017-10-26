@@ -15,6 +15,7 @@ import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Singleton;
@@ -44,10 +45,9 @@ public class RepositoryModule {
     }
 
     @Provides
-    @Singleton
     public CarRepository getCarRepository(LocalCarStorage localCarStorage
-            , NetworkHelper networkHelper){
-        return new CarRepository(localCarStorage,networkHelper);
+            , NetworkHelper networkHelper, PitstopCarApi pitstopCarApi){
+        return new CarRepository(localCarStorage, networkHelper, pitstopCarApi);
     }
 
     @Provides

@@ -8,6 +8,8 @@ import com.pitstop.database.LocalCarStorage;
 import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.retrofit.PitstopCarApi;
+import com.pitstop.retrofit.PitstopResponse;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -16,6 +18,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -31,18 +35,13 @@ public class CarRepository implements Repository{
     private static CarRepository INSTANCE;
     private LocalCarStorage localCarStorage;
     private NetworkHelper networkHelper;
+    private PitstopCarApi pitstopCarApi;
 
-    public static synchronized CarRepository getInstance(LocalCarStorage localCarStorage
-            , NetworkHelper networkHelper) {
-        if (INSTANCE == null) {
-            INSTANCE = new CarRepository(localCarStorage, networkHelper);
-        }
-        return INSTANCE;
-    }
-
-    public CarRepository(LocalCarStorage localCarStorage, NetworkHelper networkHelper){
+    public CarRepository(LocalCarStorage localCarStorage, NetworkHelper networkHelper
+            , PitstopCarApi pitstopCarApi){
         this.localCarStorage = localCarStorage;
         this.networkHelper = networkHelper;
+        this.pitstopCarApi = pitstopCarApi;
     }
 
     public void getCarByVin(String vin, Callback<Car> callback){
@@ -223,6 +222,13 @@ public class CarRepository implements Repository{
 
     public void get(int id,int userId, Callback<Car> callback) {
         networkHelper.getCarsById(id,getGetCarRequestCallback(callback));
+    }
+
+    public Observable<PitstopResponse<com.pitstop.retrofit.Car>> get(int id){
+        Observable<PitstopResponse<com.pitstop.retrofit.Car>> local = Observable.just(
+                new PitstopResponse<>(localCarStorage.getCarRetrofit(id)));
+        return Observable
+                .concat(local,pitstopCarApi.getCar(id));
     }
 
     private RequestCallback getGetCarRequestCallback(Callback<Car> callback){

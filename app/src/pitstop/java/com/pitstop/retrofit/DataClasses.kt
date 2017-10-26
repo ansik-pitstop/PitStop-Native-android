@@ -8,9 +8,9 @@ import kotlinx.android.parcel.Parcelize
  * Created by Karol Zdebel on 10/26/2017.
  */
 
-data class PitstopResponse<T>(
-        val response: T
-)
+data class PitstopResponse<T>(val response: T)
+
+data class Token(val value: String)
 
 @Parcelize
 data class Car(
