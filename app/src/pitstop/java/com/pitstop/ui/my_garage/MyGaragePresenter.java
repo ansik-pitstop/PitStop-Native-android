@@ -32,8 +32,8 @@ import io.smooch.core.User;
  * Created by ishan on 2017-09-19.
  */
 
-public class MyGaragePresenter extends TabPresenter<MyGarageView>{
-
+public class MyGaragePresenter {
+/*
     private static final String TAG = MyGaragePresenter.class.getSimpleName();
     private HashMap<String, Object> customProperties;
     private boolean dealershipsLoaded = false;
@@ -337,5 +337,5 @@ public class MyGaragePresenter extends TabPresenter<MyGarageView>{
                 validList.add(d);
         }
         return validList;
-    }
+    }*/
 }

@@ -52,7 +52,7 @@ import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
  */
 
 public class MyGarageFragment extends Fragment implements MyGarageView {
-
+/*
     private static final String TAG = MyGarageFragment.class.getSimpleName();
     @BindView(R.id.appointments_view)
     protected View appointmentsView;
@@ -344,7 +344,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void notifyCarDataChanged(){
         carsAdapter.notifyDataSetChanged();
     }
-/*
+*//*
 
     @Override
     public void openSpecsActivity(Car car, int position) {
@@ -370,7 +370,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         // the zero is the requestcode sent
         startActivityForResult(intent, 0);
     }
-*/
+*//*
 
     @Override
     public void noCarsView() {
@@ -457,5 +457,5 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
             errorDialog = alertDialogBuilder.create();
         }
         errorDialog.show();
-    }
+    }*/
 }

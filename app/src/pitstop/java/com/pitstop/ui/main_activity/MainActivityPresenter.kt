@@ -34,6 +34,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     val TAG:String = this.javaClass.simpleName
     private var isLoading: Boolean = false
     private var mCar:Car? = null
+    private var mDealership: Dealership? = null
     private var customProperties: HashMap<String, Any>? = null
     private var isCarLoaded: Boolean = false
     private var carListLoaded: Boolean = false
@@ -108,8 +109,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         view?.noCarsView()
                     }
                     for(car in data.keys){
-                        if (car.isCurrentCar)
+                        if (car.isCurrentCar) {
                             mCar = car;
+                            mDealership = data[mCar!!];
+                        }
                         isCarLoaded = true;
                     }
                     mergeSetWithCarList(data.keys)
@@ -139,7 +142,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         Log.d(TAG, "onMyAppointmentsClicked()")
         if (this.view == null) return;
         view?.hideLoading()
-        if (this.mCar?.dealership == null) {
+        if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
             return
         }
@@ -150,7 +153,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         Log.d(TAG, "onRequestServiceCLicked()")
         if (this.view == null) return;
         view?.hideLoading()
-        if (this.mCar?.dealership == null) {
+        if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
             return
         }
@@ -189,8 +192,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             customProperties?.put("Car Make", mCar!!.getMake())
             customProperties?.put("Car Model", mCar!!.getModel())
             customProperties?.put("Car Year", mCar!!.getYear())
-            Log.i(TAG, mCar?.getDealership()?.email)
-            customProperties?.put("Email", mCar?.getDealership()!!.email)
+
+            customProperties?.put("Email", mDealership!!.email)
             User.getCurrentUser().addProperties(customProperties)
             if (!(view?.isUserNull())!!) {
                 customProperties?.put("Phone", view?.getUserPhone()?: "" )
@@ -213,12 +216,12 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.toast("still loading vehicle information")
             return
         }
-        if (mCar?.dealership == null)return
-        if (mCar?.dealership?.id?.equals(1)!!){
+        if (mDealership == null)return
+        if (mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
             return
         }
-        view?.callDealership(mCar?.dealership)
+        view?.callDealership(mDealership)
     }
 
     fun onFindDirectionsClicked() {
@@ -226,12 +229,12 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.toast("still loading vehicle information")
             return
         }
-        if (mCar?.dealership == null)return
-        if (mCar?.dealership?.id?.equals(1)!!){
+        if (mDealership == null)return
+        if (mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
             return
         }
-        view?.openDealershipDirections(mCar?.dealership)
+        view?.openDealershipDirections(mDealership)
     }
 
     fun makeCarCurrent(car: Car) {
@@ -261,6 +264,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 view?.toast(error.message)
             }
         })
+    }
+
+    fun onRefresh() {
+        onUpdateNeeded();
     }
 
 

@@ -21,6 +21,7 @@ import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.Presenter;
 import com.pitstop.ui.mainFragments.TabPresenter;
@@ -41,6 +42,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     private MixpanelHelper mixpanelHelper;
     private boolean updating;
     private Car mCar;
+    private Dealership mdealership;
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_MY_CAR);
     public final EventType[] ignoredEvents = {
             new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
@@ -177,8 +179,9 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         getView().showLoading();
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 mCar = car;
+                mdealership = dealership;
                 updating = false;
                 if (getView()!=null) {
                     getView().hideLoading();
@@ -224,6 +227,11 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         }
         else
             return null;
+    }
+
+    public Dealership getDealership(){
+        Log.d(TAG, "getDealership()");
+        return this.mdealership;
     }
 
     public void onScannerViewClicked() {

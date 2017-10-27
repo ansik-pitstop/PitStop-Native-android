@@ -289,10 +289,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
         }
-
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
     }
 
     @Override
@@ -353,9 +349,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         else
             tankSize.setText(car.getTankSize());
 
-        if(!(car.getDealership()== null)) {
+        if(!(presenter.getDealership()== null)) {
             dealerhsipView.setVisibility(View.VISIBLE);
-            dealership.setText(car.getDealership().getName());
+            dealership.setText(presenter.getDealership().getName());
         }
         else{
             dealerhsipView.setVisibility(View.GONE);
@@ -410,8 +406,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
                         presenter.getCar().getMake() + " " +
                         presenter.getCar().getModel());
         carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( presenter.getCar().getMake()));
-        dealershipName.setText(presenter.getCar().getDealership().getName());
-        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getCar().getDealership().getName()));
+        dealershipName.setText(presenter.getDealership().getName());
+        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getDealership().getName()));
         bannerOverlay.setVisibility(View.VISIBLE);
     }
 

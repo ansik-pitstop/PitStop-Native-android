@@ -355,7 +355,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    tools:src="@drawable/odometer"
+                    android:src="@drawable/odometer"
                     android:paddingLeft="6dp"
                     android:layout_gravity="center_vertical"
                     android:layout_width="30dp"

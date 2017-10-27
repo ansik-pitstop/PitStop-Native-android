@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface MyGarageView {
 
-
+/*
     void openMyAppointments();
     void openRequestService();
     void toast(String message);
@@ -37,5 +37,5 @@ public interface MyGarageView {
     void notifyCarDataChanged();
     boolean hasBeenPopulated();
 
-    void showErrorDialog();
+    void showErrorDialog();*/
 }

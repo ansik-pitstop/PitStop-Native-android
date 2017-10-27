@@ -26,39 +26,25 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     private final String TAG = CarsAdapter.class.getSimpleName();
 
-    private MyGarageView myGarageView;
+
     private List<Car> carList;
     private List<Dealership> dealershipList;
     private MainView mainView;
 
-
-    public CarsAdapter (MyGarageView view, List<Dealership> dealershipList, List<Car> carList){
-        this.myGarageView = view;
-        this.carList = carList;
-        this.dealershipList = dealershipList;
-    }
     public CarsAdapter (MainView view, List<Dealership> dealershipList, List<Car> carList){
         this.mainView = view;
         this.carList = carList;
         this.dealershipList = dealershipList;
     }
 
-
-
     @Override
     public CarsAdapter.CarViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_car_garage, parent, false);
         CarsAdapter.CarViewHolder carViewHolder = new CarViewHolder((view));
         int position = getItemViewType(viewType);
-        if (!(myGarageView == null)) {
-            view.setOnClickListener(v -> myGarageView
-                    .onCarClicked(carList.get(position), position));
-        }
-        else {
-            view.setOnClickListener(v -> mainView
-                    .onCarClicked(carList.get(position)));
 
-        }
+        view.setOnClickListener(v -> mainView.onCarClicked(carList.get(position)));
+
         return carViewHolder;
     }
 

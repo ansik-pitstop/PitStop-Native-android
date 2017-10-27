@@ -72,7 +72,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     EditText editText;
 
 
-    protected ServiceConnection serviceConnection = new ServiceConnection() {
+    ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
