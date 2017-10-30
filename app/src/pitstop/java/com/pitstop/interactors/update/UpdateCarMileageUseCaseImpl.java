@@ -64,7 +64,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     @Override
                     public void onSuccess(Car car) {
                         car.setTotalMileage(mileage);
-                        carRepository.update(car, new Repository.Callback<Object>() {
+                        carRepository.updateMileage(car, new Repository.Callback<Object>() {
 
                             @Override
                             public void onSuccess(Object response){

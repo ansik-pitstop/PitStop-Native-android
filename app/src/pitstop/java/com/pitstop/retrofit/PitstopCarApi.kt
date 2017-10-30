@@ -8,11 +8,11 @@ import retrofit2.http.*
  */
 interface PitstopCarApi {
 
-    @GET("v1/car/")
-    fun getCar(@Url id: Int): Observable<PitstopResponse<Car>>
+    @GET("v1/car/{carId}")
+    fun getCar(@Path("carId") id: Int): Observable<PitstopResponse<Car>>
 
-    @PUT("v1/car/")
-    fun update(@Url id: Int): Observable<PitstopResponse<Car>>
+    @PUT("v1/car/{carId}")
+    fun updateMileage(@Path("carId") id: Int, @Field("totalMileage") mileage: Double): Observable<PitstopResponse<Car>>
 
     @GET("v1/car")
     fun getCar(@Query("vin") vin: String): Observable<PitstopResponse<List<Car>>>
@@ -24,7 +24,7 @@ interface PitstopCarApi {
     fun getCarShopId(@Query("carId") carId: Int): Observable<PitstopResponse<Int>>
 
     @DELETE("car")
-    fun delete(@Query("carId") carId: Int): Observable<PitstopResponse<Int>>
+    fun delete(@Query("carId") carId: Int): Observable<PitstopResponse<String>>
 
     @POST("v1/car")
     fun add(@Field("vin") vin: String, @Field("baseMileage") baseMileage: Double

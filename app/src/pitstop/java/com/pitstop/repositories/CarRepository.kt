@@ -32,7 +32,9 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
         }else{
             val o = pitstopCarApi.getCar(vin)
             o.subscribeOn(Schedulers.io())
-                .subscribe { response -> localCarStorage.storeCarData(response.response[0]) }
+                .subscribe { response ->
+                    localCarStorage.deleteCar(response.response[0]._id)
+                    localCarStorage.storeCarData(response.response[0]) }
             o
         }
     }
@@ -45,27 +47,54 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
     fun insert(vin: String, baseMileage: Double, userId: String, scannerId: String): Observable<PitstopResponse<Car>> {
         val o = pitstopCarApi.add(vin,baseMileage,userId,scannerId)
         o.subscribeOn(Schedulers.io())
-            .subscribe { response -> localCarStorage.storeCarData(response.response) }
+            .subscribe { response ->
+                localCarStorage.deleteCar(response.response._id)
+                localCarStorage.storeCarData(response.response) }
         return o
     }
 
-    fun update(car: Car): Observable<PitstopResponse<Car>> {
-
+    fun updateMileage(id: Int, mileage: Double): Observable<PitstopResponse<Car>> {
+        val o = pitstopCarApi.updateMileage(id, mileage)
+        o.subscribeOn(Schedulers.io())
+            .subscribe { response -> localCarStorage.updateCar(response.response) }
     }
 
     fun getCarsByUserId(userId: Int): Observable<PitstopResponse<List<Car>>> {
-
+        val car = localCarStorage.getCarsByUserId(userId)
+        return if (car != null){
+            val localCarList = List<Car>(1,{car})
+            Observable.just(PitstopResponse(localCarList))
+        }else{
+            val o = pitstopCarApi.getUserCars(userId)
+            o.subscribeOn(Schedulers.io())
+                    .subscribe { response ->
+                        localCarStorage.deleteCar(response.response[0]._id)
+                        localCarStorage.storeCarData(response.response[0])
+            }
+            o
+        }
     }
 
     operator fun get(id: Int): Observable<PitstopResponse<Car>> {
-        val local = Observable.just(
-                PitstopResponse<Car>(localCarStorage.getCarRetrofit(id)))
-        return Observable
-                .concat(local, pitstopCarApi.getCar(id))
+        val car = localCarStorage.getCar(id)
+        return if (car != null){
+            Observable.just(PitstopResponse(car))
+        }else{
+            val o = pitstopCarApi.getCar(id)
+            o.subscribeOn(Schedulers.io())
+                    .subscribe { response ->
+                        localCarStorage.deleteCar(response.response._id)
+                        localCarStorage.storeCarData(response.response)
+                    }
+            o
+        }
     }
 
     fun delete(carId: Int): Observable<PitstopResponse<String>> {
-
+        val o = pitstopCarApi.delete(carId)
+        o.subscribeOn(Schedulers.io())
+                .subscribe { localCarStorage.deleteCar(carId)}
+        return o
     }
 
 }

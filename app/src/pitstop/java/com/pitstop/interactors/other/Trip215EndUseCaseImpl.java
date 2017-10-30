@@ -99,7 +99,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
                     @Override
                     public void onSuccess(Object data) {
 
-                        //Send notification if a real time update occurred
+                        //Send notification if a real time updateMileage occurred
                         if (tripInfoPackage.rtcTime > tripInfoPackage.terminalRtcTime
                                 - HISTORICAL_OFFSET){
                             Trip215EndUseCaseImpl.this.onRealTimeTripEndSuccess();

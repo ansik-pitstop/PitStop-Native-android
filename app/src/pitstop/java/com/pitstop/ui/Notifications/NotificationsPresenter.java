@@ -26,7 +26,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
 
     private static final String SERVICE_APPOINTMENT_REMINDER = "service appointment reminder";
     private static final String NEW_VEHICLE_ISSUE = "new vehicle issues";
-    private static final String VEHICLE_HEALTH_UPDATE = "vehicle health update";
+    private static final String VEHICLE_HEALTH_UPDATE = "vehicle health updateMileage";
 
     private List<Notification> notifications = new ArrayList<>();
 

@@ -55,7 +55,7 @@ public abstract class CarDataFragmentOld extends Fragment implements CarDataChan
         }
     }
 
-    //These event types will not trigger an update in the UI
+    //These event types will not trigger an updateMileage in the UI
     public void setNoUpdateOnEventTypes(EventType[] eventTypes){
         for (EventType e: eventTypes){
             if (!updateConstraints.contains(e)){
@@ -108,7 +108,7 @@ public abstract class CarDataFragmentOld extends Fragment implements CarDataChan
     public void onResume() {
         super.onResume();
 
-        //Only update UI if onStart() hasn't
+        //Only updateMileage UI if onStart() hasn't
         if (!uiSynced && wasPaused && !wasStopped){
             updateUI();
             uiSynced = true;

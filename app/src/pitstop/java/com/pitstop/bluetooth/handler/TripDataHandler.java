@@ -97,7 +97,7 @@ public class TripDataHandler{
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            Log.d(TAG, "trip update received. ");
+            Log.d(TAG, "trip updateMileage received. ");
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
             Log.d(TAG, "Trip end received: " + tripInfoPackage.toString());
@@ -135,7 +135,7 @@ public class TripDataHandler{
                             +(terminalRtcTime != -1)+", deviceVerified?"+deviceIsVerified
                             +", deviceIdMissing?"+deviceId.isEmpty());
 
-            //Only send mixpanel event for non-update trip events
+            //Only send mixpanel event for non-updateMileage trip events
             if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
                 bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_NOT_PROCESSED);
             }
@@ -167,7 +167,7 @@ public class TripDataHandler{
 
                                 Log.d(TAG, "Real-time END trip end saved successfully");
 
-                                //Send update mileage notification after 5 seconds to allow back-end to process mileage
+                                //Send updateMileage mileage notification after 5 seconds to allow back-end to process mileage
                                 handler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
@@ -180,7 +180,7 @@ public class TripDataHandler{
                             @Override
                             public void onStartTripNotFound() {
                                 bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
-                                Log.d(TAG, "Trip start not found, mileage will update on " +"next trip start");
+                                Log.d(TAG, "Trip start not found, mileage will updateMileage on " +"next trip start");
                             }
 
                             @Override

@@ -32,7 +32,7 @@ public abstract class TabPresenter<T> implements Presenter<T> {
             onAppStateChanged();
         }
     }
-    //These event types will not trigger an update in the UI
+    //These event types will not trigger an updateMileage in the UI
     public void setNoUpdateOnEventTypes(EventType[] eventTypes){
         for (EventType e: eventTypes){
             if (!updateConstraints.contains(e)){
