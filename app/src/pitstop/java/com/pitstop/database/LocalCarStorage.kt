@@ -3,7 +3,7 @@ package com.pitstop.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import com.pitstop.models.Car
+import com.pitstop.retrofit.Car
 import java.util.*
 
 /**
@@ -11,11 +11,26 @@ import java.util.*
  */
 class LocalCarStorage(context: Context) {
 
+    companion object {
+
+        // CAR table create statement
+        val CREATE_TABLE_CAR = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.CAR.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
+                + TABLES.CAR.KEY_VIN + " TEXT, "
+                + TABLES.CAR.KEY_MILEAGE + " REAL, "
+                + TABLES.CAR.KEY_ENGINE + " TEXT, "
+                + TABLES.CAR.KEY_SHOP_ID + " INTEGER, "
+                + TABLES.CAR.KEY_TRIM + " TEXT, "
+                + TABLES.CAR.KEY_MAKE + " TEXT, "
+                + TABLES.CAR.KEY_MODEL + " TEXT, "
+                + TABLES.CAR.KEY_YEAR + " INTEGER, "
+                + TABLES.CAR.KEY_USER_ID + " INTEGER, "
+                + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
+                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
+    }
+
     private val databaseHelper = LocalDatabaseHelper.getInstance(context)
 
-    /**
-     * Get all cars
-     */
     val allCars: List<Car>
         get() {
             val cars = ArrayList<Car>()
@@ -33,29 +48,6 @@ class LocalCarStorage(context: Context) {
             return cars
         }
 
-    /**
-     * Get Dashboard Car
-     */
-
-    val dashboardCar: Car?
-        get() {
-
-            val db = databaseHelper.readableDatabase
-
-            val c = db.query(TABLES.CAR.TABLE_NAME, null,
-                    TABLES.CAR.KEY_IS_DASHBOARD_CAR + "=?", arrayOf("1"), null, null, null)
-            var car: Car? = null
-            if (c.moveToFirst()) {
-                car = cursorToCar(c)
-            }
-
-            c.close()
-            return car
-        }
-
-    /**
-     * Store car data
-     */
     fun storeCarData(car: Car) {
         val db = databaseHelper.writableDatabase
 
@@ -71,9 +63,18 @@ class LocalCarStorage(context: Context) {
         }
     }
 
-    /**
-     * Get car by parse id
-     */
+    fun getCarByVin(vin: String): Car? {
+        val db = databaseHelper.readableDatabase
+
+        val c = db.query(TABLES.CAR.TABLE_NAME, null,
+                TABLES.CAR.KEY_VIN + "=?", arrayOf(vin), null, null, null)
+        var car: Car? = null
+        if (c.moveToFirst()) {
+            car = cursorToCar(c)
+        }
+        c.close()
+        return car
+    }
 
     fun getCar(parseId: String): Car? {
 
@@ -88,10 +89,6 @@ class LocalCarStorage(context: Context) {
         c.close()
         return car
     }
-
-    /**
-     * Get car by id
-     */
 
     fun getCar(carId: Int): Car? {
 
@@ -116,7 +113,7 @@ class LocalCarStorage(context: Context) {
                 TABLES.COMMON.KEY_OBJECT_ID + "=?", arrayOf(carId.toString()), null, null, null)
         var car: com.pitstop.retrofit.Car? = null
         if (c.moveToFirst()) {
-            car = cursorToCarRetrofit(c)
+            car = cursorToCar(c)
         }
 
         c.close()
@@ -142,28 +139,6 @@ class LocalCarStorage(context: Context) {
 
     }
 
-    /**
-     * Get car by scanner (assumes one car per scanner)
-     */
-
-    fun getCarByScanner(scannerId: String): Car? {
-
-        val db = databaseHelper.readableDatabase
-
-        val c = db.query(TABLES.CAR.TABLE_NAME, null,
-                TABLES.CAR.KEY_SCANNER_ID + "=?", arrayOf(scannerId.toString()), null, null, null)
-        var car: Car? = null
-        if (c.moveToFirst()) {
-            car = cursorToCar(c)
-        }
-
-        c.close()
-        return car
-    }
-
-    /**
-     * Update car
-     */
     fun updateCar(car: Car): Int {
 
         val db = databaseHelper.writableDatabase
@@ -172,10 +147,9 @@ class LocalCarStorage(context: Context) {
 
 
         return db.update(TABLES.CAR.TABLE_NAME, values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                arrayOf(car.id.toString()))
+                arrayOf(car._id.toString()))
     }
 
-    /** Delete all cars */
     fun deleteAllCars() {
         val db = databaseHelper.writableDatabase
 
@@ -183,28 +157,13 @@ class LocalCarStorage(context: Context) {
 
     }
 
-
-    private fun cursorToCar(c: Cursor): Car {
-        val car = Car()
-        car.id = c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID))
-
-        car.make = c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE))
-        car.model = c.getString(c.getColumnIndex(TABLES.CAR.KEY_MODEL))
-        car.year = c.getInt(c.getColumnIndex(TABLES.CAR.KEY_YEAR))
-        car.totalMileage = c.getDouble(c.getColumnIndex(TABLES.CAR.KEY_MILEAGE))
-        car.displayedMileage = c.getDouble(c.getColumnIndex(TABLES.CAR.KEY_DISPLAYED_MILEAGE))
-        car.trim = c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM))
-        car.engine = c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE))
-        car.vin = c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN))
-        car.scannerId = c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID))
-        car.userId = c.getInt(c.getColumnIndex(TABLES.CAR.KEY_USER_ID))
-        car.shopId = c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID))
-        car.numberOfServices = c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES))
-        car.isCurrentCar = c.getInt(c.getColumnIndex(TABLES.CAR.KEY_IS_DASHBOARD_CAR)) == 1
-        return car
+    fun deleteCar(carId: Int) {
+        val db = databaseHelper.writableDatabase
+        db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+                arrayOf(carId.toString()))
     }
 
-    private fun cursorToCarRetrofit(c: Cursor): com.pitstop.retrofit.Car =
+    private fun cursorToCar(c: Cursor): com.pitstop.retrofit.Car =
         com.pitstop.retrofit.Car(
                 _id = c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID))
                 ,make = c.getString(c.getColumnIndex(TABLES.CAR.KEY_MAKE))
@@ -222,23 +181,17 @@ class LocalCarStorage(context: Context) {
                 ,salesperson = c.getString(c.getColumnIndex(TABLES.CAR.KEY_SALES_PERSON))
         )
 
-
     private fun carObjectToContentValues(car: Car): ContentValues {
         val values = ContentValues()
-        values.put(TABLES.COMMON.KEY_OBJECT_ID, car.id)
+        values.put(TABLES.COMMON.KEY_OBJECT_ID, car._id)
         values.put(TABLES.CAR.KEY_MAKE, car.make)
         values.put(TABLES.CAR.KEY_MODEL, car.model)
         values.put(TABLES.CAR.KEY_YEAR, car.year)
         values.put(TABLES.CAR.KEY_MILEAGE, car.totalMileage)
-        values.put(TABLES.CAR.KEY_DISPLAYED_MILEAGE, car.displayedMileage)
         values.put(TABLES.CAR.KEY_TRIM, car.trim)
         values.put(TABLES.CAR.KEY_ENGINE, car.engine)
         values.put(TABLES.CAR.KEY_VIN, car.vin)
-        values.put(TABLES.CAR.KEY_SCANNER_ID, car.scannerId)
         values.put(TABLES.CAR.KEY_USER_ID, car.userId)
-        values.put(TABLES.CAR.KEY_SHOP_ID, car.shopId)
-        values.put(TABLES.CAR.KEY_NUM_SERVICES, car.numberOfServices)
-        values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, if (car.isCurrentCar) 1 else 0)
 
         return values
     }
@@ -249,34 +202,6 @@ class LocalCarStorage(context: Context) {
         db.delete(TABLES.CAR.TABLE_NAME, null, null)
 
 
-    }
-
-    fun deleteCar(carId: Int) {
-        val db = databaseHelper.writableDatabase
-        db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                arrayOf(carId.toString()))
-    }
-
-    companion object {
-
-        // CAR table create statement
-        val CREATE_TABLE_CAR = ("CREATE TABLE IF NOT EXISTS "
-                + TABLES.CAR.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-                + TABLES.CAR.KEY_VIN + " TEXT, "
-                + TABLES.CAR.KEY_MILEAGE + " REAL, "
-                + TABLES.CAR.KEY_DISPLAYED_MILEAGE + " REAL, "
-                + TABLES.CAR.KEY_ENGINE + " TEXT, "
-                + TABLES.CAR.KEY_SHOP_ID + " INTEGER, "
-                + TABLES.CAR.KEY_TRIM + " TEXT, "
-                + TABLES.CAR.KEY_MAKE + " TEXT, "
-                + TABLES.CAR.KEY_MODEL + " TEXT, "
-                + TABLES.CAR.KEY_YEAR + " INTEGER, "
-                + TABLES.CAR.KEY_USER_ID + " INTEGER, "
-                + TABLES.CAR.KEY_SCANNER_ID + " TEXT, "
-                + TABLES.CAR.KEY_NUM_SERVICES + " INTEGER, "
-                + TABLES.CAR.KEY_IS_DASHBOARD_CAR + " INTEGER, "
-                + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
-                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
 }

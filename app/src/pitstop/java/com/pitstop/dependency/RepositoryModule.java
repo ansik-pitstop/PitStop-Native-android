@@ -46,8 +46,8 @@ public class RepositoryModule {
 
     @Provides
     public CarRepository getCarRepository(LocalCarStorage localCarStorage
-            , NetworkHelper networkHelper, PitstopCarApi pitstopCarApi){
-        return new CarRepository(localCarStorage, networkHelper, pitstopCarApi);
+            , PitstopCarApi pitstopCarApi){
+        return new CarRepository(localCarStorage, pitstopCarApi);
     }
 
     @Provides
