@@ -29,7 +29,6 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
-import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
@@ -74,7 +73,6 @@ public class GlobalApplication extends Application {
     private LocalPidStorage mLocalPidStorage;
     private LocalShopStorage mLocalShopStorage;
     private LocalDeviceTripStorage mLocalDeviceTripStorage;
-    private LocalSpecsStorage mLocalSpecsStorage;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -128,8 +126,7 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings, (response)
-                -> Log.d(TAG,"Smooch.init() response err: "+response.getError()));
+        Smooch.init(this, settings);
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -251,8 +248,7 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), accessToken, response
-                    -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
+            Smooch.login(String.valueOf(userId), null);
         }
 
         setCurrentUser(currentUser);
@@ -336,7 +332,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout(response -> Log.d(TAG,"smooch logout err:  "+response.getError()));
+        Smooch.logout();
 
         cleanUpDatabase();
     }
@@ -358,7 +354,6 @@ public class GlobalApplication extends Application {
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
         mLocalDeviceTripStorage = new LocalDeviceTripStorage(this);
-        mLocalSpecsStorage  = new LocalSpecsStorage(this);
     }
 
     /**
@@ -374,7 +369,6 @@ public class GlobalApplication extends Application {
         mLocalCarIssueStorage.deleteAllRows();
         mLocalShopStorage.deleteAllRows();
         mLocalDeviceTripStorage.deleteAllRows();
-        mLocalSpecsStorage.deleteAllRows();
 
     }
 
