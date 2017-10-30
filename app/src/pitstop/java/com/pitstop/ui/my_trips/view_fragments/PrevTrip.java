@@ -59,18 +59,18 @@ public class PrevTrip extends Fragment {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                alertDialogBuilder.setTitle("Delete Trip");
+                alertDialogBuilder.setTitle(getString(R.string.delete_trip_title));
                 alertDialogBuilder
-                        .setMessage("Are you sure you want to delete this trip?")
+                        .setMessage(getString(R.string.delete_trip_message))
                         .setCancelable(false)
-                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 ((MyTripsActivity)getActivity()).removeTrip(tripToShow);
                                 ((MyTripsActivity)getActivity()).setViewTripHistory();
                                 ((MyTripsActivity)getActivity()).hideShareTrip();
                             }
                         })
-                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
                             }
@@ -90,7 +90,7 @@ public class PrevTrip extends Fragment {
         startAddress.setText(tripToShow.getStartAddress());
         endDate.setText(dateFormat(tripToShow.getEnd().getTime()));
         endAddress.setText(tripToShow.getEndAddress());
-        totalDistance.setText(decimalFormat.format(tripToShow.getTotalDistance()/1000)+" km");//total distance is in meters
+        totalDistance.setText(decimalFormat.format(tripToShow.getTotalDistance()/1000)+ getString(R.string.kilometers_unit));//total distance is in meters
     }
 
 
@@ -103,9 +103,9 @@ public class PrevTrip extends Fragment {
 
     public String getAddresses(){
         if(tripToShow != null){
-            return "Starting Address: " + tripToShow.getStartAddress() + "\n \n" +"End Address: "+
-                    tripToShow.getEndAddress() +"\n \n" + "Total Distance: "+
-                    decimalFormat.format(tripToShow.getTotalDistance()/1000)+" km";
+            return getString(R.string.start_address) + tripToShow.getStartAddress() + "\n \n" +getString(R.string.end_address) +
+                    tripToShow.getEndAddress() +"\n \n" + getString(R.string.total_distance_travelled)+
+                    decimalFormat.format(tripToShow.getTotalDistance()/1000)+ getString(R.string.kilometers_unit);
         }
         return "";
     }

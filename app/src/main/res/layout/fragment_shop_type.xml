@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:maxLines="1"
-                    android:text="Select Pitstop Shop"
+                    android:text="@string/select_pitstop_shop_title"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
                     android:textColor="@color/white_text"
                     android:textSize="25sp" />
@@ -52,7 +52,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
-                    android:text="Associate your \nvehicle with a shop \non our platform"
+                    android:text="@string/select_pitstop_shop_message"
                     android:textColor="@color/white_text"
                     android:textSize="20sp" />
             </LinearLayout>
@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:maxLines="1"
-                    android:text="Find Shop Near Me"
+                    android:text="@string/add_custom_shop_title"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
                     android:textColor="@color/white_text"
                     android:textSize="25sp" />
@@ -105,7 +105,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
-                    android:text="Associate your \nvehicle with a shop in \nyour area"
+                    android:text="@string/add_custom_shop_message"
                     android:textColor="@color/white_text"
                     android:textSize="20sp" />
             </LinearLayout>
@@ -148,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:maxLines="1"
-                    android:text="No Shop"
+                    android:text="@string/no_shop_title"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
                     android:textColor="@color/white_text"
                     android:textSize="25sp" />
@@ -158,7 +158,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
-                    android:text="Don't associate your \nvehicle with any \ndealership or shop"
+                    android:text="@string/no_shop_message"
                     android:textColor="@color/white_text"
                     android:textSize="20sp" />
             </LinearLayout>

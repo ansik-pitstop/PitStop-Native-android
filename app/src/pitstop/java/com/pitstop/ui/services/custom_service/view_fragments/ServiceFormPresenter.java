@@ -1,7 +1,10 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -162,7 +165,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         if(view == null || callback == null){return;}
         List<CustomIssueListItem> items = new ArrayList<>();
         CustomIssueListItem item = new CustomIssueListItem();
-        item.setText("Low ");
+        item.setText("Low");
         item.setCardColor("#2b83e2");
         item.setKey(CustomServiceListAdapter.SERVICE_PRIORITY_KEY);
         items.add(item);
@@ -253,11 +256,11 @@ public class ServiceFormPresenter implements PresenterCallback {
         view.disableCreateButton(false);
         CarIssue customIssue = new CarIssue();
         if(view.getPartName().equals("")){
-            view.showReminder("Please enter the part name");
+            view.showReminder("On what part of your car?");
             view.disableCreateButton(true);
             return;
         }else if(view.getPriority().equals("")){
-            view.showReminder("Please select a priority");
+            view.showReminder("Please select a priority for your custom issue");
             view.disableCreateButton(true);
             return;
         }
@@ -299,7 +302,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             @Override
             public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
-                view.showReminder("An error occurred logging your issue "+error.getMessage());
+                view.showReminder("An error occurred logging your issue " +error.getMessage());
             }
         });
     }
@@ -321,7 +324,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             @Override
             public void onError(RequestError error) {
                 if(view == null || callback == null){return;}
-                view.showReminder("An error occurred adding your service "+error.getMessage());
+                view.showReminder("There was an error adding your services"+error.getMessage());
                 view.disableCreateButton(true);
             }
         });

@@ -44,6 +44,7 @@
     <string name="alarm_0C">Sharp turn</string>
     <string name="alarm_0D">Fatigue driving</string>
     <string name="alarm_0E">crash</string>
+
     <string name="current_time">current time</string>
     <string name="choose">select</string>
     <string name="query">query</string>

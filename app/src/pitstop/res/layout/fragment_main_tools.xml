@@ -18,7 +18,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="VEHICLE SUPPORT"
+                android:text="@string/vehicle_support"
                 android:id="@+id/textView48"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -61,7 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Vehicle Overview"
+                        android:text="@string/vehicle_overview"
                         android:id="@+id/textView49"
                         android:textSize="18sp"
                         android:textColor="@color/Smooch_inputTextColor" />
@@ -114,7 +114,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:text="Scan Your Vehicle"
+                            android:text="@string/scan_vehicle"
                             android:id="@+id/textView51"
                             android:textSize="18sp"
                             android:textColor="@color/Smooch_inputTextColor" />
@@ -122,7 +122,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Scan your vehicle for potential issues"
+                            android:text="@string/scan_vehicle_message"
                             android:id="@+id/textView52" />
                     </LinearLayout>
                 </LinearLayout>
@@ -131,7 +131,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="SERVICES"
+                android:text="@string/services_nav_text"
                 android:id="@+id/textView53"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -179,7 +179,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:text="Request Service"
+                            android:text="@string/service_request_button"
                             android:id="@+id/textView54"
                             android:textSize="18sp"
                             android:textColor="@color/Smooch_inputTextColor" />
@@ -187,7 +187,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Request all your pending services"
+                            android:text="@string/request_pending_services"
                             android:id="@+id/textView55" />
                     </LinearLayout>
                 </LinearLayout>
@@ -232,7 +232,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:text="Service History"
+                            android:text="@string/service_history"
                             android:id="@+id/textView56"
                             android:textSize="18sp"
                             android:textColor="@color/Smooch_inputTextColor" />
@@ -240,7 +240,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Check your service history recorded with us"
+                            android:text="@string/service_history_message"
                             android:id="@+id/textView57" />
                     </LinearLayout>
                 </LinearLayout>
@@ -286,14 +286,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:text="Upcoming Services"
+                            android:text="@string/upcoming_service"
                             android:textSize="18sp"
                             android:textColor="@color/Smooch_inputTextColor" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Check your upcoming services that we have predicted"
+                            android:text="@string/upcoming_service_message"
                              />
                     </LinearLayout>
                 </LinearLayout>
@@ -309,7 +309,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="DEALERSHIP"
+                android:text="@string/dealership"
                 android:id="@+id/textView58"
                 android:textStyle="bold"
                 android:paddingLeft="16dp"
@@ -346,7 +346,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Message Service Center"
+                        android:text="@string/message_service_center"
                         android:textSize="18sp"
                         android:layout_gravity="center"
                         android:layout_marginTop="0dp"
@@ -385,7 +385,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Navigate to Service Center"
+                        android:text="@string/navigate_service_center"
                         android:textSize="18sp"
                         android:layout_gravity="center"
                         android:layout_marginTop="0dp"
@@ -422,7 +422,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Call Service Center"
+                        android:text="@string/call_service_center"
                         android:textSize="18sp"
                         android:layout_gravity="center"
                         android:layout_marginTop="0dp"

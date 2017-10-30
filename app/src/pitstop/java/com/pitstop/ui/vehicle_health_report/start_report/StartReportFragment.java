@@ -119,14 +119,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
         if (promptBluetoothSearchDialog == null) {
             promptBluetoothSearchDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("No Device Connection")
-                    .setMessage("No connection with bluetooth device found."
-                        + " Would you like to start a search?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
+                    .setTitle(getString(R.string.no_device_connection))
+                    .setMessage(getString(R.string.no_device_dialog_message))
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog, which) -> {
                         Log.d(TAG,"promptBluetoothSearchDialog.positiveButtonClicked()");
                         presenter.onBluetoothSearchRequested();
                     })
-                    .setNegativeButton("No", null)
+                    .setNegativeButton(getString(R.string.no_button_text), null)
                     .setCancelable(false)
                     .create();
         }
@@ -139,11 +138,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
         if (promptSearchInProgressDialog == null) {
             promptSearchInProgressDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Bluetooth Search In Progress")
-                    .setMessage("Bluetooth device search in progress"
-                            + ", please try again when completed.")
+                    .setTitle(getString(R.string.bluetooth_search_in_progress))
+                    .setMessage(getString(R.string.bluetooth_search_dialog_message))
                     .setCancelable(false)
-                    .setPositiveButton("OK",null)
+                    .setPositiveButton(getString(R.string.ok_button),null)
                     .create();
         }
         promptSearchInProgressDialog.show();

@@ -26,7 +26,7 @@
                     android:background="@color/highlight"
                     android:paddingLeft="20dp"
                     android:paddingTop="4dp"
-                    android:text="Severity"
+                    android:text="@string/severity"
                     android:textColor="@color/cardview_light_background"
                     android:textSize="20dp"/>
 
@@ -42,7 +42,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:text="High"
+                        android:text="@string/severity_indicator_high"
                         android:textColor="@color/cardview_light_background"/>
                 </RelativeLayout>
 
@@ -64,7 +64,7 @@
                     android:fontFamily="sans-serif-light"
                     android:maxLines="3"
                     android:padding="10dp"
-                    android:text="ISSUE"
+                    android:text="@string/issues"
                     android:textColor="@color/highlight"
                     android:textSize="20sp"/>
             </LinearLayout>
