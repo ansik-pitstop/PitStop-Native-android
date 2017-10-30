@@ -11,6 +11,7 @@ import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.utils.NetworkHelper
 
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -30,7 +31,8 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
             Observable.just(PitstopResponse(localCarList))
         }else{
             val o = pitstopCarApi.getCar(vin)
-            o.subscribe { response -> localCarStorage.storeCarData(response.response[0]) }
+            o.subscribeOn(Schedulers.io())
+                .subscribe { response -> localCarStorage.storeCarData(response.response[0]) }
             o
         }
     }
@@ -40,9 +42,11 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
         return pitstopCarApi.getCarShopId(carId)
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String): Observable<PitstopResponse<Car>> {
-
-
+    fun insert(vin: String, baseMileage: Double, userId: String, scannerId: String): Observable<PitstopResponse<Car>> {
+        val o = pitstopCarApi.add(vin,baseMileage,userId,scannerId)
+        o.subscribeOn(Schedulers.io())
+            .subscribe { response -> localCarStorage.storeCarData(response.response) }
+        return o
     }
 
     fun update(car: Car): Observable<PitstopResponse<Car>> {
