@@ -23,7 +23,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Dealership"
+        android:text="@string/dealership"
         android:id="@+id/dealership_name"
         android:textSize="18sp"/>
 
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/location_image"
-            android:text="Address"
+            android:text="@string/address"
             android:id="@+id/dealership_address"
             android:layout_marginLeft="5dp"
             android:textSize="12sp" />

@@ -154,11 +154,11 @@ public class SelectDealershipActivity extends AppCompatActivity {
                                 adapter = new CustomAdapter(list);
                                 recyclerView.setAdapter(adapter);
                             } catch (JSONException e) {
-                                Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                                Toast.makeText(SelectDealershipActivity.this, getString(R.string.dealership_info_failed),
                                         Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(SelectDealershipActivity.this, "Failed to get dealership info",
+                            Toast.makeText(SelectDealershipActivity.this, getString(R.string.dealership_info_failed),
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

@@ -875,7 +875,7 @@ public class LoginActivity extends DebugDrawerActivity {
                 dialog.dismiss();
             }
         });
-        dialog.setPositiveButton(R.string.try_again_button, new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

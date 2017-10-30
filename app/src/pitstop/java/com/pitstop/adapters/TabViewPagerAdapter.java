@@ -77,15 +77,15 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch(position){
             case TabFragmentManager.TAB_DASHBOARD:
-                return "Dashboard";
+                return context.getString(R.string.dashboard);
             case TabFragmentManager.TAB_NOTIF:
-                return "Notifications";
+                return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:
-                return "Scan";
+                context.getString(R.string.scan);
             case TabFragmentManager.TAB_GARAGE:
                 return "Garage";
             case TabFragmentManager.TAB_SERVICES:
-                return "Services";
+                return context.getString(R.string.services_nav_text);
         }
         return "";
     }

@@ -18,7 +18,7 @@
 
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="There are no cars \n in your dashboard"
+        android:text="@string/no_cars_dashboard"
         android:textAlignment="center"
         android:textColor="#aaaaaa"
         android:textSize="24sp"
@@ -42,7 +42,7 @@
             android:minWidth="250dp"
             android:onClick="startAddCarActivity"
             android:padding="16dp"
-            android:text="Add car"
+            android:text="@string/title_activity_add_car"
             android:textAllCaps="false"
             android:textColor="#efefef"
             android:textSize="18sp" />
@@ -57,7 +57,7 @@
             android:minWidth="250dp"
             android:onClick="startAddCarActivity"
             android:padding="16dp"
-            android:text="Logout"
+            android:text="@string/log_out"
             android:textAllCaps="false"
             android:textColor="#efefef"
             android:textSize="18sp" />
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
 
-                android:text="OR"
+                android:text="@string/or"
                 android:textColor="@color/black" />
 
             <ImageView
@@ -102,7 +102,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="35dp"
             android:layout_marginTop="18dp"
-            android:text="Contact us for support"
+            android:text="@string/contact_us_for_support"
             android:textColor="@color/primary" />
 
     </LinearLayout>

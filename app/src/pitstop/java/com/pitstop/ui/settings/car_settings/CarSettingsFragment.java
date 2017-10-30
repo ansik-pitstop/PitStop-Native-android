@@ -113,17 +113,17 @@ public class CarSettingsFragment extends PreferenceFragment implements CarSettin
     @Override
     public void showDelete() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Delete "+ car.getMake() +" "+ car.getModel());
+        alertDialogBuilder.setTitle(getString(R.string.delete)+ car.getMake() +" "+ car.getModel());
         alertDialogBuilder
-                .setMessage("Are you sure you want to delete this car?")
+                .setMessage(getString(R.string.delete_car))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.dismiss();
                         presenter.deleteCar(car);
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                     }

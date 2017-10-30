@@ -1,6 +1,10 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
+import android.app.Fragment;
+import android.content.res.Resources;
+
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -66,7 +70,7 @@ public class PitstopShopsPresenter implements ShopPresenter {
             public void onError(RequestError error) {
                 if(pitstopShops != null){
                     pitstopShops.loading(false);
-                    pitstopShops.toast("There was an error loading the Pitstop shops");
+                    pitstopShops.toast(((Fragment)pitstopShops).getString(R.string.error_loading_pitstop_shops_toast_message));
                 }
             }
         });
@@ -100,7 +104,7 @@ public class PitstopShopsPresenter implements ShopPresenter {
 
             @Override
             public void onError(RequestError error) {
-                pitstopShops.toast("There was an error selecting this shop");
+                pitstopShops.toast(((Fragment)pitstopShops).getString(R.string.error_selecting_shop_toast_message));
 
             }
         });

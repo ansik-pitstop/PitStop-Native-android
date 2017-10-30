@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -208,7 +209,7 @@ public class MyTripsActivity extends AppCompatActivity{
             @Override
             public void onProviderDisabled(String s) {
                 if(tripStarted){
-                    Toast.makeText(application, "Location services lost trip saved", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(application, getString(R.string.location_lost_trip_saved), Toast.LENGTH_SHORT).show();
                     endTrip();
                 }
             }
@@ -236,7 +237,7 @@ public class MyTripsActivity extends AppCompatActivity{
         isTaskRunning = false;
 
         loading = new ProgressDialog(MyTripsActivity.this);
-        loading.setMessage("loading");
+        loading.setMessage(getString(R.string.loading));
         loading.hide();
         boolean isServiceRunning = isMyServiceRunning(TripService.class);
 
@@ -414,7 +415,7 @@ public class MyTripsActivity extends AppCompatActivity{
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.trip_view_holder, tripHistory);
         fragmentTransaction.commit();
-        getSupportActionBar().setTitle("Trip History");
+        getSupportActionBar().setTitle(getString(R.string.trip_history));
     }
 
 
@@ -505,7 +506,7 @@ public class MyTripsActivity extends AppCompatActivity{
         fragmentTransaction.replace(R.id.trip_view_holder, prevTripView);
         fragmentTransaction.commit();
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.activity_bottom_down_in,R.anim.activity_bottom_down_out).show(supMapFragment).commit();
-        getSupportActionBar().setTitle("Previous Trip");
+        getSupportActionBar().setTitle(getString(R.string.add_trip_previous));
         shareTripButton.setVisible(true);
         GetandDraw getandDraw = new GetandDraw();
         getandDraw.setTrip(prevTrip);
@@ -518,12 +519,12 @@ public class MyTripsActivity extends AppCompatActivity{
             return;
         }
         if(!NetworkHelper.isConnected(application)){
-            Toast.makeText(application, "Please check your network connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(application, getString(R.string.internet_check_error), Toast.LENGTH_SHORT).show();
             return;
         }
         LocationManager lm = (LocationManager)application.getSystemService(Context.LOCATION_SERVICE);
         if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER ) || !getInitialLocation()){
-            Toast.makeText(application, "Unable to get your location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(application, getString(R.string.unable_to_get_location), Toast.LENGTH_SHORT).show();
             return;
         }
         loading.show();
@@ -540,7 +541,7 @@ public class MyTripsActivity extends AppCompatActivity{
         fragmentTransaction.setCustomAnimations(R.animator.left_in,R.animator.right_out);
         fragmentTransaction.replace(R.id.trip_view_holder, addTrip);
         fragmentTransaction.commit();
-        getSupportActionBar().setTitle("Add Trip");
+        getSupportActionBar().setTitle(getString(R.string.add_trip));
     }
 
     public void startTrip(){
@@ -555,7 +556,7 @@ public class MyTripsActivity extends AppCompatActivity{
         tripView.setStartTime(trip.getStart().getTime());
         trip.addPoint(tripLoc);
         if(dashboardCar == null){
-            Toast.makeText(application, "Unable to get VIN", Toast.LENGTH_SHORT).show();
+            Toast.makeText(application, getString(R.string.vin_get_fail), Toast.LENGTH_SHORT).show();
             finish();
         }
         networkHelper.postTripStep1(trip,dashboardCar.getVin(),new RequestCallback() {
@@ -578,11 +579,11 @@ public class MyTripsActivity extends AppCompatActivity{
                     }
                 }else if(response == null && requestError != null){
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyTripsActivity.this);
-                    alertDialogBuilder.setTitle("An Error Has Occurred");
+                    alertDialogBuilder.setTitle(getString(R.string.timeline_error_message));
                     alertDialogBuilder
                             .setMessage(requestError.getMessage())
                             .setCancelable(false)
-                            .setPositiveButton("Email Us",new DialogInterface.OnClickListener() {
+                            .setPositiveButton(getString(R.string.email_us),new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,int id) {
                                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                                             "mailto","info@pitstopconnect.com", null));
@@ -627,16 +628,16 @@ public class MyTripsActivity extends AppCompatActivity{
             } else if (tripView.isVisible()) {
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyTripsActivity.this);
-                alertDialogBuilder.setTitle("Cancel your trip");
+                alertDialogBuilder.setTitle(getString(R.string.cancel_trip_title));
                 alertDialogBuilder
-                        .setMessage("Are you sure you want to cancel your trip? Your Trip data will be lost.")
+                        .setMessage(getString(R.string.cancel_trip_message))
                         .setCancelable(false)
-                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                setViewTripHistory();
                             }
                         })
-                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
                             }
@@ -708,7 +709,7 @@ public class MyTripsActivity extends AppCompatActivity{
                     };
                     googleMap.snapshot(callback);
                 } else {
-                    Toast.makeText(application, "Unable to share trip", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(application, getString(R.string.unable_to_share_trip), Toast.LENGTH_SHORT).show();
                 }
             }
         }

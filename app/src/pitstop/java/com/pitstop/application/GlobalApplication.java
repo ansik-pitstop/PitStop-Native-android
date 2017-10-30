@@ -128,7 +128,8 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings);
+        Smooch.init(this, settings, (response)
+                -> Log.d(TAG,"Smooch.init() response err: "+response.getError()));
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -250,7 +251,8 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null);
+            Smooch.login(String.valueOf(userId), accessToken, response
+                    -> Log.d(TAG,"Smooch.login() result err: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -334,7 +336,7 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout();
+        Smooch.logout(response -> Log.d(TAG,"smooch logout err:  "+response.getError()));
 
         cleanUpDatabase();
     }

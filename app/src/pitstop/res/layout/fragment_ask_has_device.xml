@@ -16,7 +16,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Do you have the Pitstop Device?"
+                android:text="@string/have_pitstop_device"
                 android:id="@+id/textView45"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
@@ -34,7 +34,7 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="NO"
+                    android:text="@string/no_button_text"
                     android:id="@+id/bt_no_device"
                     android:layout_weight="1"
                     android:background="@drawable/color_button_rectangle_dark_grey"
@@ -46,7 +46,7 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="YES"
+                    android:text="@string/yes_button_text"
                     android:id="@+id/bt_yes_device"
                     android:layout_weight="1"
                     android:background="@drawable/color_button_rectangle_grey"

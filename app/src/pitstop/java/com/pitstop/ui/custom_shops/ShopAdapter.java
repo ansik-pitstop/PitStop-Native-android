@@ -1,6 +1,7 @@
 package com.pitstop.ui.custom_shops;
 
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +46,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     public void onBindViewHolder(ShopViewHolder holder, final int position) {
         int viewType = getItemViewType(position);
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.name.setText("No Matching Shops");
+            holder.name.setText("No matching Shops");
             holder.address.setText("");
             holder.rating.setVisibility(View.INVISIBLE);
             holder.ratingBar.setVisibility(View.INVISIBLE);

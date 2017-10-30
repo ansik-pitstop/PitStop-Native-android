@@ -48,9 +48,9 @@ public class MainServicesFragment extends Fragment{
 
         //Create tab layout
         tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Upcoming"));
-        tabLayout.addTab(tabLayout.newTab().setText("Current"));
-        tabLayout.addTab(tabLayout.newTab().setText("History"));
+        tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.upcoming_services)));
+        tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.current_services)));
+        tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.history_services)));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
