@@ -2,6 +2,7 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 
+import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
@@ -70,4 +71,8 @@ public class LocalStorageModule {
     LocalSpecsStorage localSpecsStorage(Context context){
         return new LocalSpecsStorage(context);
     }
+
+    @Singleton
+    @Provides
+    LocalAlarmStorage localAlarmStorage(Context context){return  new LocalAlarmStorage(context);}
 }

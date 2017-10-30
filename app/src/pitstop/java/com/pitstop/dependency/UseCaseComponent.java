@@ -1,5 +1,6 @@
 package com.pitstop.dependency;
 
+import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddDtcUseCase;
@@ -177,4 +178,6 @@ public interface UseCaseComponent {
     GetCurrentCarDealershipUseCase getGetCurrentDealershipUseCase();
 
     DeviceClockSyncUseCase getDeviceClockSyncUseCase();
+
+    AddAlarmUseCase addAlarmUseCase();
 }

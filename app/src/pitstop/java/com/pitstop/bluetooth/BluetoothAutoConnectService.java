@@ -34,13 +34,17 @@ import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AlarmObserver;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
@@ -73,7 +77,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver, BluetoothWriter {
+        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -1223,6 +1227,32 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public boolean setChunkSize(int size) {
         pidDataHandler.setChunkSize(size);
         return false;
+    }
+
+    @Override
+    public void notifyAlarmAdded(Alarm alarm) {
+        for (Observer o: observerList){
+            if (o instanceof AlarmObserver){
+                ((AlarmObserver) o).onAlarmAdded(alarm);
+            }
+        }
+    }
+
+    @Override
+    public void alarmEvent(String alarmEvents, String alarmValues, String rtcTime) {
+        Alarm alarm = new Alarm(Integer.valueOf(alarmEvents), Float.valueOf(alarmValues), rtcTime, null);
+        useCaseComponent.addAlarmUseCase().execute(alarm, new AddAlarmUseCase.Callback() {
+            @Override
+            public void onAlarmAdded(@NotNull Alarm alarm) {
+                Log.d(TAG, "alarmAdded");
+                notifyAlarmAdded(alarm);
+            }
+
+            @Override
+            public void onError(@NotNull RequestError requestError) {
+                Log.d(TAG, "alarm added error");
+            }
+        });
     }
 
     @Override

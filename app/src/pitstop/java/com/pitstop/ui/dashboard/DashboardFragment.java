@@ -56,33 +56,6 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(mileage)
     TextView mMileageText;
 
-    @BindView(R.id.engine_icon)
-    ImageView mEngineIcon;
-
-    @BindView(R.id.engine)
-    TextView mEngineText;
-
-    @BindView(R.id.highway_icon)
-    ImageView mHighwayIcon;
-
-    @BindView(R.id.highway_mileage)
-    TextView mHighwayText;
-
-    @BindView(R.id.city_icon)
-    ImageView mCityIcon;
-
-    @BindView(R.id.city_mileage)
-    TextView mCityText;
-
-    @BindView(R.id.past_appts_icon)
-    ImageView mPastApptsIcon;
-
-    @BindView(R.id.request_appts_icon)
-    ImageView mRequestApptsIcon;
-
-    @BindView(R.id.my_appts_icon)
-    ImageView mMyAppointmentsIcon;
-
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
@@ -91,6 +64,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @BindView(R.id.car_name)
     TextView carName;
+
+    @BindView(R.id.driving_alarms_icon)
+    ImageView drivingAlarmsIcon;
+
+    @BindView(R.id.fuel_expense_icon)
+    ImageView fuelExpensesIcon;
+
+    @BindView(R.id.fuel_consumption_icon)
+    ImageView fuelConsumptionIcon;
 
     @BindView(R.id.dealership_name)
     TextView dealershipName;
@@ -302,16 +284,6 @@ public class DashboardFragment extends Fragment implements DashboardView {
         }
     }
 
-    @OnClick(R.id.dashboard_request_service_btn)
-    protected void onServiceRequestButtonClicked(){
-        Log.d(TAG,"onServiceRequestButtonClicked()");
-        presenter.onServiceRequestButtonClicked();
-    }
-    @OnClick(R.id.my_appointments_btn)
-    protected void onMyAppointmentsButtonClicked(){
-        Log.d(TAG,"onMyAppointmentsButtonClicked()");
-        presenter.onMyAppointmentsButtonClicked();
-    }
     @OnClick(R.id.my_trips_btn)
     protected void onMyTripsButtonClicked(){
         Log.d(TAG,"onMyTripsButtonClicked()");
@@ -465,13 +437,10 @@ public class DashboardFragment extends Fragment implements DashboardView {
         dealershipPhone.setText(dealership.getPhone());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
 
+        fuelConsumptionIcon.setImageResource(R.drawable.gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_3x);
+        drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
         mMileageIcon.setImageResource(R.drawable.odometer);
-        mEngineIcon.setImageResource(R.drawable.car_engine);
-        mHighwayIcon.setImageResource(R.drawable.highway_mileage2x);
-        mCityIcon.setImageResource(R.drawable.traffic_lights_2x);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
-        mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
         mMyTripsIcon.setImageResource(R.drawable.route_2);
         if( (getActivity()) != null){
             ((MainActivity)getActivity()).changeTheme(false);
@@ -496,12 +465,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
         mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-        mHighwayIcon.setImageResource(R.drawable.highway_mileage_mercedes_2x);
-        mCityIcon.setImageResource(R.drawable.traffic_lights_mercedes_2x);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
-        mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
+        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.mercedes_dollar_sign_3x);
+        drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
         mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
         ((MainActivity)getActivity()).changeTheme(true);
         mCarLogoImage.setVisibility(View.GONE);
@@ -521,9 +487,6 @@ public class DashboardFragment extends Fragment implements DashboardView {
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
         mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
-        mEngineText.setText(car.getEngine());
-        mHighwayText.setText(car.getHighwayMileage());
-        mCityText.setText(car.getCityMileage());
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
     }
@@ -595,5 +558,10 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
+    }
+
+    @OnClick(R.id.driving_alarms_button)
+    public void onTotalAlarmsClicked(){
+        Log.d(TAG, "onTotalAlarmsClicked()");
     }
 }

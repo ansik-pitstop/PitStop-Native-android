@@ -2,8 +2,11 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSpecsStorage;
+import com.pitstop.interactors.add.AddAlarmUseCase;
+import com.pitstop.interactors.add.AddAlarmUseCaseImpl;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
@@ -461,6 +464,13 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
         return new AddLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
     }
+
+    @Provides
+    AddAlarmUseCase addAlarmUseCase(UserRepository userRepository, CarRepository carRepository, LocalAlarmStorage localAlarmStorage,
+                                           @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+        return new AddAlarmUseCaseImpl(userRepository, carRepository, localAlarmStorage, useCaseHandler, mainHandler);
+    }
+
 
     @Provides
     GetLicensePlateUseCase getLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler

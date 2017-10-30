@@ -139,6 +139,15 @@ public final class TABLES {
 
     }
 
+    public interface LOCAL_ALARMS {
+        String TABLE_NAME = "localAlarms";
+        String ID = "id";
+        String CAR_ID = "carId";
+        String RTC_TIME = "rtcTime";
+        String ALARM_EVENT = "alarmEvent";
+        String ALARM_VALUE = "alarmValue";
+    }
+
 
 
 

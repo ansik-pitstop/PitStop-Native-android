@@ -325,6 +325,7 @@ public class ObdManager {
 
         void scanFinished();
 
+        void alarmEvent(String alarmEvents, String alarmValues, String rtcTime);
     }
 
 

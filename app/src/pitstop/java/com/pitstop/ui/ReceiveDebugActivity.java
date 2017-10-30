@@ -318,4 +318,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         String tag = ((EditText) findViewById(R.id.tag)).getText().toString();
         String value = ((EditText) findViewById(R.id.values)).getText().toString();
     }
+
+    @Override
+    public void alarmEvent(String alarmEvents, String alarmValues, String rtcTime) {
+        // do nothing
+    }
 }

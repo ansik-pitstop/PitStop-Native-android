@@ -175,7 +175,7 @@
     <string name="mileage_title">Mileage</string>
     <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
-    <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
+    <string name="fuel_consumption_header">Fuel consumption</string>
     <string name="highway_title">Highway</string>
     <string name="city_title">City</string>
     <string name="tools_header">TOOLS</string>
@@ -500,6 +500,11 @@
     <string name="please_connect_to_the_internet">Please connect to the internet</string>
     <string name="ok">OK</string>
     <string name="current_car_set">Current car set</string>
+    <string name="fuel_consumption">FUEL USAGE</string>
+    <string name="fuel_expense">Fuel Expense</string>
+    <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
+    <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
+    <string name="driving_alarms">Total Driving Alarms</string>
     <string name="et_ready_step_6">6. Do not turn the engine off during the above driving cycle until the very end (no stopping for a coffee in between any step!)</string>
     <string name="et_ready_step_5">5. Drive the vehicle for at least 20 minutes in stop and go traffic with at least four idle periods (engine running while at a stop).</string>
     <string name="et_ready_step_4">4. Drive the vehicle for a minimum of 10 minutes at highway speeds (between 90 km/hr and 110 km/hr).</string>

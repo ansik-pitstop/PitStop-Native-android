@@ -317,7 +317,9 @@
 	<string name="select_as_current">Selecione como carro atual</string>
 	<string name="change_dealership">Alterar concessionária</string>
 	<string name="edit">Editar</string>
-
+    <string name="fuel_consumption">Uso do combustível</string>
+	<string name="fuel_expense_description">Estimado com base no preço médio \n do combustível em sua área</string>
+	<string name="driving_alarms">Total de Alarmes de Condução</string>
 
 
 </resources>

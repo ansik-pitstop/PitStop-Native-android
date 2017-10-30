@@ -180,7 +180,15 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         setChunkSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setChunkSize(Integer.valueOf(editText.getText().toString()));
+                try {
+                    int k = Integer.valueOf(editText.getText().toString());
+                    setChunkSize(k);
+                }
+                catch(NumberFormatException e){
+                    editText.setText("Make sure you input an integer.");
+
+                }
+
 
             }
         });
