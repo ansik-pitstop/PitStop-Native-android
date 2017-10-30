@@ -494,4 +494,10 @@
     <string name="past_reports">Past Reports</string>
     <string name="error_reports_dialog_messsage">Error loading reports, please check connection</string>
     <string name="no_health_reports">You have no vehicle health reports</string>
+
+    <string name="hello_world">Hello world</string>
+    <string name="try_again_button">Try Again</string>
+    <string name="please_connect_to_the_internet">Please connect to the internet</string>
+    <string name="ok">OK</string>
+    <string name="current_car_set">Current car set</string>
 </resources>

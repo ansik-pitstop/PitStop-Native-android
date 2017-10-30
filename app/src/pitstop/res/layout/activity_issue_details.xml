@@ -8,19 +8,39 @@
     tools:context=".ui.issue_detail.IssueDetailsActivity">
 
 
-    <Button
-        android:id="@+id/request_service_bn"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/color_button_primary"
-        android:drawableRight="@drawable/request_service_button"
-        android:onClick="requestService"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="@string/service_request_button"
-        android:textColor="@color/white"/>
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:visibility="gone"
+            android:id="@+id/request_service_bn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/color_button_primary"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:drawableRight="@drawable/request_service_button"
+            android:text="Request Service"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/move_history_bn"
+            android:textColor="@color/white"
+            android:text="Move to Current Services"
+            android:background="@drawable/color_button_primary"
+            android:drawableRight="@drawable/ic_move_history"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
 
     <android.support.v4.view.ViewPager
         android:id="@+id/issues_vp"

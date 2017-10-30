@@ -1,13 +1,12 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 
-import android.app.Fragment;
-import android.content.res.Resources;
+import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
-import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddServicesUseCase;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.models.Car;
@@ -17,6 +16,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,9 @@ import java.util.List;
  */
 
 public class ServiceFormPresenter implements PresenterCallback{
+
+    private final String TAG = getClass().getSimpleName();
+
     public static final String STATE_TENTATIVE = "tentative";
     public static final String STATE_REQUESTED = "requested";
 
@@ -45,64 +49,100 @@ public class ServiceFormPresenter implements PresenterCallback{
     private String time;
     private String state;
 
-    private Dealership localDealership;
+    private Dealership dealership;
 
     private List<CarIssue> issues;
 
     private MixpanelHelper mixpanelHelper;
 
 
-    public ServiceFormPresenter(RequestServiceCallback callback, UseCaseComponent component, MixpanelHelper mixpanelHelper, Car dashCar){
+    public ServiceFormPresenter(RequestServiceCallback callback, UseCaseComponent component
+            , MixpanelHelper mixpanelHelper){
         this.component = component;
         this.callback = callback;
         this.mixpanelHelper = mixpanelHelper;
-        this.dashCar = dashCar;
 
     }
 
     public void subscribe(ServiceFormView view ){
+        Log.d(TAG,"subscribe()");
         if(callback == null){return;}
         mixpanelHelper.trackViewAppeared("RequestServiceForm");
         dateSelected = false;
         timeSelected = false;
         issues = new ArrayList<>();
         this.view = view;
-        if(callback.checkTentative().equals(STATE_TENTATIVE)){
-            setCommentHint("Salesperson");
-        }
-        setDealer(dashCar);
-        setIssues();
-        if(callback.getIssue()!=null){
-            onIssueClicked(callback.getIssue());
-        }
     }
 
     public void unsubscribe(){
+        Log.d(TAG,"unsubscribe()");
         view = null;
     }
 
-    public void timeButtonClicked(){
+    void populateViews(){
+        if(callback.checkTentative().equals(STATE_TENTATIVE)){
+            setCommentHint("Salesperson");
+        }
+        view.showLoading(true);
+        component.getDealershipWithCarIssuesUseCase().execute(new GetDealershipWithCarIssuesUseCase.Callback() {
+            @Override
+            public void onGotDealershipAndIssues(@NotNull Dealership dealership, @NotNull List<? extends CarIssue> carIssues) {
+                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onGotDealershipAndIssues()" +
+                        " dealership: "+dealership+", issues: "+carIssues);
+                if (view == null) return;
+                view.showLoading(false);
+                ServiceFormPresenter.this.dealership = dealership;
+                view.showShop(dealership.getName(), dealership.getAddress());
+                issues.clear();
+                issues.addAll(carIssues);
+                view.setupSelectedIssues(issues);
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                if (view != null){
+                    view.showLoading(false);
+                }
+                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onError() err: "+error.getMessage());
+                //show error
+            }
+        });
+
         if(view == null || callback == null){return;}
+        view.setupPresetIssues(view.getPresetList());
+    }
+
+    public void timeButtonClicked(){
+        Log.d(TAG,"timeButtonClicked()");
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
-        if(localDealership.getName().equals("No Shop")){
-            view.showReminder(((Fragment)view).getString(R.string.set_shop_request));
+        if(view == null || callback == null || dealership == null){return;}
+        if(dealership.getName().equals("No Shop") || dealership == null){
+            view.showReminder("Please set a shop for this car first");
             return;
         }
         if(!dateSelected){
-            view.showReminder(((Fragment)view).getString(R.string.select_appointment_date));
+            view.showReminder("Please select a date first");
             return;
         }
         view.toggleTimeList();
     }
+
     public void dateButtonClicked(){
-        if(view == null || callback == null){return;}
+        Log.d(TAG,"dateButtonClicked()");
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
+        if(view == null || callback == null || dealership == null){return;}
+        if(dealership.getName().equals("No Shop") || dealership == null){
+            view.showReminder("Please set a shop for this car first");
+            return;
+        }
         view.toggleCalender();
     }
 
     public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
-        if(view == null || callback == null){return;}
+        Log.d(TAG,"dateSelected() year: "+year+", month: "+month+", dayOfMonth: "+dayOfMonth);
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
+        if(view == null || callback == null || dealership == null){return;}
+
         String date = year+"/"+month+"/"+dayOfMonth;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
@@ -111,34 +151,35 @@ public class ServiceFormPresenter implements PresenterCallback{
             Date inDate = oldFormat.parse(date);
             String outDate = newFormat.format(inDate);
             String day = dayInWeek.format(inDate);
-            view.showLoading(true);
-            component.getGetShopHoursUseCase().execute(year,month,dayOfMonth,localDealership.getId(), day, new GetShopHoursUseCase.Callback() {
+            view.showLoadingTime(true);
+            component.getGetShopHoursUseCase().execute(year,month,dayOfMonth, dealership.getId()
+                    , day, new GetShopHoursUseCase.Callback() {
                @Override
                public void onHoursGot(List<String> hours) {
                    if(view == null || callback == null){return;}
                    view.setupTimeList(hours);
-                   view.showLoading(false);
+                   view.showLoadingTime(false);
                }
 
                @Override
                public void onNoHoursAvailable(List<String> defaultHours) {
                    if(view == null || callback == null){return;}
                    view.setupTimeList(defaultHours);
-                   view.showLoading(false);
+                   view.showLoadingTime(false);
                }
 
                 @Override
                 public void onNotOpen() {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,((Fragment)view).getString(R.string.no_times_for_date));
-                    view.showLoading(false);
+                    view.showLoadingTime(false);
                 }
 
                 @Override
                public void onError(RequestError error) {
                     if(view == null || callback == null){return;}
                     resetDate(calendarView,((Fragment)view).getString(R.string.error_loading_times));
-                    view.showLoading(false);
+                    view.showLoadingTime(false);
                }
             });
             finalizeDate(outDate);
@@ -146,7 +187,9 @@ public class ServiceFormPresenter implements PresenterCallback{
             finalizeDate(date);
         }
     }
+
     private void finalizeDate(String sendDate){
+        Log.d(TAG,"finalizeDate() sendDate: "+sendDate);
         if(view == null || callback == null){return;}
         view.hideCalender();
         view.showDate(sendDate);
@@ -158,8 +201,9 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     @Override
     public void onTimeClicked(String time) {
-        if(view == null || callback == null){return;}
+        Log.d(TAG,"onTimeClicked time: "+time);
         mixpanelHelper.trackButtonTapped("TimeItemButton","RequestServiceForm");
+        if(view == null || callback == null){return;}
         view.showTime(time);
         view.hideTimeList();
         this.time = time;
@@ -176,10 +220,16 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.showReminder(message);
     }
 
-    public void onSubmitClicked(){
-        if(view == null || callback == null){return;}
+    void onSubmitClicked(){
+        Log.d(TAG,"onSubmitClicked()");
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
-        if(localDealership.getEmail().equals("")){
+        if(view == null || callback == null || dealership == null){return;}
+
+        if(dealership.getName().equals("No Shop") || dealership == null){
+            view.showReminder("Please set a shop for this car first");
+            return;
+        }
+        if(dealership.getEmail().equals("")){
             view.showReminder(((Fragment)view).getString(R.string.select_email_for_shop));
             return;
         }
@@ -193,36 +243,50 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
         String outDate = date+" "+time;
         view.disableButton(true);
-        component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate), view.getComments(), new RequestServiceUseCase.Callback() {
-            @Override
-            public void onServicesRequested() {
-                if(view == null || callback == null){return;}
-                if(callback.getIssue()!= null){return;}
-               component.getAddServicesUseCase().execute(issues
-                       , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
-                   @Override
-                   public void onServicesAdded() {
-                       if(view == null || callback == null){return;}
-                       view.disableButton(false);
-                       callback.finishActivity();
-                   }
+        view.showLoading(true);
+        component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate)
+                , view.getComments(), new RequestServiceUseCase.Callback() {
+                    @Override
+                    public void onServicesRequested() {
+                        Log.d(TAG,"onServiceRequested()");
+                        ArrayList<CarIssue> toAdd = new ArrayList<>();
+                        for (CarIssue c: issues){
+                            if (c.getIssueType().equals(CarIssue.TYPE_PRESET))
+                                toAdd.add(c);
+                        }
+                        if(view == null || callback == null){return;}
+                       component.getAddServicesUseCase().execute(toAdd
+                               , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
+                           @Override
+                           public void onServicesAdded() {
+                               Log.d(TAG,"onServicesAdded()");
+                               if(view == null || callback == null){return;}
+                               view.showLoading(false);
+                               view.disableButton(false);
+                               callback.finishActivity();
+                               view.toast("Service requested successfully.");
+                           }
 
-                   @Override
-                   public void onError(RequestError error) {
-                       if(view == null || callback == null){return;}
-                       view.disableButton(false);
+                           @Override
+                           public void onError(RequestError error) {
+                               Log.d(TAG,"onError() error: "+error.getMessage());
+                               if(view == null || callback == null){return;}
+                               view.showLoading(false);
+                               view.disableButton(false);
+                               view.toast(((Fragment)view).getString(R.string.add_service_error));
+                           }
+                       });
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        Log.d(TAG,"onServiceRequested() error: "+error.getMessage());
+                        if(view == null || callback == null){return;}
+                        view.showLoading(false);
+                        view.disableButton(false);
                       view.toast(((Fragment)view).getString(R.string.add_service_error));
-                   }
-               });
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                if(view == null || callback == null){return;}
-                view.disableButton(false);
-              view.toast(((Fragment)view).getString(R.string.add_service_error));
-            }
-        });
+                    }
+                });
     }
 
     @Override
@@ -234,33 +298,32 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.setupSelectedIssues(issues);
         }
     }
-    public void setCommentHint(String hint){
+
+    void setCommentHint(String hint){
+        Log.d(TAG,"setCommentHint() hint: "+hint);
         if(view == null || callback == null){return;}
         view.setCommentHint(hint);
     }
 
     @Override
     public void onRemoveClicked(CarIssue issue) {
+        Log.d(TAG,"onRemoveClicked() ");
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("RemoveIssueItemButton","RequestServiceForm");
         issues.remove(issue);
         view.setupSelectedIssues(issues);
     }
 
-
-    public void setIssues(){
-        if(view == null || callback == null){return;}
-        view.setupPresetIssues(view.getPresetList());
-    }
-
-    public void addButtonClicked(){
+    void addButtonClicked(){
+        Log.d(TAG,"addButtonClicked()");
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("IssueMenuButton","RequestServiceForm");
         view.toggleServiceList();
     }
 
 
-    public String timeStamp(String inTime){
+    String timeStamp(String inTime){
+        Log.d(TAG,"timeStamp() inTime(): "+inTime);
         SimpleDateFormat inFormat = new SimpleDateFormat("EEEE dd MMM yyyy hh:mm aa");
         SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try{
@@ -272,12 +335,4 @@ public class ServiceFormPresenter implements PresenterCallback{
         }
     }
 
-    public void setDealer(Car car){
-        if(view == null || callback == null){return;}
-        if(car.getDealership() == null){return;}
-        Dealership dealership = car.getDealership();
-        if(dealership.getName() == null || dealership.getAddress() == null){return;}
-        localDealership = car.getDealership();
-        view.showShop(dealership.getName(),dealership.getAddress());
-    }
 }

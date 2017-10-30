@@ -2,40 +2,49 @@
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:gravity="center"
-        android:layout_centerHorizontal="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/no_car_line_1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="120dp"
+        <RelativeLayout
             android:gravity="center"
-            android:text="@string/add_car_for_services"
-            android:textColor="#aaaaaa"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/addCarButton"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_below="@id/no_car_line_1"
-            android:backgroundTint="@color/primary"
-            android:minWidth="250dp"
-            android:layout_centerInParent="true"
-            android:padding="16dp"
-            android:text="@string/title_activity_add_car"
-            android:textAllCaps="false"
-            android:textColor="#efefef"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/no_car_line_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="120dp"
+                android:gravity="center"
+                android:text="@string/add_car_for_services"
+                android:textColor="#aaaaaa"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-    </RelativeLayout>
+            <Button
+                android:id="@+id/addCarButton"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_below="@id/no_car_line_1"
+                android:backgroundTint="@color/primary"
+                android:minWidth="250dp"
+                android:layout_centerInParent="true"
+                android:padding="16dp"
+                android:text="@string/title_activity_add_car"
+                android:textAllCaps="false"
+                android:textColor="#efefef"
+                android:textSize="18sp" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
 
 </android.support.v4.widget.SwipeRefreshLayout>

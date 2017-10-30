@@ -31,244 +31,351 @@
             layout="@layout/layout_unknown_error"
             android:visibility="gone"/>
 
-        <android.support.v4.widget.NestedScrollView
+        <RelativeLayout
             android:id="@+id/reg_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/action_holder"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:layout_alignParentStart="true"
+                android:padding="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView27"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:text="@string/my_services"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                <include layout="@layout/divider" />
+                android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:id="@+id/service_launch_custom"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:id="@+id/create_service"
+                    android:orientation="horizontal"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
                     <ImageView
-                        android:id="@+id/imageView32"
+                        android:id="@+id/create_service_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
+                        android:tint="@color/primary"
                         app:srcCompat="@drawable/custom_issue3x" />
 
-                    <RelativeLayout
+                    <TextView
+                        android:text="@string/create_service"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_alignParentStart="true"
+                    android:layout_toLeftOf="@id/create_service"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/move_history"
+                        android:layout_centerVertical="true"
+                        android:visibility="invisible"
+                        android:orientation="horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                         <ImageView
-                            android:id="@+id/imageView33"
+                            android:id="@+id/move_history_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginRight="20dp"
-                            app:srcCompat="@drawable/right_chevron" />
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
+
+                        <TextView
+                            android:text="@string/move_to_history"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/move_history_hidden"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:tint="@color/grey"
+                            app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
+
+                        <TextView
+                            android:text="Move to History"
+                            android:textStyle="bold"
+                            android:textColor="@color/grey"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+            </RelativeLayout>
+
+            <include
+                android:id="@+id/action_holder_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/action_holder"
+                layout="@layout/divider" />
+
+            <android.support.v4.widget.NestedScrollView
+                android:layout_below="@id/action_holder_divider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/no_services_card"
+                        android:visibility="gone"
+                        android:layout_marginTop="4dp"
+                        app:cardElevation="5dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <RelativeLayout
+                            android:padding="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/green_check"
+                                android:layout_alignParentStart="true"
+                                android:layout_centerVertical="true"
+                                android:src="@drawable/ic_check_circle_green_400_36dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                            <LinearLayout
+                                android:layout_toRightOf="@id/green_check"
+                                android:layout_marginLeft="10dp"
+                                android:orientation="vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:text="Congrats!"
+                                    style="@style/Base.TextAppearance.AppCompat.Medium"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+
+                                <TextView
+                                    android:text="@string/no_services_text"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+
+                            </LinearLayout>
+
+
+                        </RelativeLayout>
+
+                    </android.support.v7.widget.CardView>
+
+                    <LinearLayout
+                        android:id="@+id/my_services_holder"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/textView27"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:text="My Services"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                        <include layout="@layout/divider" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/my_services_recycler_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:overScrollMode="never"/>
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/textView29"
+                            <LinearLayout
+                                android:id="@+id/stored_engine_issues_holder"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="5dp"
-                                android:text="@string/create_service"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:visibility="gone">
 
-                            <TextView
-                                android:id="@+id/textView28"
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/textView26"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="10dp"
+                                        android:text="Engine Issues"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                </LinearLayout>
+
+                                <include
+                                    layout="@layout/divider" />
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <android.support.v7.widget.RecyclerView
+                                        android:id="@+id/stored_engine_issues_recycler_view"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content" />
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/potential_engine_issues_holder"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="5dp"
-                                android:layout_marginLeft="5dp"
-                                android:layout_marginRight="5dp"
-                                android:text="@string/add_service_message"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="10dp"
+                                        android:text="Potential Engine Issues"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                </LinearLayout>
+
+                                <include layout="@layout/divider" />
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <android.support.v7.widget.RecyclerView
+                                        android:id="@+id/potential_engine_issues_recycler_view"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content" />
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/recalls_holder"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="10dp"
+                                        android:text="Recalls"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                </LinearLayout>
+
+                                <include layout="@layout/divider" />
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <android.support.v7.widget.RecyclerView
+                                        android:id="@+id/recalls_recycler_view"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content" />
+                                </RelativeLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/routine_serivces_holder"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="10dp"
+                                        android:text="Routine Services"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                    <include layout="@layout/divider" />
+                                </LinearLayout>
+
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <android.support.v7.widget.RecyclerView
+                                        android:id="@+id/routine_services_recycler_view"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content" />
+                                </RelativeLayout>
+                            </LinearLayout>
+
                         </LinearLayout>
+
                     </RelativeLayout>
 
                 </LinearLayout>
+            </android.support.v4.widget.NestedScrollView>
 
-                <include layout="@layout/divider" />
+        </RelativeLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/custom_issues_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:overScrollMode="never"
-                        android:visibility="gone" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:id="@+id/engine_issue_list_holder"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/textView26"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="10dp"
-                                    android:text="@string/engine_issues"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-                            </LinearLayout>
-
-                            <include
-                                layout="@layout/divider" />
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-
-                                <android.support.v7.widget.RecyclerView
-                                    android:id="@+id/engine_list_view"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-                            </RelativeLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/potential_engine_issue_list"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="10dp"
-                                    android:text="@string/potential_engine_issues"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-                            </LinearLayout>
-
-                            <include layout="@layout/divider" />
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-
-                                <android.support.v7.widget.RecyclerView
-                                    android:id="@+id/potential_list_view"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-                            </RelativeLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/recall_list_holder"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="10dp"
-                                    android:text="@string/recalls"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-                            </LinearLayout>
-
-                            <include layout="@layout/divider" />
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-
-                                <android.support.v7.widget.RecyclerView
-                                    android:id="@+id/recall_list_view"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-                            </RelativeLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/routine_list_holder"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="10dp"
-                                    android:text="@string/routine_services"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-                            </LinearLayout>
-
-                            <include layout="@layout/divider" />
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-
-                                <android.support.v7.widget.RecyclerView
-                                    android:id="@+id/car_issues_list"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-                            </RelativeLayout>
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </RelativeLayout>
-
-            </LinearLayout>
-        </android.support.v4.widget.NestedScrollView>
 
     </RelativeLayout>
 
