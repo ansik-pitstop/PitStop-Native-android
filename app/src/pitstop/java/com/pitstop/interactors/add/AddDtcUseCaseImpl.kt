@@ -3,7 +3,6 @@ package com.pitstop.interactors.add
 import android.os.Handler
 import android.util.Log
 import com.pitstop.bluetooth.dataPackages.DtcPackage
-import com.pitstop.models.Car
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarIssueRepository

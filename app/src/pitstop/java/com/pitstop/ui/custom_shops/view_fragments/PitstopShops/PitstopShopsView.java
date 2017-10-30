@@ -1,6 +1,5 @@
 package com.pitstop.ui.custom_shops.view_fragments.PitstopShops;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 

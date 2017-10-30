@@ -32,7 +32,6 @@ import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
-import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.utils.PreferenceKeys;

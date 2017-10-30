@@ -17,7 +17,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Appointment;
-import com.pitstop.models.Car;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;

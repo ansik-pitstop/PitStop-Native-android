@@ -13,7 +13,6 @@ import android.widget.Button;
 import com.pitstop.R;
 import com.pitstop.adapters.UpcomingServicePagerAdapter;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.issue_detail.view_fragments.IssuePagerAdapter;

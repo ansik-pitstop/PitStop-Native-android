@@ -25,7 +25,6 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
-import com.pitstop.models.Car;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;

@@ -2,7 +2,6 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
-import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.models.Settings
 import com.pitstop.models.User

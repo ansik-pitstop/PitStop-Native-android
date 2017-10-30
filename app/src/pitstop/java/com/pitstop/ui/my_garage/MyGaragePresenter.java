@@ -11,7 +11,6 @@ import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;

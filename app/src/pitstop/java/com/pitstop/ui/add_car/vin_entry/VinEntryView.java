@@ -1,6 +1,5 @@
 package com.pitstop.ui.add_car.vin_entry;
 
-import com.pitstop.models.Car;
 import com.pitstop.ui.LoadingView;
 
 /**

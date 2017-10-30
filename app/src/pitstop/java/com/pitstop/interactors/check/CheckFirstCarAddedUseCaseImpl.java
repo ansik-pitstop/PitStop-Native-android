@@ -2,7 +2,6 @@ package com.pitstop.interactors.check;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;

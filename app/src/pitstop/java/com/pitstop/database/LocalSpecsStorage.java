@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 

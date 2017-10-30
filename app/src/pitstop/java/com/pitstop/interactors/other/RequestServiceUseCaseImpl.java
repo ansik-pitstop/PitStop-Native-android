@@ -3,7 +3,6 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 
 import com.pitstop.models.Appointment;
-import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;

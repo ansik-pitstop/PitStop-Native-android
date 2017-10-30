@@ -8,7 +8,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;

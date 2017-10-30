@@ -1,6 +1,5 @@
 package com.pitstop.ui.dashboard;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;

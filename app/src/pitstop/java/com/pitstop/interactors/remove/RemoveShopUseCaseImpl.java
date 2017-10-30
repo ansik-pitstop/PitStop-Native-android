@@ -2,7 +2,6 @@ package com.pitstop.interactors.remove;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;

@@ -13,10 +13,8 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.BluetoothDataVisualizer;
 import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.PIDParser;
 

@@ -10,7 +10,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.pitstop.R;
-import com.pitstop.models.Car;
 import com.pitstop.models.Trip;
 import com.pitstop.ui.my_trips.MyTripsActivity;
 

@@ -3,7 +3,6 @@ package com.pitstop.utils;
 import android.bluetooth.BluetoothDevice;
 
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.models.Car;
 import com.pitstop.models.User;
 
 import org.json.JSONException;

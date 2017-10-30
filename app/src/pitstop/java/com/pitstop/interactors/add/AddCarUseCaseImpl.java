@@ -9,7 +9,6 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;

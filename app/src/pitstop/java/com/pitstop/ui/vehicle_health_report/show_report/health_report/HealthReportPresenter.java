@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.report.CarHealthItem;

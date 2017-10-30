@@ -6,7 +6,6 @@ import android.view.KeyEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;

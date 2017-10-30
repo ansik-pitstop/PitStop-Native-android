@@ -14,7 +14,6 @@ import android.util.Log;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;

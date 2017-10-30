@@ -1,6 +1,5 @@
 package com.pitstop.ui.add_car.device_search;
 
-import com.pitstop.models.Car;
 import com.pitstop.ui.LoadingView;
 
 /**

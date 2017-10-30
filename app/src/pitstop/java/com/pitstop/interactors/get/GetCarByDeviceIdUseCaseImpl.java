@@ -2,7 +2,6 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;

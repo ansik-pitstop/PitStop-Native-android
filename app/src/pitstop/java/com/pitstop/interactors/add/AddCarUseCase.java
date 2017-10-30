@@ -1,7 +1,6 @@
 package com.pitstop.interactors.add;
 
 import com.pitstop.interactors.Interactor;
-import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 
 /**

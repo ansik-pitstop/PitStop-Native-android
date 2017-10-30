@@ -59,7 +59,6 @@ import com.pitstop.database.LocalTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
-import com.pitstop.models.Car;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.network.RequestCallback;

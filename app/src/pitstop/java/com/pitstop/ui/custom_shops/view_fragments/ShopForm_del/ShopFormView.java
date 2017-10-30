@@ -1,6 +1,5 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm_del;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.settings.FragmentSwitcher;

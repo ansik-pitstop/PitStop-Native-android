@@ -25,16 +25,19 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
 
     fun getCarByVin(vin: String): Observable<PitstopResponse<List<Car>>> {
         val car = localCarStorage.getCarByVin(vin)
-        if (car != null){
+        return if (car != null){
             val localCarList = List<Car>(1,{car})
-            return Observable.just(PitstopResponse(localCarList))
+            Observable.just(PitstopResponse(localCarList))
         }else{
-            return pitstopCarApi.getCar(vin)
+            val o = pitstopCarApi.getCar(vin)
+            o.subscribe { response -> localCarStorage.storeCarData(response.response[0]) }
+            o
         }
     }
 
-    fun getShopId(carId: Int, callback: Repository.Callback<Int>) {
-
+    //Todo: store this somewhere locally
+    fun getShopId(carId: Int): Observable<PitstopResponse<Int>> {
+        return pitstopCarApi.getCarShopId(carId)
     }
 
     fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String): Observable<PitstopResponse<Car>> {

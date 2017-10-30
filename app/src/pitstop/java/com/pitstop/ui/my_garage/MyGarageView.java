@@ -1,6 +1,5 @@
 package com.pitstop.ui.my_garage;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 
 import java.util.List;
