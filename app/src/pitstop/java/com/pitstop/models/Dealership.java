@@ -128,7 +128,7 @@ public class Dealership implements Parcelable {
 
             if(dealership.getId() == 0) {
                 dealership = new Dealership();
-                JSONObject dealershipJson = new JSONObject(json).getJSONObject("dealership");
+                JSONObject dealershipJson = new JSONObject(json);
                 dealership.setId(dealershipJson.getInt("id"));
                 dealership.setName(dealershipJson.getString("name"));
                 dealership.setAddress(dealershipJson.getString("address"));
@@ -180,4 +180,14 @@ public class Dealership implements Parcelable {
             return new Dealership[size];
         }
     };
+
+    @Override
+    public String toString(){
+        try{
+            return String.format("{id: %d, address: %s, phone: %s, email:%s, longitude: %s, latitude: %s}"
+                    , id, address, phone, email, longitude, latitude);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }

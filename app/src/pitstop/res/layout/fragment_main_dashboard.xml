@@ -203,12 +203,14 @@
                             android:id="@+id/mileage_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:weightSum="6"
                             android:orientation="horizontal"
                             android:paddingTop="8dp"
                             android:layout_marginBottom="8dp"
                             android:paddingLeft="8dp"
                             android:paddingRight="8dp">
                             <ImageView
+                                android:layout_weight="0"
                                 android:id="@+id/mileage_icon"
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
@@ -216,6 +218,7 @@
                                 tools:src="@drawable/mercedes_mileage"
                                 android:layout_gravity="center"/>
                             <LinearLayout
+                                android:layout_weight="5"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
@@ -237,7 +240,8 @@
 
                             <TextView
                                 android:id="@+id/mileage"
-                                android:layout_width="match_parent"
+                                android:layout_weight="1"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 tools:text="250000.18 km"
                                 android:layout_gravity="center"
@@ -305,7 +309,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_h"
+                                tools:src="@drawable/highway_mileage_mercedes"
                                 android:layout_gravity="center"/>
 
                             <TextView
@@ -342,7 +346,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_c"
+                                tools:src="@drawable/traffic_lights_mercedes"
                                 android:layout_gravity="center"/>
 
                             <TextView

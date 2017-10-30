@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -16,8 +17,10 @@ public class StartReportPresenter {
 
     private StartReportView view;
     private MixpanelHelper mixpanelHelper;
+    private UseCaseComponent useCaseComponent;
 
-    public StartReportPresenter(MixpanelHelper mixpanelHelper) {
+    public StartReportPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+        this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
     }
 
@@ -55,24 +58,31 @@ public class StartReportPresenter {
                 MixpanelHelper.BUTTON_VHR_START,MixpanelHelper.VIEW_VHR_TAB);
         if (view == null || view.getBluetoothConnectionObservable() == null) return;
 
-        //No bluetooth connection
-        if (!view.getBluetoothConnectionObservable().getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+        //Check network connection
+        useCaseComponent.getCheckNetworkConnectionUseCase().execute(status -> {
+            if (view == null) return;
+            else if (!status) view.displayOffline();
+            //No bluetooth connection
+            else if (!view.getBluetoothConnectionObservable().getDeviceState()
+                    .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
 
-            //Ask for search
-            if (!view.getBluetoothConnectionObservable().getDeviceState()
-                    .equals(BluetoothConnectionObservable.State.SEARCHING)){
-                view.promptBluetoothSearch();
-            }else{
-                view.displaySearchInProgress();
+                //Ask for search
+                if (!view.getBluetoothConnectionObservable().getDeviceState()
+                        .equals(BluetoothConnectionObservable.State.SEARCHING)){
+                    view.promptBluetoothSearch();
+                }else{
+                    view.displaySearchInProgress();
+                }
+
             }
+            else if (emissions){
+                view.startEmissionsProgressActivity();
+            }else{
+                view.startVehicleHealthReportProgressActivity();
+            }
+        });
 
-        }
-        else if (emissions){
-            view.startEmissionsProgressActivity();
-        }else{
-            view.startVehicleHealthReportProgressActivity();
-        }
+
     }
 
     void onShowReportsButtonClicked(boolean emissionMode){

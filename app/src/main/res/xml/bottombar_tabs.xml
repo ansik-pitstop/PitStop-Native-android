@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        id="@+id/tab_dashboard"
+        icon="@drawable/ic_dashboard"
+        title="Dashboard" />
+    <tab
+        id="@+id/tab_services"
+        icon="@drawable/ic_services"
+        title="Services" />
+    <tab
+        id="@+id/tab_scan"
+        icon="@drawable/ic_scan"
+        title="Scan" />
+    <tab
+        id="@+id/tab_garage"
+        icon="@drawable/ic_garage"
+        title="Garage" />
+    <tab
+        id="@+id/tab_notifications"
+        icon="@drawable/ic_notification"
+        title="Notifications" />
+</tabs>

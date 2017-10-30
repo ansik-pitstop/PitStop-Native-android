@@ -35,7 +35,6 @@ public class NetworkHelper {
     private final String CLIENT_ID;
 
     private static final String INSTALLATION_ID_KEY = "installationId";
-
     private Context context;
     private SharedPreferences sharedPreferences;
 
@@ -645,4 +644,6 @@ public class NetworkHelper {
         post("scan/trip",callback,body);
 
     }
+
+
 }

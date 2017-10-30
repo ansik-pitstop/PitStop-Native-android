@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 
 /**
@@ -10,7 +11,7 @@ import com.pitstop.network.RequestError;
 
 public interface GetCarByCarIdUseCase extends Interactor {
     interface Callback{
-        void onCarGot(Car car);
+        void onCarGot(Car car, Dealership dealership);
         void onError(RequestError error);
     }
 

@@ -1,7 +1,7 @@
 package com.pitstop.adapters;
 
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +21,8 @@ import java.util.List;
 public class NotificationAdapter extends RecyclerView.Adapter<
         NotificationAdapter.NotificationViewHolder> {
 
-    NotificationView notificationView;
-    List<Notification> notificationList;
+    private NotificationView notificationView;
+    private List<Notification> notificationList;
 
     public NotificationAdapter(NotificationView notifView, List<Notification> notiflist){
         this.notificationList = notiflist;
@@ -36,10 +36,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<
         NotificationViewHolder notificationViewHolder = new NotificationViewHolder(view, notificationView);
         int position = getItemViewType(viewType);
         view.setOnClickListener(v -> notificationView
-                .onNotificationClicked(notificationList.get(position).getPushType()));
+                .onNotificationClicked(notificationList.get(position)));
 
         return notificationViewHolder;
-
     }
 
     @Override
@@ -70,16 +69,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<
 
         public NotificationViewHolder(View itemView, NotificationView notificationView){
             super(itemView);
-            titleTV = (TextView)itemView.findViewById(R.id.notificationTitle);
-            descriptionTV = (TextView)itemView.findViewById(R.id.notificationDescription);
-            dateTV = (TextView)itemView.findViewById(R.id.dateTV);
+            titleTV = itemView.findViewById(R.id.notificationTitle);
+            descriptionTV = itemView.findViewById(R.id.notificationDescription);
+            dateTV = itemView.findViewById(R.id.dateTV);
             this.notificationView = notificationView;
-            imageView = (ImageView) itemView.findViewById(R.id.notification_image);
+            imageView = itemView.findViewById(R.id.notification_image);
 
 
         }
         public void bind(Notification notification) {
             titleTV.setText(notification.getTitle());
+            if (notification.isRead() != null){
+                titleTV.setTypeface(null, notification.isRead() ? Typeface.NORMAL : Typeface.BOLD);
+            }
             descriptionTV.setText(notification.getContent());
             dateTV.setText(notification.getDateCreated());
             imageView.setImageResource(notificationView.changeimage(notification.getPushType()));

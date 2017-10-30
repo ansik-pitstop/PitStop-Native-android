@@ -1,15 +1,14 @@
 package com.pitstop.adapters;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.pitstop.R;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
+import com.pitstop.ui.my_garage.MyGarageFragment;
+
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 
@@ -25,19 +24,11 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     DashboardFragment dashboardFragment;
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
+    MyGarageFragment myGarageFragment;
     NotificationFragment notificationFragment;
-    private Context context;
 
-
-    public TabViewPagerAdapter(Context ctx, FragmentManager fm) {
+    public TabViewPagerAdapter(FragmentManager fm) {
         super(fm);
-        this.context = ctx;
-
-    }
-
-
-    public void setContext(Context ctx){
-        this.context = ctx;
     }
 
     @Override
@@ -52,7 +43,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return dashboardFragment;
             case TabFragmentManager.TAB_SERVICES:
                 if (mainServicesFragment == null){
-                    mainServicesFragment = MainServicesFragment.newInstance();
+                    mainServicesFragment = new MainServicesFragment();
                 }
                 return mainServicesFragment;
             case TabFragmentManager.TAB_SCAN:
@@ -61,20 +52,25 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 }
                 return startReportFragment;
 
+            case TabFragmentManager.TAB_GARAGE:
+                if (myGarageFragment == null){
+                    myGarageFragment = MyGarageFragment.newInstance();
+                }
+                return myGarageFragment;
+
             case TabFragmentManager.TAB_NOTIF:
                 if (notificationFragment == null){
                     notificationFragment = NotificationFragment.newInstance();
                 }
                 return notificationFragment;
         }
-
         return null;
     }
 
     @Override
     public int getCount() {
         // Show 4 total pages.
-        return 4;
+        return 5;
     }
 
     @Override
@@ -85,7 +81,9 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
             case TabFragmentManager.TAB_NOTIF:
                 return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:
-                return context.getString(R.string.scan);
+                context.getString(R.string.scan);
+            case TabFragmentManager.TAB_GARAGE:
+                return "Garage";
             case TabFragmentManager.TAB_SERVICES:
                 return context.getString(R.string.services_nav_text);
         }

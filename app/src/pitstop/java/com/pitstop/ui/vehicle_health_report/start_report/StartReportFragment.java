@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
@@ -64,6 +67,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private Context context;
     private AlertDialog promptBluetoothSearchDialog;
     private AlertDialog promptSearchInProgressDialog;
+    private AlertDialog promptOfflineDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,7 +78,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
         emissionsMode = false;
         MixpanelHelper mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
-        presenter = new StartReportPresenter(mixpanelHelper);
+        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(getContext()))
+                .build();
+        presenter = new StartReportPresenter(useCaseComponent, mixpanelHelper);
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
@@ -138,6 +145,22 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .create();
         }
         promptSearchInProgressDialog.show();
+    }
+
+    @Override
+    public void displayOffline() {
+        Log.d(TAG,"displayOffline()");
+        if (promptOfflineDialog == null) {
+            promptOfflineDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Couldn't Connect to Internet")
+                    .setMessage("We couldn't establish a connection with our servers. " +
+                            "Please make sure you're connected to the internet before starting")
+                    .setCancelable(false)
+                    .setPositiveButton("OK",null)
+                    .create();
+        }
+        promptOfflineDialog.show();
     }
 
     @Override

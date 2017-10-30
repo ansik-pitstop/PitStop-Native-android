@@ -76,7 +76,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                 carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
-                        car.setDealership(dealership);
+                        car.setShopId(dealership.getId());
                         carRepository.update(car, new Repository.Callback<Object>() {
                             @Override
                             public void onSuccess(Object response) {

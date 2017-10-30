@@ -13,7 +13,7 @@
     android:layout_marginTop="1dp"
     >
 
-    <ImageView
+<ImageView
         android:layout_gravity="center_vertical"
         android:src="@drawable/notification_default_3x"
         android:layout_width="30dp"
@@ -48,9 +48,11 @@
 
     <TextView
         android:id="@+id/dateTV"
+        android:gravity="end"
         android:textSize="10dp"
         android:text="10/10/2017"
-        android:layout_width="wrap_content"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         />

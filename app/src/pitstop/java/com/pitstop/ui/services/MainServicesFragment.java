@@ -1,6 +1,5 @@
 package com.pitstop.ui.services;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,12 +17,14 @@ import com.pitstop.R;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetUserCarUseCase;
-import com.pitstop.models.Car;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.current.CurrentServicesFragment;
 import com.pitstop.ui.services.history.HistoryServicesFragment;
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 public class MainServicesFragment extends Fragment{
 
@@ -75,7 +76,7 @@ public class MainServicesFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View rootview = inflater.inflate(R.layout.activity_services,null);
+        View rootview = inflater.inflate(R.layout.fragment_services,null);
         mServicesPager = (SubServiceViewPager)getActivity().findViewById(R.id.services_viewpager);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
@@ -87,21 +88,18 @@ public class MainServicesFragment extends Fragment{
     }
 
     private void loadDealershipCustomDesign(){
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
-
+        useCaseComponent.getGetCurrentDealershipUseCase().execute(new GetCurrentCarDealershipUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
-
-                //Update tab design to the current dealerships custom design if applicable
-                if (car.getDealership() != null){
+            public void onGotDealership(@NotNull Dealership dealership) {
+                if (dealership != null){
                     if (BuildConfig.DEBUG
-                            && (car.getDealership().getId() == 4
-                            || car.getDealership().getId() == 18)){
+                            && (dealership.getId() == 4
+                            || dealership.getId() == 18)){
 
                         bindMercedesDealerUI();
 
                     }else if (!BuildConfig.DEBUG
-                            && car.getDealership().getId() == 14) {
+                            && dealership.getId() == 14) {
 
                         bindMercedesDealerUI();
 
@@ -113,12 +111,12 @@ public class MainServicesFragment extends Fragment{
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarExists() {
 
             }
 
             @Override
-            public void onError(RequestError error) {
+            public void onError(@NotNull RequestError error) {
 
             }
         });
@@ -146,7 +144,7 @@ public class MainServicesFragment extends Fragment{
     }
 
     //Return data associated with fragment of the provided tab
-    private class ServicesAdapter extends FragmentPagerAdapter {
+    class ServicesAdapter extends FragmentPagerAdapter {
 
         private final int FRAGMENT_UPCOMING = 0;
         private final int FRAGMENT_CURRENT = 1;
@@ -182,7 +180,8 @@ public class MainServicesFragment extends Fragment{
         if (mServicesPager == null){
             return;
         }
-        mServicesPager.setCurrentItem(1);
+        tabLayout.getTabAt(1).select();
+        //mServicesPager.setCurrentItem(1);
     }
 
 }

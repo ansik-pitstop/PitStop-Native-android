@@ -2,17 +2,15 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,31 +96,11 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         userRepository.getCurrentUser(new UserRepository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                shopRepository.getShopsByUserId(user.getId(), new ShopRepository.Callback<List<Dealership>>() {
+                shopRepository.get(shopId, new Repository.Callback<Dealership>() {
                     @Override
-                    public void onSuccess(List<Dealership> dealerships) {
-                       for(Dealership d:dealerships){
-                           if(d.getId() == shopId){
-                               getHours(d);
-                               return;
-                           }
-                       }
-                       shopRepository.getPitstopShops(new ShopRepository.Callback<List<Dealership>>() {
-                           @Override
-                           public void onSuccess(List<Dealership> dealershipList) {
-                               for(Dealership d: dealershipList){
-                                   if(d.getId() == shopId ){
-                                       getHours(d);
-                                       return;
-                                   }
-                               }
-                           }
-
-                           @Override
-                           public void onError(RequestError error) {
-                                GetShopHoursUseCaseImpl.this.onError(error);
-                           }
-                       });
+                    public void onSuccess(Dealership dealership) {
+                        getHours(dealership);
+                        return;
                     }
 
                     @Override
@@ -139,42 +117,39 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         });
     }
     private void getHours(Dealership dealership){
-        networkHelper.get("shop/" + dealership.getId() + "/calendar", new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                List<String> timesToRemove = new ArrayList<String>();
-                if(requestError == null && response != null){
-                    try{
-                        JSONObject responsesJson = new JSONObject(response);
-                        JSONObject dates = responsesJson.getJSONObject("dates");
-                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("requested"),year+"-"+fixMonth(month)+"-"+day));
-                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
-                        timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
-                    }catch (JSONException e){
-                        GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
-                    }
-                }
-
-                if(dealership.getHours() == null){
-                    GetShopHoursUseCaseImpl.this.onNoHoursAvailable(
-                            makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR,timesToRemove));
-                    return;
-                }
-                JSONArray hours = dealership.getHours();
+        networkHelper.get("shop/" + dealership.getId() + "/calendar", (response, requestError) -> {
+            List<String> timesToRemove = new ArrayList<String>();
+            if(requestError == null && response != null){
                 try{
-                    JSONObject hour = hours.getJSONObject(dayInWeek);
-                    String open =  hour.getString("open");
-                    String close = hour.getString("close");
-                    if(open.equals("") || close.equals("")){
-                        GetShopHoursUseCaseImpl.this.onNotOpen();
-                        return;
-                    }
-                    GetShopHoursUseCaseImpl.this
-                            .onHoursGot(makeTimes(Integer.parseInt(hour.getString("open"))
-                                    ,Integer.parseInt(hour.getString("close")),timesToRemove));
+                    JSONObject responsesJson = new JSONObject(response);
+                    JSONObject dates = responsesJson.getJSONObject("dates");
+                    timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("requested"),year+"-"+fixMonth(month)+"-"+day));
+                    timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("tentative"),year+"-"+fixMonth(month)+"-"+day));
+                    timesToRemove.addAll(getRemoveTimes(dates.getJSONArray("dealership"),year+"-"+fixMonth(month)+"-"+day));
                 }catch (JSONException e){
                     GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
                 }
+            }
+
+            if(dealership.getHours() == null){
+                GetShopHoursUseCaseImpl.this.onNoHoursAvailable(
+                        makeTimes(DEFAULT_OPEN_HOUR,DEFAULT_CLOSE_HOUR,timesToRemove));
+                return;
+            }
+            JSONArray hours = dealership.getHours();
+            try{
+                JSONObject hour = hours.getJSONObject(dayInWeek);
+                String open =  hour.getString("open");
+                String close = hour.getString("close");
+                if(open.equals("") || close.equals("")){
+                    GetShopHoursUseCaseImpl.this.onNotOpen();
+                    return;
+                }
+                GetShopHoursUseCaseImpl.this
+                        .onHoursGot(makeTimes(Integer.parseInt(hour.getString("open"))
+                                ,Integer.parseInt(hour.getString("close")),timesToRemove));
+            }catch (JSONException e){
+                GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         });
     }

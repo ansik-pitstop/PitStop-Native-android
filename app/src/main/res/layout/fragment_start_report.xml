@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
+        android:layout_above="@id/start_report_button_holder"
         android:text="@string/tap_to_begin"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/primary" />
@@ -19,16 +20,7 @@
         android:id="@+id/start_report_button_holder"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp">
-
-
-        <ImageView
-            android:id="@+id/imageView37"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="58dp"
-            app:srcCompat="@drawable/grey_circular_background" />
+        android:layout_centerInParent="true">
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/start_report_animation"
@@ -37,24 +29,15 @@
             app:indicatorColor="@color/primary"
             app:indicatorName="BallScaleIndicator" />
 
-
         <Button
             android:id="@+id/start_report_button"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="60dp"
-            android:background="@drawable/color_button_primary"
+            android:background="@drawable/p_button"
             android:textColor="@color/white_text" />
-
-        <ImageView
-            android:id="@+id/imageView41"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="80dp"
-            android:elevation="20dp"
-            app:srcCompat="@drawable/pitstop_p3x" />
 
     </FrameLayout>
 

@@ -25,13 +25,6 @@ public class SettingsPresenter {
         switcher.setViewMainSettings();
     }
 
-
-
-    public void setViewCarSettings(){
-        if(settings == null){return;}
-        switcher.setViewCarSettings();
-    }
-
     public void setViewShopSettings(){
         if(settings == null){return;}
         switcher.setViewShopSettings();

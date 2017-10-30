@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.castel.obd.util.JsonUtil;
-import com.pitstop.models.issue.CarIssue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,7 +18,7 @@ import java.util.List;
 public class Car implements Parcelable {
 
     public class Make{
-        public static final String CHEVROLET = "chevrolet";
+        public static final String RAM = "ram";
         public static final String CHRYSLER = "chrysler";
         public static final String DODGE = "dodge";
         public static final String JEEP = "jeep";
@@ -60,11 +59,9 @@ public class Car implements Parcelable {
     private int userId;
     private int shopId;
 
-    private Dealership dealership;
     private boolean serviceDue;
 
     private String scannerId;
-    private List<CarIssue> issues = new ArrayList<>();
 
     public Car() { }
 
@@ -180,17 +177,6 @@ public class Car implements Parcelable {
         this.userId = userId;
     }
 
-    public Dealership getDealership() {
-        return dealership;
-    }
-
-    public void setDealership(Dealership dealership) {
-        this.dealership = dealership;
-        if ( dealership != null ) {
-            this.shopId = dealership.getId();
-        }
-    }
-
     public boolean isServiceDue() {
         return serviceDue;
     }
@@ -239,62 +225,6 @@ public class Car implements Parcelable {
         this.shopId = shopId;
     }
 
-    public List<CarIssue> getIssues() {
-        return issues;
-    }
-
-    public void setIssues(List<CarIssue> issues) {
-        this.issues = issues;
-    }
-
-    public ArrayList<CarIssue> getActiveIssues() {
-        ArrayList<CarIssue> activeIssues = new ArrayList<>();
-
-        for(CarIssue issue : issues) {
-            if(issue.getStatus().equals(CarIssue.ISSUE_PENDING)
-                || issue.getStatus().equals(CarIssue.ISSUE_NEW) ) {
-                activeIssues.add(issue);
-            }
-        }
-
-        return activeIssues;
-    }
-
-    public ArrayList<CarIssue> getDoneIssues() {
-        ArrayList<CarIssue> activeIssues = new ArrayList<>();
-
-        for(CarIssue issue : issues) {
-            if(issue.getStatus().equals(CarIssue.ISSUE_DONE)) {
-                activeIssues.add(issue);
-            }
-        }
-
-        return activeIssues;
-    }
-
-    // create car from json object (this is for the response from POST car)
-    public static Car createNewCar(JSONObject jsonObject) throws JSONException {
-        Car car = new Car();
-
-        car.setId(jsonObject.getInt("id"));
-        car.setEngine(jsonObject.getString("car_engine"));
-        car.setMake(jsonObject.getString("car_make"));
-        car.setModel(jsonObject.getString("car_model"));
-        car.setYear(jsonObject.getInt("car_year"));
-        car.setTrim(jsonObject.getString("car_trim"));
-        car.setScannerId(jsonObject.optString("scannerId"));
-        car.setTotalMileage(jsonObject.getInt("mileage_total"));
-        car.setDisplayedMileage(jsonObject.getInt("mileage_total"));
-        car.setBaseMileage(jsonObject.getInt("mileage_base"));
-        car.setUserId(jsonObject.getInt("id_user"));
-        car.setShopId(jsonObject.getJSONObject("shop").getInt("id_shop"));
-        car.setVin(jsonObject.getString("vin"));
-
-        //car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getTripIdRaw()));
-
-        return car;
-    }
-
     // create car from json response (this is for GET from api)
     public static Car createCar(String response) throws JSONException {
         Car car = JsonUtil.json2object(response, Car.class);
@@ -303,17 +233,8 @@ public class Car implements Parcelable {
 
         JSONObject jsonObject = new JSONObject(response);
 
-        if(!jsonObject.isNull("issues")) {
-            car.setIssues(CarIssue.createCarIssues(jsonObject.getJSONArray("issues"), car.getId()));
-            car.setNumberOfServices(jsonObject.getJSONArray("issues").length());
-        } else {
-            car.setIssues(new ArrayList<CarIssue>());
-            car.setNumberOfServices(0);
-        }
-
         if(!jsonObject.isNull("shop")) {
             Dealership dealer = Dealership.jsonToDealershipObject(jsonObject.getJSONObject("shop").toString());
-            car.setDealership(dealer);
             car.setShopId(dealer.getId());
         }
 
@@ -355,7 +276,6 @@ public class Car implements Parcelable {
                 ", scannerId='" + scannerId + '\'' +
                 ", shopId=" + shopId +
                 ", userId=" + userId +
-                ", issues: " + getActiveIssues().size() +
                 '}';
     }
 
@@ -385,10 +305,8 @@ public class Car implements Parcelable {
         dest.writeByte(this.currentCar ? (byte) 1 : (byte) 0);
         dest.writeInt(this.userId);
         dest.writeInt(this.shopId);
-        dest.writeParcelable(this.dealership, 0);
         dest.writeByte(this.serviceDue ? (byte) 1 : (byte) 0);
         dest.writeString(this.scannerId);
-        dest.writeList(this.issues);
     }
 
     protected Car(Parcel in) {
@@ -410,11 +328,8 @@ public class Car implements Parcelable {
         this.currentCar = in.readByte() != 0;
         this.userId = in.readInt();
         this.shopId = in.readInt();
-        this.dealership = in.readParcelable(Dealership.class.getClassLoader());
         this.serviceDue = in.readByte() != 0;
         this.scannerId = in.readString();
-        this.issues = new ArrayList<CarIssue>();
-        in.readList(this.issues, CarIssue.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<Car> CREATOR = new Parcelable.Creator<Car>() {

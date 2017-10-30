@@ -13,9 +13,9 @@ public class RequestError {
     public final static String ERR_UNKNOWN = "unknown_error";
     public final static String ERR_OFFLINE = "offline_error";
 
-    private String error;
-    private String message;
-    private int statusCode;
+    private String error = "";
+    private String message = "";
+    private int statusCode = -1;
 
     public RequestError() { }
 
@@ -70,6 +70,12 @@ public class RequestError {
         requestError.setMessage("Please check your internet connection");
 
         return requestError;
+    }
+
+    @Override
+    public String toString(){
+        return String.format("{ error: %s, message: %s, statusCode: %d }"
+                ,getError(),getMessage(),getStatusCode());
     }
 
 }

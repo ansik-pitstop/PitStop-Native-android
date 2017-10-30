@@ -46,6 +46,7 @@ public class HttpRequest {
     private JSONObject body;
     private HashMap<String, String> headers = new HashMap<>();
     private GlobalApplication application;
+    private Context context;
 
     private HttpRequest(RequestType requestType,
                         String url,
@@ -55,6 +56,7 @@ public class HttpRequest {
                         JSONObject body,
                         Context context) {
         BASE_ENDPOINT = url == null ? SecretUtils.getEndpointUrl(context) : url;
+        this.context = context;
         webClient = Webb.create();
         webClient.setBaseUri(BASE_ENDPOINT);
         this.uri = uri;
@@ -227,7 +229,8 @@ public class HttpRequest {
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
                     error.setStatusCode(response.getStatusCode());
 
-                    if (response.getStatusCode() == 401) { // Unauthorized (must refresh)
+                    if (response.getStatusCode() == 401
+                            && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
                         // Error handling
                         NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
                             @Override

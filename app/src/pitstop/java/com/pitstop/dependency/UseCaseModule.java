@@ -3,10 +3,15 @@ package com.pitstop.dependency;
 import android.os.Handler;
 
 import com.pitstop.database.LocalPidStorage;
+import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCarUseCaseImpl;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCaseImpl;
+import com.pitstop.interactors.add.AddDtcUseCase;
+import com.pitstop.interactors.add.AddDtcUseCaseImpl;
+import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -17,24 +22,38 @@ import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
+import com.pitstop.interactors.check.CheckNetworkConnectionUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCaseImpl;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
+import com.pitstop.interactors.get.GetCarImagesArrayUseCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUSeCaseImpl;
+import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCarsByUserIdUseCaseImpl;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase;
+import com.pitstop.interactors.get.GetCarsWithDealershipsUseCaseImpl;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
+import com.pitstop.interactors.get.GetCurrentCarDealershipUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.get.GetCurrentServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetCurrentUserUseCaseImpl;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
+import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCaseImpl;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
+import com.pitstop.interactors.get.GetLicensePlateUseCase;
+import com.pitstop.interactors.get.GetLicensePlateUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
@@ -53,8 +72,6 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
-import com.pitstop.interactors.get.GetUserShopsUseCase;
-import com.pitstop.interactors.get.GetUserShopsUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
@@ -67,8 +84,8 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
-import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
+import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -79,6 +96,10 @@ import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
+import com.pitstop.interactors.set.SetNotificationReadUseCase;
+import com.pitstop.interactors.set.SetNotificationReadUseCaseImpl;
+import com.pitstop.interactors.set.SetServicesDoneUseCase;
+import com.pitstop.interactors.set.SetServicesDoneUseCaseImpl;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -216,10 +237,10 @@ public class UseCaseModule {
 
     @Provides
     GetCarByCarIdUseCase getCarByCarIdUseCase(UserRepository userRepository
-            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
-            ,@Named("mainHandler") Handler mainHandler){
+            , CarRepository carRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
-        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository
+        return  new GetCarByCarIdUseCaseImpl(carRepository, userRepository, shopRepository
                 , useCaseHandler, mainHandler);
     }
 
@@ -235,15 +256,6 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
         return new GetGooglePlacesShopsUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
-    }
-
-    @Provides
-    GetUserShopsUseCase getUserShopsUseCase(ShopRepository shopRepository
-            ,UserRepository userRepository,NetworkHelper networkHelper
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new GetUserShopsUseCaseImpl(shopRepository,userRepository,networkHelper
-                ,useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -331,8 +343,11 @@ public class UseCaseModule {
 
     @Provides
     GetUserCarUseCase getUserCarUseCase(UserRepository userRepository,CarRepository carRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-        return new GetUserCarUseCaseImpl(userRepository,carRepository, useCaseHandler, mainHandler);
+            , ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            ,@Named("mainHandler") Handler mainHandler){
+
+        return new GetUserCarUseCaseImpl(userRepository,carRepository, shopRepository
+                , useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -440,6 +455,18 @@ public class UseCaseModule {
     }
 
     @Provides
+    AddLicensePlateUseCase addLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new AddLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
+    }
+
+    @Provides
+    GetLicensePlateUseCase getLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
+        return new GetLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
+    }
+
+    @Provides
     GetCarByVinUseCase getCarByVinUseCase(@Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler, CarRepository carRepository){
         return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository);
@@ -469,5 +496,75 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler){
 
         return new SortReportsUseCaseImpl(useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCarStyleIDUseCase getCarStyleIDUseCase( @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler,NetworkHelper networkHelper){
+        return new GetCarStyleIDUSeCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+    @Provides
+    GetCarImagesArrayUseCase getCarImagesArrayUseCase (@Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler, NetworkHelper networkHelper){
+        return new GetCarImagesArrayUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+    @Provides
+    AddDtcUseCase getAddDtcUseCase(UserRepository userRepository, CarIssueRepository carIssueRepository
+            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler) {
+
+        return new AddDtcUseCaseImpl(userRepository, carIssueRepository, carRepository
+                , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCarsWithDealershipsUseCase getGetCarsWithDealershipsUseCase(UserRepository userRepository
+            , CarRepository carRepository, ShopRepository shopRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new GetCarsWithDealershipsUseCaseImpl(userRepository, carRepository, shopRepository
+                , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    CheckNetworkConnectionUseCase checkNetworkConnectionUseCase(NetworkHelper networkHelper
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+
+        return new CheckNetworkConnectionUseCaseImpl(networkHelper, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SetServicesDoneUseCase setServicesDoneUseCase(CarIssueRepository carIssueRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+
+        return new SetServicesDoneUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SetNotificationReadUseCase setNotificationReadUseCase(@Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+
+        return new SetNotificationReadUseCaseImpl(useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetDealershipWithCarIssuesUseCase getDealershipWithCarIssuesUseCase(UserRepository userRepository
+            , CarRepository carRepository, CarIssueRepository carIssueRepository
+            , ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetDealershipWithCarIssuesUseCaseImpl(userRepository, carRepository
+                , carIssueRepository, shopRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetCurrentCarDealershipUseCase getCurrentCarDealershipUseCase(UserRepository userRepository
+            , CarRepository carRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetCurrentCarDealershipUseCaseImpl(userRepository, carRepository
+                , shopRepository, useCaseHandler, mainHandler);
     }
 }

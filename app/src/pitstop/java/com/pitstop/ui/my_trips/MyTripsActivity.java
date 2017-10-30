@@ -172,10 +172,10 @@ public class MyTripsActivity extends AppCompatActivity{
         tripStarted = false;
 
         if(dashboardCar != null) {
-            if(dashboardCar.getDealership() != null){
-                if (BuildConfig.DEBUG && (dashboardCar.getDealership().getId() == 4 || dashboardCar.getDealership().getId() == 18)) {
+            if(dashboardCar.getShopId() > 0){
+                if (BuildConfig.DEBUG && (dashboardCar.getShopId() == 4 || dashboardCar.getShopId() == 18)) {
                     setMerc();
-                } else if (!BuildConfig.DEBUG && dashboardCar.getDealership().getId() == 14) {
+                } else if (!BuildConfig.DEBUG && dashboardCar.getShopId() == 14) {
                     setMerc();
                 } else {
                     TypedValue defaultColor = new TypedValue();

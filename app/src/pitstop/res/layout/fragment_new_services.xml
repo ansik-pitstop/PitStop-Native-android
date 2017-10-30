@@ -96,7 +96,7 @@
                             app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
 
                         <TextView
-                            android:text="@string/move_to_history"
+                            android:text="Move to History"
                             android:textStyle="bold"
                             android:textColor="@color/primary"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"

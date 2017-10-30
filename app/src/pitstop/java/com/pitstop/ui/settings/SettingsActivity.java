@@ -21,7 +21,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm_del.ShopFormFragment;
-import com.pitstop.ui.settings.car_settings.CarSettingsFragment;
+
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
 import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;
 
@@ -36,13 +36,16 @@ import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
  * Created by Matt on 2017-06-12.
  */
 
-public class SettingsActivity extends AppCompatActivity implements SettingsView,FragmentSwitcher, PrefMaker {
+public class SettingsActivity extends AppCompatActivity implements SettingsView,FragmentSwitcher {
     private SettingsPresenter presenter;
     private FragmentManager fragmentManager;
     private MainSettingsFragment mainSettings;
-    private CarSettingsFragment carSettings;
+
     private ShopSettingsFragment shopSettings;
     private ShopFormFragment shopForm;
+
+
+
     private Context context;
 
     private final int START_CUSTOM = 347;
@@ -62,13 +65,12 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
         fragmentManager = getFragmentManager();
 
         mainSettings = new MainSettingsFragment();
-        carSettings = new CarSettingsFragment();
+
         shopSettings = new ShopSettingsFragment();
         shopForm = new ShopFormFragment();
 
         mainSettings.setSwitcher(this);
-        carSettings.setSwitcher(this);
-        mainSettings.setPrefMaker(this);
+
         shopSettings.setSwitcher(this);
         shopForm.setSwitcher(this);
         shopForm.setUpdate(true);
@@ -104,12 +106,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
         fragmentTransaction.commit();
     }
 
-    @Override
-    public void setViewCarSettings() {
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.settings_fragment_holder,carSettings);
-        fragmentTransaction.commit();
-    }
+
 
     @Override
     public void setViewShopSettings() {
@@ -136,7 +133,6 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
         super.onActivityResult(requestCode, resultCode, data);
         //Check for Add car finished, and whether it happened successfully, if so updated preferences view
         mainSettings.update();
-        carSettings.update();
     }
 
     @Override
@@ -148,63 +144,13 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
         }
     }
 
-    @Override
-    public Preference noShops() {
-        SettingsPreference noShops = new SettingsPreference(context,"No Shops","",false);
-        noShops.setKey("no_shop_key");
-        return noShops;
-    }
-
-    @Override
-    public Preference carToPref(Car car, boolean currentCar){
-        String title = new String();
-        String info = new String();
-        boolean check = false;
-        if(currentCar){
-            check = true;
-        }
-        if(car.getDealership() != null){
-            title = car.getMake() + " " +car.getModel();
-        }
-        if(car.getDealership() != null){
-            info = car.getDealership().getName();
-        }else{
-           info = "No Dealership";
-        }
-        SettingsPreference carPref = new SettingsPreference(context,title,info,check);
-        carPref.setKey("car_item");
-        carPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                carSettings.setCar(car);
-                presenter.setViewCarSettings();
-                return false;
-            }
-        });
-        return carPref;
-    }
-
-    @Override
-    public Preference shopToPref(Dealership dealership) {
-        SettingsPreference shopPref = new SettingsPreference(context,dealership.getName(),dealership.getAddress(),false);
-        shopPref.setKey("shop_item");
-        shopPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                shopSettings.setDealership(dealership);
-                presenter.setViewShopSettings();
-                return false;
-            }
-        });
-        return shopPref;
-    }
 
     @Override
     public void onBackPressed() {
         if(shopForm.isVisible()){
             presenter.setViewShopSettings();
         }
-        else if(carSettings.isVisible()||shopSettings.isVisible()){
+        else if(shopSettings.isVisible()){
            presenter.setViewMainSettings();
        }else{
            finish();
@@ -216,7 +162,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
         if(shopForm.isVisible()){
             presenter.setViewShopSettings();
         }
-        else if(carSettings.isVisible()||shopSettings.isVisible()){
+        else if(shopSettings.isVisible()){
             presenter.setViewMainSettings();
         }else{
             finish();

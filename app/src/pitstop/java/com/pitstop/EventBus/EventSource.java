@@ -17,6 +17,7 @@ public interface EventSource {
     public static String SOURCE_TRIPS = "source_trips";
     public static String SOURCE_ADD_CAR = "source_add_car";
     public static String SOURCE_BLUETOOTH_AUTO_CONNECT = "source_bluetooth_auto_connect";
+    public static String SOURCE_MY_GARAGE = "source_my_garage";
 
     String getSource();
 

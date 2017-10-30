@@ -61,7 +61,6 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                 }else{
                     getView().populateDoneServices(doneServices);
                 }
-
                 getView().hideLoading();
                 getView().displayOnlineView();
             }

@@ -5,6 +5,7 @@ import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
 import com.pitstop.ui.NoCarAddedHandlingView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,4 +18,6 @@ public interface UpcomingServicesView extends LoadingTabView, ErrorHandlingView
     void populateUpcomingServices(Map<Integer,List<UpcomingService>> upcomingServices);
     void displayNoServices();
     boolean hasBeenPopulated();
+    void onUpcomingServiceClicked(ArrayList<UpcomingService> services, int position);
+    void openIssueDetailsActivity(ArrayList<UpcomingService> services, int position);
 }

@@ -35,9 +35,14 @@ public interface AbstractDevice {
     String requestSnapshot();
 
     // monitor
+    String clearDtcs();
     String getDtcs(); // stored
     String getPendingDtcs(); // pending
     String getFreezeFrame(); // FF
+
+    String clearDeviceMemory();
+    String resetDeviceToDefaults();
+    String resetDevice();
 
 
 }

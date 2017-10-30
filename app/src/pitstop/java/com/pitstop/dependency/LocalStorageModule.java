@@ -8,6 +8,7 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalUserStorage;
 
 import javax.inject.Singleton;
@@ -62,5 +63,11 @@ public class LocalStorageModule {
     @Provides
     LocalDeviceTripStorage localDeviceTripStorage(Context context){
         return new LocalDeviceTripStorage(context);
+    }
+
+    @Singleton
+    @Provides
+    LocalSpecsStorage localSpecsStorage(Context context){
+        return new LocalSpecsStorage(context);
     }
 }

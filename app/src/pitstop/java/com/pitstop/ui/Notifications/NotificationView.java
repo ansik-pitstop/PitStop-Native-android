@@ -13,9 +13,11 @@ import java.util.List;
 public interface NotificationView  extends LoadingTabView, ErrorHandlingView{
     void displayNotifications(List<Notification> list);
     void noNotifications();
-    void onNotificationClicked(String title );
+    void onNotificationClicked(Notification notification);
     void openCurrentServices();
     void openAppointments();
+    void displayBadgeCount(int count);
+    void onReadStatusChanged();
     void openScanTab();
     boolean hasBeenPopulated();
     int changeimage(String title);

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="@string/dashboard" />
+    <item
+        android:id="@+id/action_services"
+        android:icon="@drawable/ic_services"
+        android:title="@string/services_nav_text" />
+    <item
+        android:id="@+id/action_scan"
+        android:icon="@drawable/ic_scan"
+        android:title="@string/scan" />
+    <item
+        android:id="@+id/action_garage"
+        android:icon="@drawable/ic_garage"
+        android:title="Garage" />
+    <item
+        android:id="@+id/action_notifications"
+        android:icon="@drawable/ic_notification"
+        android:title="@string/notifications" />
+</menu>

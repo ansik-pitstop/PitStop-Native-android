@@ -37,7 +37,6 @@ public final class TABLES {
 
     public interface CAR {
         String TABLE_NAME = "car";
-
         String KEY_VIN = "vin";
         String KEY_SHOP_ID = "shopId";
         String KEY_MILEAGE = "totalMileage";
@@ -126,10 +125,19 @@ public final class TABLES {
 
     public interface SCANNER {
         String TABLE_NAME = "scanners";
-
         String KEY_CAR_ID = "carId";
         String KEY_DEVICE_NAME = "deviceName";
         String KEY_SCANNER_ID = "scannerId";
         String KEY_DATANUM = "datanum";
     }
+    public interface LOCAL_SPECS_DATA{
+        String TABLE_NAME = "localCarData";
+        String KEY_CAR_ID = "carId";
+        String LICENSE_PLATE = "licensePlate";
+
+    }
+
+
+
+
 }

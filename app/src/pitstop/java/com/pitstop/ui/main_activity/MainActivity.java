@@ -286,16 +286,16 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             public void run() {
 
                 if (state.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-                    getSupportActionBar().setSubtitle(getString(R.string.device_not_connected_action_bar));
+                    getSupportActionBar().setSubtitle("Device connected");
                 }
                 else if(state.equals(BluetoothConnectionObservable.State.VERIFYING)){
-                    getSupportActionBar().setSubtitle(getString(R.string.verifying_device_action_bar));
+                    getSupportActionBar().setSubtitle("Verifying device");
                 }
                 else if(state.equals(BluetoothConnectionObservable.State.SEARCHING)){
-                    getSupportActionBar().setSubtitle(getString(R.string.searching_for_device_action_bar));
+                    getSupportActionBar().setSubtitle("Searching for device");
                 }
                 else if(state.equals(BluetoothConnectionObservable.State.DISCONNECTED)){
-                    getSupportActionBar().setSubtitle(getString(R.string.device_not_connected_action_bar));
+                    getSupportActionBar().setSubtitle("Device not connected");
                 }
             }
         });
@@ -544,12 +544,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             public void run() {
                 final EditText input = new EditText(MainActivity.this);
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                alertDialogBuilder.setTitle(getString(R.string.invalid_device_alert_title));
+                alertDialogBuilder.setTitle("Device Id Invalid");
                 alertDialogBuilder
                         .setView(input)
-                        .setMessage(getString(R.string.invalid_device_alert_message))
+                        .setMessage("Your OBD device has lost its ID or is invalid, please input " +
+                                "the ID found on the front of the device so our algorithm can fix it.")
                         .setCancelable(false)
-                        .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
 
                                 autoConnectService.setDeviceNameAndId(input.getText()
@@ -559,7 +560,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                                 idInput = true;
                             }
                         })
-                        .setNegativeButton(getString(R.string.ignore_button_text),new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Ignore",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
                                 ignoreMissingDeviceName = true;
@@ -603,7 +604,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
                 }
             } else {
                 Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(getString(R.string.retry_button), new View.OnClickListener() {
+                        .setAction("Retry", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 ActivityCompat.requestPermissions(MainActivity.this, LOC_PERMS, RC_LOCATION_PERM);
@@ -633,10 +634,10 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             new AnimatedDialogBuilder(activity)
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setCancelable(false)
-                    .setTitle(getString(R.string.request_permission_alert_title))
+                    .setTitle("Request Permissions")
                     .setMessage(message != null ? message : getString(R.string.request_permission_message_default))
                     .setNegativeButton("", null)
-                    .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(activity, permissions, requestCode);
@@ -703,7 +704,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         final MainActivity thisInstance = this;
 
-        showLoading(getString(R.string.show_loading_string));
+        showLoading("Loading...");
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -723,13 +724,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,getString(R.string.add_car_toast_text),Toast.LENGTH_LONG).show();
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,getString(R.string.error_loading_car_toast_text),Toast.LENGTH_LONG).show();
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
 
@@ -738,10 +739,10 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
     public void myTrips(){
         final MainActivity thisInstance = this;
 
-        showLoading(getString(R.string.show_loading_string));
+        showLoading("Loading...");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car) {
+            public void onCarRetrieved(Car car, Dealership dealership) {
                 final Intent intent = new Intent(thisInstance, MyTripsActivity.class);
                 intent.putExtra(MainActivity.CAR_EXTRA, car);
                 startActivity(intent);
@@ -751,13 +752,13 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
             @Override
             public void onNoCarSet() {
                 hideLoading();
-                Toast.makeText(thisInstance,getString(R.string.add_car_toast_text),Toast.LENGTH_LONG).show();
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(RequestError error) {
                 hideLoading();
-                Toast.makeText(thisInstance,getString(R.string.error_loading_car_toast_text),Toast.LENGTH_LONG).show();
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
             }
         });
 

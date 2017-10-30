@@ -1,6 +1,5 @@
 package com.pitstop.ui.settings.main_settings;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,7 +27,6 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.ui.settings.FragmentSwitcher;
-import com.pitstop.ui.settings.PrefMaker;
 import com.pitstop.utils.MixpanelHelper;
 
 
@@ -48,7 +46,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
     private MainSettingsPresenter presenter;
     private FragmentSwitcher switcher;
-    private PrefMaker prefMaker;
+
 
     private SharedPreferences sharedPrefs;
 
@@ -66,10 +64,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         this.switcher = switcher;
     }
 
-    @Override
-    public void setPrefMaker(PrefMaker prefMaker) {
-        this.prefMaker = prefMaker;
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +92,7 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
         mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new MainSettingsPresenter(switcher,prefMaker,component,mixpanelHelper);
+        presenter = new MainSettingsPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
 
 

@@ -13,6 +13,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,13 +84,11 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         if (getView() == null || updating) return;
         updating = true;
         getView().showLoading();
-
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
                 updating = false;
                 if (getView() == null) return;
-
                 getView().hideLoading();
                 getView().displayOnlineView();
 
@@ -102,6 +101,7 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
 
             @Override
             public void onNoCarAdded() {
+                Log.d(TAG, "noCarAdded()");
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoading();
@@ -113,17 +113,16 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoading();
-
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (getView().hasBeenPopulated()){
-                        getView().displayOfflineErrorDialog();
+                if (error!=null && error.getError()!=null){
+                    if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                        if (getView().hasBeenPopulated()) {
+                            getView().displayOfflineErrorDialog();
+                        } else {
+                            getView().displayOfflineView();
+                        }
+                    } else {
+                        getView().displayUnknownErrorView();
                     }
-                    else{
-                        getView().displayOfflineView();
-                    }
-                }
-                else{
-                    getView().displayUnknownErrorView();
                 }
 
             }
@@ -139,6 +138,16 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         }else{
             onUpdateNeeded();
         }
+
+    }
+
+    public void onUpcomingServiceClicked(List<UpcomingService> services, int position) {
+        Log.d(TAG, "onUpcomingServiceClicked()");
+        ArrayList<UpcomingService> arrayListUpcomingservices = new ArrayList<>();
+        for (UpcomingService service: services){
+            arrayListUpcomingservices.add(service);
+        }
+        getView().openIssueDetailsActivity(arrayListUpcomingservices, position);
 
     }
 }
