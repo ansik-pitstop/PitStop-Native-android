@@ -276,5 +276,6 @@
     <orderEntry type="library" name="logging-interceptor-3.8.1" level="project" />
     <orderEntry type="library" name="design-26.0.2" level="project" />
     <orderEntry type="library" name="multidex-1.0.2" level="project" />
+    <orderEntry type="library" name="android-android-26" level="project" />
   </component>
 </module>

@@ -192,4 +192,6 @@ public interface UseCaseComponent {
     CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase();
 
     GetAlarmCountUseCase getGetAlarmCountUseCase();
+
+    AddAlarmUseCase addAlarmUseCase();
 }

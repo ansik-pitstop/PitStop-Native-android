@@ -487,6 +487,13 @@ public class UseCaseModule {
 
 
     @Provides
+    AddAlarmUseCase addAlarmUseCase(UserRepository userRepository, CarRepository carRepository, LocalAlarmStorage localAlarmStorage,
+                                           @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+        return new AddAlarmUseCaseImpl(userRepository, carRepository, localAlarmStorage, useCaseHandler, mainHandler);
+    }
+
+
+    @Provides
     GetLicensePlateUseCase getLicensePlateUseCase( @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler, LocalSpecsStorage storage){
         return new GetLicensePlateUseCaseImpl( mainHandler, useCaseHandler, storage);
