@@ -63,7 +63,7 @@ public class NetworkModule {
     @Provides
     public PitstopCarApi pitstopCarApi(Context context){
         return new Retrofit.Builder()
-                .baseUrl(SecretUtils.getEndpointUrl(context)+"v1/car")
+                .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(getHttpClient(context))
                 .build()
