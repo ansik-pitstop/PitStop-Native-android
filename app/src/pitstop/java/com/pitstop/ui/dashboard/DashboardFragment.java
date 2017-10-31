@@ -4,6 +4,7 @@ package com.pitstop.ui.dashboard;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -27,6 +28,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -40,6 +42,8 @@ import static com.pitstop.R.id.mileage;
 public class DashboardFragment extends Fragment implements DashboardView {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
+    public static String  CAR_ID_KEY = "carId";
+    public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -102,6 +106,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     private AlertDialog unknownErrorDialog;
     private AlertDialog updateMileageDialog;
     private AlertDialog mileageErrorDialog;
+    private AlertDialog buyDeviceAlertDialog;
     private DashboardPresenter presenter;
 
     private boolean hasBeenPopulated = false;
@@ -482,13 +487,21 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Override
     public void displayCarDetails(Car car){
         Log.d(TAG,"displayCarDetails() car: "+car);
-
         hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
         mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
+
+    }
+
+    @Override
+    public void noScanner() {
+        drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_disabled_3x);
+        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
+
     }
 
     @Override
@@ -563,5 +576,42 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @OnClick(R.id.driving_alarms_button)
     public void onTotalAlarmsClicked(){
         Log.d(TAG, "onTotalAlarmsClicked()");
+        presenter.onTotalAlarmsClicked();
+    }
+
+    public void openAlarmsActivity(){
+        Log.d(TAG ,"openAlarmsActivity");
+        Intent intent = new Intent(getActivity(), AlarmsActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void displayBuyDeviceDialog() {
+        Log.d(TAG, "displayBuyDeviceDialog()");
+        if (buyDeviceAlertDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            buyDeviceAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Purchase Pitstop Device")
+                    .setView(dialogLayout)
+                    .setMessage("It appears you do not have a Pitstop device paired to this " +
+                            "car.With the device,we can track your car's engine " +
+                            "mileage, fuel consumption, trips, engine codes, and " +
+                            "driving alarms. If you would like all these features, " +
+                            "please purchase a device and connect it to your car. ")
+                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
+                            -> openPitstopAmazonLink())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        buyDeviceAlertDialog.show();
+    }
+
+    private void openPitstopAmazonLink() {
+        Log.d(TAG, "openPitstopAmazonLink()");
+        if(getActivity() == null) return;
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
+        startActivity(browserIntent);
     }
 }

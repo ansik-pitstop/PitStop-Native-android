@@ -11,6 +11,7 @@ import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
+import com.pitstop.interactors.get.GetAlarmsUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
@@ -180,4 +181,6 @@ public interface UseCaseComponent {
     DeviceClockSyncUseCase getDeviceClockSyncUseCase();
 
     AddAlarmUseCase addAlarmUseCase();
+
+    GetAlarmsUseCase getAlarmsUseCase();
 }

@@ -5,10 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
 import com.pitstop.models.Alarm;
+import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,13 +48,34 @@ public class LocalAlarmStorage {
         callback.onSuccess(alarm);
     }
 
-    public void getAlarms(int carId, Repository.Callback<List<Alarm>> alarmList){
+    public void getAlarms(int carId, Repository.Callback<List<Alarm>> callback){
         Log.d(TAG, "getAlarms(): " + Integer.toString(carId));
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
         String[] values = {String.valueOf(carId)};
+        ArrayList<Alarm> alarmArrayList = new ArrayList<>();
+        if (doesTableExist(db, TABLES.LOCAL_ALARMS.TABLE_NAME)){
+            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID + "=?", values, null, null, null);
+            if(c.moveToFirst()) {
+                while(!c.isAfterLast()) {
+                    alarmArrayList.add(cursorToAlarm(c));
+                    c.moveToNext();
+                }
+            }
+            c.close();
+            callback.onSuccess(alarmArrayList);
+        }
+        else {
+            callback.onError(RequestError.getUnknownError());
+        }
+    }
 
 
-
+    public Alarm cursorToAlarm(Cursor c){
+        Alarm alarm = new Alarm(c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_EVENT)),
+                c.getFloat(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_VALUE)),
+                c.getString(c.getColumnIndex(TABLES.LOCAL_ALARMS.RTC_TIME)),
+                c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.CAR_ID)));
+        return alarm;
     }
 
 

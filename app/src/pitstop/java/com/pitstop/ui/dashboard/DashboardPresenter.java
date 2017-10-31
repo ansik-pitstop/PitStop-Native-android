@@ -27,9 +27,9 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
-
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
+    private boolean hasScanner = false;
 
     private boolean updating = false;
 
@@ -65,11 +65,11 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership) {
-                Log.d(TAG,"useCaseComponent.onCarRetrieved() car: "+car);
+                Log.d(TAG, "onCarRetrieved(): " + car.getId());
                 updating = false;
                 if (getView() == null) return;
-                getView().displayOnlineView();
 
+                getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));
 
                 if (BuildConfig.DEBUG && (dealership.getId() == 4
@@ -80,6 +80,11 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 } else {
                     getView().displayDefaultDealershipVisuals(dealership);
                 }
+                if (car.getScannerId()==null || car.getScannerId().equalsIgnoreCase("null")) {
+                    getView().noScanner();
+                    hasScanner = false;
+                }
+                else hasScanner = true;
 
                 getView().displayCarDetails(car);
 
@@ -89,6 +94,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             @Override
             public void onNoCarSet() {
                 updating = false;
+                hasScanner = false;
                 if (getView() == null) return;
                 getView().displayNoCarView();
                 getView().hideLoading();
@@ -244,5 +250,17 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     public EventSource getSourceType() {
         Log.d(TAG,"getSourceType()");
         return EVENT_SOURCE;
+    }
+
+    public void onTotalAlarmsClicked() {
+        Log.d(TAG,"onTotalAlarmsClicked()");
+        if (updating)return;
+        if (hasScanner){
+            getView().openAlarmsActivity();
+        }
+        else {
+            getView().displayBuyDeviceDialog();
+        }
+
     }
 }

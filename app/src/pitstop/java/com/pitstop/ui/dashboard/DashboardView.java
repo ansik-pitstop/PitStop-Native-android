@@ -22,5 +22,7 @@ public interface DashboardView extends ErrorHandlingView, LoadingTabView
     void startMyTripsActivity();
     void displayUpdateMileageError();
     boolean hasBeenPopulated();
-
+    void openAlarmsActivity();
+    void displayBuyDeviceDialog();
+    void noScanner();
 }

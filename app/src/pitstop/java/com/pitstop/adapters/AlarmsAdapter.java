@@ -12,6 +12,7 @@ import com.pitstop.R;
 import com.pitstop.models.Alarm;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,8 +24,8 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
     private List<Alarm> alarmList;
 
 
-    public AlarmsAdapter(List<Alarm> alarmList){
-        this.alarmList = alarmList;
+    public AlarmsAdapter(List<Alarm> list){
+        this.alarmList = list;
     }
 
 
@@ -71,9 +72,9 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
         public void bind(Alarm alarm){
             alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
             alarmValue.setText(Float.toString(alarm.getAlarmValue()));
-            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy 'at' h:mm a");
+            /*SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy 'at' h:mm a");
             String date = sdf.format(alarm.getRtcTime());
-            alarmTime.setText(date);
+            alarmTime.setText(date);*/
 
         }
     }
