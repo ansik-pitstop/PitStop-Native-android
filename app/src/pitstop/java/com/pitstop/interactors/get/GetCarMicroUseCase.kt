@@ -1,5 +1,6 @@
 package com.pitstop.interactors.get
 
+import com.pitstop.R.array.car
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.models.ObdScanner
@@ -16,10 +17,11 @@ class GetCarMicroUseCase(val userRepository: UserRepository, val carRepository: 
 
     interface Callback{
         fun onGotCar(car: Car)
+        fun onGotCarList(carList: List<Car>)
         fun onError(error: RequestError)
     }
 
-    fun getCarByUserId(userId: Int, callback: Callback){
+    fun getCarsByUserId(userId: Int, callback: Callback){
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
 
             override fun onSuccess(settings: Settings) {
@@ -36,9 +38,12 @@ class GetCarMicroUseCase(val userRepository: UserRepository, val carRepository: 
                                                 var scannerId: String? = null
                                                 if (obdScanner != null)
                                                     scannerId = obdScanner.scannerId
-                                                val car = ModelConverter().generateCar(carResponse.response
-                                                        , settings.carId, scannerId, dealership)
-                                                callback.onGotCar(car)
+                                                val carList = ArrayList<Car>()
+                                                carResponse.response.mapTo(carList) {
+                                                    ModelConverter().generateCar(it
+                                                            , settings.carId, scannerId, dealership)
+                                                }
+                                                callback.onGotCarList(carList)
                                             })
                                 }
 
