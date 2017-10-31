@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.pitstop.models.Car;
 import com.pitstop.R;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.my_garage.MyGarageView;

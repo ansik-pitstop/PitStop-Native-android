@@ -29,6 +29,7 @@ import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

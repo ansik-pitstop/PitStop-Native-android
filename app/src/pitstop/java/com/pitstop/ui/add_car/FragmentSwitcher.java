@@ -1,5 +1,7 @@
 package com.pitstop.ui.add_car;
 
+import com.pitstop.models.Car;
+
 /**
  * Created by Karol Zdebel on 8/1/2017.
  */

@@ -8,6 +8,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.models.Car;
 
 import java.util.ArrayList;
 import java.util.List;

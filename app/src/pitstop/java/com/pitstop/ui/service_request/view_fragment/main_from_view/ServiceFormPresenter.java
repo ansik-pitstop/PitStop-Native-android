@@ -15,6 +15,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.pitstop.models.Car;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.show_report.health_report;
 
+import com.pitstop.models.Car;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;

@@ -29,6 +29,7 @@ import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

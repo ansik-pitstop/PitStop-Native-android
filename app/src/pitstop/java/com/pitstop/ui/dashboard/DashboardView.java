@@ -4,6 +4,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
 import com.pitstop.ui.NoCarAddedHandlingView;
+import com.pitstop.models.Car;
 
 /**
  * Created by Karol Zdebel on 9/7/2017.

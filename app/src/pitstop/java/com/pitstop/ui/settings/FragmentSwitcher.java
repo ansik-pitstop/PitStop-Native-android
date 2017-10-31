@@ -1,6 +1,7 @@
 package com.pitstop.ui.settings;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Car;
 
 /**
  * Created by Matt on 2017-06-12.

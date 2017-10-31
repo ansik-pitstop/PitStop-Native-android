@@ -22,6 +22,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 
 /**

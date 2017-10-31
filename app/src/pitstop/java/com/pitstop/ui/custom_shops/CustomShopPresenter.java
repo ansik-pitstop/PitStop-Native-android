@@ -7,6 +7,7 @@ import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.models.Car;
 
 /**
  * Created by matt on 2017-06-08.

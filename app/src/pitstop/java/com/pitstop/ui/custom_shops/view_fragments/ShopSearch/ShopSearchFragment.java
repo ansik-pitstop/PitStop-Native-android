@@ -24,6 +24,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
 import com.pitstop.ui.custom_shops.ShopAdapter;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 import java.util.List;
 

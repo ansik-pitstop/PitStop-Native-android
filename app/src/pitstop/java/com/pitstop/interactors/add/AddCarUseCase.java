@@ -2,6 +2,7 @@ package com.pitstop.interactors.add;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.network.RequestError;
+import com.pitstop.models.Car;
 
 /**
  * Created by Matt on 2017-07-27.

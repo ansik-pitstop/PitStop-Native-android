@@ -70,6 +70,7 @@ import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
+import com.pitstop.models.Car;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;

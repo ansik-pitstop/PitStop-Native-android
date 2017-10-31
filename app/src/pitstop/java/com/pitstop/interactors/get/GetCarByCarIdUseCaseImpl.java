@@ -9,6 +9,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.models.Car;
 
 /**
  * Created by Matthew on 2017-06-20.

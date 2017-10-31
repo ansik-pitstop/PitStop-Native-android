@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.pitstop.models.Car;
 
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;

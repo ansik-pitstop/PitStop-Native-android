@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.pitstop.models.Car;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;

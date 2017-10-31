@@ -9,6 +9,7 @@ import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.settings.FragmentSwitcher;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 
 /**

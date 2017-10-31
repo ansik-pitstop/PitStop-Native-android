@@ -13,6 +13,7 @@ import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 import java.util.ArrayList;
 

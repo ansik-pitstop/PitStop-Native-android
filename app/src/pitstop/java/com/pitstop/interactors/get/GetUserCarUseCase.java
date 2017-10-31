@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
+import com.pitstop.models.Car;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.

@@ -16,6 +16,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.models.Car;
 
 import org.greenrobot.eventbus.EventBus;
 

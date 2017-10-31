@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.pitstop.models.Car;
 
 import com.google.gson.Gson;
 import com.pitstop.R;

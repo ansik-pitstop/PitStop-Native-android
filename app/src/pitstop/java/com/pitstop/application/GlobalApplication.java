@@ -22,6 +22,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.models.Car;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;

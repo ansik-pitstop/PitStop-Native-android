@@ -35,6 +35,7 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsActivity;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 import java.util.List;
 import java.util.Locale;

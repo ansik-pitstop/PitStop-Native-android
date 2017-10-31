@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.network.RequestError;
+import com.pitstop.models.Car;
 
 import java.util.List;
 

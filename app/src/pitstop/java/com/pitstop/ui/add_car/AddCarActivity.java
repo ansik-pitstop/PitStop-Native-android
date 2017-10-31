@@ -22,6 +22,7 @@ import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.models.Car;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.

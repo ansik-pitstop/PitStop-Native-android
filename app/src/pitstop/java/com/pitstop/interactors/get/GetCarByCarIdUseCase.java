@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 
 /**

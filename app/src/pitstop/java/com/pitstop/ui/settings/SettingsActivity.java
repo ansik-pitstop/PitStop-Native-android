@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,14 +14,13 @@ import android.widget.ProgressBar;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm_del.ShopFormFragment;
-
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
 import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;
-
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,8 +39,6 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 
     private ShopSettingsFragment shopSettings;
     private ShopFormFragment shopForm;
-
-
 
     private Context context;
 

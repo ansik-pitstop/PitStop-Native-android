@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
+import com.pitstop.models.Car;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;

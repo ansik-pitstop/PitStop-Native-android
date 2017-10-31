@@ -2,6 +2,7 @@ package com.pitstop.ui.settings.car_settings;
 
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.settings.FragmentSwitcher;
+import com.pitstop.models.Car;
 
 /**
  * Created by Matthew on 2017-06-13.

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import com.pitstop.models.Car;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;

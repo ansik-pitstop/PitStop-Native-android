@@ -3,6 +3,7 @@ package com.pitstop.ui.custom_shops.view_fragments.ShopSearch;
 import com.google.android.gms.maps.model.LatLng;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.custom_shops.CustomShopActivityCallback;
+import com.pitstop.models.Car;
 
 import java.util.List;
 

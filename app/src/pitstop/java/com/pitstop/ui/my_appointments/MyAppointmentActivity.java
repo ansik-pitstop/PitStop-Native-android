@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import com.pitstop.models.Car;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;

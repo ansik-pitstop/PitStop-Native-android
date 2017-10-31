@@ -5,6 +5,7 @@ import android.os.Handler;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.models.Car;
 
 /**
  * Created by Karol Zdebel on 9/25/2017.
