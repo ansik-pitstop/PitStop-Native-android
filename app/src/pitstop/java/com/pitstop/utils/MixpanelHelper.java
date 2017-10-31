@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.bluetooth.BluetoothDevice;
 
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.models.Car;
 import com.pitstop.models.User;
 
 import org.json.JSONException;
@@ -340,10 +341,8 @@ public class MixpanelHelper {
                 json.put("make", car.getMake());
                 json.put("model", car.getModel());
                 json.put("year", car.getYear());
-                json.put("carId", car.getId());
+                json.put("carId", car.get_id());
                 json.put("mileage",car.getTotalMileage());
-                json.put("services",car.getNumberOfServices());
-                json.put("recalls",car.getNumberOfRecalls());
                 json.put("engineCodes",car.getEngine());
             } catch (JSONException e) {
                 e.printStackTrace();
