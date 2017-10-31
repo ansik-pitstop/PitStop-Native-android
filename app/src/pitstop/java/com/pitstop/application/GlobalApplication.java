@@ -22,7 +22,6 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.models.Car;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
@@ -33,8 +32,10 @@ import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
+import com.pitstop.utils.ModelConverter;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
@@ -42,8 +43,6 @@ import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
-
-import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 import io.smooch.core.Settings;
@@ -268,20 +267,20 @@ public class GlobalApplication extends Application {
     }
 
     public Car getCurrentCar(){
+//
+//        //Get most recent version of car list
+//        List<Car> carList =
+//
+//        //Set car list to what it was initially
+//        if (carList.size() == 0)
+//            return null;
+//
+//        for (Car c: carList){
+//            if (c.isCurrentCar())
+//                return c;
+//        }
 
-        //Get most recent version of car list
-        List<Car> carList = mLocalCarStorage.getAllCars();
-
-        //Set car list to what it was initially
-        if (carList.size() == 0)
-            return null;
-
-        for (Car c: carList){
-            if (c.isCurrentCar())
-                return c;
-        }
-
-        return carList.get(0);
+        return new ModelConverter().generateCar(mLocalCarStorage.getAllCars().get(0),0,"");
     }
 
     public boolean isLoggedIn() {
