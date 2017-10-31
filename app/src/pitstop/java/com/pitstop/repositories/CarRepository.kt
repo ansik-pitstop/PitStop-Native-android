@@ -60,16 +60,15 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
     }
 
     fun getCarsByUserId(userId: Int): Observable<PitstopResponse<List<Car>>> {
-        val car = localCarStorage.getCarsByUserId(userId)
-        return if (car != null){
-            val localCarList = List<Car>(1,{car})
-            Observable.just(PitstopResponse(localCarList))
+        val cars = localCarStorage.getCarsByUserId(userId)
+        return if (cars.isEmpty()){
+            Observable.just(PitstopResponse(cars))
         }else{
             val o = pitstopCarApi.getUserCars(userId)
             o.subscribeOn(Schedulers.io())
                     .subscribe { response ->
-                        localCarStorage.deleteCar(response.response[0]._id)
-                        localCarStorage.storeCarData(response.response[0])
+                        localCarStorage.deleteAllCars()
+                        localCarStorage.storeCars(response.response)
             }
             o
         }
