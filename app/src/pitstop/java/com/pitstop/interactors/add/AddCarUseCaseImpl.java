@@ -71,39 +71,19 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     }
 
     private void onCarAddedWithBackendShop(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAddedWithBackendShop(car);
-            }
-        });
+        mainHandler.post(() -> callback.onCarAddedWithBackendShop(car));
     }
 
     private void onCarAdded(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAdded(car);
-            }
-        });
+        mainHandler.post(() -> callback.onCarAdded(car));
     }
 
     private void onCarAlreadyAdded(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAlreadyAdded(car);
-            }
-        });
+        mainHandler.post(() -> callback.onCarAlreadyAdded(car));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -124,12 +104,13 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                     public void onSuccess(ObdScanner scanner) {
                                         carRepository.getShopId(carListResponse.getResponse().get(0).get_id())
                                                 .subscribe(shopIdResponse -> {
+
                                             int shopId = shopIdResponse.getResponse();
                                             boolean hasScanner = scanner != null;
-                                            String scannerId = scanner == null? null : scanner.getScannerId();
+                                            String scannerIdFromCar = scanner == null? null : scanner.getScannerId();
                                             Car car = new ModelConverter()
                                                     .generateCar(carListResponse.getResponse().get(0), settings.getCarId()
-                                                            ,scannerId, shopId);
+                                                            ,scannerIdFromCar, shopId);
                                             boolean carExists = carListResponse.getResponse().get(0) != null;
                                             boolean hasUser = carExists && car.getUserId() != 0;
                                             Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
