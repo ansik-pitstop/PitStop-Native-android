@@ -28,5 +28,5 @@ interface PitstopCarApi {
 
     @POST("v1/car")
     fun add(@Field("vin") vin: String, @Field("baseMileage") baseMileage: Double
-            , @Field("userId") userId: String, @Field("scannerId") scannerId: String): Observable<PitstopResponse<Car>>
+            , @Field("userId") userId: Int, @Field("scannerId") scannerId: String): Observable<PitstopResponse<Car>>
 }

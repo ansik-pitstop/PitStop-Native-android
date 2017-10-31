@@ -41,7 +41,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
         return pitstopCarApi.getCarShopId(carId)
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: String, scannerId: String): Observable<PitstopResponse<Car>> {
+    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String): Observable<PitstopResponse<Car>> {
         Log.d(tag,"insert() vin: $vin, baseMileage: $baseMileage, userId: $userId" +
                 ", scannerId: $scannerId")
         val o = pitstopCarApi.add(vin,baseMileage,userId,scannerId)

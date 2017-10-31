@@ -10,6 +10,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.ObdScanner;
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -17,6 +18,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.models.Car;
+import com.pitstop.utils.ModelConverter;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -107,162 +109,175 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     @Override
     public void run() {
         Log.d(TAG,"run()");
-        userRepository.getCurrentUser(new Repository.Callback<User>() {
+        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
-            public void onSuccess(User user) {
-                Log.d(TAG,"getCurrentUser().onSuccess() user: "+user);
-                carRepository.getCarByVin(vin, new Repository.Callback<Car>() {
-                        @Override
-                        public void onSuccess(Car car) {
-
-                            boolean carExists = car != null;
-                            boolean hasUser = car != null && car.getUserId() != 0;
-                            boolean hasScanner = car != null && car.getScannerId() != null
-                                    && !car.getScannerId().isEmpty();
-
-                            Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
-                                    +hasUser+", hasScanner?"+hasScanner+", car: "+car);
-
-                            //If statements are purposely not simplified here to make the code easy to read
-
-                            //If car exists and has user
-                            if (carExists && hasUser){
-                                Log.d(TAG,"carExists && hasUser, calling callback.onCarAlreadyAdded()");
-                                AddCarUseCaseImpl.this.onCarAlreadyAdded(car);
-                            }
-
-                            //If car exists and does not have user but scanner not active/ active
-                            else if (carExists && !hasUser && hasScanner){
-                                Log.d(TAG,"carExists && !hasUser && hasScanner, getting scanner");
-                                scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
-
+            public void onSuccess(Settings settings) {
+                userRepository.getCurrentUser(new Repository.Callback<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        Log.d(TAG,"getCurrentUser().onSuccess() user: "+user);
+                        carRepository.getCarByVin(vin)
+                                .doOnError(err -> AddCarUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                                .subscribe(carListResponse -> scannerRepository.getScanner(
+                                        carListResponse.getResponse().get(0).get_id(), new Repository.Callback<ObdScanner>() {
                                     @Override
-                                    public void onSuccess(ObdScanner obdScanner) {
-                                        if (obdScanner == null){
-                                            AddCarUseCaseImpl.this.onError(
-                                                    RequestError.getUnknownError());
-                                            return;
-                                        }
-                                        Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
-                                                +obdScanner.getScannerId()
-                                                +", active?"+obdScanner.getStatus());
+                                    public void onSuccess(ObdScanner scanner) {
+                                        carRepository.getShopId(carListResponse.getResponse().get(0).get_id())
+                                                .subscribe(shopIdResponse -> {
+                                            int shopId = shopIdResponse.getResponse();
+                                            boolean hasScanner = scanner != null;
+                                            Car car = new ModelConverter()
+                                                    .generateCar(carListResponse.getResponse().get(0), settings.getCarId()
+                                                            ,scanner.getScannerId(),shopId);
+                                            boolean carExists = carListResponse.getResponse().get(0) != null;
+                                            boolean hasUser = carExists && car.getUserId() != 0;
+                                            Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
+                                                    +hasUser+", hasScanner?"+hasScanner+", car: "+car);
 
-                                        //Active, deactivate then add
-                                        if (obdScanner.getStatus()){
+                                            //If statements are purposely not simplified here to make the code easy to read
 
-                                            obdScanner.setStatus(false);
-                                            scannerRepository.updateScanner(obdScanner, new Repository.Callback<Object>() {
+                                            //If car exists and has user
+                                            if (carExists && hasUser){
+                                                Log.d(TAG,"carExists && hasUser, calling callback.onCarAlreadyAdded()");
+                                                AddCarUseCaseImpl.this.onCarAlreadyAdded(car);
+                                            }
 
-                                                @Override
-                                                public void onSuccess(Object response){
-                                                    Log.d(TAG,"updateScanner().onSuccess() response:"
-                                                            +response);
-                                                    addCar(vin,baseMileage,user.getId(),scannerId
-                                                            ,callback);
-                                                }
+                                            //If car exists and does not have user but scanner not active/ active
+                                            else if (carExists && !hasUser && hasScanner){
+                                                Log.d(TAG,"carExists && !hasUser && hasScanner, getting scanner");
+                                                scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
 
-                                                @Override
-                                                public void onError(RequestError error){
-                                                    Log.d(TAG,"updateScanner().onError() error: "
-                                                            +error.getMessage());
-                                                    AddCarUseCaseImpl.this.onError(error);
-                                                }
-                                            });
-                                        }
-                                        //Not active, add
-                                        else{
-                                            Log.d(TAG,"scanner not active, adding car");
-                                            addCar(vin,baseMileage,user.getId(),scannerId,callback);
-                                        }
+                                                    @Override
+                                                    public void onSuccess(ObdScanner obdScanner) {
+                                                        if (obdScanner == null){
+                                                            AddCarUseCaseImpl.this.onError(
+                                                                    RequestError.getUnknownError());
+                                                            return;
+                                                        }
+                                                        Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
+                                                                +obdScanner.getScannerId()
+                                                                +", active?"+obdScanner.getStatus());
+
+                                                        //Active, deactivate then add
+                                                        if (obdScanner.getStatus()){
+
+                                                            obdScanner.setStatus(false);
+                                                            scannerRepository.updateScanner(obdScanner, new Repository.Callback<Object>() {
+
+                                                                @Override
+                                                                public void onSuccess(Object response){
+                                                                    Log.d(TAG,"updateScanner().onSuccess() response:"
+                                                                            +response);
+                                                                    addCar(vin,baseMileage,user.getId(),scannerId,shopId);
+                                                                }
+
+                                                                @Override
+                                                                public void onError(RequestError error){
+                                                                    Log.d(TAG,"updateScanner().onError() error: "
+                                                                            +error.getMessage());
+                                                                    AddCarUseCaseImpl.this.onError(error);
+                                                                }
+                                                            });
+                                                        }
+                                                        //Not active, add
+                                                        else{
+                                                            Log.d(TAG,"scanner not active, adding car");
+                                                            addCar(vin,baseMileage,user.getId(),scannerId,shopId);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onError(RequestError error) {
+                                                        Log.d(TAG,"getScanner().onError() error: "
+                                                                +error.getMessage());
+
+                                                        AddCarUseCaseImpl.this.onError(error);
+                                                    }
+                                                });
+                                            }
+
+                                            else if (carExists && !hasUser && !hasScanner){
+                                                Log.d(TAG,"carExists && !hasUser && !hasScanner, adding car");
+                                                addCar(vin,baseMileage,user.getId(),scannerId,shopId);
+                                            }
+
+                                            //If car does not exist then add
+                                            else if (!carExists){
+                                                Log.d(TAG,"!carExists, adding car");
+                                                addCar(vin,baseMileage,user.getId(),scannerId,shopId);
+                                            }
+
+                                            //Unknown case that is never reached
+                                            else{
+                                                AddCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                            }
+                                        });
+
                                     }
 
                                     @Override
                                     public void onError(RequestError error) {
-                                        Log.d(TAG,"getScanner().onError() error: "
-                                                +error.getMessage());
-
-                                        AddCarUseCaseImpl.this.onError(error);
+                                        AddCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                                     }
-                                });
-                            }
+                                    }));
 
-                            else if (carExists && !hasUser && !hasScanner){
-                                Log.d(TAG,"carExists && !hasUser && !hasScanner, adding car");
-                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
-                            }
-
-                            //If car does not exist then add
-                            else if (!carExists){
-                                Log.d(TAG,"!carExists, adding car");
-                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
-                            }
-
-                            //Unknown case that is never reached
-                            else{
-                                AddCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                            }
-
-
-                        }
-
-                        @Override
-                        public void onError(RequestError error) {
-                            AddCarUseCaseImpl.this.onError(error);
-                        }
-                    });
-
+                    }
+                    @Override
+                    public void onError(RequestError error) {
+                        AddCarUseCaseImpl.this.onError(error);
+                    }
+                });
             }
+
             @Override
             public void onError(RequestError error) {
                 AddCarUseCaseImpl.this.onError(error);
             }
         });
+
     }
 
-    private void addCar(String vin, double baseMileage, int userId, String scannerId
-            , Callback callback){
+    private void addCar(String vin, double baseMileage, int userId, String scannerId, int shopId){
         Log.d(TAG,"addCar()");
-        carRepository.insert(vin, baseMileage, userId, scannerId
-                , new Repository.Callback<Car>() {
-                    @Override
-                    public void onSuccess(Car car) {
-                        Log.d(TAG,"insert.onSuccess() car: "+car);
+        carRepository.insert(vin,baseMileage,userId,scannerId)
+                .doOnError(err -> AddCarUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                .subscribe(carResponse -> {
 
-                        userRepository.setUserCar(userId, car.get_id(), new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object data) {
-                                Log.d(TAG,"setUsercar.onSuccess() response: "+data);
+                    Car car = new ModelConverter().generateCar(carResponse.getResponse()
+                            , carResponse.getResponse().get_id(), scannerId, shopId);
+                    Log.d(TAG,"insert.onSuccess() car: "+car);
 
-                                //Process succeeded, notify eventbus
-                                EventType eventType
-                                        = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                EventBus.getDefault().post(new CarDataChangedEvent(
-                                        eventType, eventSource));
+                    userRepository.setUserCar(userId, car.get_id(), new Repository.Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object data) {
+                            Log.d(TAG,"setUsercar.onSuccess() response: "+data);
 
-                                //Car has shop if id is 0, 1 on staging, or 19 on production
-                                boolean carHasShop = car.getShopId() != 0 && (car.getShopId() != 1
-                                        && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
-                                        || (car.getShopId() != 19
-                                        && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
+                            //Process succeeded, notify eventbus
+                            EventType eventType
+                                    = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                            EventBus.getDefault().post(new CarDataChangedEvent(
+                                    eventType, eventSource));
 
-                                if (!carHasShop) {
-                                    AddCarUseCaseImpl.this.onCarAdded(car);
-                                }
-                                else{
-                                    AddCarUseCaseImpl.this.onCarAddedWithBackendShop(car);
-                                }
+                            //Car has shop if id is 0, 1 on staging, or 19 on production
+                            boolean carHasShop = shopId != 0 && (shopId != 1
+                                    && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
+                                    || (shopId != 19
+                                    && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
+
+                            if (!carHasShop) {
+                                AddCarUseCaseImpl.this.onCarAdded(car);
                             }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                Log.d(TAG,"setUserCar.onError() error: "+error.getMessage());
-                                AddCarUseCaseImpl.this.onError(error);
+                            else{
+                                AddCarUseCaseImpl.this.onCarAddedWithBackendShop(car);
                             }
-                        });
-                    }
-                    @Override
-                    public void onError(RequestError error) {
-                        AddCarUseCaseImpl.this.onError(error);
-                    }});
+                        }
+
+                        @Override
+                        public void onError(RequestError error) {
+                            Log.d(TAG,"setUserCar.onError() error: "+error.getMessage());
+                            AddCarUseCaseImpl.this.onError(error);
+                        }
+                    });
+                });
     }
 }

@@ -97,6 +97,12 @@ public class ScannerRepository implements Repository {
         };
     }
 
+    public void getScanner(int carId, Callback<ObdScanner> callback){
+        Log.d(TAG,"getting scanner, carId: "+carId);
+        networkHelper.get("scanner/"+carId, getGetScannerCallback(callback));
+    }
+
+
     /*boolean active: whether you want to look for active device or not*/
     public void getScanner(String scannerId, Callback<ObdScanner> callback){
         Log.d(TAG,"getting scanner, scannerId: "+scannerId);
