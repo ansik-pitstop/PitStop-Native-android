@@ -126,9 +126,10 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                 .subscribe(shopIdResponse -> {
                                             int shopId = shopIdResponse.getResponse();
                                             boolean hasScanner = scanner != null;
+                                            String scannerId = scanner == null? null : scanner.getScannerId();
                                             Car car = new ModelConverter()
                                                     .generateCar(carListResponse.getResponse().get(0), settings.getCarId()
-                                                            ,scanner.getScannerId(),shopId);
+                                                            ,scannerId, shopId);
                                             boolean carExists = carListResponse.getResponse().get(0) != null;
                                             boolean hasUser = carExists && car.getUserId() != 0;
                                             Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"

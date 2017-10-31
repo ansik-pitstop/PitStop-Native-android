@@ -5,7 +5,7 @@ package com.pitstop.utils
  */
 class ModelConverter {
     fun generateCar(retrofitCar: com.pitstop.retrofit.Car, currentCarId: Int
-                    , scannerId: String, shopId: Int)
+                    , scannerId: String?, shopId: Int)
             = com.pitstop.models.Car(retrofitCar._id, retrofitCar.vin, retrofitCar.year
             , retrofitCar.make, retrofitCar.model, retrofitCar.trim, retrofitCar.engine
             , retrofitCar.tankSize, retrofitCar.userId, retrofitCar.cityMileage
