@@ -228,7 +228,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                     public void onSuccess(Car car) {
                         Log.d(TAG,"insert.onSuccess() car: "+car);
 
-                        userRepository.setUserCar(userId, car.getId(), new Repository.Callback<Object>() {
+                        userRepository.setUserCar(userId, car.get_id(), new Repository.Callback<Object>() {
                             @Override
                             public void onSuccess(Object data) {
                                 Log.d(TAG,"setUsercar.onSuccess() response: "+data);

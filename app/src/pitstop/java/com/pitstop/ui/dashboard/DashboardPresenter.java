@@ -11,6 +11,7 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
@@ -68,7 +69,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 if (getView() == null) return;
                 getView().displayOnlineView();
 
-                Log.d(TAG, Integer.toString(car.getId()));
+                Log.d(TAG, Integer.toString(car.get_id()));
 
                 if (BuildConfig.DEBUG && (dealership.getId() == 4
                         || dealership.getId() == 18)){

@@ -44,12 +44,11 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
-import com.pitstop.interactors.get.GetCarsByUserIdUseCase;
 import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
+import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
@@ -70,7 +69,6 @@ import com.pitstop.utils.LogUtils;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
-import com.pitstop.models.Car;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -224,7 +222,7 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
 
         logAuthInfo();
 
-        updateScannerLocalStore();
+        //updateScannerLocalStore();
 
         tabFragmentManager = new TabFragmentManager(this,mixpanelHelper);
         tabFragmentManager.createTabs();
@@ -502,27 +500,27 @@ public class MainActivity extends IBluetoothServiceActivity implements MainActiv
         changeTheme(false);
     }
 
-    private void updateScannerLocalStore(){
-        useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
-            @Override
-            public void onCarsRetrieved(List<Car> cars) {
-                Log.d(TAG,"retrievedCars: "+cars);
-                for (Car car : cars) { // populate scanner table with scanner ids associated with the cars
-                    if (!scannerLocalStore.isCarExist(car.getId())) {
-                        carLocalStore.deleteAllCars();
-                        carLocalStore.storeCars(cars);
-                        scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
-                        Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
-                    }
-                }
-            }
-
-            @Override
-            public void onError(RequestError error) {
-
-            }
-        });
-    }
+//    private void updateScannerLocalStore(){
+//        useCaseComponent.getCarsByUserIdUseCase().execute(new GetCarsByUserIdUseCase.Callback() {
+//            @Override
+//            public void onCarsRetrieved(List<Car> cars) {
+//                Log.d(TAG,"retrievedCars: "+cars);
+//                for (Car car : cars) { // populate scanner table with scanner ids associated with the cars
+//                    if (!scannerLocalStore.isCarExist(car.get_id())) {
+//                        carLocalStore.deleteAllCars();
+//                        carLocalStore.storeCars(cars);
+//                        scannerLocalStore.storeScanner(new ObdScanner(car.getId(), car.getScannerId()));
+//                        Log.d("Storing Scanner", car.getId() + " " + car.getScannerId());
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onError(RequestError error) {
+//
+//            }
+//        });
+//    }
 
     private boolean ignoreMissingDeviceName = false;
     private AlertDialog alertInvalidDeviceNameDialog = null;

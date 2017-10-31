@@ -13,6 +13,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
+import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.LogUtils;
@@ -157,10 +158,10 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
-                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
-                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+                if (car.getMake().equalsIgnoreCase("ram")
+                        || car.getMake().equalsIgnoreCase("dodge")
+                        || car.getMake().equalsIgnoreCase("chrysler")
+                        || car.getMake().equalsIgnoreCase("jeep")){
 
                     bluetoothDataHandlerManager.setPidsToBeSent(DEFAULT_PIDS_SAFE,TIME_INTERVAL_SAFE);
                 }
@@ -250,10 +251,10 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
-                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
-                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
+                if (car.getMake().equalsIgnoreCase("ram")
+                        || car.getMake().equalsIgnoreCase("dodge")
+                        || car.getMake().equalsIgnoreCase("chrysler")
+                        || car.getMake().equalsIgnoreCase("jeep")){
 
                     String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
                     int timeInterval = (interval<1)? TIME_INTERVAL_SAFE: interval;

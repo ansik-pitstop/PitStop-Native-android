@@ -24,5 +24,6 @@ data class Car(
         val totalMileage: Int,
         val salesperson: String?,
         val isCurrentCar: Boolean,
-        val scannerId: String
+        val scannerId: String,
+        val shopId: Int
 ): Parcelable

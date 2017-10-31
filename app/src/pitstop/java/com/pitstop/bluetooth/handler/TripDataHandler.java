@@ -274,12 +274,12 @@ public class TripDataHandler{
                             String.valueOf(tripInfoPackage.mileage)));
                     executeTripRequests();
                 }
-                Car car = localCarStorage.getCarByScanner(deviceId);
-                if(car != null) {
-                    double newMileage = car.getTotalMileage() + tripInfoPackage.mileage;
-                    car.setTotalMileage(newMileage);
-                    localCarStorage.updateCar(car);
-                }
+//                Car car = localCarStorage.getCarByScanner(deviceId);
+//                if(car != null) {
+//                    double newMileage = car.getTotalMileage() + tripInfoPackage.mileage;
+//                    car.setTotalMileage(newMileage);
+//                    localCarStorage.updateCar(car);
+//                }
             }
         }
     }
