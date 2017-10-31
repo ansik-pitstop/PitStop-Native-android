@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
@@ -17,10 +18,12 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
-import com.pitstop.models.Car;
+import com.pitstop.retrofit.PitstopResponse;
 import com.pitstop.utils.ModelConverter;
 
 import org.greenrobot.eventbus.EventBus;
+
+import io.reactivex.Observable;
 
 /**
  * Created by Matt on 2017-07-27.
@@ -110,7 +113,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                             String scannerIdFromCar = scanner == null? null : scanner.getScannerId();
                                             Car car = new ModelConverter()
                                                     .generateCar(carListResponse.getResponse().get(0), settings.getCarId()
-                                                            ,scannerIdFromCar, shopId);
+                                                            ,scannerIdFromCar, dea);
                                             boolean carExists = carListResponse.getResponse().get(0) != null;
                                             boolean hasUser = carExists && car.getUserId() != 0;
                                             Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
@@ -262,4 +265,5 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                     });
                 });
     }
+
 }

@@ -280,7 +280,7 @@ public class GlobalApplication extends Application {
 //                return c;
 //        }
 
-        return new ModelConverter().generateCar(mLocalCarStorage.getAllCars().get(0),0,"");
+        return new ModelConverter().generateCar(mLocalCarStorage.getAllCars().get(0),0,"",0);
     }
 
     public boolean isLoggedIn() {
