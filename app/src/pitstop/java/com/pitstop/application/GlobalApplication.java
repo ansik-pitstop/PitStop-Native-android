@@ -156,6 +156,8 @@ public class GlobalApplication extends Application {
 
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
+        mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
+        Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
@@ -167,7 +169,6 @@ public class GlobalApplication extends Application {
         if(user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
-            mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().set("$phone", user.getPhone());
             mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));

@@ -46,9 +46,8 @@
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-    <permission
-        android:name="${applicationId}.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
+    <permission android:name="com.ansik.pitstop.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.ansik.pitstop.permission.C2D_MESSAGE" />
 
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
