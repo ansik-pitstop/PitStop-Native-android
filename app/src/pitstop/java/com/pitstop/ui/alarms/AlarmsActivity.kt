@@ -13,15 +13,18 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 class AlarmsActivity: AppCompatActivity() {
 
     val TAG = VehicleSpecsActivity::class.java.simpleName
-
-    private var specsFragment: VehicleSpecsFragment? = null
+    var alarmsFragment: AlarmsFragment?  = null
     private var bundle: Bundle? = Bundle()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.)
-
-
-
+        setContentView(R.layout.activity_alarms)
+        alarmsFragment = AlarmsFragment()
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.alarms_fragment_holder, alarmsFragment)
+        fragmentTransaction.commit()
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
+
+
 }

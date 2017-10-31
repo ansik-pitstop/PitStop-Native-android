@@ -9,6 +9,8 @@ import android.util.Log;
 import com.pitstop.models.Alarm;
 import com.pitstop.repositories.Repository;
 
+import java.util.List;
+
 /**
  * Created by ishan on 2017-10-30.
  */
@@ -43,6 +45,15 @@ public class LocalAlarmStorage {
         values.put(TABLES.LOCAL_ALARMS.RTC_TIME, alarm.getRtcTime());
         long result = db.insert(TABLES.LOCAL_ALARMS.TABLE_NAME, null, values);
         callback.onSuccess(alarm);
+    }
+
+    public void getAlarms(int carId, Repository.Callback<List<Alarm>> alarmList){
+        Log.d(TAG, "getAlarms(): " + Integer.toString(carId));
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        String[] values = {String.valueOf(carId)};
+
+
+
     }
 
 
