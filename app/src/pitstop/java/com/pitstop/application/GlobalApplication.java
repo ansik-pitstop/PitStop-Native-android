@@ -157,7 +157,7 @@ public class GlobalApplication extends Application {
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().identify(String.valueOf(getCurrentUser().getId()));
-        mixpanelAPI.getPeople().initPushHandling(SecretUtils);
+        mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);

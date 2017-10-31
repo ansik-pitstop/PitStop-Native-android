@@ -97,6 +97,7 @@ public class SecretUtils {
     /**
      * Google
      */
-    private static native String getGoogleSenderId();
+
+    public static native String getGoogleSenderId();
 
 }
