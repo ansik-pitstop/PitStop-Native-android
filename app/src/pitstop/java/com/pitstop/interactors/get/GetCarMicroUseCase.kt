@@ -19,6 +19,93 @@ class GetCarMicroUseCase(val userRepository: UserRepository, val carRepository: 
         fun onError(error: RequestError)
     }
 
+    fun getCarByUserId(userId: Int, callback: Callback){
+        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
+
+            override fun onSuccess(settings: Settings) {
+
+                carRepository.getShopId(settings.carId).subscribe({ shopIdResponse ->
+                    scannerRepository.getScanner(settings.carId, object : Repository.Callback<ObdScanner> {
+
+                        override fun onSuccess(obdScanner: ObdScanner?) {
+                            shopRepository.get(shopIdResponse.response, object : Repository.Callback<Dealership> {
+
+                                override fun onSuccess(dealership: Dealership) {
+                                    carRepository.getCarsByUserId(userId)
+                                            .subscribe({ carResponse ->
+                                                var scannerId: String? = null
+                                                if (obdScanner != null)
+                                                    scannerId = obdScanner.scannerId
+                                                val car = ModelConverter().generateCar(carResponse.response
+                                                        , settings.carId, scannerId, dealership)
+                                                callback.onGotCar(car)
+                                            })
+                                }
+
+                                override fun onError(error: RequestError) {
+                                    callback.onError(error)
+                                }
+
+                            })
+                        }
+
+                        override fun onError(error: RequestError) {
+                            callback.onError(error)
+                        }
+
+                    })
+                })
+            }
+            override fun onError(error: RequestError) {
+                callback.onError(error)
+            }
+        })
+    }
+
+    fun getCarByVin(vin: String, callback: Callback){
+        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+
+            override fun onSuccess(settings: Settings) {
+
+                carRepository.getShopId(settings.carId).subscribe({ shopIdResponse ->
+                    scannerRepository.getScanner(settings.carId, object: Repository.Callback<ObdScanner>{
+
+                        override fun onSuccess(obdScanner: ObdScanner?) {
+                            shopRepository.get(shopIdResponse.response, object: Repository.Callback<Dealership>{
+
+                                override fun onSuccess(dealership: Dealership) {
+                                    carRepository.getCarByVin(vin)
+                                            .subscribe({ carResponse ->
+                                                var scannerId: String? = null
+                                                if (obdScanner != null)
+                                                    scannerId = obdScanner.scannerId
+                                                val car = ModelConverter().generateCar(carResponse.response
+                                                        , settings.carId, scannerId, dealership)
+                                                callback.onGotCar(car)
+                                            })
+                                }
+
+                                override fun onError(error: RequestError) {
+                                    callback.onError(error)
+                                }
+
+                            })
+                        }
+
+                        override fun onError(error: RequestError) {
+                            callback.onError(error)
+                        }
+
+                    })
+                })
+            }
+
+            override fun onError(error: RequestError) {
+                callback.onError(error)
+            }
+        })
+    }
+
     fun getUserCar(callback: Callback){
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
