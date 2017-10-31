@@ -1,15 +1,10 @@
 package com.pitstop.repositories
 
 import android.util.Log
-
-import com.google.gson.JsonIOException
-import com.pitstop.R.array.car
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.retrofit.Car
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.retrofit.PitstopResponse
-import com.pitstop.utils.NetworkHelper
-
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
@@ -22,9 +17,10 @@ import io.reactivex.schedulers.Schedulers
 
 class CarRepository(private val localCarStorage: LocalCarStorage, private val pitstopCarApi: PitstopCarApi) : Repository {
 
-    private val TAG = javaClass.simpleName
+    private val tag = javaClass.simpleName
 
     fun getCarByVin(vin: String): Observable<PitstopResponse<List<Car>>> {
+        Log.d(tag,"getCarByVin() vin: $vin")
         val car = localCarStorage.getCarByVin(vin)
         return if (car != null){
             val localCarList = List<Car>(1,{car})
@@ -41,10 +37,13 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
 
     //Todo: store this somewhere locally
     fun getShopId(carId: Int): Observable<PitstopResponse<Int>> {
+        Log.d(tag,"getShopId() carId: $carId")
         return pitstopCarApi.getCarShopId(carId)
     }
 
     fun insert(vin: String, baseMileage: Double, userId: String, scannerId: String): Observable<PitstopResponse<Car>> {
+        Log.d(tag,"insert() vin: $vin, baseMileage: $baseMileage, userId: $userId" +
+                ", scannerId: $scannerId")
         val o = pitstopCarApi.add(vin,baseMileage,userId,scannerId)
         o.subscribeOn(Schedulers.io())
             .subscribe { response ->
@@ -54,12 +53,15 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
     }
 
     fun updateMileage(id: Int, mileage: Double): Observable<PitstopResponse<Car>> {
+        Log.d(tag,"updateMileage() id: $id, mileage: $mileage")
         val o = pitstopCarApi.updateMileage(id, mileage)
         o.subscribeOn(Schedulers.io())
             .subscribe { response -> localCarStorage.updateCar(response.response) }
+        return o
     }
 
     fun getCarsByUserId(userId: Int): Observable<PitstopResponse<List<Car>>> {
+        Log.d(tag,"getCarsByUserId() userId: $userId")
         val cars = localCarStorage.getCarsByUserId(userId)
         return if (cars.isEmpty()){
             Observable.just(PitstopResponse(cars))
@@ -75,6 +77,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
     }
 
     operator fun get(id: Int): Observable<PitstopResponse<Car>> {
+        Log.d(tag,"get() id: $id")
         val car = localCarStorage.getCar(id)
         return if (car != null){
             Observable.just(PitstopResponse(car))
@@ -90,6 +93,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val pi
     }
 
     fun delete(carId: Int): Observable<PitstopResponse<String>> {
+        Log.d(tag,"delete() carId: $carId")
         val o = pitstopCarApi.delete(carId)
         o.subscribeOn(Schedulers.io())
                 .subscribe { localCarStorage.deleteCar(carId)}
