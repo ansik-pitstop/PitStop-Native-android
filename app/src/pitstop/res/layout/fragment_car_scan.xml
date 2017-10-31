@@ -61,7 +61,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="8dp"
                             android:layout_toRightOf="@+id/car_recall_image"
-                            android:text="Recalls"/>
+                            android:text="@string/recalls"/>
 
                         <include
                             android:id="@+id/loading_recalls"
@@ -147,7 +147,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="8dp"
                             android:layout_toRightOf="@+id/car_service_image"
-                            android:text="Services"/>
+                            android:text="@string/services_nav_text"/>
 
                         <include
                             android:id="@+id/loading_services"
@@ -234,7 +234,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="8dp"
                             android:layout_toRightOf="@+id/car_engine_image"
-                            android:text="Engine issues"/>
+                            android:text="@string/engine_issues"/>
 
                         <include
                             android:id="@+id/loading_engine_issues"
@@ -363,7 +363,7 @@
         android:background="@drawable/color_button_highlight"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:text="Scan Car"
+        android:text="@string/scan_car"
         android:textColor="#FFFFFF"/>
 
 </RelativeLayout>

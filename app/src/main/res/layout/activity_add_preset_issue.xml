@@ -23,7 +23,7 @@
                 android:id="@+id/car_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your car"
+                android:text="@string/your_car"
                 android:textColor="#000"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:gravity="center_vertical"
-            android:text="Dealership"
+            android:text="@string/dealership"
             android:textSize="18sp"/>
 
     </LinearLayout>

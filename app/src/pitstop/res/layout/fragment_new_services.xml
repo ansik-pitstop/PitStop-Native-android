@@ -63,7 +63,7 @@
                         app:srcCompat="@drawable/custom_issue3x" />
 
                     <TextView
-                        android:text="Create Service"
+                        android:text="@string/create_service"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
@@ -184,7 +184,7 @@
                                     android:layout_height="wrap_content" />
 
                                 <TextView
-                                    android:text="You have no pending engine issues, recalls or routine services that are due"
+                                    android:text="@string/no_services_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content" />
 

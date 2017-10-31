@@ -2,16 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Car"
         android:key="pref_car_tile">
-        <Preference android:title="Select as current"
+        <Preference android:title="@string/select_as_current"
             android:key="pref_set_active">
         </Preference>
 
-        <Preference android:title="Change Dealership"
+        <Preference android:title="@string/change_dealership"
             android:key="pref_change_shop"
-            android:summary="Change the shop of this car">
+            android:summary="@string/change_dealership_hint">
         </Preference>
 
-        <Preference android:title="Delete Car"
+        <Preference android:title="@string/delete"
             android:key="pre_delete_car">
         </Preference>
 

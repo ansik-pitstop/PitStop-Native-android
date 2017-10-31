@@ -69,7 +69,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
             }
         });
         //Change toolbar
-        getSupportActionBar().setTitle("Add First Car");
+        getSupportActionBar().setTitle(R.string.add_new_car);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 

@@ -6,29 +6,41 @@
     <PreferenceCategory android:title="My Account">
         <EditTextPreference android:title="Your Name"
             android:key="@string/pref_username_key"
-            android:summary="Tap to change your name">
+            android:summary="@string/tap_to_change_name">
         </EditTextPreference>
 
         <Preference android:title="Email"
             android:key="@string/pref_email_key"
-            android:summary="This is your email address">
+            android:summary="@string/tap_to_change_email">
         </Preference>
 
         <EditTextPreference android:title="Your Phone Number"
             android:key="@string/pref_phone_number_key"
-            android:summary="Tap to change your phone number">
+            android:summary="@string/tap_to_change_phone">
         </EditTextPreference>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="App Info" android:key="@string/appinfo">
-        <Preference android:title="Privacy policy" android:key="@string/pref_privacy_policy" />
-        <Preference android:title="Term of use" android:key="@string/pref_term_of_use"/>
+    <PreferenceCategory
+        android:title="My Vehicles"
+        android:key="@string/pref_vehicles"/>
+
+    <Preference android:title="@string/title_activity_add_car"
+        android:key="add_car_button"
+        android:summary="Tap to add a new vehicle"/>
+
+    <PreferenceCategory
+        android:title="My Created Shops"
+        android:key="pref_shops"/>
+
+    <PreferenceCategory android:title="@string/app_info" android:key="@string/appinfo">
+        <Preference android:title="@string/privacy_policy" android:key="@string/pref_privacy_policy" />
+        <Preference android:title="@string/terms_of_use" android:key="@string/pref_term_of_use"/>
         <Preference
             android:key="@string/pref_logout_key"
             android:title="@string/pref_logout_label" />
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="App Version" android:key="@string/appversion">
+    <PreferenceCategory android:title="@string/app_version" android:key="@string/appversion">
         <Preference
             android:key="AppInfo"
             android:selectable="false"

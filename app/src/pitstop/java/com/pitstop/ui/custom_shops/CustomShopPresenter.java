@@ -1,7 +1,11 @@
 package com.pitstop.ui.custom_shops;
 
+import android.app.Activity;
+import android.content.res.Resources;
+
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.models.Car;
@@ -32,7 +36,7 @@ public class CustomShopPresenter {
     public void setNoDealer(Car car){
         if(customShop == null){return;}
         Dealership dealership = new Dealership();
-        dealership.setName("No Dealership");
+        dealership.setName(((Activity)customShop).getString(R.string.dealership_not_found));
         if(BuildConfig.DEBUG){
             dealership.setId(DEBUG_NO_DEALER);
         }else{

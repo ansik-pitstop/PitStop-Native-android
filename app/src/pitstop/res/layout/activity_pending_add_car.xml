@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="You have 1 car pending to be added!"
+            android:text="@string/car_pending_added"
             android:id="@+id/title"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Please connect to internet to complete the process and see more details about your car."
+            android:text="@string/connect_to_internet"
             android:id="@+id/textView41" />
     </LinearLayout>
 </RelativeLayout>

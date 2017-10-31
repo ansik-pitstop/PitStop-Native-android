@@ -19,7 +19,7 @@
         android:layout_weight="0.4"
         android:background="?attr/colorPrimary"
         android:elevation="1dp"
-        android:text="Save Trip"
+        android:text="@string/save_trip"
         android:textColor="@color/white_text" />
 
     <android.support.v7.widget.CardView

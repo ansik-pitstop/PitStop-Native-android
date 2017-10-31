@@ -12,7 +12,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
         android:layout_above="@id/start_report_button_holder"
-        android:text="Tap to begin"
+        android:text="@string/tap_to_begin"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/primary" />
 

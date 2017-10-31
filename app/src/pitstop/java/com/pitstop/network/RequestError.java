@@ -1,6 +1,9 @@
 package com.pitstop.network;
 
+import android.content.res.Resources;
+
 import com.castel.obd.util.JsonUtil;
+import com.pitstop.R;
 
 /**
  * Created by Paul Soladoye on 14/04/2016.
@@ -56,7 +59,7 @@ public class RequestError {
     public static RequestError getUnknownError() {
         RequestError requestError = new RequestError();
         requestError.setError(ERR_UNKNOWN);
-        requestError.setMessage("Couldn't connect to server.  Please try again.");
+        requestError.setMessage("Please check your internet connection");
 
         return requestError;
     }
@@ -64,7 +67,7 @@ public class RequestError {
     public static RequestError getOfflineError(){
         RequestError requestError = new RequestError();
         requestError.setError(ERR_OFFLINE);
-        requestError.setMessage("No internet connection.");
+        requestError.setMessage("Please check your internet connection");
 
         return requestError;
     }

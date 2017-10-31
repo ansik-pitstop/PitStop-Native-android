@@ -57,7 +57,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ADD VEHICLE"
+                android:text="@string/add_vehicle"
                 android:id="@+id/textView47"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"
@@ -87,7 +87,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="REFRESH STORAGE"
+                android:text="@string/refresh_storage"
                 android:id="@+id/textView46"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"
@@ -117,7 +117,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SETTINGS"
+                android:text="@string/settings"
                 android:id="@+id/textView2"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"

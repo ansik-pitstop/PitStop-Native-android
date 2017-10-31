@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Appointment" />
+            android:text="@string/appointment" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,7 +36,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="Shop"
+                    android:text="@string/shop"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
                 <RelativeLayout
@@ -77,7 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="Date"
+                    android:text="@string/date"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
             </LinearLayout>
@@ -98,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_margin="10dp"
-                        android:text="Tap to select date" />
+                        android:text="@string/select_date" />
 
                     <ImageView
                         android:id="@+id/imageView1"
@@ -139,7 +139,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="Time"
+                    android:text="@string/time"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
             </LinearLayout>
@@ -161,7 +161,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_margin="10dp"
-                        android:text="Tap to select time" />
+                        android:text="@string/select_time" />
 
                     <ImageView
                         android:id="@+id/imageView31"
@@ -204,7 +204,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Services" />
+            android:text="@string/services_nav_text" />
 
         <RelativeLayout
             android:id="@+id/service_chosen_list_holder"
@@ -244,7 +244,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="Add More Services"
+                    android:text="@string/add_more_services"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button" />
             </LinearLayout>
         </LinearLayout>
@@ -268,7 +268,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Additional Info" />
+            android:text="@string/additional_info" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -287,7 +287,7 @@
                 android:layout_margin="10dp"
                 android:background="@color/white"
                 android:ems="10"
-                android:hint="Additional Comments"
+                android:hint="@string/additional_comments"
                 android:inputType="textMultiLine"
                 android:maxLines="6" />
 
@@ -299,7 +299,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.14"
-            android:text="Submit" />
+            android:text="@string/submit_button" />
 
     </LinearLayout>
 </ScrollView>

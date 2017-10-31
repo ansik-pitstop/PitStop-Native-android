@@ -48,6 +48,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @BindView(R.id.service_description)
     TextView serviceDescription;
 
+
     @BindView(R.id.service_action_button)
     RelativeLayout actionButton;
     @BindView(R.id.service_action_list)
@@ -135,7 +136,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.length() == 0){
-                    serviceDescription.setText("Description");
+                    serviceDescription.setText(getString(R.string.description));
                 }else{
                     serviceDescription.setText("");
                 }
@@ -280,7 +281,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     public void showReminder(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(message)
-                .setTitle("Reminder");
+                .setTitle(getString(R.string.reminder));
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -291,7 +292,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
                 , Calendar.getInstance(), (datePicker, i, i1, i2) -> {// year month day
                     presenter.datePicked(i,i1,i2);
                 });
-        datePickerDialog.setTitle("Select when you completed this service.");
+        datePickerDialog.setTitle(getString(R.string.service_date_picker_title));
         datePickerDialog.show();
     }
 

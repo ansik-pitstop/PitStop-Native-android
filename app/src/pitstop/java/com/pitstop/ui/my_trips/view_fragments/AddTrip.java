@@ -75,12 +75,12 @@ public class AddTrip extends Fragment {
             for (Trip curTrip : prevTripList) {
                 totalDist += curTrip.getTotalDistance();
             }
-            tripCount.setText("Trips made: " + prevTripList.size());
-            totalDistnace.setText("Total distance traveled: " + decimalFormat.format(totalDist / 1000) + " km");//to meters
+            tripCount.setText(getString(R.string.tripsMade) + prevTripList.size());
+            totalDistnace.setText(getString(R.string.total_distance_travelled) + decimalFormat.format(totalDist / 1000) + getString(R.string.kilometers_unit));//to meters
             startTime.setText(dateFormat(prevTrip.getStart().getTime()));
             startAddress.setText(prevTrip.getStartAddress());
             endAddress.setText(prevTrip.getEndAddress());
-            tripDistance.setText(decimalFormat.format(prevTrip.getTotalDistance() / 1000) + " km");// total distance in meters
+            tripDistance.setText(decimalFormat.format(prevTrip.getTotalDistance() / 1000) + getString(R.string.kilometers_unit));// total distance in meters
         }else{
 
         }
