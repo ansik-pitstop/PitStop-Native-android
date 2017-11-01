@@ -3,6 +3,7 @@ package com.pitstop.dependency;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.utils.NetworkHelper;
@@ -14,6 +15,7 @@ import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -47,6 +49,8 @@ public class NetworkModule {
 
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
@@ -57,7 +61,9 @@ public class NetworkModule {
                             .header("Authorization", "Bearer "+application);
 
                     return chain.proceed(builder.build());
-                }).build();
+                })
+                .addInterceptor(loggingInterceptor)
+                .build();
     }
 
     @Provides

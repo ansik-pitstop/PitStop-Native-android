@@ -9,6 +9,8 @@ import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
+import io.reactivex.observers.DisposableObserver
+import io.reactivex.schedulers.Schedulers
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -25,7 +27,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     , private val networkHelper: NetworkHelper
                     , private val carApi: PitstopCarApi) : Repository {
 
-    private val TAG = javaClass.simpleName
+    private val tag = javaClass.simpleName
 
     fun getCarByVin(vin: String, callback: Repository.Callback<Car>) {
         networkHelper.get("car/?vin=" + vin) { response, requestError ->
@@ -57,7 +59,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     fun getShopId(carId: Int, callback: Repository.Callback<Int>) {
         networkHelper.get("v1/car/shop?carId=" + carId) { response, requestError ->
             if (requestError == null) {
-                Log.d(TAG, "getShopId resposne: " + response)
+                Log.d(tag, "getShopId resposne: " + response)
                 try {
                     val jsonResponse = JSONObject(response)
                             .getJSONArray("response").getJSONObject(0)
@@ -182,9 +184,24 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     operator fun get(id: Int): Observable<Response<Car>> {
 
         val local = Observable.just(Response(localCarStorage.getCar(id),true))
-        val remote = carApi.getCar(id)
+        val remote: Observable<Response<Car>> = carApi.getCar(id)
                 .map { pitstopResponse -> Response(pitstopResponse.response, false) }
-        return Observable.concat(local,remote)
+        val final = Observable.concat(local,remote)
+        final.subscribeOn(Schedulers.io())
+            .subscribeWith(object: DisposableObserver<Response<Car>>(){
+                override fun onNext(t: Response<Car>) {
+                    Log.d(tag,"onNext() car: $t")
+                }
+
+                override fun onComplete() {
+                    Log.d(tag,"onComplete()")
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.d(tag,"onError() err: $e")
+                }
+            })
+        return final
 //
 //        if (localCarStorage.getCar(id) != null) {
 //            callback.onSuccess(localCarStorage.getCar(id))
