@@ -33,11 +33,15 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
             override fun onSuccess(settings: Settings){
 
                 if (!settings.hasMainCar()){
-                    callback?.onError(RequestError.getUnknownError());
+                    callback?.onError(RequestError.getUnknownError())
                     return
                 }
 
                 carRepository.get(settings.carId).doOnNext({response ->
+                    if (response.data == null){
+                        callback?.onError(RequestError.getUnknownError())
+                        return@doOnNext
+                    }
                     for ((dtc, isPending) in dtcPackage!!.dtcs){
                         Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
                         carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
