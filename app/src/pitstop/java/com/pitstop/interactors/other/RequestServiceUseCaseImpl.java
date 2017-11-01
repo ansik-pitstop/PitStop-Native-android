@@ -55,30 +55,25 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                 userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
                     public void onSuccess(Settings data) {
-                        carRepository.get(data.getCarId(), new CarRepository.Callback<Car>() {
-                            @Override
-                            public void onSuccess(Car car) {
-                                Appointment appointment = new Appointment(car.getShopId()
-                                        , state, timeStamp, comments);
-                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
-                                        , new Repository.Callback<Object>() {
+                        carRepository.get(data.getCarId()).doOnNext(response -> {
+                            Car car = response.getData();
+                            Appointment appointment = new Appointment(car.getShopId()
+                                    , state, timeStamp, comments);
+                            carIssueRepository.requestService(user.getId(), car.getId(), appointment
+                                    , new Repository.Callback<Object>() {
 
-                                    @Override
-                                    public void onSuccess(Object object) {
-                                        RequestServiceUseCaseImpl.this.onServicesRequested();
-                                    }
+                                        @Override
+                                        public void onSuccess(Object object) {
+                                            RequestServiceUseCaseImpl.this.onServicesRequested();
+                                        }
 
-                                    @Override
-                                    public void onError(RequestError error){
-                                        RequestServiceUseCaseImpl.this.onError(error);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                RequestServiceUseCaseImpl.this.onError(error);
-                            }
+                                        @Override
+                                        public void onError(RequestError error){
+                                            RequestServiceUseCaseImpl.this.onError(error);
+                                        }
+                                    });
+                        }).doOnError(err -> {
+                           //Todo: Error handling
                         });
                     }
 

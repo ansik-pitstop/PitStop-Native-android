@@ -63,29 +63,22 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
-                    carRepository.get(userSettings.getCarId(), new CarRepository.Callback<Car>() {
-                        @Override
-                        public void onSuccess(Car car) {
-                            car.setCurrentCar(true);
-                            shopRepository.get(car.getShopId(), new Repository.Callback<Dealership>() {
+                    carRepository.get(userSettings.getCarId()).doOnNext(response -> {
+                        response.getData().setCurrentCar(true);
+                        shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
 
-                                @Override
-                                public void onSuccess(Dealership dealership) {
-                                    GetUserCarUseCaseImpl.this.onCarRetrieved(car, dealership);
-                                }
+                            @Override
+                            public void onSuccess(Dealership dealership) {
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership);
+                            }
 
-                                @Override
-                                public void onError(RequestError error) {
-                                    GetUserCarUseCaseImpl.this.onError(error);
-                                }
-                            });
-
-                        }
-
-                        @Override
-                        public void onError(RequestError error) {
-                            GetUserCarUseCaseImpl.this.onError(error);
-                        }
+                            @Override
+                            public void onError(RequestError error) {
+                                GetUserCarUseCaseImpl.this.onError(error);
+                            }
+                        });
+                    }).doOnError(err -> {
+                        //Todo: error handling
                     });
                     return;
                 }

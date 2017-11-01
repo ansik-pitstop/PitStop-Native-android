@@ -3,7 +3,6 @@ package com.pitstop.interactors.add
 import android.os.Handler
 import android.util.Log
 import com.pitstop.bluetooth.dataPackages.DtcPackage
-import com.pitstop.models.Car
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarIssueRepository
@@ -38,40 +37,32 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                carRepository.get(settings.carId, object : Repository.Callback<Car> {
+                carRepository.get(settings.carId).doOnNext({response ->
+                    for ((dtc, isPending) in dtcPackage!!.dtcs){
+                        Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
+                        carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
+                                , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
 
-                    override fun onSuccess(car: Car){
-
-                        for ((dtc, isPending) in dtcPackage!!.dtcs){
-                            Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
-                            carIssueRepository.insertDtc(settings.carId, car.totalMileage
-                                    , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
-
-                                override fun onSuccess(dtcCode: String){
-                                    Log.d(tag,"successfully added dtc code: "+dtcCode)
-                                    if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
-                                        mainHandler.post({callback?.onDtcPackageAdded(dtcPackage as DtcPackage)})
-                                        Log.d(tag,"Added entire DtcPackage");
-                                    }
-
-                                }
-                                override fun onError(error: RequestError){
-                                    Log.d(tag,"Error adding dtc err: "+error.message)
-                                    Log.d(tag,"dtcPackage: "+dtcPackage)
-                                    mainHandler.post({callback?.onError(error)})
+                            override fun onSuccess(dtcCode: String){
+                                Log.d(tag,"successfully added dtc code: "+dtcCode)
+                                if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
+                                    mainHandler.post({callback?.onDtcPackageAdded(dtcPackage as DtcPackage)})
+                                    Log.d(tag,"Added entire DtcPackage");
                                 }
 
-                            })
-                        }
+                            }
+                            override fun onError(error: RequestError){
+                                Log.d(tag,"Error adding dtc err: "+error.message)
+                                Log.d(tag,"dtcPackage: "+dtcPackage)
+                                mainHandler.post({callback?.onError(error)})
+                            }
 
+                        })
                     }
-                    override fun onError(error: RequestError){
-                        Log.d(tag,"Error retrieving car err: "+error.message)
-                        mainHandler.post({callback?.onError(error)})
-                    }
-
+                }).doOnError({err ->
+                    Log.d(tag,"Error retrieving car err: "+err.message)
+                    //Todo: error handling
                 })
-
             }
             override fun onError(error: RequestError){
                 Log.d(tag,"Error retrieving user err: "+error.message)

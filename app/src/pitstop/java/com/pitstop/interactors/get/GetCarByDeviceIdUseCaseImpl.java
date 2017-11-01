@@ -2,7 +2,6 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -50,18 +49,11 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
 
                     @Override
                     public void onSuccess(ObdScanner obdScanner) {
-                        carRepository.get(obdScanner.getCarId(), new Repository.Callback<Car>() {
-
-                            @Override
-                            public void onSuccess(Car car) {
-                                if (car == null) callback.onNoCarFound();
-                                else callback.onGotCar(car);
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                callback.onError(error);
-                            }
+                        carRepository.get(obdScanner.getCarId()).doOnNext(response -> {
+                            if (response.getData() == null) callback.onNoCarFound();
+                            else callback.onGotCar(response.getData());
+                        }).doOnError(err -> {
+                            //Todo: Error handling
                         });
                     }
 

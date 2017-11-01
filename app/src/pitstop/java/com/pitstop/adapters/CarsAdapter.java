@@ -88,11 +88,11 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 scanner.setTextColor(Color.GRAY);
                 dealershipName.setTextColor(Color.GRAY);
             }
-            if(car.getScannerId() == null){
+            if(car.getScanner() == null){
                 scanner.setText("No Paired Device");
             }
             else {
-                scanner.setText(car.getScannerId());
+                scanner.setText(car.getScanner());
             }
             if (dealership.getName().equalsIgnoreCase("No Dealership")
                     || !dealership.getName().equalsIgnoreCase("No Shop") ) {

@@ -1,20 +1,18 @@
 package com.pitstop.repositories
 
 import android.util.Log
-
 import com.google.gson.JsonIOException
 import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.network.RequestError
+import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
-
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -23,7 +21,9 @@ import java.util.ArrayList
  * Created by Karol Zdebel on 5/26/2017.
  */
 
-class CarRepository(private val localCarStorage: LocalCarStorage, private val networkHelper: NetworkHelper) : Repository {
+class CarRepository(private val localCarStorage: LocalCarStorage
+                    , private val networkHelper: NetworkHelper
+                    , private val carApi: PitstopCarApi) : Repository {
 
     private val TAG = javaClass.simpleName
 
@@ -130,7 +130,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val ne
         }, body)
     }
 
-    fun getCarsByUserId(userId: Int): Observable<Response<Car>> {
+    fun getCarsByUserId(userId: Int, callback: Repository.Callback<List<Car>>) {
 
 //        val localResponse = Observable.just(Response(localCarStorage.allCars,null,true))
        // return Observable.concat(localResponse, )
@@ -179,32 +179,38 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val ne
         }
     }
 
-    operator fun get(id: Int, callback: Repository.Callback<Car>) {
-        if (localCarStorage.getCar(id) != null) {
-            callback.onSuccess(localCarStorage.getCar(id))
-            return
-        }
-        networkHelper.getCarsById(id) { response, requestError ->
-            try {
-                if (requestError == null) {
-                    val car = Car.createCar(response)
-                    if (car.shopId == 0)
-                    //Todo: remove correcting shopId below
-                        if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA || BuildConfig.DEBUG)
-                            car.shopId = 1
-                        else
-                            car.shopId = 19
+    operator fun get(id: Int): Observable<Response<Car>> {
 
-                    localCarStorage.deleteCar(car.id)
-                    localCarStorage.storeCarData(car)
-                    callback.onSuccess(car)
-                } else {
-                    callback.onError(requestError)
-                }
-            } catch (e: JSONException) {
-                callback.onError(RequestError.getUnknownError())
-            }
-        }
+        val local = Observable.just(Response(localCarStorage.getCar(id),true))
+        val remote = carApi.getCar(id)
+                .map { pitstopResponse -> Response(pitstopResponse.response, false) }
+        return Observable.concat(local,remote)
+//
+//        if (localCarStorage.getCar(id) != null) {
+//            callback.onSuccess(localCarStorage.getCar(id))
+//            return
+//        }
+//        networkHelper.getCarsById(id) { response, requestError ->
+//            try {
+//                if (requestError == null) {
+//                    val car = Car.createCar(response)
+//                    if (car.shopId == 0)
+//                    //Todo: remove correcting shopId below
+//                        if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA || BuildConfig.DEBUG)
+//                            car.shopId = 1
+//                        else
+//                            car.shopId = 19
+//
+//                    localCarStorage.deleteCar(car.id)
+//                    localCarStorage.storeCarData(car)
+//                    callback.onSuccess(car)
+//                } else {
+//                    callback.onError(requestError)
+//                }
+//            } catch (e: JSONException) {
+//                callback.onError(RequestError.getUnknownError())
+//            }
+//        }
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {
@@ -219,19 +225,6 @@ class CarRepository(private val localCarStorage: LocalCarStorage, private val ne
             } catch (e: JsonIOException) {
                 callback.onError(RequestError.getUnknownError())
             }
-        }
-    }
-
-    companion object {
-
-        private var INSTANCE: CarRepository? = null
-
-        @Synchronized
-        fun getInstance(localCarStorage: LocalCarStorage, networkHelper: NetworkHelper): CarRepository {
-            if (INSTANCE == null) {
-                INSTANCE = CarRepository(localCarStorage, networkHelper)
-            }
-            return INSTANCE
         }
     }
 }

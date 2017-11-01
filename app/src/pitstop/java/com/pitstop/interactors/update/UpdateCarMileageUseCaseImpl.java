@@ -2,7 +2,6 @@ package com.pitstop.interactors.update;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -61,28 +60,22 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return;
                 }
 
-                carRepository.get(settings.getCarId(), new Repository.Callback<Car>() {
-                    @Override
-                    public void onSuccess(Car car) {
-                        car.setTotalMileage(mileage);
-                        carRepository.update(car, new Repository.Callback<Object>() {
+                carRepository.get(settings.getCarId()).doOnNext(response -> {
+                    response.getData().setTotalMileage(mileage);
+                    carRepository.update(response.getData(), new Repository.Callback<Object>() {
 
-                            @Override
-                            public void onSuccess(Object response){
-                                UpdateCarMileageUseCaseImpl.this.onMileageUpdated();
-                            }
+                        @Override
+                        public void onSuccess(Object response){
+                            UpdateCarMileageUseCaseImpl.this.onMileageUpdated();
+                        }
 
-                            @Override
-                            public void onError(RequestError error){
-                                UpdateCarMileageUseCaseImpl.this.onError(error);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        UpdateCarMileageUseCaseImpl.this.onError(error);
-                    }
+                        @Override
+                        public void onError(RequestError error){
+                            UpdateCarMileageUseCaseImpl.this.onError(error);
+                        }
+                    });
+                }).doOnError(err -> {
+                    //Todo: error handling
                 });
             }
 

@@ -11,21 +11,21 @@ import kotlinx.android.parcel.Parcelize
 data class PitstopResponse<T>(val response: T)
 
 data class Token(val value: String)
-
-@Parcelize
-data class Car(
-        val _id: Int,
-        val vin: String,
-        val year: Int,
-        val make: String,
-        val model: String,
-        val trim: String,
-        val engine: String,
-        val tankSize: String?,
-        val userId: Int,
-        val cityMileage: String?,
-        val highwayMileage: String?,
-        val baseMileage: Int,
-        val totalMileage: Int,
-        val salesperson: String?
-):Parcelable
+//
+//@Parcelize
+//data class Car(
+//        val _id: Int,
+//        val vin: String,
+//        val year: Int,
+//        val make: String,
+//        val model: String,
+//        val trim: String,
+//        val engine: String,
+//        val tankSize: String?,
+//        val userId: Int,
+//        val cityMileage: String?,
+//        val highwayMileage: String?,
+//        val baseMileage: Int,
+//        val totalMileage: Int,
+//        val salesperson: String?
+//):Parcelable

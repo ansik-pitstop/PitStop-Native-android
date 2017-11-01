@@ -209,7 +209,7 @@ public class LocalCarStorage {
         car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
         car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
-        car.setScannerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
+        car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
         car.setUserId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
         car.setShopId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
         car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
@@ -229,7 +229,7 @@ public class LocalCarStorage {
         values.put(TABLES.CAR.KEY_TRIM, car.getTrim());
         values.put(TABLES.CAR.KEY_ENGINE, car.getEngine());
         values.put(TABLES.CAR.KEY_VIN, car.getVin());
-        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScannerId());
+        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScanner());
         values.put(TABLES.CAR.KEY_USER_ID, car.getUserId());
         values.put(TABLES.CAR.KEY_SHOP_ID, car.getShopId());
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());

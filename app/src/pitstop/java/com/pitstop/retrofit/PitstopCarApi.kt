@@ -1,5 +1,6 @@
 package com.pitstop.retrofit
 
+import com.pitstop.models.Car
 import io.reactivex.Observable
 import retrofit2.http.*
 
@@ -8,7 +9,7 @@ import retrofit2.http.*
  */
 interface PitstopCarApi {
 
-    @GET("v1/car/{carId}")
+    @GET("car/{carId}")
     fun getCar(@Path("carId") id: Int): Observable<PitstopResponse<Car>>
 
     @PUT("v1/car/{carId}")
