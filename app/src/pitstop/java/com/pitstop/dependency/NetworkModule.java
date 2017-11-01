@@ -62,7 +62,7 @@ public class NetworkModule {
 
                     return chain.proceed(builder.build());
                 })
-                .addInterceptor(loggingInterceptor)
+                //.addInterceptor(loggingInterceptor)
                 .build();
     }
 

@@ -182,7 +182,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     operator fun get(id: Int): Observable<Response<Car>> {
-
+        Log.d(tag,"get() id: $id")
         val local = Observable.just(Response(localCarStorage.getCar(id),true))
         val remote: Observable<Response<Car>> = carApi.getCar(id)
                 .map { pitstopResponse -> Response(pitstopResponse.response, false) }
