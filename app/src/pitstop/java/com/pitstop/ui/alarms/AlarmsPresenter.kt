@@ -17,11 +17,10 @@ import kotlin.collections.ArrayList
 class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper: MixpanelHelper) {
 
     private val TAG = javaClass.simpleName
-    val alarmList = ArrayList<Alarm>()
     var alarmsView: AlarmsView? = null
     var currCarGot: Boolean = false
     var carMercedes: Boolean = false;
-    var carId: Int? = null
+    var carId: Int = 0
     var alarmsMap : HashMap<String, ArrayList<Alarm>> = HashMap();
 
     fun subscribe(view: AlarmsView) {
@@ -33,12 +32,33 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
     }
 
     fun onUpdateNeeded() {
+        Log.d(TAG, "onUpdateNeeded")
         if (!currCarGot) {
+            Log.d(TAG, "car not got, getting car");
             useCaseComponent.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
                 override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
+                    Log.d(TAG, "carGot");
                     currCarGot = true
-                    carId = car?.id
+                    carId = car?.id!!
                     carMercedes = (car?.shopId == 4 || car?.shopId == 18)
+                    Log.d(TAG, "getting alarms");
+                    useCaseComponent.alarmsUseCase.execute(carId!!, object: GetAlarmsUseCase.Callback{
+                        override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>) {
+                            if (alarmsView == null) return;
+                            if (alarms.isEmpty()) alarmsView?.noAlarmsView();
+                            else {
+                                alarmsMap.clear();
+                                for (key in alarms.keys){
+                                    alarmsMap[key] = alarms[key]!!;
+                                }
+                                alarmsView?.populateAlarms(carMercedes);
+                            }
+                        }
+
+                        override fun onError(error: RequestError) {
+                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        }
+                    })
                 }
 
                 override fun onNoCarSet() {
@@ -49,8 +69,8 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
                 }
             })
         }
-
-        if (carId!=null){
+        if (carId!=0){
+            Log.d(TAG, "getting alarms");
             useCaseComponent.alarmsUseCase.execute(carId!!, object: GetAlarmsUseCase.Callback{
                 override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>) {
                     if (alarmsView == null) return;

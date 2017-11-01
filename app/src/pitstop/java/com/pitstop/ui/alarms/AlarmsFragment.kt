@@ -69,7 +69,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver {
         super.onPause()
         if (presenter!=null) {
             presenter?.currCarGot = false;
-            presenter?.carId = null
+            presenter?.carId = 0
         }
     }
 
@@ -91,10 +91,9 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver {
         presenter?.subscribe(this)
         noALarmsView = view?.findViewById(R.id.no_alarms_view)
         recyclerView = view?.findViewById(R.id.main_recycler_view)
-        alarmsAdapter = AlarmsAdapter(presenter?.alarmsMap)
+        alarmsAdapter = AlarmsAdapter(presenter?.alarmsMap, activity)
         recyclerView?.layoutManager = LinearLayoutManager(activity)
         recyclerView?.adapter = alarmsAdapter
-
         return view!!
     }
 

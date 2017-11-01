@@ -51,6 +51,12 @@ class GetAlarmsUseCaseImpl(val localAlarmStorage: LocalAlarmStorage,
                         map.put(currDate, currArrayList);
                     }
                 }
+                for(item in map.keys){
+                    var list : ArrayList<Alarm> = map[item]!!
+                    for (alarm in list){
+                        Log.d(TAG, "Alarms : " + alarm.alarmEvent.toString()  + " " + alarm.alarmValue.toString() + alarm.rtcTime)
+                    }
+                }
                 mainHandler.post({callback?.onAlarmsGot(map)})
             }
             override fun onError(error: RequestError?) {

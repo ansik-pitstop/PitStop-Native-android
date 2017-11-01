@@ -1,6 +1,9 @@
 package com.pitstop.adapters;
 
+import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import bolts.Bolts;
+
 /**
  * Created by ishan on 2017-10-30.
  */
@@ -25,27 +30,27 @@ import java.util.List;
 public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewHolder> {
     public static final String TAG = AlarmsAdapter.class.getSimpleName();
     private LinkedHashMap<String, ArrayList<Alarm>> alarmList;
-
-
     public boolean isDealershipMercedes = false;
-
-
-    public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map){
+    Context ctx;
+    public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map, Context context){
+        Log.d(TAG, "AlarmsAdapter");
         this.alarmList = new LinkedHashMap<>(map);
+        this.ctx = context;
     }
 
 
     @Override
     public AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_alarm, parent, false);
+        Log.d(TAG, "onCreateViewHolder");
+        View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_day_alarms, parent, false);
         AlarmsAdapter.AlarmViewHolder alarmViewHolder = new AlarmViewHolder(view);
         return  alarmViewHolder;
-
     }
 
     @Override
     public void onBindViewHolder(AlarmViewHolder holder, int position) {
-        holder.bind(alarmList.get(ala, isDealershipMercedes);
+        Log.d(TAG, "onBindVIewHolder");
+        holder.bind(alarmList.get(alarmList.keySet().toArray()[position]), ctx,(String) alarmList.keySet().toArray()[position] , isDealershipMercedes);
 
     }
     public void setDealershipMercedes(boolean dealershipMercedes) {
@@ -55,6 +60,7 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
     @Override
     public int getItemCount() {
+        Log.d(TAG, Integer.toString(alarmList.size()));
         return alarmList.size();
     }
 
@@ -66,29 +72,86 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
     public class AlarmViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView alarmIcon;
-        TextView alarmName;
-        TextView alarmValue;
-        TextView alarmTime;
+       TextView dateView;
+       RecyclerView recyclerView;
 
         public AlarmViewHolder(View itemView) {
             super(itemView);
-            this.alarmIcon = itemView.findViewById(R.id.alarm_icon);
-            this.alarmName = itemView.findViewById(R.id.alarm_name);
-            this.alarmValue = itemView.findViewById(R.id.alarm_value);
-            this.alarmTime  = itemView.findViewById(R.id.alarm_time);
+            Log.d("alarmViewHolder", "ALarmViewholder:); ");
+            this.dateView = itemView.findViewById(R.id.alarm_date);
+            this.recyclerView  = itemView.findViewById(R.id.alarms_rec_view);
         }
 
-        public void bind(Alarm alarm, boolean isDealershipMercedes){
-            alarmIcon.setImageResource(getAlarmIcon(alarm.getAlarmEvent(), isDealershipMercedes));
-            alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
-            alarmValue.setText(Float.toString(alarm.getAlarmValue()));
-            Date date = new Date ();
-            date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
-            alarmTime.setText(date.toString());
-
+        public void bind(List<Alarm> alarmList,Context context,  String year, boolean isDealershipMercedes){
+            Log.d(TAG, year);
+            dateView.setText(year);
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            dayAlarmAdapter  adapter = new dayAlarmAdapter(alarmList, isDealershipMercedes);
+            recyclerView.setAdapter(adapter);
         }
     }
+
+
+    private class dayAlarmAdapter extends RecyclerView.Adapter<dayAlarmAdapter.alarmView>{
+
+        List<Alarm> alarmList;
+        Boolean isDealershipMercedes = false;
+
+        public dayAlarmAdapter(List<Alarm> alarms, boolean mercedes){
+            Log.d(TAG, "dayAlarmAdapter");
+            this.alarmList = alarms;
+            this.isDealershipMercedes = mercedes;
+
+        }
+        @Override
+        public alarmView onCreateViewHolder(ViewGroup parent, int viewType) {
+            Log.d(TAG, "onSubCreateVIewHolder");
+            View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_alarm, parent, false);
+            alarmView alarmView = new alarmView(view);
+            return  alarmView;
+        }
+
+        @Override
+        public void onBindViewHolder(alarmView holder, int position) {
+            Log.d(TAG, "onSubCreatebindHolder");
+            holder.bind(alarmList.get(position),isDealershipMercedes );
+        }
+
+        @Override
+        public int getItemCount() {
+            return alarmList.size();
+        }
+
+        class alarmView extends RecyclerView.ViewHolder{
+
+            ImageView alarmIcon;
+            TextView alarmName;
+            TextView alarmValue;
+            TextView alarmTime;
+
+            public alarmView(View itemView) {
+                super(itemView);
+                this.alarmIcon = itemView.findViewById(R.id.alarm_icon);
+                this.alarmName = itemView.findViewById(R.id.alarm_name);
+                this.alarmValue = itemView.findViewById(R.id.alarm_value);
+                this.alarmTime  = itemView.findViewById(R.id.alarm_time);
+            }
+
+            public void bind(Alarm alarm, boolean isDealershipMercedes){
+                Log.d(TAG, getAlarmName(alarm.getAlarmEvent()));
+                alarmIcon.setImageResource(getAlarmIcon(alarm.getAlarmEvent(), isDealershipMercedes));
+                alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
+                alarmValue.setText(Float.toString(alarm.getAlarmValue()));
+                Date date = new Date ();
+                date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
+                alarmTime.setText(date.toString());
+            }
+        }
+
+
+    }
+
+
 
     public int getAlarmIcon(int alarmEvent, boolean mercedes){
         if (mercedes){
