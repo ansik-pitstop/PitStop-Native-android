@@ -81,3 +81,9 @@ JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getMashapeKey(JNIEnv *env, jobject instance) {
     return (*env) ->  NewStringUTF(env, "Rg3YqzHEJmmshZIoHi4smSVbZvudp1ywHEEjsn0dR4DyKVyF5z");
 }
+
+//Google sender id
+JNIEXPORT jstring JNICALL
+Java_com_pitstop_utils_SecretUtils_getGoogleSenderId(JNIEnv *env, jobject instance) {
+    return (*env) ->  NewStringUTF(env, "309712221750");
+}
