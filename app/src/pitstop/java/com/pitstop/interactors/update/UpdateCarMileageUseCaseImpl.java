@@ -61,7 +61,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return;
                 }
 
-                carRepository.get(settings.getCarId(), settings.getUserId(), new Repository.Callback<Car>() {
+                carRepository.get(settings.getCarId(), new Repository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
                         car.setTotalMileage(mileage);

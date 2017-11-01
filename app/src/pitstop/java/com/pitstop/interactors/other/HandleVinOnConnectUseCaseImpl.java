@@ -120,7 +120,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
 
                 //Get user car
-                carRepository.get(data.getCarId(), data.getUserId(), new CarRepository.Callback<Car>() {
+                carRepository.get(data.getCarId(), new CarRepository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
 

@@ -54,7 +54,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
             @Override
             public void onSuccess(User user) {
-                carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
+                carRepository.get(carId, new Repository.Callback<Car>() {
 
                     @Override
                     public void onSuccess(Car car) {

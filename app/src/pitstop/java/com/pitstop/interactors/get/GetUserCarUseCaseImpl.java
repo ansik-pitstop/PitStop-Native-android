@@ -63,7 +63,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
-                    carRepository.get(userSettings.getCarId(), userSettings.getUserId(), new CarRepository.Callback<Car>() {
+                    carRepository.get(userSettings.getCarId(), new CarRepository.Callback<Car>() {
                         @Override
                         public void onSuccess(Car car) {
                             car.setCurrentCar(true);

@@ -38,7 +38,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                carRepository.get(settings.carId, settings.userId, object : Repository.Callback<Car> {
+                carRepository.get(settings.carId, object : Repository.Callback<Car> {
 
                     override fun onSuccess(car: Car){
 

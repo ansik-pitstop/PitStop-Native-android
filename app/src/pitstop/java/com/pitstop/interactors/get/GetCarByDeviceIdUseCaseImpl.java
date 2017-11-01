@@ -50,7 +50,7 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
 
                     @Override
                     public void onSuccess(ObdScanner obdScanner) {
-                        carRepository.get(obdScanner.getCarId(), user.getId(), new Repository.Callback<Car>() {
+                        carRepository.get(obdScanner.getCarId(), new Repository.Callback<Car>() {
 
                             @Override
                             public void onSuccess(Car car) {

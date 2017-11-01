@@ -55,7 +55,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                 userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
                     public void onSuccess(Settings data) {
-                        carRepository.get(data.getCarId(), user.getId(), new CarRepository.Callback<Car>() {
+                        carRepository.get(data.getCarId(), new CarRepository.Callback<Car>() {
                             @Override
                             public void onSuccess(Car car) {
                                 Appointment appointment = new Appointment(car.getShopId()
