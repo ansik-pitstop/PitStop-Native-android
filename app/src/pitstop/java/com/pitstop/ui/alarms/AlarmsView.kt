@@ -7,9 +7,9 @@ import com.pitstop.network.RequestError
  * Created by ishan on 2017-10-30.
  */
 interface AlarmsView {
-    fun noCarView()
-    fun populateAlarms()
-    fun errorView()
+    fun populateAlarms(isDealershipMercedes: Boolean)
+    fun noAlarmsView()
+    fun showAlarmsView()
 
 
 }

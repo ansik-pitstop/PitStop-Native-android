@@ -1231,8 +1231,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void notifyAlarmAdded(Alarm alarm) {
+        Log.d(TAG, "notifyAlarmAdded");
         for (Observer o: observerList){
             if (o instanceof AlarmObserver){
+                Log.d(TAG, "alarm alarmobserver");
                 ((AlarmObserver) o).onAlarmAdded(alarm);
             }
         }

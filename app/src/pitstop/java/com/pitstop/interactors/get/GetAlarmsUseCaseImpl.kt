@@ -9,6 +9,9 @@ import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 /**
  * Created by ishan on 2017-10-30.
@@ -34,9 +37,22 @@ class GetAlarmsUseCaseImpl(val localAlarmStorage: LocalAlarmStorage,
             override fun onSuccess(data: List<Alarm>?) {
                 Log.d(TAG, "getAlarmsSuccess()");
                 val arrayListAlarm: ArrayList<Alarm>  = ArrayList(data)
-                mainHandler.post({callback?.onAlarmsGot(arrayListAlarm)})
+                var map: HashMap<String, ArrayList<Alarm>> = HashMap();
+                for (alarm in arrayListAlarm) {
+                    val date = Date()
+                    date.time = java.lang.Long.parseLong(alarm.rtcTime) * 1000
+                    val currDate: String = (date.month.toString() + " " + date.day.toString() + " " + date.year.toString())
+                    if (map.containsKey(currDate)){
+                        map[currDate]?.add(alarm)
+                    }
+                    else {
+                        var currArrayList: ArrayList<Alarm> = ArrayList();
+                        currArrayList.add(alarm);
+                        map.put(currDate, currArrayList);
+                    }
+                }
+                mainHandler.post({callback?.onAlarmsGot(map)})
             }
-
             override fun onError(error: RequestError?) {
                 Log.d(TAG, "getAlarmsError()")
                 mainHandler.post({callback?.onError(RequestError.getUnknownError())})

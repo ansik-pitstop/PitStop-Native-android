@@ -13,6 +13,9 @@ import com.pitstop.models.Alarm;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -21,11 +24,14 @@ import java.util.List;
 
 public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewHolder> {
     public static final String TAG = AlarmsAdapter.class.getSimpleName();
-    private List<Alarm> alarmList;
+    private LinkedHashMap<String, ArrayList<Alarm>> alarmList;
 
 
-    public AlarmsAdapter(List<Alarm> list){
-        this.alarmList = list;
+    public boolean isDealershipMercedes = false;
+
+
+    public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map){
+        this.alarmList = new LinkedHashMap<>(map);
     }
 
 
@@ -39,9 +45,13 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
     @Override
     public void onBindViewHolder(AlarmViewHolder holder, int position) {
-        holder.bind(alarmList.get(position));
+        holder.bind(alarmList.get(ala, isDealershipMercedes);
 
     }
+    public void setDealershipMercedes(boolean dealershipMercedes) {
+        isDealershipMercedes = dealershipMercedes;
+    }
+
 
     @Override
     public int getItemCount() {
@@ -69,14 +79,110 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             this.alarmTime  = itemView.findViewById(R.id.alarm_time);
         }
 
-        public void bind(Alarm alarm){
+        public void bind(Alarm alarm, boolean isDealershipMercedes){
+            alarmIcon.setImageResource(getAlarmIcon(alarm.getAlarmEvent(), isDealershipMercedes));
             alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
             alarmValue.setText(Float.toString(alarm.getAlarmValue()));
-            /*SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy 'at' h:mm a");
-            String date = sdf.format(alarm.getRtcTime());
-            alarmTime.setText(date);*/
+            Date date = new Date ();
+            date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
+            alarmTime.setText(date.toString());
 
         }
+    }
+
+    public int getAlarmIcon(int alarmEvent, boolean mercedes){
+        if (mercedes){
+            switch(alarmEvent){
+                case 0:
+                    // supposed to be power on
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 1:
+                    return R.drawable.mercedes_ignition_on_3x;
+                case 2:
+                    return R.drawable.mercedes_ignition_off_3x;
+                case 3:
+                    // supposed to be engine coolant temp
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 4:
+                    // supposed to be high rpm
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 5:
+                    return R.drawable.low_voltage_mercedes_3x;
+                case 6:
+                    return R.drawable.mercedes_idling_3x;
+                case 7:
+                    return R.drawable. mercedes_fatigue_driving_3x;
+                case 8:
+                    return R.drawable.mercedes_speeding_3x;
+                case 9:
+                    return R.drawable.mercedes_collision_3x;
+                case 10:
+                    // supposed to be shock
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 11:
+                    // suppused to be towing ;
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 12:
+                    // supposed to be dangerous driving
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 13:
+                    return R.drawable.mercedes_acceleration_3x;
+                case 14:
+                    return R.drawable.mercedes_deceleration_3x;
+                case 15:
+                    return R.drawable.mercedes_sharp_turn_3x;
+                case 16:
+                    return R.drawable.mercedes_quick_lane_change_3x;
+                default:
+                    return R.drawable.mercedes_sharp_turn_3x;
+            }
+
+        }
+        else {
+            switch(alarmEvent){
+                case 0:
+
+                case 1:
+                    return R.drawable.ignition_on_3x;
+                case 2:
+                    return R.drawable.ignition_off_3x;
+                case 3:
+                    // supposed to be engine coolant temp
+                    return R.drawable.sharp_turn_3x;
+                case 4:
+                    return R.drawable.high_rpm_3x;
+                case 5:
+                    return R.drawable.low_voltage_3x;
+                case 6:
+                    return R.drawable.idling_3x;
+                case 7:
+                    return R.drawable. fatigue_driving_3x;
+                case 8:
+                    return R.drawable.speeding_3x;
+                case 9:
+                    return R.drawable.collision_3x;
+                case 10:
+                    // supposed to be shock
+                    return R.drawable.sharp_turn_3x;
+                case 11:
+                    // suppused to be towing ;
+                    return R.drawable.sharp_turn_3x;
+                case 12:
+                    // supposed to be dangerous driving
+                    return R.drawable.sharp_turn_3x;
+                case 13:
+                    return R.drawable.acceleration_3x;
+                case 14:
+                    return R.drawable.deceleration_3x;
+                case 15:
+                    return R.drawable.sharp_turn_3x;
+                case 16:
+                    return R.drawable.quick_lane_change_3x;
+                default:
+                    return R.drawable.sharp_turn_3x;
+            }
+        }
+
     }
 
     public String getAlarmName(int alarmId){
