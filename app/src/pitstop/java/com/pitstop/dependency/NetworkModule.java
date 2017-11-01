@@ -58,7 +58,7 @@ public class NetworkModule {
                     Request.Builder builder = original.newBuilder()
                             .header("client-id", SecretUtils.getClientId(context))
                             .header("Content-Type", "application/json")
-                            .header("Authorization", "Bearer "+application);
+                            .header("Authorization", "Bearer "+application.getAccessToken());
 
                     return chain.proceed(builder.build());
                 })
