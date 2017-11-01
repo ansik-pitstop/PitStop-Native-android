@@ -127,6 +127,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     isLoading = false
                     if (view == null) return
                     view?.hideCarsLoading()
+                    view?.errorLoadingCars()
                     // do nothing
                 }
             })

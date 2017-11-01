@@ -26,4 +26,5 @@ interface MainView  {
     fun showCarsLoading()
     fun hideCarsLoading()
     fun notifyCarDataChanged()
+    fun errorLoadingCars()
 }

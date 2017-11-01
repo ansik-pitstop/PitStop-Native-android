@@ -53,7 +53,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
     private NetworkHelper mNetworkHelper;
 
-    private DrawerLayout mDrawerLayout;
+    protected DrawerLayout mDrawerLayout;
 
     // for logging
     private LocalDebugMessageStorage mDebugMessageAdapter;

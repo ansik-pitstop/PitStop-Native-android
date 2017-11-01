@@ -88,8 +88,6 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return context.getString(R.string.scan);
             case TabFragmentManager.TAB_VEHICLE_SPECS:
                 return "My Car";
-            case TabFragmentManager.TAB_GARAGE:
-                return "Garage";
             case TabFragmentManager.TAB_SERVICES:
                 return context.getString(R.string.services_nav_text);
         }

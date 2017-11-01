@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:gravity="center_horizontal"
         android:layout_gravity="center"
         android:id="@+id/offline_text"
         style="@style/TextAppearance.AppCompat.Title"

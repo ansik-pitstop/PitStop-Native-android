@@ -108,7 +108,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var textAboveCars: LinearLayout? = null
     private var drawerRefreshLayout:SwipeRefreshLayout? = null
     private var drawerLinearLayout: LinearLayout? = null
-
+    private var errorLoadingCars: TextView?  = null
+    private var carsTapDescription : TextView? = null
 
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
 
@@ -217,12 +218,17 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true )){
             val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
             (drawerLayout as DrawerLayout).addView(rootView)
-            setContentView(drawerLayout)
+
             drawerToggle = ActionBarDrawerToggle(this, drawerLayout,R.string.app_name, R.string.app_name );
             drawerLayout!!.setDrawerListener(drawerToggle)
             setContentView(drawerLayout)
         }
         else{
+            drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout,R.string.app_name, R.string.app_name )
+            drawerToggle?.isDrawerIndicatorEnabled = true
+            mDrawerLayout.setDrawerListener(drawerToggle)
+
+
         }
         setUpDrawer()
         progressDialog = ProgressDialog(this)
@@ -237,6 +243,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
         tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
         tabFragmentManager!!.createTabs()
+       supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
 
 
     }
@@ -250,6 +258,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         drawerRefreshLayout = findViewById(R.id.drawer_layout_garage)
         drawerRefreshLayout?.setOnRefreshListener { presenter?.onRefresh() }
         drawerLinearLayout = findViewById(R.id.main_drawer_linear_layout)
+        carsTapDescription = findViewById(R.id.my_vehicles_description_garage);
+        errorLoadingCars = findViewById(R.id.error_loading_cars)
         this.addCarBtn = findViewById(R.id.add_car_garage)
         addCarBtn?.setOnClickListener { presenter?.onAddCarClicked() }
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
@@ -270,7 +280,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         callBtn?.setOnClickListener {
             presenter?.onCallClicked()
         }
-
+        drawerToggle?.syncState()
 
         this.findDirectionsBtn = findViewById(R.id.find_direction_garage)
         findDirectionsBtn?.setOnClickListener { presenter?.onFindDirectionsClicked() }
@@ -431,7 +441,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent?) {
         Log.i(TAG, "onActivityResult")
 
         if ((intent!= null) && requestCode == RC_ADD_CAR) {
@@ -537,9 +547,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (drawerToggle?.onOptionsItemSelected(item)!!)
+            return true;
         when (item.itemId) {
             R.id.action_settings -> {
                 settingsClicked(null)
+                return true;}
+            R.id.action_request_service-> {
+                requestMultiService(null);
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -730,7 +745,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         val intent = Intent(thisInstance, RequestServiceActivity::class.java)
         intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
         isFirstAppointment = false
-        startActivityForResult(intent, RC_REQUEST_SERVICE)
+        startActivity(intent)
 
     }
 
@@ -986,7 +1001,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onDeviceSyncing() {
-
     }
 
     override fun openRequestService(car: Car?) {
@@ -994,11 +1008,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         /*intent.putExtra(RequestServiceActivity.EXTRA_CAR, car)*/
         intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
         isFirstAppointment = false
-        startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE)
+        startActivity(intent)
         hideLoading()
     }
-
-
 
     override fun openCurrentServices() {
         tabFragmentManager!!.openServices()
@@ -1031,6 +1043,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             params.gravity = Gravity.NO_GRAVITY
             drawerLinearLayout?.layoutParams = params
             progressView?.visibility = View.GONE
+            errorLoadingCars?.visibility = View.GONE
             contactView?.visibility = View.VISIBLE
             appointmentsView?.visibility = View.VISIBLE
             textAboveCars?.visibility = View.VISIBLE
@@ -1091,5 +1104,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         //Primarily for development reasons, set inside BluetoothAutoConnectService
         var allowDeviceOverwrite = false
+    }
+
+    override fun errorLoadingCars() {
+        carRecyclerView?.visibility = View.GONE
+        errorLoadingCars?.visibility = View.VISIBLE
+        carsTapDescription?.visibility = View.GONE
+
     }
 }
