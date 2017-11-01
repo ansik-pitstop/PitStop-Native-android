@@ -284,6 +284,7 @@ public class Car implements Parcelable {
                 ", scanner='" + scanner + '\'' +
                 ", shopId=" + shopId +
                 ", userId=" + userId +
+                ", dealership= "+getShop()+
                 '}';
     }
 
