@@ -185,7 +185,10 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         Log.d(tag,"get() id: $id")
         val local = Observable.just(Response(localCarStorage.getCar(id),true))
         val remote: Observable<Response<Car>> = carApi.getCar(id)
-                .map { pitstopResponse -> Response(pitstopResponse.response, false) }
+                .map { pitstopResponse ->
+                    Log.d(tag,"get() full response: "+pitstopResponse.raw().toString())
+                    Response(pitstopResponse.body()!!.response, false)
+                }
         val final = Observable.concat(local,remote)
         final.subscribeOn(Schedulers.io())
             .subscribeWith(object: DisposableObserver<Response<Car>>(){

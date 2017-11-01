@@ -50,7 +50,7 @@ public class NetworkModule {
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
@@ -62,7 +62,7 @@ public class NetworkModule {
 
                     return chain.proceed(builder.build());
                 })
-                .addInterceptor(loggingInterceptor)
+                .addNetworkInterceptor(loggingInterceptor)
                 .build();
     }
 
