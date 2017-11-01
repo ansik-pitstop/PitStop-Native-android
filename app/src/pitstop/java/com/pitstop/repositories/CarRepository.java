@@ -6,7 +6,6 @@ import com.google.gson.JsonIOException;
 import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.models.Car;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
@@ -46,35 +45,30 @@ public class CarRepository implements Repository{
     }
 
     public void getCarByVin(String vin, Callback<Car> callback){
-        networkHelper.get("car/?vin=" + vin, getGetCarByVinRequestCallback(callback));
-    }
+        networkHelper.get("car/?vin=" + vin, (response, requestError) -> {
+            if (requestError == null){
 
-    private RequestCallback getGetCarByVinRequestCallback(Callback<Car> callback){
-        return new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-
-                    //No car found
-                    if (response == null || response.equals("{}")){
-                        callback.onSuccess(null);
-                        return;
-                    }
-                    //Create car
-                    try{
-                        Car car = Car.createCar(response);
-                        callback.onSuccess(car);
-
-                    }catch(JSONException e){
-                        e.printStackTrace();
-                        callback.onError(RequestError.getUnknownError());
-                    }
+                //No car found
+                if (response == null || response.equals("{}")){
+                    callback.onSuccess(null);
+                    return;
                 }
-                else{
-                    callback.onError(requestError);
+                //Create car
+                try{
+                    Car car = Car.createCar(response);
+                    localCarStorage.deleteCar(car.getId());
+                    localCarStorage.storeCarData(car);
+                    callback.onSuccess(car);
+
+                }catch(JSONException e){
+                    e.printStackTrace();
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
-        };
+            else{
+                callback.onError(requestError);
+            }
+        });
     }
 
     public void getShopId(int carId, Callback<Integer> callback){
@@ -107,13 +101,7 @@ public class CarRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.post("car", getInsertCarRequestCallback(callback), body);
-
-    }
-
-    private RequestCallback getInsertCarRequestCallback(Callback<Car> callback){
-        //Create corresponding request callback
-        RequestCallback requestCallback = (response, requestError) -> {
+        networkHelper.post("car", (response, requestError) -> {
             try {
                 if (requestError == null){
                     Car car = null;
@@ -123,6 +111,7 @@ public class CarRepository implements Repository{
                     catch (JSONException e){
                         e.printStackTrace();
                         callback.onError(RequestError.getUnknownError());
+                        return;
                     }
 
                     localCarStorage.deleteCar(car.getId());
@@ -135,11 +124,9 @@ public class CarRepository implements Repository{
             }
             catch(JsonIOException e){
                 callback.onError(RequestError.getUnknownError());
-                return;
             }
-        };
+        }, body);
 
-        return requestCallback;
     }
 
     public void update(Car car, Callback<Object> callback) {
@@ -153,12 +140,7 @@ public class CarRepository implements Repository{
             e.printStackTrace();
         }
 
-        networkHelper.put("car", getUpdateCarRequestCallback(callback,car), body);
-    }
-
-    private RequestCallback getUpdateCarRequestCallback(Callback<Object> callback, Car car){
-        //Create corresponding request callback
-        RequestCallback requestCallback = (response, requestError) -> {
+        networkHelper.put("car", (response, requestError) -> {
             if (requestError == null){
                 localCarStorage.updateCar(car);
                 callback.onSuccess(response);
@@ -166,68 +148,63 @@ public class CarRepository implements Repository{
             else{
                 callback.onError(requestError);
             }
-        };
-
-        return requestCallback;
+        }, body);
     }
 
     public void getCarsByUserId(int userId, Callback<List<Car>> callback ){
 
-        networkHelper.getCarsByUserId(userId,getCarsRequestCallback(callback, userId));
-    }
+        if (!localCarStorage.getAllCars().isEmpty()){
+            callback.onSuccess(localCarStorage.getAllCars());
+            return;
+        }
+        networkHelper.getCarsByUserId(userId,(response, requestError) -> {
 
-    private RequestCallback getCarsRequestCallback(Callback<List<Car>> callback, int userId){
-        RequestCallback requestCallback = (response, requestError) -> {
+            if (requestError == null && response != null){
+                List<Car> cars = new ArrayList<>();
 
-                if (requestError == null && response != null){
-                    List<Car> cars = new ArrayList<>();
-
-                    //Return empty list if no cars returned
-                    if (response.equals("{}")){
-                        callback.onSuccess(cars);
-                        return;
-                    }
-
-                    JSONArray carsJson = new JSONArray();
-                    try{
-                        carsJson  = new JSONArray(response);
-                    }catch (JSONException e){
-
-                    }
-
-                    for(int i = 0;i<carsJson.length();i++){
-                        try{
-                            //Todo: remove correcting shop id below
-                            cars.add(Car.createCar(carsJson.getString(i)));
-                            if (cars.get(i).getShopId() == 0)
-                                if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)
-                                        || BuildConfig.DEBUG)
-                                    cars.get(i).setShopId(1);
-                                else
-                                    cars.get(i).setShopId(19);
-                        }catch (Exception e){
-
-                        }
-                    }
-                    localCarStorage.deleteAllCars();
-                    localCarStorage.storeCars(cars);
+                //Return empty list if no cars returned
+                if (response.equals("{}")){
                     callback.onSuccess(cars);
+                    return;
                 }
-                else{
-                    callback.onError(requestError);
-                }
-        };
 
-        return requestCallback;
+                JSONArray carsJson = new JSONArray();
+                try{
+                    carsJson  = new JSONArray(response);
+                }catch (JSONException e){
+
+                }
+
+                for(int i = 0;i<carsJson.length();i++){
+                    try{
+                        //Todo: remove correcting shop id below
+                        cars.add(Car.createCar(carsJson.getString(i)));
+                        if (cars.get(i).getShopId() == 0)
+                            if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)
+                                    || BuildConfig.DEBUG)
+                                cars.get(i).setShopId(1);
+                            else
+                                cars.get(i).setShopId(19);
+                    }catch (Exception e){
+
+                    }
+                }
+                localCarStorage.deleteAllCars();
+                localCarStorage.storeCars(cars);
+                callback.onSuccess(cars);
+            }
+            else{
+                callback.onError(requestError);
+            }
+        });
     }
 
-    public void get(int id,int userId, Callback<Car> callback) {
-        networkHelper.getCarsById(id,getGetCarRequestCallback(callback));
-    }
-
-    private RequestCallback getGetCarRequestCallback(Callback<Car> callback){
-        //Create corresponding request callback
-        RequestCallback requestCallback = (response, requestError) -> {
+    public void get(int id, Callback<Car> callback) {
+        if (localCarStorage.getCar(id) != null){
+            callback.onSuccess(localCarStorage.getCar(id));
+            return;
+        }
+        networkHelper.getCarsById(id,(response, requestError) -> {
             try {
                 if (requestError == null){
                     Car car = Car.createCar(response);
@@ -250,36 +227,23 @@ public class CarRepository implements Repository{
             catch(JSONException e){
                 callback.onError(RequestError.getUnknownError());
             }
-        };
-        return requestCallback;
+        });
     }
 
     public void delete(int carId, Callback<Object> callback) {
-        networkHelper.deleteUserCar(carId,getDeleteCarRequestCallback(callback, carId));
-    }
-
-    private RequestCallback getDeleteCarRequestCallback(Callback<Object> callback, int carId){
-        //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        localCarStorage.deleteCar(carId);
-                        callback.onSuccess(response);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        networkHelper.deleteUserCar(carId,(response, requestError) -> {
+            try {
+                if (requestError == null){
+                    localCarStorage.deleteCar(carId);
+                    callback.onSuccess(response);
                 }
-                catch(JsonIOException e){
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
             }
-        };
-
-        return requestCallback;
+            catch(JsonIOException e){
+                callback.onError(RequestError.getUnknownError());
+            }
+        });
     }
-
-
 }
