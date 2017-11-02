@@ -59,21 +59,18 @@ public class UserRepository implements Repository{
 
     private RequestCallback getInsertUserRequestCallback(Callback<Object> callback){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onSuccess(null);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    callback.onSuccess(null);
                 }
-                catch(JsonIOException e){
-                    e.printStackTrace();
-                    callback.onError(RequestError.getUnknownError());
+                else{
+                    callback.onError(requestError);
                 }
+            }
+            catch(JsonIOException e){
+                e.printStackTrace();
+                callback.onError(RequestError.getUnknownError());
             }
         };
 
@@ -83,41 +80,49 @@ public class UserRepository implements Repository{
     public void update(User model, Callback<Object> callback) {
         localUserStorage.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
-            ,model.getPhone(),getUserUpdateRequestCallback(callback));
+            ,model.getPhone(),getUserUpdateRequestCallback(callback,model));
     }
 
-    private RequestCallback getUserUpdateRequestCallback(Callback<Object> callback){
+    private RequestCallback getUserUpdateRequestCallback(Callback<Object> callback
+            , User user){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onSuccess(null);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        RequestCallback requestCallback = (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    User newUser = localUserStorage.getUser();
+                    user.setFirstName(user.getFirstName());
+                    user.setLastName(user.getLastName());
+                    user.setPhone(user.getPhone());
+                    localUserStorage.storeUserData(newUser);
+                    callback.onSuccess(null);
                 }
-                catch(JsonIOException e){
-                    e.printStackTrace();
+                else{
                     callback.onError(requestError);
                 }
+            }
+            catch(JsonIOException e){
+                e.printStackTrace();
+                callback.onError(requestError);
             }
         };
 
         return requestCallback;
     }
 
+    private boolean userInSync = true;
     public void getCurrentUser(Callback<User> callback){
         if (localUserStorage.getUser() == null){
 
             callback.onError(RequestError.getUnknownError());
             return;
+        }else if (userInSync){
+            callback.onSuccess(localUserStorage.getUser());
+            return;
+        }else{
+            Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
+            networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
+                    ,getUserGetRequestCallback(callback));
         }
-        Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
-        networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
-                ,getUserGetRequestCallback(callback));
     }
 
     private RequestCallback getUserGetRequestCallback(Callback<User> callback){

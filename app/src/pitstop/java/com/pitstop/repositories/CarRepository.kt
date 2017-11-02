@@ -136,15 +136,15 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true))
         val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
-        remote.doOnNext({next ->
-            if (next == null ) return@doOnNext
-            Log.d(tag,"getCarsByUserId() remote response: ${next.body()}")
-            localCarStorage.deleteAllCars()
-            localCarStorage.storeCars(next.body())
+        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+            .doOnNext({next ->
+                if (next == null ) return@doOnNext
+                localCarStorage.deleteAllCars()
+                localCarStorage.storeCars(next.data)
         }).subscribeOn(Schedulers.io())
         .onErrorReturn { err ->
             Log.d(tag,"getCarsByUserId() remote error: $err")
-            null
+            RepositoryResponse(null,false)
         }
         .subscribe()
 
