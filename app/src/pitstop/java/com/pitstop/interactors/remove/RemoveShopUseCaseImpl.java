@@ -1,6 +1,7 @@
 package com.pitstop.interactors.remove;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -8,17 +9,23 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.Response;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * Created by Matthew on 2017-06-26.
  */
 
 public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private NetworkHelper networkHelper;
     private UserRepository userRepository;
     private ShopRepository shopRepository;
@@ -71,34 +78,36 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
-                    @Override
-                    public void onSuccess(List<Car> cars) {
-                        for(Car c : cars){
-                            if(c.getShopId() == dealership.getId()){
-                                RemoveShopUseCaseImpl.this.onCantRemoveShop();
+                carRepository.getCarsByUserId(user.getId())
+                        .doOnNext(carListResponse -> {
+                            Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
+                            List<Car> cars = carListResponse.getData();
+                            if (cars == null){
+                                RemoveShopUseCaseImpl.this.onError(RequestError.getUnknownError());
                                 return;
                             }
-                        }
-                        shopRepository.delete(dealership.getId(), user.getId(), new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object response) {
-                                RemoveShopUseCaseImpl.this.onShopRemoved();
+                            for(Car c : cars){
+                                if(c.getShopId() == dealership.getId()){
+                                    RemoveShopUseCaseImpl.this.onCantRemoveShop();
+                                    return;
+                                }
                             }
+                            shopRepository.delete(dealership.getId(), user.getId(), new Repository.Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object response) {
+                                    RemoveShopUseCaseImpl.this.onShopRemoved();
+                                }
 
-                            @Override
-                            public void onError(RequestError error) {
-                                RemoveShopUseCaseImpl.this.onError(error);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        RemoveShopUseCaseImpl.this.onError(error);
-                    }
-
-                });
+                                @Override
+                                public void onError(RequestError error) {
+                                    RemoveShopUseCaseImpl.this.onError(error);
+                                }
+                            });
+                        }).onErrorReturn(err -> {
+                            Log.d(TAG,"getCarsByUserId() err: "+err);
+                            return new Response<List<Car>>(null,false);
+                        }).subscribeOn(Schedulers.io())
+                        .subscribe();
             }
             @Override
             public void onError(RequestError error) {
