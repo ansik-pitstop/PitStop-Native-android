@@ -12,6 +12,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.Response
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -133,28 +134,33 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
         val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true))
-        val remote = carApi.getUserCars(userId)
+        val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
         remote.doOnNext({next ->
-            Log.d(tag,"getCarsByUserId() response: ${next.body()}")
+            if (next == null ) return@doOnNext
+            Log.d(tag,"getCarsByUserId() remote response: ${next.body()}")
             localCarStorage.deleteAllCars()
             localCarStorage.storeCars(next.body())
+        }).subscribeOn(Schedulers.io())
+        .onErrorReturn { err ->
+            Log.d(tag,"getCarsByUserId() remote error: $err")
+            null
+        }
+        .subscribe()
 
-            next.body()
-                    .orEmpty()
-                    .filter { it.shopId == 0 }
-                    .forEach {
-                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                            it.shopId = 1
-                        else it.shopId = 19
-                    }
-            }).map { next -> RepositoryResponse(next.body(),false) }
-            .subscribeOn(Schedulers.io())
-            .onErrorReturn { RepositoryResponse(null,true) }
-            .subscribe()
-
-        val retRemote = remote.replay()
-                .map { next -> RepositoryResponse(next.body(),false) }
+        val retRemote = remote.cache()
+                .map { next ->
+                    Log.d(tag,"remote.replay() next: $next")
+                    next.body()
+                        .orEmpty()
+                        .filter { it.shopId == 0 }
+                        .forEach {
+                            if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                                it.shopId = 1
+                            else it.shopId = 19
+                        }
+                    RepositoryResponse(next.body(),false)
+                }
         return Observable.concat(localResponse,retRemote)
     }
 

@@ -24,6 +24,14 @@ public class Settings {
         carId = -1;
     }
 
+    public void setCarId(int carId) {
+        this.carId = carId;
+    }
+
+    public void setFirstCarAdded(boolean firstCarAdded) {
+        this.firstCarAdded = firstCarAdded;
+    }
+
     public boolean hasMainCar(){
         return carId != -1;
     }

@@ -75,7 +75,7 @@ public class LocalSpecsStorage {
     }
 
     public void deleteAllRows() {
-        Log.d(TAG,"deleteAllRows()");
+        Log.d(TAG,"removeAllDealerships()");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.delete(TABLES.TRIP_DEVICE.TABLE_NAME, null, null);
     }

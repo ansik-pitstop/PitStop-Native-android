@@ -369,7 +369,7 @@ public class GlobalApplication extends Application {
         mLocalAppointmentStorage.deleteAllRows();
         mLocalTripStorage.deleteAllRows();
         mLocalCarIssueStorage.deleteAllRows();
-        mLocalShopStorage.deleteAllRows();
+        mLocalShopStorage.removeAllDealerships();
         mLocalDeviceTripStorage.deleteAllRows();
 
     }
