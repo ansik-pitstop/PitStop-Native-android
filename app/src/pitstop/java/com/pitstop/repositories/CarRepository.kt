@@ -133,7 +133,18 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
-        val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true))
+        val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true)).map { next ->
+            Log.d(tag,"remote.replay() next: $next")
+            next.data
+                .orEmpty()
+                .filter { it.shopId == 0 }
+                .forEach {
+                    if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                        it.shopId = 1
+                    else it.shopId = 19
+                }
+            next
+        }
         val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
