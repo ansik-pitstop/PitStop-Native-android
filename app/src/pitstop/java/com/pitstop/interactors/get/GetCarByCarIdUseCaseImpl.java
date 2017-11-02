@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -8,14 +9,20 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.Response;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matthew on 2017-06-20.
  */
 
 public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private CarRepository carRepository;
     private UserRepository userRepository;
     private ShopRepository shopRepository;
@@ -55,6 +62,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
             @Override
             public void onSuccess(User user) {
                 carRepository.get(carId).doOnNext(response -> {
+                    Log.d(TAG,"carRepository.get() car: "+response.getData());
                     carRepository.getShopId(response.getData().getId(), new Repository.Callback<Integer>() {
 
                         @Override
@@ -78,9 +86,12 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                             GetCarByCarIdUseCaseImpl.this.onError(error);
                         }
                     });
-                }).doOnError(err -> {
+                }).onErrorReturn(err -> {
                     //Todo: error handling
-                });
+                    Log.d(TAG,"carRepository.get() err: "+err);
+                    return new Response<Car>(null,false);
+                }).subscribeOn(Schedulers.io())
+                .subscribe();
             }
             @Override
             public void onError(RequestError error) {

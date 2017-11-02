@@ -1,6 +1,7 @@
 package com.pitstop.interactors.remove;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -10,16 +11,18 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.Response;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -31,6 +34,8 @@ set the users current car to the next most recent car
  */
 
 public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private CarRepository carRepository;
     private UserRepository userRepository;
@@ -60,16 +65,11 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     }
 
     private void onCarRemoved(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarRemoved();
-            }
-        });
+        mainHandler.post(() -> callback.onCarRemoved());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
+        boolean post = mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 callback.onError(error);
@@ -93,30 +93,32 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                 @Override
                                 public void onSuccess(User user) {
-                                    carRepository.getCarsByUserId(user.getId(), new Repository.Callback<List<Car>>() {
+                                    carRepository.getCarsByUserId(user.getId())
+                                            .doOnNext(carListResponse -> {
+                                                Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
+                                                List<Car> cars = carListResponse.getData();
+                                                if (cars == null){
+                                                    RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                                    return;
+                                                }
+                                                if(cars.size()>0){//does the user have another car?
+                                                    userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new Repository.Callback<Object>() {
 
-                                        @Override
-                                        public void onSuccess(List<Car> cars) {
-                                            if(cars.size()>0){//does the user have another car?
-                                                userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new Repository.Callback<Object>() {
+                                                        @Override
+                                                        public void onSuccess(Object object) {
+                                                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                                    ,eventSource));
+                                                            RemoveCarUseCaseImpl.this.onCarRemoved();
+                                                        }
 
-                                                    @Override
-                                                    public void onSuccess(Object object) {
-                                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                                ,eventSource));
-                                                        RemoveCarUseCaseImpl.this.onCarRemoved();
-                                                    }
-
-                                                    @Override
-                                                    public void onError(RequestError error) {
-                                                        RemoveCarUseCaseImpl.this.onError(error);
-                                                    }
-                                                });
-                                            }else{//user doesn't have another car
-                                                networkHelper.setNoMainCar(user.getId(), new RequestCallback() {
-                                                    @Override
-                                                    public void done(String response, RequestError requestError) {
+                                                        @Override
+                                                        public void onError(RequestError error) {
+                                                            RemoveCarUseCaseImpl.this.onError(error);
+                                                        }
+                                                    });
+                                                }else{//user doesn't have another car
+                                                    networkHelper.setNoMainCar(user.getId(), (response1, requestError) -> {
                                                         if(requestError ==null){
                                                             EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                                                             EventBus.getDefault().post(new CarDataChangedEvent(eventType
@@ -125,16 +127,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                         }else{
                                                             RemoveCarUseCaseImpl.this.onError(requestError);
                                                         }
-                                                    }
-                                                });
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onError(RequestError error) {
-                                            RemoveCarUseCaseImpl.this.onError(error);
-                                        }
-                                    });
+                                                    });
+                                                }
+                                            }).onErrorReturn(err -> {
+                                                Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
+                                                return new Response<List<Car>>(null,false);
+                                            }).subscribeOn(Schedulers.io())
+                                            .subscribe();
                                 }
 
                                 @Override

@@ -19,7 +19,7 @@ interface PitstopCarApi {
     @GET("v1/car")
     fun getCar(@Query("vin") vin: String): Observable<PitstopResponse<List<Car>>>
 
-    @GET("v1/car")
+    @GET("car")
     fun getUserCars(@Query("userId") userId: Int): Observable<PitstopResponse<List<Car>>>
 
     @GET("v1/car")

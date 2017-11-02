@@ -65,6 +65,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership) {
+                Log.d(TAG,"useCaseComponent.onCarRetrieved() car: "+car);
                 updating = false;
                 if (getView() == null) return;
                 getView().displayOnlineView();

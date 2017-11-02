@@ -2,19 +2,14 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.google.gson.JsonIOException
-import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
-import io.reactivex.observers.DisposableObserver
-import io.reactivex.schedulers.Schedulers
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -132,53 +127,12 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
-    fun getCarsByUserId(userId: Int, callback: Repository.Callback<List<Car>>) {
+    fun getCarsByUserId(userId: Int): Observable<Response<List<Car>>> {
 
-//        val localResponse = Observable.just(Response(localCarStorage.allCars,null,true))
-       // return Observable.concat(localResponse, )
-        if (!localCarStorage.allCars.isEmpty()) {
-            callback.onSuccess(localCarStorage.allCars)
-            return
-        }
-        networkHelper.getCarsByUserId(userId) { response, requestError ->
-
-            if (requestError == null && response != null) {
-                val cars = ArrayList<Car>()
-
-                //Return empty list if no cars returned
-                if (response == "{}") {
-                    callback.onSuccess(cars)
-                    return@getCarsByUserId
-                }
-
-                var carsJson = JSONArray()
-                try {
-                    carsJson = JSONArray(response)
-                } catch (e: JSONException) {
-
-                }
-
-                for (i in 0 until carsJson.length()) {
-                    try {
-                        //Todo: remove correcting shop id below
-                        cars.add(Car.createCar(carsJson.getString(i)))
-                        if (cars[i].shopId == 0)
-                            if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA || BuildConfig.DEBUG)
-                                cars[i].shopId = 1
-                            else
-                                cars[i].shopId = 19
-                    } catch (e: Exception) {
-
-                    }
-
-                }
-                localCarStorage.deleteAllCars()
-                localCarStorage.storeCars(cars)
-                callback.onSuccess(cars)
-            } else {
-                callback.onError(requestError)
-            }
-        }
+        val localResponse = Observable.just(Response(localCarStorage.allCars,true))
+        val remote = carApi.getUserCars(userId)
+                .map({response -> Response(response.response,true)})
+        return Observable.concat(localResponse, remote)
     }
 
     operator fun get(id: Int): Observable<Response<Car>> {
@@ -186,51 +140,10 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val local = Observable.just(Response(localCarStorage.getCar(id),true))
         val remote: Observable<Response<Car>> = carApi.getCar(id)
                 .map { pitstopResponse ->
-                    Log.d(tag,"get() full response: "+pitstopResponse.raw().toString())
                     Response(pitstopResponse.body(), false)
                 }
         val final = Observable.concat(local,remote)
-        final.subscribeOn(Schedulers.io())
-            .subscribeWith(object: DisposableObserver<Response<Car>>(){
-                override fun onNext(t: Response<Car>) {
-                    Log.d(tag,"onNext() car: $t")
-                }
-
-                override fun onComplete() {
-                    Log.d(tag,"onComplete()")
-                }
-
-                override fun onError(e: Throwable) {
-                    Log.d(tag,"onError() err: $e")
-                }
-            })
         return final
-//
-//        if (localCarStorage.getCar(id) != null) {
-//            callback.onSuccess(localCarStorage.getCar(id))
-//            return
-//        }
-//        networkHelper.getCarsById(id) { response, requestError ->
-//            try {
-//                if (requestError == null) {
-//                    val car = Car.createCar(response)
-//                    if (car.shopId == 0)
-//                    //Todo: remove correcting shopId below
-//                        if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA || BuildConfig.DEBUG)
-//                            car.shopId = 1
-//                        else
-//                            car.shopId = 19
-//
-//                    localCarStorage.deleteCar(car.id)
-//                    localCarStorage.storeCarData(car)
-//                    callback.onSuccess(car)
-//                } else {
-//                    callback.onError(requestError)
-//                }
-//            } catch (e: JSONException) {
-//                callback.onError(RequestError.getUnknownError())
-//            }
-//        }
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {

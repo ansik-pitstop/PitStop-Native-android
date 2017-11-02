@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
@@ -8,16 +9,22 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.Response;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matt on 2017-06-13.
  */
 
 public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CarRepository carRepository;
@@ -41,21 +48,11 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     }
 
     private void onCarsRetrieved(List<Car> cars){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarsRetrieved(cars);
-            }
-        });
+        mainHandler.post(() -> callback.onCarsRetrieved(cars));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -72,16 +69,18 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                 userRepository.getCurrentUser(new Repository.Callback<User>(){
                     @Override
                     public void onSuccess(User user) {
-                        carRepository.getCarsByUserId(user.getId(),new CarRepository.Callback<List<Car>>() {
-                            @Override
-                            public void onSuccess(List<Car> cars) {
-                                GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(cars);
-                            }
-                            @Override
-                            public void onError(RequestError error) {
-                                GetCarsByUserIdUseCaseImpl.this.onError(error);
-                            }
-                        });
+                        carRepository.getCarsByUserId(user.getId())
+                                .doOnNext(carListResponse -> {
+                                    if (carListResponse.getData() == null){
+                                        GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                    }else{
+                                        GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
+                                    }
+                                }).onErrorReturn(err -> {
+                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
+                                    return new Response<List<Car>>(null,false);
+                                }).subscribeOn(Schedulers.io())
+                                .subscribe();
                     }
 
                     @Override
