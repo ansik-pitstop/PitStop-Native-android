@@ -9,7 +9,7 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.Response;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.NetworkHelper;
@@ -105,7 +105,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                             });
                         }).onErrorReturn(err -> {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
-                            return new Response<List<Car>>(null,false);
+                            return new RepositoryResponse<List<Car>>(null,false);
                         }).subscribeOn(Schedulers.io())
                         .subscribe();
             }

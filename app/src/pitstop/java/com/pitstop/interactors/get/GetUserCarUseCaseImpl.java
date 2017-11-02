@@ -9,7 +9,7 @@ import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.Response;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
@@ -86,7 +86,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         });
                     }).onErrorReturn(err -> {
                         Log.d(TAG,"carRepository.get() error: "+err);
-                        return new Response<>(null,false);
+                        return new RepositoryResponse<>(null,false);
                     }).subscribeOn(Schedulers.io())
                     .subscribe();
                     return;
@@ -132,7 +132,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             }
                         }).onErrorReturn(err -> {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
-                            return new Response<List<Car>>(null,true);
+                            return new RepositoryResponse<List<Car>>(null,true);
                         }).subscribeOn(Schedulers.io())
                         .subscribe();
             }

@@ -41,7 +41,10 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             }
                             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                                 override fun onSuccess(settings: Settings) {
-                                    if (carList.isEmpty()) mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                    if (carList.isEmpty()){
+                                        mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                        return@onSuccess
+                                    }
                                     for (c in carList){
                                         c.isCurrentCar = c.id == settings.carId
                                         shopRepository.getAllShops(object : Repository.Callback<List<Dealership>>{
@@ -72,7 +75,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
                         }.onErrorReturn { err ->
                     Log.d(tag, "getCarsByUserId() err: " + err)
-                    Response<List<Car>>(null, false)
+                    RepositoryResponse<List<Car>>(null, false)
                 }.subscribeOn(Schedulers.io())
                         .subscribe()
             }

@@ -15,7 +15,6 @@ import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -49,8 +48,6 @@ public class NetworkModule {
 
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
@@ -62,7 +59,6 @@ public class NetworkModule {
 
                     return chain.proceed(builder.build());
                 })
-                .addNetworkInterceptor(loggingInterceptor)
                 .build();
     }
 

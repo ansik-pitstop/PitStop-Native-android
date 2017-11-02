@@ -2,12 +2,14 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.google.gson.JsonIOException
+import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -127,23 +129,57 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
-    fun getCarsByUserId(userId: Int): Observable<Response<List<Car>>> {
+    fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
+        Log.d(tag,"getCarsByUserId() userId: $userId")
 
-        val localResponse = Observable.just(Response(localCarStorage.allCars,true))
+        val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true))
         val remote = carApi.getUserCars(userId)
-                .map({response -> Response(response.response,true)})
-        return Observable.concat(localResponse, remote)
+
+        remote.doOnNext({next ->
+            Log.d(tag,"getCarsByUserId() response: ${next.body()}")
+            localCarStorage.deleteAllCars()
+            localCarStorage.storeCars(next.body())
+
+            next.body()
+                    .orEmpty()
+                    .filter { it.shopId == 0 }
+                    .forEach {
+                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                            it.shopId = 1
+                        else it.shopId = 19
+                    }
+            }).map { next -> RepositoryResponse(next.body(),false) }
+            .subscribeOn(Schedulers.io())
+            .onErrorReturn { RepositoryResponse(null,true) }
+            .subscribe()
+
+        val retRemote = remote.replay()
+                .map { next -> RepositoryResponse(next.body(),false) }
+        return Observable.concat(localResponse,retRemote)
     }
 
-    operator fun get(id: Int): Observable<Response<Car>> {
+    operator fun get(id: Int): Observable<RepositoryResponse<Car>> {
         Log.d(tag,"get() id: $id")
-        val local = Observable.just(Response(localCarStorage.getCar(id),true))
-        val remote: Observable<Response<Car>> = carApi.getCar(id)
-                .map { pitstopResponse ->
-                    Response(pitstopResponse.body(), false)
+        val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
+        val remote = carApi.getCar(id)
+
+       remote.map { pitstopResponse -> RepositoryResponse(pitstopResponse.body(), false) }
+            .doOnNext({ carResponse ->
+                if (carResponse.data != null){
+
+                    //Fix shopId if it's 0
+                    if (carResponse.data.shopId == 0)
+                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                            carResponse.data.shopId = 1
+                        else carResponse.data.shopId = 19
+
+                    localCarStorage.deleteCar(carResponse.data.id)
+                    localCarStorage.storeCarData(carResponse.data)
                 }
-        val final = Observable.concat(local,remote)
-        return final
+            }).subscribeOn(Schedulers.io())
+            .subscribe()
+        return Observable.concat(local,remote.replay()
+                .map{carResponse -> RepositoryResponse(carResponse.body(),false) })
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {
