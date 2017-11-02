@@ -57,11 +57,14 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                                 for (car in carList) {
                                                     dealershipList
                                                             .filter { car.shopId == it.id }
-                                                            .forEach { map.put(car, it) }
+                                                            .forEach {
+                                                                car.shop = it
+                                                                map.put(car, it)
+                                                            }
                                                 }
-                                                Log.d(tag, "Resulting map: " + map)
-                                                mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
                                             }
+                                            Log.d(tag, "Resulting map: " + map)
+                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
                                         }
 
                                         override fun onError(error: RequestError) {

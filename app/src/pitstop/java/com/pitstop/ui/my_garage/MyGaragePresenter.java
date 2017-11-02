@@ -293,6 +293,7 @@ public class MyGaragePresenter {
             }
         }
 
+        List<Car> toRemove = new ArrayList<>();
         for (Car displayed: carList){
             boolean equals = false;
             for (Car remote: data){
@@ -300,9 +301,10 @@ public class MyGaragePresenter {
                     equals = true;
             }
             if (equals == false){
-                carList.remove(displayed);
+                toRemove.add(displayed);
             }
         }
+        carList.removeAll(toRemove);
     }
 
 
