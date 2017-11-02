@@ -293,9 +293,9 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
     public void showCars(List<Car> list) {
         Log.d(TAG, "showCars() cars: "+list);
         carsAdapter.notifyDataSetChanged();
-        if (list.size() == 0){
-            appointmentsView.setVisibility(View.GONE);
-        }
+//        if (list.size() == 0){
+//            appointmentsView.setVisibility(View.GONE);
+//        }
         hasBeenPopulated = true;
     }
 

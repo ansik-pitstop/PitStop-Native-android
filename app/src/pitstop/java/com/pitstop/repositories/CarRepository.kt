@@ -139,6 +139,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
             .doOnNext({next ->
                 if (next == null ) return@doOnNext
+                Log.d(tag,"remote.cache() local store update cars: "+next.data)
                 localCarStorage.deleteAllCars()
                 localCarStorage.storeCars(next.data)
         }).subscribeOn(Schedulers.io())
@@ -148,7 +149,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
         .subscribe()
 
-        val retRemote = remote.cache()
+        val retRemote = remote
                 .map { next ->
                     Log.d(tag,"remote.replay() next: $next")
                     next.body()

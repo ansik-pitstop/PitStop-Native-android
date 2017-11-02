@@ -41,36 +41,39 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             }
                             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                                 override fun onSuccess(settings: Settings) {
-                                    if (carList.isEmpty()){
-                                        mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                    Log.d(tag, "getCurrentUserSetting() resonse: " + settings)
+                                    if (carList.isEmpty()) {
+                                        mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
                                         return@onSuccess
                                     }
-                                    for (c in carList){
-                                        c.isCurrentCar = c.id == settings.carId
-                                        shopRepository.getAllShops(object : Repository.Callback<List<Dealership>>{
 
-                                            override fun onSuccess(dealershipList: List<Dealership>) {
-                                                Log.d(tag,"cars for user: "+carList)
-                                                Log.d(tag,"shops for user: "+dealershipList)
-                                                for (car in carList){
+                                    shopRepository.getAllShops(object : Repository.Callback<List<Dealership>> {
+                                        override fun onSuccess(dealershipList: List<Dealership>) {
+                                            for (c in carList) {
+                                                c.isCurrentCar = c.id == settings.carId
+                                                Log.d(tag, "getAllShops() response: " + dealershipList)
+                                                Log.d(tag, "cars for user: " + carList)
+                                                Log.d(tag, "shops for user: " + dealershipList)
+                                                for (car in carList) {
                                                     dealershipList
                                                             .filter { car.shopId == it.id }
                                                             .forEach { map.put(car, it) }
                                                 }
-                                                Log.d(tag,"Resulting map: "+map)
-                                                mainHandler.post({callback!!.onGotCarsWithDealerships(map)})
+                                                Log.d(tag, "Resulting map: " + map)
+                                                mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
                                             }
+                                        }
 
-                                            override fun onError(error: RequestError) {
-                                                mainHandler.post({callback!!.onError(error)})
-                                            }
-                                        })
-                                    }
+                                        override fun onError(error: RequestError) {
+                                            mainHandler.post({ callback!!.onError(error) })
+                                        }
+                                    })
                                 }
 
                                 override fun onError(error: RequestError) {
                                     mainHandler.post({callback!!.onError(error)})
                                 }
+
                             })
 
                         }.onErrorReturn { err ->

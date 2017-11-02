@@ -241,7 +241,7 @@ public class MyGaragePresenter {
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
                 public void onGotCarsWithDealerships(@NotNull LinkedHashMap<Car, Dealership> data) {
-                    Log.d(TAG, "onCarsRetrieved()");
+                    Log.d(TAG, "onCarsRetrieved() cars: "+data.keySet());
                     updating = false;
                     if (getView()  == null) return;
                     //getView().hideLoading();
@@ -282,8 +282,27 @@ public class MyGaragePresenter {
     }
 
     private void mergeSetWithCarList(Set<Car> data){
-        carList.clear();
-        carList.addAll(data);
+        for (Car remote: data){
+            boolean equals = false;
+            for (Car displayed: carList){
+                if (remote.getId() == displayed.getId())
+                    equals = true;
+            }
+            if (equals == false){
+                carList.add(remote);
+            }
+        }
+
+        for (Car displayed: carList){
+            boolean equals = false;
+            for (Car remote: data){
+                if (remote.getId() == displayed.getId())
+                    equals = true;
+            }
+            if (equals == false){
+                carList.remove(displayed);
+            }
+        }
     }
 
 
