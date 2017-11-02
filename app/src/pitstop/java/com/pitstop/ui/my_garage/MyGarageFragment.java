@@ -291,7 +291,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void showCars(List<Car> list) {
-        Log.d(TAG, "showCars()");
+        Log.d(TAG, "showCars() cars: "+list);
         carsAdapter.notifyDataSetChanged();
         if (list.size() == 0){
             appointmentsView.setVisibility(View.GONE);

@@ -60,7 +60,7 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
 
     @Override
     public void run() {
-        userRepository.getCurrentUser(new Repository.Callback<User>() {
+        userRepository.getRemoteCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User data) {
                 List<String> userInstallationIds = data.getInstallationID();

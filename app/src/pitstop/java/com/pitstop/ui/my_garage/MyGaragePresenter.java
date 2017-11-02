@@ -236,7 +236,7 @@ public class MyGaragePresenter {
         Log.d(TAG, "loadCars()");
         if(getView() == null|| updating)return;
         if (!carsLoaded){
-            getView().showLoading();
+            //getView().showLoading();
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
@@ -244,11 +244,11 @@ public class MyGaragePresenter {
                     Log.d(TAG, "onCarsRetrieved()");
                     updating = false;
                     if (getView()  == null) return;
-                    getView().hideLoading();
-                    if (data.keySet().size() == 0){
-                        getView().noCarsView();
-                    }else
-                        getView().appointmentsVisible();
+                    //getView().hideLoading();
+//                    if (data.keySet().size() == 0){
+//                        getView().noCarsView();
+//                    }else
+//                        getView().appointmentsVisible();
 
                     mergeSetWithCarList(data.keySet());
                     mergeSetWithDealershipList(data.values());
@@ -266,7 +266,7 @@ public class MyGaragePresenter {
                     if (getView().hasBeenPopulated()){
                         getView().showErrorDialog();
                     }
-                    getView().hideLoading();
+                    //getView().hideLoading();
                 }
             });
         }

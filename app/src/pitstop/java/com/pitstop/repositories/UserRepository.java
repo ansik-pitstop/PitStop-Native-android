@@ -109,20 +109,24 @@ public class UserRepository implements Repository{
         return requestCallback;
     }
 
-    private boolean userInSync = true;
     public void getCurrentUser(Callback<User> callback){
         if (localUserStorage.getUser() == null){
-
             callback.onError(RequestError.getUnknownError());
             return;
-        }else if (userInSync){
+        }else {
             callback.onSuccess(localUserStorage.getUser());
             return;
-        }else{
-            Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
-            networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
-                    ,getUserGetRequestCallback(callback));
         }
+//        }else{
+//            Log.d("userID", Integer.toString(localUserStorage.getUser().getId()));
+//            networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
+//                    ,getUserGetRequestCallback(callback));
+//        }
+    }
+
+    public void getRemoteCurrentUser(Callback<User> callback){
+        networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
+                    ,getUserGetRequestCallback(callback));
     }
 
     private RequestCallback getUserGetRequestCallback(Callback<User> callback){
