@@ -277,10 +277,13 @@ public class MyGaragePresenter {
 
     private void mergeSetWithDealershipList(Collection<Dealership> data){
         dealershipList.clear();
-        dealershipList.addAll(data);
+        for (Car c: carList){
+            dealershipList.add(c.getShop());
+        }
     }
 
     private void mergeSetWithCarList(Set<Car> data){
+        List<Car> toAdd = new ArrayList<>();
         for (Car remote: data){
             boolean equals = false;
             for (Car displayed: carList){
@@ -288,9 +291,10 @@ public class MyGaragePresenter {
                     equals = true;
             }
             if (equals == false){
-                carList.add(remote);
+                toAdd.add(remote);
             }
         }
+        carList.addAll(toAdd);
 
         List<Car> toRemove = new ArrayList<>();
         for (Car displayed: carList){
