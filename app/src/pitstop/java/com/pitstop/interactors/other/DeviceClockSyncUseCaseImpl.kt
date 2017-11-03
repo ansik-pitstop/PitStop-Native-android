@@ -8,15 +8,15 @@ import com.pitstop.repositories.ScannerRepository
 /**
  * Created by Karol Zdebel on 11/3/2017.
  */
-class DeviceClockSyncUseCaseImpl(val scannerRepository: ScannerRepository
-                                 , val useCaseHandler: Handler
-                                 , val mainHandler: Handler): DeviceClockSyncUseCase {
+class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepository
+                                 , private val useCaseHandler: Handler
+                                 , private val mainHandler: Handler): DeviceClockSyncUseCase {
 
-    val tag: String = javaClass.simpleName
-    var rtcTime: Long = 0
-    var deviceId: String = ""
-    var vin: String = ""
-    var callback: DeviceClockSyncUseCase.Callback? = null
+    private val tag: String = javaClass.simpleName
+    private var rtcTime: Long = 0
+    private var deviceId: String = ""
+    private var vin: String = ""
+    private var callback: DeviceClockSyncUseCase.Callback? = null
 
     override fun execute(rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
