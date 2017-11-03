@@ -54,14 +54,12 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                                 Log.d(tag, "getAllShops() response: " + dealershipList)
                                                 Log.d(tag, "cars for user: " + carList)
                                                 Log.d(tag, "shops for user: " + dealershipList)
-                                                for (car in carList) {
-                                                    dealershipList
-                                                            .filter { car.shopId == it.id }
-                                                            .forEach {
-                                                                car.shop = it
-                                                                map.put(car, it)
-                                                            }
-                                                }
+                                                dealershipList
+                                                    .filter { c.shopId == it.id }
+                                                    .forEach {
+                                                        c.shop = it
+                                                        map.put(c, it)
+                                                    }
                                             }
                                             Log.d(tag, "Resulting map: " + map)
                                             mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })

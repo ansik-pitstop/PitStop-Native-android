@@ -295,7 +295,7 @@ public class UserRepository implements Repository{
                     callback.onSuccess(cachedSettings);
                 }
                 else{
-                    cachedSettings = new Settings(userId,firstCarAdded);
+                    cachedSettings = new Settings(userId,carId,firstCarAdded);
                     callback.onSuccess(cachedSettings);
                 }
 
