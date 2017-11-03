@@ -25,6 +25,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
@@ -139,6 +140,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private BluetoothDeviceManager deviceManager;
     private DtcPackage requestedDtcs;
     private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
+    private AlarmHandler alarmHandler;
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
@@ -288,7 +290,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
-
+        this.alarmHandler = new AlarmHandler(this, useCaseComponent);
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         backgroundHandler.postDelayed(periodicGetVinRunnable,5000);
 
@@ -1241,20 +1243,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void alarmEvent(String alarmEvents, String alarmValues, String rtcTime) {
-        Alarm alarm = new Alarm(Integer.valueOf(alarmEvents), Float.valueOf(alarmValues), rtcTime, null);
-        useCaseComponent.addAlarmUseCase().execute(alarm, new AddAlarmUseCase.Callback() {
-            @Override
-            public void onAlarmAdded(@NotNull Alarm alarm) {
-                Log.d(TAG, "alarmAdded");
-                notifyAlarmAdded(alarm);
-            }
-
-            @Override
-            public void onError(@NotNull RequestError requestError) {
-                Log.d(TAG, "alarm added error");
-            }
-        });
+    public void alarmEvent(Alarm alarm) {
+        alarmHandler.handleAlarm(alarm);
     }
 
     @Override

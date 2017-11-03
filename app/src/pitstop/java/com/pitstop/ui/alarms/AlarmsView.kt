@@ -10,6 +10,8 @@ interface AlarmsView {
     fun populateAlarms(isDealershipMercedes: Boolean)
     fun noAlarmsView()
     fun showAlarmsView()
-
-
+    fun setAlarmsEnabled(alarmsEnabled: Boolean)
+    fun errorLoadingAlarms()
+    fun toast(message: String)
+    fun showLoading()
 }

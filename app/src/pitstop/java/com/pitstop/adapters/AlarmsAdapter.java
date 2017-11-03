@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.castel.obd215b.util.DateUtil;
 import com.pitstop.R;
 import com.pitstop.models.Alarm;
+import com.pitstop.ui.alarms.AlarmsView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import bolts.Bolts;
 
@@ -31,11 +33,17 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
     public static final String TAG = AlarmsAdapter.class.getSimpleName();
     private LinkedHashMap<String, ArrayList<Alarm>> alarmList;
     public boolean isDealershipMercedes = false;
+    private AlarmsView alarmsView
     Context ctx;
-    public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map, Context context){
+    public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map, Context context, AlarmsView alarmsView){
         Log.d(TAG, "AlarmsAdapter");
         this.alarmList = new LinkedHashMap<>(map);
         this.ctx = context;
+        this.alarmsView = alarmsView;
+    }
+
+    public void setAlarmList(LinkedHashMap<String, ArrayList<Alarm>> list){
+        this.alarmList = list;
     }
 
 
@@ -60,7 +68,6 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, Integer.toString(alarmList.size()));
         return alarmList.size();
     }
 
@@ -82,9 +89,9 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             this.recyclerView  = itemView.findViewById(R.id.alarms_rec_view);
         }
 
-        public void bind(List<Alarm> alarmList,Context context,  String year, boolean isDealershipMercedes){
-            Log.d(TAG, year);
-            dateView.setText(year);
+        public void bind(List<Alarm> alarmList,Context context,  String date, boolean isDealershipMercedes){
+            Log.d(TAG, date);
+            dateView.setText(date);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             dayAlarmAdapter  adapter = new dayAlarmAdapter(alarmList, isDealershipMercedes);
             recyclerView.setAdapter(adapter);
@@ -108,6 +115,9 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             Log.d(TAG, "onSubCreateVIewHolder");
             View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_alarm, parent, false);
             alarmView alarmView = new alarmView(view);
+            view.setOnClickListener(v->{
+
+            });
             return  alarmView;
         }
 
@@ -115,6 +125,8 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
         public void onBindViewHolder(alarmView holder, int position) {
             Log.d(TAG, "onSubCreatebindHolder");
             holder.bind(alarmList.get(position),isDealershipMercedes );
+
+
         }
 
         @Override
@@ -144,7 +156,9 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
                 alarmValue.setText(Float.toString(alarm.getAlarmValue()));
                 Date date = new Date ();
                 date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
-                alarmTime.setText(date.toString());
+                SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+                String java_date = jdf.format(date).substring(11, 19);
+                alarmTime.setText(java_date);
             }
         }
 

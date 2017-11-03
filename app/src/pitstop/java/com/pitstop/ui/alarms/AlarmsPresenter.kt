@@ -2,8 +2,10 @@ package com.pitstop.ui.alarms
 
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.check.CheckAlarmsEnabledUse
 import com.pitstop.interactors.get.GetAlarmsUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
+import com.pitstop.interactors.set.SetAlarmsEnabledUseCase
 import com.pitstop.models.Alarm
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
@@ -14,7 +16,7 @@ import kotlin.collections.ArrayList
 /**
  * Created by ishan on 2017-10-30.
  */
-class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper: MixpanelHelper) {
+class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper: MixpanelHelper){
 
     private val TAG = javaClass.simpleName
     var alarmsView: AlarmsView? = null
@@ -22,6 +24,8 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
     var carMercedes: Boolean = false;
     var carId: Int = 0
     var alarmsMap : HashMap<String, ArrayList<Alarm>> = HashMap();
+    var alarmsEnabled : Boolean = false;
+    private var updating: Boolean = false;
 
     fun subscribe(view: AlarmsView) {
         this.alarmsView = view
@@ -33,60 +37,100 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
 
     fun onUpdateNeeded() {
         Log.d(TAG, "onUpdateNeeded")
-        if (!currCarGot) {
-            Log.d(TAG, "car not got, getting car");
-            useCaseComponent.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
-                override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
-                    Log.d(TAG, "carGot");
-                    currCarGot = true
-                    carId = car?.id!!
-                    carMercedes = (car?.shopId == 4 || car?.shopId == 18)
-                    Log.d(TAG, "getting alarms");
-                    useCaseComponent.alarmsUseCase.execute(carId!!, object: GetAlarmsUseCase.Callback{
-                        override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>) {
-                            if (alarmsView == null) return;
-                            if (alarms.isEmpty()) alarmsView?.noAlarmsView();
-                            else {
-                                alarmsMap.clear();
-                                for (key in alarms.keys){
-                                    alarmsMap[key] = alarms[key]!!;
-                                }
-                                alarmsView?.populateAlarms(carMercedes);
-                            }
-                        }
+        if (updating) return;
+        updating = true
+        alarmsView?.showLoading();
 
-                        override fun onError(error: RequestError) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                        }
-                    })
-                }
-
-                override fun onNoCarSet() {
-                    // should never happen since they can't open this activity without a car
-                }
-
-                override fun onError(error: RequestError?) {
-                }
-            })
-        }
-        if (carId!=0){
-            Log.d(TAG, "getting alarms");
-            useCaseComponent.alarmsUseCase.execute(carId!!, object: GetAlarmsUseCase.Callback{
-                override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>) {
-                    if (alarmsView == null) return;
-                    if (alarms.isEmpty()) alarmsView?.noAlarmsView();
-                    else {
-                        alarmsMap = alarms
-                        alarmsView?.populateAlarms(carMercedes);
+        useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
+            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean) {
+                updating = false;
+                if (alarmsView == null) return;
+                alarmsView?.setAlarmsEnabled(alarmsEnabled)
+                if (alarms.isEmpty()) alarmsView?.noAlarmsView();
+                else {
+                    alarmsMap.clear();
+                    for (key in alarms.keys){
+                        alarmsMap[key] = alarms[key]!!;
                     }
+                    alarmsView?.showAlarmsView()
+                    alarmsView?.populateAlarms(carMercedes);
                 }
+            }
+            override fun onError(error: RequestError) {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.errorLoadingAlarms();
+            }
+        })
 
-                override fun onError(error: RequestError) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun enableAlarms() {
+        Log.d(TAG, "enableAlarms")
+        if (updating) return
+        updating = true
+        this.alarmsEnabled = true;
+        useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
+            override fun onAlarmsEnabledSet() {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.toast("Alarms Enabled")
+                refreshAlarms()
+            }
+
+            override fun onError(error: RequestError) {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.toast("An error occurred, please try again")
+            }
+        })
+    }
+
+    fun disableAlarms() {
+        Log.d(TAG, "disableAlarms")
+        if (updating)return
+        updating = true
+        this.alarmsEnabled = false;
+        useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
+            override fun onAlarmsEnabledSet() {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.toast("Alarms Disabled")
+                refreshAlarms()
+            }
+
+            override fun onError(error: RequestError) {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.toast("An error occurred, please try again")
+            }
+        })
+    }
+
+    fun refreshAlarms() {
+        if (updating) return;
+        updating = true
+        useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
+            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean) {
+                updating = false;
+                if (alarmsView == null) return;
+                alarmsView?.setAlarmsEnabled(alarmsEnabled)
+                if (alarms.isEmpty()) alarmsView?.noAlarmsView();
+                else {
+                    alarmsMap.clear();
+                    for (key in alarms.keys){
+                        alarmsMap[key] = alarms[key]!!;
+                    }
+                    alarmsView?.showAlarmsView()
+                    alarmsView?.populateAlarms(carMercedes);
                 }
-            })
-        }
-
+            }
+            override fun onError(error: RequestError) {
+                updating = false;
+                if (alarmsView == null) return
+                alarmsView?.errorLoadingAlarms();
+            }
+        })
 
     }
 }

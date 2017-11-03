@@ -8,28 +8,28 @@ package com.pitstop.models;
 
 public class Settings {
 
-    private final String TAG = getClass().getSimpleName();
-
     private int userId;
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
 
-    public Settings(int userId, int carId,  boolean firstCarAdded){
+
+    private boolean alarmsEnabled;
+
+    public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms) {
+        this.userId = userId;
+        this.carId = carId;
+        this.firstCarAdded = firstCarAdded;
+        this.alarmsEnabled  = alarms;
+    }
+
+    public Settings(int userId, boolean firstCarAdded){
         this.userId = userId;
         this.firstCarAdded = firstCarAdded;
-        this.carId = carId;
-    }
-
-    public void setCarId(int carId) {
-        this.carId = carId;
-    }
-
-    public void setFirstCarAdded(boolean firstCarAdded) {
-        this.firstCarAdded = firstCarAdded;
+        carId = -1;
     }
 
     public boolean hasMainCar(){
-        return carId != 0;
+        return carId != -1;
     }
 
     public int getCarId() {
@@ -48,12 +48,7 @@ public class Settings {
         this.userId = userId;
     }
 
-    @Override
-    public String toString(){
-        try{
-            return "userId: "+userId+", carId: "+carId+", firstCarAdded: "+firstCarAdded;
-        }catch(NullPointerException e){
-            return "null";
-        }
-    }
+    public boolean isAlarmsEnabled() {return alarmsEnabled;}
+
+    public void setAlarmsEnabled(boolean alarmsEnabled) {this.alarmsEnabled = alarmsEnabled;}
 }

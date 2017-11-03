@@ -14,6 +14,7 @@ interface AddAlarmUseCase : Interactor {
     interface Callback{
         fun onAlarmAdded(alarm : Alarm)
         fun onError(requestError: RequestError)
+        fun onAlarmsDisabled()
     }
 
     fun execute(alarm: Alarm, callback: Callback)

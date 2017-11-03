@@ -23,6 +23,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.Alarm;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
@@ -320,7 +321,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void alarmEvent(String alarmEvents, String alarmValues, String rtcTime) {
+    public void alarmEvent(Alarm alarm) {
         // do nothing
     }
 }

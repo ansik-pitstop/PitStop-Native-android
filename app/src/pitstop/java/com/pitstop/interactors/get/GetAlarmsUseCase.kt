@@ -11,10 +11,10 @@ import com.pitstop.network.RequestError
 
 interface GetAlarmsUseCase: Interactor{
 
-    fun execute(carID: Int, callbakc: Callback)
+    fun execute(callback: Callback)
 
     interface Callback{
-        fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>);
+        fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean);
         fun onError(error: RequestError)
     }
 }

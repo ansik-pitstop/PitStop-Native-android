@@ -23,6 +23,8 @@ import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
+import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
+import com.pitstop.interactors.check.CheckAlarmsEnabledUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
@@ -101,6 +103,8 @@ import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
+import com.pitstop.interactors.set.SetAlarmsEnabledUseCase;
+import com.pitstop.interactors.set.SetAlarmsEnabledUseCaseImpl;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.set.SetNotificationReadUseCase;
@@ -474,9 +478,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetAlarmsUseCase getAlarmsUseCase(LocalAlarmStorage localAlarmStorage,
+    GetAlarmsUseCase getAlarmsUseCase(UserRepository userRepository, LocalAlarmStorage localAlarmStorage,
                                      @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
-        return new GetAlarmsUseCaseImpl(localAlarmStorage, useCaseHandler, mainHandler);
+        return new GetAlarmsUseCaseImpl(userRepository, localAlarmStorage, useCaseHandler, mainHandler);
     }
 
 
@@ -586,6 +590,19 @@ public class UseCaseModule {
 
         return new GetCurrentCarDealershipUseCaseImpl(userRepository, carRepository
                 , shopRepository, useCaseHandler, mainHandler);
+    }
+    @Provides
+    SetAlarmsEnabledUseCase getSetAlarmsEnableduseCase(UserRepository userRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new SetAlarmsEnabledUseCaseImpl(userRepository,useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase(UserRepository userRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new CheckAlarmsEnabledUseCaseImpl(userRepository,useCaseHandler, mainHandler);
     }
 
     @Provides

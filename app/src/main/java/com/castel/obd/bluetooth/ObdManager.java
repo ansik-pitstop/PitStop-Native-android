@@ -17,6 +17,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.Alarm;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -325,7 +326,7 @@ public class ObdManager {
 
         void scanFinished();
 
-        void alarmEvent(String alarmEvents, String alarmValues, String rtcTime);
+        void alarmEvent(Alarm alarm);
     }
 
 

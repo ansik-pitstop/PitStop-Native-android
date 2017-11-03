@@ -33,32 +33,36 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
     override fun run() {
        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings>{
            override fun onSuccess(settings: Settings) {
-               if (!settings.hasMainCar()){
+               if (!settings.hasMainCar()) {
                    callback?.onError(RequestError.getUnknownError());
                    return
                }
+               if (!settings.isAlarmsEnabled) {
+                   mainHandler.post({ callback?.onAlarmsDisabled() })
+               } else {
 
-               carRepository.get(settings.carId, settings.userId, object : Repository.Callback<Car> {
+                   carRepository.get(settings.carId, settings.userId, object : Repository.Callback<Car> {
 
-                   override fun onSuccess(data: Car?) {
-                       alarm?.carID = data?.id;
-                       localAlarmStorage.storeAlarm(alarm ,
-                                        object : Repository.Callback<Alarm>{
-                                            override fun onSuccess(alarm: Alarm?) {
-                                                Log.d(TAG, "store alarm on success")
-                                                mainHandler.post({callback?.onAlarmAdded(alarm!!)})
-                                            }
-
-                                            override fun onError(error: RequestError) {
-                                                Log.d(TAG,"Error adding alarm:  "+error.message)
-                                                mainHandler.post({callback?.onError(error)})
-
-                                            }})}
-                   override fun onError(error: RequestError?) {
-                       Log.d(TAG, "error retriveing user car");
-                       mainHandler.post({callback?.onError(error!!)})
-                   }
-               })
+                       override fun onSuccess(data: Car?) {
+                           alarm?.carID = data?.id;
+                           localAlarmStorage.storeAlarm(alarm,
+                                   object : Repository.Callback<Alarm> {
+                                       override fun onSuccess(alarm: Alarm?) {
+                                           Log.d(TAG, "store alarm on success")
+                                           mainHandler.post({ callback?.onAlarmAdded(alarm!!) })
+                                       }
+                                       override fun onError(error: RequestError) {
+                                           Log.d(TAG, "Error adding alarm:  " + error.message)
+                                           mainHandler.post({ callback?.onError(error) })
+                                       }
+                                   })
+                       }
+                       override fun onError(error: RequestError?) {
+                           Log.d(TAG, "error retriveing user car");
+                           mainHandler.post({ callback?.onError(error!!) })
+                       }
+                   })
+               }
            }
            override fun onError(error: RequestError?) {
                Log.d(TAG,"Error storing alarm: ")
