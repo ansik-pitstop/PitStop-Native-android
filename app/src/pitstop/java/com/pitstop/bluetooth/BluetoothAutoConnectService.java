@@ -35,6 +35,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
@@ -56,6 +57,7 @@ import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -231,8 +233,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final Runnable periodicGetTerminalTimeRunnable = new Runnable() {
         @Override
         public void run() {
-            if (terminalRtcTime == -1
-                    && deviceConnState.equals(State.CONNECTED_VERIFIED)){
+            if (deviceConnState.equals(State.CONNECTED_VERIFIED)){
                 Log.d(TAG,"Periodic get terminal time request executing");
                 requestDeviceTime();
             }
@@ -610,10 +611,28 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (parameterPackage.paramType.equals(ParameterPackage.ParamType.RTC_TIME)){
             try{
                 long rtcTime = Long.valueOf(parameterPackage.value);
+                Log.d(TAG,"Got rtc time: "+rtcTime+", readyDevice: "+readyDevice);
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
                 trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,currentDeviceId
                         ,String.valueOf(rtcTime));
                 notifyRtc(rtcTime);
+
+                if (readyDevice != null){
+                    Log.d(TAG,"executing deviceClockSyncUseCase()");
+                    useCaseComponent.getDeviceClockSyncUseCase().execute(rtcTime, readyDevice.getScannerId()
+                            , readyDevice.getVin(), new DeviceClockSyncUseCase.Callback() {
+                        @Override
+                        public void onClockSynced() {
+                            Log.d(TAG,"getDeviceClockSyncUseCase().onClockSynced()");
+                        }
+
+                        @Override
+                        public void onError(@NotNull RequestError error) {
+                            Log.d(TAG,"getDeviceClockSyncUseCase().onError() error: "+error);
+                        }
+                    });
+                }
+
             }
             catch(Exception e){
                 e.printStackTrace();

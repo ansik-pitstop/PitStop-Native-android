@@ -39,4 +39,13 @@ public class ReadyDevice {
     public void setScannerName(String scannerName) {
         this.scannerName = scannerName;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return String.format("vin: %s, scannerId: %s, scannerName: %s",vin,scannerId,scannerName);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }
