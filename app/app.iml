@@ -112,6 +112,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
