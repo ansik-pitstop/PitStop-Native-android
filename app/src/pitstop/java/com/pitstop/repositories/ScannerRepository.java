@@ -8,6 +8,7 @@ import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -146,4 +147,31 @@ public class ScannerRepository implements Repository {
         };
     }
 
+    public void deviceClockSync(@NotNull Long rtcTime, @NotNull String deviceId
+            , @NotNull String vin, @NotNull String deviceType, Callback<String> callback) {
+
+        Log.d(TAG,"deviceClockSync() rtcTime: "+rtcTime+", deviceId: "+deviceId
+                +", vin: "+vin+", deviceType: "+deviceType);
+        JSONObject body = new JSONObject();
+        try{
+            body.put("rtcTime",rtcTime);
+            body.put("deviceId",deviceId);
+            body.put("vin",vin);
+            body.put("deviceType",deviceType);
+            networkHelper.post("v1/device-clock-sync",(response, requestError) -> {
+                if (requestError == null){
+                    Log.d(TAG,"deviceClockSync() success response: "+response);
+                    callback.onSuccess(response);
+                }
+                else{
+                    Log.d(TAG,"deviceClockSync() error: "+requestError.getMessage());
+                    callback.onError(requestError);
+                }
+            },body);
+        }catch(JSONException e){
+            e.printStackTrace();
+            callback.onError(RequestError.getUnknownError());
+        }
+
+    }
 }
