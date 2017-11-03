@@ -1,15 +1,13 @@
 package com.pitstop.ui.vehicle_specs;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,12 +28,9 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.my_garage.MyGarageFragment;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,11 +64,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.car_logo_imageview)
-    protected ImageView carLogo;
+//    @BindView(R.id.car_logo_imageview)
+//    protected ImageView carLogo;
 
-    @BindView(R.id.car_name_banner)
-    protected TextView carName;
+//    @BindView(R.id.car_name_banner)
+//    protected TextView carName;
 
     @BindView(R.id.main_view_lin_layout)
     protected LinearLayout mainLayout;
@@ -85,14 +79,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @BindView(R.id.loading_view_main)
     protected View loadingView;
 
-    @BindView(R.id.banner_overlay)
-    protected FrameLayout bannerOverlay;
+//    @BindView(R.id.banner_overlay)
+//    protected FrameLayout bannerOverlay;
 
-    @BindView(R.id.dealership_name_banner)
-    protected TextView dealershipName;
-
-    @BindView(R.id.background_image)
-    protected ImageView carPic;
+//    @BindView(R.id.dealership_name_banner)
+//    protected TextView dealershipName;
+//
+//    @BindView(R.id.background_image)
+//    protected ImageView carPic;
 
     @BindView(R.id.no_car)
     protected View noCarView;
@@ -117,7 +111,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
     @BindView(R.id.scanner_view)
     protected View scannerView;
-
 
     @BindView(R.id.delete_car)
     protected View deleteCarView;
@@ -152,8 +145,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @BindView(R.id.tank_size)
     protected TextView tankSize;
 
-    @BindView(R.id.progress)
-    protected View imageLoadingView;
+//    @BindView(R.id.progress)
+//    protected View imageLoadingView;
 
 
     public static VehicleSpecsFragment newInstance(){
@@ -314,12 +307,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @Override
     public void showImage(String s) {
         Log.d(TAG, "showImage()");
-        carLogo.setVisibility(View.GONE);
-        dealershipName.setVisibility(View.GONE);
-        carName.setVisibility(View.GONE);
-        bannerOverlay.setVisibility(View.GONE);
-        if (getActivity()!=null)
-            Picasso.with(getActivity()).load(s).into(carPic);
+       // carLogo.setVisibility(View.GONE);
+//        dealershipName.setVisibility(View.GONE);
+//        carName.setVisibility(View.GONE);
+        //bannerOverlay.setVisibility(View.GONE);
+//        if (getActivity()!=null)
+//            Picasso.with(getActivity()).load(s).into(carPic);
     }
 
     @Override
@@ -399,16 +392,16 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     public void showDealershipBanner() {
         Log.d(TAG, "showDealershipBanner()");
         carPicgetError = true;
-        carLogo.setVisibility(View.VISIBLE);
-        dealershipName.setVisibility(View.VISIBLE);
-        carName.setVisibility(View.VISIBLE);
-        carName.setText(Integer.toString(presenter.getCar().getYear()) + " " +
-                        presenter.getCar().getMake() + " " +
-                        presenter.getCar().getModel());
-        carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( presenter.getCar().getMake()));
-        dealershipName.setText(presenter.getDealership().getName());
-        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getDealership().getName()));
-        bannerOverlay.setVisibility(View.VISIBLE);
+        //carLogo.setVisibility(View.VISIBLE);
+//        dealershipName.setVisibility(View.VISIBLE);
+//        carName.setVisibility(View.VISIBLE);
+//        carName.setText(Integer.toString(presenter.getCar().getYear()) + " " +
+//                        presenter.getCar().getMake() + " " +
+//                        presenter.getCar().getModel());
+        //carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( presenter.getCar().getMake()));
+//        dealershipName.setText(presenter.getDealership().getName());
+//        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getDealership().getName()));
+        //bannerOverlay.setVisibility(View.VISIBLE);
     }
 
 
@@ -420,11 +413,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         Log.d(TAG, "onActivityResult()");
         if(requestCode == START_CUSTOM && (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)) {
             dealership.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
-            dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
+            //dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
             if (carPicgetError) {
                 showDealershipBanner();
-                dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
-                carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY)));
+                //dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
+                //carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY)));
             }
             Log.d(TAG,data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY) );
 
@@ -594,8 +587,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
 
     public void showImageLoading(){
-        imageLoadingView.bringToFront();
-        imageLoadingView.setVisibility(View.VISIBLE);
+//        imageLoadingView.bringToFront();
+//        imageLoadingView.setVisibility(View.VISIBLE);
     }
 
     public void showLoadingDialog(String text) {
@@ -618,7 +611,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     }
 
     public void hideImageLoading(){
-        imageLoadingView.setVisibility(View.GONE);
+        //imageLoadingView.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.addCarButton)

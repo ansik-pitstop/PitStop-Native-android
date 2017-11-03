@@ -1,16 +1,12 @@
 package com.pitstop.ui.vehicle_specs;
 
-import android.app.Dialog;
-import android.app.Fragment;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
@@ -18,15 +14,11 @@ import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
-import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.Presenter;
 import com.pitstop.ui.mainFragments.TabPresenter;
-import com.pitstop.ui.my_garage.MyGarageFragment;
-
 import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -186,7 +178,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 if (getView()!=null) {
                     getView().hideLoading();
                     getView().setCarView(mCar);
-                    getCarImage(mCar.getVin());
+                    //getCarImage(mCar.getVin());
                 }
             }
 
