@@ -294,7 +294,6 @@ public class MyGaragePresenter {
                 toAdd.add(remote);
             }
         }
-        carList.addAll(toAdd);
 
         List<Car> toRemove = new ArrayList<>();
         for (Car displayed: carList){
@@ -307,7 +306,9 @@ public class MyGaragePresenter {
                 toRemove.add(displayed);
             }
         }
+
         carList.removeAll(toRemove);
+        carList.addAll(toAdd);
     }
 
 
