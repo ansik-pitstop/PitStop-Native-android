@@ -14,4 +14,5 @@ interface AlarmsView {
     fun errorLoadingAlarms()
     fun toast(message: String)
     fun showLoading()
+    fun onAlarmClicked(alarm: Alarm);
 }

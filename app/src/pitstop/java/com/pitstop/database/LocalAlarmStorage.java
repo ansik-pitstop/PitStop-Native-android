@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.pitstop.adapters.AlarmsAdapter;
 import com.pitstop.models.Alarm;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
@@ -54,10 +56,14 @@ public class LocalAlarmStorage {
         String[] values = {String.valueOf(carId)};
         ArrayList<Alarm> alarmArrayList = new ArrayList<>();
         if (doesTableExist(db, TABLES.LOCAL_ALARMS.TABLE_NAME)){
+            Log.d(TAG, "alarmsTableExists");
             Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID + "=?", values, null, null, null);
             if(c.moveToFirst()) {
+                Log.d(TAG, "alarmsTableHasEntries");
                 while(!c.isAfterLast()) {
-                    alarmArrayList.add(cursorToAlarm(c));
+                    Alarm alarm = cursorToAlarm(c);
+                    alarmArrayList.add(alarm);
+                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
                     c.moveToNext();
                 }
             }
@@ -65,6 +71,7 @@ public class LocalAlarmStorage {
             callback.onSuccess(alarmArrayList);
         }
         else {
+            Log.d(TAG, "can't get alarms B");
             callback.onError(RequestError.getUnknownError());
         }
     }

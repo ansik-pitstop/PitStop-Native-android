@@ -514,4 +514,9 @@
     <string name="et_ready_step_title">Follow the steps below to get your vehicle into an emissions test ready state</string>
     <string name="et_unavailable_message">Our device was unable to retrieve the information needed to perform an emissions test.</string>
 
+    <string name="your_value">Your Value</string>
+    <string name="your_device_threshold">Your device\'s threshold</string>
+    <string name="sharp_turn_description">Your Pitstop Device detected a sudden change in the direction of your car’s motion which indicates a sharp turn was made. Whether you were practicing your drifting skills, or taking the on ramp with a smile, we hope everything is well.</string>
+    <string name="pitstop_proposal">Pitstop\'s Proposal</string>
+    <string name="sharp_turn_proposal">Whether you\'re on the highway or just local roads, don\'t forget about checking your mirrors and blindspots everytime you change lanes. Happy driving!</string>
 </resources>

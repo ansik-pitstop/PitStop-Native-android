@@ -33,7 +33,7 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
     public static final String TAG = AlarmsAdapter.class.getSimpleName();
     private LinkedHashMap<String, ArrayList<Alarm>> alarmList;
     public boolean isDealershipMercedes = false;
-    private AlarmsView alarmsView
+    private AlarmsView alarmsView;
     Context ctx;
     public AlarmsAdapter(HashMap<String, ArrayList<Alarm>> map, Context context, AlarmsView alarmsView){
         Log.d(TAG, "AlarmsAdapter");
@@ -116,7 +116,7 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_alarm, parent, false);
             alarmView alarmView = new alarmView(view);
             view.setOnClickListener(v->{
-
+                alarmsView.onAlarmClicked(alarmList.get(viewType));
             });
             return  alarmView;
         }
@@ -127,6 +127,11 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             holder.bind(alarmList.get(position),isDealershipMercedes );
 
 
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
         }
 
         @Override
@@ -160,6 +165,7 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
                 String java_date = jdf.format(date).substring(11, 19);
                 alarmTime.setText(java_date);
             }
+
         }
 
 
@@ -262,7 +268,7 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
     }
 
-    public String getAlarmName(int alarmId){
+    public static String getAlarmName(int alarmId){
         switch(alarmId){
 
             case 0:

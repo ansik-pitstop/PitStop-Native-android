@@ -28,8 +28,6 @@ class GetAlarmsUseCaseImpl( val userRepository: UserRepository, val localAlarmSt
     private val TAG = javaClass.simpleName;
     private var callback: GetAlarmsUseCase.Callback? = null
 
-
-
     override fun execute( callback: GetAlarmsUseCase.Callback) {
         this.callback = callback
         useCaseHandler.post(this)
@@ -57,13 +55,6 @@ class GetAlarmsUseCaseImpl( val userRepository: UserRepository, val localAlarmSt
                                     map.put(currDate, currArrayList);
                                 }
                             }
-                            for(item in map.keys){
-                                Log.d(TAG, "keys are : " + item)
-                                var list : ArrayList<Alarm> = map[item]!!
-                                for (alarm in list){
-                                    Log.d(TAG, "Alarms : " + alarm.alarmEvent.toString()  + " " + alarm.alarmValue.toString() + alarm.rtcTime)
-                                }
-                            }
                             val isDealershipMercedes: Boolean = settings.carId== 4|| settings.carId ==18
                             mainHandler.post({callback?.onAlarmsGot(map, isDealershipMercedes, settings.isAlarmsEnabled)})
                         }
@@ -72,14 +63,10 @@ class GetAlarmsUseCaseImpl( val userRepository: UserRepository, val localAlarmSt
                             mainHandler.post({callback?.onError(RequestError.getUnknownError())})
                         }
                     })
-
-
             }
-
             override fun onError(error: RequestError?) {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
         })
-
     }
 }

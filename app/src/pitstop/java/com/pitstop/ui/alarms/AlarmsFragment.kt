@@ -169,4 +169,8 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
         Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun onAlarmClicked(alarm: Alarm) {
+        if (activity!=null)
+            Toast.makeText(activity, AlarmsAdapter.getAlarmName(alarm.alarmEvent) + " Clicked", Toast.LENGTH_SHORT).show();
+    }
 }

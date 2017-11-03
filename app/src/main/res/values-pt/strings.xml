@@ -320,6 +320,8 @@
     <string name="fuel_consumption">Uso do combustível</string>
 	<string name="fuel_expense_description">Estimado com base no preço médio \n do combustível em sua área</string>
 	<string name="driving_alarms">Total de Alarmes de Condução</string>
+    <string name="sharp_turn_description">Seu dispositivo Pitstop detectou uma mudança súbita na direção do movimento do seu veículo, o que indica que uma curva acentuada foi feita. Se você estava praticando suas habilidades de derivação, esperamos que tudo esteja bem.</string>
+	<string name="sharp_turn_proposal">Se você está na estrada ou vias locais, não se esqueça de verificar seus espelhos e pontos cegos toda vez que você mudar de faixa. Boa viagem.</string>
 
 
 </resources>
