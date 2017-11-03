@@ -1,6 +1,7 @@
 package com.pitstop.ui.my_appointments;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -48,17 +49,17 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
 
 
         if (viewType == VIEW_TYPE_EMPTY) {
-            holder.date.setText("No Appointments");
-            holder.details.setText("There are currently no appointments");
+            holder.date.setText(R.string.no_appointments);
+            holder.details.setText(R.string.no_appointments);
 
         } else {
             Appointment currentApp = mAppts.get(position);
             holder.date.setText(dateFormat(currentApp.getDate()));
             if(currentApp.getComments().equals("")) {
                 if(currentApp.getState().equals("tentative")){
-                    holder.details.setText("No Salesperson");
+                    holder.details.setText(R.string.no_salesperson);
                 }else {
-                    holder.details.setText("No Comments");
+                    holder.details.setText(R.string.no_comments);
                 }
             }else{
                 if(currentApp.getState().equals("tentative")){

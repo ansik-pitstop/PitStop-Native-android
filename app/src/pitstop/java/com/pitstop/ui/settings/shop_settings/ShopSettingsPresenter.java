@@ -1,5 +1,9 @@
 package com.pitstop.ui.settings.shop_settings;
 
+import android.app.Fragment;
+import android.content.res.Resources;
+
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.models.Dealership;
@@ -62,7 +66,7 @@ public class ShopSettingsPresenter {
             @Override
             public void onError(RequestError error) {
                 if(shopSettings != null){
-                    shopSettings.toast("There was an error removing this shop");
+                    shopSettings.toast(((Fragment)shopSettings).getString(R.string.error_removing_shop_toast));
                 }
             }
         });

@@ -94,4 +94,10 @@ public class SecretUtils {
 
     private static native String getMashapeKey();
 
+    /**
+     * Google
+     */
+
+    public static native String getGoogleSenderId();
+
 }

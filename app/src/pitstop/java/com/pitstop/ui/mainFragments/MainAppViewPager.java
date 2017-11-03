@@ -12,7 +12,8 @@ import com.pitstop.R;
 /**
  * Created by David on 7/11/2016.
  */
-public class MainAppViewPager extends ViewPager {
+public class
+MainAppViewPager extends ViewPager {
 
     public static final int PAGE_NUM_MAIN_DASHBOARD = 0;
     public static final int PAGE_NUM_MAIN_TOOL = 1;

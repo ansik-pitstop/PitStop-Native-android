@@ -55,7 +55,7 @@ public class TabFragmentManager implements BadgeDisplayer{
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
-                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager());
+                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);

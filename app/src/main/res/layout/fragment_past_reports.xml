@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/no_reports_view"
         android:visibility="gone"
-        android:text="You have no vehicle health reports"
+        android:text="@string/no_health_reports"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="60dp"

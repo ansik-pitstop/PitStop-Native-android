@@ -109,11 +109,11 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
     @Override
     public void showCantDelete() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Can't Delete");
+        alertDialogBuilder.setTitle(getString(R.string.cant_delete));
         alertDialogBuilder
-                .setMessage("This shop is associated with one of your cars")
+                .setMessage(getString(R.string.shop_associated_with_car))
                 .setCancelable(false)
-                .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok_button),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.dismiss();
                     }
@@ -125,17 +125,17 @@ public class ShopSettingsFragment extends PreferenceFragment implements ShopSett
     @Override
     public void showDeleteWarning() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle("Delete this shop");
+        alertDialogBuilder.setTitle(getString(R.string.shop_delete_title));
         alertDialogBuilder
-                .setMessage("Are you sure you want to delete this shop?")
+                .setMessage(getString(R.string.shop_delete_message))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.dismiss();
                         presenter.removeShop(dealership);
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
                         dialog.cancel();
                     }

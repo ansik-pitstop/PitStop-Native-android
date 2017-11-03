@@ -1,7 +1,7 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;

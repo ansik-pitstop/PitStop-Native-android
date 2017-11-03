@@ -1,9 +1,9 @@
 package com.pitstop.ui.service_request;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.pitstop.R;
@@ -37,7 +37,7 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         setContentView(R.layout.activity_request_service);
         isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
 
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         MixpanelHelper mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
 
         presenter = new RequestServicePresenter(this,mixpanelHelper);

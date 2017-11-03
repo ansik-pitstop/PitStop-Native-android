@@ -1,5 +1,9 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.app.Fragment;
+import android.content.res.Resources;
+
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
@@ -102,7 +106,7 @@ public class MainSettingsPresenter {
             public void onError(RequestError error) {
                 if(mainSettings != null){
                     switcher.loading(false);
-                    mainSettings.toast("There was an error loading your details");
+                    mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
                 }
             }
         });
@@ -122,7 +126,7 @@ public class MainSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if (mainSettings != null)
-                        mainSettings.toast(error.getMessage());
+                        mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
                 }
             });
         }else if(key.equals(PHONE_PREF_KEY)){
@@ -137,7 +141,7 @@ public class MainSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if (mainSettings != null)
-                        mainSettings.toast(error.getMessage());
+                        mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
                 }
             });
 

@@ -68,7 +68,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         reportsRecyclerView.setAdapter(pastReportsAdapter);
         reportsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        getActivity().setTitle("Past Reports");
+        getActivity().setTitle(getString(R.string.past_reports));
 
         //Create presenter
         if (presenter == null){
@@ -170,10 +170,10 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
     public void displayError() {
         Log.d(TAG,"displayError()");
         new AlertDialog.Builder(getActivity())
-            .setTitle("Error")
-            .setMessage("Error loading reports, please check connection")
+            .setTitle(getString(R.string.unknown_error_title))
+            .setMessage(getString(R.string.error_reports_dialog_messsage))
             .setCancelable(false)
-            .setPositiveButton("Ok", (dialog, id) -> getActivity().finish())
+            .setPositiveButton(getString(R.string.ok_button), (dialog, id) -> getActivity().finish())
             .create()
             .show();
     }
