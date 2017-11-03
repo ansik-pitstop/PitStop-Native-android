@@ -1,6 +1,7 @@
 package com.pitstop.ui.main_activity;
 
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,7 +27,7 @@ public class TabFragmentManager implements BadgeDisplayer{
     public static final int TAB_DASHBOARD = 0;
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
-    public static final int TAB_GARAGE = 3;
+    public static final int TAB_VEHICLE_SPECS = 3;
     public static final int TAB_NOTIF = 4;
 
     public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
@@ -69,7 +70,7 @@ public class TabFragmentManager implements BadgeDisplayer{
                     mViewPager.setCurrentItem(TAB_SERVICES);
                     break;
                 case R.id.tab_garage:
-                    mViewPager.setCurrentItem(TAB_GARAGE);
+                    mViewPager.setCurrentItem(TAB_VEHICLE_SPECS);
                     break;
                 case R.id.tab_scan:
                     mViewPager.setCurrentItem(TAB_SCAN);
@@ -104,8 +105,8 @@ public class TabFragmentManager implements BadgeDisplayer{
                     case TAB_SCAN:
                         mMixpanelHelper.trackSwitchedToTab("Health");
                         break;
-                    case TAB_GARAGE:
-                        mMixpanelHelper.trackSwitchedToTab("My Garage");
+                    case TAB_VEHICLE_SPECS:
+                        mMixpanelHelper.trackSwitchedToTab("Vehicle specs");
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");
@@ -143,7 +144,7 @@ public class TabFragmentManager implements BadgeDisplayer{
                     case TAB_SCAN:
                         bottomBar.selectTabWithId(R.id.tab_scan);
                         break;
-                    case TAB_GARAGE:
+                    case TAB_VEHICLE_SPECS:
                         bottomBar.selectTabWithId(R.id.tab_garage);
                         break;
                     case TAB_NOTIF:

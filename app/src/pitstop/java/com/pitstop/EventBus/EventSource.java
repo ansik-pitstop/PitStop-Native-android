@@ -18,6 +18,8 @@ public interface EventSource {
     public static String SOURCE_ADD_CAR = "source_add_car";
     public static String SOURCE_BLUETOOTH_AUTO_CONNECT = "source_bluetooth_auto_connect";
     public static String SOURCE_MY_GARAGE = "source_my_garage";
+    public static String SOURCE_DRAWER = "source_drawer";
+    public static String SOURCE_MY_CAR = "source_my_car";
 
     String getSource();
 

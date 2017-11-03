@@ -18,7 +18,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         // BOOT_COMPLETED start CarService
         if (intent.getAction().equals(ACTION)) {
             //CarService
-            Log.i(MainActivity.TAG,"Starting auto connect service from boot broadcast receiver");
+            Log.i(MainActivity.Companion.getTAG(),"Starting auto connect service from boot broadcast receiver");
             Intent serviceIntent = new Intent(context, BluetoothAutoConnectService.class);
             context.startService(serviceIntent);
         }

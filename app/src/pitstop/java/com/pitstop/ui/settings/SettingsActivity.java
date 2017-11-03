@@ -22,15 +22,13 @@ import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.custom_shops.view_fragments.ShopForm_del.ShopFormFragment;
 
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.settings.main_settings.MainSettingsFragment;
 import com.pitstop.ui.settings.shop_settings.ShopSettingsFragment;
 
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.pitstop.ui.main_activity.MainActivity.CAR_EXTRA;
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
  * Created by Matt on 2017-06-12.
@@ -118,13 +116,13 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
     @Override
     public void startAddCar() {//onActivityResult doesn't work if I do this in the fragment
         Intent intent = new Intent(this,AddCarActivity.class);
-        startActivityForResult(intent,RC_ADD_CAR);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override
     public void startCustomShops(Car car) {
         Intent intent = new Intent(context, CustomShopActivity.class);
-        intent.putExtra(CAR_EXTRA,car);
+        intent.putExtra(MainActivity.CAR_EXTRA,car);
         startActivityForResult(intent,START_CUSTOM);
     }
 
