@@ -182,7 +182,6 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
         } else {
             date.setText(String.format("Done on %s", DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt())));
         }
-
         if (issue.getIssueType().equals(CarIssue.RECALL)) {
             imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.ic_error_red_600_24dp));
         } else if (issue.getIssueType().equals(CarIssue.DTC)) {

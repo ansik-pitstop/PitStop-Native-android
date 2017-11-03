@@ -222,7 +222,7 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
         }
         carVin.setText(bundle.getString(CAR_VIN_KEY));
         if (this.myCar.getScannerId() == null)
-            scannerID.setText("No scanner connected");
+            scannerID.setText(getString(R.string.no_scanner_connected));
         else
             scannerID.setText(this.myCar.getScannerId());
         if (bundle.getString(ENGINE_KEY) == null){
@@ -334,15 +334,15 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     getActivity()).inflate(R.layout.dialog_input_license_plate, null);
             final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
                     .findViewById(R.id.plate_input);
-            textInputEditText.setHint("License Plate");
+            textInputEditText.setHint(getString(R.string.license_plate));
             licensePlateDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Update License Plate")
+                    .setTitle(getString(R.string.update_license_plate))
                     .setView(dialogLayout)
-                    .setPositiveButton("Confirm", (dialog, which)
+                    .setPositiveButton(getString(R.string.confirm_button), (dialog, which)
                             -> presenter.onUpdateLicensePlateDialogConfirmClicked(carId,
                             textInputEditText.getText().toString()))
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> dialog.cancel())
                     .create();
         }
         licensePlateDialog.show();
@@ -384,12 +384,12 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
             deleteCarAlertDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Delete Car")
+                    .setTitle(getString(R.string.car_delete))
                     .setView(dialogLayout)
-                    .setMessage("Are you sure you want to delete this car")
-                    .setPositiveButton("Yes", (dialog, which)
+                    .setMessage(getString(R.string.delete_car))
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog, which)
                             -> presenter.deleteCar(bundle.getInt(CAR_ID_KEY)))
-                    .setNegativeButton("No", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton(getString(R.string.no_button_text), (dialog, which) -> dialog.cancel())
                     .create();
         }
         deleteCarAlertDialog.show();
@@ -402,16 +402,12 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
             buyDeviceDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Purchase Pitstop Device")
+                    .setTitle(getString(R.string.purchase_pitstop_device))
                     .setView(dialogLayout)
-                    .setMessage("It appears you do not have a Pitstop device paired to this " +
-                                "car.With the device,we can track your car's engine " +
-                                    "mileage, fuel consumption, trips, engine codes, and " +
-                                    "driving alarms. If you would like all these features, " +
-                            "please purchase a device and connect it to your car. ")
-                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
+                    .setMessage(getString(R.string.purchase_device_message))
+                    .setPositiveButton(getString(R.string.purchase_pitstop_device), (dialog, which)
                             -> openPitstopAmazonLink())
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> dialog.cancel())
                     .create();
         }
         buyDeviceDialog.show();
@@ -436,12 +432,12 @@ public class VehicleSpecsFragment extends android.app.Fragment implements Vehicl
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
             changeDealershipAlertDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Change Dealership")
+                    .setTitle(getString(R.string.change_dealership))
                     .setView(dialogLayout)
-                    .setMessage("Are you sure you want to change the dealership of this car?")
+                    .setMessage(getString(R.string.change_dealerhsip_confirmation))
                     .setPositiveButton(getString(R.string.ok_button), (dialog, which)
                             -> startCustomShop())
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> dialog.cancel())
                     .create();
         }
         changeDealershipAlertDialog.show();

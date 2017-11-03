@@ -1,6 +1,7 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -10,6 +11,7 @@ import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.my_garage.MyGarageFragment;
+
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 
@@ -27,11 +29,18 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     StartReportFragment startReportFragment;
     MyGarageFragment myGarageFragment;
     NotificationFragment notificationFragment;
-    Context context;
+    private Context context;
 
-    public TabViewPagerAdapter(FragmentManager fm, Context context) {
+
+    public TabViewPagerAdapter(Context ctx, FragmentManager fm) {
         super(fm);
-        this.context = context;
+        this.context = ctx;
+
+    }
+
+
+    public void setContext(Context ctx){
+        this.context = ctx;
     }
 
     @Override
@@ -67,6 +76,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 }
                 return notificationFragment;
         }
+
         return null;
     }
 
@@ -84,9 +94,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
             case TabFragmentManager.TAB_NOTIF:
                 return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:
-                context.getString(R.string.scan);
-            case TabFragmentManager.TAB_GARAGE:
-                return "Garage";
+                return context.getString(R.string.scan);
             case TabFragmentManager.TAB_SERVICES:
                 return context.getString(R.string.services_nav_text);
         }

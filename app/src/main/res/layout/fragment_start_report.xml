@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:background="@drawable/color_button_rectangle_primary"
-            android:text="Past Reports" />
+            android:text="@string/past_reports" />
 
     </LinearLayout>
 

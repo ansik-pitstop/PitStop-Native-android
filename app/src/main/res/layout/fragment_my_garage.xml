@@ -46,7 +46,7 @@
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="MY VEHICLES"
+            android:text="@string/my_vehicles"
             android:id="@+id/my_vehicles_title_garage"
             android:textStyle="bold"
             android:paddingLeft="16dp"
@@ -85,7 +85,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Add New Car"
+                        android:text="@string/add_new_car"
                         android:textSize="18sp"
                         android:textColor="@color/facebook_blue" />
             </LinearLayout>

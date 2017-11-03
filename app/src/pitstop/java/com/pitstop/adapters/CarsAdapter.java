@@ -87,7 +87,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 dealershipName.setTextColor(Color.GRAY);
             }
             if(car.getScannerId() == null){
-                scanner.setText("No Paired Device");
+                scanner.setText(myGarageView.getStringID(R.string.no_paired_device));
             }
             else {
                 scanner.setText(car.getScannerId());
@@ -97,7 +97,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 dealershipName.setText(dealership.getName());
             }
             else {
-                dealershipName.setText("No Associated Shop");
+                dealershipName.setText(myGarageView.getStringID(R.string.no_associated_shop));
             }
         }
     }

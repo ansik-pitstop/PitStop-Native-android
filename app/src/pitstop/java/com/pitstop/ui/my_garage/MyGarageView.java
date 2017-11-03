@@ -39,4 +39,5 @@ public interface MyGarageView {
     boolean hasBeenPopulated();
 
     void showErrorDialog();
+    String getStringID(int stringID);
 }
