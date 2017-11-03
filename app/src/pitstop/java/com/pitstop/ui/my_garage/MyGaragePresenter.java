@@ -236,7 +236,7 @@ public class MyGaragePresenter {
         Log.d(TAG, "loadCars()");
         if(getView() == null|| updating)return;
         if (!carsLoaded){
-            getView().showLoading();
+            //getView().showLoading();
             updating = true;
             useCaseComponent.getCarsWithDealershipsUseCase().execute(new GetCarsWithDealershipsUseCase.Callback() {
                 @Override
