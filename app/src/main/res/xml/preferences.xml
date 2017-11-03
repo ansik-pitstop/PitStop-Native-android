@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <PreferenceCategory android:title="My Account">
+    <PreferenceCategory android:title="@string/my_account">
         <EditTextPreference android:title="Your Name"
             android:key="@string/pref_username_key"
             android:summary="@string/tap_to_change_name">
@@ -19,18 +19,6 @@
             android:summary="@string/tap_to_change_phone">
         </EditTextPreference>
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="My Vehicles"
-        android:key="@string/pref_vehicles"/>
-
-    <Preference android:title="@string/title_activity_add_car"
-        android:key="add_car_button"
-        android:summary="Tap to add a new vehicle"/>
-
-    <PreferenceCategory
-        android:title="My Created Shops"
-        android:key="pref_shops"/>
 
     <PreferenceCategory android:title="@string/app_info" android:key="@string/appinfo">
         <Preference android:title="@string/privacy_policy" android:key="@string/pref_privacy_policy" />

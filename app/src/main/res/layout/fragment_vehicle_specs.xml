@@ -199,7 +199,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Scanner ID"
+                    android:text="@string/scanner_id"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
@@ -243,7 +243,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="License Plate"
+                android:text="@string/license_plate"
                 android:textSize="22sp"
                 android:textColor="@color/Smooch_inputTextColor" />
 
@@ -305,7 +305,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Dealership"
+                    android:text="@string/dealership"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
@@ -355,7 +355,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Engine"
+                    android:text="@string/engine_title"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
@@ -399,7 +399,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="City Mileage"
+                android:text="@string/city_title"
                 android:textSize="22sp"
                 android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
@@ -440,7 +440,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Highway Mileage"
+                    android:text="@string/highway_title"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
@@ -482,7 +482,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Trim"
+                    android:text="@string/trim"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
@@ -526,7 +526,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Tank Size"
+                    android:text="@string/tank_size"
                     android:textSize="22sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
@@ -557,7 +557,7 @@
             >
             <TextView
                 android:textSize="22sp"
-                android:text="Delete Car"
+                android:text="@string/delete"
                 android:textColor="#D50000"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"

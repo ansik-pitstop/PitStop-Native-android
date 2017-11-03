@@ -85,14 +85,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/pitstop/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestPitstop/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/assets" type="java-test-resource" />
@@ -101,22 +93,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testPitstop/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/jni" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/beta/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testBeta/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/assets" type="java-resource" />
@@ -258,5 +234,6 @@
     <orderEntry type="library" name="core-4.8.1" level="project" />
     <orderEntry type="library" name="design-26.0.2" level="project" />
     <orderEntry type="library" name="multidex-1.0.2" level="project" />
+    <orderEntry type="library" name="android-android-26" level="project" />
   </component>
 </module>

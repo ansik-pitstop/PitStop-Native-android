@@ -196,6 +196,13 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         return false;
     }
 
+    public String getStringID(int id){
+        return getActivity().getString(id);
+
+    }
+
+
+
     @Override
     public String getUserPhone() {
         if(getActivity()!= null)
