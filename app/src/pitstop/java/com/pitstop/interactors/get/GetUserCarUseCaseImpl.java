@@ -71,6 +71,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 if (userSettings.hasMainCar()){
                     carRepository.get(userSettings.getCarId()).doOnNext(response -> {
                         Log.d(TAG,"carRepository.get() car: "+response.getData());
+                        if (response.getData() == null){
+                            callback.onError(RequestError.getUnknownError());
+                            return;
+                        }
                         response.getData().setCurrentCar(true);
                         shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
 

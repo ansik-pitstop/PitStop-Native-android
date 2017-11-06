@@ -75,7 +75,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
 
     @Override
     public void run() {
-        Log.d(TAG,"run()");
+        Log.d(TAG,"run() dealership: "+dealership);
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -83,6 +83,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                 carRepository.get(carId).doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
+                    response.getData().setShop(dealership);
                     carRepository.update(response.getData(), new Repository.Callback<Object>() {
                         @Override
                         public void onSuccess(Object response) {
