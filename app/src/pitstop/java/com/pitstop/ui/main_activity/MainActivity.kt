@@ -589,8 +589,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     if (!scannerLocalStore!!.isCarExist(car.id)) {
                         carLocalStore!!.deleteAllCars()
                         carLocalStore!!.storeCars(cars)
-                        scannerLocalStore!!.storeScanner(ObdScanner(car.id, car.scannerId))
-                        Log.d("Storing Scanner", car.id.toString() + " " + car.scannerId)
+                        scannerLocalStore!!.storeScanner(ObdScanner(car.id, car.scanner))
+                        Log.d("Storing Scanner", car.id.toString() + " " + car.scanner)
                     }
                 }
             }
