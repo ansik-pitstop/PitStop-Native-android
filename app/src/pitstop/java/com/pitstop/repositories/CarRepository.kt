@@ -186,6 +186,11 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 .doOnNext({next ->
                     if (next.data == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
+                    if (next.data.shopId == 0)
+                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                            next.data.shopId = 1
+                        else next.data.shopId = 19
+
                     localCarStorage.deleteCar(next.data.id)
                     localCarStorage.storeCarData(next.data)
                 }).subscribeOn(Schedulers.io())
@@ -205,8 +210,6 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                         carList.shopId = 1
                     else carList.shopId = 19
 
-                localCarStorage.deleteCar(carList.id)
-                localCarStorage.storeCarData(carList)
             }
             RepositoryResponse(carList, false)
         })
