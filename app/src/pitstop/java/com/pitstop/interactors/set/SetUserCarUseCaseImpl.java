@@ -1,6 +1,7 @@
 package com.pitstop.interactors.set;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -20,6 +21,8 @@ import org.greenrobot.eventbus.EventBus;
 
 public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
+    private final String TAG = getClass().getSimpleName();
+
     private UserRepository userRepository;
     private int carId;
     private Callback callback;
@@ -36,21 +39,11 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
     }
 
     private void onUserCarSet(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onUserCarSet();
-            }
-        });
+        mainHandler.post(() -> callback.onUserCarSet());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -63,9 +56,11 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     @Override
     public void run() {
+        Log.d(TAG,"run() carId: "+carId+", eventSource: "+eventSource.getSource());
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
+                Log.d(TAG,"current user: "+user);
                 userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object object) {

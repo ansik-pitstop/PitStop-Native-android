@@ -162,10 +162,8 @@ public class UserRepository implements Repository{
                     options.put("mainCar",carId);
                     JSONObject putOptions = new JSONObject();
                     putOptions.put("settings",options);
-                    if (cachedSettings != null)
-                        cachedSettings.setCarId(carId);
 
-                    networkHelper.put("user/" + userId + "/settings", getUserSetCarRequestCallback(callback), putOptions);
+                    networkHelper.put("user/" + userId + "/settings", getUserSetCarRequestCallback(callback, carId), putOptions);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -176,27 +174,24 @@ public class UserRepository implements Repository{
         });
     }
 
-    private RequestCallback getUserSetCarRequestCallback(Callback<Object> callback){
+    private RequestCallback getUserSetCarRequestCallback(Callback<Object> callback, int carId){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        callback.onSuccess(response);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        return (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    if (cachedSettings != null)
+                        cachedSettings.setCarId(carId);
+                    callback.onSuccess(response);
                 }
-                catch(JsonIOException e){
-                    e.printStackTrace();
+                else{
                     callback.onError(requestError);
                 }
             }
+            catch(JsonIOException e){
+                e.printStackTrace();
+                callback.onError(requestError);
+            }
         };
-
-        return requestCallback;
     }
 
     public void setFirstCarAdded(final boolean added
