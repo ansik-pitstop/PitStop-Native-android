@@ -230,7 +230,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun makeCarCurrent(car: Car) {
-        Log.d(TAG, "makeCarCurrent()")
+        Log.d(TAG, "makeCarCurrent() car: "+car);
         if (view == null || isLoading) return
         if (car.isCurrentCar)return
         isLoading = true

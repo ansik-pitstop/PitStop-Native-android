@@ -160,7 +160,7 @@ public class UserRepository implements Repository{
     }
 
     public void setUserCar(int userId, int carId, Callback<Object> callback){
-        Log.d(TAG,"setUserCar() userId: "+userId+", carId: "+carId);
+        Log.d(TAG,"setUserCar() userId: "+userId+", carId: "+carId+", cachedSettings: "+cachedSettings);
         getUserSettings(userId, (response, requestError) -> {
             if (requestError == null) {
                 try {
@@ -183,6 +183,7 @@ public class UserRepository implements Repository{
     private RequestCallback getUserSetCarRequestCallback(Callback<Object> callback, int carId){
         //Create corresponding request callback
         return (response, requestError) -> {
+            Log.d(TAG,"set user settings response: "+response+", requestError: "+requestError);
             try {
                 if (requestError == null){
                     if (cachedSettings != null)
@@ -288,12 +289,14 @@ public class UserRepository implements Repository{
                     carId = settings.getJSONObject("user").getInt("mainCar");
                 }
 
-                if (carId == -1){
+                if (carId == -1 && cachedSettings == null){
                     cachedSettings = new Settings(userId,firstCarAdded);
                     callback.onSuccess(cachedSettings);
                 }
-                else{
+                else if (cachedSettings == null){
                     cachedSettings = new Settings(userId,carId,firstCarAdded);
+                    callback.onSuccess(cachedSettings);
+                }else{
                     callback.onSuccess(cachedSettings);
                 }
 
