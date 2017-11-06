@@ -283,32 +283,8 @@ public class MyGaragePresenter {
     }
 
     private void mergeSetWithCarList(Set<Car> data){
-        List<Car> toAdd = new ArrayList<>();
-        for (Car remote: data){
-            boolean equals = false;
-            for (Car displayed: carList){
-                if (remote.getId() == displayed.getId())
-                    equals = true;
-            }
-            if (equals == false){
-                toAdd.add(remote);
-            }
-        }
-
-        List<Car> toRemove = new ArrayList<>();
-        for (Car displayed: carList){
-            boolean equals = false;
-            for (Car remote: data){
-                if (remote.getId() == displayed.getId())
-                    equals = true;
-            }
-            if (equals == false){
-                toRemove.add(displayed);
-            }
-        }
-
-        carList.removeAll(toRemove);
-        carList.addAll(toAdd);
+        carList.clear();
+        carList.addAll(data);
     }
 
 

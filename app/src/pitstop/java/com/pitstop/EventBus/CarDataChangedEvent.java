@@ -24,4 +24,13 @@ public class CarDataChangedEvent{
     public EventSource getEventSource() {
         return eventSource;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return "eventType: "+eventType.getType()+", eventSource: "+eventSource.getSource();
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }

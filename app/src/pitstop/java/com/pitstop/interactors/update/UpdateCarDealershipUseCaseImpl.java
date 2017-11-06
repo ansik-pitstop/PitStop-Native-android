@@ -13,9 +13,12 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 
 import org.greenrobot.eventbus.EventBus;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matthew on 2017-06-20.
@@ -72,16 +75,18 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
 
     @Override
     public void run() {
+        Log.d(TAG,"run()");
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
+                Log.d(TAG,"user: "+user);
                 carRepository.get(carId).doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
                     carRepository.update(response.getData(), new Repository.Callback<Object>() {
                         @Override
                         public void onSuccess(Object response) {
-
+                            Log.d(TAG,"carRepository.update() ");
                             EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
                             EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                     ,eventSource));
@@ -93,9 +98,11 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                             UpdateCarDealershipUseCaseImpl.this.onError(error);
                         }
                     });
-                }).doOnError(err -> {
+                }).onErrorReturn(err -> {
                     Log.d(TAG,"getCar error: "+err.getMessage());
-                });
+                    return new RepositoryResponse<>(null,false);
+                }).subscribeOn(Schedulers.io())
+                .subscribe();
             }
 
             @Override

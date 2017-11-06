@@ -110,6 +110,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     fun update(car: Car, callback: Repository.Callback<Any>) {
+        Log.d(tag,"update() car: $car")
         val body = JSONObject()
 
         try {
@@ -181,7 +182,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)
 
-       remote.map { pitstopResponse -> RepositoryResponse(pitstopResponse.body(), false) }
+        remote.map { pitstopResponse -> RepositoryResponse(pitstopResponse.body(), false) }
             .doOnNext({ carResponse ->
                 if (carResponse.data != null){
 
@@ -196,7 +197,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 }
             }).subscribeOn(Schedulers.io())
             .subscribe()
-        return Observable.concat(local,remote.replay()
+        return Observable.concat(local,remote.cache()
                 .map{carResponse -> RepositoryResponse(carResponse.body(),false) })
     }
 

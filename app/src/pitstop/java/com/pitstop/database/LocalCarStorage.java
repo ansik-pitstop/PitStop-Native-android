@@ -45,13 +45,13 @@ public class LocalCarStorage {
     /**
      * Store car data
      */
-    public void storeCarData(Car car) {
+    public boolean storeCarData(Car car) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = carObjectToContentValues(car);
 
-        long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
-
+        db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        return true;
     }
 
     public void storeCars(List<Car> carList) {
