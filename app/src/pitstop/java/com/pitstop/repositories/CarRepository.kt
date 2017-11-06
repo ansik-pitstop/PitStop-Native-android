@@ -182,23 +182,36 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)
 
-        remote.map { pitstopResponse -> RepositoryResponse(pitstopResponse.body(), false) }
-            .doOnNext({ carResponse ->
-                if (carResponse.data != null){
-
-                    //Fix shopId if it's 0
-                    if (carResponse.data.shopId == 0)
-                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                            carResponse.data.shopId = 1
-                        else carResponse.data.shopId = 19
-
-                    localCarStorage.deleteCar(carResponse.data.id)
-                    localCarStorage.storeCarData(carResponse.data)
+        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+                .doOnNext({next ->
+                    if (next.data == null ) return@doOnNext
+                    Log.d(tag,"remote.cache() local store update cars: "+next.data)
+                    localCarStorage.deleteCar(next.data.id)
+                    localCarStorage.storeCarData(next.data)
+                }).subscribeOn(Schedulers.io())
+                .onErrorReturn { err ->
+                    Log.d(tag,"getCarsByUserId() remote error: $err")
+                    RepositoryResponse(null,false)
                 }
-            }).subscribeOn(Schedulers.io())
-            .subscribe()
-        return Observable.concat(local,remote.cache()
-                .map{carResponse -> RepositoryResponse(carResponse.body(),false) })
+                .subscribe()
+
+        val retRemote = remote.cache().map({pitstopResponse ->
+            val carList = pitstopResponse.body()
+            if (carList != null){
+
+                //Fix shopId if it's 0
+                if (carList.shopId == 0)
+                    if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                        carList.shopId = 1
+                    else carList.shopId = 19
+
+                localCarStorage.deleteCar(carList.id)
+                localCarStorage.storeCarData(carList)
+            }
+            RepositoryResponse(carList, false)
+        })
+
+        return Observable.concat(local,retRemote)
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {
