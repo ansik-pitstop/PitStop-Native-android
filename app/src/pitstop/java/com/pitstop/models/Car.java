@@ -227,7 +227,8 @@ public class Car implements Parcelable {
     }
 
     public int getShopId() {
-        return shopId;
+        if (shop != null) return shop.getId();
+        else return shopId;
     }
 
     public void setShopId(int shopId) {

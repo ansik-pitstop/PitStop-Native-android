@@ -92,7 +92,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
                 override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>) {
-                    Log.d(TAG, "onCarsRetrieved")
+                    Log.d(TAG, "onCarsRetrieved() map" +data)
                     isLoading = false
                     if(view == null)return
                     view?.hideCarsLoading()

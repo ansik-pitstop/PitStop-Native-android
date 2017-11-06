@@ -328,6 +328,8 @@ public class ShopRepository implements Repository{
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
                     }else{
+                        localShopStorage.removeById(dealership.getId());
+                        localShopStorage.storeDealership(dealership);
                         callback.onSuccess(dealership);
                     }
                 //}catch (JSONException e){

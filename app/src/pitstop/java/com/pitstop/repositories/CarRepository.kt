@@ -161,7 +161,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
         .subscribe()
 
-        val retRemote = remote
+        val retRemote = remote.cache()
                 .map { next ->
                     Log.d(tag,"remote.replay() next: $next")
                     next.body()
