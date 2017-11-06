@@ -188,6 +188,7 @@ public class UserRepository implements Repository{
                 if (requestError == null){
                     if (cachedSettings != null)
                         cachedSettings.setCarId(carId);
+                    Log.d(TAG,"cached settings after setting: "+cachedSettings);
                     callback.onSuccess(response);
                 }
                 else{

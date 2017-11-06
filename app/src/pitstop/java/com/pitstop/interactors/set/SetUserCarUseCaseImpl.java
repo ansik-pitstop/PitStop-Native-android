@@ -64,6 +64,7 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
                 userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
                     @Override
                     public void onSuccess(Object object) {
+                        Log.d(TAG,"Car set success!");
                         EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
