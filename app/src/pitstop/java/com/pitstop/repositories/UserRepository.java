@@ -22,6 +22,8 @@ import org.json.JSONObject;
 
 public class UserRepository implements Repository{
 
+    private final String TAG = getClass().getSimpleName();
+
     private final String END_POINT_SETTINGS = "settings/?userId=";
     private final String END_POINT_USER = "user/";
 
@@ -46,6 +48,7 @@ public class UserRepository implements Repository{
     }
 
     public void insert(User model, Callback<Object> callback) {
+        Log.d(TAG,"insert() model: "+model);
         if (!networkHelper.isConnected()){
 
             callback.onError(new RequestError());
@@ -78,6 +81,7 @@ public class UserRepository implements Repository{
     }
 
     public void update(User model, Callback<Object> callback) {
+        Log.d(TAG,"update() user: "+model);
         localUserStorage.storeUserData(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getUserUpdateRequestCallback(callback,model));
@@ -110,6 +114,7 @@ public class UserRepository implements Repository{
     }
 
     public void getCurrentUser(Callback<User> callback){
+        Log.d(TAG,"getCurrentUser()");
         if (localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
@@ -125,6 +130,7 @@ public class UserRepository implements Repository{
     }
 
     public void getRemoteCurrentUser(Callback<User> callback){
+        Log.d(TAG,"getRemoteCurrentUser()");
         networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
                     ,getUserGetRequestCallback(callback));
     }
@@ -154,7 +160,7 @@ public class UserRepository implements Repository{
     }
 
     public void setUserCar(int userId, int carId, Callback<Object> callback){
-
+        Log.d(TAG,"setUserCar() userId: "+userId+", carId: "+carId);
         getUserSettings(userId, (response, requestError) -> {
             if (requestError == null) {
                 try {
@@ -197,6 +203,7 @@ public class UserRepository implements Repository{
     public void setFirstCarAdded(final boolean added
             , final Callback<Object> callback){
 
+        Log.d(TAG,"setFirstCarAdded() added: "+added);
         final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, (response, requestError) -> {
@@ -230,32 +237,28 @@ public class UserRepository implements Repository{
 
     private RequestCallback getSetFirstCarAddedCallback(Callback<Object> callback, boolean added){
         //Create corresponding request callback
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                try {
-                    if (requestError == null){
-                        if (cachedSettings != null)
-                            cachedSettings.setFirstCarAdded(added);
-                        callback.onSuccess(response);
-                    }
-                    else{
-                        callback.onError(requestError);
-                    }
+        return (response, requestError) -> {
+            try {
+                if (requestError == null){
+                    if (cachedSettings != null)
+                        cachedSettings.setFirstCarAdded(added);
+                    callback.onSuccess(response);
                 }
-                catch(JsonIOException e){
-                    e.printStackTrace();
+                else{
                     callback.onError(requestError);
                 }
             }
+            catch(JsonIOException e){
+                e.printStackTrace();
+                callback.onError(requestError);
+            }
         };
-
-        return requestCallback;
     }
 
 
 
     public void getCurrentUserSettings(Callback<Settings> callback){
+        Log.d(TAG,"getCurrentUserSettings() cached settings: "+cachedSettings);
 
         if(localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());

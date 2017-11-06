@@ -51,4 +51,13 @@ public class Settings {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return "userId: "+userId+", carId: "+carId+", firstCarAdded: "+firstCarAdded;
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }
