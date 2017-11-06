@@ -2,6 +2,8 @@ package com.pitstop.models;
 
 import android.util.Log;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Not complete, doesn't include everything stored inside settings
  *
@@ -15,6 +17,7 @@ public class Settings {
     private int userId;
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
+    private Semaphore semaphore = new Semaphore(1);
 
     public Settings(int userId, int carId, boolean firstCarAdded) {
         Log.d(TAG,"Settings being created, userId:"+userId+", carId: "+carId+", firstCarId: "+firstCarAdded);
@@ -32,7 +35,13 @@ public class Settings {
 
     public void setCarId(int carId) {
         Log.d(TAG,"setCarId() carId: "+carId);
+        try{
+            semaphore.acquire();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
         this.carId = carId;
+        semaphore.release();
     }
 
     public void setFirstCarAdded(boolean firstCarAdded) {
@@ -45,7 +54,13 @@ public class Settings {
     }
 
     public int getCarId() {
+        try{
+            semaphore.acquire();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
         Log.d(TAG,"getCardId() carId: "+carId);
+        semaphore.release();
         return carId;
     }
 
