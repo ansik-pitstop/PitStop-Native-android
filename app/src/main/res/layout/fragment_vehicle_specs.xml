@@ -136,39 +136,49 @@
             android:layout_gravity="center_horizontal"
             >
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/vin_2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="VIN"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+                    android:layout_toLeftOf="@id/car_vin"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true">
+                    <ImageView
+                        android:paddingLeft="6dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/vin_2x"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
+
+                    <TextView
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="VIN"
+                        android:textSize="22sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
 
 
-            </LinearLayout>
+                </LinearLayout>
                 <TextView
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     android:paddingRight="16dp"
-                    android:layout_gravity="right"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     android:gravity="right"
                     android:id="@+id/car_vin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
+
+            </RelativeLayout>
 
         </android.support.v7.widget.CardView>
 
@@ -218,6 +228,7 @@
                     android:text="Scanner id"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="8dp"
                     android:paddingRight="16dp"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
@@ -237,55 +248,65 @@
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            ><LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:paddingLeft="6dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/license_2x"
-                android:layout_width="30dp"
-                android:layout_height="30dp" />
+            android:layout_gravity="center_horizontal">
 
-            <TextView
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingLeft="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/license_plate"
-                android:textSize="22sp"
-                android:textColor="@color/Smooch_inputTextColor" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-
-        </LinearLayout>
-            <LinearLayout
-                android:gravity="right"
-                android:layout_gravity="right"
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingRight="6dp"
-                    android:id="@+id/car_license_plate_specs"
+                <LinearLayout
+                    android:id="@+id/license_plate_label_holder"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@id/license_plate_content_holder"
+                    android:orientation="horizontal"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <ImageView
-                    android:layout_marginRight="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/editpencil"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:paddingLeft="6dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/license_2x"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
 
-            </LinearLayout>
+                    <TextView
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="@string/license_plate"
+                        android:textSize="22sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
+                </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/license_plate_content_holder"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="right"
+                        android:gravity="right"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:paddingRight="6dp"
+                        android:id="@+id/car_license_plate_specs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <ImageView
+                        android:layout_marginRight="10dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/editpencil"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </android.support.v7.widget.CardView>
 
@@ -296,41 +317,50 @@
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+            android:layout_gravity="center_horizontal">
 
-                <ImageView
-                    android:src="@drawable/dealership_2x"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/dealership_label_holder"
+                    android:layout_toLeftOf="@id/dealership_tv"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/dealership_2x"
+                        android:paddingLeft="6dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
 
 
+                    <TextView
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="@string/dealership"
+                        android:textSize="22sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
+                </LinearLayout>
                 <TextView
+                    android:layout_alignParentEnd="true"
+                    android:paddingRight="16dp"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
+                    android:id="@+id/dealership_tv"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/dealership"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
-            </LinearLayout>
-            <TextView
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingRight="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:id="@+id/dealership_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content" />
+
+            </RelativeLayout>
 
         </android.support.v7.widget.CardView>
 
