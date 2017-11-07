@@ -173,7 +173,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership) {
                 mCar = car;
-                mdealership = dealership;
+                mdealership = car.getShop();
                 updating = false;
                 if (getView()!=null) {
                     getView().hideLoading();
@@ -228,7 +228,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
 
     public void onScannerViewClicked() {
         Log.d(TAG, "onScannerVIewCLicked()");
-        if (this.mCar.getScannerId() == null&& getView()!= null)
+        if (this.mCar.getScanner() == null&& getView()!= null)
             getView().showBuyDeviceDialog();
 
     }

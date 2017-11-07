@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 
 /**
@@ -19,6 +20,8 @@ public class LocalUserStorage {
             + TABLES.USER.KEY_LAST_NAME + " TEXT, "
             + TABLES.USER.KEY_EMAIL + " TEXT, "
             + TABLES.USER.KEY_PHONE + " TEXT, "
+            + TABLES.USER.KEY_CAR + " TEXT, "
+            + TABLES.USER.KEY_FIRST_CAR_ADDED + " TEXT, "
             + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
@@ -59,7 +62,11 @@ public class LocalUserStorage {
         user.setLastName(c.getString(c.getColumnIndex(TABLES.USER.KEY_LAST_NAME)));
         user.setEmail(c.getString(c.getColumnIndex(TABLES.USER.KEY_EMAIL)));
         user.setPhone(c.getString(c.getColumnIndex(TABLES.USER.KEY_PHONE)));
-
+        int carId = c.getInt(c.getColumnIndex(TABLES.USER.KEY_CAR));
+        boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1;
+        if (carId != -1){
+            user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded));
+        }
         return user;
     }
 
@@ -70,6 +77,10 @@ public class LocalUserStorage {
         values.put(TABLES.USER.KEY_LAST_NAME, user.getLastName());
         values.put(TABLES.USER.KEY_EMAIL, user.getEmail());
         values.put(TABLES.USER.KEY_PHONE, user.getPhone());
+        if (user.getSettings() != null){
+            values.put(TABLES.USER.KEY_CAR, user.getSettings().getCarId());
+            values.put(TABLES.USER.KEY_FIRST_CAR_ADDED, user.getSettings().isFirstCarAdded());
+        }
 
         return values;
     }

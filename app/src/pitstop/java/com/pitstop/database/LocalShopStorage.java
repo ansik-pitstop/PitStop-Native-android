@@ -139,7 +139,7 @@ public class LocalShopStorage {
         return dealership;
     }
 
-    public void deleteAllRows(){
+    public void removeAllDealerships(){
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.SHOP.TABLE_NAME, null, null);

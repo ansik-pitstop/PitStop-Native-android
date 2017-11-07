@@ -30,7 +30,7 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
 
             override fun onSuccess(settings: Settings) {
-                Log.d(tag, "got settings")
+                Log.d(tag, "got settings: "+settings)
 
                 carIssueRepository.getCurrentCarIssues(settings.carId, object : Repository.Callback<List<CarIssue>> {
 
@@ -40,7 +40,7 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
                                 shopRepository.get(shopId, object : Repository.Callback<Dealership> {
 
                                     override fun onSuccess(dealership: Dealership) {
-                                        Log.d(tag, "got dealership, callback.onSuccess()")
+                                        Log.d(tag, "got dealership: "+dealership)
                                         mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssueList) })
                                     }
 

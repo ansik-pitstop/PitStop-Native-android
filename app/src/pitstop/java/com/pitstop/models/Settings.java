@@ -8,24 +8,28 @@ package com.pitstop.models;
 
 public class Settings {
 
+    private final String TAG = getClass().getSimpleName();
+
     private int userId;
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
 
-    public Settings(int userId, int carId, boolean firstCarAdded) {
+    public Settings(int userId, int carId,  boolean firstCarAdded){
         this.userId = userId;
-        this.carId = carId;
         this.firstCarAdded = firstCarAdded;
+        this.carId = carId;
     }
 
-    public Settings(int userId, boolean firstCarAdded){
-        this.userId = userId;
+    public void setCarId(int carId) {
+        this.carId = carId;
+    }
+
+    public void setFirstCarAdded(boolean firstCarAdded) {
         this.firstCarAdded = firstCarAdded;
-        carId = -1;
     }
 
     public boolean hasMainCar(){
-        return carId != -1;
+        return carId != 0;
     }
 
     public int getCarId() {
@@ -42,5 +46,14 @@ public class Settings {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String toString(){
+        try{
+            return "userId: "+userId+", carId: "+carId+", firstCarAdded: "+firstCarAdded;
+        }catch(NullPointerException e){
+            return "null";
+        }
     }
 }

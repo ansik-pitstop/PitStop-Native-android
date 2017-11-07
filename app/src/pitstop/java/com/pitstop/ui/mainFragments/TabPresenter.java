@@ -1,5 +1,7 @@
 package com.pitstop.ui.mainFragments;
 
+import android.util.Log;
+
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventType;
@@ -24,6 +26,7 @@ public abstract class TabPresenter<T> implements Presenter<T> {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarDataChangedEvent(CarDataChangedEvent event){
+        Log.d(TAG,"onCarDataChangedEvent() event: "+event);
 
         /*Respond to event only if its EventType isn't being ignored
         * AND if it wasn't sent by this fragment*/

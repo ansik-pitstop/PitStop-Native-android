@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 
@@ -35,6 +36,7 @@ public class LocalCarStorage {
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
+    private final String TAG = getClass().getSimpleName();
 
     public LocalCarStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
@@ -43,13 +45,13 @@ public class LocalCarStorage {
     /**
      * Store car data
      */
-    public void storeCarData(Car car) {
+    public boolean storeCarData(Car car) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = carObjectToContentValues(car);
 
-        long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
-
+        db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        return true;
     }
 
     public void storeCars(List<Car> carList) {
@@ -74,6 +76,7 @@ public class LocalCarStorage {
             }
         }
         c.close();
+        Log.d(TAG,"getAllCars, cars: "+cars);
         return cars;
     }
 
@@ -209,7 +212,7 @@ public class LocalCarStorage {
         car.setTrim(c.getString(c.getColumnIndex(TABLES.CAR.KEY_TRIM)));
         car.setEngine(c.getString(c.getColumnIndex(TABLES.CAR.KEY_ENGINE)));
         car.setVin(c.getString(c.getColumnIndex(TABLES.CAR.KEY_VIN)));
-        car.setScannerId(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
+        car.setScanner(c.getString(c.getColumnIndex(TABLES.CAR.KEY_SCANNER_ID)));
         car.setUserId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_USER_ID)));
         car.setShopId(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_SHOP_ID)));
         car.setNumberOfServices(c.getInt(c.getColumnIndex(TABLES.CAR.KEY_NUM_SERVICES)));
@@ -229,7 +232,7 @@ public class LocalCarStorage {
         values.put(TABLES.CAR.KEY_TRIM, car.getTrim());
         values.put(TABLES.CAR.KEY_ENGINE, car.getEngine());
         values.put(TABLES.CAR.KEY_VIN, car.getVin());
-        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScannerId());
+        values.put(TABLES.CAR.KEY_SCANNER_ID, car.getScanner());
         values.put(TABLES.CAR.KEY_USER_ID, car.getUserId());
         values.put(TABLES.CAR.KEY_SHOP_ID, car.getShopId());
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.getNumberOfServices());

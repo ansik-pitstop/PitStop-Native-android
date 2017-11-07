@@ -104,7 +104,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     protected TextView dealership;
 
     @BindView(R.id.dealership_view)
-    protected View dealerhsipView;
+    protected View dealershipView;
 
     @BindView(R.id.car_vin)
     protected TextView carVin;
@@ -320,10 +320,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         Log.d(TAG, "setView()");
 
         carVin.setText(car.getVin());
-        if (car.getScannerId() == null)
+        if (car.getScanner() == null)
             scannerID.setText("No scanner connected");
         else
-            scannerID.setText(car.getScannerId());
+            scannerID.setText(car.getScanner());
         if (car.getEngine() == null){
             engine.setVisibility(View.GONE);
         }
@@ -343,12 +343,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             tankSize.setText(car.getTankSize());
 
         if(!(presenter.getDealership()== null)) {
-            dealerhsipView.setVisibility(View.VISIBLE);
             dealership.setText(presenter.getDealership().getName());
         }
-        else{
-            dealerhsipView.setVisibility(View.GONE);
-        }
+
         presenter.getLicensePlate(car.getId());
 
         totalMileagetv.setText(String.format("%.2fkm", car.getTotalMileage()));

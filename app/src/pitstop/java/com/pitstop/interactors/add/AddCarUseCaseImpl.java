@@ -117,8 +117,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                             boolean carExists = car != null;
                             boolean hasUser = car != null && car.getUserId() != 0;
-                            boolean hasScanner = car != null && car.getScannerId() != null
-                                    && !car.getScannerId().isEmpty();
+                            boolean hasScanner = car != null && car.getScanner() != null
+                                    && !car.getScanner().isEmpty();
 
                             Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
                                     +hasUser+", hasScanner?"+hasScanner+", car: "+car);
