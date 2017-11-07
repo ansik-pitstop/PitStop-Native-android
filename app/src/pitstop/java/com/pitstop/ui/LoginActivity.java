@@ -221,8 +221,7 @@ public class LoginActivity extends DebugDrawerActivity {
             Log.i(TAG, "Not logged in");
         } else if (AccessToken.getCurrentAccessToken() != null) {
             startMainActivity(false);
-        }
-        else {
+        } else {
             showLoading(getString(R.string.logging_in_message));
             startMainActivity(false);
         }

@@ -163,10 +163,10 @@ public class User implements Parcelable {
                 boolean firstCarAdded = true; //if not present, default is true
 
                 if (settings.has("isFirstCarAdded")){
-                    firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded");
+                    firstCarAdded = settings.getBoolean("isFirstCarAdded");
                 }
                 if (settings.has("mainCar")){
-                    carId = settings.getJSONObject("user").getInt("mainCar");
+                    carId = settings.getInt("mainCar");
                 }
                 user.setSettings(new Settings(carId,firstCarAdded));
 
