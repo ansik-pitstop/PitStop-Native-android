@@ -660,6 +660,8 @@ public class LoginActivity extends DebugDrawerActivity {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if (requestError == null) {
+                                    Log.d(TAG,"updateUser() response: "+response);
+                                    User user = User.jsonToUserObject(response);
                                     application.setCurrentUser(user);
                                     application.setUpMixPanel();
                                     goToMainActivity(true);

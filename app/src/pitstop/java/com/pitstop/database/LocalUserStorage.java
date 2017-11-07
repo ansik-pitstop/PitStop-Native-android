@@ -77,8 +77,10 @@ public class LocalUserStorage {
         values.put(TABLES.USER.KEY_LAST_NAME, user.getLastName());
         values.put(TABLES.USER.KEY_EMAIL, user.getEmail());
         values.put(TABLES.USER.KEY_PHONE, user.getPhone());
-        values.put(TABLES.USER.KEY_CAR, user.getSettings().getCarId());
-        values.put(TABLES.USER.KEY_FIRST_CAR_ADDED, user.getSettings().isFirstCarAdded());
+        if (user.getSettings() != null){
+            values.put(TABLES.USER.KEY_CAR, user.getSettings().getCarId());
+            values.put(TABLES.USER.KEY_FIRST_CAR_ADDED, user.getSettings().isFirstCarAdded());
+        }
 
         return values;
     }
