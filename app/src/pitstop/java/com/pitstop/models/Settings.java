@@ -14,16 +14,10 @@ public class Settings {
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
 
-    public Settings(int userId, int carId, boolean firstCarAdded) {
-        this.userId = userId;
-        this.carId = carId;
-        this.firstCarAdded = firstCarAdded;
-    }
-
     public Settings(int userId, boolean firstCarAdded){
         this.userId = userId;
         this.firstCarAdded = firstCarAdded;
-        carId = -1;
+        carId = 0;
     }
 
     public void setCarId(int carId) {
@@ -35,7 +29,7 @@ public class Settings {
     }
 
     public boolean hasMainCar(){
-        return carId != -1;
+        return carId != 0;
     }
 
     public int getCarId() {

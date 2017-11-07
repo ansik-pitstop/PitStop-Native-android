@@ -5,8 +5,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
@@ -17,12 +15,7 @@ import java.util.List;
  */
 public class User implements Parcelable {
 
-
-
     private int id;
-
-
-
     private List<String> installationId;
     private String firstName;
     private String lastName;
@@ -35,6 +28,7 @@ public class User implements Parcelable {
     private String phone;
     private String role;
     private boolean verifiedEmail;
+    private Settings settings;
 
     public User() {}
 
@@ -130,6 +124,14 @@ public class User implements Parcelable {
         return installationId;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
     public void setInstallationID(List<String> installationID) {
         this.installationId = installationID;
     }
@@ -155,6 +157,18 @@ public class User implements Parcelable {
                 user.setLastName(userJson.getString("lastName"));
                 user.setEmail(userJson.getString("email"));
                 user.setPhone(userJson.getString("phone"));
+
+                JSONObject settings = userJson.getJSONObject("settings");
+                int carId = 0;
+                boolean firstCarAdded = true; //if not present, default is true
+
+                if (settings.has("isFirstCarAdded")){
+                    firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded");
+                }
+                if (settings.has("mainCar")){
+                    carId = settings.getJSONObject("user").getInt("mainCar");
+                }
+                user.setSettings(new Settings(carId,firstCarAdded));
 
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }

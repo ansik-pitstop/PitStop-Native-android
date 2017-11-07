@@ -183,6 +183,9 @@ public class UserRepository implements Repository{
             Log.d(TAG,"set user settings response: "+response+", requestError: "+requestError);
             try {
                 if (requestError == null){
+                    User user = localUserStorage.getUser();
+                    user.setSettings(new Settings(carId, user.getSettings().isFirstCarAdded()));
+                    localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
                 else{
@@ -236,6 +239,9 @@ public class UserRepository implements Repository{
         return (response, requestError) -> {
             try {
                 if (requestError == null){
+                    User user = localUserStorage.getUser();
+                    user.setSettings(new Settings(user.getSettings().getCarId(), added));
+                    localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
                 else{
@@ -255,6 +261,9 @@ public class UserRepository implements Repository{
         if(localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
+        }else if (localUserStorage.getUser().getSettings() != null){
+            callback.onSuccess(localUserStorage.getUser().getSettings());
+            return;
         }
         final int userId = localUserStorage.getUser().getId();
 
@@ -265,7 +274,7 @@ public class UserRepository implements Repository{
             }
             try{
                 JSONObject settings = new JSONObject(response);
-                int carId = -1;
+                int carId = 0;
                 boolean firstCarAdded = true; //if not present, default is true
 
                 if (settings.getJSONObject("user").has("isFirstCarAdded")){
@@ -274,13 +283,11 @@ public class UserRepository implements Repository{
                 if (settings.getJSONObject("user").has("mainCar")){
                     carId = settings.getJSONObject("user").getInt("mainCar");
                 }
+                User user = localUserStorage.getUser();
 
-                if (carId == -1){
-                    callback.onSuccess(new Settings(userId,firstCarAdded));
-                }
-                else{
-                    callback.onSuccess(new Settings(userId,carId,firstCarAdded));
-                }
+                user.setSettings(new Settings(carId,firstCarAdded));
+                localUserStorage.storeUserData(user);
+                callback.onSuccess(user.getSettings());
             }
             catch(JSONException e){
                 e.printStackTrace();

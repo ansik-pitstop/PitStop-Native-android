@@ -102,6 +102,8 @@ public final class TABLES {
         String KEY_LAST_NAME = "lastName";
         String KEY_EMAIL = "email";
         String KEY_PHONE = "phone";
+        String KEY_CAR = "carId";
+        String KEY_FIRST_CAR_ADDED = "isFirstCarAdded";
 
     }
 
