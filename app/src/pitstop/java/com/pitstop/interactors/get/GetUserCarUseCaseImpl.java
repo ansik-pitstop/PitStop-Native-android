@@ -69,7 +69,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
-                    carRepository.get(userSettings.getCarId()).doOnNext(response -> {
+                    carRepository.get(userSettings.getCarId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.computation())
+                            .doOnNext(response -> {
                         Log.d(TAG,"carRepository.get() car: "+response.getData());
                         if (response.getData() == null){
                             callback.onError(RequestError.getUnknownError());
@@ -91,8 +94,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                     }).onErrorReturn(err -> {
                         Log.d(TAG,"carRepository.get() error: "+err);
                         return new RepositoryResponse<>(null,false);
-                    }).subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.computation())
+                    })
                     .subscribe();
                     return;
                 }
@@ -100,6 +102,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 /*User settings doesn't have mainCar stored, we cannot trust this because settings
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
                 carRepository.getCarsByUserId(userSettings.getUserId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){
@@ -138,8 +142,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         }).onErrorReturn(err -> {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
                             return new RepositoryResponse<List<Car>>(null,true);
-                        }).subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        })
                         .subscribe();
             }
 

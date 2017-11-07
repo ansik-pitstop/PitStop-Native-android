@@ -80,7 +80,10 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
             @Override
             public void onSuccess(User user) {
                 Log.d(TAG,"user: "+user);
-                carRepository.get(carId).doOnNext(response -> {
+                carRepository.get(carId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
                     response.getData().setShop(dealership);
@@ -102,8 +105,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                 }).onErrorReturn(err -> {
                     Log.d(TAG,"getCar error: "+err.getMessage());
                     return new RepositoryResponse<>(null,false);
-                }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                })
                 .subscribe();
             }
 

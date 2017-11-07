@@ -149,14 +149,14 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doOnNext({next ->
                 if (next == null ) return@doOnNext
                 Log.d(tag,"remote.cache() local store update cars: "+next.data)
                 localCarStorage.deleteAllCars()
                 localCarStorage.storeCars(next.data)
-        }).subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.computation())
-        .onErrorReturn { err ->
+        }).onErrorReturn { err ->
             Log.d(tag,"getCarsByUserId() remote error: $err")
             RepositoryResponse(null,false)
         }
@@ -184,6 +184,8 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val remote = carApi.getCar(id)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .doOnNext({next ->
                     if (next.data == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
@@ -194,9 +196,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
 
                     localCarStorage.deleteCar(next.data.id)
                     localCarStorage.storeCarData(next.data)
-                }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
-                .onErrorReturn { err ->
+                }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err")
                     RepositoryResponse(null,false)
                 }
