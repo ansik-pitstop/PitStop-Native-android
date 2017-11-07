@@ -313,7 +313,12 @@ public class ShopRepository implements Repository{
         else if (dealerId == 0 && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             dealerId = 19;
         }
-        networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
+        Dealership localDealership = localShopStorage.getDealership(dealerId);
+        if (localDealership != null){
+            callback.onSuccess(localDealership);
+            return;
+        }
+        else networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);

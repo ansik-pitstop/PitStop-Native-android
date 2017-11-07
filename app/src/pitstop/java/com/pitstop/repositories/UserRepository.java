@@ -258,13 +258,16 @@ public class UserRepository implements Repository{
 
 
     public void getCurrentUserSettings(Callback<Settings> callback){
+        Log.d(TAG,"getCurrentUserSettings()");
         if(localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
         }else if (localUserStorage.getUser().getSettings() != null){
+            Log.d(TAG,"Returning local settings!()");
             callback.onSuccess(localUserStorage.getUser().getSettings());
             return;
         }
+        Log.d(TAG,"Fetching settings remotely!()");
         final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, (response, requestError) -> {
