@@ -20,10 +20,10 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     private String PMFilterMonitoring;
 
     public PetrolEmissionsReport(int id, String misfire, String ignition
-            , String fuelSystem, Date createdAt, boolean pass, String NMHCCatalyst
+            , String fuelSystem, Date createdAt, boolean pass, String reason, String NMHCCatalyst
             , String components, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
             , String reserved1, String reserved2, String exhaustSensor, String PMFilterMonitoring) {
-        super(id, misfire, ignition, components, fuelSystem, createdAt, pass);
+        super(id, misfire, ignition, components, fuelSystem, createdAt, pass,reason);
         this.NMHCCatalyst = NMHCCatalyst;
         this.EGRVTTSystem = EGRVTTSystem;
         this.NOxSCRMonitor = NOxSCRMonitor;
@@ -35,10 +35,10 @@ public class PetrolEmissionsReport extends EmissionsReport implements Parcelable
     }
 
     public PetrolEmissionsReport(int id, int vhrId, String misfire, String ignition
-            , String components, String fuelSystem, Date createdAt, boolean pass
+            , String components, String fuelSystem, Date createdAt, boolean pass, String reason
             , String NMHCCatalyst, String EGRVTTSystem, String NOxSCRMonitor, String boostPressure
             , String reserved1, String reserved2, String exhaustSensor, String PMFilterMonitoring) {
-        super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass);
+        super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass, reason);
         this.NMHCCatalyst = NMHCCatalyst;
         this.EGRVTTSystem = EGRVTTSystem;
         this.NOxSCRMonitor = NOxSCRMonitor;

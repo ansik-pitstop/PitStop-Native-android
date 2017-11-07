@@ -19,9 +19,10 @@ public abstract class EmissionsReport implements Parcelable{
     private String fuelSystem;
     private Date createdAt;
     private boolean pass;
+    private String reason;
 
     public EmissionsReport(int id, String misfire, String ignition, String components
-            , String fuelSystem, Date createdAt, boolean pass) {
+            , String fuelSystem, Date createdAt, boolean pass, String reason) {
 
         this.id = id;
         this.misfire = misfire;
@@ -30,10 +31,11 @@ public abstract class EmissionsReport implements Parcelable{
         this.fuelSystem = fuelSystem;
         this.createdAt = createdAt;
         this.pass = pass;
+        this.reason = reason;
     }
 
     public EmissionsReport(int id, int vhrId, String misfire, String ignition, String components
-            , String fuelSystem, Date createdAt, boolean pass) {
+            , String fuelSystem, Date createdAt, boolean pass, String reason) {
 
         this.id = id;
         this.vhrId = vhrId;
@@ -43,6 +45,7 @@ public abstract class EmissionsReport implements Parcelable{
         this.fuelSystem = fuelSystem;
         this.createdAt = createdAt;
         this.pass = pass;
+        this.reason = reason;
     }
 
     protected EmissionsReport(Parcel in) {
@@ -134,6 +137,14 @@ public abstract class EmissionsReport implements Parcelable{
 
     public void setVhrId(int vhrId) {
         this.vhrId = vhrId;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     @Override
