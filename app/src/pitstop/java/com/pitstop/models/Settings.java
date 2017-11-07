@@ -14,10 +14,10 @@ public class Settings {
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
 
-    public Settings(int userId, boolean firstCarAdded){
+    public Settings(int userId, int carId,  boolean firstCarAdded){
         this.userId = userId;
         this.firstCarAdded = firstCarAdded;
-        carId = 0;
+        this.carId = carId;
     }
 
     public void setCarId(int carId) {

@@ -184,7 +184,7 @@ public class UserRepository implements Repository{
             try {
                 if (requestError == null){
                     User user = localUserStorage.getUser();
-                    user.setSettings(new Settings(carId, user.getSettings().isFirstCarAdded()));
+                    user.setSettings(new Settings(user.getId(),carId, user.getSettings().isFirstCarAdded()));
                     localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
@@ -240,7 +240,7 @@ public class UserRepository implements Repository{
             try {
                 if (requestError == null){
                     User user = localUserStorage.getUser();
-                    user.setSettings(new Settings(user.getSettings().getCarId(), added));
+                    user.setSettings(new Settings(user.getId(),user.getSettings().getCarId(), added));
                     localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
@@ -285,7 +285,7 @@ public class UserRepository implements Repository{
                 }
                 User user = localUserStorage.getUser();
 
-                user.setSettings(new Settings(carId,firstCarAdded));
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded));
                 localUserStorage.storeUserData(user);
                 callback.onSuccess(user.getSettings());
             }

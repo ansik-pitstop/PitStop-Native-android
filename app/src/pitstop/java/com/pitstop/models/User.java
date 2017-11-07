@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class User implements Parcelable {
 
+    private static final String TAG = User.class.getSimpleName();
+
     private int id;
     private List<String> installationId;
     private String firstName;
@@ -168,13 +170,15 @@ public class User implements Parcelable {
                 if (settings.has("mainCar")){
                     carId = settings.getInt("mainCar");
                 }
-                user.setSettings(new Settings(carId,firstCarAdded));
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded));
 
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG,"jsonToUserObject() user: "+user + ", json: "+json);
 
         return user;
     }
@@ -223,4 +227,14 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
+
+    @Override
+    public String toString(){
+        try{
+            return String.format("id: %d, firstName: %s, lastName: %s, email: %s, settings: %s"
+                    ,id,firstName,lastName,email,settings);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }

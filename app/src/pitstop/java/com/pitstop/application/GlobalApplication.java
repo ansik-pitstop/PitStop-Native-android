@@ -235,7 +235,7 @@ public class GlobalApplication extends Application {
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
 
-        Log.d(TAG,"logInUser()");
+        Log.d(TAG,"logInUser() user: "+currentUser);
 
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
