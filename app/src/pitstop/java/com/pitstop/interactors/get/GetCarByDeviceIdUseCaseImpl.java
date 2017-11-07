@@ -57,6 +57,7 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
                             else callback.onGotCar(response.getData());
                         }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
                         .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .subscribe();
                     }
 

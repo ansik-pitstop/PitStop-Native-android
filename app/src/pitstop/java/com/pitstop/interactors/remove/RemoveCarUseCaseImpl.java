@@ -133,6 +133,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                 Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
                                                 return new RepositoryResponse<List<Car>>(null,false);
                                             }).subscribeOn(Schedulers.io())
+                                            .observeOn(Schedulers.computation())
                                             .subscribe();
                                 }
 

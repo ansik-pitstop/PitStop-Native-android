@@ -65,6 +65,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     Log.d(tag,"Error retrieving car err: "+err.message)
                     RepositoryResponse(null,false)
                 }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe()
             }
             override fun onError(error: RequestError){

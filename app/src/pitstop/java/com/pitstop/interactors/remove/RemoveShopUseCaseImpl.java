@@ -107,6 +107,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
                             return new RepositoryResponse<List<Car>>(null,false);
                         }).subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .subscribe();
             }
             @Override

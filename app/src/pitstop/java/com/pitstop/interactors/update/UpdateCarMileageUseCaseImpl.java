@@ -92,6 +92,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return new RepositoryResponse<>(null,false);
                     //Todo: error handling
                 }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe();
             }
 

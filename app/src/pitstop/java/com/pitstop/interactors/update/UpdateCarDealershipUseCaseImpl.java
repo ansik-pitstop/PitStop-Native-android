@@ -103,6 +103,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                     Log.d(TAG,"getCar error: "+err.getMessage());
                     return new RepositoryResponse<>(null,false);
                 }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe();
             }
 

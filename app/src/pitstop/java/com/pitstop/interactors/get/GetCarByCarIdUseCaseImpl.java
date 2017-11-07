@@ -91,6 +91,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                     Log.d(TAG,"carRepository.get() err: "+err);
                     return new RepositoryResponse<Car>(null,false);
                 }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe();
             }
             @Override

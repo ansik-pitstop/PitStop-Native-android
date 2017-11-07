@@ -253,7 +253,9 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         });
                     }
 
-                }).onErrorReturn(err -> new RepositoryResponse<>(null,false)).subscribeOn(Schedulers.io())
+                }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe();
             }
 

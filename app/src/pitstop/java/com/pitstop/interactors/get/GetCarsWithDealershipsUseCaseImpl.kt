@@ -81,6 +81,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                     Log.d(tag, "getCarsByUserId() err: " + err)
                     RepositoryResponse<List<Car>>(null, false)
                 }.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe()
             }
 
