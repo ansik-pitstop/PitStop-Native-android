@@ -92,6 +92,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         Log.d(TAG,"carRepository.get() error: "+err);
                         return new RepositoryResponse<>(null,false);
                     }).subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .subscribe();
                     return;
                 }
