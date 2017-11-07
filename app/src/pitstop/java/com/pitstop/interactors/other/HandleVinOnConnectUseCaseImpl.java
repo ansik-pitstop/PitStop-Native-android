@@ -9,8 +9,11 @@ import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Karol Zdebel on 7/10/2017.
@@ -112,7 +115,6 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings data) {
-
                 //user has no car set
                 if (!data.hasMainCar()){
                     HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
@@ -121,6 +123,10 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                 //Get user car
                 carRepository.get(data.getCarId()).doOnNext(response -> {
+                    if (response.getData() == null){
+                        callback.onError(RequestError.getUnknownError());
+                        return;
+                    }
                     Car car = response.getData();
                     boolean deviceVinValid = vin != null
                             && (vin.length() == 17);
@@ -247,9 +253,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         });
                     }
 
-                }).doOnError(err -> {
-                    //Todo: error handling
-                });
+                }).onErrorReturn(err -> new RepositoryResponse<>(null,false)).subscribeOn(Schedulers.io())
+                .subscribe();
             }
 
             @Override

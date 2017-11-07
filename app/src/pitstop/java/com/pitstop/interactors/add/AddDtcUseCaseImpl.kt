@@ -5,10 +5,8 @@ import android.util.Log
 import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.CarIssueRepository
-import com.pitstop.repositories.CarRepository
-import com.pitstop.repositories.Repository
-import com.pitstop.repositories.UserRepository
+import com.pitstop.repositories.*
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Karol Zdebel on 10/11/2017.
@@ -63,10 +61,11 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
 
                         })
                     }
-                }).doOnError({err ->
+                }).onErrorReturn({err ->
                     Log.d(tag,"Error retrieving car err: "+err.message)
-                    //Todo: error handling
-                })
+                    RepositoryResponse(null,false)
+                }).subscribeOn(Schedulers.io())
+                .subscribe()
             }
             override fun onError(error: RequestError){
                 Log.d(tag,"Error retrieving user err: "+error.message)

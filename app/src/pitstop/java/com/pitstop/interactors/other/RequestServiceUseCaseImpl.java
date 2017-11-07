@@ -10,7 +10,10 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matthew on 2017-07-17.
@@ -56,6 +59,10 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                     @Override
                     public void onSuccess(Settings data) {
                         carRepository.get(data.getCarId()).doOnNext(response -> {
+                            if (response.getData() == null){
+                                callback.onError(RequestError.getUnknownError());
+                                return;
+                            }
                             Car car = response.getData();
                             Appointment appointment = new Appointment(car.getShopId()
                                     , state, timeStamp, comments);
@@ -72,9 +79,10 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                             RequestServiceUseCaseImpl.this.onError(error);
                                         }
                                     });
-                        }).doOnError(err -> {
-                           //Todo: Error handling
-                        });
+                        }).onErrorReturn(err -> {
+                            return new RepositoryResponse<>(null,false);
+                        }).subscribeOn(Schedulers.io())
+                        .subscribe();
                     }
 
                     @Override
