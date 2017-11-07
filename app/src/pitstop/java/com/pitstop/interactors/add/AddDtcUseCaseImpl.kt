@@ -35,7 +35,10 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                carRepository.get(settings.carId).doOnNext({response ->
+                carRepository.get(settings.carId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext({response ->
                     if (response.data == null){
                         callback?.onError(RequestError.getUnknownError())
                         return@doOnNext
@@ -64,8 +67,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 }).onErrorReturn({err ->
                     Log.d(tag,"Error retrieving car err: "+err.message)
                     RepositoryResponse(null,false)
-                }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                })
                 .subscribe()
             }
             override fun onError(error: RequestError){

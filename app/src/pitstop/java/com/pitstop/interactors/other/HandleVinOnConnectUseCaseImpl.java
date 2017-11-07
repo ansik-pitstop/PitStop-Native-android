@@ -122,7 +122,11 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
 
                 //Get user car
-                carRepository.get(data.getCarId()).doOnNext(response -> {
+
+                carRepository.get(data.getCarId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext(response -> {
                     if (response.getData() == null){
                         callback.onError(RequestError.getUnknownError());
                         return;
@@ -254,8 +258,6 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     }
 
                 }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
                 .subscribe();
             }
 

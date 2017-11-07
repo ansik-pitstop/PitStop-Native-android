@@ -58,7 +58,10 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                 userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
                     public void onSuccess(Settings data) {
-                        carRepository.get(data.getCarId()).doOnNext(response -> {
+                        carRepository.get(data.getCarId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.computation())
+                                .doOnNext(response -> {
                             if (response.getData() == null){
                                 callback.onError(RequestError.getUnknownError());
                                 return;
@@ -81,9 +84,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                     });
                         }).onErrorReturn(err -> {
                             return new RepositoryResponse<>(null,false);
-                        }).subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
-                        .subscribe();
+                        }).subscribe();
                     }
 
                     @Override

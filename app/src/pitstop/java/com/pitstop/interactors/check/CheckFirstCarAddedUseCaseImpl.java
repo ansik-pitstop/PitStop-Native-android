@@ -77,6 +77,8 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
                 //We only get here if something bad happened in add car, or user settings were corrupted
                 carRepository.getCarsByUserId(userSettings.getUserId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .doOnNext(carListResponse -> {
                             Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
                             List<Car> cars = carListResponse.getData();
@@ -120,9 +122,7 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
                         }).onErrorReturn(err -> {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
                             return new RepositoryResponse<List<Car>>(null,false);
-                        }).subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
-                        .subscribe();
+                        }).subscribe();
             }
 
             @Override

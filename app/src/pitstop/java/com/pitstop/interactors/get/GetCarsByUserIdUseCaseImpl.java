@@ -70,6 +70,8 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     @Override
                     public void onSuccess(User user) {
                         carRepository.getCarsByUserId(user.getId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.computation())
                                 .doOnNext(carListResponse -> {
                                     if (carListResponse.getData() == null){
                                         GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());
@@ -79,9 +81,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                                 }).onErrorReturn(err -> {
                                     Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
                                     return new RepositoryResponse<List<Car>>(null,false);
-                                }).subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.computation())
-                                .subscribe();
+                                }).subscribe();
                     }
 
                     @Override

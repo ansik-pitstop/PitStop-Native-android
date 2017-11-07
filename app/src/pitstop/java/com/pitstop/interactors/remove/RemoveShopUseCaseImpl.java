@@ -79,6 +79,8 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
             @Override
             public void onSuccess(User user) {
                 carRepository.getCarsByUserId(user.getId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .doOnNext(carListResponse -> {
                             Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
                             List<Car> cars = carListResponse.getData();
@@ -106,8 +108,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                         }).onErrorReturn(err -> {
                             Log.d(TAG,"getCarsByUserId() err: "+err);
                             return new RepositoryResponse<List<Car>>(null,false);
-                        }).subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        })
                         .subscribe();
             }
             @Override

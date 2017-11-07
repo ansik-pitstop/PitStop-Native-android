@@ -31,6 +31,8 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
             override fun onSuccess(user: User) {
                 carRepository.getCarsByUserId(user.id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
                         .doOnNext { carListResponse ->
                             Log.d(tag, "getCarsByUserId() response: " + carListResponse)
                             val carList = carListResponse.data
@@ -80,8 +82,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         }.onErrorReturn { err ->
                     Log.d(tag, "getCarsByUserId() err: " + err)
                     RepositoryResponse<List<Car>>(null, false)
-                }.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                }
                 .subscribe()
             }
 
