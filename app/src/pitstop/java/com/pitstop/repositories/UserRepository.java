@@ -31,8 +31,6 @@ public class UserRepository implements Repository{
     private LocalUserStorage localUserStorage;
     private NetworkHelper networkHelper;
 
-    private Settings cachedSettings = null;
-
     public static synchronized UserRepository getInstance(LocalUserStorage localUserStorage
             , NetworkHelper networkHelper) {
         if (INSTANCE == null) {
@@ -160,7 +158,6 @@ public class UserRepository implements Repository{
     }
 
     public void setUserCar(int userId, int carId, Callback<Object> callback){
-        Log.d(TAG,"setUserCar() userId: "+userId+", carId: "+carId+", cachedSettings: "+cachedSettings);
         getUserSettings(userId, (response, requestError) -> {
             if (requestError == null) {
                 try {
@@ -186,9 +183,6 @@ public class UserRepository implements Repository{
             Log.d(TAG,"set user settings response: "+response+", requestError: "+requestError);
             try {
                 if (requestError == null){
-                    if (cachedSettings != null)
-                        cachedSettings.setCarId(carId);
-                    Log.d(TAG,"cached settings after setting: "+cachedSettings);
                     callback.onSuccess(response);
                 }
                 else{
@@ -242,8 +236,6 @@ public class UserRepository implements Repository{
         return (response, requestError) -> {
             try {
                 if (requestError == null){
-                    if (cachedSettings != null)
-                        cachedSettings.setFirstCarAdded(added);
                     callback.onSuccess(response);
                 }
                 else{
@@ -260,17 +252,10 @@ public class UserRepository implements Repository{
 
 
     public void getCurrentUserSettings(Callback<Settings> callback){
-        Log.d(TAG,"getCurrentUserSettings() cached settings: "+cachedSettings);
-
         if(localUserStorage.getUser() == null){
             callback.onError(RequestError.getUnknownError());
             return;
         }
-        else if (cachedSettings != null){
-            callback.onSuccess(cachedSettings);
-            return;
-        }
-
         final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, (response, requestError) -> {
@@ -290,17 +275,12 @@ public class UserRepository implements Repository{
                     carId = settings.getJSONObject("user").getInt("mainCar");
                 }
 
-                if (carId == -1 && cachedSettings == null){
-                    cachedSettings = new Settings(userId,firstCarAdded);
-                    callback.onSuccess(cachedSettings);
+                if (carId == -1){
+                    callback.onSuccess(new Settings(userId,firstCarAdded));
                 }
-                else if (cachedSettings == null){
-                    cachedSettings = new Settings(userId,carId,firstCarAdded);
-                    callback.onSuccess(cachedSettings);
-                }else{
-                    callback.onSuccess(cachedSettings);
+                else{
+                    callback.onSuccess(new Settings(userId,carId,firstCarAdded));
                 }
-
             }
             catch(JSONException e){
                 e.printStackTrace();
