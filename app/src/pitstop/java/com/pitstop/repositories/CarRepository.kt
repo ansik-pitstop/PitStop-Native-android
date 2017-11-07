@@ -155,6 +155,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 localCarStorage.deleteAllCars()
                 localCarStorage.storeCars(next.data)
         }).subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .onErrorReturn { err ->
             Log.d(tag,"getCarsByUserId() remote error: $err")
             RepositoryResponse(null,false)
@@ -194,6 +195,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     localCarStorage.deleteCar(next.data.id)
                     localCarStorage.storeCarData(next.data)
                 }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err")
                     RepositoryResponse(null,false)
