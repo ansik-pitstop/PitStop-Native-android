@@ -45,7 +45,7 @@ public class NotificationsHelper {
                             .setContentText(message);
 
             Intent resultIntent = new Intent(context, MainActivity.class);
-            resultIntent.putExtra(MainActivity.FROM_NOTIF, true);
+            resultIntent.putExtra(MainActivity.Companion.getFROM_NOTIF(), true);
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
 

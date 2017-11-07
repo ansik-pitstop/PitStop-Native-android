@@ -20,6 +20,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.LoginActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,7 +75,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
 
     public void startAddCarActivity(View view) {
         Intent intent = new Intent(PromptAddCarActivity.this, AddCarActivity.class);
-        startActivityForResult(intent, RC_ADD_CAR);
+        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     //Maybe the car was added on the back-end or logic error somewhere
@@ -116,7 +117,7 @@ public class PromptAddCarActivity extends AppCompatActivity {
         Log.d(TAG,"onActivityResult, data is null? "+(data == null));
 
         //Pass results to MainActivity and finish();
-        if (data != null && requestCode == RC_ADD_CAR) {
+        if (data != null && requestCode == MainActivity.RC_ADD_CAR) {
             setResult(resultCode, data);
             finish();
         }

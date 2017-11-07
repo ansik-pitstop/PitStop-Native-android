@@ -435,7 +435,7 @@ public class LoginActivity extends DebugDrawerActivity {
     @Override
     protected void onPause() {
         application.getMixpanelAPI().flush();
-        Log.i(MainActivity.TAG, "LoginActivity on pause");
+        Log.i(MainActivity.Companion.getTAG(), "LoginActivity on pause");
         hideLoading();
 
         try {
@@ -983,7 +983,7 @@ public class LoginActivity extends DebugDrawerActivity {
     }
 
     private void hideLoading() {
-        Log.i(MainActivity.TAG, "hiding loading");
+        Log.i(MainActivity.Companion.getTAG(), "hiding loading");
         progressDialog.dismiss();
     }
 

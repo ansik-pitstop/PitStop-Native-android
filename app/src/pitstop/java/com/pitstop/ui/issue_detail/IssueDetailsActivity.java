@@ -156,7 +156,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
     public void finish() {
         Intent intent = new Intent();
         intent.putExtra(MainActivity.REFRESH_FROM_SERVER, needToRefresh);
-        setResult(MainActivity.RESULT_OK, intent);
+        setResult(MainActivity.Companion.getRESULT_OK(), intent);
         super.finish();
     }
 

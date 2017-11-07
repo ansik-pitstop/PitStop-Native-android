@@ -1,5 +1,7 @@
 package com.pitstop.adapters;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.ui.main_activity.MainView;
 import com.pitstop.ui.my_garage.MyGarageView;
 
 import java.util.List;
@@ -23,26 +26,25 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     private final String TAG = CarsAdapter.class.getSimpleName();
 
-    private MyGarageView myGarageView;
+
     private List<Car> carList;
     private List<Dealership> dealershipList;
+    private MainView mainView;
 
-
-    public CarsAdapter (MyGarageView view, List<Dealership> dealershipList, List<Car> carList){
-        this.myGarageView = view;
+    public CarsAdapter (MainView view, List<Dealership> dealershipList, List<Car> carList){
+        this.mainView = view;
         this.carList = carList;
         this.dealershipList = dealershipList;
     }
-
-
 
     @Override
     public CarsAdapter.CarViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_car_garage, parent, false);
         CarsAdapter.CarViewHolder carViewHolder = new CarViewHolder((view));
         int position = getItemViewType(viewType);
-        view.setOnClickListener(v -> myGarageView
-                .onCarClicked(carList.get(position), dealershipList.get(position),position));
+
+        view.setOnClickListener(v -> mainView.onCarClicked(carList.get(position)));
+
         return carViewHolder;
     }
 

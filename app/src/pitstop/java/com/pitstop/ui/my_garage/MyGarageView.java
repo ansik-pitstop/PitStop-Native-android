@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface MyGarageView {
 
-
+/*
     void openMyAppointments();
     void openRequestService();
     void toast(String message);
@@ -24,9 +24,8 @@ public interface MyGarageView {
     void showDealershipsCallDialog(List<Dealership> dealerships);
     void showDealershipsDirectionDialog(List<Dealership> dealerships);
     void openDealershipDirections(Dealership dealership);
-    void onCarClicked(Car car, Dealership dealership, int position);
+    void onCarClicked(Car car, int position);
     void showCars(List<Car> carList);
-    void openSpecsActivity(Car car, Dealership dealership, int position);
     void noCarsView();
     void onUpdateNeeded();
     void showLoading();
@@ -38,5 +37,5 @@ public interface MyGarageView {
     void notifyCarDataChanged();
     boolean hasBeenPopulated();
 
-    void showErrorDialog();
+    void showErrorDialog();*/
 }

@@ -72,6 +72,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
+import com.pitstop.interactors.other.DeviceClockSyncUseCase;
+import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
@@ -566,5 +568,12 @@ public class UseCaseModule {
 
         return new GetCurrentCarDealershipUseCaseImpl(userRepository, carRepository
                 , shopRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    DeviceClockSyncUseCase getDeviceClockSyncUseCase(ScannerRepository scannerRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new DeviceClockSyncUseCaseImpl(scannerRepository, useCaseHandler, mainHandler);
     }
 }
