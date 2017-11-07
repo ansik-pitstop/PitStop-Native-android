@@ -222,7 +222,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         ignition.setText(emissionsReport.getIgnition());
         components.setText(emissionsReport.getComponents());
         fuelSystem.setText(emissionsReport.getFuelSystem());
-        pass.setText(emissionsReport.isPass() ? "Pass" : "Fail");
+        pass.setText(emissionsReport.isPass() ? "Pass" : emissionsReport.getReason().isEmpty() ? "Fail" : emissionsReport.getReason());
     }
 
     @Override

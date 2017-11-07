@@ -173,7 +173,9 @@ public class ReportRepository implements Repository {
             String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
             String PMFilterMonitoring= data.getString("PM Filter Monitoring");
             boolean pass = content.getBoolean("pass");
-            String reason = content.getString("reason");
+            String reason = "";
+            if (content.has("reason"))
+                reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
             return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass,reason
@@ -204,7 +206,9 @@ public class ReportRepository implements Repository {
             String O2SensorHeater = data.getString("O2 Sensor Heater");
             String EGR = data.getString("EGR");
             boolean pass = content.getBoolean("pass");
-            String reason = content.getString("reason");
+            String reason = "";
+                if (content.has("reason"))
+                    reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
             return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
