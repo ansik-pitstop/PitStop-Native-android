@@ -471,8 +471,15 @@ public class Device215B implements AbstractDevice {
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
                     }
                     if (idrInfo.alarmEvents != null && !idrInfo.alarmEvents.isEmpty()){
+                    Float alarmValue;
+                        if (idrInfo.alarmValues == null){
+                            alarmValue =(float)0;
+                        }
+                        else {
+                            alarmValue = Float.valueOf(idrInfo.alarmValues);
+                        }
                         dataListener.alarmEvent(new Alarm(Integer.valueOf(idrInfo.alarmEvents),
-                                Float.valueOf(idrInfo.alarmValues),
+                                alarmValue,
                                 String.valueOf(Long.valueOf(idrInfo.runTime) +parseRtcTime(Long.toString(ignitionTime)))
                                 , null));
                     }

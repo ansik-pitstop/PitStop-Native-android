@@ -30,6 +30,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private boolean hasScanner = false;
+    private boolean isDealershipMercedes;
 
     private boolean updating = false;
 
@@ -71,6 +72,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
                 getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));
+                isDealershipMercedes = (dealership.getId() == 4
+                        || dealership.getId() == 18);
 
                 if (BuildConfig.DEBUG && (dealership.getId() == 4
                         || dealership.getId() == 18)){
@@ -262,5 +265,9 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             getView().displayBuyDeviceDialog();
         }
 
+    }
+
+    public boolean isDealershipMercedes(){
+        return this.isDealershipMercedes;
     }
 }

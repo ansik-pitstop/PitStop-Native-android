@@ -6,6 +6,11 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/alarm_icon"
@@ -15,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <LinearLayout
-            android:layout_gravity="center_vertical"
+
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -37,26 +42,22 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/alarm_value"
-            android:textColor="@color/black"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:padding="5dp"
-            android:text="8.0g"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
-
+    </LinearLayout>
         <ImageView
-            android:padding="10dp"
+            android:padding="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
             android:src="@drawable/right_chevron"
             />
 
+
     </LinearLayout>
 
+
+
     <include layout="@layout/divider"/>
+
+
+
 </LinearLayout>

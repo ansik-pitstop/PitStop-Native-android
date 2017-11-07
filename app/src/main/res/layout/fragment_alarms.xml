@@ -1,50 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <LinearLayout
-        android:gravity="left"
-        android:layout_gravity="left"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
-            android:layout_gravity="left"
-            android:textStyle="bold"
-            android:padding="5dp"
-            android:textSize="30dp"
-            android:text="Alarms Enabled"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/alarms_enabled_switch"
-            android:layout_width="fill_parent"
+
+
+        <LinearLayout
+            android:gravity="start"
+            android:layout_gravity="start"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_gravity="left"
+                android:textStyle="bold"
+                android:padding="5dp"
+                android:textSize="30dp"
+                android:text="Alarms Enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/alarms_enabled_switch"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal|end"
+                android:gravity="center_horizontal|end"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" />
+        </LinearLayout>
+
+        <include
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal|end"
-            android:gravity="center_horizontal|end"
-            android:paddingRight="10dp"
-            android:paddingTop="10dp" />
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            android:id="@+id/unknown_error_view"
+            layout="@layout/layout_unknown_error"/>
+        <include
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            layout="@layout/loading_layout"
+            android:visibility="gone"
+            android:id="@+id/loading_view"/>
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/no_alarms_view"
+            android:visibility="gone"
+            layout="@layout/layout_no_alarms"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+
+
     </LinearLayout>
 
-    <include android:visibility="gone"
-        android:id="@+id/unknown_error_view"
-        layout="@layout/layout_unknown_error"/>
-    <include
-        layout="@layout/loading_layout"
-        android:visibility="gone"
-        android:id="@+id/loading_view"/>
 
-    <include
-        android:id="@+id/no_alarms_view"
-        android:visibility="gone"
-        layout="@layout/layout_no_alarms"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </android.support.v7.widget.RecyclerView>
-
-</LinearLayout>
+</ScrollView>

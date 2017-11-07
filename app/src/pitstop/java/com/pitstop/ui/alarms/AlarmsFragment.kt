@@ -47,6 +47,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     var alarmsObservable :AlarmObservable? = null
     var autoConnectService : BluetoothAutoConnectService? = null;
     var alarmsEnabledSwitch: SwitchCompat? = null
+    var isDealershipMercedes: Boolean = false
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -83,6 +84,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
             presenter = AlarmsPresenter(useCaseComponent, mixpanelHelper)
 
         }
+        isDealershipMercedes = arguments.getBoolean("isMercedes");
         presenter?.subscribe(this)
         noALarmsView = view?.findViewById(R.id.no_alarms_view)
         recyclerView = view?.findViewById(R.id.main_recycler_view)
@@ -92,6 +94,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
         alarmsEnabledSwitch = view?.findViewById(R.id.alarms_enabled_switch)
         errorLoadingAlarmsView = view?.findViewById(R.id.unknown_error_view)
         loadingView = view?.findViewById(R.id.loading_view)
+
         alarmsEnabledSwitch?.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
 
             override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
@@ -125,7 +128,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
 
 
 
-    override fun populateAlarms(isDealershipMercedes: Boolean) {
+    override fun populateAlarms() {
         Log.d(TAG, "poppulateAlarms");
         alarmsAdapter?.isDealershipMercedes = isDealershipMercedes;
         alarmsAdapter?.setAlarmList(LinkedHashMap(presenter?.alarmsMap))
@@ -135,6 +138,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
 
 
     override fun noAlarmsView() {
+        Log.d(TAG, "noAlarmsVIew()")
         errorLoadingAlarmsView?.visibility = View.GONE
         loadingView?.visibility = View.GONE
         recyclerView?.visibility = View.GONE
@@ -170,7 +174,12 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     }
 
     override fun onAlarmClicked(alarm: Alarm) {
-        if (activity!=null)
-            Toast.makeText(activity, AlarmsAdapter.getAlarmName(alarm.alarmEvent) + " Clicked", Toast.LENGTH_SHORT).show();
+        if (activity == null) return;
+        val nextFrag:Fragment = AlarmDescriptionFragment()
+        (activity as AlarmsActivity).alarmClicked = alarm;
+        activity.fragmentManager.beginTransaction()
+                .replace(R.id.alarms_fragment_holder, nextFrag, "findThisFragment")
+                .addToBackStack(null)
+                .commit()
     }
 }

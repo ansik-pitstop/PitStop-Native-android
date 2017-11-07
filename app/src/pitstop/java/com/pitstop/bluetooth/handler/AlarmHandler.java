@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.models.Alarm;
@@ -29,6 +30,30 @@ public class AlarmHandler {
     }
 
     public void handleAlarm(Alarm alarm){
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            if (isAlarmProductionAlarm(alarm))
+                addAlarm(alarm);
+
+        }
+        else {
+            addAlarm(alarm);
+        }
+
+    }
+
+
+    public boolean isAlarmProductionAlarm(Alarm alarm){
+        int alarmEvent = alarm.getAlarmEvent();
+        int[] productionAlarms = {1,2,6,7,8, 13, 14, 15, 16};
+        for (int i = 0; i<9; i++){
+            if (alarmEvent == productionAlarms[i])
+                return true;
+        }
+        return false;
+    }
+
+    public void addAlarm(Alarm alarm){
+
         useCaseComponent.addAlarmUseCase().execute(alarm, new AddAlarmUseCase.Callback() {
             @Override
             public void onAlarmAdded(@NotNull Alarm alarm) {
@@ -47,6 +72,7 @@ public class AlarmHandler {
 
             }
         });
+
 
     }
 

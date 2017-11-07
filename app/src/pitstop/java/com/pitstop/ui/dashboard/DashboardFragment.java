@@ -582,6 +582,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
         Intent intent = new Intent(getActivity(), AlarmsActivity.class);
+        Bundle bundle  = new Bundle();
+        bundle.putBoolean("isMercedes", presenter.isDealershipMercedes());
+        intent.putExtras(bundle);
         startActivity(intent);
     }
 

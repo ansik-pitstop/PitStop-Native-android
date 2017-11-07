@@ -14,7 +14,7 @@ interface GetAlarmsUseCase: Interactor{
     fun execute(callback: Callback)
 
     interface Callback{
-        fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean);
+        fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, alarmsEnabled: Boolean);
         fun onError(error: RequestError)
     }
 }

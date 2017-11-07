@@ -1,6 +1,7 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -143,14 +144,12 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
 
             ImageView alarmIcon;
             TextView alarmName;
-            TextView alarmValue;
             TextView alarmTime;
 
             public alarmView(View itemView) {
                 super(itemView);
                 this.alarmIcon = itemView.findViewById(R.id.alarm_icon);
                 this.alarmName = itemView.findViewById(R.id.alarm_name);
-                this.alarmValue = itemView.findViewById(R.id.alarm_value);
                 this.alarmTime  = itemView.findViewById(R.id.alarm_time);
             }
 
@@ -158,11 +157,16 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
                 Log.d(TAG, getAlarmName(alarm.getAlarmEvent()));
                 alarmIcon.setImageResource(getAlarmIcon(alarm.getAlarmEvent(), isDealershipMercedes));
                 alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
-                alarmValue.setText(Float.toString(alarm.getAlarmValue()));
+                Log.d(TAG, Boolean.toString(isDealershipMercedes));
                 Date date = new Date ();
                 date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
                 SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
                 String java_date = jdf.format(date).substring(11, 19);
+                // changing millitary time to normal time
+                int hour = Integer.valueOf(java_date.substring(0,2));
+                if (hour>12){
+                    java_date = Integer.toString(hour-12) + java_date.substring(2);
+                }
                 alarmTime.setText(java_date);
             }
 

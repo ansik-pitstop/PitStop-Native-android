@@ -11,8 +11,6 @@ public class Settings {
     private int userId;
     private int carId;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
-
-
     private boolean alarmsEnabled;
 
     public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms) {
@@ -51,4 +49,12 @@ public class Settings {
     public boolean isAlarmsEnabled() {return alarmsEnabled;}
 
     public void setAlarmsEnabled(boolean alarmsEnabled) {this.alarmsEnabled = alarmsEnabled;}
+
+    public String toString(){
+        return "{ userID: " + this.userId +
+                 ", carID: " + this.carId +
+                ", firstCarAdded " + Boolean.toString(this.firstCarAdded) +
+                ", alarmsEnabled " + Boolean.toString(this.alarmsEnabled) + "}";
+
+    }
 }

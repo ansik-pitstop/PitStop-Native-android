@@ -21,11 +21,11 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
     private val TAG = javaClass.simpleName
     var alarmsView: AlarmsView? = null
     var currCarGot: Boolean = false
-    var carMercedes: Boolean = false;
     var carId: Int = 0
     var alarmsMap : HashMap<String, ArrayList<Alarm>> = HashMap();
     var alarmsEnabled : Boolean = false;
     private var updating: Boolean = false;
+    private var firstLoad: Boolean = true;
 
     fun subscribe(view: AlarmsView) {
         this.alarmsView = view
@@ -42,7 +42,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         alarmsView?.showLoading();
 
         useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
-            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean) {
+            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>,  alarmsEnabled: Boolean) {
                 updating = false;
                 if (alarmsView == null) return;
                 alarmsView?.setAlarmsEnabled(alarmsEnabled)
@@ -53,7 +53,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
                         alarmsMap[key] = alarms[key]!!;
                     }
                     alarmsView?.showAlarmsView()
-                    alarmsView?.populateAlarms(carMercedes);
+                    alarmsView?.populateAlarms();
                 }
             }
             override fun onError(error: RequestError) {
@@ -74,8 +74,10 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
             override fun onAlarmsEnabledSet() {
                 updating = false;
                 if (alarmsView == null) return
-                alarmsView?.toast("Alarms Enabled")
+                if (!firstLoad)
+                    alarmsView?.toast("Alarms Enabled")
                 refreshAlarms()
+                firstLoad = false;
             }
 
             override fun onError(error: RequestError) {
@@ -111,7 +113,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         if (updating) return;
         updating = true
         useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
-            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, dealershipIsMercedes: Boolean, alarmsEnabled: Boolean) {
+            override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>,  alarmsEnabled: Boolean) {
                 updating = false;
                 if (alarmsView == null) return;
                 alarmsView?.setAlarmsEnabled(alarmsEnabled)
@@ -122,7 +124,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
                         alarmsMap[key] = alarms[key]!!;
                     }
                     alarmsView?.showAlarmsView()
-                    alarmsView?.populateAlarms(carMercedes);
+                    alarmsView?.populateAlarms();
                 }
             }
             override fun onError(error: RequestError) {

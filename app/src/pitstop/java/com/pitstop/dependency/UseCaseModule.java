@@ -478,9 +478,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetAlarmsUseCase getAlarmsUseCase(UserRepository userRepository, LocalAlarmStorage localAlarmStorage,
+    GetAlarmsUseCase getAlarmsUseCase(CarRepository carRepository, UserRepository userRepository, LocalAlarmStorage localAlarmStorage,
                                      @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
-        return new GetAlarmsUseCaseImpl(userRepository, localAlarmStorage, useCaseHandler, mainHandler);
+        return new GetAlarmsUseCaseImpl(carRepository, userRepository, localAlarmStorage, useCaseHandler, mainHandler);
     }
 
 

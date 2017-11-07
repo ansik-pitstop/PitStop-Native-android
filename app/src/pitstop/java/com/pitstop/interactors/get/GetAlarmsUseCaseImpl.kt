@@ -22,7 +22,7 @@ import kotlin.collections.HashMap
  * Created by ishan on 2017-10-30.
  */
 
-class GetAlarmsUseCaseImpl( val userRepository: UserRepository, val localAlarmStorage: LocalAlarmStorage,
+class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository: UserRepository, val localAlarmStorage: LocalAlarmStorage,
                            val useCaseHandler: Handler, val mainHandler: Handler): GetAlarmsUseCase {
 
     private val TAG = javaClass.simpleName;
@@ -37,35 +37,37 @@ class GetAlarmsUseCaseImpl( val userRepository: UserRepository, val localAlarmSt
         userRepository.getCurrentUserSettings( object: Repository.Callback<Settings>{
             override fun onSuccess(settings: Settings?) {
                     localAlarmStorage.getAlarms(settings?.carId!!, object : Repository.Callback<List<Alarm>>{
-                        override fun onSuccess(data: List<Alarm>?) {
+                        override fun onSuccess(list: List<Alarm>?) {
                             Log.d(TAG, "getAlarmsSuccess()");
+                                    val arrayListAlarm: ArrayList<Alarm>  = ArrayList(list)
+                                    var map: HashMap<String, ArrayList<Alarm>> = HashMap();
+                                    for (alarm in arrayListAlarm) {
+                                        val date = Date()
+                                        date.time = java.lang.Long.parseLong(alarm.rtcTime) * 1000
+                                        val currDate: String = (DateFormatSymbols().months[date.month]+ " " + date.date + " " + (1900 + date.year))
+                                        if (map.containsKey(currDate)){
+                                            map[currDate]?.add(alarm)
+                                        }
+                                        else {
+                                            var currArrayList: ArrayList<Alarm> = ArrayList();
+                                            currArrayList.add(alarm);
+                                            map.put(currDate, currArrayList);
+                                        }
+                                    }
+                                    Log.d(TAG, settings.toString())
 
-                            val arrayListAlarm: ArrayList<Alarm>  = ArrayList(data)
-                            var map: HashMap<String, ArrayList<Alarm>> = HashMap();
-                            for (alarm in arrayListAlarm) {
-                                val date = Date()
-                                date.time = java.lang.Long.parseLong(alarm.rtcTime) * 1000
-                                val currDate: String = (DateFormatSymbols().months[date.month]+ " " + date.date + " " + (1900 + date.year))
-                                if (map.containsKey(currDate)){
-                                    map[currDate]?.add(alarm)
+                                    mainHandler.post({callback?.onAlarmsGot(map, settings.isAlarmsEnabled)})
                                 }
-                                else {
-                                    var currArrayList: ArrayList<Alarm> = ArrayList();
-                                    currArrayList.add(alarm);
-                                    map.put(currDate, currArrayList);
+                                override fun onError(error: RequestError?) {
+                                    Log.d(TAG, "onGetShopIderror")
+                                    mainHandler.post({callback?.onError(RequestError.getUnknownError())})
                                 }
-                            }
-                            val isDealershipMercedes: Boolean = settings.carId== 4|| settings.carId ==18
-                            mainHandler.post({callback?.onAlarmsGot(map, isDealershipMercedes, settings.isAlarmsEnabled)})
-                        }
-                        override fun onError(error: RequestError?) {
-                            Log.d(TAG, "getAlarmsError()")
-                            mainHandler.post({callback?.onError(RequestError.getUnknownError())})
-                        }
+
                     })
             }
             override fun onError(error: RequestError?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Log.d(TAG, "getCurrentUSerError()")
+                mainHandler.post({callback?.onError(RequestError.getUnknownError())})
             }
         })
     }
