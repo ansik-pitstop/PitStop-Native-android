@@ -37,6 +37,7 @@ class AlarmsActivity: AppCompatActivity() {
                 window.statusBarColor = ContextCompat.getColor(this, R.color.black)
             }
         }
+        supportActionBar!!.subtitle = "Driving Alarms"
 
         fragmentTransaction.replace(R.id.alarms_fragment_holder, alarmsFragment)
         fragmentTransaction.commit()

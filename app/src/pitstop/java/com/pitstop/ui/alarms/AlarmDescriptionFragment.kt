@@ -23,6 +23,8 @@ class AlarmDescriptionFragment: Fragment() {
     private var yourDeviceThreshold: TextView? = null
     private var alarmDescription: TextView? =null
     private var alarmProposal : TextView? =null
+    private var descriptionLabel: TextView? = null
+    private var proposalLabel: TextView? = null
 
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -33,6 +35,8 @@ class AlarmDescriptionFragment: Fragment() {
         yourDeviceThreshold = view?.findViewById(R.id.alarm_threshold)
         alarmDescription = view?.findViewById(R.id.alarms_description)
         alarmProposal = view?.findViewById(R.id.alarm_proposal)
+        descriptionLabel = view?.findViewById(R.id.description_label)
+        proposalLabel = view?.findViewById(R.id.proposal_label)
 
         if ((activity as AlarmsActivity).alarmClicked!=null){
             var alarm: Alarm = (activity as AlarmsActivity).alarmClicked!!
@@ -40,6 +44,10 @@ class AlarmDescriptionFragment: Fragment() {
             alarmEventName?.text = AlarmsAdapter.getAlarmName(alarm.alarmEvent)
             alarmDescription?.text = getAlarmDescription(alarm);
             alarmProposal?.text = getAlarmProposal(alarm)
+            if (getAlarmProposal(alarm).equals("", true))
+                proposalLabel?.visibility = View.GONE
+            if (getAlarmDescription(alarm).equals("", true))
+                descriptionLabel?.visibility = View.GONE
             yourDeviceThreshold?.text = getDeviceThreshold(alarm)
         }
         if((activity as AlarmsActivity).alarmClicked?.alarmEvent in (0..2) ||(activity as AlarmsActivity).alarmClicked?.alarmEvent in (10..11) ){
