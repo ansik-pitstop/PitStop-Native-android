@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.github.florent37.viewanimator.ViewAnimator;
@@ -102,6 +103,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.diesel_emissions_content)
     View dieselEmissionsContent;
 
+    @BindView (R.id.emissions_shared_content)
+    View sharedEmissionsContent;
+
     @BindView (R.id.emissions_content)
     View emissionsContentHolder;
 
@@ -110,6 +114,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     private EmissionsReportPresenter presenter;
 
+    private int emissionsSharedContentHeight = 0;
+    private int emissionsPetrolContentHeight = 0;
+    private int emissionsDieselContentHeight = 0;
+    private int emissionsReadyStepsContentHeight = 0;
     private boolean dropDownInProgress;
     private boolean emissionsNotReadyStepsToggled = false;
     private boolean emissionsResultsToggled = false;
@@ -126,7 +134,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_emissions_report,container,false);
         ButterKnife.bind(this,view);
-        dropDownInProgress = false;
         MixpanelHelper mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
         presenter = new EmissionsReportPresenter(mixpanelHelper);
@@ -135,6 +142,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         emissionsResultsToggled = false;
         emissionsUnavailableToggled = false;
         dropDownInProgress = false;
+
+        setViewHeightListeners();
 
         //todo: show details later
 //        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
@@ -151,6 +160,11 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
+
+        sharedEmissionsContent.setVisibility(View.GONE);
+        petrolEmissionsContent.setVisibility(View.GONE);
+        dieselEmissionsContent.setVisibility(View.GONE);
+        readySteps.setVisibility(View.GONE);
         presenter.subscribe(this);
         presenter.loadEmissionsTest();
     }
@@ -255,12 +269,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void toggleEmissionsNotReadySteps() {
-        Log.d(TAG,"toggleEmissionsNotReadySteps()");
+        Log.d(TAG,"toggleEmissionsNotReadySteps() height: "+emissionsReadyStepsContentHeight);
         if (!emissionsNotReadyStepsToggled)
             ViewAnimator.animate(resultRightChevron)
                     .rotation(0,90)
                     .andAnimate(readySteps)
-                    .height(0,readySteps.getHeight())
+                    .height(0,emissionsReadyStepsContentHeight)
                     .duration(200)
                     .onStart(() -> readySteps.setVisibility(View.VISIBLE))
                     .start();
@@ -268,7 +282,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
             ViewAnimator.animate(resultRightChevron)
                     .rotation(90,0)
                     .andAnimate(readySteps)
-                    .height(readySteps.getHeight(),0)
+                    .height(emissionsReadyStepsContentHeight,0)
                     .duration(200)
                     .start();
 
@@ -277,14 +291,12 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void toggleEmissionsResults(boolean petrol) {
-        Log.d(TAG,"toggleEmissionsResults()");
-
+        Log.d(TAG,"toggleEmissionsResults() petrol? "+petrol);
+        int height = petrol? emissionsPetrolContentHeight + emissionsSharedContentHeight
+                : emissionsDieselContentHeight + emissionsSharedContentHeight;
+        Log.d(TAG,"height: "+height);
         if (!emissionsResultsToggled)
             ViewAnimator.animate(resultRightChevron)
-                    .rotation(0,90)
-                    .andAnimate(emissionsContentHolder)
-                    .height(0,emissionsContentHolder.getHeight())
-                    .duration(200)
                     .onStart(() -> {
                         if (petrol){
                             emissionsContentHolder.setVisibility(View.VISIBLE);
@@ -296,13 +308,16 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                             dieselEmissionsContent.setVisibility(View.VISIBLE);
                             petrolEmissionsContent.setVisibility(View.GONE);
                         }
-                    })
+                    }).rotation(0,90)
+                    .andAnimate(emissionsContentHolder)
+                    .height(0,height)
+                    .duration(200)
                     .start();
         else
             ViewAnimator.animate(resultRightChevron)
                     .rotation(90,0)
                     .andAnimate(emissionsContentHolder)
-                    .height(emissionsContentHolder.getHeight(),0)
+                    .height(height,0)
                     .duration(200)
                     .start();
 
@@ -329,5 +344,48 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 //                    .start();
         emissionsUnavailableToggled = !emissionsResultsToggled;
 
+    }
+
+    private void setViewHeightListeners(){
+        readySteps.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener(){
+                    @Override
+                    public void onGlobalLayout() {
+                        emissionsReadyStepsContentHeight = readySteps.getHeight();
+                        readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                        readySteps.setVisibility( View.GONE );
+                    }
+                }
+        );
+        sharedEmissionsContent.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener(){
+                    @Override
+                    public void onGlobalLayout() {
+                        emissionsSharedContentHeight = sharedEmissionsContent.getHeight();
+                        sharedEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                        sharedEmissionsContent.setVisibility( View.GONE );
+                    }
+                }
+        );
+        petrolEmissionsContent.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener(){
+                    @Override
+                    public void onGlobalLayout() {
+                        emissionsPetrolContentHeight = petrolEmissionsContent.getHeight();
+                        petrolEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                        petrolEmissionsContent.setVisibility( View.GONE );
+                    }
+                }
+        );
+        dieselEmissionsContent.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener(){
+                    @Override
+                    public void onGlobalLayout() {
+                        emissionsDieselContentHeight = dieselEmissionsContent.getHeight();
+                        dieselEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                        dieselEmissionsContent.setVisibility( View.GONE );
+                    }
+                }
+        );
     }
 }
