@@ -117,8 +117,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                             boolean carExists = car != null;
                             boolean hasUser = car != null && car.getUserId() != 0;
-                            boolean hasScanner = car != null && car.getScanner() != null
-                                    && !car.getScanner().isEmpty();
+                            boolean hasScanner = car != null && car.getScannerId() != null
+                                    && !car.getScannerId().isEmpty();
 
                             Log.d(TAG,"getCarsByVin().onSuccess() carExists?"+carExists+", hasUser?"
                                     +hasUser+", hasScanner?"+hasScanner+", car: "+car);
@@ -143,7 +143,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                     RequestError.getUnknownError());
                                             return;
                                         }
-                                        Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
+                                        Log.d(TAG,"getScannerId.onSuccess() obdScanner.id: "
                                                 +obdScanner.getScannerId()
                                                 +", active?"+obdScanner.getStatus());
 
@@ -178,7 +178,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                                     @Override
                                     public void onError(RequestError error) {
-                                        Log.d(TAG,"getScanner().onError() error: "
+                                        Log.d(TAG,"getScannerId().onError() error: "
                                                 +error.getMessage());
 
                                         AddCarUseCaseImpl.this.onError(error);

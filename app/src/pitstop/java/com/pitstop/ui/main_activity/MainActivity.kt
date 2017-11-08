@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.ProgressDialog
 import android.content.ComponentName
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
@@ -42,7 +41,6 @@ import com.pitstop.database.LocalShopStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
-import com.pitstop.dependency.TempNetworkComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
@@ -74,7 +72,6 @@ import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
 
 import org.json.JSONException
-import org.json.JSONObject
 
 import io.smooch.core.Smooch
 import io.smooch.core.User
@@ -589,8 +586,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     if (!scannerLocalStore!!.isCarExist(car.id)) {
                         carLocalStore!!.deleteAllCars()
                         carLocalStore!!.storeCars(cars)
-                        scannerLocalStore!!.storeScanner(ObdScanner(car.id, car.scanner))
-                        Log.d("Storing Scanner", car.id.toString() + " " + car.scanner)
+                        scannerLocalStore!!.storeScanner(ObdScanner(car.id, car.scannerId))
+                        Log.d("Storing Scanner", car.id.toString() + " " + car.scannerId)
                     }
                 }
             }

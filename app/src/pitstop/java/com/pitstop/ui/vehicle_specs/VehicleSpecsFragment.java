@@ -320,10 +320,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         Log.d(TAG, "setView()");
 
         carVin.setText(car.getVin());
-        if (car.getScanner() == null)
+        if (car.getScannerId() == null)
             scannerID.setText("No scanner connected");
         else
-            scannerID.setText(car.getScanner());
+            scannerID.setText(car.getScannerId());
         if (car.getEngine() == null){
             engine.setVisibility(View.GONE);
         }

@@ -228,7 +228,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
 
     public void onScannerViewClicked() {
         Log.d(TAG, "onScannerVIewCLicked()");
-        if (this.mCar.getScanner() == null&& getView()!= null)
+        if (this.mCar.getScannerId() == null&& getView()!= null)
             getView().showBuyDeviceDialog();
 
     }

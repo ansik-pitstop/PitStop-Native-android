@@ -61,9 +61,9 @@ public class Car implements Parcelable {
 
     private boolean serviceDue;
 
-    private String scanner;
+    private String scannerId;
 
-    private CarScanner carScanner;
+    private CarScanner scanner;
 
     public Car() { }
 
@@ -212,14 +212,14 @@ public class Car implements Parcelable {
         this.numberOfServices = numberOfServices;
     }
 
-    public String getScanner() {
-        if (getCarScanner() != null)
-            return getCarScanner().getScannerId();
-        else return scanner;
+    public String getScannerId() {
+        if (getScanner() != null)
+            return getScanner().getScannerId();
+        else return scannerId;
     }
 
-    public void setScanner(String scanner) {
-        this.scanner = scanner;
+    public void setScannerId(String scannerId) {
+        this.scannerId = scannerId;
     }
 
     public boolean isCurrentCar() {
@@ -230,12 +230,12 @@ public class Car implements Parcelable {
         this.currentCar = currentCar;
     }
 
-    public CarScanner getCarScanner() {
-        return carScanner;
+    public CarScanner getScanner() {
+        return scanner;
     }
 
-    public void setCarScanner(CarScanner carScanner) {
-        this.carScanner = carScanner;
+    public void setScanner(CarScanner scanner) {
+        this.scanner = scanner;
     }
 
     public int getShopId() {
@@ -260,8 +260,8 @@ public class Car implements Parcelable {
             car.setShopId(dealer.getId());
         }
 
-        if(!jsonObject.isNull("scanner")) {
-            car.setScanner(jsonObject.getJSONObject("scanner").getString("scanner"));
+        if(!jsonObject.isNull("scannerId")) {
+            car.setScannerId(jsonObject.getJSONObject("scannerId").getString("scannerId"));
         }
 
         return car;
@@ -295,7 +295,7 @@ public class Car implements Parcelable {
                 ", vin='" + vin + '\'' +
                 ", totalMileage=" + totalMileage +
                 ", baseMileage=" + baseMileage +
-                ", scanner='" + scanner + '\'' +
+                ", scannerId='" + scannerId + '\'' +
                 ", shopId=" + shopId +
                 ", userId=" + userId +
                 ", dealership= "+getShop()+
@@ -329,7 +329,7 @@ public class Car implements Parcelable {
         dest.writeInt(this.userId);
         dest.writeInt(this.shopId);
         dest.writeByte(this.serviceDue ? (byte) 1 : (byte) 0);
-        dest.writeString(this.scanner);
+        dest.writeString(this.scannerId);
     }
 
     protected Car(Parcel in) {
@@ -352,7 +352,7 @@ public class Car implements Parcelable {
         this.userId = in.readInt();
         this.shopId = in.readInt();
         this.serviceDue = in.readByte() != 0;
-        this.scanner = in.readString();
+        this.scannerId = in.readString();
     }
 
     public static final Parcelable.Creator<Car> CREATOR = new Parcelable.Creator<Car>() {

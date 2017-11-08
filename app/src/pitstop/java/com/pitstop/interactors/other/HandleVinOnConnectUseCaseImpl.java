@@ -134,11 +134,11 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     Car car = response.getData();
                     boolean deviceVinValid = vin != null
                             && (vin.length() == 17);
-                    boolean carScannerValid = car.getScanner() != null
-                            && !car.getScanner().isEmpty()
-                            && car.getScanner().equals(deviceId);
-                    boolean carScannerExists = car.getScanner() != null
-                            && !car.getScanner().isEmpty();
+                    boolean carScannerValid = car.getScannerId() != null
+                            && !car.getScannerId().isEmpty()
+                            && car.getScannerId().equals(deviceId);
+                    boolean carScannerExists = car.getScannerId() != null
+                            && !car.getScannerId().isEmpty();
                     boolean deviceIdValid = deviceId != null
                             && !deviceId.isEmpty();
 
@@ -175,7 +175,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                     //Case 3, use car scanner id as the device id
                     if (carScannerExists && !deviceIdValid){
-                        HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarHasScanner(car.getScanner());
+                        HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarHasScanner(car.getScannerId());
                         return;
                     }
 
@@ -197,7 +197,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     obdScanner.setStatus(true); //Set to active
 
                     if (carScannerExists){
-                        ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScanner());
+                        ObdScanner oldCarScanner = new ObdScanner(car.getId(),car.getScannerId());
                         oldCarScanner.setStatus(false); //Set to inactive
 
                         scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {

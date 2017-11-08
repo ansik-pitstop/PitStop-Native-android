@@ -51,7 +51,7 @@
     <string name="app_build_no">1.0.10</string>
 
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. Make sure your device is plugged in and ready to go. Below are various location that the OBD plug can be at.</string>
-    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
+    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scannerId code can be at.</string>
 
     <!-- Severity indicators -->
     <string name="severity_indicator_low">Low</string>
@@ -60,7 +60,7 @@
     <string name="severity_indicator_critical">Critical</string>
 
 
-    <!--Barcode scanner Request Permission Rationale -->
+    <!--BarcscannerIdnner Request Permission Rationale -->
     <string name="camera_request_rationale">Access to the camera is needed for barcode detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
