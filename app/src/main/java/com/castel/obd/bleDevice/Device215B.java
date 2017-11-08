@@ -472,7 +472,7 @@ public class Device215B implements AbstractDevice {
                     }
                     if (idrInfo.alarmEvents != null && !idrInfo.alarmEvents.isEmpty()){
                     Float alarmValue;
-                        if (idrInfo.alarmValues == null){
+                        if (idrInfo.alarmValues == null|| idrInfo.alarmValues.equalsIgnoreCase("")){
                             alarmValue =(float)0;
                         }
                         else {

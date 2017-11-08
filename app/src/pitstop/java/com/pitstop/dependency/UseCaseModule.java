@@ -31,6 +31,8 @@ import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCaseImpl;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.emissions.Post2141UseCaseImpl;
+import com.pitstop.interactors.get.GetAlarmCountUseCase;
+import com.pitstop.interactors.get.GetAlarmCountUseCaseImpl;
 import com.pitstop.interactors.get.GetAlarmsUseCase;
 import com.pitstop.interactors.get.GetAlarmsUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
@@ -610,5 +612,12 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
         return new DeviceClockSyncUseCaseImpl(scannerRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetAlarmCountUseCase getAlarmCountUseCase(LocalAlarmStorage localAlarmStorage
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetAlarmCountUseCaseImpl(localAlarmStorage, useCaseHandler, mainHandler);
     }
 }

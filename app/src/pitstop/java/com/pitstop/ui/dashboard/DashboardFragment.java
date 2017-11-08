@@ -22,16 +22,23 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AlarmObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,7 +46,7 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment extends Fragment implements DashboardView {
+public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
     public static String  CAR_ID_KEY = "carId";
@@ -56,6 +63,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @BindView(R.id.mileage_icon)
     ImageView mMileageIcon;
+
+    @BindView(R.id.alarm_badge)
+    TextView alarms;
 
     @BindView(mileage)
     TextView mMileageText;
@@ -108,7 +118,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
     private AlertDialog mileageErrorDialog;
     private AlertDialog buyDeviceAlertDialog;
     private DashboardPresenter presenter;
-
+    private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
 
     @Nullable
@@ -117,7 +127,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, view);
-
+        ((MainActivity)getActivity()).subscribe(this);
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -616,5 +626,32 @@ public class DashboardFragment extends Fragment implements DashboardView {
         if(getActivity() == null) return;
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
         startActivity(browserIntent);
+    }
+
+    @Override
+    public void hideBadge() {
+        alarms.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showBadges(int alarmCount) {
+        alarms.setVisibility(View.VISIBLE);
+        if (alarmCount>9)
+            alarms.setText("9+");
+        else
+            alarms.setText(Integer.toString(alarmCount));
+
+    }
+
+    @Override
+    public void onAlarmAdded(Alarm alarm) {
+        presenter.setNumAlarms(presenter.getNumAlarms()+1);
+        showBadges(presenter.getNumAlarms());
+    }
+
+    @Override
+    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
+        alarmObservable.subscribe(this);
     }
 }

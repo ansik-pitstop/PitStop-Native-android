@@ -45,35 +45,17 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     var errorLoadingAlarmsView: View? = null
     var loadingView : View? = null
     var alarmsObservable :AlarmObservable? = null
-    var autoConnectService : BluetoothAutoConnectService? = null;
     var alarmsEnabledSwitch: SwitchCompat? = null
     var isDealershipMercedes: Boolean = false
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            Log.d(TAG, "serviceConnection.onServiceConnected()")
-            autoConnectService =  ((service as BluetoothAutoConnectService.BluetoothBinder)
-                    .service)
-
-            alarmsObservable = ((service as BluetoothAutoConnectService.BluetoothBinder)
-                    .service) as AlarmObservable
-            autoConnectService?.subscribe(this@AlarmsFragment)
-
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            Log.d(TAG, "serviceConnection.onServiceDisconnected()")
-            alarmsObservable = null
-            autoConnectService = null
-
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         Log.d(TAG, "onCreateView()" )
         val view : View?  = inflater?.inflate(R.layout.fragment_alarms, null)
-       activity.bindService(Intent(activity, BluetoothAutoConnectService::class.java),
-                serviceConnection, Context.BIND_AUTO_CREATE)
+        if ((activity as AlarmsActivity).autoConnectService != null){
+            alarmsObservable = ((activity as AlarmsActivity).autoConnectService as AlarmObservable)
+            alarmsObservable?.subscribe(this)
+        }
 
         if (presenter == null) {
             val useCaseComponent = DaggerUseCaseComponent.builder()
@@ -181,5 +163,9 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
                 .replace(R.id.alarms_fragment_holder, nextFrag, "findThisFragment")
                 .addToBackStack(null)
                 .commit()
+    }
+
+    fun serviceUnbinded() {
+        alarmsObservable = null;
     }
 }

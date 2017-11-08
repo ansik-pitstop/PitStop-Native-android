@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
@@ -18,6 +19,7 @@ import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by Karol Zdebel on 9/7/2017.
@@ -31,8 +33,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private MixpanelHelper mixpanelHelper;
     private boolean hasScanner = false;
     private boolean isDealershipMercedes;
-
     private boolean updating = false;
+    private int numAlarms = 0;
 
     public DashboardPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper){
@@ -69,6 +71,26 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
                 updating = false;
                 if (getView() == null) return;
+
+
+                useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
+                    @Override
+                    public void onAlarmCountGot(int alarmCount) {
+                        numAlarms = alarmCount;
+                        if (alarmCount == 0){
+                            if (getView()==null) return;
+                            getView().hideBadge();
+                        }
+                        else {
+                            getView().showBadges(alarmCount);
+                        }
+                    }
+                    @Override
+                    public void onError(@NotNull RequestError error) {
+                        if (getView() == null )return;
+                        getView().hideBadge();
+                    }
+                });
 
                 getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));
@@ -269,5 +291,13 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     public boolean isDealershipMercedes(){
         return this.isDealershipMercedes;
+    }
+
+    public void setNumAlarms(int alarms){
+        this.numAlarms = alarms;
+    }
+
+    public int getNumAlarms(){
+        return this.numAlarms;
     }
 }

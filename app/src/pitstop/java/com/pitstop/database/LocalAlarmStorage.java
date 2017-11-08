@@ -71,9 +71,37 @@ public class LocalAlarmStorage {
             callback.onSuccess(alarmArrayList);
         }
         else {
-            Log.d(TAG, "can't get alarms B");
+            Log.d(TAG, "can't get alarms");
             callback.onError(RequestError.getUnknownError());
         }
+    }
+
+    public void getAlarmCount(int carID, Repository.Callback<Integer> callback){
+
+        Log.d(TAG, "getAlarmCount(): " + Integer.toString(carID));
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        String[] values = {String.valueOf(carID)};
+        ArrayList<Alarm> alarmArrayList = new ArrayList<>();
+        if (doesTableExist(db, TABLES.LOCAL_ALARMS.TABLE_NAME)){
+            Log.d(TAG, "alarmsTableExists");
+            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID + "=?", values, null, null, null);
+            if(c.moveToFirst()) {
+                Log.d(TAG, "alarmsTableHasEntries");
+                while(!c.isAfterLast()) {
+                    Alarm alarm = cursorToAlarm(c);
+                    alarmArrayList.add(alarm);
+                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
+                    c.moveToNext();
+                }
+            }
+            c.close();
+            callback.onSuccess(alarmArrayList.size());
+        }
+        else {
+            Log.d(TAG, "can't get alarms");
+            callback.onError(RequestError.getUnknownError());
+        }
+
     }
 
 

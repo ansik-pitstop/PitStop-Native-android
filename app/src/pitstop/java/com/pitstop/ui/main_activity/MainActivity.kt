@@ -34,7 +34,9 @@ import com.pitstop.BuildConfig
 import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
+import com.pitstop.observer.AutoConnectServiceBindingObserver
 import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.observer.BluetoothAutoConnectServiceObservable
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalScannerStorage
 import com.pitstop.database.LocalShopStorage
@@ -77,12 +79,13 @@ import io.smooch.core.Smooch
 import io.smooch.core.User
 import io.smooch.ui.ConversationActivity
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 /**
  * Created by David on 6/8/2016.
  */
-class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher, MainView {
+class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable {
 
 
     private var presenter: MainActivityPresenter? = null
@@ -107,7 +110,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var drawerLinearLayout: LinearLayout? = null
     private var errorLoadingCars: TextView?  = null
     private var carsTapDescription : TextView? = null
-
+    private var serviceObservers: ArrayList<AutoConnectServiceBindingObserver> = ArrayList();
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -118,7 +121,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             autoConnectService.subscribe(this@MainActivity)
             autoConnectService.requestDeviceSearch(false, false)
             displayDeviceState(autoConnectService.deviceState)
-
+            notifyServiceBinded(autoConnectService)
             checkPermissions()
         }
 
@@ -243,7 +246,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-
     }
 
     private fun setUpDrawer() {
@@ -282,6 +284,16 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         this.findDirectionsBtn = findViewById(R.id.find_direction_garage)
         findDirectionsBtn?.setOnClickListener { presenter?.onFindDirectionsClicked() }
         presenter?.onUpdateNeeded()
+    }
+
+    override fun subscribe(autoConnectBinderObserver: AutoConnectServiceBindingObserver) {
+        serviceObservers.add(autoConnectBinderObserver);
+    }
+
+    fun notifyServiceBinded(bluetoothAutoConnectService: BluetoothAutoConnectService){
+        for (listener in serviceObservers){
+            listener.onServiceBinded(bluetoothAutoConnectService)
+        }
     }
 
     override fun callDealership(dealership: Dealership?) {
