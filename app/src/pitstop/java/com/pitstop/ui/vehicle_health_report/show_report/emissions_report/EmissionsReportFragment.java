@@ -207,7 +207,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void displayEmissionsUnavailable() {
         Log.d(TAG,"displayEmissionsUnavailable()");
-        emissionsContentHolder.setVisibility(View.GONE);
         unavailableEmissionsContent.setVisibility(View.VISIBLE);
         resultRightChevron.setVisibility(View.INVISIBLE);
     }
