@@ -63,6 +63,8 @@ public class Car implements Parcelable {
 
     private String scanner;
 
+    private CarScanner carScanner;
+
     public Car() { }
 
     public Dealership getShop() {
@@ -211,7 +213,9 @@ public class Car implements Parcelable {
     }
 
     public String getScanner() {
-        return scanner;
+        if (getCarScanner() != null)
+            return getCarScanner().getScannerId();
+        else return scanner;
     }
 
     public void setScanner(String scanner) {
@@ -224,6 +228,14 @@ public class Car implements Parcelable {
 
     public void setCurrentCar(boolean currentCar) {
         this.currentCar = currentCar;
+    }
+
+    public CarScanner getCarScanner() {
+        return carScanner;
+    }
+
+    public void setCarScanner(CarScanner carScanner) {
+        this.carScanner = carScanner;
     }
 
     public int getShopId() {

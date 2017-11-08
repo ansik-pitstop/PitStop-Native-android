@@ -40,9 +40,9 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ButterKnife.bind(this);
         Log.d(TAG,"onCreate()");
         setContentView(R.layout.activity_show_report);
+        ButterKnife.bind(this);
         healthReportFragment = new HealthReportFragment();
         emissionsReportFragment = new EmissionsReportFragment();
 
