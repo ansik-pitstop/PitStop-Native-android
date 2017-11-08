@@ -161,10 +161,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
 
-        sharedEmissionsContent.setVisibility(View.GONE);
-        petrolEmissionsContent.setVisibility(View.GONE);
-        dieselEmissionsContent.setVisibility(View.GONE);
-        readySteps.setVisibility(View.GONE);
         presenter.subscribe(this);
         presenter.loadEmissionsTest();
     }
