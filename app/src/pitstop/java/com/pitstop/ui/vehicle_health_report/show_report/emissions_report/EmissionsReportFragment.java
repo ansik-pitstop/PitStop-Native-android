@@ -287,11 +287,13 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     .onStart(() -> {
                         if (petrol){
                             emissionsContentHolder.setVisibility(View.VISIBLE);
+                            sharedEmissionsContent.setVisibility(View.VISIBLE);
                             dieselEmissionsContent.setVisibility(View.GONE);
                             petrolEmissionsContent.setVisibility(View.VISIBLE);
                         }
                         else{
                             emissionsContentHolder.setVisibility(View.VISIBLE);
+                            sharedEmissionsContent.setVisibility(View.VISIBLE);
                             dieselEmissionsContent.setVisibility(View.VISIBLE);
                             petrolEmissionsContent.setVisibility(View.GONE);
                         }

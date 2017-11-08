@@ -57,6 +57,7 @@ public class EmissionsReportPresenter {
     }
 
     void onHeightsLoaded(){
+        Log.d(TAG,"onHeightsLoaded()");
         loadEmissionsTest();
     }
 
