@@ -56,6 +56,10 @@ public class EmissionsReportPresenter {
         }
     }
 
+    void onHeightsLoaded(){
+        loadEmissionsTest();
+    }
+
     public void onEmissionResultHolderClicked() {
         Log.d(TAG,"onEmissionResultHolderClicked()");
         if (view != null && view.getEmissionsReport() != null)

@@ -117,10 +117,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     private EmissionsReportPresenter presenter;
 
-    private int emissionsSharedContentHeight = 0;
-    private int emissionsPetrolContentHeight = 0;
-    private int emissionsDieselContentHeight = 0;
-    private int emissionsReadyStepsContentHeight = 0;
+    private int emissionsSharedContentHeight = -1;
+    private int emissionsPetrolContentHeight = -1;
+    private int emissionsDieselContentHeight = -1;
+    private int emissionsReadyStepsContentHeight = -1;
     private boolean dropDownInProgress;
     private boolean emissionsNotReadyStepsToggled = false;
     private boolean emissionsResultsToggled = false;
@@ -144,26 +144,21 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         emissionsResultsToggled = false;
         dropDownInProgress = false;
 
-        setViewHeightListeners();
-
-        //todo: show details later
-//        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
-//        cellTwo.setOnClickListener(view12 -> presenter.onCellClicked(cellTwoDetails));
-//        cellThree.setOnClickListener(view13 -> presenter.onCellClicked(cellThreeDetails));
-//        cellFour.setOnClickListener(view14 -> presenter.onCellClicked(cellFourDetails));
-//        cellFive.setOnClickListener(view15 -> presenter.onCellClicked(cellFiveDetails));
-//        cellSix.setOnClickListener(view16 -> presenter.onCellClicked(cellSixDetails));
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setViewHeightListeners();
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-
         presenter.subscribe(this);
-        presenter.loadEmissionsTest();
+
     }
 
     @Override
@@ -319,12 +314,24 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         emissionsResultsToggled = !emissionsResultsToggled;
     }
 
+    private boolean heightsLoaded(){
+        return emissionsSharedContentHeight != -1 && emissionsPetrolContentHeight != -1
+                && emissionsDieselContentHeight != -1 && emissionsReadyStepsContentHeight != -1;
+    }
+
     private void setViewHeightListeners(){
+        emissionsSharedContentHeight = -1;
+        emissionsPetrolContentHeight = -1;
+        emissionsDieselContentHeight = -1;
+        emissionsReadyStepsContentHeight = -1;
         readySteps.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener(){
                     @Override
                     public void onGlobalLayout() {
+                        Log.d(TAG,"readySteps.onGlobalLayout() height: "+readySteps.getHeight());
                         emissionsReadyStepsContentHeight = readySteps.getHeight();
+                        if (heightsLoaded())
+                            presenter.onHeightsLoaded();
                         readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                         readySteps.setVisibility( View.GONE );
                     }
@@ -334,7 +341,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 new ViewTreeObserver.OnGlobalLayoutListener(){
                     @Override
                     public void onGlobalLayout() {
+                        Log.d(TAG,"sharedEmissionsContent.onGlobalLayout() height: "+sharedEmissionsContent.getHeight());
                         emissionsSharedContentHeight = sharedEmissionsContent.getHeight();
+                        if (heightsLoaded())
+                            presenter.onHeightsLoaded();
                         sharedEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                         sharedEmissionsContent.setVisibility( View.GONE );
                     }
@@ -344,7 +354,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 new ViewTreeObserver.OnGlobalLayoutListener(){
                     @Override
                     public void onGlobalLayout() {
+                        Log.d(TAG,"petrolEmissionsContent.onGlobalLayout() height: "+petrolEmissionsContent.getHeight());
                         emissionsPetrolContentHeight = petrolEmissionsContent.getHeight();
+                        if (heightsLoaded())
+                            presenter.onHeightsLoaded();
                         petrolEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                         petrolEmissionsContent.setVisibility( View.GONE );
                     }
@@ -354,7 +367,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                 new ViewTreeObserver.OnGlobalLayoutListener(){
                     @Override
                     public void onGlobalLayout() {
+                        Log.d(TAG,"dieselEmissionsContent.onGlobalLayout() height: "+dieselEmissionsContent.getHeight());
                         emissionsDieselContentHeight = dieselEmissionsContent.getHeight();
+                        if (heightsLoaded())
+                            presenter.onHeightsLoaded();
                         dieselEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                         dieselEmissionsContent.setVisibility( View.GONE );
                     }
