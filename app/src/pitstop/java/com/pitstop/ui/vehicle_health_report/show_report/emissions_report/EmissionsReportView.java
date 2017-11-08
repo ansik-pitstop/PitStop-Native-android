@@ -18,4 +18,7 @@ public interface EmissionsReportView {
     void displayEmissionsUnavailableDialog();
     void displayDieselEmissionsReport(DieselEmissionsReport dieselEmissionsReport);
     void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport);
+    void toggleEmissionsNotReadySteps();
+    void toggleEmissionsResults(boolean petrol);
+    void toggleEmissionsUnavailable();
 }

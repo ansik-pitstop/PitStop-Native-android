@@ -56,6 +56,7 @@ public abstract class EmissionsReport implements Parcelable{
         fuelSystem = in.readString();
         createdAt = (Date)in.readSerializable();
         pass = in.readByte() != 0;
+        reason = in.readString();
     }
 
     @Override
@@ -73,6 +74,7 @@ public abstract class EmissionsReport implements Parcelable{
         parcel.writeString(fuelSystem);
         parcel.writeSerializable(createdAt);
         parcel.writeByte((byte) (pass ? 1 : 0));
+        parcel.writeString(reason);
     }
 
     public Date getCreatedAt() {
@@ -151,9 +153,9 @@ public abstract class EmissionsReport implements Parcelable{
     public String toString(){
         try{
             return String.format("id:%d, vhrId:%d, misfire:%s, ignition:%s, components:%s" +
-                            ", fuel system:%s , createdAt:%s, pass:%b",getId(), getVhrId(), getMisfire()
+                            ", fuel system:%s , createdAt:%s, pass:%b, reason:%s",getId(), getVhrId(), getMisfire()
                     , getIgnition(), getComponents(), getFuelSystem(), getCreatedAt().toString()
-                    , isPass());
+                    , isPass(), getReason());
         }catch(NullPointerException e){
             e.printStackTrace();
             return "null";

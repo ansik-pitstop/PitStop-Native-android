@@ -207,8 +207,8 @@ public class ReportRepository implements Repository {
             String EGR = data.getString("EGR");
             boolean pass = content.getBoolean("pass");
             String reason = "";
-                if (content.has("reason"))
-                    reason = content.getString("reason");
+            if (content.has("reason"))
+                reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
             return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
@@ -229,8 +229,10 @@ public class ReportRepository implements Repository {
                 EmissionsReport et;
                 if (isPetrolResponse(response.getJSONObject(i))){
                     et = etPetrolToJson(response.getJSONObject(i));
+                    Log.d(TAG,"Generated petrol report: "+et);
                 }else{
                     et = etDieselToJson(response.getJSONObject(i));
+                    Log.d(TAG,"Generated diesel report: "+et);
                 }
                 if (et != null){
                     JSONObject meta = null;

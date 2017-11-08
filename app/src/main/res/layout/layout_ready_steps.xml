@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        style="@style/TextAppearance.AppCompat.Large"
+        android:text="Follow the steps below to get your vehicle into an emissions test ready state"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="1. You must start this process with a fuel level of between ¼ and ¾ full."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="2. The vehicle must sit for a minimum 8 hour period, without a start."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="3. Start the engine and before driving it, let it sit and idle to warm it up to normal operating temperature."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="4. Drive the vehicle for a minimum of 10 minutes at highway speeds (between 90 km/hr and 110 km/hr)."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="5. Drive the vehicle for at least 20 minutes in stop and go traffic with at least four idle periods (engine running while at a stop)."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="6. Do not turn the engine off during the above driving cycle until the very end (no stopping for a coffee in between any step!)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider" />
+
+    </LinearLayout>
+
+</LinearLayout>

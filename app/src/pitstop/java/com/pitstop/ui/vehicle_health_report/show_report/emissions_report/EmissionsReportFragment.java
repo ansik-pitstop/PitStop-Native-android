@@ -91,6 +91,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.egr)
     protected TextView EGR;
 
+    //Not ready
+    @BindView(R.id.view_ready_steps)
+    View readySteps;
+
     //Holders
     @BindView (R.id.petrol_emissions_content)
     View petrolEmissionsContent;
@@ -101,8 +105,15 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.emissions_content)
     View emissionsContentHolder;
 
-    private boolean dropDownInProgress;
+    @BindView (R.id.result_right_chevron)
+    View resultRightChevron;
+
     private EmissionsReportPresenter presenter;
+
+    private boolean dropDownInProgress;
+    private boolean emissionsNotReadyStepsToggled = false;
+    private boolean emissionsResultsToggled = false;
+    private boolean emissionsUnavailableToggled = false;
 
     @OnClick(R.id.emission_result_holder)
     public void onEmissionResultHolderClicked(){
@@ -119,6 +130,11 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         MixpanelHelper mixpanelHelper = new MixpanelHelper(
                 (GlobalApplication)getActivity().getApplicationContext());
         presenter = new EmissionsReportPresenter(mixpanelHelper);
+
+        emissionsNotReadyStepsToggled = false;
+        emissionsResultsToggled = false;
+        emissionsUnavailableToggled = false;
+        dropDownInProgress = false;
 
         //todo: show details later
 //        cellOne.setOnClickListener(view1 -> presenter.onCellClicked(cellOneDetails));
@@ -218,6 +234,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     private void displayEmissionsreport(EmissionsReport emissionsReport){
         //Shared
+        Log.d(TAG,"displayEmissionsReport() er: "+emissionsReport);
         misfire.setText(emissionsReport.getMisfire());
         ignition.setText(emissionsReport.getIgnition());
         components.setText(emissionsReport.getComponents());
@@ -228,9 +245,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
         Log.d(TAG,"displayPetrolEmissionsReport() petrolEmissionsReport: "+petrolEmissionsReport);
-        emissionsContentHolder.setVisibility(View.VISIBLE);
-        dieselEmissionsContent.setVisibility(View.GONE);
-        petrolEmissionsContent.setVisibility(View.VISIBLE);
+        toggleEmissionsResults(true);
 
         displayEmissionsreport(petrolEmissionsReport);
 
@@ -241,5 +256,83 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         boostPressure.setText(petrolEmissionsReport.getBoostPressure());
         exhaustSensor.setText(petrolEmissionsReport.getExhaustSensor());
         PMFilterMonitoring.setText(petrolEmissionsReport.getPMFilterMonitoring());
+    }
+
+    @Override
+    public void toggleEmissionsNotReadySteps() {
+        Log.d(TAG,"toggleEmissionsNotReadySteps()");
+        if (!emissionsNotReadyStepsToggled)
+            ViewAnimator.animate(resultRightChevron)
+                    .rotation(0,90)
+                    .andAnimate(readySteps)
+                    .height(0,readySteps.getHeight())
+                    .duration(200)
+                    .onStart(() -> readySteps.setVisibility(View.VISIBLE))
+                    .start();
+        else
+            ViewAnimator.animate(resultRightChevron)
+                    .rotation(90,0)
+                    .andAnimate(readySteps)
+                    .height(readySteps.getHeight(),0)
+                    .duration(200)
+                    .start();
+
+        emissionsNotReadyStepsToggled = !emissionsNotReadyStepsToggled;
+    }
+
+    @Override
+    public void toggleEmissionsResults(boolean petrol) {
+        Log.d(TAG,"toggleEmissionsResults()");
+
+        if (!emissionsResultsToggled)
+            ViewAnimator.animate(resultRightChevron)
+                    .rotation(0,90)
+                    .andAnimate(emissionsContentHolder)
+                    .height(0,emissionsContentHolder.getHeight())
+                    .duration(200)
+                    .onStart(() -> {
+                        if (petrol){
+                            emissionsContentHolder.setVisibility(View.VISIBLE);
+                            dieselEmissionsContent.setVisibility(View.GONE);
+                            petrolEmissionsContent.setVisibility(View.VISIBLE);
+                        }
+                        else{
+                            emissionsContentHolder.setVisibility(View.VISIBLE);
+                            dieselEmissionsContent.setVisibility(View.VISIBLE);
+                            petrolEmissionsContent.setVisibility(View.GONE);
+                        }
+                    })
+                    .start();
+        else
+            ViewAnimator.animate(resultRightChevron)
+                    .rotation(90,0)
+                    .andAnimate(emissionsContentHolder)
+                    .height(emissionsContentHolder.getHeight(),0)
+                    .duration(200)
+                    .start();
+
+        emissionsResultsToggled = !emissionsResultsToggled;
+    }
+
+    @Override
+    public void toggleEmissionsUnavailable() {
+        Log.d(TAG,"toggleEmissionsUnavailable()");
+//
+//        if (!emissionsUnavailableToggled)
+//            ViewAnimator.animate(resultRightChevron)
+//                    .rotation(0,90)
+//                    .andAnimate(readySteps)
+//                    .height(0,readySteps.getHeight())
+//                    .duration(200)
+//                    .start();
+//        else
+//            ViewAnimator.animate(resultRightChevron)
+//                    .rotation(90,0)
+//                    .andAnimate(readySteps)
+//                    .height(readySteps.getHeight(),0)
+//                    .duration(200)
+//                    .start();
+        emissionsUnavailableToggled = !emissionsResultsToggled;
+
     }
 }

@@ -87,6 +87,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
+
     public static StartReportFragment newInstance() {
         StartReportFragment fragment = new StartReportFragment();
         return fragment;

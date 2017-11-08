@@ -41,7 +41,7 @@ public class PastReportsActivity extends AppCompatActivity implements PastReport
 
     @Override
     public void setReportView(FullReport report) {
-        Log.d(TAG,"setReportView()");
+        Log.d(TAG,"setReportView() FullReport: "+report);
         Intent intent = new Intent(PastReportsActivity.this, ShowReportActivity.class);
         intent.putExtra(ShowReportActivity.EXTRA_VHR, report.getVehicleHealthReport());
         intent.putExtra(ShowReportActivity.EXTRA_ET, report.getEmissionsReport());
