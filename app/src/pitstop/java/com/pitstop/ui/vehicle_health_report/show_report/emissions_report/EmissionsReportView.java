@@ -15,10 +15,8 @@ public interface EmissionsReportView {
     void toggleCellDetails(View cell);
     EmissionsReport getEmissionsReport();
     void displayEmissionsUnavailable();
-    void displayEmissionsUnavailableDialog();
     void displayDieselEmissionsReport(DieselEmissionsReport dieselEmissionsReport);
     void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport);
     void toggleEmissionsNotReadySteps();
     void toggleEmissionsResults(boolean petrol);
-    void toggleEmissionsUnavailable();
 }

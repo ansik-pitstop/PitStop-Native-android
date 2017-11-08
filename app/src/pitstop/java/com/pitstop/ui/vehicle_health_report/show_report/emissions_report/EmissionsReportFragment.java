@@ -3,7 +3,6 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -112,6 +111,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.result_right_chevron)
     View resultRightChevron;
 
+    @BindView (R.id.unavailable_emissions_content)
+    View unavailableEmissionsContent;
+
     private EmissionsReportPresenter presenter;
 
     private int emissionsSharedContentHeight = 0;
@@ -121,7 +123,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private boolean dropDownInProgress;
     private boolean emissionsNotReadyStepsToggled = false;
     private boolean emissionsResultsToggled = false;
-    private boolean emissionsUnavailableToggled = false;
 
     @OnClick(R.id.emission_result_holder)
     public void onEmissionResultHolderClicked(){
@@ -140,7 +141,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
         emissionsNotReadyStepsToggled = false;
         emissionsResultsToggled = false;
-        emissionsUnavailableToggled = false;
         dropDownInProgress = false;
 
         setViewHeightListeners();
@@ -207,17 +207,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void displayEmissionsUnavailable() {
         Log.d(TAG,"displayEmissionsUnavailable()");
         emissionsContentHolder.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void displayEmissionsUnavailableDialog() {
-        Log.d(TAG,"displayEmissionsUnavailableDialog()");
-        new AlertDialog.Builder(getActivity()).setTitle("Emissions Unavailable")
-                .setMessage("At the time of the scan this vehicle was ineligible for emissions" +
-                        " testing through the use of the Pitstop device.")
-                .setPositiveButton("Ok",null)
-                .create()
-                .show();
+        unavailableEmissionsContent.setVisibility(View.VISIBLE);
+        resultRightChevron.setVisibility(View.GONE);
     }
 
     @Override
@@ -318,28 +309,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     .start();
 
         emissionsResultsToggled = !emissionsResultsToggled;
-    }
-
-    @Override
-    public void toggleEmissionsUnavailable() {
-        Log.d(TAG,"toggleEmissionsUnavailable()");
-//
-//        if (!emissionsUnavailableToggled)
-//            ViewAnimator.animate(resultRightChevron)
-//                    .rotation(0,90)
-//                    .andAnimate(readySteps)
-//                    .height(0,readySteps.getHeight())
-//                    .duration(200)
-//                    .start();
-//        else
-//            ViewAnimator.animate(resultRightChevron)
-//                    .rotation(90,0)
-//                    .andAnimate(readySteps)
-//                    .height(readySteps.getHeight(),0)
-//                    .duration(200)
-//                    .start();
-        emissionsUnavailableToggled = !emissionsResultsToggled;
-
     }
 
     private void setViewHeightListeners(){
