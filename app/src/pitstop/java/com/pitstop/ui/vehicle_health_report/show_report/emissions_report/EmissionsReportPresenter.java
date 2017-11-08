@@ -63,7 +63,5 @@ public class EmissionsReportPresenter {
                 view.toggleEmissionsResults(view.getEmissionsReport() instanceof PetrolEmissionsReport);
             else
                 view.toggleEmissionsNotReadySteps();
-        else if (view != null && view.getEmissionsReport() == null)
-            view.toggleEmissionsUnavailable();
     }
 }
