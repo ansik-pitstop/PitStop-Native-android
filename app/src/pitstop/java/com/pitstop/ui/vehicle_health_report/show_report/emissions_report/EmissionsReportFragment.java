@@ -17,6 +17,7 @@ import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
+import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -264,6 +265,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     .height(0,emissionsReadyStepsContentHeight)
                     .duration(200)
                     .onStart(() -> readySteps.setVisibility(View.VISIBLE))
+                    .onStop(() -> {
+                        if (getActivity() != null)
+                            ((ShowReportActivity)getActivity()).scrollToBottom();
+                    })
                     .start();
         else
             ViewAnimator.animate(resultRightChevron)
@@ -295,6 +300,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                             dieselEmissionsContent.setVisibility(View.VISIBLE);
                             petrolEmissionsContent.setVisibility(View.GONE);
                         }
+                    }).onStop(() -> {
+                        if (getActivity() != null)
+                            ((ShowReportActivity)getActivity()).scrollToBottom();
                     }).rotation(0,90)
                     .andAnimate(emissionsContentHolder)
                     .height(0,height)

@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ScrollView;
 
 import com.pitstop.R;
 import com.pitstop.models.report.EmissionsReport;
@@ -12,6 +14,9 @@ import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportHolder;
 import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;
 import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by Karol Zdebel on 9/29/2017.
@@ -28,11 +33,14 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
     private EmissionsReportFragment emissionsReportFragment;
     private final String TAG = getClass().getSimpleName();
 
+    @BindView(R.id.scroll_view)
+    protected ScrollView scrollView;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ButterKnife.bind(this);
         Log.d(TAG,"onCreate()");
         setContentView(R.layout.activity_show_report);
         healthReportFragment = new HealthReportFragment();
@@ -86,5 +94,9 @@ public class ShowReportActivity extends AppCompatActivity implements ReportHolde
     @Override
     public EmissionsReport getEmissionsReport() {
         return emissionsReport;
+    }
+
+    public void scrollToBottom(){
+        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
     }
 }
