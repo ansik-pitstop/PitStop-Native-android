@@ -227,6 +227,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         O2SensorHeater.setText(dieselEmissionsReport.getO2SensorHeater());
         EGR.setText(dieselEmissionsReport.getEGR());
 
+        toggleEmissionsResults(false);
     }
 
     private void displayEmissionsreport(EmissionsReport emissionsReport){
@@ -242,8 +243,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void displayPetrolEmissionsReport(PetrolEmissionsReport petrolEmissionsReport) {
         Log.d(TAG,"displayPetrolEmissionsReport() petrolEmissionsReport: "+petrolEmissionsReport);
-        toggleEmissionsResults(true);
-
         displayEmissionsreport(petrolEmissionsReport);
 
         //Petrol
@@ -253,6 +252,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         boostPressure.setText(petrolEmissionsReport.getBoostPressure());
         exhaustSensor.setText(petrolEmissionsReport.getExhaustSensor());
         PMFilterMonitoring.setText(petrolEmissionsReport.getPMFilterMonitoring());
+
+        toggleEmissionsResults(true);
     }
 
     @Override
