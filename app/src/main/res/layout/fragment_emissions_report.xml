@@ -74,7 +74,7 @@
             layout="@layout/layout_ready_steps"/>
 
         <TextView
-            visibility="gone"
+            android:visibility="gone"
             android:id="@+id/unavailable_emissions_content"
             android:padding="10dp"
             android:text="@string/et_unavailable_message"
