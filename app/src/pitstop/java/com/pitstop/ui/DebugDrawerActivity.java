@@ -27,6 +27,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothWriter;
+import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
@@ -57,6 +58,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
     // for logging
     private LocalDebugMessageStorage mDebugMessageAdapter;
+    private LocalAlarmStorage localAlarmStorage;
     private QueryObservable mQueryBluetoothObservable;
     private Subscription mQueryBluetoothSubscription;
     private QueryObservable mQueryNetworkObservable;
@@ -132,6 +134,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
         mNetworkHelper = tempNetworkComponent.networkHelper();
 
+        localAlarmStorage = new LocalAlarmStorage(this);
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);
 
@@ -146,6 +149,11 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         getSupportedPids.setOnClickListener(v -> {
             if (bluetoothConnectionObservable!=null)
                 bluetoothConnectionObservable.getSupportedPids();
+        });
+
+        Button clearAlarms = ViewUtils.findView(mDrawerLayout, R.id.clear_alarms);
+        clearAlarms.setOnClickListener(v->{
+            localAlarmStorage.deleteAllRows();
         });
 
         Button setInterval = ViewUtils.findView(mDrawerLayout, R.id.debugSetInterval);
@@ -180,8 +188,13 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         setChunkSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setChunkSize(Integer.valueOf(editText.getText().toString()));
-
+                try {
+                    int k = Integer.valueOf(editText.getText().toString());
+                    setChunkSize(k);
+                }
+                catch(NumberFormatException e){
+                    editText.setText("Make sure you input an integer.");
+                }
             }
         });
         setupLogging();

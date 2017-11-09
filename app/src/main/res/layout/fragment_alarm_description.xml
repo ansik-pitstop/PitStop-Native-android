@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp">
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.9"
+        android:background="@color/grey"
+        android:paddingRight="12dp">
+        <TextView
+            android:id="@+id/alarm_event_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="Sharp Turn"
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical|left"/>
+    </FrameLayout>
+    <TextView
+        android:id="@+id/value_label"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:text = "@string/your_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/alarm_value"
+        android:padding="5dp"
+        android:textSize="15dp"
+        android:text="1000g"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <include
+        layout="@layout/divider"
+        />
+
+    <TextView
+        android:id="@+id/threshold_label"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:text = "@string/your_device_threshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/alarm_threshold"
+        android:padding="5dp"
+        android:textSize="15dp"
+        android:text="1000g"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <include
+        layout="@layout/divider"
+        />
+
+    <TextView
+        android:id="@+id/description_label"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:text = "@string/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/alarms_description"
+        android:padding="5dp"
+        android:textSize="15dp"
+        android:text="@string/sharp_turn_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <include
+        layout="@layout/divider"
+        />
+
+    <TextView
+        android:id="@+id/proposal_label"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:text = "@string/sharp_pitstop_proposal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/alarm_proposal"
+        android:padding="5dp"
+        android:textSize="15dp"
+        android:text="@string/sharp_turn_proposal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <include
+        layout="@layout/divider"
+        />
+
+
+
+</LinearLayout>

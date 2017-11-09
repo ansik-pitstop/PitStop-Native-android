@@ -67,6 +67,8 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
                 , serviceConnection, Context.BIND_AUTO_CREATE);
+
+
         presenter = new EmissionsProgressPresenter(this);
         inProgressFragment = new InProgressFragment();
         emissionsReportFragment = new EmissionsReportFragment();

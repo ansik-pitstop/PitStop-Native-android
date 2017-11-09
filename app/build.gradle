@@ -140,6 +140,7 @@ kapt {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
+    compile 'com.android.support:multidex:1.0.2'
     compile "io.reactivex.rxjava2:rxjava:2.1.5"
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
@@ -148,6 +149,7 @@ dependencies {
     compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
+    compile 'com.android.support:multidex:1.0.2'
     compile 'com.roughike:bottom-bar:2.3.1'
     compile 'com.google.dagger:dagger:2.9'
     kapt 'com.google.dagger:dagger-compiler:2.9'
@@ -171,8 +173,8 @@ dependencies {
     compile 'io.smooch:ui:4.+'
     compile 'com.mixpanel.android:mixpanel-android:4.8.0'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
+    compile 'com.mikhaellopez:circularimageview:3.0.2'
     compile 'com.google.zxing:core:3.2.1'
-    //    compile project(':libs:MaterialShowcaseView')
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'

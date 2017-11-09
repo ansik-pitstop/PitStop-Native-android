@@ -4,6 +4,7 @@ package com.pitstop.ui.dashboard;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -21,15 +22,23 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AlarmObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,9 +46,11 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment extends Fragment implements DashboardView {
+public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
+    public static String  CAR_ID_KEY = "carId";
+    public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -53,35 +64,11 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @BindView(R.id.mileage_icon)
     ImageView mMileageIcon;
 
+    @BindView(R.id.alarm_badge)
+    TextView alarms;
+
     @BindView(mileage)
     TextView mMileageText;
-
-    @BindView(R.id.engine_icon)
-    ImageView mEngineIcon;
-
-    @BindView(R.id.engine)
-    TextView mEngineText;
-
-    @BindView(R.id.highway_icon)
-    ImageView mHighwayIcon;
-
-    @BindView(R.id.highway_mileage)
-    TextView mHighwayText;
-
-    @BindView(R.id.city_icon)
-    ImageView mCityIcon;
-
-    @BindView(R.id.city_mileage)
-    TextView mCityText;
-
-    @BindView(R.id.past_appts_icon)
-    ImageView mPastApptsIcon;
-
-    @BindView(R.id.request_appts_icon)
-    ImageView mRequestApptsIcon;
-
-    @BindView(R.id.my_appts_icon)
-    ImageView mMyAppointmentsIcon;
 
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
@@ -91,6 +78,15 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
     @BindView(R.id.car_name)
     TextView carName;
+
+    @BindView(R.id.driving_alarms_icon)
+    ImageView drivingAlarmsIcon;
+
+    @BindView(R.id.fuel_expense_icon)
+    ImageView fuelExpensesIcon;
+
+    @BindView(R.id.fuel_consumption_icon)
+    ImageView fuelConsumptionIcon;
 
     @BindView(R.id.dealership_name)
     TextView dealershipName;
@@ -120,8 +116,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
     private AlertDialog unknownErrorDialog;
     private AlertDialog updateMileageDialog;
     private AlertDialog mileageErrorDialog;
+    private AlertDialog buyDeviceAlertDialog;
     private DashboardPresenter presenter;
-
+    private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
 
     @Nullable
@@ -130,7 +127,7 @@ public class DashboardFragment extends Fragment implements DashboardView {
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, view);
-
+        ((MainActivity)getActivity()).subscribe(this);
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -302,16 +299,6 @@ public class DashboardFragment extends Fragment implements DashboardView {
         }
     }
 
-    @OnClick(R.id.dashboard_request_service_btn)
-    protected void onServiceRequestButtonClicked(){
-        Log.d(TAG,"onServiceRequestButtonClicked()");
-        presenter.onServiceRequestButtonClicked();
-    }
-    @OnClick(R.id.my_appointments_btn)
-    protected void onMyAppointmentsButtonClicked(){
-        Log.d(TAG,"onMyAppointmentsButtonClicked()");
-        presenter.onMyAppointmentsButtonClicked();
-    }
     @OnClick(R.id.my_trips_btn)
     protected void onMyTripsButtonClicked(){
         Log.d(TAG,"onMyTripsButtonClicked()");
@@ -465,13 +452,10 @@ public class DashboardFragment extends Fragment implements DashboardView {
         dealershipPhone.setText(dealership.getPhone());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
 
+        fuelConsumptionIcon.setImageResource(R.drawable.gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_3x);
+        drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
         mMileageIcon.setImageResource(R.drawable.odometer);
-        mEngineIcon.setImageResource(R.drawable.car_engine);
-        mHighwayIcon.setImageResource(R.drawable.highway_mileage2x);
-        mCityIcon.setImageResource(R.drawable.traffic_lights_2x);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.request_service_dashboard);
-        mMyAppointmentsIcon.setImageResource(R.drawable.clipboard3x);
         mMyTripsIcon.setImageResource(R.drawable.route_2);
         if( (getActivity()) != null){
             ((MainActivity)getActivity()).changeTheme(false);
@@ -496,12 +480,9 @@ public class DashboardFragment extends Fragment implements DashboardView {
 
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
         mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        mEngineIcon.setImageResource(R.drawable.mercedes_engine);
-        mHighwayIcon.setImageResource(R.drawable.highway_mileage_mercedes_2x);
-        mCityIcon.setImageResource(R.drawable.traffic_lights_mercedes_2x);
-        mPastApptsIcon.setImageResource(R.drawable.mercedes_book);
-        mRequestApptsIcon.setImageResource(R.drawable.mercedes_request_service);
-        mMyAppointmentsIcon.setImageResource(R.drawable.mercedes_clipboard3x);
+        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.mercedes_dollar_sign_3x);
+        drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
         mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
         ((MainActivity)getActivity()).changeTheme(true);
         mCarLogoImage.setVisibility(View.GONE);
@@ -516,16 +497,21 @@ public class DashboardFragment extends Fragment implements DashboardView {
     @Override
     public void displayCarDetails(Car car){
         Log.d(TAG,"displayCarDetails() car: "+car);
-
         hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
         mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
-        mEngineText.setText(car.getEngine());
-        mHighwayText.setText(car.getHighwayMileage());
-        mCityText.setText(car.getCityMileage());
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
+
+    }
+
+    @Override
+    public void noScanner() {
+        drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_disabled_3x);
+        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
+
     }
 
     @Override
@@ -595,5 +581,77 @@ public class DashboardFragment extends Fragment implements DashboardView {
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
+    }
+
+    @OnClick(R.id.driving_alarms_button)
+    public void onTotalAlarmsClicked(){
+        Log.d(TAG, "onTotalAlarmsClicked()");
+        presenter.onTotalAlarmsClicked();
+    }
+
+    public void openAlarmsActivity(){
+        Log.d(TAG ,"openAlarmsActivity");
+        Intent intent = new Intent(getActivity(), AlarmsActivity.class);
+        Bundle bundle  = new Bundle();
+        bundle.putBoolean("isMercedes", presenter.isDealershipMercedes());
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void displayBuyDeviceDialog() {
+        Log.d(TAG, "displayBuyDeviceDialog()");
+        if (buyDeviceAlertDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            buyDeviceAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Purchase Pitstop Device")
+                    .setView(dialogLayout)
+                    .setMessage("It appears you do not have a Pitstop device paired to this " +
+                            "car.With the device,we can track your car's engine " +
+                            "mileage, fuel consumption, trips, engine codes, and " +
+                            "driving alarms. If you would like all these features, " +
+                            "please purchase a device and connect it to your car. ")
+                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
+                            -> openPitstopAmazonLink())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        buyDeviceAlertDialog.show();
+    }
+
+    private void openPitstopAmazonLink() {
+        Log.d(TAG, "openPitstopAmazonLink()");
+        if(getActivity() == null) return;
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PITSTOP_AMAZON_LINK));
+        startActivity(browserIntent);
+    }
+
+    @Override
+    public void hideBadge() {
+        alarms.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showBadges(int alarmCount) {
+        alarms.setVisibility(View.VISIBLE);
+        if (alarmCount>9)
+            alarms.setText("9+");
+        else
+            alarms.setText(Integer.toString(alarmCount));
+
+    }
+
+    @Override
+    public void onAlarmAdded(Alarm alarm) {
+        presenter.setNumAlarms(presenter.getNumAlarms()+1);
+        showBadges(presenter.getNumAlarms());
+    }
+
+    @Override
+    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
+        alarmObservable.subscribe(this);
     }
 }

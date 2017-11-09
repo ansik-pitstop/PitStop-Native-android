@@ -184,7 +184,9 @@ public class UserRepository implements Repository{
             try {
                 if (requestError == null){
                     User user = localUserStorage.getUser();
-                    user.setSettings(new Settings(user.getId(),carId, user.getSettings().isFirstCarAdded()));
+                    Settings settingsNew = user.getSettings();
+                    settingsNew.setCarId(carId);
+                    user.setSettings(settingsNew);
                     localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
@@ -232,6 +234,69 @@ public class UserRepository implements Repository{
     }
 
 
+    public void setAlarmsEnabled(final boolean alarmsEnabled
+            , final Callback<Object> callback){
+
+        final int userId = localUserStorage.getUser().getId();
+
+        getUserSettings(userId, new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                if (requestError == null){
+                    try{
+                        //Get settings and add boolean
+                        JSONObject settings = new JSONObject(response).getJSONObject("user");
+                        settings.put("alarmsEnabled", alarmsEnabled);
+
+                        JSONObject putSettings = new JSONObject();
+                        putSettings.put("settings",settings);
+
+                        RequestCallback requestCallback = getSetAlarmsEnabledCallback(callback,alarmsEnabled);
+
+                        networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
+
+                        Log.d("alarms:" ,settings.toString() );
+                    }
+                    catch(JSONException e){
+                        e.printStackTrace();
+                        callback.onError(requestError);
+                    }
+
+                }
+                else{
+                    callback.onError(requestError);
+                }
+            }
+        });
+    }
+
+    private RequestCallback getSetAlarmsEnabledCallback(Callback<Object> callback, boolean enabled){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void done(String response, RequestError requestError) {
+                try {
+                    if (requestError == null){
+                        User user = localUserStorage.getUser();
+                        Settings settingsNew = user.getSettings();
+                        settingsNew.setAlarmsEnabled(enabled);
+                        user.setSettings(settingsNew);
+                        localUserStorage.storeUserData(user);
+                        callback.onSuccess(response);
+                    }
+                    else{
+                        callback.onError(requestError);
+                    }
+                }
+                catch(JsonIOException e){
+                    e.printStackTrace();
+                    callback.onError(requestError);
+                }
+            }
+        };
+        return requestCallback;
+    }
+
+
 
 
     private RequestCallback getSetFirstCarAddedCallback(Callback<Object> callback, boolean added){
@@ -240,7 +305,9 @@ public class UserRepository implements Repository{
             try {
                 if (requestError == null){
                     User user = localUserStorage.getUser();
-                    user.setSettings(new Settings(user.getId(),user.getSettings().getCarId(), added));
+                    Settings settingsNew = user.getSettings();
+                    settingsNew.setFirstCarAdded(added);
+                    user.setSettings(settingsNew);
                     localUserStorage.storeUserData(user);
                     callback.onSuccess(response);
                 }
@@ -279,7 +346,11 @@ public class UserRepository implements Repository{
                 JSONObject settings = new JSONObject(response);
                 int carId = 0;
                 boolean firstCarAdded = true; //if not present, default is true
+                boolean alarmsEnabled = false; // if not present, default is false
 
+                if (settings.getJSONObject("user").has("alarmsEnabled")){
+                    alarmsEnabled = settings.getJSONObject("user").getBoolean("alarmsEnabled");
+                }
                 if (settings.getJSONObject("user").has("isFirstCarAdded")){
                     firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded");
                 }
@@ -288,7 +359,7 @@ public class UserRepository implements Repository{
                 }
                 User user = localUserStorage.getUser();
 
-                user.setSettings(new Settings(user.getId(),carId,firstCarAdded));
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled));
                 localUserStorage.storeUserData(user);
                 callback.onSuccess(user.getSettings());
             }
