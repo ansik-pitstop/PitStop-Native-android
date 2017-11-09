@@ -438,7 +438,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent?) {
         Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
 
-        if ((intent!= null) && requestCode == RC_ADD_CAR) {
+        if (requestCode == RC_ADD_CAR) {
             Log.d(TAG, "requestCode == RC_ADD_CAR")
 
             if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
@@ -447,7 +447,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
             } else {
-                mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car");
+                mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")
             }
         }
         else{
