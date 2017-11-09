@@ -38,12 +38,20 @@ public class Settings {
         return firstCarAdded;
     }
 
+    public void setFirstCarAdded(boolean firstCarAdded){
+        this.firstCarAdded = firstCarAdded;
+    }
+
     public int getUserId() {
         return userId;
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public void setCarId(int carId) {
+        this.carId = carId;
     }
 
     public boolean isAlarmsEnabled() {return alarmsEnabled;}

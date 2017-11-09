@@ -506,11 +506,6 @@
     <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
     <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
     <string name="driving_alarms">Total Driving Alarms</string>
-    <string name="fuel_consumption">FUEL USAGE</string>
-    <string name="fuel_expense">Fuel Expense</string>
-    <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
-    <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
-    <string name="driving_alarms">Total Driving Alarms</string>
     <string name="et_ready_step_6">6. Do not turn the engine off during the above driving cycle until the very end (no stopping for a coffee in between any step!)</string>
     <string name="et_ready_step_5">5. Drive the vehicle for at least 20 minutes in stop and go traffic with at least four idle periods (engine running while at a stop).</string>
     <string name="et_ready_step_4">4. Drive the vehicle for a minimum of 10 minutes at highway speeds (between 90 km/hr and 110 km/hr).</string>

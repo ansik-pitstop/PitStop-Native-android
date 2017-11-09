@@ -103,6 +103,7 @@ public final class TABLES {
         String KEY_EMAIL = "email";
         String KEY_PHONE = "phone";
         String KEY_CAR = "carId";
+        String KEY_ALARMS_ENABLED = "alarmsEnabled";
         String KEY_FIRST_CAR_ADDED = "isFirstCarAdded";
 
     }

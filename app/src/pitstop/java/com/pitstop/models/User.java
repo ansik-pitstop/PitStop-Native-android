@@ -163,6 +163,7 @@ public class User implements Parcelable {
                 JSONObject settings = userJson.getJSONObject("settings");
                 int carId = 0;
                 boolean firstCarAdded = true; //if not present, default is true
+                boolean alarmsEnabled = false;
 
                 if (settings.has("isFirstCarAdded")){
                     firstCarAdded = settings.getBoolean("isFirstCarAdded");
@@ -170,7 +171,10 @@ public class User implements Parcelable {
                 if (settings.has("mainCar")){
                     carId = settings.getInt("mainCar");
                 }
-                user.setSettings(new Settings(user.getId(),carId,firstCarAdded));
+                if (settings.has("alarmsEnabled")){
+                    alarmsEnabled = settings.getBoolean("alarmsEnabled");
+                }
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled));
 
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }

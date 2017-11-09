@@ -193,5 +193,4 @@ public interface UseCaseComponent {
 
     GetAlarmCountUseCase getGetAlarmCountUseCase();
 
-    AddAlarmUseCase addAlarmUseCase();
 }
