@@ -173,9 +173,12 @@ public class ReportRepository implements Repository {
             String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
             String PMFilterMonitoring= data.getString("PM Filter Monitoring");
             boolean pass = content.getBoolean("pass");
+            String reason = "";
+            if (content.has("reason"))
+                reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
-            return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass
+            return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass,reason
                     ,NMHCCatalyst,components,EGRVVTSystem, NOxSCRMonitor, boostPressure, reserved1
                     , reserved2, exhaustSensor, PMFilterMonitoring);
         }catch(JSONException | ParseException e){
@@ -203,10 +206,13 @@ public class ReportRepository implements Repository {
             String O2SensorHeater = data.getString("O2 Sensor Heater");
             String EGR = data.getString("EGR");
             boolean pass = content.getBoolean("pass");
+            String reason = "";
+            if (content.has("reason"))
+                reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
                     .parse(jsonResponse.getString("createdAt"));
             return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
-                    , createdAt, pass, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
+                    , createdAt, pass, reason, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
                     , O2Sensor, O2SensorHeater, EGR);
         }catch(JSONException | ParseException e){
             e.printStackTrace();
@@ -223,8 +229,10 @@ public class ReportRepository implements Repository {
                 EmissionsReport et;
                 if (isPetrolResponse(response.getJSONObject(i))){
                     et = etPetrolToJson(response.getJSONObject(i));
+                    Log.d(TAG,"Generated petrol report: "+et);
                 }else{
                     et = etDieselToJson(response.getJSONObject(i));
+                    Log.d(TAG,"Generated diesel report: "+et);
                 }
                 if (et != null){
                     JSONObject meta = null;

@@ -1,29 +1,20 @@
 package com.pitstop.ui.main_activity
 
-import android.app.Fragment
-import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import com.pitstop.EventBus.*
-import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.get.GetCarByCarIdUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
-import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.ui.Presenter
-import com.pitstop.ui.my_garage.MyGarageView
-import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.utils.MixpanelHelper
 import io.smooch.core.User
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 /**
  * Created by ishan on 2017-10-20.
@@ -101,7 +92,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
                 override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>) {
-                    Log.d(TAG, "onCarsRetrieved")
+                    Log.d(TAG, "onCarsRetrieved() map" +data)
                     isLoading = false
                     if(view == null)return
                     view?.hideCarsLoading()
@@ -110,10 +101,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     }
                     for(car in data.keys){
                         if (car.isCurrentCar) {
-                            mCar = car;
-                            mDealership = data[mCar!!];
+                            mCar = car
+                            mDealership = data[mCar!!]
                         }
-                        isCarLoaded = true;
+                        isCarLoaded = true
                     }
                     mergeSetWithCarList(data.keys)
                     mergeSetWithDealershipList(data.values)
@@ -239,7 +230,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun makeCarCurrent(car: Car) {
-        Log.d(TAG, "makeCarCurrent()")
+        Log.d(TAG, "makeCarCurrent() car: "+car);
         if (view == null || isLoading) return
         if (car.isCurrentCar)return
         isLoading = true

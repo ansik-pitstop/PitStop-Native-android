@@ -102,6 +102,9 @@ public final class TABLES {
         String KEY_LAST_NAME = "lastName";
         String KEY_EMAIL = "email";
         String KEY_PHONE = "phone";
+        String KEY_CAR = "carId";
+        String KEY_ALARMS_ENABLED = "alarmsEnabled";
+        String KEY_FIRST_CAR_ADDED = "isFirstCarAdded";
 
     }
 
@@ -135,6 +138,15 @@ public final class TABLES {
         String KEY_CAR_ID = "carId";
         String LICENSE_PLATE = "licensePlate";
 
+    }
+
+    public interface LOCAL_ALARMS {
+        String TABLE_NAME = "localAlarms";
+        String ID = "id";
+        String CAR_ID = "carId";
+        String RTC_TIME = "rtcTime";
+        String ALARM_EVENT = "alarmEvent";
+        String ALARM_VALUE = "alarmValue";
     }
 
 

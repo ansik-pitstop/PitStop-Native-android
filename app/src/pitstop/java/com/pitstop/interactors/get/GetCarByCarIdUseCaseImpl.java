@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -8,14 +9,20 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matthew on 2017-06-20.
  */
 
 public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private CarRepository carRepository;
     private UserRepository userRepository;
     private ShopRepository shopRepository;
@@ -54,40 +61,40 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
             @Override
             public void onSuccess(User user) {
-                carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
+                carRepository.get(carId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext(response -> {
+                    Log.d(TAG,"carRepository.get() car: "+response.getData());
+                    carRepository.getShopId(response.getData().getId(), new Repository.Callback<Integer>() {
 
-                    @Override
-                    public void onSuccess(Car car) {
-                        carRepository.getShopId(car.getId(), new Repository.Callback<Integer>() {
+                        @Override
+                        public void onSuccess(Integer shopId) {
+                            shopRepository.get(shopId, new Repository.Callback<Dealership>() {
 
-                            @Override
-                            public void onSuccess(Integer shopId) {
-                                shopRepository.get(shopId, new Repository.Callback<Dealership>() {
+                                @Override
+                                public void onSuccess(Dealership dealership) {
+                                    GetCarByCarIdUseCaseImpl.this.onCarGot(response.getData(), dealership);
+                                }
 
-                                    @Override
-                                    public void onSuccess(Dealership dealership) {
-                                        GetCarByCarIdUseCaseImpl.this.onCarGot(car, dealership);
-                                    }
+                                @Override
+                                public void onError(RequestError error) {
+                                    GetCarByCarIdUseCaseImpl.this.onError(error);
+                                }
+                            });
+                        }
 
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        GetCarByCarIdUseCaseImpl.this.onError(error);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                GetCarByCarIdUseCaseImpl.this.onError(error);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        GetCarByCarIdUseCaseImpl.this.onError(error);
-                    }
-                });
+                        @Override
+                        public void onError(RequestError error) {
+                            GetCarByCarIdUseCaseImpl.this.onError(error);
+                        }
+                    });
+                }).onErrorReturn(err -> {
+                    //Todo: error handling
+                    Log.d(TAG,"carRepository.get() err: "+err);
+                    return new RepositoryResponse<Car>(null,false);
+                })
+                .subscribe();
             }
             @Override
             public void onError(RequestError error) {

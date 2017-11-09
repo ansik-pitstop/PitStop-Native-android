@@ -291,11 +291,11 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
 
     @Override
     public void showCars(List<Car> list) {
-        Log.d(TAG, "showCars()");
+        Log.d(TAG, "showCars() cars: "+list);
         carsAdapter.notifyDataSetChanged();
-        if (list.size() == 0){
-            appointmentsView.setVisibility(View.GONE);
-        }
+//        if (list.size() == 0){
+//            appointmentsView.setVisibility(View.GONE);
+//        }
         hasBeenPopulated = true;
     }
 
@@ -355,7 +355,7 @@ public class MyGarageFragment extends Fragment implements MyGarageView {
         bundle.putBoolean(VehicleSpecsFragment.IS_CURRENT_KEY, car.isCurrentCar());
         bundle.putInt(VehicleSpecsFragment.CAR_ID_KEY, car.getId());
         bundle.putString(VehicleSpecsFragment.CAR_VIN_KEY, car.getVin());
-        bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScannerId());
+        bundle.putString(VehicleSpecsFragment.SCANNER_ID_KEY, car.getScanner());
         bundle.putString(VehicleSpecsFragment.ENGINE_KEY, car.getEngine());
         bundle.putString(VehicleSpecsFragment.CITY_MILEAGE_KEY, car.getCityMileage());
         bundle.putString(VehicleSpecsFragment.HIGHWAY_MILEAGE_KEY, car.getHighwayMileage());

@@ -173,7 +173,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership) {
                 mCar = car;
-                mdealership = dealership;
+                mdealership = car.getShop();
                 updating = false;
                 if (getView()!=null) {
                     getView().hideLoading();

@@ -56,9 +56,17 @@ public class EmissionsReportPresenter {
         }
     }
 
+    void onHeightsLoaded(){
+        Log.d(TAG,"onHeightsLoaded()");
+        loadEmissionsTest();
+    }
+
     public void onEmissionResultHolderClicked() {
         Log.d(TAG,"onEmissionResultHolderClicked()");
-        if (view != null && view.getEmissionsReport() == null)
-            view.displayEmissionsUnavailableDialog();
+        if (view != null && view.getEmissionsReport() != null)
+            if (!view.getEmissionsReport().getReason().equalsIgnoreCase("not ready"))
+                view.toggleEmissionsResults(view.getEmissionsReport() instanceof PetrolEmissionsReport);
+            else
+                view.toggleEmissionsNotReadySteps();
     }
 }

@@ -1,7 +1,5 @@
 package com.pitstop.adapters;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,7 +12,6 @@ import com.pitstop.R;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.ui.main_activity.MainView;
-import com.pitstop.ui.my_garage.MyGarageView;
 
 import java.util.List;
 

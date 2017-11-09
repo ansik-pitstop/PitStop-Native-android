@@ -22,6 +22,7 @@ import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.LogUtils;
 
@@ -426,6 +427,7 @@ public class Device215B implements AbstractDevice {
                 IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
                 idrInfo.time = dateStr;
 
+
                 long ignitionTime; // ignition time parsed as unix time seconds
                 try {
                     ignitionTime = Long.parseLong(idrInfo.ignitionTime);
@@ -468,7 +470,19 @@ public class Device215B implements AbstractDevice {
                     else{
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
                     }
-
+                    if (idrInfo.alarmEvents != null && !idrInfo.alarmEvents.isEmpty()){
+                    Float alarmValue;
+                        if (idrInfo.alarmValues == null|| idrInfo.alarmValues.equalsIgnoreCase("")){
+                            alarmValue =(float)0;
+                        }
+                        else {
+                            alarmValue = Float.valueOf(idrInfo.alarmValues);
+                        }
+                        dataListener.alarmEvent(new Alarm(Integer.valueOf(idrInfo.alarmEvents),
+                                alarmValue,
+                                String.valueOf(Long.valueOf(idrInfo.runTime) +parseRtcTime(Long.toString(ignitionTime)))
+                                , null));
+                    }
                     tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
 
                     dataListener.tripData(tripInfoPackage);

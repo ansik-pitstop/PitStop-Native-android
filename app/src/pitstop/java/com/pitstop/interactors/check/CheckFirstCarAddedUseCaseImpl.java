@@ -1,15 +1,19 @@
 package com.pitstop.interactors.check;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 
 import java.util.List;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  *
@@ -17,6 +21,8 @@ import java.util.List;
  */
 
 public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase {
+
+    private final String TAG =getClass().getSimpleName();
 
     private UserRepository userRepository;
     private CarRepository carRepository;
@@ -70,49 +76,53 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
                 }
 
                 //We only get here if something bad happened in add car, or user settings were corrupted
-                carRepository.getCarsByUserId(userSettings.getUserId(), new Repository.Callback<List<Car>>() {
-
-                    @Override
-                    public void onSuccess(List<Car> cars) {
-                        if (cars.isEmpty()){
-                            CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(false);
-                            return;
-                        }
-
-                        //First car is added, fix the settings because they must be corrupted
-
-                        //Step 1: Set firstCarAdded=true
-                        userRepository.setFirstCarAdded(true, new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object response){
-
-                                //Step 2: Set mainCar=cars[0].carId
-                                userRepository.setUserCar(userSettings.getUserId()
-                                        , cars.get(0).getId(), new Repository.Callback<Object>() {
-
-                                        @Override
-                                        public void onSuccess(Object response){
-                                            CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
-                                        }
-
-                                        @Override
-                                        public void onError(RequestError error){
-                                            CheckFirstCarAddedUseCaseImpl.this.onError(error);
-                                        }
-                                });
+                carRepository.getCarsByUserId(userSettings.getUserId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext(carListResponse -> {
+                            Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
+                            List<Car> cars = carListResponse.getData();
+                            if (cars == null){
+                                CheckFirstCarAddedUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                return;
                             }
-                            @Override
-                            public void onError(RequestError error){
-                                CheckFirstCarAddedUseCaseImpl.this.onError(error);
+                            else if (cars.isEmpty()){
+                                CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(false);
+                                return;
                             }
-                        });
-                    }
 
-                    @Override
-                    public void onError(RequestError error) {
-                        CheckFirstCarAddedUseCaseImpl.this.onError(error);
-                    }
-                });
+                            //First car is added, fix the settings because they must be corrupted
+
+                            //Step 1: Set firstCarAdded=true
+                            userRepository.setFirstCarAdded(true, new Repository.Callback<Object>() {
+                                @Override
+                                public void onSuccess(Object response){
+
+                                    //Step 2: Set mainCar=cars[0].carId
+                                    userRepository.setUserCar(userSettings.getUserId()
+                                            , cars.get(0).getId(), new Repository.Callback<Object>() {
+
+                                                @Override
+                                                public void onSuccess(Object response){
+                                                    CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
+                                                }
+
+                                                @Override
+                                                public void onError(RequestError error){
+                                                    CheckFirstCarAddedUseCaseImpl.this.onError(error);
+                                                }
+                                            });
+                                }
+                                @Override
+                                public void onError(RequestError error){
+                                    CheckFirstCarAddedUseCaseImpl.this.onError(error);
+                                }
+                            });
+
+                        }).onErrorReturn(err -> {
+                            Log.d(TAG,"getCarsByUserId() err: "+err);
+                            return new RepositoryResponse<List<Car>>(null,false);
+                        }).subscribe();
             }
 
             @Override

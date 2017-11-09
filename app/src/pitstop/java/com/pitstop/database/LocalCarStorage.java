@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Car;
 
@@ -35,6 +36,7 @@ public class LocalCarStorage {
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper databaseHelper;
+    private final String TAG = getClass().getSimpleName();
 
     public LocalCarStorage(Context context) {
         databaseHelper = LocalDatabaseHelper.getInstance(context);
@@ -43,13 +45,13 @@ public class LocalCarStorage {
     /**
      * Store car data
      */
-    public void storeCarData(Car car) {
+    public boolean storeCarData(Car car) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = carObjectToContentValues(car);
 
-        long result = db.insert(TABLES.CAR.TABLE_NAME, null, values);
-
+        db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        return true;
     }
 
     public void storeCars(List<Car> carList) {
@@ -74,6 +76,7 @@ public class LocalCarStorage {
             }
         }
         c.close();
+        Log.d(TAG,"getAllCars, cars: "+cars);
         return cars;
     }
 

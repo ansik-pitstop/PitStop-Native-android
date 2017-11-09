@@ -5,8 +5,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
@@ -17,12 +15,9 @@ import java.util.List;
  */
 public class User implements Parcelable {
 
-
+    private static final String TAG = User.class.getSimpleName();
 
     private int id;
-
-
-
     private List<String> installationId;
     private String firstName;
     private String lastName;
@@ -35,6 +30,7 @@ public class User implements Parcelable {
     private String phone;
     private String role;
     private boolean verifiedEmail;
+    private Settings settings;
 
     public User() {}
 
@@ -130,6 +126,14 @@ public class User implements Parcelable {
         return installationId;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
     public void setInstallationID(List<String> installationID) {
         this.installationId = installationID;
     }
@@ -156,11 +160,29 @@ public class User implements Parcelable {
                 user.setEmail(userJson.getString("email"));
                 user.setPhone(userJson.getString("phone"));
 
+                JSONObject settings = userJson.getJSONObject("settings");
+                int carId = 0;
+                boolean firstCarAdded = true; //if not present, default is true
+                boolean alarmsEnabled = false;
+
+                if (settings.has("isFirstCarAdded")){
+                    firstCarAdded = settings.getBoolean("isFirstCarAdded");
+                }
+                if (settings.has("mainCar")){
+                    carId = settings.getInt("mainCar");
+                }
+                if (settings.has("alarmsEnabled")){
+                    alarmsEnabled = settings.getBoolean("alarmsEnabled");
+                }
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled));
+
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG,"jsonToUserObject() user: "+user + ", json: "+json);
 
         return user;
     }
@@ -209,4 +231,14 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
+
+    @Override
+    public String toString(){
+        try{
+            return String.format("id: %d, firstName: %s, lastName: %s, email: %s, settings: %s"
+                    ,id,firstName,lastName,email,settings);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }

@@ -51,7 +51,7 @@
     <string name="app_build_no">1.0.10</string>
 
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. Make sure your device is plugged in and ready to go. Below are various location that the OBD plug can be at.</string>
-    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
+    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scannerId code can be at.</string>
 
     <!-- Severity indicators -->
     <string name="severity_indicator_low">Low</string>
@@ -60,7 +60,7 @@
     <string name="severity_indicator_critical">Critical</string>
 
 
-    <!--Barcode scanner Request Permission Rationale -->
+    <!--BarcscannerIdnner Request Permission Rationale -->
     <string name="camera_request_rationale">Access to the camera is needed for barcode detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
@@ -175,7 +175,7 @@
     <string name="mileage_title">Mileage</string>
     <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
-    <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
+    <string name="fuel_consumption_header">Fuel consumption</string>
     <string name="highway_title">Highway</string>
     <string name="city_title">City</string>
     <string name="tools_header">TOOLS</string>
@@ -461,6 +461,7 @@
     <string name="pitstop_shops">Pitstop Shops</string>
     <string name="search_results">Search Results</string>
     <string name="my_shops">My Shops</string>
+    <string name="sharp_turn_proposal">During any trip, take note of any turns that you will have to make so that you can prepare in advance by slowing down to get nice, smooth turns - your passengers will thank you.</string>
     <string name="select_pitstop_shop_message">Associate your \nvehicle with a shop  on our platform</string>
     <string name="select_pitstop_shop_title">Select Pitstop Shop</string>
     <string name="add_custom_shop_title">Add Custom Shop</string>
@@ -500,5 +501,41 @@
     <string name="please_connect_to_the_internet">Please connect to the internet</string>
     <string name="ok">OK</string>
     <string name="current_car_set">Current car set</string>
+    <string name="fuel_consumption">FUEL USAGE</string>
+    <string name="fuel_expense">Fuel Expense</string>
+    <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
+    <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
+    <string name="driving_alarms">Total Driving Alarms</string>
+    <string name="et_ready_step_6">6. Do not turn the engine off during the above driving cycle until the very end (no stopping for a coffee in between any step!)</string>
+    <string name="et_ready_step_5">5. Drive the vehicle for at least 20 minutes in stop and go traffic with at least four idle periods (engine running while at a stop).</string>
+    <string name="et_ready_step_4">4. Drive the vehicle for a minimum of 10 minutes at highway speeds (between 90 km/hr and 110 km/hr).</string>
+    <string name="et_ready_step_3">3. Start the engine and before driving it, let it sit and idle to warm it up to normal operating temperature.</string>
+    <string name="et_ready_step_2">2. The vehicle must sit for a minimum 8 hour period, without a start.</string>
+    <string name="et_ready_step_1">1. You must start this process with a fuel level of between ¼ and ¾ full.</string>
+    <string name="et_ready_step_title">Follow the steps below to get your vehicle into an emissions test ready state</string>
+    <string name="et_unavailable_message">Our device was unable to retrieve the information needed to perform an emissions test.</string>
 
+    <string name="your_value">Your Value</string>
+    <string name="your_device_threshold">Your device\'s threshold</string>
+    <string name="sharp_turn_description">Your Pitstop Device detected a sudden change in the direction of your car’s motion which indicates a sharp turn was made. Whether you were practicing your drifting skills, or taking the on ramp with a smile, we hope everything is well.</string>
+    <string name="sharp_pitstop_proposal">Pitstop\'s Proposal</string>
+    <string name="quick_lane_change_description">Your Pitstop Device detected a sudden change in the direction of your car’s motion which indicates a quick lane change was made. Whether you were practicing your drifting skills, or taking the on ramp with a smile, we hope everything is well.</string>
+    <string name="quick_lane_change_proposal">Whether you\'re on the highway or just local roads, don\'t forget about checking your mirrors and blindspots everytime you change lanes. Happy driving!</string>
+    <string name="ignition_on_desc">Your pitstop device has detected you turned on your engine. Have a safe trip!</string>
+    <string name="ignition_off_desc">Your pitstop device has noted you turned off your engine. Hope you had a safe trip!</string>
+    <string name="high_rpm_desc">We can\'t tell if you\'re just a regular driver or someone from Fast and Furious! Either way, just remember to take extra precaution when accelerating at a high rate.</string>
+    <string name="low_voltage_desc">Uh oh! We\'ve detected your car\'s battery is low which most likely means you won\'t be able to start your car soon. Car batteries usually have a lifespan of about 5-7 years, but that can be shortened by things like weather, driving habits and leaving your accessories on</string>
+    <string name="idling_desc">We have detected that your car's engine has been running for over 15 mins and the car has been stationary. Your engine is a powerful machine, don't waste its talents! Letting your engine idle can potentially lead to its components undergoing wear unnecessarily and can also lead to poor fuel economy.</string>
+    <string name="fatigue_driving_desc">Your Pitstop device has taken note that you have been driving your car for 4 consecutive hours or more. We understand how fun road trips can be, but driving for extended periods of time can be cause for concern.</string>
+    <string name="speeding_desc">This is just a friendly reminder to drive extra cautiously when driving at a speed greater than 125 km/h. Happy driving!</string>
+    <string name="collision_desc">Collision</string>
+    <string name="shock">Shock</string>
+    <string name="towing">Towing</string>
+    <string name="dangerous_driving">Dangeous Driving</string>
+    <string name="decceleration_desc">We captured a sudden deceleration, hopefully your journey was a safe one. During hard deceleration your car\'s braking system, suspension and related systems are under additional stress. This can lead to premature breakdown of your rotors, pads and other parts.</string>
+    <string name="quick_lane_change_desc">Your Pitstop device has detected a sudden change in your car\'s motion which suggests you made a quick lane change. If you just avoided a family of baby ducks, we all thank you but we always want to make sure you are safe on your journey.</string>
+    <string name="low_voltage_proposal">When you leave your car, just do a quick check to see if you\'ve left any electronics on that could drain the battery over time</string>
+    <string name="idling_proposal">Next time you\'re waiting in your car, just turn the engine off and let your car relax for a bit.</string>
+    <string name="fatigue_driving_proposal">If you feel tired and/or sleepy, take a break and relax, or hand over the wheel to a buddy. Happy road tripping!</string>
+    <string name="decceleration_proposal">Leave about 1.5 car lengths between you and that driver ahead, that way your ninja reflexes have time to activate and bring your car to a smooth stop.</string>
 </resources>

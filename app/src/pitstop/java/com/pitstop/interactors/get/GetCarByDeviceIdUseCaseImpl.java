@@ -2,14 +2,16 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-import com.pitstop.models.Car;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Karol Zdebel on 8/16/2017.
@@ -50,19 +52,14 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
 
                     @Override
                     public void onSuccess(ObdScanner obdScanner) {
-                        carRepository.get(obdScanner.getCarId(), user.getId(), new Repository.Callback<Car>() {
-
-                            @Override
-                            public void onSuccess(Car car) {
-                                if (car == null) callback.onNoCarFound();
-                                else callback.onGotCar(car);
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                callback.onError(error);
-                            }
-                        });
+                        carRepository.get(obdScanner.getCarId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.computation())
+                                .doOnNext(response -> {
+                            if (response.getData() == null) callback.onNoCarFound();
+                            else callback.onGotCar(response.getData());
+                        }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
+                        .subscribe();
                     }
 
                     @Override

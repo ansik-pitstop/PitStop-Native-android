@@ -27,7 +27,6 @@ public class Car implements Parcelable {
      * Car id
      */
     private int id;
-
     private String make;
     private String model;
     private int year;
@@ -58,12 +57,24 @@ public class Car implements Parcelable {
 
     private int userId;
     private int shopId;
+    private Dealership shop;
 
     private boolean serviceDue;
 
     private String scannerId;
 
+    private CarScanner scanner;
+
     public Car() { }
+
+    public Dealership getShop() {
+        return shop;
+    }
+
+    public void setShop(Dealership shop) {
+        this.shopId = shop.getId();
+        this.shop = shop;
+    }
 
     public int getId() {
         return id;
@@ -202,7 +213,9 @@ public class Car implements Parcelable {
     }
 
     public String getScannerId() {
-        return scannerId;
+        if (getScanner() != null)
+            return getScanner().getScannerId();
+        else return scannerId;
     }
 
     public void setScannerId(String scannerId) {
@@ -217,8 +230,17 @@ public class Car implements Parcelable {
         this.currentCar = currentCar;
     }
 
+    public CarScanner getScanner() {
+        return scanner;
+    }
+
+    public void setScanner(CarScanner scanner) {
+        this.scanner = scanner;
+    }
+
     public int getShopId() {
-        return shopId;
+        if (shop != null) return shop.getId();
+        else return shopId;
     }
 
     public void setShopId(int shopId) {
@@ -238,8 +260,8 @@ public class Car implements Parcelable {
             car.setShopId(dealer.getId());
         }
 
-        if(!jsonObject.isNull("scanner")) {
-            car.setScannerId(jsonObject.getJSONObject("scanner").getString("scannerId"));
+        if(!jsonObject.isNull("scannerId")) {
+            car.setScannerId(jsonObject.getJSONObject("scannerId").getString("scannerId"));
         }
 
         return car;
@@ -276,6 +298,7 @@ public class Car implements Parcelable {
                 ", scannerId='" + scannerId + '\'' +
                 ", shopId=" + shopId +
                 ", userId=" + userId +
+                ", dealership= "+getShop()+
                 '}';
     }
 

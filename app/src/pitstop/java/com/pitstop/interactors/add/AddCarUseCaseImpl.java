@@ -143,7 +143,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                     RequestError.getUnknownError());
                                             return;
                                         }
-                                        Log.d(TAG,"getScanner.onSuccess() obdScanner.id: "
+                                        Log.d(TAG,"getScannerId.onSuccess() obdScanner.id: "
                                                 +obdScanner.getScannerId()
                                                 +", active?"+obdScanner.getStatus());
 
@@ -178,7 +178,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                                     @Override
                                     public void onError(RequestError error) {
-                                        Log.d(TAG,"getScanner().onError() error: "
+                                        Log.d(TAG,"getScannerId().onError() error: "
                                                 +error.getMessage());
 
                                         AddCarUseCaseImpl.this.onError(error);

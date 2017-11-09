@@ -60,6 +60,12 @@
                 android:text="Clear DTCs" />
 
             <Button
+                android:id="@+id/clear_alarms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear Alarms" />
+
+            <Button
                 android:id="@+id/debugSetNetworkChunkSize"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

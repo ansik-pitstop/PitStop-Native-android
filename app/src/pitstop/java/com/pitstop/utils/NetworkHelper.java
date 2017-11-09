@@ -642,8 +642,5 @@ public class NetworkHelper {
             e.printStackTrace();
         }
         post("scan/trip",callback,body);
-
     }
-
-
 }

@@ -73,12 +73,13 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
         view.setRecallList(vehicleHealthReport.getRecalls());
         view.setEngineList(vehicleHealthReport.getEngineIssues());
 
-        if (vehicleHealthReport.getServices().size() > 5
+        if (vehicleHealthReport.getServices().size() > 3
                 || vehicleHealthReport.getEngineIssues().size() > 1
                 || vehicleHealthReport.getRecalls().size() > 1){
 
             view.setVehicleHealthSummary(HealthReportView.State.NEEDS_WORK);
-        }else if (vehicleHealthReport.getServices().size() == 0){
+        }else if (vehicleHealthReport.getServices().isEmpty()
+                && vehicleHealthReport.getEngineIssues().isEmpty()){
             view.setVehicleHealthSummary(HealthReportView.State.PERFECT);
         }
         else{

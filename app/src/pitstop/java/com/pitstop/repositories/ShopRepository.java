@@ -53,12 +53,52 @@ public class ShopRepository implements Repository{
         return true;
     }
 
+    private boolean allShopsLoaded = false;
     public void getAllShops(Callback<List<Dealership>> callback){
-        networkHelper.get(END_POINT_SHOP_ALL, getGetShopsCallback(callback));
+
+        if (allShopsLoaded){
+            callback.onSuccess(localShopStorage.getAllDealerships());
+            return;
+        }
+
+        networkHelper.get(END_POINT_SHOP_ALL, (response, requestError) -> {
+            if(response != null){
+                try{
+                    List<Dealership> dealerships = Dealership.createDealershipList(response);
+                    localShopStorage.removeAllDealerships();
+                    localShopStorage.storeDealerships(dealerships);
+                    allShopsLoaded = true;
+                    callback.onSuccess(dealerships);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
+                }
+            }else{
+                callback.onError(requestError);
+            }
+
+        });
     }
 
     public void getPitstopShops(Callback<List<Dealership>> callback){
-        networkHelper.get(END_POINT_SHOP_PITSTOP, getGetShopsCallback(callback));
+        networkHelper.get(END_POINT_SHOP_PITSTOP, (response, requestError) -> {
+            if(response != null){
+                try{
+                    List<Dealership> dealerships = Dealership.createDealershipList(response);
+                    for (Dealership d: dealerships){
+                        localShopStorage.removeById(d.getId());
+                        localShopStorage.storeDealership(d);
+                    }
+                    callback.onSuccess(dealerships);
+                }catch(JSONException e){
+                    callback.onError(RequestError.getUnknownError());
+                    e.printStackTrace();
+                }
+            }else{
+                callback.onError(requestError);
+            }
+
+        });
 
         //Offline logic below, not being used as of n
         List<Dealership> dealerships = localShopStorage.getAllDealerships();
@@ -69,25 +109,6 @@ public class ShopRepository implements Repository{
                 iterator.remove();
             }
         }
-    }
-
-    private RequestCallback getGetShopsCallback(Callback<List<Dealership>> callback){
-        RequestCallback requestCallback = (response, requestError) -> {
-            if(response != null){
-                try{
-                    List<Dealership> dealerships = Dealership.createDealershipList(response);
-                    localShopStorage.storeDealerships(dealerships);
-                    callback.onSuccess(dealerships);
-                }catch(JSONException e){
-                    callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
-                }
-            }else{
-                callback.onError(requestError);
-            }
-
-        };
-        return requestCallback;
     }
 
     public void insert(Dealership dealership, int userId, Callback<Object> callback){
@@ -292,7 +313,12 @@ public class ShopRepository implements Repository{
         else if (dealerId == 0 && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             dealerId = 19;
         }
-        networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
+        Dealership localDealership = localShopStorage.getDealership(dealerId);
+        if (localDealership != null){
+            callback.onSuccess(localDealership);
+            return;
+        }
+        else networkHelper.get(END_POINT_SHOP+"/"+dealerId,getGetShopRequestCallback(callback));
 
         //Offline logic below, not being used for now
         //return localShopAdapter.getDealership(dealerId);
@@ -307,6 +333,8 @@ public class ShopRepository implements Repository{
                     if (dealership == null){
                         callback.onError(RequestError.getUnknownError());
                     }else{
+                        localShopStorage.removeById(dealership.getId());
+                        localShopStorage.storeDealership(dealership);
                         callback.onSuccess(dealership);
                     }
                 //}catch (JSONException e){

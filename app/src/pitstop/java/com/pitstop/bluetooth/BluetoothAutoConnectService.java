@@ -25,6 +25,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
@@ -34,13 +35,17 @@ import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AlarmObserver;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.BluetoothDtcObserver;
@@ -73,7 +78,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver, BluetoothWriter {
+        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -135,6 +140,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private BluetoothDeviceManager deviceManager;
     private DtcPackage requestedDtcs;
     private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
+    private AlarmHandler alarmHandler;
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
@@ -284,7 +290,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
-
+        this.alarmHandler = new AlarmHandler(this, useCaseComponent);
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         backgroundHandler.postDelayed(periodicGetVinRunnable,5000);
 
@@ -1223,6 +1229,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public boolean setChunkSize(int size) {
         pidDataHandler.setChunkSize(size);
         return false;
+    }
+
+    @Override
+    public void notifyAlarmAdded(Alarm alarm) {
+        Log.d(TAG, "notifyAlarmAdded");
+        for (Observer o: observerList){
+            if (o instanceof AlarmObserver){
+                Log.d(TAG, "alarm alarmobserver");
+                ((AlarmObserver) o).onAlarmAdded(alarm);
+            }
+        }
+    }
+
+    @Override
+    public void alarmEvent(Alarm alarm) {
+        alarmHandler.handleAlarm(alarm);
     }
 
     @Override

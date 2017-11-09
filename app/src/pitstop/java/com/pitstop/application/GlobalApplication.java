@@ -22,6 +22,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
@@ -29,6 +30,7 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
@@ -73,6 +75,8 @@ public class GlobalApplication extends Application {
     private LocalPidStorage mLocalPidStorage;
     private LocalShopStorage mLocalShopStorage;
     private LocalDeviceTripStorage mLocalDeviceTripStorage;
+    private LocalSpecsStorage mLocalSpecsStorage;
+    private LocalAlarmStorage mLocalAlarmStorage;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -235,7 +239,7 @@ public class GlobalApplication extends Application {
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
 
-        Log.d(TAG,"logInUser()");
+        Log.d(TAG,"logInUser() user: "+currentUser);
 
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -356,6 +360,9 @@ public class GlobalApplication extends Application {
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
         mLocalDeviceTripStorage = new LocalDeviceTripStorage(this);
+        mLocalSpecsStorage  = new LocalSpecsStorage(this);
+        mLocalAlarmStorage = new LocalAlarmStorage(this);
+
     }
 
     /**
@@ -369,8 +376,11 @@ public class GlobalApplication extends Application {
         mLocalAppointmentStorage.deleteAllRows();
         mLocalTripStorage.deleteAllRows();
         mLocalCarIssueStorage.deleteAllRows();
-        mLocalShopStorage.deleteAllRows();
+        mLocalShopStorage.removeAllDealerships();
         mLocalDeviceTripStorage.deleteAllRows();
+        mLocalSpecsStorage.deleteAllRows();
+        mLocalAlarmStorage.deleteAllRows();
+
 
     }
 

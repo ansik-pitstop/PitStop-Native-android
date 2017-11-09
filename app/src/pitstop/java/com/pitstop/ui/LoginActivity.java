@@ -221,8 +221,7 @@ public class LoginActivity extends DebugDrawerActivity {
             Log.i(TAG, "Not logged in");
         } else if (AccessToken.getCurrentAccessToken() != null) {
             startMainActivity(false);
-        }
-        else {
+        } else {
             showLoading(getString(R.string.logging_in_message));
             startMainActivity(false);
         }
@@ -660,6 +659,8 @@ public class LoginActivity extends DebugDrawerActivity {
                             @Override
                             public void done(String response, RequestError requestError) {
                                 if (requestError == null) {
+                                    Log.d(TAG,"updateUser() response: "+response);
+                                    User user = User.jsonToUserObject(response);
                                     application.setCurrentUser(user);
                                     application.setUpMixPanel();
                                     goToMainActivity(true);

@@ -1,27 +1,32 @@
 package com.pitstop.interactors.update;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 
 import org.greenrobot.eventbus.EventBus;
+
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Matthew on 2017-06-20.
  */
 
 public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCase {
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CarRepository carRepository;
@@ -70,34 +75,38 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
 
     @Override
     public void run() {
+        Log.d(TAG,"run() dealership: "+dealership);
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                carRepository.get(carId,user.getId(), new Repository.Callback<Car>() {
-                    @Override
-                    public void onSuccess(Car car) {
-                        car.setShopId(dealership.getId());
-                        carRepository.update(car, new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object response) {
+                Log.d(TAG,"user: "+user);
+                carRepository.get(carId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation())
+                        .doOnNext(response -> {
+                    Log.d(TAG,"carRepository.get() response: "+response.getData());
+                    response.getData().setShopId(dealership.getId());
+                    response.getData().setShop(dealership);
+                    carRepository.update(response.getData(), new Repository.Callback<Object>() {
+                        @Override
+                        public void onSuccess(Object response) {
+                            Log.d(TAG,"carRepository.update() ");
+                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
+                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                    ,eventSource));
+                            UpdateCarDealershipUseCaseImpl.this.onCarDealerUpdated();
+                        }
 
-                                EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP);
-                                EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                        ,eventSource));
-                                UpdateCarDealershipUseCaseImpl.this.onCarDealerUpdated();
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                UpdateCarDealershipUseCaseImpl.this.onError(error);
-                            }
-                        });
-                    }
-                    @Override
-                    public void onError(RequestError error) {
-                        UpdateCarDealershipUseCaseImpl.this.onError(error);
-                    }
-                });
+                        @Override
+                        public void onError(RequestError error) {
+                            UpdateCarDealershipUseCaseImpl.this.onError(error);
+                        }
+                    });
+                }).onErrorReturn(err -> {
+                    Log.d(TAG,"getCar error: "+err.getMessage());
+                    return new RepositoryResponse<>(null,false);
+                })
+                .subscribe();
             }
 
             @Override
