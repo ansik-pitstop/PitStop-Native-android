@@ -445,8 +445,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER
                     || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
                 Log.d(TAG, "onActivityResult() resultCode == ADD_CAR_SUCCESS_HAS_DEALER OR NO_DEALER")
-                presenter?.onCarAdded()
-
+                presenter?.onCarAdded(resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)
 
             } else {
                 mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")

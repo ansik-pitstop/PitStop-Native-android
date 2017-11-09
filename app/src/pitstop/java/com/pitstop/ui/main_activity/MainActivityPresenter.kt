@@ -96,7 +96,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view!!.openRequestService(true)
     }
 
-    fun onCarAdded(){
+    fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
         updateSmoochUser()
         useCaseCompnent.checkFirstCarAddedUseCase()!!
@@ -106,7 +106,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
                         if (!added){
                             sendSignedUpSmoochMessage()
-                            if (view != null)
+                            if (view != null && withDealer)
                                 view!!.showTentativeAppointmentShowcase()
 
                             useCaseCompnent.setFirstCarAddedUseCase()!!
