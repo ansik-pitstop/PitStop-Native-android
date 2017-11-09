@@ -189,11 +189,13 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
         //Dealership has been selected, pass down the result
         if (requestCode == RC_SELECT_DEALERSHIP){
+            Log.d(TAG,"onActivityResult() result code: "+resultCode);
             setResult(resultCode,data);
             finish();
+        }else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
 
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

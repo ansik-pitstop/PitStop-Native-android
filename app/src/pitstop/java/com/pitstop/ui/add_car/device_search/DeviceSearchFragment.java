@@ -339,8 +339,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
             presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerId);
         }
-
-        super.onActivityResult(requestCode, resultCode, data);
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     public void onBackPressed(){

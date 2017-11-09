@@ -436,7 +436,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent?) {
-        Log.d(TAG, "onActivityResult")
+        Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
 
         if ((intent!= null) && requestCode == RC_ADD_CAR) {
             Log.d(TAG, "requestCode == RC_ADD_CAR")

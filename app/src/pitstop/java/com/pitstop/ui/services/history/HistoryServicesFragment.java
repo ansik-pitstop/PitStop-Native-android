@@ -133,13 +133,14 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
-        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
             CarIssue carIssue = data.getParcelableExtra(CarIssue.class.getName());
             if (carIssue != null){
                 presenter.onCustomServiceCreated(carIssue);
             }
+        }else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

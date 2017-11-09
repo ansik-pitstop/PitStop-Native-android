@@ -181,13 +181,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG,"onActivityResult()");
-        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_CUSTOM_ISSUE && data != null){
             CarIssue carIssue = data.getParcelableExtra(CarIssue.class.getName());
             if (carIssue != null){
                 presenter.onCustomIssueCreated(carIssue);
             }
+        }
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
