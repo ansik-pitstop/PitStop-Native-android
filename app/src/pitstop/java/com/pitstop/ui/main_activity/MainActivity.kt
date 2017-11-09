@@ -62,6 +62,7 @@ import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.utils.*
 import io.smooch.ui.ConversationActivity
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 import kotlin.collections.ArrayList
@@ -459,13 +460,24 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun showTentativeAppointmentShowcase() {
         Log.d(TAG,"showTentativeAppointmentShowcase()")
         val view = findViewById<View>(R.id.action_request_service)
-        MaterialShowcaseView.Builder(this)
+        val requestShowCase = MaterialShowcaseView.Builder(this)
             .setTarget(view)
             .setDismissText("Tap to book appointment")
             .setContentText("Let's be proactive and request service for your vehicle ahead of time!")
             .setDelay(250)
             .setDismissOnTouch(true)
-            .show()
+            .build()
+        requestShowCase.addShowcaseListener(object: IShowcaseListener{
+            override fun onShowcaseDisplayed(p0: MaterialShowcaseView?) {
+            }
+
+            override fun onShowcaseDismissed(p0: MaterialShowcaseView?) {
+                if (presenter != null)
+                    presenter?.onShowCaseClosed()
+            }
+
+        })
+        requestShowCase.show(this)
     }
 
     override fun onBackPressed() {
