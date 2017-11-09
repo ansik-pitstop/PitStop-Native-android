@@ -70,7 +70,8 @@ import kotlin.collections.ArrayList
  * Created by David on 6/8/2016.
  */
 class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver
-        , BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable {
+        , BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable
+        , BadgeDisplayer {
 
     private var presenter: MainActivityPresenter? = null
     private var application: GlobalApplication? = null
@@ -905,5 +906,17 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         errorLoadingCars?.visibility = View.VISIBLE
         carsTapDescription?.visibility = View.GONE
 
+    }
+
+    override fun displayServicesBadgeCount(count: Int) {
+        Log.d(TAG,"displayServicesBadgeCount() count: "+count)
+        if (tabFragmentManager != null)
+            tabFragmentManager?.displayServicesBadgeCount(count)
+    }
+
+    override fun displayNotificationsBadgeCount(count: Int) {
+        Log.d(TAG,"displayNotificationsBadgeCount() count: "+count)
+        if (tabFragmentManager != null)
+            tabFragmentManager?.displayNotificationsBadgeCount(count)
     }
 }
