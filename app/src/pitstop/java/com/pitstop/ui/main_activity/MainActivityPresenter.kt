@@ -103,6 +103,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 .execute(object: CheckFirstCarAddedUseCase.Callback{
 
                     override fun onFirstCarAddedChecked(added: Boolean) {
+                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
                         if (!added){
                             sendSignedUpSmoochMessage()
                             if (view != null)
