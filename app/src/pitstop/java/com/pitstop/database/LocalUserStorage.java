@@ -69,9 +69,7 @@ public class LocalUserStorage {
         int carId = c.getInt(c.getColumnIndex(TABLES.USER.KEY_CAR));
         boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1;
         boolean alarmsEnabled = c.getInt(c.getColumnIndex(TABLES.USER.KEY_ALARMS_ENABLED)) == 1;
-        if (carId != -1){
-            user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
-        }
+        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
         return user;
     }
 
