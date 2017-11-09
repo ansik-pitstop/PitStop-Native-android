@@ -283,8 +283,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void startAddCarActivity() {
         Log.d(TAG,"startAddCarActivity()");
+        if (getActivity() == null) return;
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @OnClick(R.id.offline_try_again)

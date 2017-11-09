@@ -438,8 +438,10 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @Override
     public void startAddCarActivity() {
         Log.d(TAG,"startAddCarActivity()");
-        Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        if (getActivity() != null){
+            Intent intent = new Intent(getActivity(), AddCarActivity.class);
+            getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        }
     }
 
     @Override

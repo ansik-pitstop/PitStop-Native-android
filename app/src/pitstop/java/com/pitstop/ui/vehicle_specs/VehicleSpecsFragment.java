@@ -502,10 +502,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     }
 
     public void startCustomShop(){
-        if (presenter.getCar()!=null) {
+        if (presenter.getCar()!=null && getActivity() != null) {
             Intent intent = new Intent(getActivity(), CustomShopActivity.class);
             intent.putExtra(MainActivity.CAR_EXTRA, presenter.getCar());
-            startActivityForResult(intent, START_CUSTOM);
+            getActivity().startActivityForResult(intent, START_CUSTOM);
         }
     }
 
