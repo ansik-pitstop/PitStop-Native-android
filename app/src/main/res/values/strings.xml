@@ -51,7 +51,7 @@
     <string name="app_build_no">1.0.10</string>
 
     <string name="add_car_bluetooth">Use the Search for Car button to scan for car. Make sure your device is plugged in and ready to go. Below are various location that the OBD plug can be at.</string>
-    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scanner code can be at.</string>
+    <string name="add_car_manual">Enter your vehicle\'s mileage and VIN. Below are the various location that the VIN scannerId code can be at.</string>
 
     <!-- Severity indicators -->
     <string name="severity_indicator_low">Low</string>
@@ -60,7 +60,7 @@
     <string name="severity_indicator_critical">Critical</string>
 
 
-    <!--Barcode scanner Request Permission Rationale -->
+    <!--BarcscannerIdnner Request Permission Rationale -->
     <string name="camera_request_rationale">Access to the camera is needed for barcode detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
@@ -500,5 +500,13 @@
     <string name="please_connect_to_the_internet">Please connect to the internet</string>
     <string name="ok">OK</string>
     <string name="current_car_set">Current car set</string>
+    <string name="et_ready_step_6">6. Do not turn the engine off during the above driving cycle until the very end (no stopping for a coffee in between any step!)</string>
+    <string name="et_ready_step_5">5. Drive the vehicle for at least 20 minutes in stop and go traffic with at least four idle periods (engine running while at a stop).</string>
+    <string name="et_ready_step_4">4. Drive the vehicle for a minimum of 10 minutes at highway speeds (between 90 km/hr and 110 km/hr).</string>
+    <string name="et_ready_step_3">3. Start the engine and before driving it, let it sit and idle to warm it up to normal operating temperature.</string>
+    <string name="et_ready_step_2">2. The vehicle must sit for a minimum 8 hour period, without a start.</string>
+    <string name="et_ready_step_1">1. You must start this process with a fuel level of between ¼ and ¾ full.</string>
+    <string name="et_ready_step_title">Follow the steps below to get your vehicle into an emissions test ready state</string>
+    <string name="et_unavailable_message">Our device was unable to retrieve the information needed to perform an emissions test.</string>
 
 </resources>

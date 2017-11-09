@@ -16,7 +16,7 @@
     <!--<uses-permission android:name="android.permission.VIBRATE" />-->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" /> <!--dangerous-->
 
-    <!-- permission for barcode scanner -->
+    <!-- permission for barcscannerIdnner -->
     <uses-permission android:name="android.permission.CAMERA" /> <!--dangerous-->
 
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -192,7 +192,7 @@
             android:label="My Trips"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
-        <service android:name=".ui.services.TripService" android:process=":trip_tracking" />
+        <service android:name=".ui.services.TripService"/>
 
         <activity android:name=".ui.custom_shops.CustomShopActivity"
             android:label="Choose Shop"

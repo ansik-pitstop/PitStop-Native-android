@@ -20,10 +20,10 @@ public class DieselEmissionsReport extends EmissionsReport implements Parcelable
     private String EGR;
 
     public DieselEmissionsReport(int id, String misfire, String ignition, String components
-            , String fuelSystem, Date createdAt, boolean pass, String heatedCatalyst
+            , String fuelSystem, Date createdAt, boolean pass, String reason, String heatedCatalyst
             , String catalyst, String evap, String secondaryAir, String ACRefrigirator
             , String o2Sensor, String o2SensorHeater, String EGR) {
-        super(id, misfire, ignition, components, fuelSystem, createdAt, pass);
+        super(id, misfire, ignition, components, fuelSystem, createdAt, pass, reason);
         this.heatedCatalyst = heatedCatalyst;
         this.catalyst = catalyst;
         this.evap = evap;
@@ -35,10 +35,10 @@ public class DieselEmissionsReport extends EmissionsReport implements Parcelable
     }
 
     public DieselEmissionsReport(int id, int vhrId, String misfire, String ignition
-            , String components, String fuelSystem, Date createdAt, boolean pass
+            , String components, String fuelSystem, Date createdAt, boolean pass, String reason
             , String heatedCatalyst, String catalyst, String evap, String secondaryAir
             , String ACRefrigirator, String o2Sensor, String o2SensorHeater, String EGR) {
-        super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass);
+        super(id, vhrId, misfire, ignition, components, fuelSystem, createdAt, pass, reason);
         this.heatedCatalyst = heatedCatalyst;
         this.catalyst = catalyst;
         this.evap = evap;
