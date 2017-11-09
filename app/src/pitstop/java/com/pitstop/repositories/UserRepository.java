@@ -344,7 +344,7 @@ public class UserRepository implements Repository{
             }
             try{
                 JSONObject settings = new JSONObject(response);
-                int carId = 0;
+                int carId = -1;
                 boolean firstCarAdded = true; //if not present, default is true
                 boolean alarmsEnabled = false; // if not present, default is false
 
