@@ -529,10 +529,4 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"onServiceSelected()");
         presenter.onServiceSelected(carIssue);
     }
-
-    @Override
-    public void onTentativeServiceClicked() {
-        Log.d(TAG,"onTentativeServiceClicked()");
-        ((MainActivityCallback)getActivity()).prepareAndStartTutorialSequence();
-    }
 }

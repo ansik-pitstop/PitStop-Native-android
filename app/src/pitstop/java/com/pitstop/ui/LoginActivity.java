@@ -635,7 +635,7 @@ public class LoginActivity extends DebugDrawerActivity {
                     public void done(String response, RequestError requestError) {
                         if (requestError == null) {
                             Log.d("SIGNUP", "SignUp login");
-
+                            application.setCurrentUser(User.jsonToUserObject(response));
                             // Track REGISTER_WITH_EMAIL
                             application.modifyMixpanelSettings("Registered With", "Email");
                             Log.d(MIXPANEL_TAG, "Register with email");

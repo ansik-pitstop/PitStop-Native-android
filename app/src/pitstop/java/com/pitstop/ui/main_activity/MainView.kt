@@ -1,6 +1,5 @@
 package com.pitstop.ui.main_activity
 
-import android.view.View
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 
@@ -9,7 +8,7 @@ import com.pitstop.models.Dealership
  */
 interface MainView  {
     fun openAppointments(car: Car)
-    fun openRequestService(car: Car?)
+    fun openRequestService(tentative: Boolean)
     fun toast(message: String)
     fun hideLoading()
     fun onCarClicked(car: Car)
@@ -27,4 +26,5 @@ interface MainView  {
     fun hideCarsLoading()
     fun notifyCarDataChanged()
     fun errorLoadingCars()
+    fun showTentativeAppointmentShowcase()
 }

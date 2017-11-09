@@ -9,7 +9,5 @@ import java.util.List;
  */
 
 public interface MainActivityCallback {
-    void prepareAndStartTutorialSequence();
-
     void startDisplayIssueActivity(List<CarIssue> issue, int position);
 }

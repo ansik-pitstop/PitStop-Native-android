@@ -41,7 +41,6 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
@@ -62,13 +61,10 @@ import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.utils.*
-import io.smooch.core.Smooch
-import io.smooch.core.User
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * Created by David on 6/8/2016.
@@ -446,40 +442,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
             if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
                 Log.d(TAG, "resultCode == ADD_CAR_SUCCESS_HAS_DEALER OR NO_DEALER")
+                presenter?.onCarAdded()
 
-                useCaseComponent?.getUserCarUseCase()!!.execute(object: GetUserCarUseCase.Callback{
-                    override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
-                        updateSmoochUser(application?.currentUser, car, dealership)
-                    }
-
-                    override fun onNoCarSet() {
-                    }
-
-                    override fun onError(error: RequestError?) {
-                    }
-
-                })
-                useCaseComponent?.checkFirstCarAddedUseCase()!!
-                        .execute(object: CheckFirstCarAddedUseCase.Callback{
-
-                            override fun onFirstCarAddedChecked(added: Boolean) {
-                                if (!added){
-                                    sendSignedUpSmoochMessage(application!!.currentUser)
-                                    showTentativeAppointmentShowcase()
-
-                                    useCaseComponent?.setFirstCarAddedUseCase()!!
-                                            .execute(true, object : SetFirstCarAddedUseCase.Callback {
-                                                override fun onFirstCarAddedSet() {
-                                                    //Variable has been set
-                                                }
-                                                override fun onError(error: RequestError) {
-                                                    //Networking error logic here
-                                                }
-                                            })
-                                } }
-                            override fun onError(error: RequestError?) {
-                                //error logic here
-                            }})
 
             } else {
                 mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car");
@@ -490,8 +454,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
-    private fun showTentativeAppointmentShowcase() {
-        Log.d(TAG,"showTentativeAppointmentShowcase()");
+    override fun showTentativeAppointmentShowcase() {
+        Log.d(TAG,"showTentativeAppointmentShowcase()")
         val view = findViewById<View>(R.id.action_request_service)
         MaterialShowcaseView.Builder(this)
             .setTarget(view)
@@ -501,45 +465,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             .setDismissOnTouch(true)
             .show()
     }
-
-
-    private fun sendSignedUpSmoochMessage(user: com.pitstop.models.User) {
-        Log.d("MainActivity Smooch", "Sending message")
-        Smooch.getConversation().sendMessage(io.smooch.core.Message(user.firstName +
-                (if (user.lastName == null || user.lastName == "null")
-                    ""
-                else
-                    " " + user.lastName) + " has signed up for Pitstop!"))
-    }
-
-    private fun updateSmoochUser(user: com.pitstop.models.User?, car: Car?, dealership: Dealership?) {
-        if (car == null || user == null) return
-
-        val customProperties: HashMap<String, Any?> = HashMap()
-        customProperties.put("VIN", car.vin)
-        Log.d(TAG, car.vin)
-        customProperties.put("Car Make", car.make)
-        Log.d(TAG, car.make)
-        customProperties.put("Car Model", car.model)
-        Log.d(TAG, car.model)
-        customProperties.put("Car Year", car.year)
-        Log.d(TAG, car.year.toString())
-
-        //Add custom user properties
-        if (dealership != null) {
-            customProperties.put("Email", dealership.email)
-            Log.d(TAG, dealership.email)
-        }
-
-        if (user != null) {
-            customProperties.put("Phone", user.phone)
-            User.getCurrentUser().firstName = user.firstName
-            User.getCurrentUser().email = user.email
-        }
-
-        User.getCurrentUser().addProperties(customProperties)
-    }
-
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
@@ -873,10 +798,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onDeviceSyncing() {
     }
 
-    override fun openRequestService(car: Car?) {
+    override fun openRequestService(tentative: Boolean) {
         val intent = Intent(this, RequestServiceActivity::class.java)
-        /*intent.putExtra(RequestServiceActivity.EXTRA_CAR, car)*/
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
+        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, tentative)
         isFirstAppointment = false
         startActivity(intent)
         hideLoading()
