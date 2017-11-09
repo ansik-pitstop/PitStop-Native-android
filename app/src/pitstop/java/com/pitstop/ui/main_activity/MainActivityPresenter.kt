@@ -117,7 +117,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                                             //Networking error logic here
                                         }
                                     })
-                        } }
+                        }
+                    }
                     override fun onError(error: RequestError?) {
                         //error logic here
                     }})
