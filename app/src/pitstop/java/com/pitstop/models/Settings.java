@@ -9,7 +9,7 @@ package com.pitstop.models;
 public class Settings {
 
     private int userId;
-    private int carId;  //User settings car id
+    private int carId = -1;  //User settings car id
     private boolean firstCarAdded;  //Whether user ever added a car
     private boolean alarmsEnabled;
 
@@ -18,12 +18,6 @@ public class Settings {
         this.carId = carId;
         this.firstCarAdded = firstCarAdded;
         this.alarmsEnabled  = alarms;
-    }
-
-    public Settings(int userId, boolean firstCarAdded){
-        this.userId = userId;
-        this.firstCarAdded = firstCarAdded;
-        carId = -1;
     }
 
     public boolean hasMainCar(){

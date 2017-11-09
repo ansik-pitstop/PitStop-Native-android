@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
@@ -12,6 +13,7 @@ import com.pitstop.models.User;
  * Created by Ben Wu on 2016-06-07.
  */
 public class LocalUserStorage {
+    private static final String TAG = LocalUserStorage.class.getSimpleName();
 
     // USER table create statement
     public static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
@@ -33,6 +35,7 @@ public class LocalUserStorage {
     }
 
     public void storeUserData(User user) {
+        Log.d(TAG,"storeUserData() user: "+user);
         deleteAllUsers();
 
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

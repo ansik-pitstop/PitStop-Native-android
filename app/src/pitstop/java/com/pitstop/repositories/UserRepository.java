@@ -330,7 +330,7 @@ public class UserRepository implements Repository{
             callback.onError(RequestError.getUnknownError());
             return;
         }else if (localUserStorage.getUser().getSettings() != null){
-            Log.d(TAG,"Returning local settings!()");
+            Log.d(TAG,"Returning local settings! settings: "+localUserStorage.getUser().getSettings());
             callback.onSuccess(localUserStorage.getUser().getSettings());
             return;
         }
