@@ -56,8 +56,6 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         this.switcher = switcher;
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
@@ -84,8 +82,6 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
 
         presenter = new MainSettingsPresenter(switcher,component,mixpanelHelper);
         presenter.subscribe(this);
-
-
 
         presenter.setVersion();
         presenter.update();

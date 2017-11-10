@@ -57,6 +57,7 @@ public class LocalUserStorage {
             user = cursorToUser(c);
         }
         c.close();
+        Log.d(TAG,"getUser() user: "+user);
         return user;
     }
 
