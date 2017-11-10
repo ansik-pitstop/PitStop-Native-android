@@ -10,27 +10,13 @@
         </EditTextPreference>
 
         <Preference android:title="Email"
-            android:key="@string/pref_email_key"
-            android:summary="@string/tap_to_change_email">
-        </Preference>
+            android:key="@string/pref_email_key"/>
 
         <EditTextPreference android:title="Your Phone Number"
             android:key="@string/pref_phone_number_key"
             android:summary="@string/tap_to_change_phone">
         </EditTextPreference>
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="My Vehicles"
-        android:key="@string/pref_vehicles"/>
-
-    <Preference android:title="@string/title_activity_add_car"
-        android:key="add_car_button"
-        android:summary="Tap to add a new vehicle"/>
-
-    <PreferenceCategory
-        android:title="My Created Shops"
-        android:key="pref_shops"/>
 
     <PreferenceCategory android:title="@string/app_info" android:key="@string/appinfo">
         <Preference android:title="@string/privacy_policy" android:key="@string/pref_privacy_policy" />
