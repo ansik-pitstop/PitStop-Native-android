@@ -37,7 +37,8 @@ public class LocalUserStorage {
     public void storeUserData(User user) {
         Log.d(TAG,"storeUserData() user: "+user);
         deleteAllUsers();
-
+        if (user == null)
+            return;
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = userObjectToContentValues(user);
