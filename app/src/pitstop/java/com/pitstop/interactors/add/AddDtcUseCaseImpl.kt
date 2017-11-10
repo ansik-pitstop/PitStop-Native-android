@@ -6,6 +6,7 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -37,7 +38,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
 
                 carRepository.get(settings.carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext({response ->
                     if (response.data == null){
                         callback?.onError(RequestError.getUnknownError())

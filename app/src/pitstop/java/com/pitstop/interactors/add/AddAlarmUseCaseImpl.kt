@@ -10,6 +10,7 @@ import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.RepositoryResponse
 import com.pitstop.repositories.UserRepository
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -43,7 +44,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
 
                    carRepository.get(settings.carId)
                            .subscribeOn(Schedulers.io())
-                           .observeOn(Schedulers.computation())
+                           .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                            .doOnNext{response ->
                                val car = response.data
                                if (car == null){

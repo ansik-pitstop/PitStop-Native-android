@@ -8,6 +8,7 @@ import com.pitstop.models.Settings
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -32,7 +33,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
             override fun onSuccess(user: User) {
                 carRepository.getCarsByUserId(user.id)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext { carListResponse ->
                             Log.d(tag, "getCarsByUserId() response: " + carListResponse)
                             val carList = carListResponse.data

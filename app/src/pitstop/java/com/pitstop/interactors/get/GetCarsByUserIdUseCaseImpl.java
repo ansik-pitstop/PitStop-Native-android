@@ -15,6 +15,7 @@ import com.pitstop.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -71,7 +72,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     public void onSuccess(User user) {
                         carRepository.getCarsByUserId(user.getId())
                                 .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.computation())
+                                .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                 .doOnNext(carListResponse -> {
                                     if (carListResponse.getData() == null){
                                         GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());

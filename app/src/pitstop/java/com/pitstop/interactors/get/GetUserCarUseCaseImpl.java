@@ -15,6 +15,7 @@ import com.pitstop.repositories.UserRepository;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -71,7 +72,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 if (userSettings.hasMainCar()){
                     carRepository.get(userSettings.getCarId())
                             .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .doOnNext(response -> {
                         Log.d(TAG,"carRepository.get() car: "+response.getData());
                         if (response.getData() == null){
@@ -103,7 +104,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
                 carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){

@@ -13,6 +13,7 @@ import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -125,7 +126,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                 carRepository.get(data.getCarId())
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext(response -> {
                     if (response.getData() == null){
                         callback.onError(RequestError.getUnknownError());
