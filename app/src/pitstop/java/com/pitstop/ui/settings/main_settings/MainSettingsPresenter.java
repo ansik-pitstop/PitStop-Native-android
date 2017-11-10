@@ -1,7 +1,6 @@
 package com.pitstop.ui.settings.main_settings;
 
 import android.app.Fragment;
-import android.content.res.Resources;
 
 import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
@@ -61,30 +60,12 @@ public class MainSettingsPresenter {
         mainSettings.showVersion(mainSettings.getBuildNumber());
     }
 
-    public void preferenceClicked(String prefKey){
-        if(mainSettings == null || switcher ==null){return;}
-        if(prefKey.equals(ADD_CAR_KEY)){
-            mixpanelHelper.trackButtonTapped("AddCar","MainSettings");
-            switcher.startAddCar();
-        }else if(prefKey.equals(PRIV_KEY)){
-            mixpanelHelper.trackButtonTapped("PrivacyPolicy","MainSettings");
-            mainSettings.startPriv();
-        }else if(prefKey.equals(TERMS_KEY)){
-            mixpanelHelper.trackButtonTapped("TermsOfService","MainSettings");
-            mainSettings.startTerms();
-        }else if(prefKey.equals(LOG_OUT_KEY)){
-            mixpanelHelper.trackButtonTapped("LogOut","MainSettings");
-            mainSettings.showLogOut();
-        }
-    }
-
     public void update(){
         if(mainSettings == null || switcher == null){return;}
         switcher.loading(true);
         getUser();
 
     }
-
 
     public void getUser(){
         if(mainSettings == null){return;}

@@ -1,20 +1,15 @@
 package com.pitstop.ui.settings.main_settings;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,15 +42,12 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     private MainSettingsPresenter presenter;
     private FragmentSwitcher switcher;
 
-
     private SharedPreferences sharedPrefs;
 
     private Preference infoPreference;
     private Preference emailPreference;
     private EditTextPreference namePreference;
     private EditTextPreference phonePreference;
-    private PreferenceCategory vehicleCatagory;
-    private PreferenceCategory shopCatagory;
 
     private MixpanelHelper mixpanelHelper;
 
@@ -83,8 +75,6 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         phonePreference = (EditTextPreference) findPreference(PHONE_PREF_KEY);
         infoPreference = (Preference) findPreference(APP_INFO_KEY);
         emailPreference = (Preference) findPreference(EMAIL_PREF_KEY);
-        vehicleCatagory = (PreferenceCategory) findPreference(getString(R.string.pref_vehicles));
-        shopCatagory = (PreferenceCategory) findPreference(SHOP_PREF_KEY);
 
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
@@ -125,15 +115,9 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         sharedPrefs.edit().putString(PHONE_PREF_KEY,phone).commit();
     }
 
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        presenter.preferenceClicked(preference.getKey());
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
     public void update(){//this is a hack
         presenter.update();
     }
-
 
     @Override
     public void showName(String name) {
@@ -156,26 +140,6 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     }
 
     @Override
-    public void addCar(Preference preference) {
-        vehicleCatagory.addPreference(preference);
-    }
-
-    @Override
-    public void addShop(Preference preference) {
-        shopCatagory.addPreference(preference);
-    }
-
-    @Override
-    public void resetCars() {
-        vehicleCatagory.removeAll();
-    }
-
-    @Override
-    public void resetShops() {
-        shopCatagory.removeAll();
-    }
-
-    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if(key.equals(NAME_PREF_KEY) || key.equals(PHONE_PREF_KEY)){
             presenter.preferenceInput(sharedPreferences.getString(key,""),key);
@@ -192,37 +156,6 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         return "";
     }
 
-
-    @Override
-    public void startPriv() {
-        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/PrivacyPolicy.pdf")));
-    }
-
-    @Override
-    public void startTerms() {
-        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/AppAgreement.pdf")));
-    }
-    @Override
-    public void showLogOut() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());//will probably need to move these to the activity
-        alertDialogBuilder.setTitle(getString(R.string.log_out));
-        alertDialogBuilder
-                .setMessage(getString(R.string.log_out_confirm_message))
-                .setCancelable(false)
-                .setPositiveButton(getString(R.string.yes_button_text),new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        dialog.dismiss();
-                        presenter.logout();
-                    }
-                })
-                .setNegativeButton(getString(R.string.no_button_text),new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
     @Override
     public void logout(){
         application.logOutUser();
