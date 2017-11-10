@@ -82,10 +82,12 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             })
 
                         }.onErrorReturn { err ->
-                    Log.d(tag, "getCarsByUserId() err: " + err)
-                    RepositoryResponse<List<Car>>(null, false)
-                }
-                .subscribe()
+                            Log.d(tag, "getCarsByUserId() err: " + err)
+                            RepositoryResponse<List<Car>>(null, false)
+                        }.doOnError({err ->
+                            Log.d(tag,"doOnError() err: "+err)
+                            onError(RequestError.getUnknownError())
+                        }).subscribe()
             }
 
             override fun onError(error: RequestError) {
