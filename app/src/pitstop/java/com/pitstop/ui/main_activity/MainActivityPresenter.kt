@@ -197,7 +197,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
                 override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
-                    Log.d(TAG, "onCarsRetrieved() map" +data)
+                    Log.d(TAG, "onCarsRetrieved() local? $local, map: $data")
                     if(view == null)return
                     if (!local){
                         view?.hideCarsLoading()
