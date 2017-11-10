@@ -406,7 +406,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult()");
         if(requestCode == START_CUSTOM && (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)) {
             dealership.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
@@ -418,6 +417,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
             }
             Log.d(TAG,data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY) );
 
+        }
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -500,10 +502,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     }
 
     public void startCustomShop(){
-        if (presenter.getCar()!=null) {
+        if (presenter.getCar()!=null && getActivity() != null) {
             Intent intent = new Intent(getActivity(), CustomShopActivity.class);
             intent.putExtra(MainActivity.CAR_EXTRA, presenter.getCar());
-            startActivityForResult(intent, START_CUSTOM);
+            getActivity().startActivityForResult(intent, START_CUSTOM);
         }
     }
 

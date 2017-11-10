@@ -112,7 +112,6 @@ public class PromptAddCarActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
         Log.d(TAG,"onActivityResult, data is null? "+(data == null));
 

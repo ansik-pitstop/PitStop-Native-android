@@ -13,6 +13,7 @@ import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -63,7 +64,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
             public void onSuccess(User user) {
                 carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() car: "+response.getData());
                     carRepository.getShopId(response.getData().getId(), new Repository.Callback<Integer>() {

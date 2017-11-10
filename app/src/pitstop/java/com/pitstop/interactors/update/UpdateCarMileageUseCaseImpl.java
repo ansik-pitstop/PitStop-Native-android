@@ -10,6 +10,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -67,7 +68,10 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return;
                 }
 
-                carRepository.get(settings.getCarId()).doOnNext(response -> {
+                carRepository.get(settings.getCarId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
+                        .doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() response: "+response);
                     if (response.getData() == null){
                         callback.onError(RequestError.getUnknownError());
@@ -91,9 +95,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     Log.d(TAG,"carRepository.get() error: "+err);
                     return new RepositoryResponse<>(null,false);
                     //Todo: error handling
-                }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
-                .subscribe();
+                }).subscribe();
             }
 
             @Override

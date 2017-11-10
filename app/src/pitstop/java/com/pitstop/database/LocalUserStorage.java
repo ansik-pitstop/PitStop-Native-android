@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
@@ -12,6 +13,7 @@ import com.pitstop.models.User;
  * Created by Ben Wu on 2016-06-07.
  */
 public class LocalUserStorage {
+    private static final String TAG = LocalUserStorage.class.getSimpleName();
 
     // USER table create statement
     public static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
@@ -33,8 +35,10 @@ public class LocalUserStorage {
     }
 
     public void storeUserData(User user) {
+        Log.d(TAG,"storeUserData() user: "+user);
         deleteAllUsers();
-
+        if (user == null)
+            return;
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = userObjectToContentValues(user);
@@ -53,6 +57,7 @@ public class LocalUserStorage {
             user = cursorToUser(c);
         }
         c.close();
+        Log.d(TAG,"getUser() user: "+user);
         return user;
     }
 
@@ -66,9 +71,7 @@ public class LocalUserStorage {
         int carId = c.getInt(c.getColumnIndex(TABLES.USER.KEY_CAR));
         boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1;
         boolean alarmsEnabled = c.getInt(c.getColumnIndex(TABLES.USER.KEY_ALARMS_ENABLED)) == 1;
-        if (carId != -1){
-            user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
-        }
+        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
         return user;
     }
 

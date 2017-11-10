@@ -336,7 +336,7 @@ public class MixpanelHelper {
     private void insertCar(JSONObject json)  {
         Car car = application.getCurrentCar();
 
-        if (application.getCurrentCar() != null) {
+        if (car != null) {
             try {
                 json.put("make", car.getMake());
                 json.put("model", car.getModel());

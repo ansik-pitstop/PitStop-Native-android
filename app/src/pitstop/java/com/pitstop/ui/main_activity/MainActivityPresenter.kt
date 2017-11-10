@@ -2,14 +2,20 @@ package com.pitstop.ui.main_activity
 
 import android.util.Log
 import com.pitstop.EventBus.*
+import com.pitstop.R.array.car
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
+import com.pitstop.interactors.get.GetCurrentUserUseCase
+import com.pitstop.interactors.get.GetUserCarUseCase
+import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.ui.Presenter
 import com.pitstop.utils.MixpanelHelper
+import io.smooch.core.Smooch
 import io.smooch.core.User
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -84,6 +90,105 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         loadCars()
     }
 
+    fun onShowCaseClosed(){
+        Log.d(TAG,"onShowCaseClosed()")
+        if (view != null)
+            view!!.openRequestService(true)
+    }
+
+    fun onCarAdded(withDealer: Boolean){
+        Log.d(TAG,"onCarAdded()")
+        updateSmoochUser()
+        useCaseCompnent.checkFirstCarAddedUseCase()!!
+                .execute(object: CheckFirstCarAddedUseCase.Callback{
+
+                    override fun onFirstCarAddedChecked(added: Boolean) {
+                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
+                        if (!added){
+                            sendSignedUpSmoochMessage()
+                            if (view != null && withDealer)
+                                view!!.showTentativeAppointmentShowcase()
+
+                            useCaseCompnent.setFirstCarAddedUseCase()!!
+                                    .execute(true, object : SetFirstCarAddedUseCase.Callback {
+                                        override fun onFirstCarAddedSet() {
+                                            //Variable has been set
+                                        }
+                                        override fun onError(error: RequestError) {
+                                            //Networking error logic here
+                                        }
+                                    })
+                        }
+                    }
+                    override fun onError(error: RequestError?) {
+                        //error logic here
+                    }})
+    }
+
+    private fun updateSmoochUser() {
+        Log.d(TAG,"updateSmoochUser()");
+        useCaseCompnent.getCurrentUserUseCase.execute(object: GetCurrentUserUseCase.Callback{
+            override fun onUserRetrieved(user: com.pitstop.models.User) {
+                Log.d(TAG,"onUserRetrieved() user: "+user)
+
+                val customProperties: HashMap<String, Any?> = HashMap()
+                customProperties.put("Phone", user.phone)
+                User.getCurrentUser().firstName = user.firstName
+                User.getCurrentUser().email = user.email
+                User.getCurrentUser().addProperties(customProperties)
+
+                useCaseCompnent.userCarUseCase.execute(object: GetUserCarUseCase.Callback{
+                    override fun onCarRetrieved(car: Car, dealership: Dealership) {
+                        Log.d(TAG,"onCarRetrieved() car: "+car)
+
+                        customProperties.put("VIN", car.vin)
+                        Log.d(TAG, car.vin)
+                        customProperties.put("Car Make", car.make)
+                        Log.d(TAG, car.make)
+                        customProperties.put("Car Model", car.model)
+                        Log.d(TAG, car.model)
+                        customProperties.put("Car Year", car.year)
+                        Log.d(TAG, car.year.toString())
+                        customProperties.put("Email", dealership.email)
+                        Log.d(TAG, dealership.email)
+                    }
+
+                    override fun onNoCarSet() {
+                        Log.d(TAG,"onNoCarSet() car: "+car)
+                    }
+
+                    override fun onError(error: RequestError) {
+                        Log.d(TAG,"onError() err: "+error)
+                    }
+
+                })
+            }
+
+            override fun onError(error: RequestError) {
+                Log.d(TAG,"onError() err: "+error)
+            }
+
+        })
+    }
+
+    private fun sendSignedUpSmoochMessage() {
+        Log.d(TAG,"sendSignedUpSmoochMessage() ");
+        useCaseCompnent.getCurrentUserUseCase.execute(object: GetCurrentUserUseCase.Callback{
+            override fun onUserRetrieved(user: com.pitstop.models.User) {
+                Log.d(TAG,"retrieved current user: "+user)
+                Smooch.getConversation().sendMessage(io.smooch.core.Message(user.firstName +
+                        (if (user.lastName == null || user.lastName == "null")
+                            ""
+                        else
+                            " " + user.lastName) + " has signed up for Pitstop!"))
+            }
+
+            override fun onError(error: RequestError?) {
+            }
+
+        })
+    }
+
     private fun loadCars() {
         Log.d(TAG, "loadCars()")
         if (!carListLoaded){
@@ -149,7 +254,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.toast("Please add a dealership to your car")
             return
         }
-        view?.openRequestService(mCar);
+        view?.openRequestService(false)
 
 
     }
@@ -165,7 +270,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun onAddCarClicked() {
-        view?.openAddCarActivity();
+        view?.openAddCarActivity()
     }
 
     fun onMessageClicked() {
@@ -230,7 +335,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun makeCarCurrent(car: Car) {
-        Log.d(TAG, "makeCarCurrent() car: "+car);
+        Log.d(TAG, "makeCarCurrent() car: "+car)
         if (view == null || isLoading) return
         if (car.isCurrentCar)return
         isLoading = true
@@ -259,7 +364,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun onRefresh() {
-        onUpdateNeeded();
+        onUpdateNeeded()
     }
 
 

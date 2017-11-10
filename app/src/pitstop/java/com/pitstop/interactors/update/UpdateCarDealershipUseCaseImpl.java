@@ -18,6 +18,7 @@ import com.pitstop.repositories.UserRepository;
 
 import org.greenrobot.eventbus.EventBus;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -82,7 +83,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                 Log.d(TAG,"user: "+user);
                 carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
