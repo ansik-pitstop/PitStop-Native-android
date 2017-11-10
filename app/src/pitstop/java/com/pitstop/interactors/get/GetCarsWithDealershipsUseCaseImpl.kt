@@ -45,7 +45,8 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                 override fun onSuccess(settings: Settings) {
                                     Log.d(tag, "getCurrentUserSetting() resonse: " + settings)
                                     if (carList.isEmpty()) {
-                                        mainHandler.post({ callback!!.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()) })
+                                        mainHandler.post({ callback!!
+                                                .onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>(),carListResponse.isLocal) })
                                         return@onSuccess
                                     }
 
@@ -65,7 +66,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                                     }
                                             }
                                             Log.d(tag, "Resulting map: " + map)
-                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
+                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map,carListResponse.isLocal) })
                                         }
 
                                         override fun onError(error: RequestError) {

@@ -196,11 +196,13 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             isLoading  = true
             useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
-                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>) {
+                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
                     Log.d(TAG, "onCarsRetrieved() map" +data)
-                    isLoading = false
                     if(view == null)return
-                    view?.hideCarsLoading()
+                    if (!local){
+                        view?.hideCarsLoading()
+                        isLoading = false
+                    }
                     if (data.keys.size == 0){
                         view?.noCarsView()
                     }
@@ -213,8 +215,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     }
                     mergeSetWithCarList(data.keys)
                     mergeSetWithDealershipList(data.values)
-                    dealershipListLoaded = true
-                    carListLoaded = true
+                    if (!local){
+                        dealershipListLoaded = true
+                        carListLoaded = true
+                    }
                     view?.showCars(carList)
 
                 }

@@ -831,11 +831,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     LinearLayout.LayoutParams.MATCH_PARENT)
             params.gravity = Gravity.CENTER_VERTICAL
             drawerLinearLayout?.setLayoutParams(params)
-            contactView?.visibility = View.GONE
-            appointmentsView?.visibility = View.GONE
-            carRecyclerView?.visibility = View.GONE
-            addCarBtn?.visibility = View.GONE
-            textAboveCars?.visibility = View.GONE
             progressView?.visibility = View.VISIBLE
             progressView?.bringToFront()
         }
