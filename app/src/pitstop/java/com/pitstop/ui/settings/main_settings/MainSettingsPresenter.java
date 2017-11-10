@@ -60,6 +60,20 @@ public class MainSettingsPresenter {
         mainSettings.showVersion(mainSettings.getBuildNumber());
     }
 
+    public void preferenceClicked(String prefKey){
+        if(mainSettings == null || switcher ==null){return;}
+        if(prefKey.equals(PRIV_KEY)){
+            mixpanelHelper.trackButtonTapped("PrivacyPolicy","MainSettings");
+            mainSettings.startPriv();
+        }else if(prefKey.equals(TERMS_KEY)){
+            mixpanelHelper.trackButtonTapped("TermsOfService","MainSettings");
+            mainSettings.startTerms();
+        }else if(prefKey.equals(LOG_OUT_KEY)){
+            mixpanelHelper.trackButtonTapped("LogOut","MainSettings");
+            mainSettings.showLogOut();
+        }
+    }
+
     public void update(){
         if(mainSettings == null || switcher == null){return;}
         switcher.loading(true);

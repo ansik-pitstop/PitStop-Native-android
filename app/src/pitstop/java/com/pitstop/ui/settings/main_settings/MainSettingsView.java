@@ -18,4 +18,7 @@ public interface MainSettingsView {
     void showVersion(String version);
     String getBuildNumber();
     void toast(String message);
+    void startPriv();
+    void startTerms();
+    void showLogOut();
 }

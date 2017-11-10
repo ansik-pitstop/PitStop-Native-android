@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +58,8 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     public void setSwitcher(FragmentSwitcher switcher) {
         this.switcher = switcher;
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -111,6 +116,12 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         sharedPrefs.edit().putString(PHONE_PREF_KEY,phone).commit();
     }
 
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        presenter.preferenceClicked(preference.getKey());
+        return super.onPreferenceTreeClick(preferenceScreen, preference);
+    }
+
     public void update(){//this is a hack
         presenter.update();
     }
@@ -150,6 +161,33 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
             e.printStackTrace();
         }
         return "";
+    }
+
+
+    @Override
+    public void startPriv() {
+        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/PrivacyPolicy.pdf")));
+    }
+
+    @Override
+    public void startTerms() {
+        getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://pitstopconnect.com/privacypolicy/AppAgreement.pdf")));
+    }
+
+    @Override
+    public void showLogOut() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle(getString(R.string.log_out));
+        alertDialogBuilder
+                .setMessage(getString(R.string.log_out_confirm_message))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.yes_button_text), (dialog, id) -> {
+                    dialog.dismiss();
+                    presenter.logout();
+                })
+                .setNegativeButton(getString(R.string.no_button_text), (dialog, id) -> dialog.cancel());
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     @Override
