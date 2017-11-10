@@ -303,8 +303,9 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void startAddCarActivity() {
         Log.d(TAG,"startAddCarActivity()");
+        if (getActivity() == null) return;
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override

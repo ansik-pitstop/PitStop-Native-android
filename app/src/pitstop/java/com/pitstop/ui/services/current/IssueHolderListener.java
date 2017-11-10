@@ -11,5 +11,4 @@ import java.util.List;
 public interface IssueHolderListener {
     void onServiceClicked(List<CarIssue> carIssues, int position);
     void onServiceSelected(CarIssue carIssue);
-    void onTentativeServiceClicked();
 }

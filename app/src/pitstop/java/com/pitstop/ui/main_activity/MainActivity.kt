@@ -27,16 +27,13 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.*
-
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
 import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
-import com.pitstop.observer.AutoConnectServiceBindingObserver
 import com.pitstop.bluetooth.BluetoothAutoConnectService
-import com.pitstop.observer.BluetoothAutoConnectServiceObservable
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalScannerStorage
 import com.pitstop.database.LocalShopStorage
@@ -44,7 +41,6 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
@@ -55,38 +51,28 @@ import com.pitstop.models.ObdScanner
 import com.pitstop.models.ReadyDevice
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
-import com.pitstop.observer.BluetoothConnectionObservable
-import com.pitstop.observer.BluetoothConnectionObserver
-import com.pitstop.observer.Device215BreakingObserver
+import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.add_car.AddCarActivity
-import com.pitstop.ui.add_car.PromptAddCarActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.utils.AnimatedDialogBuilder
-import com.pitstop.utils.LogUtils
-import com.pitstop.utils.MigrationService
-import com.pitstop.utils.MixpanelHelper
-import com.pitstop.utils.NetworkHelper
-
-import org.json.JSONException
-
-import io.smooch.core.Smooch
-import io.smooch.core.User
+import com.pitstop.utils.*
 import io.smooch.ui.ConversationActivity
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * Created by David on 6/8/2016.
  */
-class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver, BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable {
-
+class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver
+        , BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable
+        , BadgeDisplayer {
 
     private var presenter: MainActivityPresenter? = null
     private var application: GlobalApplication? = null
@@ -451,94 +437,47 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent?) {
-        Log.i(TAG, "onActivityResult")
+        Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
 
-        if ((intent!= null) && requestCode == RC_ADD_CAR) {
+        if (requestCode == RC_ADD_CAR) {
+            Log.d(TAG, "requestCode == RC_ADD_CAR")
 
-            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
-
-                useCaseComponent?.getUserCarUseCase()!!.execute(object: GetUserCarUseCase.Callback{
-                    override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
-                        updateSmoochUser(application?.currentUser, car, dealership)
-                    }
-
-                    override fun onNoCarSet() {
-                    }
-
-                    override fun onError(error: RequestError?) {
-                    }
-
-                })
-                useCaseComponent?.checkFirstCarAddedUseCase()!!
-                        .execute(object: CheckFirstCarAddedUseCase.Callback{
-
-                            override fun onFirstCarAddedChecked(added: Boolean) {
-                                if (!added){
-                                    sendSignedUpSmoochMessage(application!!.getCurrentUser())
-                                    prepareAndStartTutorialSequence()
-
-                                    useCaseComponent?.setFirstCarAddedUseCase()!!
-                                            .execute(true, object : SetFirstCarAddedUseCase.Callback {
-                                                override fun onFirstCarAddedSet() {
-                                                    //Variable has been set
-                                                }
-                                                override fun onError(error: RequestError) {
-                                                    //Networking error logic here
-                                                }
-                                            })
-                                } }
-                            override fun onError(error: RequestError?) {
-                                //error logic here
-                            }})
+            if (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER
+                    || resultCode == AddCarActivity.ADD_CAR_SUCCESS_NO_DEALER) {
+                Log.d(TAG, "onActivityResult() resultCode == ADD_CAR_SUCCESS_HAS_DEALER OR NO_DEALER")
+                presenter?.onCarAdded(resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)
 
             } else {
-                mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car");
+                mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")
             }
         }
         else{
-            super.onActivityResult(requestCode,resultCode,intent);
+            super.onActivityResult(requestCode,resultCode,intent)
         }
     }
 
+    override fun showTentativeAppointmentShowcase() {
+        Log.d(TAG,"showTentativeAppointmentShowcase()")
+        val view = findViewById<View>(R.id.action_request_service)
+        val requestShowCase = MaterialShowcaseView.Builder(this)
+            .setTarget(view)
+            .setDismissText("Tap to book appointment")
+            .setContentText("Let's be proactive and request service for your vehicle ahead of time!")
+            .setDelay(250)
+            .setDismissOnTouch(true)
+            .build()
+        requestShowCase.addShowcaseListener(object: IShowcaseListener{
+            override fun onShowcaseDisplayed(p0: MaterialShowcaseView?) {
+            }
 
+            override fun onShowcaseDismissed(p0: MaterialShowcaseView?) {
+                if (presenter != null)
+                    presenter?.onShowCaseClosed()
+            }
 
-    private fun sendSignedUpSmoochMessage(user: com.pitstop.models.User) {
-        Log.d("MainActivity Smooch", "Sending message")
-        Smooch.getConversation().sendMessage(io.smooch.core.Message(user.firstName +
-                (if (user.lastName == null || user.lastName == "null")
-                    ""
-                else
-                    " " + user.lastName) + " has signed up for Pitstop!"))
+        })
+        requestShowCase.show(this)
     }
-
-    private fun updateSmoochUser(user: com.pitstop.models.User?, car: Car?, dealership: Dealership?) {
-        if (car == null || user == null) return
-
-        val customProperties: HashMap<String, Any?> = HashMap()
-        customProperties.put("VIN", car.vin)
-        Log.d(TAG, car.vin)
-        customProperties.put("Car Make", car.make)
-        Log.d(TAG, car.make)
-        customProperties.put("Car Model", car.model)
-        Log.d(TAG, car.model)
-        customProperties.put("Car Year", car.year)
-        Log.d(TAG, car.year.toString())
-
-        //Add custom user properties
-        if (dealership != null) {
-            customProperties.put("Email", dealership.email)
-            Log.d(TAG, dealership.email)
-        }
-
-        if (user != null) {
-            customProperties.put("Phone", user.phone)
-            User.getCurrentUser().firstName = user.firstName
-            User.getCurrentUser().email = user.email
-        }
-
-        User.getCurrentUser().addProperties(customProperties)
-    }
-
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
@@ -572,12 +511,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-    }
-
-    private fun startPromptAddCarActivity() {
-        val intent = Intent(this@MainActivity, PromptAddCarActivity::class.java)
-        //Don't allow user to come back to tabs without first setting a car
-        startActivityForResult(intent, RC_ADD_CAR)
     }
 
     private fun bindMercedesDealerUI() {
@@ -680,15 +613,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
-    /**
-     * Request permission with custom message dialog
-     *
-     * @param activity
-     * @param permissions
-     * @param requestCode
-     * @param needDescription
-     * @param message
-     */
     override fun requestPermission(activity: Activity, permissions: Array<String>, requestCode: Int,
                                    needDescription: Boolean, message: String?) {
         if (isFinishing) {
@@ -708,46 +632,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
-    /**
-     * Onclick method for Settings button
-     *
-     * @param view
-     */
     fun settingsClicked(view: View?) {
 
         val intent = Intent(this, com.pitstop.ui.settings.SettingsActivity::class.java)
         startActivity(intent)
-
-        /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.edit().putBoolean(REFRESH_FROM_SERVER, true).apply();
-
-        final Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-
-        IntentProxyObject proxyObject = new IntentProxyObject();
-
-        application = ((GlobalApplication) getApplication());
-        if (application.getCurrentUser() == null) {
-            networkHelper.getUser(application.getCurrentUserId(), new RequestCallback() {
-                @Override
-                public void done(String response, RequestError requestError) {
-                    if (requestError == null) {
-                        application.setCurrentUser(com.pitstop.models.User.jsonToUserObject(response));
-                        startActivityForResult(intent, RC_SETTINGS);
-                    } else {
-                        Log.e(TAG, "Get user error: " + requestError.getMessage());
-                    }
-                }
-            });
-        } else {
-            startActivityForResult(intent, RC_SETTINGS);
-        }*/
     }
 
-    /**
-     * Onclick method for requesting services
-     *
-     * @param view if this view is null, we consider the service booking is tentative (first time)
-     */
     fun requestMultiService(view: View?) {
 
         val thisInstance = this
@@ -815,11 +705,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         })
     }
 
-
-    override fun prepareAndStartTutorialSequence() {
-
-    }
-
     override fun startDisplayIssueActivity(issues: List<CarIssue>, position: Int) {
         val intent = Intent(this, IssueDetailsActivity::class.java)
         val carIssueArrayList = ArrayList(issues)
@@ -863,92 +748,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun selectDealershipForDashboardCar(car: Car?) {
-        val dealerships = shopLocalStore!!.allDealerships
-        val shops = ArrayList<String>()
-        val shopIds = ArrayList<String>()
-
-        showLoading("Getting shop information..")
-        networkHelper!!.getShops { response, requestError ->
-            hideLoading()
-            if (requestError == null) {
-                try {
-                    val dealers = Dealership.createDealershipList(response)
-                    shopLocalStore!!.deleteAllDealerships()
-                    shopLocalStore!!.storeDealerships(dealers)
-                    for (dealership in dealers) {
-                        shops.add(dealership.name)
-                        shopIds.add(dealership.id.toString())
-                    }
-                    showSelectDealershipDialog(car, shops.toTypedArray(),
-                            shopIds.toTypedArray())
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Toast.makeText(this@MainActivity, "An error occurred, please try again", Toast.LENGTH_SHORT)
-                            .show()
-                }
-
-            } else {
-                Log.e(TAG, "Get shops: " + requestError.message)
-                Toast.makeText(this@MainActivity, "An error occurred, please try again", Toast.LENGTH_SHORT)
-                        .show()
-            }
-        }
-    }
-
-    private fun showSelectDealershipDialog(car: Car?, shops: Array<String>, shopIds: Array<String>) {
-       /* val pickedPosition = intArrayOf(-1)
-
-        val dialog = AnimatedDialogBuilder(this)
-                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                .setSingleChoiceItems(shops, -1) { dialogInterface, which -> pickedPosition[0] = which }
-                .setNegativeButton("CANCEL", null)
-                .setPositiveButton("CONFIRM", null)
-                .create()
-
-        dialog.setOnShowListener { dialogInterface ->
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener { view ->
-                if (pickedPosition[0] == -1) {
-                    Toast.makeText(this@MainActivity, "Please select a dealership", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                val shopId = Integer.parseInt(shopIds[pickedPosition[0]])
-
-                try {
-                    mixpanelHelper!!.trackCustom("Button Tapped",
-                            JSONObject(String.format("{'Button':'Select Dealership', 'View':'%s', 'Make':'%s', 'Model':'%s'}",
-                                    MixpanelHelper.SETTINGS_VIEW, car!!.make, car.model)))
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
-
-                networkHelper!!.updateCarShop(car!!.id, shopId) { response, requestError ->
-                    dialog.dismiss()
-                    if (requestError == null) {
-                        Log.i(TAG, "Dealership updated - carId: " + car.id + ", dealerId: " + shopId)
-                        // Update car in local database
-                        car.shopId = shopId
-                        car.dealership = shopLocalStore!!.getDealership(shopId)
-                        carLocalStore!!.updateCar(car)
-
-                        val properties = User.getCurrentUser().properties
-                        properties.put("Email", shopLocalStore!!.getDealership(shopId)!!.email)
-                        User.getCurrentUser().addProperties(properties)
-
-                        Toast.makeText(this@MainActivity, "Car dealership updated", Toast.LENGTH_SHORT).show()
-
-                    } else {
-                        Log.e(TAG, "Dealership updateCarIssue error: " + requestError.error)
-                        Toast.makeText(this@MainActivity, "There was an error, please try again", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()*/
-    }
 
     private fun logAuthInfo() {
         LogUtils.LOGD(TAG, "RefreshToken: " + application!!.refreshToken)
@@ -1012,10 +811,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onDeviceSyncing() {
     }
 
-    override fun openRequestService(car: Car?) {
+    override fun openRequestService(tentative: Boolean) {
         val intent = Intent(this, RequestServiceActivity::class.java)
-        /*intent.putExtra(RequestServiceActivity.EXTRA_CAR, car)*/
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
+        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, tentative)
         isFirstAppointment = false
         startActivity(intent)
         hideLoading()
@@ -1120,5 +918,17 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         errorLoadingCars?.visibility = View.VISIBLE
         carsTapDescription?.visibility = View.GONE
 
+    }
+
+    override fun displayServicesBadgeCount(count: Int) {
+        Log.d(TAG,"displayServicesBadgeCount() count: "+count)
+        if (tabFragmentManager != null)
+            tabFragmentManager?.displayServicesBadgeCount(count)
+    }
+
+    override fun displayNotificationsBadgeCount(count: Int) {
+        Log.d(TAG,"displayNotificationsBadgeCount() count: "+count)
+        if (tabFragmentManager != null)
+            tabFragmentManager?.displayNotificationsBadgeCount(count)
     }
 }

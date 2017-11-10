@@ -400,8 +400,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
             presenter.onGotPendingActivityResults(vin,mileage,scannerId,scannerName);
         }
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
+        }
 
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void onBackPressed(){

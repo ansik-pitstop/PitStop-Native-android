@@ -630,22 +630,21 @@ public class LoginActivity extends DebugDrawerActivity {
                     Toast.makeText(this, R.string.generic_error, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                networkHelper.signUpAsync(json, new RequestCallback() {
-                    @Override
-                    public void done(String response, RequestError requestError) {
-                        if (requestError == null) {
-                            Log.d("SIGNUP", "SignUp login");
-
-                            // Track REGISTER_WITH_EMAIL
-                            application.modifyMixpanelSettings("Registered With", "Email");
-                            Log.d(MIXPANEL_TAG, "Register with email");
-                            mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, MixpanelHelper.REGISTER_VIEW);
-                            login(email.getText().toString().toLowerCase(), password.getText().toString());
-                        } else {
-                            Log.e(TAG, "Sign up error: " + requestError.getMessage());
-                            Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
-                            hideLoading();
-                        }
+                networkHelper.signUpAsync(json, (response, requestError) -> {
+                    if (requestError == null) {
+                        Log.d("SIGNUP", "SignUp login");
+                        User user = User.jsonToUserObject(response);
+                        application.setCurrentUser(user);
+                        Log.d(TAG,"generated user object: "+user+",from response: "+response);
+                        // Track REGISTER_WITH_EMAIL
+                        application.modifyMixpanelSettings("Registered With", "Email");
+                        Log.d(MIXPANEL_TAG, "Register with email");
+                        mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, MixpanelHelper.REGISTER_VIEW);
+                        login(email.getText().toString().toLowerCase(), password.getText().toString());
+                    } else {
+                        Log.e(TAG, "Sign up error: " + requestError.getMessage());
+                        Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
+                        hideLoading();
                     }
                 });
             } else {

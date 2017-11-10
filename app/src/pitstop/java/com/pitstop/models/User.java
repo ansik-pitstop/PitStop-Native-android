@@ -161,7 +161,7 @@ public class User implements Parcelable {
                 user.setPhone(userJson.getString("phone"));
 
                 JSONObject settings = userJson.getJSONObject("settings");
-                int carId = 0;
+                int carId = -1;
                 boolean firstCarAdded = true; //if not present, default is true
                 boolean alarmsEnabled = false;
 
