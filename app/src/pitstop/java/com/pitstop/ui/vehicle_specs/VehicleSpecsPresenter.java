@@ -171,21 +171,23 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         getView().showLoading();
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 mCar = car;
                 mdealership = car.getShop();
-                updating = false;
+                if (!isLocal)
+                    updating = false;
                 if (getView()!=null) {
-                    getView().hideLoading();
+                    if (!isLocal)
+                        getView().hideLoading();
                     getView().setCarView(mCar);
                     //getCarImage(mCar.getVin());
                 }
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarSet(boolean isLocal) {
                 updating = false;
-                if (getView()!=null)
+                if (getView()!=null && !isLocal)
                     getView().showNoCarView();
             }
 

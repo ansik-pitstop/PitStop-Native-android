@@ -67,7 +67,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
                 updating = false;
                 if (getView() == null) return;
@@ -112,17 +112,19 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 else hasScanner = true;
 
                 getView().displayCarDetails(car);
-
-                getView().hideLoading();
+                if (!isLocal)
+                    getView().hideLoading();
             }
 
             @Override
-            public void onNoCarSet() {
-                updating = false;
-                hasScanner = false;
-                if (getView() == null) return;
-                getView().displayNoCarView();
-                getView().hideLoading();
+            public void onNoCarSet(boolean isLocal) {
+                if (!isLocal){
+                    updating = false;
+                    hasScanner = false;
+                    if (getView() == null) return;
+                    getView().displayNoCarView();
+                    getView().hideLoading();
+                }
             }
 
             @Override

@@ -15,8 +15,8 @@ import com.pitstop.network.RequestError;
 
 public interface GetUserCarUseCase extends Interactor {
     interface Callback{
-        void onCarRetrieved(Car car, Dealership dealership);
-        void onNoCarSet();
+        void onCarRetrieved(Car car, Dealership dealership, boolean isLocal);
+        void onNoCarSet(boolean isLocal);
         void onError(RequestError error);
     }
 

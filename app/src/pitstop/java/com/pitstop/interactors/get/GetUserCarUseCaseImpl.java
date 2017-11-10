@@ -49,11 +49,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
         useCaseHandler.post(this);
     }
 
-    private void onCarRetrieved(Car car, Dealership dealership){
-        mainHandler.post(() -> callback.onCarRetrieved(car, dealership));
+    private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
+        mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
-    private void onNoCarSet(){
-        mainHandler.post(() -> callback.onNoCarSet());
+    private void onNoCarSet(boolean isLocal){
+        mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
     private void onError(RequestError error){
         mainHandler.post(() -> {
@@ -84,7 +84,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                             @Override
                             public void onSuccess(Dealership dealership) {
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership);
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
                             }
 
                             @Override
@@ -111,14 +111,14 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                             }
                             else if (carList.isEmpty()){
-                                GetUserCarUseCaseImpl.this.onNoCarSet();
+                                GetUserCarUseCaseImpl.this.onNoCarSet(carListResponse.isLocal());
                             }
                             else{
                                 shopRepository.get(carList.get(0).getShopId(), new Repository.Callback<Dealership>() {
                                     @Override
                                     public void onSuccess(Dealership dealership) {
                                         GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
-                                                , dealership);
+                                                , dealership,carListResponse.isLocal());
 
                                     }
 
