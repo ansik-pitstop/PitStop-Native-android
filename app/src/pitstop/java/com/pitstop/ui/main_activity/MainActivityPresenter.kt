@@ -138,7 +138,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 User.getCurrentUser().addProperties(customProperties)
 
                 useCaseCompnent.userCarUseCase.execute(object: GetUserCarUseCase.Callback{
-                    override fun onCarRetrieved(car: Car, dealership: Dealership) {
+                    override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+                        if (isLocal) return
                         Log.d(TAG,"onCarRetrieved() car: "+car)
 
                         customProperties.put("VIN", car.vin)
@@ -153,7 +154,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         Log.d(TAG, dealership.email)
                     }
 
-                    override fun onNoCarSet() {
+                    override fun onNoCarSet(isLocal: Boolean) {
                         Log.d(TAG,"onNoCarSet() car: "+car)
                     }
 
