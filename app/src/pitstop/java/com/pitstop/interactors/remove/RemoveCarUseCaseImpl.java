@@ -22,6 +22,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -95,7 +96,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                 public void onSuccess(User user) {
                                     carRepository.getCarsByUserId(user.getId())
                                             .subscribeOn(Schedulers.io())
-                                            .observeOn(Schedulers.computation())
+                                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                             .doOnNext(carListResponse -> {
                                                 Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
                                                 List<Car> cars = carListResponse.getData();

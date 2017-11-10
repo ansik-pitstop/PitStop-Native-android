@@ -150,7 +150,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.computation())
+            .observeOn(Schedulers.io())
             .doOnNext({next ->
                 if (next == null ) return@doOnNext
                 Log.d(tag,"remote.cache() local store update cars: "+next.data)
@@ -185,7 +185,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
                 .doOnNext({next ->
                     if (next.data == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
