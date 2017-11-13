@@ -69,28 +69,30 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
-                updating = false;
+                if (!isLocal)
+                    updating = false;
                 if (getView() == null) return;
 
-
-                useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
-                    @Override
-                    public void onAlarmCountGot(int alarmCount) {
-                        numAlarms = alarmCount;
-                        if (alarmCount == 0){
-                            if (getView()==null) return;
+                if (!isLocal){
+                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
+                        @Override
+                        public void onAlarmCountGot(int alarmCount) {
+                            numAlarms = alarmCount;
+                            if (alarmCount == 0){
+                                if (getView()==null) return;
+                                getView().hideBadge();
+                            }
+                            else {
+                                getView().showBadges(alarmCount);
+                            }
+                        }
+                        @Override
+                        public void onError(@NotNull RequestError error) {
+                            if (getView() == null )return;
                             getView().hideBadge();
                         }
-                        else {
-                            getView().showBadges(alarmCount);
-                        }
-                    }
-                    @Override
-                    public void onError(@NotNull RequestError error) {
-                        if (getView() == null )return;
-                        getView().hideBadge();
-                    }
-                });
+                    });
+                }
 
                 getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));

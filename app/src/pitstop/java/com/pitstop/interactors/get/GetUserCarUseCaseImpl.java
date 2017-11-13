@@ -76,7 +76,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             .doOnNext(response -> {
                         Log.d(TAG,"carRepository.get() car: "+response.getData());
                         if (response.getData() == null){
-                            callback.onError(RequestError.getUnknownError());
+                            GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
                         response.getData().setCurrentCar(true);
