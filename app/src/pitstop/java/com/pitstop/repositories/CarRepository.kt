@@ -6,6 +6,7 @@ import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.network.RequestError
+import com.pitstop.retrofit.CarList
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -146,35 +147,46 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 }
             next
         }
-        val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
-        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .doOnNext({next ->
-                if (next == null ) return@doOnNext
-                Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                localCarStorage.deleteAllCars()
-                localCarStorage.storeCars(next.data)
-        }).onErrorReturn { err ->
-            Log.d(tag,"getCarsByUserId() remote error: $err")
-            RepositoryResponse(null,false)
-        }
-        .subscribe()
+        val remote: Observable<Response<CarList>> = carApi.getUserCars(userId)
+
+        remote.map{ carListResponse ->
+                if (carListResponse.body()?.data == null)
+                    return@map RepositoryResponse(emptyList<Car>(),false)
+                else
+                    RepositoryResponse(carListResponse.body()!!.data,false)
+                }.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnNext({next ->
+                    if (next == null ) return@doOnNext
+                    Log.d(tag,"remote.cache() local store update cars: "+next.data)
+                    localCarStorage.deleteAllCars()
+                    localCarStorage.storeCars(next.data)
+                }).onErrorReturn { err ->
+                    Log.d(tag,"getCarsByUserId() remote error: $err err cause: {${err.cause}}")
+                    RepositoryResponse(null,false)
+                }
+                .subscribe()
 
         val retRemote = remote.cache()
-                .map { next ->
-                    Log.d(tag,"remote.replay() next: $next")
-                    next.body()
-                        .orEmpty()
-                        .filter { it.shopId == 0 }
-                        .forEach {
-                            if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                                it.shopId = 1
-                            else it.shopId = 19
+                    .map { next ->
+                        Log.d(tag,"remote.replay() next: $next")
+                        if (next.body()?.data == null)
+                            return@map RepositoryResponse(emptyList<Car>(),false)
+                        else{
+                            next.body()
+                                ?.data
+                                .orEmpty()
+                                .filter { it.shopId == 0 }
+                                .forEach {
+                                    if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                                        it.shopId = 1
+                                    else it.shopId = 19
+                                }
+                            RepositoryResponse(next.body()?.data,false)
                         }
-                    RepositoryResponse(next.body(),false)
-                }
+
+                    }
         return Observable.concat(localResponse,retRemote)
     }
 

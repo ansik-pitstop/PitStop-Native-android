@@ -1,8 +1,6 @@
 package com.pitstop.retrofit
 
-import android.os.Parcel
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import com.pitstop.models.Car
 
 /**
  * Created by Karol Zdebel on 10/26/2017.
@@ -11,6 +9,8 @@ import kotlinx.android.parcel.Parcelize
 data class PitstopResponse<T>(val response: T)
 
 data class Token(val value: String)
+
+data class CarList(val data: List<Car>)
 //
 //@Parcelize
 //data class Car(
