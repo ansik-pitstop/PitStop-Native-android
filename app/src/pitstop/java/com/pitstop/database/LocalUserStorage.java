@@ -47,12 +47,12 @@ public class LocalUserStorage {
     }
 
     public int updateUser(User user){
-        Log.d(TAG,"updateUser() user: "+user);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         ContentValues values = userObjectToContentValues(user);
+        Log.d(TAG,"updateUser() user: "+user+", content values: "+values +", getUser(): "+getUser());
 
-        return db.update(TABLES.CAR.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+        return db.update(TABLES.USER.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 new String[] { String.valueOf(user.getId()) });
     }
 
