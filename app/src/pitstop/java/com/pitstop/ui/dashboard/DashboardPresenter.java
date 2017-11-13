@@ -74,7 +74,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 if (getView() == null) return;
 
                 if (!isLocal){
-                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
+                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
+                            , new GetAlarmCountUseCase.Callback() {
                         @Override
                         public void onAlarmCountGot(int alarmCount) {
                             numAlarms = alarmCount;
