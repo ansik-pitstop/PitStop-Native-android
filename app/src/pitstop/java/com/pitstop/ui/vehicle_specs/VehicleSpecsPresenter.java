@@ -197,7 +197,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-                if (error.getError() == RequestError.ERR_OFFLINE) {
+                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
                     if (getView().hasBeenPopulated())
                         getView().displayOfflineErrorDialog();
                     else

@@ -143,7 +143,11 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                             getView().displayOfflineView();
                         }
                     }else{
-                        getView().displayUnknownErrorView();
+                        if (getView().hasBeenPopulated()) {
+                            getView().displayUnknownErrorDialog();
+                        } else {
+                            getView().displayUnknownErrorView();
+                        }
                     }
                 }
                 else{
