@@ -153,7 +153,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
 
         val remote: Observable<RepositoryResponse<List<Car>>> = carApi.getUserCars(userId).map{ carListResponse ->
-            if (carListResponse.body() == null || ( (carListResponse as JsonElement).isJsonObject
+            if (carListResponse.body() == null || ( (carListResponse.body() as JsonElement).isJsonObject
                     && (carListResponse.body() as JsonObject).size() == 0) ){
                 return@map RepositoryResponse(emptyList<Car>(),false)
             }else{
