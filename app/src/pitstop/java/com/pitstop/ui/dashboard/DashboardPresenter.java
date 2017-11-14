@@ -132,6 +132,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"getUserCar() error: "+error);
                 updating = false;
                 if (getView() == null) return;
                 if (error.getError()!=null) {
