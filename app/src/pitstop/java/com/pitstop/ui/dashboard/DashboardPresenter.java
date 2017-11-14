@@ -36,6 +36,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private boolean updating = false;
     private int numAlarms = 0;
 
+    private boolean carHasScanner  = false;
+
     public DashboardPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
@@ -71,8 +73,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
                 updating = false;
                 if (getView() == null) return;
-
-
+                carHasScanner = !(car.getScanner() == null);
                 useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
                     @Override
                     public void onAlarmCountGot(int alarmCount) {
@@ -299,5 +300,14 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     public int getNumAlarms(){
         return this.numAlarms;
+    }
+
+    public void onFuelConsumptionClicked() {
+        if (carHasScanner)
+            getView().showFuelConsumptionExplanationDialog();
+        else
+            getView().displayBuyDeviceDialog();
+
+
     }
 }

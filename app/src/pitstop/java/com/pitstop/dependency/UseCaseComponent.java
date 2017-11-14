@@ -26,6 +26,7 @@ import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetPIDUseCase;
@@ -45,6 +46,7 @@ import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
+import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -192,5 +194,9 @@ public interface UseCaseComponent {
     CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase();
 
     GetAlarmCountUseCase getGetAlarmCountUseCase();
+
+    StoreFuelConsumedUseCase getStoreFuelConsumedUseCase();
+
+    GetFuelConsumedUseCase getGetFuelConsumedUseCase();
 
 }
