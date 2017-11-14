@@ -127,6 +127,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 carRepository.get(data.getCarId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError()))
                         .doOnNext(response -> {
                     if (response.getData() == null){
                         callback.onError(RequestError.getUnknownError());

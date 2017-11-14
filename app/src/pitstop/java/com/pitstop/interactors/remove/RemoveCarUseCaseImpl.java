@@ -97,6 +97,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                     carRepository.getCarsByUserId(user.getId())
                                             .subscribeOn(Schedulers.io())
                                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                            .doOnError(err -> RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError()))
                                             .doOnNext(carListResponse -> {
                                                 Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
                                                 List<Car> cars = carListResponse.getData();

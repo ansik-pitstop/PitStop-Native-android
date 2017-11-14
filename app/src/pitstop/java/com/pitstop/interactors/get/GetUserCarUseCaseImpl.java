@@ -109,6 +109,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError(err -> GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError()))
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){

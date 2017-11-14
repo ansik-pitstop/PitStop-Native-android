@@ -91,7 +91,8 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                             GetCarByCarIdUseCaseImpl.this.onError(error);
                         }
                     });
-                }).onErrorReturn(err -> {
+                }).doOnError(err -> GetCarByCarIdUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                .onErrorReturn(err -> {
                     //Todo: error handling
                     Log.d(TAG,"carRepository.get() err: "+err);
                     return new RepositoryResponse<Car>(null,false);

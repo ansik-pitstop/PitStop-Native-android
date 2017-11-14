@@ -32,13 +32,14 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
             override fun onSuccess(settings: Settings){
 
                 if (!settings.hasMainCar()){
-                    callback?.onError(RequestError.getUnknownError())
+                    mainHandler.post{callback?.onError(RequestError.getUnknownError())}
                     return
                 }
 
                 carRepository.get(settings.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError{err -> mainHandler.post{callback?.onError(RequestError.getUnknownError())}}
                         .doOnNext({response ->
                     if (response.data == null){
                         callback?.onError(RequestError.getUnknownError())

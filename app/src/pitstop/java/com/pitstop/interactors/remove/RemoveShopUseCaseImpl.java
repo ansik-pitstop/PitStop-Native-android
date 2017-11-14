@@ -82,6 +82,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                 carRepository.getCarsByUserId(user.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError(err -> RemoveShopUseCaseImpl.this.onError(RequestError.getUnknownError()))
                         .doOnNext(carListResponse -> {
                             Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
                             List<Car> cars = carListResponse.getData();
