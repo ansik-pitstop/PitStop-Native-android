@@ -154,6 +154,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             timelineRecyclerView.setVisibility(View.GONE);
             unknownErrorView.setVisibility(View.GONE);
             offlineView.setVisibility(View.GONE);
+            noCarView.setVisibility(View.GONE);
+            noServicesView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
             relativeLayout.bringToFront();
             loadingView.bringToFront();
@@ -170,6 +172,8 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             params.gravity = Gravity.CENTER_VERTICAL;
             relativeLayout.setLayoutParams(params);
             swipeRefreshLayout.setEnabled(true);
+            noCarView.setVisibility(View.GONE);
+            noServicesView.setVisibility(View.GONE);
             loadingView.setVisibility(View.GONE);
             relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();

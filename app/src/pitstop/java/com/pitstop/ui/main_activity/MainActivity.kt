@@ -332,6 +332,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onCarClicked(car: Car) {
         Log.d(TAG, "onCarClicked()")
+        if (car.shopId == 4|| car.shopId==18)
+            showMercedesLayout()
+        else
+            showNormalLAyout()
         makeCarCurrent(car)
     }
 
