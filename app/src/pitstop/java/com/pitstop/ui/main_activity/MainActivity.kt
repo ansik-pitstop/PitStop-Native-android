@@ -745,7 +745,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
                 && !ignoreMissingDeviceName && allowDeviceOverwrite) {
-
             displayGetScannerIdDialog()
         }
     }
