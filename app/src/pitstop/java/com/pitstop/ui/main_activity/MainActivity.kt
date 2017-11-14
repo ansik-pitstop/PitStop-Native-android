@@ -310,6 +310,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
+        carRecyclerView?.visibility = View.VISIBLE
+        errorLoadingCars?.visibility = View.GONE
+        carsTapDescription?.visibility = View.VISIBLE
         carsAdapter?.notifyDataSetChanged()
         if (carList.size == 0) {
             noCarsView()
