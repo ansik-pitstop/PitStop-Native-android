@@ -92,8 +92,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 GetUserCarUseCaseImpl.this.onError(error);
                             }
                         });
-                    }).onErrorReturn(err -> {
-                        Log.d(TAG,"carRepository.get() error: "+err);
+                    }).doOnError(err -> {
+                        Log.d(TAG,"doOnError() err: "+err);
+                        GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                    })
+                    .onErrorReturn(err -> {
+                        Log.d(TAG,"onErrorReturn() err: "+err);
                         return new RepositoryResponse<>(null,false);
                     })
                     .subscribe();
