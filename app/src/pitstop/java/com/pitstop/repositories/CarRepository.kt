@@ -2,7 +2,9 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonIOException
+import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
@@ -12,9 +14,9 @@ import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONObject
+
 
 
 /**
@@ -150,16 +152,18 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             next
         }
 
-        val remote: Observable<ResponseBody> = carApi.getUserCars(userId)
+        val remote: Observable<RepositoryResponse<List<Car>>> = carApi.getUserCars(userId).map{ carListResponse ->
+            if (carListResponse.body() == null || ( (carListResponse as JsonElement).isJsonObject
+                    && (carListResponse.body() as JsonObject).size() == 0) ){
+                return@map RepositoryResponse(emptyList<Car>(),false)
+            }else{
+                val gson = Gson()
+                val listType = object : TypeToken<List<Car>>() {}.type
+                val carList: List<Car> = gson.fromJson(carListResponse.body(),listType)
+                return@map RepositoryResponse(carList,false)
+            }}
 
-        remote.map{ response ->
-                    Log.d(tag,"carListResponse: "+response.string())
-                    val gson = Gson()
-                    val listType = object : TypeToken<List<String>>() {}.type
-                    val carListResponse = gson.fromJson<List<Car>>(response.string(),listType)
-
-                    RepositoryResponse(carListResponse,false)
-                }.subscribeOn(Schedulers.io())
+        remote.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnNext({next ->
                     if (next == null ) return@doOnNext
@@ -172,24 +176,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 }
                 .subscribe()
 
-        val retRemote = remote.cache()
-                    .map { next ->
-                        val gson = Gson()
-                        val listType = object : TypeToken<List<String>>() {}.type
-                        val carListResponse = gson.fromJson<List<Car>>(next.string(),listType)
-                        Log.d(tag,"remote.replay() next: $next")
-                        carListResponse
-                            .orEmpty()
-                            .filter { it.shopId == 0 }
-                            .forEach {
-                                if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                                    it.shopId = 1
-                                else it.shopId = 19
-                            }
-                        RepositoryResponse(carListResponse,false)
-
-                    }
-        return Observable.concat(localResponse,retRemote)
+        return Observable.concat(localResponse,remote.cache())
     }
 
     operator fun get(id: Int): Observable<RepositoryResponse<Car>> {

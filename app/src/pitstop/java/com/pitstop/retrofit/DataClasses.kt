@@ -10,7 +10,7 @@ data class PitstopResponse<T>(val response: T)
 
 data class Token(val value: String)
 
-data class CarList(val data: List<Car>)
+data class CarList(val data: List<Car>, val emptyData: Object)
 //
 //@Parcelize
 //data class Car(
