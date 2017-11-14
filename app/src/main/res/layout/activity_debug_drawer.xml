@@ -192,13 +192,6 @@
                     layout="@layout/layout_contact"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"/>
-                <include
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:id="@+id/progress_drawer"
-                    android:visibility="gone"
-                    layout="@layout/layout_load"/>
                 <LinearLayout
                     android:orientation="vertical"
                     android:id="@+id/drawer_text_above_cars"
@@ -224,11 +217,21 @@
                         android:paddingBottom="4dp" />
                 </LinearLayout>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/car_recycler_view"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                </android.support.v7.widget.RecyclerView>
+                    <include
+                        android:layout_gravity="center"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:id="@+id/progress_drawer"
+                        android:visibility="gone"
+                        layout="@layout/layout_load"/>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/car_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </FrameLayout>
 
                 <TextView
                     android:padding="15dp"

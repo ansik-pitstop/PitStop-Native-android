@@ -1,5 +1,6 @@
 package com.pitstop.retrofit
 
+import com.google.gson.JsonElement
 import com.pitstop.models.Car
 import io.reactivex.Observable
 import retrofit2.Response
@@ -20,7 +21,7 @@ interface PitstopCarApi {
     fun getCar(@Query("vin") vin: String): Observable<Response<List<Car>>>
 
     @GET("car")
-    fun getUserCars(@Query("userId") userId: Int): Observable<Response<List<Car>>>
+    fun getUserCars(@Query("userId") userId: Int): Observable<Response<JsonElement>>
 
     @GET("v1/car")
     fun getCarShopId(@Query("carId") carId: Int): Observable<PitstopResponse<Int>>

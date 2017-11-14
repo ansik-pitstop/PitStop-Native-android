@@ -310,6 +310,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
+        carRecyclerView?.visibility = View.VISIBLE
+        errorLoadingCars?.visibility = View.GONE
+        carsTapDescription?.visibility = View.VISIBLE
         carsAdapter?.notifyDataSetChanged()
         if (carList.size == 0) {
             noCarsView()
@@ -653,20 +656,22 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         val thisInstance = this
         showLoading("Loading...")
         useCaseComponent!!.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
+            override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
+                if (isLocal) return
                 if (dealership == null){
                     Toast.makeText(thisInstance,"Select a dealership first", Toast.LENGTH_LONG).show();
-                    return;
+                    return
                 }
                 //if (!checkDealership(car)) return;
                 val intent:Intent = Intent(thisInstance, MyAppointmentActivity::class.java)
                 intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false)
-                intent.putExtra(MainActivity.CAR_EXTRA, car);
-                startActivity(intent);
-                hideLoading();
+                intent.putExtra(MainActivity.CAR_EXTRA, car)
+                startActivity(intent)
+                hideLoading()
             }
 
-            override fun onNoCarSet() {
+            override fun onNoCarSet(isLocal: Boolean) {
+                if (isLocal) return
                 hideLoading()
                 Toast.makeText(thisInstance, "Please add a car", Toast.LENGTH_LONG).show()
             }
@@ -684,21 +689,23 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         showLoading("Loading...");
         useCaseComponent?.getUserCarUseCase()!!.execute(object:  GetUserCarUseCase.Callback{
-            override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
+            override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
+                if (isLocal) return
                 val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-                intent.putExtra(MainActivity.CAR_EXTRA, car);
-                startActivity(intent);
-                hideLoading();
+                intent.putExtra(MainActivity.CAR_EXTRA, car)
+                startActivity(intent)
+                hideLoading()
             }
 
-            override fun onNoCarSet() {
-                hideLoading();
-                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show();
+            override fun onNoCarSet(isLocal: Boolean) {
+                if (isLocal) return
+                hideLoading()
+                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show()
             }
 
             override fun onError(error: RequestError?) {
-                hideLoading();
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show();
+                hideLoading()
+                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show()
             }
 
 
@@ -712,12 +719,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         intent.putExtra(CAR_ISSUE_POSITION, position)
         intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE)
         useCaseComponent?.getUserCarUseCase()!!.execute(object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car, dealership: Dealership) {
+            override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+                if (isLocal) return
                 intent.putExtra(CAR_KEY, car)
                 startActivity(intent)
             }
 
-            override fun onNoCarSet() {
+            override fun onNoCarSet(isLocal: Boolean) {
                 // this should never happen because this function only gets called when service clicked and if user doesnt have a car he cant have services for it
             }
 
@@ -831,11 +839,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     LinearLayout.LayoutParams.MATCH_PARENT)
             params.gravity = Gravity.CENTER_VERTICAL
             drawerLinearLayout?.setLayoutParams(params)
-            contactView?.visibility = View.GONE
-            appointmentsView?.visibility = View.GONE
-            carRecyclerView?.visibility = View.GONE
-            addCarBtn?.visibility = View.GONE
-            textAboveCars?.visibility = View.GONE
             progressView?.visibility = View.VISIBLE
             progressView?.bringToFront()
         }
@@ -930,5 +933,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG,"displayNotificationsBadgeCount() count: "+count)
         if (tabFragmentManager != null)
             tabFragmentManager?.displayNotificationsBadgeCount(count)
+    }
+
+    override fun closeDrawer() {
+        if (mDrawerLayout != null)
+            mDrawerLayout.closeDrawers()
     }
 }

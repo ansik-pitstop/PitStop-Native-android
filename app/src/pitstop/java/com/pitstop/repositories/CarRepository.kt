@@ -1,7 +1,11 @@
 package com.pitstop.repositories
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonIOException
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
@@ -12,7 +16,8 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONException
 import org.json.JSONObject
-import retrofit2.Response
+
+
 
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
@@ -59,9 +64,13 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             if (requestError == null) {
                 Log.d(tag, "getShopId resposne: " + response)
                 try {
-                    val jsonResponse = JSONObject(response)
-                            .getJSONArray("response").getJSONObject(0)
-                    callback.onSuccess(jsonResponse.getInt("shopId"))
+                    val jsonArray = JSONObject(response)
+                            .getJSONArray("response")
+                    if (jsonArray.length() > 0){
+                        callback.onSuccess(jsonArray.getJSONObject(0).getInt("shopId"))
+                    }else{
+                        callback.onSuccess(-1)
+                    }
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     callback.onError(RequestError.getUnknownError())
@@ -146,36 +155,38 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 }
             next
         }
-        val remote: Observable<Response<List<Car>>> = carApi.getUserCars(userId)
 
-        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .doOnNext({next ->
-                if (next == null ) return@doOnNext
-                Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                localCarStorage.deleteAllCars()
-                localCarStorage.storeCars(next.data)
-        }).onErrorReturn { err ->
-            Log.d(tag,"getCarsByUserId() remote error: $err")
-            RepositoryResponse(null,false)
-        }
-        .subscribe()
-
-        val retRemote = remote.cache()
-                .map { next ->
-                    Log.d(tag,"remote.replay() next: $next")
-                    next.body()
-                        .orEmpty()
-                        .filter { it.shopId == 0 }
+        val remote: Observable<RepositoryResponse<List<Car>>> = carApi.getUserCars(userId).map{ carListResponse ->
+            if (carListResponse.body() == null || ( (carListResponse.body() as JsonElement).isJsonObject
+                    && (carListResponse.body() as JsonObject).size() == 0) ){
+                return@map RepositoryResponse(emptyList<Car>(),false)
+            }else{
+                val gson = Gson()
+                val listType = object : TypeToken<List<Car>>() {}.type
+                val carList: List<Car> = gson.fromJson(carListResponse.body(),listType)
+                carList.filter { it.shopId == 0 }
                         .forEach {
                             if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
                                 it.shopId = 1
                             else it.shopId = 19
                         }
-                    RepositoryResponse(next.body(),false)
+                return@map RepositoryResponse(carList,false)
+            }}
+
+        remote.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnNext({next ->
+                    if (next == null ) return@doOnNext
+                    Log.d(tag,"remote.cache() local store update cars: "+next.data)
+                    localCarStorage.deleteAllCars()
+                    localCarStorage.storeCars(next.data)
+                }).onErrorReturn { err ->
+                    Log.d(tag,"getCarsByUserId() remote error: $err err cause: {${err.cause}}")
+                    RepositoryResponse(null,false)
                 }
-        return Observable.concat(localResponse,retRemote)
+                .subscribe()
+
+        return Observable.concat(localResponse,remote.cache())
     }
 
     operator fun get(id: Int): Observable<RepositoryResponse<Car>> {

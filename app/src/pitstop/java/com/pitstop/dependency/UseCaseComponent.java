@@ -129,7 +129,7 @@ public interface UseCaseComponent {
 
     RemoveCarUseCase removeCarUseCase();
 
-    SetUserCarUseCase setUseCarUseCase();
+    SetUserCarUseCase setUserCarUseCase();
 
     SetFirstCarAddedUseCase setFirstCarAddedUseCase();
 

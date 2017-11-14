@@ -35,7 +35,6 @@ import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.models.Alarm;
@@ -1149,7 +1148,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 String carName = "Click here to find out more" +
                         car.getYear() + " " + car.getMake() + " " + car.getModel();
                 NotificationsHelper.sendNotification(getApplicationContext()
@@ -1157,7 +1156,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarSet(boolean isLocal) {
                 NotificationsHelper.sendNotification(getApplicationContext()
                         ,"Click here to find out more", "Car is Connected");
             }

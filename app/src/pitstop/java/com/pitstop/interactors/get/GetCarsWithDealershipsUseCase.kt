@@ -10,7 +10,7 @@ import com.pitstop.network.RequestError
  */
 interface GetCarsWithDealershipsUseCase: Interactor {
     interface Callback{
-        fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>)
+        fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>, local: Boolean)
         fun onError(error: RequestError)
     }
 

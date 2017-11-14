@@ -48,12 +48,12 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
         Log.d(TAG,"getDashboardCar()");
         component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 dashCar = car;
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarSet(boolean isLocal) {
 
             }
 
