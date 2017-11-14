@@ -36,7 +36,6 @@ public class NetworkModule {
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
-
                     Request.Builder builder = original.newBuilder()
                             .header("client-id", SecretUtils.getClientId(context))
                             .header("Content-Type", "application/json")

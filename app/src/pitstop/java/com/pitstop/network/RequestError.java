@@ -1,9 +1,9 @@
 package com.pitstop.network;
 
-import android.content.res.Resources;
-
 import com.castel.obd.util.JsonUtil;
-import com.pitstop.R;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by Paul Soladoye on 14/04/2016.
@@ -16,6 +16,16 @@ public class RequestError {
     private String error = "";
     private String message = "";
     private int statusCode = -1;
+
+    public RequestError(Throwable t){
+        if (t instanceof SocketTimeoutException || t instanceof IOException){
+            error = ERR_OFFLINE;
+            message = "Please check your internet connection";
+        }else{
+            error = ERR_UNKNOWN;
+            message = "Unknown error";
+        }
+    }
 
     public RequestError() { }
 
@@ -59,7 +69,7 @@ public class RequestError {
     public static RequestError getUnknownError() {
         RequestError requestError = new RequestError();
         requestError.setError(ERR_UNKNOWN);
-        requestError.setMessage("Please check your internet connection");
+        requestError.setMessage("Unknown error");
 
         return requestError;
     }

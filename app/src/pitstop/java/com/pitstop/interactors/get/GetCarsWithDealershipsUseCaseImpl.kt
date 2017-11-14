@@ -34,6 +34,9 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                 carRepository.getCarsByUserId(user.id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError({err ->
+                            Log.d(tag,"err: "+err)
+                            mainHandler.post({callback?.onError(RequestError(err))})})
                         .doOnNext { carListResponse ->
                             Log.d(tag, "getCarsByUserId() response: " + carListResponse)
                             val carList = carListResponse.data
@@ -45,7 +48,8 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                 override fun onSuccess(settings: Settings) {
                                     Log.d(tag, "getCurrentUserSetting() resonse: " + settings)
                                     if (carList.isEmpty()) {
-                                        mainHandler.post({ callback!!.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()) })
+                                        mainHandler.post({ callback!!
+                                                .onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>(),carListResponse.isLocal) })
                                         return@onSuccess
                                     }
 
@@ -65,7 +69,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                                     }
                                             }
                                             Log.d(tag, "Resulting map: " + map)
-                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map) })
+                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map,carListResponse.isLocal) })
                                         }
 
                                         override fun onError(error: RequestError) {
@@ -81,10 +85,12 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             })
 
                         }.onErrorReturn { err ->
-                    Log.d(tag, "getCarsByUserId() err: " + err)
-                    RepositoryResponse<List<Car>>(null, false)
-                }
-                .subscribe()
+                            Log.d(tag, "getCarsByUserId() err: " + err)
+                            RepositoryResponse<List<Car>>(null, false)
+                        }.doOnError({err ->
+                            Log.d(tag,"doOnError() err: "+err)
+                           mainHandler.post{callback?.onError(RequestError(err))}
+                        }).subscribe()
             }
 
             override fun onError(error: RequestError) {

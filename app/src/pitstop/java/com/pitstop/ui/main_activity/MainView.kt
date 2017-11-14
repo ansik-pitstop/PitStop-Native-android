@@ -9,6 +9,7 @@ import com.pitstop.models.Dealership
 interface MainView  {
     fun openAppointments(car: Car)
     fun openRequestService(tentative: Boolean)
+    fun closeDrawer()
     fun toast(message: String)
     fun hideLoading()
     fun onCarClicked(car: Car)
@@ -27,4 +28,6 @@ interface MainView  {
     fun notifyCarDataChanged()
     fun errorLoadingCars()
     fun showTentativeAppointmentShowcase()
+    fun showMercedesLayout()
+    fun showNormalLAyout()
 }

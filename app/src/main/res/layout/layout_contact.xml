@@ -38,6 +38,7 @@
 
 
             <ImageView
+                android:id="@+id/message_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/chat"
@@ -83,6 +84,7 @@
             android:elevation="1dp">
 
             <ImageView
+                android:id="@+id/call_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/call"
@@ -128,6 +130,7 @@
             android:elevation="1dp">
 
             <ImageView
+                android:id="@+id/direction_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/directions"

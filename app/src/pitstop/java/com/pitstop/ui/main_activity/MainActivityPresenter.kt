@@ -99,6 +99,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
         updateSmoochUser()
+        view?.closeDrawer()
         useCaseCompnent.checkFirstCarAddedUseCase()!!
                 .execute(object: CheckFirstCarAddedUseCase.Callback{
 
@@ -138,7 +139,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 User.getCurrentUser().addProperties(customProperties)
 
                 useCaseCompnent.userCarUseCase.execute(object: GetUserCarUseCase.Callback{
-                    override fun onCarRetrieved(car: Car, dealership: Dealership) {
+                    override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+                        if (isLocal) return
                         Log.d(TAG,"onCarRetrieved() car: "+car)
 
                         customProperties.put("VIN", car.vin)
@@ -153,7 +155,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         Log.d(TAG, dealership.email)
                     }
 
-                    override fun onNoCarSet() {
+                    override fun onNoCarSet(isLocal: Boolean) {
                         Log.d(TAG,"onNoCarSet() car: "+car)
                     }
 
@@ -196,11 +198,13 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             isLoading  = true
             useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
-                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>) {
-                    Log.d(TAG, "onCarsRetrieved() map" +data)
-                    isLoading = false
+                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
+                    Log.d(TAG, "onCarsRetrieved() local? $local, map: $data")
                     if(view == null)return
-                    view?.hideCarsLoading()
+                    if (!local){
+                        view?.hideCarsLoading()
+                        isLoading = false
+                    }
                     if (data.keys.size == 0){
                         view?.noCarsView()
                     }
@@ -208,13 +212,19 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         if (car.isCurrentCar) {
                             mCar = car
                             mDealership = data[mCar!!]
+                            if (car.shopId == 4 || car.shopId == 18)
+                                view?.showMercedesLayout()
+                            else
+                                view?.showNormalLAyout();
                         }
                         isCarLoaded = true
                     }
                     mergeSetWithCarList(data.keys)
                     mergeSetWithDealershipList(data.values)
-                    dealershipListLoaded = true
-                    carListLoaded = true
+                    if (!local){
+                        dealershipListLoaded = true
+                        carListLoaded = true
+                    }
                     view?.showCars(carList)
 
                 }
@@ -339,20 +349,22 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (view == null || isLoading) return
         if (car.isCurrentCar)return
         isLoading = true
-       useCaseCompnent.setUseCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
+
+        for (currCar in carList){
+            if (currCar.id == car.id){
+                currCar.isCurrentCar = true
+                mCar = currCar
+            }
+            else
+                currCar.isCurrentCar = false
+        }
+        view?.notifyCarDataChanged()
+        view?.closeDrawer()
+
+       useCaseCompnent.setUserCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
             override fun onUserCarSet() {
-                for (currCar in carList){
-                    if (currCar.id == car.id){
-                        currCar.isCurrentCar = true
-                        mCar = currCar
-                    }
-                    else
-                        currCar.isCurrentCar = false
-                }
-                view?.notifyCarDataChanged()
                 isLoading = false
                 if (view == null) return
-                view?.toast("Current car set")
             }
 
             override fun onError(error: RequestError) {

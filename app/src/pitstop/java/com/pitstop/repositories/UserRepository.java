@@ -80,7 +80,7 @@ public class UserRepository implements Repository{
 
     public void update(User model, Callback<Object> callback) {
         Log.d(TAG,"update() user: "+model);
-        localUserStorage.storeUserData(model);
+        localUserStorage.updateUser(model);
         updateUser(model.getId(),model.getFirstName(),model.getLastName()
             ,model.getPhone(),getUserUpdateRequestCallback(callback,model));
     }
@@ -95,7 +95,7 @@ public class UserRepository implements Repository{
                     user.setFirstName(user.getFirstName());
                     user.setLastName(user.getLastName());
                     user.setPhone(user.getPhone());
-                    localUserStorage.storeUserData(newUser);
+                    localUserStorage.updateUser(newUser);
                     callback.onSuccess(null);
                 }
                 else{
@@ -187,7 +187,8 @@ public class UserRepository implements Repository{
                     Settings settingsNew = user.getSettings();
                     settingsNew.setCarId(carId);
                     user.setSettings(settingsNew);
-                    localUserStorage.storeUserData(user);
+                    localUserStorage.updateUser(user);
+                    Log.d(TAG,"setUserCar() updating user to: "+localUserStorage.getUser().getSettings().getCarId());
                     callback.onSuccess(response);
                 }
                 else{
@@ -280,7 +281,7 @@ public class UserRepository implements Repository{
                         Settings settingsNew = user.getSettings();
                         settingsNew.setAlarmsEnabled(enabled);
                         user.setSettings(settingsNew);
-                        localUserStorage.storeUserData(user);
+                        localUserStorage.updateUser(user);
                         callback.onSuccess(response);
                     }
                     else{
@@ -308,7 +309,7 @@ public class UserRepository implements Repository{
                     Settings settingsNew = user.getSettings();
                     settingsNew.setFirstCarAdded(added);
                     user.setSettings(settingsNew);
-                    localUserStorage.storeUserData(user);
+                    localUserStorage.updateUser(user);
                     callback.onSuccess(response);
                 }
                 else{
@@ -360,7 +361,7 @@ public class UserRepository implements Repository{
                 User user = localUserStorage.getUser();
 
                 user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled));
-                localUserStorage.storeUserData(user);
+                localUserStorage.updateUser(user);
                 callback.onSuccess(user.getSettings());
             }
             catch(JSONException e){
