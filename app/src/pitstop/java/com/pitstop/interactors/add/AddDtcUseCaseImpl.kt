@@ -39,7 +39,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 carRepository.get(settings.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                        .doOnError{err -> mainHandler.post{callback?.onError(RequestError.getUnknownError())}}
+                        .doOnError{err -> mainHandler.post{callback?.onError(RequestError(err))}}
                         .doOnNext({response ->
                     if (response.data == null){
                         callback?.onError(RequestError.getUnknownError())

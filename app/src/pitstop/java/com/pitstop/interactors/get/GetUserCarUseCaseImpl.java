@@ -94,7 +94,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         });
                     }).doOnError(err -> {
                         Log.d(TAG,"doOnError() err: "+err);
-                        GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                        GetUserCarUseCaseImpl.this.onError(new RequestError(err));
                     })
                     .onErrorReturn(err -> {
                         Log.d(TAG,"onErrorReturn() err: "+err);
@@ -109,7 +109,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                        .doOnError(err -> GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                        .doOnError(err -> GetUserCarUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){

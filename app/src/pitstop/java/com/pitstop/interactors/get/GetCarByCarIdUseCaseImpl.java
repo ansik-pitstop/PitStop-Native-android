@@ -65,7 +65,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                 carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                        .doOnError(err -> GetCarByCarIdUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                        .doOnError(err -> GetCarByCarIdUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(response -> {
                     Log.d(TAG,"carRepository.get() car: "+response.getData());
                     carRepository.getShopId(response.getData().getId(), new Repository.Callback<Integer>() {
@@ -91,7 +91,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                             GetCarByCarIdUseCaseImpl.this.onError(error);
                         }
                     });
-                }).doOnError(err -> GetCarByCarIdUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                }).doOnError(err -> GetCarByCarIdUseCaseImpl.this.onError(new RequestError(err)))
                 .onErrorReturn(err -> {
                     //Todo: error handling
                     Log.d(TAG,"carRepository.get() err: "+err);

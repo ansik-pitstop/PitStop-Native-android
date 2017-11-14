@@ -62,7 +62,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                         carRepository.get(data.getCarId())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                                .doOnError(err -> RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                                .doOnError(err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err)))
                                 .doOnNext(response -> {
                             if (response.getData() == null){
                                 callback.onError(RequestError.getUnknownError());

@@ -36,7 +36,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError({err ->
                             Log.d(tag,"err: "+err)
-                            mainHandler.post({callback?.onError(RequestError.getUnknownError())})})
+                            mainHandler.post({callback?.onError(RequestError(err))})})
                         .doOnNext { carListResponse ->
                             Log.d(tag, "getCarsByUserId() response: " + carListResponse)
                             val carList = carListResponse.data
@@ -89,7 +89,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             RepositoryResponse<List<Car>>(null, false)
                         }.doOnError({err ->
                             Log.d(tag,"doOnError() err: "+err)
-                            onError(RequestError.getUnknownError())
+                           mainHandler.post{callback?.onError(RequestError(err))}
                         }).subscribe()
             }
 
