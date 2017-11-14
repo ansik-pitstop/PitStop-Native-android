@@ -79,7 +79,8 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                                     }else{
                                         GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
                                     }
-                                }).onErrorReturn(err -> {
+                                }).doOnError(err -> GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError()))
+                                .onErrorReturn(err -> {
                                     Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
                                     return new RepositoryResponse<List<Car>>(null,false);
                                 }).subscribe();
