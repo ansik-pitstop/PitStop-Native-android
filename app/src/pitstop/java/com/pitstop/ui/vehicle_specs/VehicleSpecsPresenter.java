@@ -178,6 +178,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 if (getView()!=null) {
                     getView().hideLoading();
                     getView().setCarView(mCar);
+                    if (car.getShopId() == 4 || car.getShopId()== 18)
+                        getView().showMercedesLayout();
+                    else
+                        getView().showNormalLayout();
                     //getCarImage(mCar.getVin());
                 }
             }

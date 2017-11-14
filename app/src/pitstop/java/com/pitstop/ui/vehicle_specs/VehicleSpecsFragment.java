@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -78,6 +79,37 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 
     @BindView(R.id.loading_view_main)
     protected View loadingView;
+
+    @BindView(R.id.vin_icon)
+    protected ImageView vinIcon;
+
+    @BindView(R.id.scanner_icon)
+    protected ImageView scannerIcon;
+
+    @BindView(R.id.license_icon)
+    protected ImageView licenseIcon;
+
+    @BindView(R.id.dealership_icon)
+    protected ImageView dealershipIcon;
+
+    @BindView(R.id.mileage_icon)
+    protected ImageView mileageIcon;
+
+    @BindView(R.id.engine_icon)
+    protected ImageView engineIcon;
+
+    @BindView(R.id.city_mileage_icon)
+    protected ImageView cityMileageIcon;
+
+    @BindView(R.id.highway_mileage_icon)
+    protected ImageView highwayMileageIcon;
+
+    @BindView(R.id.trim_icon)
+    protected ImageView trimIcon;
+
+    @BindView(R.id.tank_size_icon)
+    protected ImageView tankSizeIcon;
+
 
 //    @BindView(R.id.banner_overlay)
 //    protected FrameLayout bannerOverlay;
@@ -399,6 +431,32 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
 //        dealershipName.setText(presenter.getDealership().getName());
 //        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getDealership().getName()));
         //bannerOverlay.setVisibility(View.VISIBLE);
+    }
+
+    public void showMercedesLayout(){
+        vinIcon.setImageResource(R.drawable.mercedes_vin_3x);
+        scannerIcon.setImageResource(R.drawable.mercedes_scanner_3x);
+        licenseIcon.setImageResource(R.drawable.mercedes_license_3x);
+        dealershipIcon.setImageResource(R.drawable.mercedes_dealership);
+        mileageIcon.setImageResource(R.drawable.mercedes_mileage);
+        engineIcon.setImageResource(R.drawable.mercedes_engine);
+        cityMileageIcon.setImageResource(R.drawable.traffic_lights_mercedes_3x);
+        highwayMileageIcon.setImageResource(R.drawable.highway_mileage_mercedes_2x);
+        trimIcon.setImageResource(R.drawable.mercedes_trim_3x);
+        tankSizeIcon.setImageResource(R.drawable.mercedes_tank_size_3x);
+    }
+
+    public void showNormalLayout(){
+        vinIcon.setImageResource(R.drawable.vin_2x);
+        scannerIcon.setImageResource(R.drawable.scanner_2x);
+        licenseIcon.setImageResource(R.drawable.license_2x);
+        dealershipIcon.setImageResource(R.drawable.dealership_2x);
+        mileageIcon.setImageResource(R.drawable.odometer3x);
+        engineIcon.setImageResource(R.drawable.car_engine);
+        cityMileageIcon.setImageResource(R.drawable.traffic_lights_2x);
+        highwayMileageIcon.setImageResource(R.drawable.highway_mileage2x);
+        trimIcon.setImageResource(R.drawable.trim_2x);
+        tankSizeIcon.setImageResource(R.drawable.tank_size_2x);
     }
 
 

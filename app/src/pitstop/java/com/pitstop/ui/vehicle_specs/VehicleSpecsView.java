@@ -34,4 +34,8 @@ public interface VehicleSpecsView {
 
     void displayOfflineErrorDialog();
     boolean hasBeenPopulated();
+
+    void showMercedesLayout();
+
+    void showNormalLayout();
 }
