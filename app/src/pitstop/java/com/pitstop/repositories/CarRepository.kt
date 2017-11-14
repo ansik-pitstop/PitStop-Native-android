@@ -64,9 +64,13 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             if (requestError == null) {
                 Log.d(tag, "getShopId resposne: " + response)
                 try {
-                    val jsonResponse = JSONObject(response)
-                            .getJSONArray("response").getJSONObject(0)
-                    callback.onSuccess(jsonResponse.getInt("shopId"))
+                    val jsonArray = JSONObject(response)
+                            .getJSONArray("response")
+                    if (jsonArray.length() > 0){
+                        callback.onSuccess(jsonArray.getJSONObject(0).getInt("shopId"))
+                    }else{
+                        callback.onSuccess(-1)
+                    }
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     callback.onError(RequestError.getUnknownError())
