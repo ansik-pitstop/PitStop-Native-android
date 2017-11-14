@@ -30,7 +30,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     var view : MainView? = null
     val TAG:String = this.javaClass.simpleName
     private var isLoading: Boolean = false
-    var mCar:Car? = null
+    private var mCar:Car? = null
     private var mDealership: Dealership? = null
     private var customProperties: HashMap<String, Any>? = null
     private var isCarLoaded: Boolean = false
@@ -53,9 +53,14 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
     }
 
+
+    fun getmCar(): Car?{
+        return mCar;
+    }
     fun getSourceType(): EventSource {
         return EVENT_SOURCE
     }
+
 
 
     override fun subscribe(view: MainView?) {

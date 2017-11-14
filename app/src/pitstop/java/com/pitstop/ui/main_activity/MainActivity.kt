@@ -682,7 +682,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
    fun myTrips(){
        val thisInstance:MainActivity = this
        val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.mCar);
+       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.getmCar()!!);
        startActivity(intent);
     }
 
