@@ -187,8 +187,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             @Override
             public void onNoCarSet(boolean isLocal) {
                 updating = false;
-                if (getView()!=null && !isLocal)
+                if (getView()!=null && !isLocal){
                     getView().showNoCarView();
+                    getView().hideLoading();
+                }
             }
 
             @Override
@@ -207,6 +209,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                     else
                         getView().showUnknownErrorView();
                 }
+                getView().hideLoading();
             }
         });
 
