@@ -171,12 +171,14 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         getView().showLoading();
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 mCar = car;
                 mdealership = car.getShop();
-                updating = false;
+                if (!isLocal)
+                    updating = false;
                 if (getView()!=null) {
-                    getView().hideLoading();
+                    if (!isLocal)
+                        getView().hideLoading();
                     getView().setCarView(mCar);
                     if (car.getShopId() == 4 || car.getShopId()== 18)
                         getView().showMercedesLayout();
@@ -187,17 +189,19 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarSet(boolean isLocal) {
                 updating = false;
-                if (getView()!=null)
+                if (getView()!=null && !isLocal){
                     getView().showNoCarView();
+                    getView().hideLoading();
+                }
             }
 
             @Override
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-                if (error.getError() == RequestError.ERR_OFFLINE) {
+                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
                     if (getView().hasBeenPopulated())
                         getView().displayOfflineErrorDialog();
                     else
@@ -209,6 +213,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                     else
                         getView().showUnknownErrorView();
                 }
+                getView().hideLoading();
             }
         });
 

@@ -235,8 +235,8 @@ public class User implements Parcelable {
     @Override
     public String toString(){
         try{
-            return String.format("id: %d, firstName: %s, lastName: %s, email: %s, settings: %s"
-                    ,id,firstName,lastName,email,settings);
+            return String.format("id: %d, firstName: %s, lastName: %s, email: %s, settings: %s, phone: %s"
+                    ,id,firstName,lastName,email,settings,phone);
         }catch(NullPointerException e){
             return "null";
         }

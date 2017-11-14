@@ -49,11 +49,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
         useCaseHandler.post(this);
     }
 
-    private void onCarRetrieved(Car car, Dealership dealership){
-        mainHandler.post(() -> callback.onCarRetrieved(car, dealership));
+    private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
+        mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
-    private void onNoCarSet(){
-        mainHandler.post(() -> callback.onNoCarSet());
+    private void onNoCarSet(boolean isLocal){
+        mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
     private void onError(RequestError error){
         mainHandler.post(() -> {
@@ -76,7 +76,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             .doOnNext(response -> {
                         Log.d(TAG,"carRepository.get() car: "+response.getData());
                         if (response.getData() == null){
-                            callback.onError(RequestError.getUnknownError());
+                            GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
                         response.getData().setCurrentCar(true);
@@ -84,7 +84,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                             @Override
                             public void onSuccess(Dealership dealership) {
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership);
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
                             }
 
                             @Override
@@ -92,8 +92,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 GetUserCarUseCaseImpl.this.onError(error);
                             }
                         });
-                    }).onErrorReturn(err -> {
-                        Log.d(TAG,"carRepository.get() error: "+err);
+                    }).doOnError(err -> {
+                        Log.d(TAG,"doOnError() err: "+err);
+                        GetUserCarUseCaseImpl.this.onError(new RequestError(err));
+                    })
+                    .onErrorReturn(err -> {
+                        Log.d(TAG,"onErrorReturn() err: "+err);
                         return new RepositoryResponse<>(null,false);
                     })
                     .subscribe();
@@ -105,20 +109,21 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnError(err -> GetUserCarUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){
                                 GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                             }
                             else if (carList.isEmpty()){
-                                GetUserCarUseCaseImpl.this.onNoCarSet();
+                                GetUserCarUseCaseImpl.this.onNoCarSet(carListResponse.isLocal());
                             }
                             else{
                                 shopRepository.get(carList.get(0).getShopId(), new Repository.Callback<Dealership>() {
                                     @Override
                                     public void onSuccess(Dealership dealership) {
                                         GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
-                                                , dealership);
+                                                , dealership,carListResponse.isLocal());
 
                                     }
 
