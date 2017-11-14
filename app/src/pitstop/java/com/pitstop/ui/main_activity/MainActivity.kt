@@ -97,6 +97,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var errorLoadingCars: TextView?  = null
     private var carsTapDescription : TextView? = null
     private var serviceObservers: ArrayList<AutoConnectServiceBindingObserver> = ArrayList();
+    private var viewAppointmentsIcon: ImageView? = null;
+    private var requestAppointmentIcon: ImageView? = null;
+    private var messageIcon: ImageView? = null;
+    private var callIcon: ImageView? = null;
+    private var findDirectionsIcon: ImageView? = null;
+
+
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -159,6 +166,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         contactView = findViewById(R.id.contact_view_drawer)
         progressView = findViewById(R.id.progress_drawer)
         textAboveCars = findViewById(R.id.drawer_text_above_cars)
+        viewAppointmentsIcon = findViewById(R.id.imageView20)
+        requestAppointmentIcon = findViewById(R.id.imageView21)
+        messageIcon = findViewById(R.id.message_icon)
+        callIcon = findViewById(R.id.call_icon)
+        findDirectionsIcon = findViewById(R.id.direction_icon)
+
+
 
 
         if (this.presenter == null){
@@ -321,6 +335,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onCarClicked(car: Car) {
         Log.d(TAG, "onCarClicked()")
+        if (car.shopId == 4|| car.shopId==18)
+            showMercedesLayout()
+        else
+            showNormalLAyout()
         makeCarCurrent(car)
     }
 
@@ -843,6 +861,23 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             progressView?.bringToFront()
         }
 
+    }
+
+    override fun showMercedesLayout() {
+        viewAppointmentsIcon?.setImageResource(R.drawable.mercedes_clipboard3x)
+        requestAppointmentIcon?.setImageResource(R.drawable.mercedes_tentaicon3x)
+        messageIcon?.setImageResource(R.drawable.mercedes_chat_3x)
+        callIcon?.setImageResource(R.drawable.call_mercedes_3x)
+        findDirectionsIcon?.setImageResource(R.drawable.mercedes_directions_3x)
+
+    }
+
+    override fun showNormalLAyout() {
+        viewAppointmentsIcon?.setImageResource(R.drawable.clipboard3x)
+        requestAppointmentIcon?.setImageResource(R.drawable.request_service_dashboard_3x)
+        messageIcon?.setImageResource(R.drawable.chat)
+        callIcon?.setImageResource(R.drawable.call)
+        findDirectionsIcon?.setImageResource(R.drawable.directions)
     }
 
     override fun hideCarsLoading() {

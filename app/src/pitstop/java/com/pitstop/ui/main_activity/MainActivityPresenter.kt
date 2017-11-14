@@ -212,6 +212,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         if (car.isCurrentCar) {
                             mCar = car
                             mDealership = data[mCar!!]
+                            if (car.shopId == 4 || car.shopId == 18)
+                                view?.showMercedesLayout()
+                            else
+                                view?.showNormalLAyout();
                         }
                         isCarLoaded = true
                     }

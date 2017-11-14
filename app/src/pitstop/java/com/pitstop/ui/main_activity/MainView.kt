@@ -28,4 +28,6 @@ interface MainView  {
     fun notifyCarDataChanged()
     fun errorLoadingCars()
     fun showTentativeAppointmentShowcase()
+    fun showMercedesLayout()
+    fun showNormalLAyout()
 }
