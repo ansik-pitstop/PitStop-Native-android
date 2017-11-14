@@ -354,6 +354,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 currCar.isCurrentCar = false
         }
         view?.notifyCarDataChanged()
+        view?.closeDrawer()
 
        useCaseCompnent.setUserCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
             override fun onUserCarSet() {
@@ -364,10 +365,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             override fun onError(error: RequestError) {
                 isLoading = false
                 if (view == null) return
-                for (currCar in carList){
-                    currCar.isCurrentCar = false
-                }
-                view?.notifyCarDataChanged()
                 view?.toast(error.message)
             }
         })

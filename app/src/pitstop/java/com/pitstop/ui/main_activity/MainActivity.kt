@@ -931,4 +931,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (tabFragmentManager != null)
             tabFragmentManager?.displayNotificationsBadgeCount(count)
     }
+
+    override fun closeDrawer() {
+        if (mDrawerLayout != null)
+            mDrawerLayout.closeDrawers()
+    }
 }
