@@ -29,4 +29,7 @@ public interface DashboardView extends ErrorHandlingView, LoadingTabView
     void hideBadge();
 
     void showBadges(int alarmCount);
+
+    void showFuelConsumptionExplanationDialog();
+
 }

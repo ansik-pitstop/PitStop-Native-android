@@ -36,6 +36,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private boolean updating = false;
     private int numAlarms = 0;
 
+    private boolean carHasScanner  = false;
+
     public DashboardPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
@@ -309,5 +311,14 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     public int getNumAlarms(){
         return this.numAlarms;
+    }
+
+    public void onFuelConsumptionClicked() {
+        if (carHasScanner)
+            getView().showFuelConsumptionExplanationDialog();
+        else
+            getView().displayBuyDeviceDialog();
+
+
     }
 }

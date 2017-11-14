@@ -149,6 +149,12 @@ public final class TABLES {
         String ALARM_VALUE = "alarmValue";
     }
 
+    public interface LOCAL_FUEL_CONSUMPTION{
+        String TABLE_NAME = "fuelConsumption";
+        String CAR_ID = "carId";
+        String FUEL_CONSUMED = "fuelConsumed";
+    }
+
 
 
 

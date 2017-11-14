@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -70,11 +71,20 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(mileage)
     TextView mMileageText;
 
+    @BindView(R.id.fuel_consumption_textview)
+    TextView fuelConsumed;
+
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
+
+    @BindView(R.id.fuel_consumption_container)
+    LinearLayout fuelConsumption;
+
+    @BindView(R.id.fuel_expense_container)
+    LinearLayout fuelExpenses;
 
     @BindView(R.id.car_name)
     TextView carName;
@@ -120,6 +130,8 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private DashboardPresenter presenter;
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
+    private AlertDialog fuelConsumptionExplanationDialog;
+
 
     @Nullable
     @Override
@@ -591,6 +603,12 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onTotalAlarmsClicked();
     }
 
+    @OnClick(R.id.fuel_consumption_container)
+    public void onFuelConsumptionClicked(){
+        Log.d(TAG, "onFuelConsumptionClicked()");
+        presenter.onFuelConsumptionClicked();
+    }
+
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
         Intent intent = new Intent(getActivity(), AlarmsActivity.class);
@@ -599,6 +617,26 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
+    @Override
+    public void showFuelConsumptionExplanationDialog() {
+        Log.d(TAG, "displayBuyDeviceDialog()");
+        if (fuelConsumptionExplanationDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            fuelConsumptionExplanationDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Fuel Consumption")
+                    .setView(dialogLayout)
+                    .setMessage("With the device, we are able to track your fuel usage from the time the device was plugged in. ")
+                    .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        fuelConsumptionExplanationDialog.show();
+
+
+    }
+
 
     @Override
     public void displayBuyDeviceDialog() {
