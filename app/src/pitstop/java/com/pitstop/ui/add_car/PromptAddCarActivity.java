@@ -26,8 +26,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.smooch.ui.ConversationActivity;
 
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
-
 public class PromptAddCarActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
@@ -83,12 +81,12 @@ public class PromptAddCarActivity extends AppCompatActivity {
         Log.d(TAG,"checkCarWasAdded()");
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership,boolean isLocal) {
                 finish();
             }
 
             @Override
-            public void onNoCarSet() {
+            public void onNoCarSet(boolean isLocal) {
                 //Everything is just right
             }
 

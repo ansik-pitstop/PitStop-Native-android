@@ -21,7 +21,7 @@ public class Settings {
     }
 
     public boolean hasMainCar(){
-        return carId != -1;
+        return carId > 0;
     }
 
     public int getCarId() {

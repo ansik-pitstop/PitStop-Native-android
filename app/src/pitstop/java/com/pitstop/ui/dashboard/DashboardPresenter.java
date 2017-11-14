@@ -67,30 +67,33 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
-            public void onCarRetrieved(Car car, Dealership dealership) {
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
-                updating = false;
+                if (!isLocal)
+                    updating = false;
                 if (getView() == null) return;
 
-
-                useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
-                    @Override
-                    public void onAlarmCountGot(int alarmCount) {
-                        numAlarms = alarmCount;
-                        if (alarmCount == 0){
-                            if (getView()==null) return;
+                if (!isLocal){
+                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
+                            , new GetAlarmCountUseCase.Callback() {
+                        @Override
+                        public void onAlarmCountGot(int alarmCount) {
+                            numAlarms = alarmCount;
+                            if (alarmCount == 0){
+                                if (getView()==null) return;
+                                getView().hideBadge();
+                            }
+                            else {
+                                getView().showBadges(alarmCount);
+                            }
+                        }
+                        @Override
+                        public void onError(@NotNull RequestError error) {
+                            if (getView() == null )return;
                             getView().hideBadge();
                         }
-                        else {
-                            getView().showBadges(alarmCount);
-                        }
-                    }
-                    @Override
-                    public void onError(@NotNull RequestError error) {
-                        if (getView() == null )return;
-                        getView().hideBadge();
-                    }
-                });
+                    });
+                }
 
                 getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));
@@ -112,21 +115,24 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 else hasScanner = true;
 
                 getView().displayCarDetails(car);
-
-                getView().hideLoading();
+                if (!isLocal)
+                    getView().hideLoading();
             }
 
             @Override
-            public void onNoCarSet() {
-                updating = false;
-                hasScanner = false;
-                if (getView() == null) return;
-                getView().displayNoCarView();
-                getView().hideLoading();
+            public void onNoCarSet(boolean isLocal) {
+                if (!isLocal){
+                    updating = false;
+                    hasScanner = false;
+                    if (getView() == null) return;
+                    getView().displayNoCarView();
+                    getView().hideLoading();
+                }
             }
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"getUserCar() error: "+error);
                 updating = false;
                 if (getView() == null) return;
                 if (error.getError()!=null) {
@@ -137,7 +143,11 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                             getView().displayOfflineView();
                         }
                     }else{
-                        getView().displayUnknownErrorView();
+                        if (getView().hasBeenPopulated()) {
+                            getView().displayUnknownErrorDialog();
+                        } else {
+                            getView().displayUnknownErrorView();
+                        }
                     }
                 }
                 else{

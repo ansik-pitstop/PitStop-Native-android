@@ -97,6 +97,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var errorLoadingCars: TextView?  = null
     private var carsTapDescription : TextView? = null
     private var serviceObservers: ArrayList<AutoConnectServiceBindingObserver> = ArrayList();
+    private var viewAppointmentsIcon: ImageView? = null;
+    private var requestAppointmentIcon: ImageView? = null;
+    private var messageIcon: ImageView? = null;
+    private var callIcon: ImageView? = null;
+    private var findDirectionsIcon: ImageView? = null;
+
+
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -159,6 +166,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         contactView = findViewById(R.id.contact_view_drawer)
         progressView = findViewById(R.id.progress_drawer)
         textAboveCars = findViewById(R.id.drawer_text_above_cars)
+        viewAppointmentsIcon = findViewById(R.id.imageView20)
+        requestAppointmentIcon = findViewById(R.id.imageView21)
+        messageIcon = findViewById(R.id.message_icon)
+        callIcon = findViewById(R.id.call_icon)
+        findDirectionsIcon = findViewById(R.id.direction_icon)
+
+
 
 
         if (this.presenter == null){
@@ -310,6 +324,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
+        carRecyclerView?.visibility = View.VISIBLE
+        errorLoadingCars?.visibility = View.GONE
+        carsTapDescription?.visibility = View.VISIBLE
         carsAdapter?.notifyDataSetChanged()
         if (carList.size == 0) {
             noCarsView()
@@ -318,6 +335,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onCarClicked(car: Car) {
         Log.d(TAG, "onCarClicked()")
+        if (car.shopId == 4|| car.shopId==18)
+            showMercedesLayout()
+        else
+            showNormalLAyout()
         makeCarCurrent(car)
     }
 
@@ -653,20 +674,22 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         val thisInstance = this
         showLoading("Loading...")
         useCaseComponent!!.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car?, dealership: Dealership?) {
+            override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
+                if (isLocal) return
                 if (dealership == null){
                     Toast.makeText(thisInstance,"Select a dealership first", Toast.LENGTH_LONG).show();
-                    return;
+                    return
                 }
                 //if (!checkDealership(car)) return;
                 val intent:Intent = Intent(thisInstance, MyAppointmentActivity::class.java)
                 intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false)
-                intent.putExtra(MainActivity.CAR_EXTRA, car);
-                startActivity(intent);
-                hideLoading();
+                intent.putExtra(MainActivity.CAR_EXTRA, car)
+                startActivity(intent)
+                hideLoading()
             }
 
-            override fun onNoCarSet() {
+            override fun onNoCarSet(isLocal: Boolean) {
+                if (isLocal) return
                 hideLoading()
                 Toast.makeText(thisInstance, "Please add a car", Toast.LENGTH_LONG).show()
             }
@@ -693,12 +716,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         intent.putExtra(CAR_ISSUE_POSITION, position)
         intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE)
         useCaseComponent?.getUserCarUseCase()!!.execute(object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car, dealership: Dealership) {
+            override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+                if (isLocal) return
                 intent.putExtra(CAR_KEY, car)
                 startActivity(intent)
             }
 
-            override fun onNoCarSet() {
+            override fun onNoCarSet(isLocal: Boolean) {
                 // this should never happen because this function only gets called when service clicked and if user doesnt have a car he cant have services for it
             }
 
@@ -811,15 +835,27 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     LinearLayout.LayoutParams.MATCH_PARENT)
             params.gravity = Gravity.CENTER_VERTICAL
             drawerLinearLayout?.setLayoutParams(params)
-            contactView?.visibility = View.GONE
-            appointmentsView?.visibility = View.GONE
-            carRecyclerView?.visibility = View.GONE
-            addCarBtn?.visibility = View.GONE
-            textAboveCars?.visibility = View.GONE
             progressView?.visibility = View.VISIBLE
             progressView?.bringToFront()
         }
 
+    }
+
+    override fun showMercedesLayout() {
+        viewAppointmentsIcon?.setImageResource(R.drawable.mercedes_clipboard3x)
+        requestAppointmentIcon?.setImageResource(R.drawable.mercedes_tentaicon3x)
+        messageIcon?.setImageResource(R.drawable.mercedes_chat_3x)
+        callIcon?.setImageResource(R.drawable.call_mercedes_3x)
+        findDirectionsIcon?.setImageResource(R.drawable.mercedes_directions_3x)
+
+    }
+
+    override fun showNormalLAyout() {
+        viewAppointmentsIcon?.setImageResource(R.drawable.clipboard3x)
+        requestAppointmentIcon?.setImageResource(R.drawable.request_service_dashboard_3x)
+        messageIcon?.setImageResource(R.drawable.chat)
+        callIcon?.setImageResource(R.drawable.call)
+        findDirectionsIcon?.setImageResource(R.drawable.directions)
     }
 
     override fun hideCarsLoading() {
@@ -910,5 +946,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG,"displayNotificationsBadgeCount() count: "+count)
         if (tabFragmentManager != null)
             tabFragmentManager?.displayNotificationsBadgeCount(count)
+    }
+
+    override fun closeDrawer() {
+        if (mDrawerLayout != null)
+            mDrawerLayout.closeDrawers()
     }
 }

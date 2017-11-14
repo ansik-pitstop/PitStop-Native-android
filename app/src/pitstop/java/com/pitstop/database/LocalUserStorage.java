@@ -36,7 +36,6 @@ public class LocalUserStorage {
 
     public void storeUserData(User user) {
         Log.d(TAG,"storeUserData() user: "+user);
-        deleteAllUsers();
         if (user == null)
             return;
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -45,6 +44,16 @@ public class LocalUserStorage {
 
         long result = db.insert(TABLES.USER.TABLE_NAME, null, values);
 
+    }
+
+    public int updateUser(User user){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        ContentValues values = userObjectToContentValues(user);
+        Log.d(TAG,"updateUser() user: "+user+", content values: "+values +", getUser(): "+getUser());
+
+        return db.update(TABLES.USER.TABLE_NAME,values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+                new String[] { String.valueOf(user.getId()) });
     }
 
     public User getUser() {
