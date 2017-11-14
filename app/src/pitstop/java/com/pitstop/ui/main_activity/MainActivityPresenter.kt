@@ -99,6 +99,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
         updateSmoochUser()
+        view?.closeDrawer()
         useCaseCompnent.checkFirstCarAddedUseCase()!!
                 .execute(object: CheckFirstCarAddedUseCase.Callback{
 
