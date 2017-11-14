@@ -160,6 +160,12 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 val gson = Gson()
                 val listType = object : TypeToken<List<Car>>() {}.type
                 val carList: List<Car> = gson.fromJson(carListResponse.body(),listType)
+                carList.filter { it.shopId == 0 }
+                        .forEach {
+                            if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                                it.shopId = 1
+                            else it.shopId = 19
+                        }
                 return@map RepositoryResponse(carList,false)
             }}
 
