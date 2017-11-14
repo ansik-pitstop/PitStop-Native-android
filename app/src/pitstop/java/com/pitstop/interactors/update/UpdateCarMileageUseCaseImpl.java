@@ -73,6 +73,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                         .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
                         .doOnError(err -> UpdateCarMileageUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(response -> {
+                            if (response.isLocal()) return;
                     Log.d(TAG,"carRepository.get() response: "+response);
                     if (response.getData() == null){
                         callback.onError(RequestError.getUnknownError());

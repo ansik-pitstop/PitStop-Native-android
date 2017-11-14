@@ -60,33 +60,32 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                     @Override
                     public void onSuccess(Settings data) {
                         carRepository.get(data.getCarId())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                                .doOnError(err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err)))
-                                .doOnNext(response -> {
-                            if (response.getData() == null){
-                                callback.onError(RequestError.getUnknownError());
-                                return;
-                            }
-                            Car car = response.getData();
-                            Appointment appointment = new Appointment(car.getShopId()
-                                    , state, timeStamp, comments);
-                            carIssueRepository.requestService(user.getId(), car.getId(), appointment
-                                    , new Repository.Callback<Object>() {
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                            .doOnError(err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err)))
+                            .doOnNext(response -> {
+                                if (response.isLocal()) return;
+                                if (response.getData() == null){
+                                    callback.onError(RequestError.getUnknownError());
+                                    return;
+                                }
+                                Car car = response.getData();
+                                Appointment appointment = new Appointment(car.getShopId()
+                                        , state, timeStamp, comments);
+                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
+                                        , new Repository.Callback<Object>() {
 
-                                        @Override
-                                        public void onSuccess(Object object) {
-                                            RequestServiceUseCaseImpl.this.onServicesRequested();
-                                        }
+                                            @Override
+                                            public void onSuccess(Object object) {
+                                                RequestServiceUseCaseImpl.this.onServicesRequested();
+                                            }
 
-                                        @Override
-                                        public void onError(RequestError error){
-                                            RequestServiceUseCaseImpl.this.onError(error);
-                                        }
-                                    });
-                        }).onErrorReturn(err -> {
-                            return new RepositoryResponse<>(null,false);
-                        }).subscribe();
+                                            @Override
+                                            public void onError(RequestError error){
+                                                RequestServiceUseCaseImpl.this.onError(error);
+                                            }
+                                        });
+                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false)).subscribe();
                     }
 
                     @Override

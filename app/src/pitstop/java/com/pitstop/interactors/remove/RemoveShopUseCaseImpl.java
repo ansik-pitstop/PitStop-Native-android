@@ -84,6 +84,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> RemoveShopUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(carListResponse -> {
+                            if (carListResponse.isLocal()) return;
                             Log.d(TAG,"getCarsByUserId() response: "+carListResponse);
                             List<Car> cars = carListResponse.getData();
                             if (cars == null){

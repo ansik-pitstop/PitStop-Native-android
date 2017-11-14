@@ -99,6 +99,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                             .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
                                             .doOnNext(carListResponse -> {
+                                                if (carListResponse.isLocal()) return;
                                                 Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
                                                 List<Car> cars = carListResponse.getData();
                                                 if (cars == null){

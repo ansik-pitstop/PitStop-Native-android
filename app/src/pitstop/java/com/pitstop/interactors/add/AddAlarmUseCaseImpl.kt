@@ -47,6 +47,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                            .doOnError{ err -> mainHandler.post{callback?.onError(RequestError(err))}}
                            .doOnNext{response ->
+                               if (response.isLocal) return@doOnNext
                                val car = response.data
                                if (car == null){
                                    callback!!.onError(RequestError.getUnknownError())

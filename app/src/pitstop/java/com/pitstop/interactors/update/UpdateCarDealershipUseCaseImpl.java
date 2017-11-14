@@ -86,6 +86,8 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> UpdateCarDealershipUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(response -> {
+                    if (response.isLocal()) return;
+
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
                     response.getData().setShop(dealership);

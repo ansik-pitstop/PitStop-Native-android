@@ -37,40 +37,41 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 }
 
                 carRepository.get(settings.carId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                        .doOnError{err -> mainHandler.post{callback?.onError(RequestError(err))}}
-                        .doOnNext({response ->
-                    if (response.data == null){
-                        callback?.onError(RequestError.getUnknownError())
-                        return@doOnNext
-                    }
-                    for ((dtc, isPending) in dtcPackage!!.dtcs){
-                        Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
-                        carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
-                                , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                    .doOnError{err -> mainHandler.post{callback?.onError(RequestError(err))}}
+                    .doOnNext({response ->
+                            if (response.isLocal) return@doOnNext
+                        if (response.data == null){
+                            callback?.onError(RequestError.getUnknownError())
+                            return@doOnNext
+                        }
+                        for ((dtc, isPending) in dtcPackage!!.dtcs){
+                            Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
+                            carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
+                                    , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
 
-                            override fun onSuccess(dtcCode: String){
-                                Log.d(tag,"successfully added dtc code: "+dtcCode)
-                                if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
-                                    mainHandler.post({callback?.onDtcPackageAdded(dtcPackage as DtcPackage)})
-                                    Log.d(tag,"Added entire DtcPackage");
+                                override fun onSuccess(dtcCode: String){
+                                    Log.d(tag,"successfully added dtc code: "+dtcCode)
+                                    if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
+                                        mainHandler.post({callback?.onDtcPackageAdded(dtcPackage as DtcPackage)})
+                                        Log.d(tag,"Added entire DtcPackage");
+                                    }
+
+                                }
+                                override fun onError(error: RequestError){
+                                    Log.d(tag,"Error adding dtc err: "+error.message)
+                                    Log.d(tag,"dtcPackage: "+dtcPackage)
+                                    mainHandler.post({callback?.onError(error)})
                                 }
 
-                            }
-                            override fun onError(error: RequestError){
-                                Log.d(tag,"Error adding dtc err: "+error.message)
-                                Log.d(tag,"dtcPackage: "+dtcPackage)
-                                mainHandler.post({callback?.onError(error)})
-                            }
-
-                        })
-                    }
-                }).onErrorReturn({err ->
-                    Log.d(tag,"Error retrieving car err: "+err.message)
-                    RepositoryResponse(null,false)
-                })
-                .subscribe()
+                            })
+                        }
+                    }).onErrorReturn({err ->
+                        Log.d(tag,"Error retrieving car err: "+err.message)
+                        RepositoryResponse(null,false)
+                    })
+                    .subscribe()
             }
             override fun onError(error: RequestError){
                 Log.d(tag,"Error retrieving user err: "+error.message)
