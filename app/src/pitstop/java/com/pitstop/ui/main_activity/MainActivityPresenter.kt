@@ -53,9 +53,14 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
     }
 
+
+    fun getmCar(): Car?{
+        return mCar;
+    }
     fun getSourceType(): EventSource {
         return EVENT_SOURCE
     }
+
 
 
     override fun subscribe(view: MainView?) {
