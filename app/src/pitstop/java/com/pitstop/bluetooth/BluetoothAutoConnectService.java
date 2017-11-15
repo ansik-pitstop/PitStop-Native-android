@@ -1264,7 +1264,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void notifyFuelConsumedUpdate(double fuelConsumed) {
         for (Observer o: observerList){
             if (o instanceof FuelObserver){
-                ((FuelObserver) o).onFuelConsumedUpdated(fuelConsumed);
+                ((FuelObserver) o).onFuelConsumedUpdated();
             }
         }
 

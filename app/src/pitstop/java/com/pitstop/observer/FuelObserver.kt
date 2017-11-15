@@ -5,5 +5,5 @@ package com.pitstop.observer
  */
 interface FuelObserver: Observer {
 
-    fun onFuelConsumedUpdated(fuelCOnsumed: Double)
+    fun onFuelConsumedUpdated()
 }

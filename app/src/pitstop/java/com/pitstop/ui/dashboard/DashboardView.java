@@ -32,4 +32,5 @@ public interface DashboardView extends ErrorHandlingView, LoadingTabView
 
     void showFuelConsumptionExplanationDialog();
 
+    void showFuelConsumed(double fuelConsumed);
 }
