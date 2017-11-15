@@ -12,5 +12,5 @@ interface GetFuelConsumedUseCase:Interactor {
         fun onError(error: RequestError)
     }
 
-    fun execute(carID: Int, callback :Callback)
+    fun execute(scanner: String, callback :Callback)
 }

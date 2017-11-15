@@ -150,8 +150,8 @@ public final class TABLES {
     }
 
     public interface LOCAL_FUEL_CONSUMPTION{
-        String TABLE_NAME = "fuelConsumption";
-        String CAR_ID = "carId";
+        String TABLE_NAME = "LocalFuelConsumption";
+        String SCANNER_ID = "scannerID";
         String FUEL_CONSUMED = "fuelConsumed";
     }
 

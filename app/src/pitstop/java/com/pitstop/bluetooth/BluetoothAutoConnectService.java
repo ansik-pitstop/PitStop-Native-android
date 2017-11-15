@@ -1253,8 +1253,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void idrFuelEvent(double fuelConsumed) {
-        fuelHandler.handleFuelUpdate(fuelConsumed);
+    public void idrFuelEvent(String scannerID, double fuelConsumed) {
+        Log.d(TAG, "myScannerId is: " + scannerID);
+        fuelHandler.handleFuelUpdate(scannerID, fuelConsumed);
 
 
 

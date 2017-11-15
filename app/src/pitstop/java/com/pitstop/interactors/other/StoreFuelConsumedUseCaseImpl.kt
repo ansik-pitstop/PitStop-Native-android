@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.database.LocalFuelConsumptionStorage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
@@ -14,34 +15,27 @@ class StoreFuelConsumedUseCaseImpl(val  userRepository: UserRepository,  val mai
                                     val localFuelConsumptionStorage: LocalFuelConsumptionStorage ): StoreFuelConsumedUseCase {
     private var callback: StoreFuelConsumedUseCase.Callback? = null
     private var fuelConsumed :Double = 0.0;
+    private var scannerID: String? = null;
+    private var TAG: String = StoreFuelConsumedUseCaseImpl::class.java.simpleName;
 
-    override fun execute(fuelConsumed: Double, callback: StoreFuelConsumedUseCase.Callback) {
-
+    override fun execute(id: String, fuelConsumed: Double, callback: StoreFuelConsumedUseCase.Callback) {
+        this.scannerID = id
         this.fuelConsumed = fuelConsumed;
         this.callback = callback;
         useCaseHandler.post(this)
     }
 
     override fun run() {
-
-        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings>{
-
-            override fun onSuccess(data: Settings?) {
-                localFuelConsumptionStorage.storeFuelConsumed(data!!.carId, fuelConsumed, object : Repository.Callback<Double>{
-                    override fun onSuccess(data: Double?) {
-                        mainHandler.post({callback?.onFuelConsumedStored(data!!)})
-                    }
-
-                    override fun onError(error: RequestError?) {
-                        mainHandler.post({callback?.onError(error!!)});
-                    }
-                })
+        localFuelConsumptionStorage.storeFuelConsumed(scannerID, fuelConsumed, object : Repository.Callback<Double>{
+            override fun onSuccess(data: Double?) {
+                Log.d(TAG, "myScannerId is " + scannerID)
+                    mainHandler.post({callback?.onFuelConsumedStored(data!!)})
             }
 
             override fun onError(error: RequestError?) {
-
-
+                mainHandler.post({callback?.onError(error!!)});
             }
         })
+
     }
 }

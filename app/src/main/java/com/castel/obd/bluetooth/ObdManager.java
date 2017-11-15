@@ -328,7 +328,7 @@ public class ObdManager {
 
         void alarmEvent(Alarm alarm);
 
-        void idrFuelEvent(double fuelConsumed);
+        void idrFuelEvent(String scannerID, double fuelConsumed);
     }
 
 

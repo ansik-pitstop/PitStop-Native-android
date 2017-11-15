@@ -334,7 +334,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             getView().showFuelConsumed(0.0);
             return;
         }
-        useCaseComponent.getGetFuelConsumedUseCase().execute(this.carID, new GetFuelConsumedUseCase.Callback() {
+        useCaseComponent.getGetFuelConsumedUseCase().execute(car.getScannerId(), new GetFuelConsumedUseCase.Callback() {
             @Override
             public void onFuelConsumedGot(double fuelConsumed) {
                 if (getView() == null) return;

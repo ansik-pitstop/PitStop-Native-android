@@ -11,18 +11,18 @@ import com.pitstop.repositories.Repository
  */
 class GetFuelConsumedUseCaseImpl (val mainHandler: Handler, val useCaseHandler: Handler,
                                   val localFuelConsumptionStorage: LocalFuelConsumptionStorage): GetFuelConsumedUseCase{
-    private var carId: Int = 0;
+    private var scannerID: String? = null;
     private var callback: GetFuelConsumedUseCase.Callback? = null
 
 
-    override fun execute(carID: Int, callback: GetFuelConsumedUseCase.Callback) {
-       this.carId = carID;
+    override fun execute(scanner: String, callback: GetFuelConsumedUseCase.Callback) {
+       this.scannerID = scanner;
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     override fun run() {
-        localFuelConsumptionStorage.getFuelConsumed(carId, object : Repository.Callback<Double> {
+        localFuelConsumptionStorage.getFuelConsumed(scannerID, object : Repository.Callback<Double> {
             override fun onSuccess(data: Double?) {
                 mainHandler.post({callback?.onFuelConsumedGot(data!!)})
             }
