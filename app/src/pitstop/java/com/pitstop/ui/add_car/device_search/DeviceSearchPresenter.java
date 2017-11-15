@@ -171,7 +171,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Check if retrieved VIN is valid, otherwise begin timer
             if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                view.showLoading(((Fragment)view).getString(R.string.getting_vin));
+                view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
                 searchingForVin = true;
                 getVinTimer.start();
             }

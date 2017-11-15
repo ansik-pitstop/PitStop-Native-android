@@ -326,7 +326,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void idrFuelEvent(double fuelConsumed) {
+    public void idrFuelEvent(String scannerID, double fuelConsumed) {
         // do nothing
     }
 }

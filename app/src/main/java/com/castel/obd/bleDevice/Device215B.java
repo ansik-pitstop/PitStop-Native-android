@@ -427,7 +427,8 @@ public class Device215B implements AbstractDevice {
                 IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
                 idrInfo.time = dateStr;
                 try{
-                    dataListener.idrFuelEvent(Double.valueOf(idrInfo.fuelConsumption));
+                    Log.d(TAG, idrInfo.terminalSN);
+                    dataListener.idrFuelEvent(idrInfo.terminalSN, Double.valueOf(idrInfo.fuelConsumption));
                     Log.d(TAG, "fuelCOnsumedUpdate: " + Double.valueOf(idrInfo.fuelConsumption));
                 }
                 catch (NumberFormatException e){

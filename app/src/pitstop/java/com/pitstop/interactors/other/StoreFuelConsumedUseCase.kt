@@ -11,5 +11,5 @@ interface StoreFuelConsumedUseCase: Interactor {
         fun onFuelConsumedStored(fuelConsumed: Double)
         fun onError(error: RequestError);
     }
-    fun execute(fuelConsumed: Double, callback: Callback);
+    fun execute(scannerID: String, fuelConsumed: Double, callback: Callback);
 }

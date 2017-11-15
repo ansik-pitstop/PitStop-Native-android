@@ -12,8 +12,9 @@ import com.pitstop.observer.FuelObservable
 class FuelHandler(private val fuelObservable: FuelObservable, private val useCaseComponent: UseCaseComponent) {
    val  TAG: String = FuelHandler::class.java.simpleName;
 
-    fun handleFuelUpdate(fuelConsumed: Double):Unit{
-        useCaseComponent.storeFuelConsumedUseCase.execute(fuelConsumed, object: StoreFuelConsumedUseCase.Callback{
+    fun handleFuelUpdate(scannerID: String, fuelConsumed: Double):Unit{
+        Log.d(TAG, "myScannerId is: " + scannerID);
+        useCaseComponent.storeFuelConsumedUseCase.execute(scannerID, fuelConsumed, object: StoreFuelConsumedUseCase.Callback{
 
             override fun onFuelConsumedStored(fuelConsumed: Double) {
                 fuelObservable.notifyFuelConsumedUpdate(fuelConsumed)
