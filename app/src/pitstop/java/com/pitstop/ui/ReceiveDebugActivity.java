@@ -324,4 +324,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void alarmEvent(Alarm alarm) {
         // do nothing
     }
+
+    @Override
+    public void idrFuelEvent(double fuelConsumed) {
+        // do nothing
+    }
 }

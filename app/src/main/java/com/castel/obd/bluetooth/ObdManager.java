@@ -327,6 +327,8 @@ public class ObdManager {
         void scanFinished();
 
         void alarmEvent(Alarm alarm);
+
+        void idrFuelEvent(double fuelConsumed);
     }
 
 

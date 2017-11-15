@@ -626,13 +626,13 @@ public class UseCaseModule {
     }
 
     @Provides
-    StoreFuelConsumedUseCase getStoreFuelConsumedUseCase(LocalFuelConsumptionStorage localFuelConsumptionStorage
+    StoreFuelConsumedUseCase getStoreFuelConsumedUseCase(UserRepository userRepository, LocalFuelConsumptionStorage localFuelConsumptionStorage
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
-        return new StoreFuelConsumedUseCaseImpl(mainHandler, useCaseHandler, localFuelConsumptionStorage);
+        return new StoreFuelConsumedUseCaseImpl(userRepository, mainHandler, useCaseHandler, localFuelConsumptionStorage);
     }
 
     @Provides
-    GetFuelConsumedUseCase getFuelConsumedUseCase(LocalFuelConsumptionStorage localFuelConsumptionStorage
+    GetFuelConsumedUseCase getGetFuelConsumedUseCase(LocalFuelConsumptionStorage localFuelConsumptionStorage
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
         return new GetFuelConsumedUseCaseImpl(mainHandler, useCaseHandler, localFuelConsumptionStorage);
     }
