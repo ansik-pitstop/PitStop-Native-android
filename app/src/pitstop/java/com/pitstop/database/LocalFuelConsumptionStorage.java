@@ -31,9 +31,13 @@ public class LocalFuelConsumptionStorage {
         SQLiteDatabase db  = databaseHelper.getWritableDatabase();
         db.execSQL(CREATE_LOCAL_FUEL_CONSUMPTION_STORAGE);
         ContentValues values = new ContentValues();
-        values.put(TABLES.LOCAL_FUEL_CONSUMPTION.CAR_ID, CarId);
         values.put(TABLES.LOCAL_FUEL_CONSUMPTION.FUEL_CONSUMED, fuelConsumed);
-        long result = db.insert(TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME, null, values);
+        values.put(TABLES.LOCAL_FUEL_CONSUMPTION.CAR_ID, CarId);
+        int id = (int) db.insertWithOnConflict(TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            db.update(TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME, values,
+                    TABLES.LOCAL_FUEL_CONSUMPTION.CAR_ID + "=" + CarId, null);
+        }
         callback.onSuccess(fuelConsumed);
         printAllRecords();
     }
@@ -49,7 +53,7 @@ public class LocalFuelConsumptionStorage {
             } else {
                 Log.d(TAG, "failure");
                 c.close();
-                callback.onError(RequestError.getUnknownError());
+                callback.onSuccess((double)0.0);
             }
         }
     }

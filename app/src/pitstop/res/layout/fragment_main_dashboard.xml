@@ -252,10 +252,6 @@
 
                         <include layout="@layout/divider"/>
 
-
-
-
-
                         <TextView
                             android:id="@+id/fuel_consumption_header"
                             android:layout_width="match_parent"
@@ -284,13 +280,27 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/fuel_consumption_header"
-                                    android:textStyle="bold"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_gravity="center_vertical"/>
+                                <LinearLayout
+                                    android:orientation="horizontal"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/fuel_consumption_header"
+                                        android:textStyle="bold"
+                                        android:layout_marginBottom="4dp"
+                                        android:layout_gravity="center_vertical"/>
+                                    <TextView
+
+                                        android:id="@+id/fuel_consumption_textview"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:gravity="end"
+                                        />
+                                </LinearLayout>
+
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -299,15 +309,6 @@
                                     android:layout_gravity="center_vertical"/>
 
                             </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/fuel_consumption_textview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="end"
-                                />
-
                         </LinearLayout>
 
 

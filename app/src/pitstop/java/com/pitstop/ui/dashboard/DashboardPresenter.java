@@ -10,6 +10,7 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
@@ -35,6 +36,8 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     private boolean isDealershipMercedes;
     private boolean updating = false;
     private int numAlarms = 0;
+    private int carID = 0;
+    private Car car = null;
 
     private boolean carHasScanner  = false;
 
@@ -72,7 +75,10 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             public void onCarRetrieved(Car car, Dealership dealership) {
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
                 updating = false;
+                DashboardPresenter.this.carID = car.getId();
+                DashboardPresenter.this.car = car;
                 if (getView() == null) return;
+                getFuelConsumed();
                 carHasScanner = !(car.getScanner() == null);
                 useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
                     @Override
@@ -309,5 +315,24 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             getView().displayBuyDeviceDialog();
 
 
+    }
+
+    public void getFuelConsumed() {
+        if (this.car.getScannerId()==null || this.car.getScannerId() == ""){
+            getView().showFuelConsumed(0.0);
+            return;
+        }
+        useCaseComponent.getGetFuelConsumedUseCase().execute(this.carID, new GetFuelConsumedUseCase.Callback() {
+            @Override
+            public void onFuelConsumedGot(double fuelConsumed) {
+                if (getView() == null) return;
+                getView().showFuelConsumed(fuelConsumed);
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG, "getFuelConsumedError");
+            }
+        });
     }
 }

@@ -688,14 +688,19 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     }
 
     @Override
+    public void showFuelConsumed(double fuelCOnsumed) {
+        fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
+    }
+
+    @Override
     public void onAlarmAdded(Alarm alarm) {
         presenter.setNumAlarms(presenter.getNumAlarms()+1);
         showBadges(presenter.getNumAlarms());
     }
 
     @Override
-    public void onFuelConsumedUpdated(double fuelCOnsumed) {
-        fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
+    public void onFuelConsumedUpdated() {
+        presenter.getFuelConsumed();
 
     }
 
