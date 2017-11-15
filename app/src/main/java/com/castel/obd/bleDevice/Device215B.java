@@ -426,8 +426,14 @@ public class Device215B implements AbstractDevice {
 
                 IDRInfo idrInfo = DataParseUtil.parseIDR(msgInfo);
                 idrInfo.time = dateStr;
+                try{
+                    dataListener.idrFuelEvent(Double.valueOf(idrInfo.fuelConsumption));
+                    Log.d(TAG, "fuelCOnsumedUpdate: " + Double.valueOf(idrInfo.fuelConsumption));
+                }
+                catch (NumberFormatException e){
+                    Log.d(TAG, "idrInfo fuel consumption numberFormatException");
 
-
+                }
                 long ignitionTime; // ignition time parsed as unix time seconds
                 try {
                     ignitionTime = Long.parseLong(idrInfo.ignitionTime);
@@ -435,6 +441,7 @@ public class Device215B implements AbstractDevice {
                     e.printStackTrace();
                     ignitionTime = 0;
                 }
+
 
                 boolean ignitionTimeChanged = false;
 

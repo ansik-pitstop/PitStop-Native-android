@@ -33,6 +33,8 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
+import com.pitstop.observer.FuelObservable;
+import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -47,11 +49,12 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver {
+public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver, FuelObserver {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
     public static String  CAR_ID_KEY = "carId";
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
+
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -131,6 +134,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
     private AlertDialog fuelConsumptionExplanationDialog;
+    private FuelObservable fuelObservable;
 
 
     @Nullable
@@ -690,8 +694,16 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     }
 
     @Override
+    public void onFuelConsumedUpdated(double fuelCOnsumed) {
+        fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
+
+    }
+
+    @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
         alarmObservable.subscribe(this);
+        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
+        fuelObservable.subscribe(this);
     }
 }
