@@ -147,7 +147,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                 +obdScanner.getScannerId()
                                                 +", active?"+obdScanner.getStatus());
 
-                                        //Active, deactivate then add
+                                        //Active, deactivate then adds
                                         if (obdScanner.getStatus()){
 
                                             obdScanner.setStatus(false);

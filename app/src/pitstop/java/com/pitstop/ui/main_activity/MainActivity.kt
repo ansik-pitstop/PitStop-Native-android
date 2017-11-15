@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
@@ -45,10 +46,7 @@ import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
-import com.pitstop.models.Car
-import com.pitstop.models.Dealership
-import com.pitstop.models.ObdScanner
-import com.pitstop.models.ReadyDevice
+import com.pitstop.models.*
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
@@ -145,8 +143,19 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     private var useCaseComponent: UseCaseComponent? = null
 
+    var counter = 0
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Handler().post(object: Runnable{
+                            override fun run(){
+                                for (i in 1..10)
+                                    LogUtils.debugLogI("Test TAG","Test log #${counter++}"
+                                            , false, DebugMessage.TYPE_OTHER, applicationContext)
+                                Handler().postDelayed(this,1000)
+                            }
+                        })
 
         userSignedUp = intent.getBooleanExtra(LoginActivity.USER_SIGNED_UP, false)
 
@@ -350,9 +359,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun notifyCarDataChanged() {
         carsAdapter?.notifyDataSetChanged()
     }
-
-
-    // public void removeBluetoothFragmentCallback
 
     private fun setGreetingsNotSent() {
         useCaseComponent!!.setFirstCarAddedUseCase().execute(false, object : SetFirstCarAddedUseCase.Callback {
@@ -847,7 +853,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         messageIcon?.setImageResource(R.drawable.mercedes_chat_3x)
         callIcon?.setImageResource(R.drawable.call_mercedes_3x)
         findDirectionsIcon?.setImageResource(R.drawable.mercedes_directions_3x)
-
     }
 
     override fun showNormalLAyout() {

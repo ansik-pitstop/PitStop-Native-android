@@ -189,102 +189,110 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/kotlin" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/retrolambda" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="support-core-ui-26.0.2" level="project" />
-    <orderEntry type="library" name="cardview-v7-26.0.2" level="project" />
+    <orderEntry type="library" name="netty-buffer-4.1.12.Final" level="project" />
     <orderEntry type="library" name="swipeablerecyclerview-1.0.1" level="project" />
-    <orderEntry type="library" name="firebase-core-10.0.1" level="project" />
     <orderEntry type="library" name="support-media-compat-26.0.2" level="project" />
-    <orderEntry type="library" name="recyclerview-v7-26.0.2" level="project" />
-    <orderEntry type="library" name="acra-4.9.0" level="project" />
     <orderEntry type="library" name="support-vector-drawable-26.0.2" level="project" />
-    <orderEntry type="library" name="sqlbrite-1.1.1" level="project" />
     <orderEntry type="library" name="commons-cli-1.2" level="project" />
     <orderEntry type="library" name="support-core-utils-26.0.2" level="project" />
-    <orderEntry type="library" name="rxandroid-2.0.1" level="project" />
-    <orderEntry type="library" name="play-services-maps-10.0.1" level="project" />
+    <orderEntry type="library" name="netty-handler-4.1.12.Final" level="project" />
     <orderEntry type="library" name="circularimageview-3.0.2" level="project" />
     <orderEntry type="library" name="rxjava-2.1.5" level="project" />
     <orderEntry type="library" name="play-services-location-10.0.1" level="project" />
-    <orderEntry type="library" name="bolts-android-1.4.0" level="project" />
     <orderEntry type="library" name="stetho-urlconnection-1.5.0" level="project" />
-    <orderEntry type="library" name="viewanimator-1.0.5" level="project" />
     <orderEntry type="library" scope="TEST" name="multidex-instrumentation-1.0.2" level="project" />
-    <orderEntry type="library" name="library-2.4.0" level="project" />
     <orderEntry type="library" name="fabric-1.3.16" level="project" />
     <orderEntry type="library" name="crashlytics-2.6.7" level="project" />
-    <orderEntry type="library" name="adapter-rxjava-2.3.0" level="project" />
-    <orderEntry type="library" name="kotlin-android-extensions-runtime-1.1.51" level="project" />
     <orderEntry type="library" name="zxing-android-embedded-3.3.0" level="project" />
-    <orderEntry type="library" name="universal-image-loader-1.9.5" level="project" />
     <orderEntry type="library" name="animated-vector-drawable-26.0.2" level="project" />
     <orderEntry type="library" name="reactive-streams-1.0.1" level="project" />
-    <orderEntry type="library" name="firebase-common-10.0.1" level="project" />
-    <orderEntry type="library" name="circleimageview-2.1.0" level="project" />
     <orderEntry type="library" name="play-services-basement-10.0.1" level="project" />
     <orderEntry type="library" name="appcompat-v7-26.0.2" level="project" />
     <orderEntry type="library" name="library-1.4" level="project" />
     <orderEntry type="library" name="dagger-2.9" level="project" />
-    <orderEntry type="library" name="bolts-applinks-1.4.0" level="project" />
     <orderEntry type="library" name="butterknife-annotations-8.4.0" level="project" />
     <orderEntry type="library" name="butterknife-8.4.0" level="project" />
-    <orderEntry type="library" name="customtabs-23.4.0" level="project" />
-    <orderEntry type="library" name="play-services-gcm-10.0.1" level="project" />
     <orderEntry type="library" name="firebase-analytics-10.0.1" level="project" />
     <orderEntry type="library" name="picasso-2.5.2" level="project" />
-    <orderEntry type="library" name="gson-2.8.1" level="project" />
     <orderEntry type="library" name="david-webb-1.3.0" level="project" />
     <orderEntry type="library" name="play-services-tasks-10.0.1" level="project" />
-    <orderEntry type="library" name="rxjava2-interop-0.10.0" level="project" />
-    <orderEntry type="library" name="bottom-bar-2.3.1" level="project" />
     <orderEntry type="library" name="stetho-1.5.0" level="project" />
-    <orderEntry type="library" name="play-services-base-10.0.1" level="project" />
     <orderEntry type="library" name="bolts-tasks-1.4.0" level="project" />
     <orderEntry type="library" name="core-3.2.1" level="project" />
     <orderEntry type="library" name="crashlytics-core-2.3.16" level="project" />
-    <orderEntry type="library" name="android-DecoView-charting-v0.9.6" level="project" />
-    <orderEntry type="library" name="kotlin-stdlib-jre7-1.1.51" level="project" />
     <orderEntry type="library" name="json-20080701" level="project" />
     <orderEntry type="library" name="mixpanel-android-4.8.0" level="project" />
     <orderEntry type="library" name="parse-android-1.16.3" level="project" />
     <orderEntry type="library" name="jsr250-api-1.0" level="project" />
+    <orderEntry type="library" name="netty-resolver-4.1.12.Final" level="project" />
     <orderEntry type="library" name="subsampling-scale-image-view-3.5.0" level="project" />
-    <orderEntry type="library" name="MaterialShowcaseView-1.2.0" level="project" />
     <orderEntry type="library" name="play-services-vision-10.0.1" level="project" />
-    <orderEntry type="library" name="ui-4.8.1" level="project" />
     <orderEntry type="library" name="jsr305-2.0.1" level="project" />
-    <orderEntry type="library" name="firebase-iid-10.0.1" level="project" />
-    <orderEntry type="library" name="transition-26.0.2" level="project" />
     <orderEntry type="library" name="library-2.1.3" level="project" />
-    <orderEntry type="library" name="material-calendarview-1.4.3" level="project" />
     <orderEntry type="library" name="support-compat-26.0.2" level="project" />
     <orderEntry type="library" name="facebook-android-sdk-4.12.1" level="project" />
     <orderEntry type="library" name="okio-1.13.0" level="project" />
     <orderEntry type="library" name="play-services-iid-10.0.1" level="project" />
+    <orderEntry type="library" name="firebase-analytics-impl-10.0.1" level="project" />
+    <orderEntry type="library" name="rxjava-1.3.0" level="project" />
+    <orderEntry type="library" name="support-v4-26.0.2" level="project" />
+    <orderEntry type="library" name="eventbus-3.0.0" level="project" />
+    <orderEntry type="library" name="firebase-messaging-10.0.1" level="project" />
+    <orderEntry type="library" name="answers-1.3.12" level="project" />
+    <orderEntry type="library" name="core-4.8.1" level="project" />
+    <orderEntry type="library" name="design-26.0.2" level="project" />
+    <orderEntry type="library" name="multidex-1.0.2" level="project" />
+    <orderEntry type="library" name="support-core-ui-26.0.2" level="project" />
+    <orderEntry type="library" name="cardview-v7-26.0.2" level="project" />
+    <orderEntry type="library" name="firebase-core-10.0.1" level="project" />
+    <orderEntry type="library" name="recyclerview-v7-26.0.2" level="project" />
+    <orderEntry type="library" name="acra-4.9.0" level="project" />
+    <orderEntry type="library" name="sqlbrite-1.1.1" level="project" />
+    <orderEntry type="library" name="rxandroid-2.0.1" level="project" />
+    <orderEntry type="library" name="play-services-maps-10.0.1" level="project" />
+    <orderEntry type="library" name="slf4j-android-1.7.25-0" level="project" />
+    <orderEntry type="library" name="netty-transport-4.1.12.Final" level="project" />
+    <orderEntry type="library" name="bolts-android-1.4.0" level="project" />
+    <orderEntry type="library" name="viewanimator-1.0.5" level="project" />
+    <orderEntry type="library" name="library-2.4.0" level="project" />
+    <orderEntry type="library" name="netty-codec-4.1.12.Final" level="project" />
+    <orderEntry type="library" name="adapter-rxjava-2.3.0" level="project" />
+    <orderEntry type="library" name="kotlin-android-extensions-runtime-1.1.51" level="project" />
+    <orderEntry type="library" name="universal-image-loader-1.9.5" level="project" />
+    <orderEntry type="library" name="firebase-common-10.0.1" level="project" />
+    <orderEntry type="library" name="circleimageview-2.1.0" level="project" />
+    <orderEntry type="library" name="gelfclient-gelfclient-1.4.2.1" level="project" />
+    <orderEntry type="library" name="bolts-applinks-1.4.0" level="project" />
+    <orderEntry type="library" name="customtabs-23.4.0" level="project" />
+    <orderEntry type="library" name="play-services-gcm-10.0.1" level="project" />
+    <orderEntry type="library" name="gson-2.8.1" level="project" />
+    <orderEntry type="library" name="netty-common-4.1.12.Final" level="project" />
+    <orderEntry type="library" name="rxjava2-interop-0.10.0" level="project" />
+    <orderEntry type="library" name="bottom-bar-2.3.1" level="project" />
+    <orderEntry type="library" name="play-services-base-10.0.1" level="project" />
+    <orderEntry type="library" name="android-DecoView-charting-v0.9.6" level="project" />
+    <orderEntry type="library" name="kotlin-stdlib-jre7-1.1.51" level="project" />
+    <orderEntry type="library" name="slf4j-api-1.7.25" level="project" />
+    <orderEntry type="library" name="MaterialShowcaseView-1.2.0" level="project" />
+    <orderEntry type="library" name="ui-4.8.1" level="project" />
+    <orderEntry type="library" name="firebase-iid-10.0.1" level="project" />
+    <orderEntry type="library" name="transition-26.0.2" level="project" />
+    <orderEntry type="library" name="material-calendarview-1.4.3" level="project" />
     <orderEntry type="library" name="retrofit-2.3.0" level="project" />
     <orderEntry type="library" name="converter-gson-2.3.0" level="project" />
     <orderEntry type="library" name="annotations-13.0" level="project" />
     <orderEntry type="library" name="beta-1.2.4" level="project" />
-    <orderEntry type="library" name="firebase-analytics-impl-10.0.1" level="project" />
     <orderEntry type="library" name="javax.inject-1" level="project" />
-    <orderEntry type="library" name="rxjava-1.3.0" level="project" />
     <orderEntry type="library" name="support-fragment-26.0.2" level="project" />
     <orderEntry type="library" name="support-annotations-26.0.2" level="project" />
     <orderEntry type="library" name="rxandroid-1.2.1" level="project" />
-    <orderEntry type="library" name="support-v4-26.0.2" level="project" />
-    <orderEntry type="library" name="eventbus-3.0.0" level="project" />
-    <orderEntry type="library" name="firebase-messaging-10.0.1" level="project" />
     <orderEntry type="library" name="okhttp-3.8.1" level="project" />
     <orderEntry type="library" name="kotlin-stdlib-1.1.51" level="project" />
-    <orderEntry type="library" name="answers-1.3.12" level="project" />
+    <orderEntry type="library" name="jackson-core-2.8.9" level="project" />
     <orderEntry type="library" name="retrofit2-rxjava2-adapter-1.0.0" level="project" />
-    <orderEntry type="library" name="core-4.8.1" level="project" />
-    <orderEntry type="library" name="design-26.0.2" level="project" />
-    <orderEntry type="library" name="multidex-1.0.2" level="project" />
-    <orderEntry type="library" name="android-android-26" level="project" />
   </component>
 </module>

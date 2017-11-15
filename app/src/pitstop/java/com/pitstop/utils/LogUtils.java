@@ -7,11 +7,48 @@ import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.models.DebugMessage;
 
+import org.graylog2.gelfclient.GelfConfiguration;
+import org.graylog2.gelfclient.GelfMessage;
+import org.graylog2.gelfclient.GelfMessageBuilder;
+import org.graylog2.gelfclient.GelfMessageLevel;
+import org.graylog2.gelfclient.GelfTransports;
+import org.graylog2.gelfclient.transport.GelfTransport;
+
+import java.net.InetSocketAddress;
+
 public class LogUtils {
+
+    private final static String TAG = LogUtils.class.getSimpleName();
 
     private static boolean DEBUG = BuildConfig.DEBUG;
     private static boolean NOT_RELEASE = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE);
     private static boolean NOT_BETA = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA);
+
+    private static GelfTransport gelfTransport = null;
+
+    private static synchronized void sendGelfMessage(String message, String tag, GelfMessageLevel level){
+
+        new Thread(() -> {
+            if (gelfTransport == null){
+                gelfTransport = GelfTransports.create(
+                        new GelfConfiguration(new InetSocketAddress("graylog.backend-service.getpitstop.io", 12900))
+                                .transport(GelfTransports.TCP)
+                                .tcpKeepAlive(false)
+                                .queueSize(512)
+                                .connectTimeout(12000)
+                                .reconnectDelay(1000)
+                                .sendBufferSize(-1));
+            }
+            final GelfMessage gelfMessage = new GelfMessageBuilder(message,"com.android.pitstop")
+                    .additionalField("Tag",tag)
+                    .level(level)
+                    .build();
+            boolean trySend = gelfTransport.trySend(gelfMessage);
+            Log.d(TAG,"log dispatched? "+trySend);
+
+        }).start();
+
+    }
 
     public static void debugLogV(String tag, String message, boolean showLogcat, int type, Context context) {
         if(NOT_RELEASE && NOT_BETA) {
@@ -38,6 +75,7 @@ public class LogUtils {
             if (showLogcat) {
                 Log.i(tag, message);
             }
+            sendGelfMessage(message,tag,GelfMessageLevel.INFO);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), tag + ": " + message, type, DebugMessage.LEVEL_I));
         }
