@@ -2,7 +2,6 @@ package com.pitstop.network;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -16,7 +15,7 @@ import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.ui.LoginActivity;
-import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
@@ -26,8 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-
-import static com.pitstop.utils.LogUtils.LOGD;
 
 /**
  * Created by Paul Soladoye  on 3/8/2016.
@@ -65,8 +62,8 @@ public class HttpRequest {
         this.listener = listener;
         this.body = body;
 
-        LogUtils.debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
-                false, DebugMessage.TYPE_NETWORK, context);
+        Logger.getInstance().debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
+                false, DebugMessage.TYPE_NETWORK);
 
 
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
@@ -217,14 +214,14 @@ public class HttpRequest {
                         responseString = response.getBody();
                     }
 
-                    LogUtils.debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
-                            true, DebugMessage.TYPE_NETWORK, application);
+                    Logger.getInstance().debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
+                            true, DebugMessage.TYPE_NETWORK);
 
                     listener.done(response.getBody(), null);
                 } else {
-                    LogUtils.debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
+                    Logger.getInstance().debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
                                     + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
-                            true, DebugMessage.TYPE_NETWORK, application);
+                            true, DebugMessage.TYPE_NETWORK);
 
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
                     error.setStatusCode(response.getStatusCode());
@@ -267,7 +264,7 @@ public class HttpRequest {
         }
 
         private void logOut() {
-            LOGD(TAG, "Refresh failed, logging out");
+            Logger.getInstance().LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
             Toast.makeText(application, application.getString(R.string.log_in_again_toast), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(application, LoginActivity.class);
@@ -276,7 +273,7 @@ public class HttpRequest {
         }
 
         private void showNetworkFailure(String message) {
-            LOGD(TAG, "Refresh failed");
+            Logger.getInstance().LOGD(TAG, "Refresh failed");
             // Track in mixpanel
             try {
                 JSONObject properties = new JSONObject();

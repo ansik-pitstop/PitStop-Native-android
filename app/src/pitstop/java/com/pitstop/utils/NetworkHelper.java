@@ -22,9 +22,6 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-import static com.pitstop.utils.LogUtils.LOGI;
-import static com.pitstop.utils.LogUtils.LOGV;
-
 /**
  * Created by Ben Wu on 2016-05-20.
  */
@@ -134,7 +131,7 @@ public class NetworkHelper {
 
     public void createNewCar(int userId, int mileage, String vin, String scannerId,
                              int shopId, RequestCallback callback) {
-        LOGI(TAG, "createNewCar");
+        Logger.getInstance().LOGI(TAG, "createNewCar");
         JSONObject body = new JSONObject();
 
         try {
@@ -152,7 +149,7 @@ public class NetworkHelper {
 
     public void createNewCarWithoutShopId(int userId, int mileage, String vin, String scannerId,
                                           RequestCallback callback){
-        LOGI(TAG, "createNewCarWithoutShopId");
+        Logger.getInstance().LOGI(TAG, "createNewCarWithoutShopId");
         JSONObject body = new JSONObject();
 
         try {
@@ -168,7 +165,7 @@ public class NetworkHelper {
     }
 
     public void deleteUserCar(int carId, RequestCallback callback) {
-        LOGI(TAG, "Delete car: " + carId);
+        Logger.getInstance().LOGI(TAG, "Delete car: " + carId);
 
         JSONObject body = new JSONObject();
         try {
@@ -182,17 +179,17 @@ public class NetworkHelper {
     }
 
     public void getCarsByUserId(int userId, RequestCallback callback) {
-        LOGI(TAG, "getCarsByUserId: " + userId);
+        Logger.getInstance().LOGI(TAG, "getCarsByUserId: " + userId);
         get("car/?userId=" + userId, callback);
     }
 
     public void getCarsByVin(String vin, RequestCallback callback) {
-        LOGI(TAG, "getCarsByVin: " + vin);
+        Logger.getInstance().LOGI(TAG, "getCarsByVin: " + vin);
         get("car/?vin=" + vin, callback);
     }
 
     public void getCarsById(int carId, RequestCallback callback) {
-        LOGI(TAG, "getCarsById: " + carId);
+        Logger.getInstance().LOGI(TAG, "getCarsById: " + carId);
         get("car/" + carId, callback);
     }
 
@@ -201,7 +198,7 @@ public class NetworkHelper {
     }
 
     public void updateCarMileage(int carId, double mileage, RequestCallback callback) {
-        LOGI(TAG, "updateCarShop: carId: " + carId + ", mileage: " + mileage);
+        Logger.getInstance().LOGI(TAG, "updateCarShop: carId: " + carId + ", mileage: " + mileage);
         JSONObject body = new JSONObject();
 
         try {
@@ -215,7 +212,7 @@ public class NetworkHelper {
     }
 
     public void updateCarShop(int carId, int shopId, RequestCallback callback) {
-        LOGI(TAG, "updateCarShop: carId: " + carId + " shopId: " + shopId);
+        Logger.getInstance().LOGI(TAG, "updateCarShop: carId: " + carId + " shopId: " + shopId);
         JSONObject body = new JSONObject();
 
         try {
@@ -229,7 +226,7 @@ public class NetworkHelper {
     }
 
     public void getShops(RequestCallback callback) {
-        LOGI(TAG, "getShops");
+        Logger.getInstance().LOGI(TAG, "getShops");
         get("shop", callback);
     }
 
@@ -241,7 +238,7 @@ public class NetworkHelper {
      * @param callback
      */
     public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback) {
-        LOGI(TAG, "updatePhoneNumber: userId: " + userId + " phoneNUmber: " + phoneNumber);
+        Logger.getInstance().LOGI(TAG, "updatePhoneNumber: userId: " + userId + " phoneNUmber: " + phoneNumber);
         JSONObject body = new JSONObject();
 
         try {
@@ -269,7 +266,7 @@ public class NetworkHelper {
     }
 
     public void loginAsync(String userName, String password, RequestCallback callback) {
-        LOGI(TAG, "login");
+        Logger.getInstance().LOGI(TAG, "login");
         JSONObject credentials = new JSONObject();
         try {
             credentials.put("username", userName);
@@ -284,7 +281,7 @@ public class NetworkHelper {
 
     // for logged in parse user
     public void loginLegacy(String userId, String sessionToken, RequestCallback callback) {
-        LOGI(TAG, "login legacy");
+        Logger.getInstance().LOGI(TAG, "login legacy");
         JSONObject credentials = new JSONObject();
         try {
             credentials.put("userId", userId);
@@ -298,12 +295,12 @@ public class NetworkHelper {
     }
 
     public void signUpAsync(JSONObject newUser, RequestCallback callback) {
-        LOGI(TAG, "signup");
+        Logger.getInstance().LOGI(TAG, "signup");
         postNoAuth("user", callback, newUser);
     }
 
     public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
-        LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
+        Logger.getInstance().LOGI(TAG, String.format("addNewDtc: carId: %s, mileage: %s," +
                 " rtcTime: %s, dtcCode: %s, isPending: %s", carId, mileage, rtcTime, dtcCode, isPending));
 
         JSONObject body = new JSONObject();
@@ -353,7 +350,7 @@ public class NetworkHelper {
     }
 
     public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
-        LOGI(TAG, String.format("saveFreezeData: scannerId: %s, serviceType: %s,", scannerId, serviceType));
+        Logger.getInstance().LOGI(TAG, String.format("saveFreezeData: scannerId: %s, serviceType: %s,", scannerId, serviceType));
 
         JSONObject body = new JSONObject();
 
@@ -375,7 +372,7 @@ public class NetworkHelper {
     }
 
     public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, @Nullable String mileage, RequestCallback callback) {
-        LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
+        Logger.getInstance().LOGI(TAG, String.format("sendTripStart: scannerId: %s, rtcTime: %s", scannerId, rtcTime));
 
         JSONObject body = new JSONObject();
 
@@ -394,7 +391,7 @@ public class NetworkHelper {
 
 
     public void saveTripMileage(long tripId, String mileage, String rtcTime, RequestCallback callback) {
-        LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
+        Logger.getInstance().LOGI(TAG, String.format("saveTripMileage: tripId: %s," +
                 " mileage: %s, rtcTime: %s", tripId, mileage, rtcTime));
 
         JSONObject tripBody = new JSONObject();
@@ -411,8 +408,8 @@ public class NetworkHelper {
     }
 
     public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
-        LOGI(TAG, "savePids to " + scannerId);
-        LOGV(TAG, "pidArr: " + pidArr.toString());
+        Logger.getInstance().LOGI(TAG, "savePids to " + scannerId);
+        Logger.getInstance().LOGV(TAG, "pidArr: " + pidArr.toString());
 
         JSONObject body = new JSONObject();
 
@@ -430,12 +427,12 @@ public class NetworkHelper {
     }
 
     public void getUser(int userId, RequestCallback callback) {
-        LOGI(TAG, "getUser: " + userId);
+        Logger.getInstance().LOGI(TAG, "getUser: " + userId);
         get("user/" + userId, callback);
     }
 
     public void updateUser(int userId, String firstName, String lastName, String phoneNumber, RequestCallback callback) {
-        LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
+        Logger.getInstance().LOGI(TAG, String.format("updateUser: %s, %s, %s, %s", userId, firstName, lastName, phoneNumber));
 
         try {
             JSONObject json = new JSONObject();
@@ -450,7 +447,7 @@ public class NetworkHelper {
     }
 
     public void resetPassword(String email, RequestCallback callback) {
-        LOGI(TAG, "resetPassword: " + email);
+        Logger.getInstance().LOGI(TAG, "resetPassword: " + email);
 
         try {
             postNoAuth("login/resetPassword", callback, new JSONObject().put("email", email));
@@ -460,7 +457,7 @@ public class NetworkHelper {
     }
 
     public static void refreshToken(String refreshToken, Context context, RequestCallback callback) {
-        LOGI(TAG, "refreshToken: " + refreshToken);
+        Logger.getInstance().LOGI(TAG, "refreshToken: " + refreshToken);
 
         try {
             new HttpRequest.Builder().uri("login/refresh")
@@ -506,7 +503,7 @@ public class NetworkHelper {
 
     // 6/9/2017 -->> Restructured this method so that it doesn't override other settings
     public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
-        LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
+        Logger.getInstance().LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
 
         getUserSettingsById(userId, new RequestCallback() {
             // need to add option instead of replace
@@ -533,7 +530,7 @@ public class NetworkHelper {
     }
 
     public void setNoMainCar(final int userId, final RequestCallback callback) {
-        LOGI(TAG, String.format("setNoMainCar: userId: %s", userId));
+        Logger.getInstance().LOGI(TAG, String.format("setNoMainCar: userId: %s", userId));
 
         getUserSettingsById(userId, new RequestCallback() {
             // need to add option instead of replace
@@ -563,13 +560,13 @@ public class NetworkHelper {
     }
 
     public void getLatestTrip(String scannerId, RequestCallback callback) {
-        LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
+        Logger.getInstance().LOGI(TAG, "getLatestTrip: scannerId: " + scannerId);
 
         get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
     }
 
     public void updateMileageStart(double mileageStart, int tripId, RequestCallback callback) {
-        LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
+        Logger.getInstance().LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
 
         JSONObject body = new JSONObject();
 
@@ -591,7 +588,7 @@ public class NetworkHelper {
      */
     public void getUserSettingsById(int userId, RequestCallback callback) {
         //GET /settings?userId=
-        LOGI(TAG, "getUserSettingsById: " + userId);
+        Logger.getInstance().LOGI(TAG, "getUserSettingsById: " + userId);
         get("settings/?userId=" + userId, callback);
     }
 

@@ -16,8 +16,7 @@ import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.BluetoothDataVisualizer;
-import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.PIDParser;
 
 import java.util.ArrayList;
@@ -80,17 +79,16 @@ public class PidDataHandler {
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            LogUtils.debugLogD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
+            Logger.getInstance().debugLogD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    , true, DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
         }
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
-            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
-                    , true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
+            Logger.getInstance().debugLogD(TAG, "Pid data added to pending list, device not verified"
+                    , true, DebugMessage.TYPE_BLUETOOTH);
             return;
         }
         for (PidPackage p: pendingPidPackages){
@@ -230,14 +228,14 @@ public class PidDataHandler {
         if (success&& timeStampFirst!= null) {
             Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
                     .show();
-            LogUtils.debugLogD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
-                    ,true, DebugMessage.TYPE_NETWORK, context);
+            Logger.getInstance().debugLogD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
+                    ,true, DebugMessage.TYPE_NETWORK);
         }
         else {
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
-            LogUtils.debugLogD(TAG, "Pid values failed to send to server: "
-                    , true, DebugMessage.TYPE_NETWORK, context);
+            Logger.getInstance().debugLogD(TAG, "Pid values failed to send to server: "
+                    , true, DebugMessage.TYPE_NETWORK);
         }
         pidDataSentVisible = true;
         //Only allow one toast showing failure every 15 seconds

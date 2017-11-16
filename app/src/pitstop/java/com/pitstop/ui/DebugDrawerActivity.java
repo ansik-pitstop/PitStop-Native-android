@@ -6,10 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -28,7 +26,6 @@ import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.database.LocalAlarmStorage;
-import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -37,9 +34,8 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.DateTimeFormatUtil;
-import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.ViewUtils;
 import com.squareup.sqlbrite.QueryObservable;
@@ -309,7 +305,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         // bluetooth
         View testBluetoothLogButton = findViewById(R.id.logBluetooth);
         testBluetoothLogButton.setOnClickListener(v ->
-                LogUtils.debugLogV("TEST", "Bluetooth test", false, DebugMessage.TYPE_BLUETOOTH, this));
+                Logger.getInstance().debugLogV("TEST", "Bluetooth test", false, DebugMessage.TYPE_BLUETOOTH));
 
         TextView bluetoothLogs = ViewUtils.findView(this, R.id.debugLogsBluetooth);
 
@@ -321,7 +317,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         // network
         View testNetworkLogButton = findViewById(R.id.logNetwork);
         testNetworkLogButton.setOnClickListener(v ->
-                LogUtils.debugLogV("TEST", "Network test", false, DebugMessage.TYPE_NETWORK, this));
+                Logger.getInstance().debugLogV("TEST", "Network test", false, DebugMessage.TYPE_NETWORK));
 
         TextView networkLogs = ViewUtils.findView(this, R.id.debugLogsNetwork);
 
@@ -333,7 +329,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         // other
         View testOtherLogButton = findViewById(R.id.logOther);
         testOtherLogButton.setOnClickListener(v ->
-                LogUtils.debugLogV("TEST", "Other test", false, DebugMessage.TYPE_OTHER, this));
+                Logger.getInstance().debugLogV("TEST", "Other test", false, DebugMessage.TYPE_OTHER));
 
         TextView otherLogs = ViewUtils.findView(this, R.id.debugLogsOther);
 

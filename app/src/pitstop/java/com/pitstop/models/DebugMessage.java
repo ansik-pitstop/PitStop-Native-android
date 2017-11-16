@@ -22,10 +22,12 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
     private long mTimestamp;
     private String mMessage;
+
+    private String tag;
     private int mType;
     private int mLevel;
 
-    public DebugMessage(long timestamp, String message, int type, int level) {
+    public DebugMessage(long timestamp, String message, String tag, int type, int level) {
 
         if (message.length() > MESSAGE_MAX_LENGTH){
             mMessage = message.substring(0,MESSAGE_MAX_LENGTH)+"...";
@@ -33,7 +35,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         else{
             mMessage = message;
         }
-
+        this.tag = tag;
         mTimestamp = timestamp;
         mType = type;
         mLevel = level;
@@ -71,6 +73,14 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
     public void setLevel(int level) {
         mLevel = level;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public static DebugMessage fromCursor(Cursor c) {

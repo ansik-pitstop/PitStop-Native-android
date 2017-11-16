@@ -151,8 +151,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Handler().post(object: Runnable{
                             override fun run(){
                                 for (i in 1..10)
-                                    LogUtils.debugLogI("Test TAG","Test log #${counter++}"
-                                            , false, DebugMessage.TYPE_OTHER, applicationContext)
+                                    Logger.getInstance().debugLogI("Test TAG","Test log #${counter++}"
+                                            , false, DebugMessage.TYPE_OTHER)
                                 Handler().postDelayed(this,1000)
                             }
                         })
@@ -761,13 +761,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     private fun logAuthInfo() {
-        LogUtils.LOGD(TAG, "RefreshToken: " + application!!.refreshToken)
-        LogUtils.LOGD(TAG, "AccessToken: " + application!!.accessToken)
+        Logger.getInstance().LOGD(TAG, "RefreshToken: " + application!!.refreshToken)
+        Logger.getInstance().LOGD(TAG, "AccessToken: " + application!!.accessToken)
     }
 
     override fun onDeviceNeedsOverwrite() {
 
-        LogUtils.LOGD(TAG, "onDeviceNeedsOverwrite(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
+        Logger.getInstance().LOGD(TAG, "onDeviceNeedsOverwrite(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
                 + " ignoreMissingDeviceName?" + ignoreMissingDeviceName)
 
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)

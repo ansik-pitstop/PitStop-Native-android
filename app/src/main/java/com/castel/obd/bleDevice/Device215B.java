@@ -24,7 +24,7 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -454,10 +454,9 @@ public class Device215B implements AbstractDevice {
                     Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
                             +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
-                    LogUtils.debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
+                    Logger.getInstance().debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
-                            +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH
-                            , getApplicationContext());
+                            +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH);
 
                     if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
