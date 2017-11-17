@@ -16,6 +16,8 @@ import org.graylog2.gelfclient.GelfTransports;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.schedulers.Schedulers;
 
@@ -49,7 +51,19 @@ public class Logger {
                     Log.d(TAG,"error");
                     return null;
                 }).doOnError(err -> Log.d(TAG,"err: "+err))
-                .subscribe(query -> {
+                .map(query -> {
+                    Cursor c = query.run();
+                    List<DebugMessage> messageList = new ArrayList<>();
+                    if(c.moveToFirst()) {
+                        while(!c.isAfterLast()) {
+                            messageList.add(DebugMessage.fromCursor(c));
+                            c.moveToNext();
+                        }
+                    }
+                    c.close();
+                    return messageList;
+                })
+                .subscribe(messageList -> {
                     if (gelfTransport == null){
                         gelfTransport = GelfTransports.create(
                                 new GelfConfiguration(new InetSocketAddress(
@@ -62,40 +76,40 @@ public class Logger {
                                         .sendBufferSize(-1));
                     }
 
-                    Cursor cursor = query.run();
-                    DebugMessage message = DebugMessage.fromCursor(cursor);
-                    Log.d(TAG,"Logger, received debug message: "+message.getMessage());
+                    Log.d(TAG,"Logger, received debug message list: "+messageList);
 
-                    GelfMessageLevel gelfLevel;
-                    switch(message.getLevel()){
-                        case 0:
-                            gelfLevel = GelfMessageLevel.INFO;
-                            break;
-                        case 1:
-                            gelfLevel = GelfMessageLevel.DEBUG;
-                            break;
-                        case 2:
-                            gelfLevel = GelfMessageLevel.INFO;
-                            break;
-                        case 3:
-                            gelfLevel = GelfMessageLevel.WARNING;
-                            break;
-                        case 4:
-                            gelfLevel = GelfMessageLevel.ERROR;
-                            break;
-                        case 5:
-                            gelfLevel = GelfMessageLevel.CRITICAL;
-                            break;
-                        default:
-                            gelfLevel = GelfMessageLevel.CRITICAL;
+                    for (DebugMessage d: messageList){
+                        GelfMessageLevel gelfLevel;
+                        switch(d.getLevel()){
+                            case 0:
+                                gelfLevel = GelfMessageLevel.INFO;
+                                break;
+                            case 1:
+                                gelfLevel = GelfMessageLevel.DEBUG;
+                                break;
+                            case 2:
+                                gelfLevel = GelfMessageLevel.INFO;
+                                break;
+                            case 3:
+                                gelfLevel = GelfMessageLevel.WARNING;
+                                break;
+                            case 4:
+                                gelfLevel = GelfMessageLevel.ERROR;
+                                break;
+                            case 5:
+                                gelfLevel = GelfMessageLevel.CRITICAL;
+                                break;
+                            default:
+                                gelfLevel = GelfMessageLevel.CRITICAL;
 
+                        }
+                        final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.android.pitstop")
+                                .additionalField("Tag",d.getTag())
+                                .level(gelfLevel)
+                                .build();
+                        boolean trySend = gelfTransport.trySend(gelfMessage);
+                        Log.d(TAG,"log dispatched? "+trySend);
                     }
-                    final GelfMessage gelfMessage = new GelfMessageBuilder(message.getMessage(),"com.android.pitstop")
-                            .additionalField("Tag",message.getTag())
-                            .level(gelfLevel)
-                            .build();
-                    boolean trySend = gelfTransport.trySend(gelfMessage);
-                    Log.d(TAG,"log dispatched? "+trySend);
                 });
     }
 

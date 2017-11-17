@@ -150,10 +150,10 @@ dependencies {
     // Multidex support library - Use when Building Apps with Over 65K Methods
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'eu.lp0.slf4j:slf4j-android:1.7.25-0'
-    compile 'com.github.Graylog2:gelfclient:gelfclient-1.4.2.1'
+    // compile 'com.github.Graylog2:gelfclient:gelfclient-1.4.2.1'
     compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
     compile 'com.android.support:multidex:1.0.2'
-    compile "io.reactivex.rxjava2:rxjava:2.1.5"
+    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -192,7 +192,7 @@ dependencies {
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
     //compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-   // compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    // compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'ch.acra:acra:4.9.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -206,6 +206,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation files('C:/Users/Work/StudioProjects/PitStop-Native-android/libs/gelfclient.jar')
 }
 
 apply plugin: 'com.google.gms.google-services'
