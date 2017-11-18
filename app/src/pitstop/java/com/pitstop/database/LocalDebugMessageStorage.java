@@ -24,6 +24,15 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message));
     }
 
+    public void removeAllMessages(){
+        mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,null,null);
+    }
+
+    public void removeMessage(DebugMessage message){
+        mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,COLUMN_TIMESTAMP + "=? AND "+COLUMN_MESSAGE + "=? "
+                ,String.valueOf(message.getTimestamp()),message.getMessage());
+    }
+
     public QueryObservable getQueryObservable(int type) {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
                 "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_TYPE + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 30",

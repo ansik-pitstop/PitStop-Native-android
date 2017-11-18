@@ -130,7 +130,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     // Views
     private var rootView: View? = null
     private var toolbar: Toolbar? = null
-
     private var progressDialog: ProgressDialog? = null
     private var isLoading = false
 
@@ -151,7 +150,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Handler().post(object: Runnable{
                             override fun run(){
                                 for (i in 1..10)
-                                    Logger.getInstance().debugLogI("Test TAG","Test log #${counter++}"
+                                    Logger.getInstance().logI("Test TAG","Test log #${counter++}"
                                             , false, DebugMessage.TYPE_OTHER)
                                 Handler().postDelayed(this,1000)
                             }

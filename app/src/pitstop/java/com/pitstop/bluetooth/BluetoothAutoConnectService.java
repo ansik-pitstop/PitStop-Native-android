@@ -565,7 +565,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
      */
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
-        Logger.getInstance().LOGD(TAG,"setParameterResponse(), "+responsePackageInfo.toString());
 
         if(responsePackageInfo.result == 1) {
             // Once device time is reset, store deviceId
@@ -711,7 +710,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void dtcData(DtcPackage dtcPackage) {
         Log.d(TAG,"dtcData() dtcPackage: "+dtcPackage);
         if (dtcPackage == null) return;
-        Logger.getInstance().debugLogD(TAG, "DTC data: " + dtcPackage.toString()
+        Logger.getInstance().logD(TAG, "DTC data: " + dtcPackage.toString()
                 , true, DebugMessage.TYPE_BLUETOOTH);
         //Set device id if its found in dtc package
         if (dtcPackage.deviceId != null && !dtcPackage.deviceId.isEmpty()){
@@ -780,7 +779,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (loginPackageInfo.flag.equals(String.valueOf(ObdManager.DEVICE_LOGIN_FLAG))) {
             // Here's where the app get the device id for the first time
 
-            Logger.getInstance().debugLogD(TAG, "Login package: " + loginPackageInfo.toString()
+            Logger.getInstance().logD(TAG, "Login package: " + loginPackageInfo.toString()
                     , true, DebugMessage.TYPE_BLUETOOTH);
 
             if (loginPackageInfo.deviceId != null && !loginPackageInfo.deviceId.isEmpty()){

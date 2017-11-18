@@ -62,7 +62,7 @@ public class HttpRequest {
         this.listener = listener;
         this.body = body;
 
-        Logger.getInstance().debugLogD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
+        Logger.getInstance().logD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
                 false, DebugMessage.TYPE_NETWORK);
 
 
@@ -214,12 +214,12 @@ public class HttpRequest {
                         responseString = response.getBody();
                     }
 
-                    Logger.getInstance().debugLogD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
+                    Logger.getInstance().logD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
                             true, DebugMessage.TYPE_NETWORK);
 
                     listener.done(response.getBody(), null);
                 } else {
-                    Logger.getInstance().debugLogD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
+                    Logger.getInstance().logD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
                                     + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
                             true, DebugMessage.TYPE_NETWORK);
 

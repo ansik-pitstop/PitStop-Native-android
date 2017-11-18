@@ -79,7 +79,7 @@ public class PidDataHandler {
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            Logger.getInstance().debugLogD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
+            Logger.getInstance().logD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
                     , true, DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
@@ -87,7 +87,7 @@ public class PidDataHandler {
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
-            Logger.getInstance().debugLogD(TAG, "Pid data added to pending list, device not verified"
+            Logger.getInstance().logD(TAG, "Pid data added to pending list, device not verified"
                     , true, DebugMessage.TYPE_BLUETOOTH);
             return;
         }
@@ -228,13 +228,13 @@ public class PidDataHandler {
         if (success&& timeStampFirst!= null) {
             Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
                     .show();
-            Logger.getInstance().debugLogD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
+            Logger.getInstance().logD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
                     ,true, DebugMessage.TYPE_NETWORK);
         }
         else {
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
-            Logger.getInstance().debugLogD(TAG, "Pid values failed to send to server: "
+            Logger.getInstance().logD(TAG, "Pid values failed to send to server: "
                     , true, DebugMessage.TYPE_NETWORK);
         }
         pidDataSentVisible = true;

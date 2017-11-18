@@ -34,8 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
-
 /**
  * Created by Ben Wu on 2016-08-29.
  */
@@ -454,7 +452,7 @@ public class Device215B implements AbstractDevice {
                     Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
                             +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
-                    Logger.getInstance().debugLogD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
+                    Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
                             +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH);
 

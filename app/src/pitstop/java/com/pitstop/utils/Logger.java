@@ -12,6 +12,7 @@ import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageBuilder;
 import org.graylog2.gelfclient.GelfMessageLevel;
+import org.graylog2.gelfclient.GelfTransportResultListener;
 import org.graylog2.gelfclient.GelfTransports;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
@@ -62,8 +63,9 @@ public class Logger {
                     }
                     c.close();
                     return messageList;
-                })
+                }).filter(messageList -> !messageList.isEmpty())
                 .subscribe(messageList -> {
+                    Log.d(TAG,"messages received: "+messageList);
                     if (gelfTransport == null){
                         gelfTransport = GelfTransports.create(
                                 new GelfConfiguration(new InetSocketAddress(
@@ -73,7 +75,26 @@ public class Logger {
                                         .queueSize(512)
                                         .connectTimeout(12000)
                                         .reconnectDelay(1000)
-                                        .sendBufferSize(-1));
+                                        .sendBufferSize(-1)
+                                        .resultListener(new GelfTransportResultListener() {
+                                            @Override
+                                            public void onMessageSent(GelfMessage gelfMessage) {
+                                                Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
+                                                localDebugMessageStorage.removeAllMessages();
+                                            }
+
+                                            @Override
+                                            public void onFailedToSend(GelfMessage gelfMessage) {
+                                                Log.d(TAG,"resultListener.onFailedToSend() gelfMessage: "+gelfMessage);
+
+                                            }
+
+                                            @Override
+                                            public void onFailedToConnect(List<GelfMessage> list) {
+                                                Log.d(TAG,"resultListener.onFailedToConnect() gelfMessageList: "+list);
+
+                                            }
+                                        }));
                     }
 
                     Log.d(TAG,"Logger, received debug message list: "+messageList);
@@ -117,7 +138,7 @@ public class Logger {
         INSTANCE = new Logger(context);
     }
 
-    public void debugLogV(String tag, String message, boolean showLogcat, int type) {
+    public void logV(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.v(tag, message);
@@ -127,7 +148,7 @@ public class Logger {
         }
     }
 
-    public void debugLogD(String tag, String message, boolean showLogcat, int type) {
+    public void logD(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.d(tag, message);
@@ -137,7 +158,7 @@ public class Logger {
         }
     }
 
-    public void debugLogI(String tag, String message, boolean showLogcat, int type) {
+    public void logI(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.i(tag, message);
@@ -147,7 +168,7 @@ public class Logger {
         }
     }
 
-    public void debugLogW(String tag, String message, boolean showLogcat, int type) {
+    public void logW(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.w(tag, message);
@@ -157,49 +178,13 @@ public class Logger {
         }
     }
 
-    public void debugLogE(String tag, String message, boolean showLogcat, int type, Context context) {
+    public void logE(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             if (showLogcat) {
                 Log.e(tag, message);
             }
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));
-        }
-    }
-
-    public void LOGV(String tag, String message) {
-        if(DEBUG) {
-            Log.v(tag, message);
-        }
-    }
-
-    public void LOGD(String tag, String message) {
-        if(DEBUG) {
-            Log.d(tag, message);
-        }
-    }
-
-    public void LOGI(String tag, String message) {
-        if(DEBUG) {
-            Log.i(tag, message);
-        }
-    }
-
-    public void LOGW(String tag, String message) {
-        if(DEBUG) {
-            Log.w(tag, message);
-        }
-    }
-
-    public void LOGE(String tag, String message) {
-        if(DEBUG) {
-            Log.e(tag, message);
-        }
-    }
-
-    public void LOGA(String tag, String message) {
-        if(DEBUG) {
-            Log.wtf(tag, message);
         }
     }
 
