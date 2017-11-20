@@ -3,8 +3,10 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -16,9 +18,11 @@ import org.json.JSONObject;
  */
 
 public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
-    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
+
+    private final String TAG = getClass().getSimpleName();
 
     private static final String PLACES_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
+    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
 
     private NetworkHelper networkHelper;
     private GetPlaceDetailsUseCase.Callback callback;
@@ -49,6 +53,8 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
 
     @Override
     public void execute(Dealership dealership, GetPlaceDetailsUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.dealership = dealership;
         this.callback = callback;
         useCaseHandler.post(this);

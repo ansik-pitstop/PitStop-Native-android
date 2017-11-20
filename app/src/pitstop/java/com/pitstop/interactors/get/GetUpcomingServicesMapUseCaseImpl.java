@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
@@ -9,6 +10,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.Map;
 
 public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMapUseCase {
 
+    private final String TAG = getClass().getSimpleName();
     private final int MAX_DEBUG_ISSUE_SIZE = 500;
 
     private UserRepository userRepository;
@@ -41,19 +44,27 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
+        Logger.getInstance().logI(TAG, "Use case finished: serviceMap="+serviceMap
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap));
     }
 
     private void onNoCarAdded(){
+        Logger.getInstance().logI(TAG, "Use case finished: car not added!"
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

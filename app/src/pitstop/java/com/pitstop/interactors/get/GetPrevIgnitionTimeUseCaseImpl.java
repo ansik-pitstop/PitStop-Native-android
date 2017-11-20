@@ -2,16 +2,20 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Karol Zdebel on 7/19/2017.
  */
 
 public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private Device215TripRepository device215TripRepository;
     private String device215FullName;
@@ -28,6 +32,8 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
 
     @Override
     public void execute(String device215Fullname, Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution: device215FullName="+device215Fullname
+                , false, DebugMessage.TYPE_USE_CASE);
         this.device215FullName = device215Fullname;
         this.callback = callback;
 
@@ -35,28 +41,19 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
     }
 
     private void onGotIgnitionTime(long ignitionTime){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onGotIgnitionTime(ignitionTime);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: ignitionTime="+ignitionTime
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onGotIgnitionTime(ignitionTime));
     }
     private void onNoneExists(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNoneExists();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: none exists!"
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onNoneExists());
     }
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     private String getScannerName(String device215FullName){

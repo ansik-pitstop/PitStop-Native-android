@@ -5,11 +5,13 @@ import android.os.Handler;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.List;
 
@@ -20,6 +22,8 @@ import java.util.List;
 
 
 public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private UserRepository userRepository;
     private Callback callback;
@@ -35,27 +39,22 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
     }
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     public void onError(RequestError error){
-
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     public void onNotificationsRetrieved(List<Notification> notificationList){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNotificationsRetrieved(notificationList);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: notificationList="+notificationList
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onNotificationsRetrieved(notificationList));
     }
 
     @Override

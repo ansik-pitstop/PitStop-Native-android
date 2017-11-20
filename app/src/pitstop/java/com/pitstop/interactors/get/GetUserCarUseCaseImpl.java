@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -12,6 +13,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.List;
 
@@ -45,17 +47,25 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
+        Logger.getInstance().logI(TAG, "Use case finished: car="+car+", dealership="+dealership+", local="+isLocal
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
     private void onNoCarSet(boolean isLocal){
+        Logger.getInstance().logI(TAG, "Use case finished: no car set! local="+isLocal
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
     private void onError(RequestError error){
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             if(error!=null)
                 callback.onError(error);
