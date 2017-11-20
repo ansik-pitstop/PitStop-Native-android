@@ -178,6 +178,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
             bytes = deviceInterface.getBytes(data);
 
+
             if (bytes == null || bytes.length == 0) {
                 return;
             }
