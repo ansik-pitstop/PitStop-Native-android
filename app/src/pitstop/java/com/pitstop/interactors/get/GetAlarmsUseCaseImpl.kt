@@ -3,17 +3,15 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.database.LocalAlarmStorage
-import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.add.AddAlarmUseCase
 import com.pitstop.models.Alarm
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
+import com.pitstop.utils.Logger
 import java.text.DateFormatSymbols
-import java.text.SimpleDateFormat
-import java.time.Month
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -29,6 +27,8 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
     private var callback: GetAlarmsUseCase.Callback? = null
 
     override fun execute( callback: GetAlarmsUseCase.Callback) {
+        Logger.getInstance().logE(TAG,"Use case execution started"
+                ,false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -56,17 +56,21 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
                                     }
                                     Log.d(TAG, settings.toString())
 
+                                    Logger.getInstance().logE(TAG,"Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
+                                        ,false, DebugMessage.TYPE_USE_CASE)
                                     mainHandler.post({callback?.onAlarmsGot(map, settings.isAlarmsEnabled)})
                                 }
                                 override fun onError(error: RequestError?) {
-                                    Log.d(TAG, "onGetShopIderror")
+                                    Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                                            ,false, DebugMessage.TYPE_USE_CASE)
                                     mainHandler.post({callback?.onError(RequestError.getUnknownError())})
                                 }
 
                     })
             }
             override fun onError(error: RequestError?) {
-                Log.d(TAG, "getCurrentUSerError()")
+                Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                        ,false, DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onError(RequestError.getUnknownError())})
             }
         })
