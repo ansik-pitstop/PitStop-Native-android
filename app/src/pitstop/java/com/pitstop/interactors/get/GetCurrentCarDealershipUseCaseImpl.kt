@@ -3,12 +3,14 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.Dealership
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.ShopRepository
 import com.pitstop.repositories.UserRepository
+import com.pitstop.utils.Logger
 
 /**
  * Created by Karol Zdebel on 10/25/2017.
@@ -21,12 +23,30 @@ class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val
     private var callback: GetCurrentCarDealershipUseCase.Callback? = null
 
     override fun execute(callback: GetCurrentCarDealershipUseCase.Callback) {
+        Logger.getInstance()!!.logE(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
 
+    private fun onError(error:RequestError){
+        Logger.getInstance()!!.logE(tag, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onError(error)})
+    }
+
+    private fun onGotDealership(dealership: Dealership){
+        Logger.getInstance()!!.logE(tag, "Use case finished: dealership="+dealership
+                , false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onGotDealership(dealership)})
+    }
+
+    private fun onNoCarExists(){
+        Logger.getInstance()!!.logE(tag, "Use case finished: no car exists!"
+                , false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onNoCarExists()})
+    }
+
     override fun run() {
-        Log.d(tag,"run()")
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
 
             override fun onSuccess(settings: Settings) {
@@ -34,7 +54,7 @@ class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val
 
                 if (!settings.hasMainCar()){
                     Log.d(tag,"no main car")
-                    mainHandler.post({callback!!.onNoCarExists()})
+                    this@GetCurrentCarDealershipUseCaseImpl.onNoCarExists()
                     return
                 }
 
@@ -45,26 +65,26 @@ class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val
 
                             override fun onSuccess(dealership: Dealership) {
                                 Log.d(tag,"got dealership: $dealership")
-                                mainHandler.post({callback!!.onGotDealership(dealership)})
+                                this@GetCurrentCarDealershipUseCaseImpl.onGotDealership(dealership)
                             }
 
                             override fun onError(error: RequestError) {
                                 Log.d(tag,"error getting dealership: ${error.message}")
-                                mainHandler.post({callback!!.onError(error)})
+                                this@GetCurrentCarDealershipUseCaseImpl.onError(error)
                             }
                         })
                     }
 
                     override fun onError(error: RequestError) {
                         Log.d(tag,"error getting shop id: ${error.message}")
-                        mainHandler.post({callback!!.onError(error)})
+                        this@GetCurrentCarDealershipUseCaseImpl.onError(error)
                     }
                 })
             }
 
             override fun onError(error: RequestError) {
                 Log.d(tag,"error getting settings: ${error.message}")
-                mainHandler.post({callback!!.onError(error)})
+                this@GetCurrentCarDealershipUseCaseImpl.onError(error)
             }
         })
     }
