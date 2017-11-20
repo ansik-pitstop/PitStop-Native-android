@@ -2,22 +2,26 @@ package com.pitstop.interactors.update;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matt on 2017-06-15.
  */
 
 public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private UserRepository userRepository;
     private UpdateUserNameUseCase.Callback callback;
     private String name;
-
 
     public UpdateUserNameUseCaseImpl(UserRepository userRepository
             , Handler useCaseHandler, Handler mainHandler) {
@@ -28,27 +32,23 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
 
     @Override
     public void execute(String name, UpdateUserNameUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case finished: shop updated"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.name = name;
         useCaseHandler.post(this);
     }
 
     private void onUserNameUpdated(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onUserNameUpdated();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: user name updated"
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onUserNameUpdated());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     private User parseName(User user, String name){
