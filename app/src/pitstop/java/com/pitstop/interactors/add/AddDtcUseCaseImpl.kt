@@ -22,7 +22,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
     private var callback: AddDtcUseCase.Callback? = null
 
     override fun execute(dtcPackage: DtcPackage, callback: AddDtcUseCase.Callback) {
-        Logger.getInstance()!!.logE(tag, "Use case execution started input: dtcPackage=" + dtcPackage
+        Logger.getInstance()!!.logI(tag, "Use case execution started input: dtcPackage=" + dtcPackage
                 , false, DebugMessage.TYPE_USE_CASE)
         this.dtcPackage = dtcPackage
         this.callback = callback
@@ -36,7 +36,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
     }
 
     private fun onDtcPackageAdded(dtcPackage: DtcPackage){
-        Logger.getInstance()!!.logE(tag, "Use case execution finished: dtc package=" + dtcPackage
+        Logger.getInstance()!!.logI(tag, "Use case execution finished: dtc package=" + dtcPackage
                 , false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback?.onDtcPackageAdded(dtcPackage)})
     }

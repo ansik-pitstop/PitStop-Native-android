@@ -23,7 +23,7 @@ class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val
     private var callback: GetCurrentCarDealershipUseCase.Callback? = null
 
     override fun execute(callback: GetCurrentCarDealershipUseCase.Callback) {
-        Logger.getInstance()!!.logE(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -35,13 +35,13 @@ class GetCurrentCarDealershipUseCaseImpl(val userRepository: UserRepository, val
     }
 
     private fun onGotDealership(dealership: Dealership){
-        Logger.getInstance()!!.logE(tag, "Use case finished: dealership="+dealership
+        Logger.getInstance()!!.logI(tag, "Use case finished: dealership="+dealership
                 , false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onGotDealership(dealership)})
     }
 
     private fun onNoCarExists(){
-        Logger.getInstance()!!.logE(tag, "Use case finished: no car exists!"
+        Logger.getInstance()!!.logI(tag, "Use case finished: no car exists!"
                 , false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onNoCarExists()})
     }

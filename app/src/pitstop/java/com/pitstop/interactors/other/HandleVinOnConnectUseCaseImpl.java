@@ -87,7 +87,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     }
 
     private void onError(RequestError error){
-        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }

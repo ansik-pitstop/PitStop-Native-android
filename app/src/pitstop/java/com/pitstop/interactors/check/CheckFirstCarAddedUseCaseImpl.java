@@ -36,13 +36,13 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
     @Override
     public void execute(Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started",false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case execution started",false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onFirstCarAddedChecked(boolean added){
-        Logger.getInstance().logE(TAG,"Use case finished: added="+added,false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case finished: added="+added,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onFirstCarAddedChecked(added));
     }
 

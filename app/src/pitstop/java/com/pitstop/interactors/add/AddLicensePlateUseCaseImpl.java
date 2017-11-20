@@ -31,7 +31,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
     @Override
     public void execute(int carid, String plate, AddLicensePlateUseCase.Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started input: carId="+carid+", plate="+plate
+        Logger.getInstance().logI(TAG,"Use case execution started input: carId="+carid+", plate="+plate
                 ,false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carID = carid;
@@ -45,7 +45,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
 
     public void onLicensePlateStored(String licensePlate){
-        Logger.getInstance().logE(TAG,"Use case finished: license plate= "+licensePlate
+        Logger.getInstance().logI(TAG,"Use case finished: license plate= "+licensePlate
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onLicensePlateStored(licensePlate));
     }

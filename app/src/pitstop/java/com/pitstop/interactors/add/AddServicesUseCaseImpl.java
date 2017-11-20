@@ -46,7 +46,7 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     }
 
     private void onServicesAdded(){
-        Logger.getInstance().logE(TAG,"Use case finished result: service added",false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case finished result: service added",false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onServicesAdded());
     }
 

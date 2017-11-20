@@ -58,7 +58,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     public void execute(String vin, double baseMileage, String scannerId
             ,String scannerName, String eventSource, Callback callback) {
 
-        Logger.getInstance().logE(TAG,"Use case execution started input: vin"+vin+", baseMileage: "+baseMileage+", scannerId: "
+        Logger.getInstance().logI(TAG,"Use case execution started input: vin"+vin+", baseMileage: "+baseMileage+", scannerId: "
                 +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource,false, DebugMessage.TYPE_USE_CASE);
 
         this.vin = vin;
@@ -89,7 +89,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     }
 
     private void onError(RequestError error){
-        Logger.getInstance().logI(TAG,"Use case returned error: "+error
+        Logger.getInstance().logE(TAG,"Use case returned error: "+error
                 , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }

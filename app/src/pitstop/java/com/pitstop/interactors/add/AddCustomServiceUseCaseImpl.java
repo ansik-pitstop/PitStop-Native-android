@@ -48,7 +48,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
 
     @Override
     public void execute(CarIssue issue, EventSource eventSource, Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started input: issue="+issue,false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case execution started input: issue="+issue,false, DebugMessage.TYPE_USE_CASE);
         this.eventSource = eventSource;
         this.issue = issue;
         this.callback = callback;
@@ -56,7 +56,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     }
 
     private void onIssueAdded(CarIssue data){
-        Logger.getInstance().logE(TAG,"Use case finished: result="+data,false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case finished: result="+data,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onIssueAdded(data));
     }
 

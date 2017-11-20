@@ -37,7 +37,7 @@ public class GetCarStyleIDUSeCaseImpl implements GetCarStyleIDUseCase {
 
     @Override
     public void execute(String VIN, Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started: vin="+VIN
+        Logger.getInstance().logI(TAG,"Use case execution started: vin="+VIN
                 ,false, DebugMessage.TYPE_USE_CASE);
         this.vin = VIN;
         this.callback = callback;
@@ -45,7 +45,7 @@ public class GetCarStyleIDUSeCaseImpl implements GetCarStyleIDUseCase {
     }
 
     private void onStylesIDGot(String stylesID){
-        Logger.getInstance().logE(TAG,"Use case finished: stylesID="+stylesID
+        Logger.getInstance().logI(TAG,"Use case finished: stylesID="+stylesID
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onStyleIDGot(stylesID));
     }

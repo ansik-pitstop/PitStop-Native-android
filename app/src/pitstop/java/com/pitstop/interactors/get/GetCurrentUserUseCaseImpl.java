@@ -32,7 +32,7 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
     }
 
     private void onUserRetrieved(User user){
-        Logger.getInstance().logE(TAG, "Use case finished: user="+user
+        Logger.getInstance().logI(TAG, "Use case finished: user="+user
                 , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onUserRetrieved(user));
     }
@@ -45,7 +45,7 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
 
     @Override
     public void execute(GetCurrentUserUseCase.Callback callback) {
-        Logger.getInstance().logE(TAG, "Use case execution started"
+        Logger.getInstance().logI(TAG, "Use case execution started"
                 , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);

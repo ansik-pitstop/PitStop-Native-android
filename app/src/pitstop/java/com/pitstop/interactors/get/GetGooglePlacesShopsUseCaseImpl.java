@@ -62,7 +62,7 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
     }
 
     private void onShopsGot(List<Dealership> dealerships){
-        Logger.getInstance().logE(TAG, "Use case finished: dealerships="+dealerships
+        Logger.getInstance().logI(TAG, "Use case finished: dealerships="+dealerships
                 , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopsGot(dealerships));
     }

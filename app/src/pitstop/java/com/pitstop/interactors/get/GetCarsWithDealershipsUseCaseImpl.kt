@@ -21,13 +21,13 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     var callback: GetCarsWithDealershipsUseCase.Callback? = null
 
     override fun execute(callback: GetCarsWithDealershipsUseCase.Callback) {
-        Logger.getInstance()!!.logE(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>, local: Boolean){
-        Logger.getInstance()!!.logE(tag, "Use case finished: map="+data+", local="+local
+        Logger.getInstance()!!.logI(tag, "Use case finished: map="+data+", local="+local
                 , false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({ callback!!.onGotCarsWithDealerships(data,local) })
     }

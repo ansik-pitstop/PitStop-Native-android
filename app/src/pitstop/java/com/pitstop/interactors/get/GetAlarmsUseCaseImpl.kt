@@ -27,7 +27,7 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
     private var callback: GetAlarmsUseCase.Callback? = null
 
     override fun execute( callback: GetAlarmsUseCase.Callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started"
+        Logger.getInstance().logI(TAG,"Use case execution started"
                 ,false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
@@ -56,7 +56,7 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
                                     }
                                     Log.d(TAG, settings.toString())
 
-                                    Logger.getInstance().logE(TAG,"Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
+                                    Logger.getInstance().logI(TAG,"Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
                                         ,false, DebugMessage.TYPE_USE_CASE)
                                     mainHandler.post({callback?.onAlarmsGot(map, settings.isAlarmsEnabled)})
                                 }

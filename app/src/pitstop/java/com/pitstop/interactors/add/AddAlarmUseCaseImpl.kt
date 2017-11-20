@@ -26,7 +26,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
 
 
     override fun execute(alarm: Alarm, callback: AddAlarmUseCase.Callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started, input alarm: "+alarm,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG,"Use case execution started, input alarm: "+alarm,false, DebugMessage.TYPE_USE_CASE)
         this.alarm = alarm
         this.callback = callback
         useCaseHandler.post(this);
@@ -38,12 +38,12 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
     }
 
     private fun onAlarmAdded(alarm: Alarm){
-        Logger.getInstance().logE(TAG,"Use case finished: "+alarm,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG,"Use case finished: "+alarm,false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onAlarmAdded(alarm)})
     }
 
     private fun onAlarmsDisabled(){
-        Logger.getInstance().logE(TAG,"Use case finished: alarm disabled!",false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG,"Use case finished: alarm disabled!",false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onAlarmsDisabled()})
     }
 

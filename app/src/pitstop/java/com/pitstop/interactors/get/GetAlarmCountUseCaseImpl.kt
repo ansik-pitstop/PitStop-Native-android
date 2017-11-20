@@ -18,7 +18,7 @@ class GetAlarmCountUseCaseImpl (  val localAlarmStorage: LocalAlarmStorage,
     private var carid:Int = 0
 
     override fun execute(carid:Int,  callback: GetAlarmCountUseCase.Callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started, input carId= "+carid
+        Logger.getInstance().logI(TAG,"Use case execution started, input carId= "+carid
                 ,false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.carid = carid
@@ -28,7 +28,7 @@ class GetAlarmCountUseCaseImpl (  val localAlarmStorage: LocalAlarmStorage,
     override fun run() {
         localAlarmStorage.getAlarmCount(this.carid, object:  Repository.Callback<Int>{
             override fun onSuccess(data: Int?) {
-                Logger.getInstance().logE(TAG,"Use case finished: result="+data
+                Logger.getInstance().logI(TAG,"Use case finished: result="+data
                         ,false, DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onAlarmCountGot(data!!)})
             }

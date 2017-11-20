@@ -23,7 +23,7 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
     private var callback: GetDealershipWithCarIssuesUseCase.Callback? = null
 
     override fun execute(callback: GetDealershipWithCarIssuesUseCase.Callback) {
-        Logger.getInstance()!!.logE(tag, "Use case execution started"
+        Logger.getInstance()!!.logI(tag, "Use case execution started"
                 , false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
@@ -36,7 +36,7 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
     }
 
     private fun onGotDealershipAndIssues(dealership: Dealership, carIssues: List<CarIssue>){
-        Logger.getInstance()!!.logE(tag, "Use case finished: dealership=$dealership, carIssues=$carIssues"
+        Logger.getInstance()!!.logI(tag, "Use case finished: dealership=$dealership, carIssues=$carIssues"
                 , false, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssues) })
     }

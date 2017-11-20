@@ -31,7 +31,7 @@ public class GetCarByVinUseCaseImpl implements GetCarByVinUseCase {
 
     @Override
     public void execute(String vin, Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started: vin="+vin
+        Logger.getInstance().logI(TAG,"Use case execution started: vin="+vin
                 ,false, DebugMessage.TYPE_USE_CASE);
         this.vin = vin;
         this.callback = callback;
@@ -58,13 +58,13 @@ public class GetCarByVinUseCaseImpl implements GetCarByVinUseCase {
     }
 
     private void onGotCar(Car car){
-        Logger.getInstance().logE(TAG,"Use case finished result: car="+car
+        Logger.getInstance().logI(TAG,"Use case finished result: car="+car
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotCar(car));
     }
 
     private void onNoCarFound(){
-        Logger.getInstance().logE(TAG,"Use case finished result: no car found!"
+        Logger.getInstance().logI(TAG,"Use case finished result: no car found!"
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarFound());
     }

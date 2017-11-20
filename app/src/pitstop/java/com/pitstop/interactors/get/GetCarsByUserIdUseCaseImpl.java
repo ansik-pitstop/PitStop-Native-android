@@ -46,14 +46,14 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void execute(GetCarsByUserIdUseCase.Callback callback) {
-        Logger.getInstance().logE(TAG,"Use case execution started"
+        Logger.getInstance().logI(TAG,"Use case execution started"
                 ,false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onCarsRetrieved(List<Car> cars){
-        Logger.getInstance().logE(TAG,"Use case execution finished: cars="+cars
+        Logger.getInstance().logI(TAG,"Use case execution finished: cars="+cars
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarsRetrieved(cars));
     }

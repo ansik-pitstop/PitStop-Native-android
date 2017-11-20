@@ -15,7 +15,7 @@ class CheckNetworkConnectionUseCaseImpl(val networkHelper: NetworkHelper
     private val tag = javaClass.simpleName
 
     override fun execute(callback: CheckNetworkConnectionUseCase.Callback) {
-        Logger.getInstance()!!.logE(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -23,7 +23,7 @@ class CheckNetworkConnectionUseCaseImpl(val networkHelper: NetworkHelper
     override fun run() {
         val isConnected = networkHelper.isConnected
         mainHandler.post({callback!!.onGotConnectionStatus(isConnected)})
-        Logger.getInstance()!!.logE(tag, "Use case finished: isConnected="+isConnected
+        Logger.getInstance()!!.logI(tag, "Use case finished: isConnected="+isConnected
                 , false, DebugMessage.TYPE_USE_CASE)
     }
 
