@@ -3,17 +3,22 @@ package com.pitstop.interactors.add;
 import android.os.Handler;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matthew on 2017-06-21.
  */
 
 public class AddShopUseCaseImpl implements AddShopUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private UserRepository userRepository;
     private ShopRepository shopRepository;
     private AddShopUseCase.Callback callback;
@@ -30,25 +35,21 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
     }
 
     private void onShopAdded(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onShopAdded();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished result: shop added successfully"
+                ,false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onShopAdded());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+                ,false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(Dealership dealership, AddShopUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: dealership="+dealership
+                ,false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.dealership = dealership;
         useCaseHandler.post(this);
