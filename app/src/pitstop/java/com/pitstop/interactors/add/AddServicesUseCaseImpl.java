@@ -7,12 +7,14 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -23,6 +25,8 @@ import java.util.List;
  */
 
 public class AddServicesUseCaseImpl implements AddServicesUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private CarIssueRepository carIssueRepository;
     private UserRepository userRepository;
@@ -42,21 +46,13 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     }
 
     private void onServicesAdded(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onServicesAdded();
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case finished result: service added",false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onServicesAdded());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error,false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -91,6 +87,8 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
 
     @Override
     public void execute(List<CarIssue> carIssues, String eventSource, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started input: carIssues="+carIssues
+                ,false, DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carIssues = carIssues;
