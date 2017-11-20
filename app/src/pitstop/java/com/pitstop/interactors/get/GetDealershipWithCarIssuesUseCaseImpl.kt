@@ -3,10 +3,12 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.Dealership
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
+import com.pitstop.utils.Logger
 
 /**
  * Created by Karol Zdebel on 10/16/2017.
@@ -21,8 +23,22 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
     private var callback: GetDealershipWithCarIssuesUseCase.Callback? = null
 
     override fun execute(callback: GetDealershipWithCarIssuesUseCase.Callback) {
+        Logger.getInstance()!!.logE(tag, "Use case execution started"
+                , false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
+    }
+
+    private fun onError(error: RequestError){
+        Logger.getInstance()!!.logE(tag, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE)
+        callback!!.onError(error)
+    }
+
+    private fun onGotDealershipAndIssues(dealership: Dealership, carIssues: List<CarIssue>){
+        Logger.getInstance()!!.logE(tag, "Use case finished: dealership=$dealership, carIssues=$carIssues"
+                , false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssues) })
     }
 
     override fun run() {
@@ -41,18 +57,18 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
 
                                     override fun onSuccess(dealership: Dealership) {
                                         Log.d(tag, "got dealership: "+dealership)
-                                        mainHandler.post({ callback!!.onGotDealershipAndIssues(dealership, carIssueList) })
+                                        this@GetDealershipWithCarIssuesUseCaseImpl.onGotDealershipAndIssues(dealership,carIssueList)
                                     }
 
                                     override fun onError(error: RequestError) {
                                         Log.d(tag, "onError() err: ${error.message}")
-                                        mainHandler.post({ callback!!.onError(error) })
+                                        this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
                                     }
                                 })
                             }
 
                             override fun onError(error: RequestError) {
-                                callback!!.onError(error)
+                                this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
                             }
                         })
                         Log.d(tag, "got car issues")
@@ -60,14 +76,14 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
                     }
 
                     override fun onError(error: RequestError) {
-                        mainHandler.post({ callback!!.onError(error) })
+                        this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
                     }
 
                 })
             }
             override fun onError(error: RequestError) {
                 Log.d(tag,"onError() err: ${error.message}")
-                mainHandler.post({callback!!.onError(error)})
+                this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
             }
 
         })

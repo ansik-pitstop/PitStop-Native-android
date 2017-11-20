@@ -2,16 +2,21 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matt on 2017-06-14.
  */
 
 public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private UserRepository userRepository;
@@ -27,25 +32,21 @@ public class GetCurrentUserUseCaseImpl implements GetCurrentUserUseCase {
     }
 
     private void onUserRetrieved(User user){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onUserRetrieved(user);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case finished: user="+user
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onUserRetrieved(user));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case returned error="+error
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(GetCurrentUserUseCase.Callback callback) {
+        Logger.getInstance().logE(TAG, "Use case execution started"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
