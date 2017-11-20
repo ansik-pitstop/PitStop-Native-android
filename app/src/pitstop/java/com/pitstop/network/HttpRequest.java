@@ -264,7 +264,7 @@ public class HttpRequest {
         }
 
         private void logOut() {
-            Logger.getInstance().LOGD(TAG, "Refresh failed, logging out");
+            //Logger.getInstance().LOGD(TAG, "Refresh failed, logging out");
             application.logOutUser();
             Toast.makeText(application, application.getString(R.string.log_in_again_toast), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(application, LoginActivity.class);
@@ -273,7 +273,7 @@ public class HttpRequest {
         }
 
         private void showNetworkFailure(String message) {
-            Logger.getInstance().LOGD(TAG, "Refresh failed");
+            //Logger.getInstance().LOGD(TAG, "Refresh failed");
             // Track in mixpanel
             try {
                 JSONObject properties = new JSONObject();

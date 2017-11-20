@@ -24,7 +24,9 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
@@ -280,20 +282,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
-
+            Logger.getInstance().logI(TAG,"Discovery started",false,DebugMessage.TYPE_BLUETOOTH);
             //If discovery takes longer than 20 seconds, timeout and cancel it
             discoveryWasStarted = true;
             discoveryNum++;
             useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, timerDiscoveryNum -> {
                 if (discoveryNum == timerDiscoveryNum
                         && discoveryWasStarted){
-                    Log.d(TAG,"discovery timeout!");
+                    Logger.getInstance().logE(TAG,"Discovery timeout",false,DebugMessage.TYPE_BLUETOOTH);
                     mBluetoothAdapter.cancelDiscovery();
                 }
             });
 
             rssiScan = true;
-            Log.i(TAG, "BluetoothAdapter starts discovery");
             foundDevices.clear(); //Reset found devices map from previous scan
             return true;
         }
@@ -425,13 +426,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 discoveryWasStarted = false;
                 discoveryNum++;
-                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan+" found devices size: "
-                        +foundDevices.size());
+                Logger.getInstance().logI(TAG,"Discovery finished",false,DebugMessage.TYPE_BLUETOOTH);
+
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
+                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevices,false,DebugMessage.TYPE_BLUETOOTH);
                     mixpanelHelper.trackFoundDevices(foundDevices);
-                    Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
                     if (foundDevices.size() > 0){
                         //Try to connect to available device, if none qualify then finish scan
                         if (!connectToNextDevice()) dataListener.scanFinished();
@@ -540,7 +541,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
     public void getSupportedPids() {
-        Log.d(TAG,"getSupportedPids()");
+        Logger.getInstance().logI(TAG,"Requested supported pid",false, DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -550,7 +551,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids, int timeInterval) {
-        Log.d(TAG,"setPidsToSend: "+pids);
+        Logger.getInstance().logI(TAG,"Set pids to be sent: "+pids+", interval: "+timeInterval,false, DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }

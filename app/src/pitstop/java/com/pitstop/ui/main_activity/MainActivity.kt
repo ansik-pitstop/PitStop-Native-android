@@ -760,15 +760,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     private fun logAuthInfo() {
-        Logger.getInstance().LOGD(TAG, "RefreshToken: " + application!!.refreshToken)
-        Logger.getInstance().LOGD(TAG, "AccessToken: " + application!!.accessToken)
+        Log.d(TAG,"RefreshToken: " + application!!.refreshToken)
+        Log.d(TAG,"AccessToken: " + application!!.accessToken)
     }
 
     override fun onDeviceNeedsOverwrite() {
-
-        Logger.getInstance().LOGD(TAG, "onDeviceNeedsOverwrite(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
-                + " ignoreMissingDeviceName?" + ignoreMissingDeviceName)
-
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
 
@@ -878,7 +874,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             addCarBtn?.visibility = View.VISIBLE
         }
         else {
-            drawerRefreshLayout?.isRefreshing = false;
+            drawerRefreshLayout?.isRefreshing = false
         }
     }
 
