@@ -6,12 +6,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.models.Appointment;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Timeline;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.service_request.RequestServiceActivity;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -70,6 +72,7 @@ public class CarIssueRepository implements Repository{
                             .put("isPending", isPending));
             //.put("freezeData", data));
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
         networkHelper.post("issue", (response, requestError) -> {
@@ -104,6 +107,7 @@ public class CarIssueRepository implements Repository{
             }
         }
         catch(JSONException e){
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
         Log.d(TAG,"insert() body: "+body.toString());
@@ -132,6 +136,7 @@ public class CarIssueRepository implements Repository{
             }
             body.put("data", data);
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
 
@@ -164,6 +169,7 @@ public class CarIssueRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(RequestError.getUnknownError());
             }
         };
@@ -185,6 +191,7 @@ public class CarIssueRepository implements Repository{
             body.put("data",data);
 
         }catch (JSONException e){
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             callback.onError(RequestError.getUnknownError());
         }
         networkHelper.post("issue",getInsertCustomRequestCallback(callback,carId),body);
@@ -204,7 +211,7 @@ public class CarIssueRepository implements Repository{
                     issue.setIssueType(CarIssue.SERVICE_USER);
                     callback.onSuccess(issue);
                 }catch (JSONException e){
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onSuccess(new CarIssue());
                 }
             }else{
@@ -227,6 +234,7 @@ public class CarIssueRepository implements Repository{
             }
 
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
 
@@ -243,7 +251,7 @@ public class CarIssueRepository implements Repository{
                         CarIssue carIssue = CarIssue.createCarIssue(new JSONObject(response), 0);
                         callback.onSuccess(carIssue);
                     }catch(JSONException e){
-                        e.printStackTrace();
+                        Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                         callback.onError(RequestError.getUnknownError());
                     }
                 }
@@ -252,6 +260,7 @@ public class CarIssueRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(RequestError.getUnknownError());
             }
         };
@@ -307,6 +316,7 @@ public class CarIssueRepository implements Repository{
                 }
             }
             catch(JSONException e){
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(RequestError.getUnknownError());
             }
         };
@@ -329,6 +339,7 @@ public class CarIssueRepository implements Repository{
             options.put("appointmentDate", appointment.getDate());
             body.put("options", options);
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
         networkHelper.post(END_POINT_REQUEST_SERVICE, getRequestServiceCallback(callback), body);
@@ -340,6 +351,7 @@ public class CarIssueRepository implements Repository{
                 updateSalesman.put("carId", carId);
                 updateSalesman.put("salesperson", appointment.getComments());
             } catch (JSONException e) {
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 e.printStackTrace();
             }
             networkHelper.put("car", (response, requestError) -> {
@@ -383,6 +395,7 @@ public class CarIssueRepository implements Repository{
                 }
             }
             catch(JSONException e){
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(RequestError.getUnknownError());
             }
         };

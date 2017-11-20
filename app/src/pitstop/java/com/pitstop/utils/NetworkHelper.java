@@ -10,7 +10,6 @@ import android.util.Log;
 import com.parse.ParseInstallation;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.models.Trip;
-import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
@@ -129,39 +128,6 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void createNewCar(int userId, int mileage, String vin, String scannerId,
-                             int shopId, RequestCallback callback) {
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("vin", vin);
-            body.put("baseMileage", mileage);
-            body.put("userId", userId);
-            body.put("scannerId", scannerId);
-            body.put("shopId", shopId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("car", callback, body);
-    }
-
-    public void createNewCarWithoutShopId(int userId, int mileage, String vin, String scannerId,
-                                          RequestCallback callback){
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("vin", vin);
-            body.put("baseMileage", mileage);
-            body.put("userId", userId);
-            body.put("scannerId", scannerId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("car", callback, body);
-    }
-
     public void deleteUserCar(int carId, RequestCallback callback) {
 
         JSONObject body = new JSONObject();
@@ -175,71 +141,9 @@ public class NetworkHelper {
         put("car", callback, body);
     }
 
-    public void getCarsByUserId(int userId, RequestCallback callback) {
-        get("car/?userId=" + userId, callback);
-    }
-
-    public void getCarsByVin(String vin, RequestCallback callback) {
-        get("car/?vin=" + vin, callback);
-    }
-
-    public void getCarsById(int carId, RequestCallback callback) {
-        get("car/" + carId, callback);
-    }
-
-    public void updateCar(int carId, double mileage, int shopId, RequestCallback callback){
-
-    }
-
-    public void updateCarMileage(int carId, double mileage, RequestCallback callback) {
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("carId", carId);
-            body.put("totalMileage", mileage);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("car", callback, body);
-    }
-
-    public void updateCarShop(int carId, int shopId, RequestCallback callback) {
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("carId", carId);
-            body.put("shopId", shopId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("car", callback, body);
-    }
-
     public void getShops(RequestCallback callback) {
         //Logger.getInstance().LOGI(TAG, "getShops");
         get("shop", callback);
-    }
-
-    /**
-     * Allow the user to change his/her phone number in the preference
-     *
-     * @param userId
-     * @param phoneNumber
-     * @param callback
-     */
-    public void updateUserPhone(int userId, String phoneNumber, RequestCallback callback) {
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("userId", userId);
-            body.put("phone", phoneNumber);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("user", callback, body);
     }
 
     public void loginSocial(String accessToken, String provider, RequestCallback callback) {
@@ -287,31 +191,6 @@ public class NetworkHelper {
         postNoAuth("user", callback, newUser);
     }
 
-    public void addNewDtc(int carId, double mileage, String rtcTime, String dtcCode, boolean isPending, RequestCallback callback) {
-
-        JSONObject body = new JSONObject();
-        //JSONArray data = new JSONArray(); // TODO: Freeze data
-
-        try {
-            //for(PIDInfo info : freezeData) {
-            //    data.put(new JSONObject().put("id", info.pidType).put("data", info.value));
-            //}
-
-            body.put("carId", carId);
-            body.put("issueType", CarIssue.DTC);
-            body.put("data",
-                    new JSONObject().put("mileage", mileage)
-                            .put("rtcTime", Long.parseLong(rtcTime))
-                            .put("dtcCode", dtcCode)
-                            .put("isPending", isPending));
-                            //.put("freezeData", data));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        post("issue", callback, body);
-    }
-
     public void postFreezeFrame(FreezeFramePackage ffPackage, RequestCallback callback){
         Log.d(TAG, "Posting FF:" + ffPackage);
         JSONObject body = new JSONObject();
@@ -334,23 +213,6 @@ public class NetworkHelper {
 
         post("scan/pids/freeze", callback, body);
     }
-
-    public void saveFreezeData(String scannerId, String serviceType, RequestCallback callback) {
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("scannerId", scannerId);
-            body.put("serviceType", serviceType);
-            body.put("data", new JSONObject()); //?
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        postNoAuth("scan/freezeData", callback, body);
-    }
-
-
 
     public void sendTripStart(String scannerId, String rtcTime, String tripIdRaw, RequestCallback callback) {
         sendTripStart(scannerId, rtcTime, tripIdRaw, null, callback);
@@ -387,25 +249,6 @@ public class NetworkHelper {
         }
 
         putNoAuth("scan/trip", callback, tripBody);
-    }
-
-    public void savePids(int tripId, String scannerId, JSONArray pidArr, RequestCallback callback) {
-//        Logger.getInstance().LOGI(TAG, "savePids to " + scannerId);
-//        Logger.getInstance().LOGV(TAG, "pidArr: " + pidArr.toString());
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("tripId", tripId);
-            body.put("scannerId", scannerId);
-            body.put("pidArray", pidArr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        postNoAuth("scan/pids", callback, body);
     }
 
     public void getUser(int userId, RequestCallback callback) {
@@ -455,62 +298,6 @@ public class NetworkHelper {
         }
     }
 
-    public void getMainCar(final int userId, final RequestCallback callback){
-        getUserSettingsById(userId, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null){
-                    try{
-                        JSONObject options = new JSONObject(response);
-                        if (options.getJSONObject("user").has("mainCar")){
-                            int mainCarId = options.getJSONObject("user").getInt("mainCar");
-                            getCarsById(mainCarId,callback);
-                        }
-                        else{
-                            callback.done(null,requestError);
-                        }
-
-                    }
-                    catch(JSONException e){
-                        callback.done(response,requestError);
-                        Log.d("TAG","JSONException Caught!");
-                    }
-                }
-                else{
-                    callback.done(response,requestError);
-                }
-            }
-        });
-    }
-
-    // 6/9/2017 -->> Restructured this method so that it doesn't override other settings
-    public void setMainCar(final int userId, final int carId, final RequestCallback callback) {
-        //Logger.getInstance().LOGI(TAG, String.format("setMainCar: userId: %s, carId: %s", userId, carId));
-
-        getUserSettingsById(userId, new RequestCallback() {
-            // need to add option instead of replace
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (requestError == null) {
-                    try {
-                        JSONObject options = new JSONObject(response).getJSONObject("user");
-                        options.put("mainCar",carId);
-
-                        JSONObject putOptions = new JSONObject();
-                        putOptions.put("settings",options);
-
-                        put("user/" + userId + "/settings", callback, putOptions);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else{
-                    callback.done(response,requestError);
-                }
-            }
-        });
-    }
-
     public void setNoMainCar(final int userId, final RequestCallback callback) {
         //Logger.getInstance().LOGI(TAG, String.format("setNoMainCar: userId: %s", userId));
 
@@ -547,21 +334,6 @@ public class NetworkHelper {
         get(String.format("scan/trip/?scannerId=%s&latest=true&active=true", scannerId), callback);
     }
 
-    public void updateMileageStart(double mileageStart, int tripId, RequestCallback callback) {
-       // Logger.getInstance().LOGI(TAG, "updateMileageStart: mileage: " + mileageStart + ", tripId: " + tripId);
-
-        JSONObject body = new JSONObject();
-
-        try {
-            body.put("mileageStart", mileageStart);
-            body.put("tripId", tripId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        putNoAuth("scan/trip", callback, body);
-    }
-
     /**
      * Get the aggregated settings
      *
@@ -576,29 +348,6 @@ public class NetworkHelper {
 
     public void getUpcomingCarIssues(int carId, RequestCallback callback){
         get(String.format("car/%s/issues?type=upcoming", String.valueOf(carId)), callback);
-    }
-
-    public void getUserInstallationId(int userId, final RequestCallback callback){
-        getUser(userId, new RequestCallback() {
-            @Override
-            public void done(String response, RequestError requestError) {
-                if (response == null || requestError != null){
-                    callback.done(null,requestError);
-                    return;
-                }
-                JSONObject jObject  = null;
-                String installationIDResponse = "";
-                try {
-                    jObject = new JSONObject(response);
-                    JSONArray data = jObject.getJSONArray(INSTALLATION_ID_KEY);
-                    installationIDResponse = data.toString();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                callback.done(installationIDResponse, requestError);
-            }
-        });
-
     }
 
     public void getAppointments(int carId, RequestCallback callback){

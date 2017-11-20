@@ -5,8 +5,10 @@ import android.util.Log;
 import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -70,8 +72,8 @@ public class ShopRepository implements Repository{
                     allShopsLoaded = true;
                     callback.onSuccess(dealerships);
                 }catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
             }else{
                 callback.onError(requestError);
@@ -91,8 +93,8 @@ public class ShopRepository implements Repository{
                     }
                     callback.onSuccess(dealerships);
                 }catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
             }else{
                 callback.onError(requestError);
@@ -122,7 +124,8 @@ public class ShopRepository implements Repository{
             body.put("address",dealership.getAddress());
             body.put("googlePlacesId","");// to be added
         }catch (JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
+
         }
         networkHelper.post(END_POINT_SHOP
                 ,getInsertShopRequestCallback(callback,userId,dealership),body);
@@ -189,8 +192,8 @@ public class ShopRepository implements Repository{
                                         callback.onError(requestError);
                                     }
                                 }catch (JSONException e){
+                                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                                     callback.onError(RequestError.getUnknownError());
-                                    e.printStackTrace();
                                 }
                             }
                         });
@@ -198,8 +201,8 @@ public class ShopRepository implements Repository{
                         callback.onError(requestError);
                     }
                 }catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
             }
         };
@@ -250,8 +253,8 @@ public class ShopRepository implements Repository{
                         }
                     },userSettings);
                 }catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
 
             }else{
@@ -292,8 +295,8 @@ public class ShopRepository implements Repository{
                         }
                     },userSettings);
                 }catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
             }else{
                 callback.onError(requestError);

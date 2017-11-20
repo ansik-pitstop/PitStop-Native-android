@@ -4,9 +4,11 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -66,6 +68,7 @@ public class Device215TripRepository implements Repository{
             body.put("tripIdRaw", String.valueOf(tripStart.getTripIdRaw()));
             body.put("mileageStart", tripStart.getMileage());
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
 
@@ -92,7 +95,7 @@ public class Device215TripRepository implements Repository{
                     Log.d(TAG,"returning trip start: "+start);
                     callback.onSuccess(start);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
                 }
             }
@@ -112,6 +115,7 @@ public class Device215TripRepository implements Repository{
             body.put("tripId", tripEnd.getTripId());
             body.put("rtcTimeEnd", tripEnd.getRtcTime());
         } catch (JSONException e) {
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
         }
 
@@ -156,8 +160,8 @@ public class Device215TripRepository implements Repository{
                     callback.onSuccess(trip);
                 }
                 catch(JSONException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
-                    e.printStackTrace();
                 }
 
             }
