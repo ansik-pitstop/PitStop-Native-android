@@ -6,10 +6,12 @@ import com.pitstop.EventBus.EventBusNotifier
 import com.pitstop.EventBus.EventSource
 import com.pitstop.EventBus.EventType
 import com.pitstop.EventBus.EventTypeImpl
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarIssueRepository
 import com.pitstop.repositories.Repository
+import com.pitstop.utils.Logger
 
 /**
  * Created by Karol Zdebel on 10/20/2017.
@@ -23,6 +25,8 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
     var callback: SetServicesDoneUseCase.Callback? = null
 
     override fun execute(carIssues: List<CarIssue>, eventSource: EventSource, callback: SetServicesDoneUseCase.Callback) {
+        Logger.getInstance()!!.logI(tag, "Use case execution started: carIssues="+carIssues
+                , false, DebugMessage.TYPE_USE_CASE)
         this.carIssues = carIssues
         this.eventSource = eventSource
         this.callback = callback
@@ -47,10 +51,14 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
                         EventBusNotifier.notifyCarDataChanged(
                                 EventTypeImpl(EventType.EVENT_SERVICES_HISTORY), eventSource)
                         mainHandler.post({callback!!.onComplete()})
+                        Logger.getInstance()!!.logI(tag, "Use case finished"
+                                , false, DebugMessage.TYPE_USE_CASE)
                     }
                 }
 
                 override fun onError(error: RequestError) {
+                    Logger.getInstance()!!.logI(tag, "Use case returned error: err=$error"
+                            , false, DebugMessage.TYPE_USE_CASE)
                     mainHandler.post({callback!!.onError(error)})
                 }
             })
