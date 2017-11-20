@@ -3,16 +3,18 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.database.LocalSpecsStorage;
-import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by ishan on 2017-09-27.
  */
 
 public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
+
+    private final String TAG = getClass().getSimpleName();
 
     private GetLicensePlateUseCase.Callback callback;
     private Handler mainHandler;
@@ -31,28 +33,23 @@ public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
 
     @Override
     public void execute(int Carid, Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution: carId="+Carid
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carID = Carid;
         useCaseHandler.post(this);
     }
 
     public void onError(RequestError error){
-
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     public void onLicensePlateStored(String licensePlate){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onLicensePlateGot(licensePlate);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: license{late="+licensePlate
+                , false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onLicensePlateGot(licensePlate));
     }
 
     @Override

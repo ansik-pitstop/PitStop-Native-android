@@ -4,15 +4,19 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothDtcObserver;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matt on 2017-08-23.
  */
 
 public class GetDTCUseCaseImpl implements GetDTCUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private Callback callback;
     private Handler useCaseHandler;
@@ -26,7 +30,8 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
 
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
-        this.callback = callback;
+        Logger.getInstance().logE(TAG, "Use case execution started"
+                , false, DebugMessage.TYPE_USE_CASE);   this.callback = callback;
         this.bluetooth = bluetooth;
         useCaseHandler.post(this);
     }
@@ -39,6 +44,8 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
     }
 
     private void onGotDTCs(DtcPackage dtc, BluetoothDtcObserver bluetoothDtcObserver){
+        Logger.getInstance().logE(TAG, "Use case finished: dtc="+dtc
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             callback.onGotDTCs(dtc);
             bluetooth.unsubscribe(bluetoothDtcObserver);
@@ -46,6 +53,8 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

@@ -4,9 +4,11 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothPidObserver;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matt on 2017-08-23.
@@ -28,12 +30,16 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
 
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.bluetooth = bluetooth;
         useCaseHandler.post(this);
     }
 
     private void onGotPIDs(PidPackage allPid, BluetoothPidObserver pidObserver){
+        Logger.getInstance().logI(TAG, "Use case finished: allPid="+allPid
+                , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             bluetooth.unsubscribe(pidObserver);
             callback.onGotPIDs(allPid);
