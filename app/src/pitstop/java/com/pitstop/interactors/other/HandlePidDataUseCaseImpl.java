@@ -5,12 +5,14 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalPidStorage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Pid;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.utils.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +65,8 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     @Override
     public void execute(PidPackage pidPackage, Callback callback, int chunkSize) {
+        Logger.getInstance().logI(TAG,"Use case execution started: pidPackage="+pidPackage+", chunkSize="+chunkSize
+                ,false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.pidPackage = pidPackage;
         this.pidChunkSize = chunkSize;
@@ -75,13 +79,21 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         useCaseHandler.post(this);
     }
-    private void onDataStored(){mainHandler.post(() -> callback.onDataStored());}
+    private void onDataStored(){
+        Logger.getInstance().logI(TAG,"Use case finished: data stored"
+                ,false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onDataStored());
+    }
 
     private void onError(RequestError error){
+        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+                ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     private void onDataSent(){
+        Logger.getInstance().logI(TAG,"Use case finished: data sent"
+                ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDataSent());
     }
 
