@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -16,6 +17,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -59,6 +61,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     @Override
     public void execute(int carToDeleteId,String eventSource, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: carToDeleteId="+carToDeleteId
+                        +", eventSource="+eventSource
+                ,false, DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.carToDeleteId = carToDeleteId;
         this.callback = callback;
@@ -66,16 +71,15 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     }
 
     private void onCarRemoved(){
+        Logger.getInstance().logI(TAG,"Use case execution finished: car removed"
+                ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarRemoved());
     }
 
     private void onError(RequestError error){
-        boolean post = mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+                ,false, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
