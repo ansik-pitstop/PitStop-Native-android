@@ -1,7 +1,6 @@
 package com.pitstop.interactors.add
 
 import android.os.Handler
-import android.util.Log
 import com.pitstop.database.LocalAlarmStorage
 import com.pitstop.models.Alarm
 import com.pitstop.models.DebugMessage
@@ -27,7 +26,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
 
 
     override fun execute(alarm: Alarm, callback: AddAlarmUseCase.Callback) {
-        Log.d(TAG, "Use case executed alarm: "+alarm)
+        Logger.getInstance().logE(TAG,"Use case execution started, input alarm: "+alarm,false, DebugMessage.TYPE_USE_CASE)
         this.alarm = alarm
         this.callback = callback
         useCaseHandler.post(this);
