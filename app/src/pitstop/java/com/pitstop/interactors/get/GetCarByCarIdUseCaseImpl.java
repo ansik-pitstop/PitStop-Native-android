@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -12,6 +13,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -43,16 +45,22 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
     @Override
     public void execute(int carId,Callback callback) {
+        Logger.getInstance().logE(TAG,"Use case execution started: carId="+carId
+                ,false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carId = carId;
         useCaseHandler.post(this);
     }
 
     private void onCarGot(Car car, Dealership dealership){
+        Logger.getInstance().logE(TAG,"Use case finished result: car="+car+", dealership="+dealership
+                ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarGot(car, dealership));
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     };
 
