@@ -2,12 +2,10 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
-import com.pitstop.models.Car
-import com.pitstop.models.Dealership
-import com.pitstop.models.Settings
-import com.pitstop.models.User
+import com.pitstop.models.*
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
+import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -23,8 +21,20 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     var callback: GetCarsWithDealershipsUseCase.Callback? = null
 
     override fun execute(callback: GetCarsWithDealershipsUseCase.Callback) {
+        Logger.getInstance()!!.logE(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
+    }
+
+    fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>, local: Boolean){
+        Logger.getInstance()!!.logE(tag, "Use case finished: map="+data+", local="+local
+                , false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({ callback!!.onGotCarsWithDealerships(data,local) })
+    }
+
+    fun onError(error: RequestError){
+        Logger.getInstance()!!.logE(tag, "Use case returned error: err="+error, false, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({onError(error)})
     }
 
     override fun run() {
@@ -36,20 +46,19 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError({err ->
                             Log.d(tag,"err: "+err)
-                            mainHandler.post({callback?.onError(RequestError(err))})})
+                            this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))
+                        })
                         .doOnNext { carListResponse ->
-                            Log.d(tag, "getCarsByUserId() response: " + carListResponse)
                             val carList = carListResponse.data
                             if (carList == null) {
-                                mainHandler.post({onError(RequestError.getUnknownError())})
+                                this@GetCarsWithDealershipsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
                                 return@doOnNext
                             }
                             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                                 override fun onSuccess(settings: Settings) {
-                                    Log.d(tag, "getCurrentUserSetting() resonse: " + settings)
                                     if (carList.isEmpty()) {
-                                        mainHandler.post({ callback!!
-                                                .onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>(),carListResponse.isLocal) })
+                                        this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()
+                                                ,carListResponse.isLocal)
                                         return@onSuccess
                                     }
 
@@ -58,9 +67,6 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                             val map = LinkedHashMap<Car,Dealership>()
                                             for (c in carList) {
                                                 c.isCurrentCar = c.id == settings.carId
-                                                Log.d(tag, "getAllShops() response: " + dealershipList)
-                                                Log.d(tag, "cars for user: " + carList)
-                                                Log.d(tag, "shops for user: " + dealershipList)
                                                 dealershipList
                                                     .filter { c.shopId == it.id }
                                                     .forEach {
@@ -68,33 +74,29 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                                         map.put(c, it)
                                                     }
                                             }
-                                            Log.d(tag, "Resulting map: " + map)
-                                            mainHandler.post({ callback!!.onGotCarsWithDealerships(map,carListResponse.isLocal) })
+                                            this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(map,carListResponse.isLocal)
                                         }
 
                                         override fun onError(error: RequestError) {
-                                            mainHandler.post({ callback!!.onError(error) })
+                                            this@GetCarsWithDealershipsUseCaseImpl.onError(error)
                                         }
                                     })
                                 }
 
                                 override fun onError(error: RequestError) {
-                                    mainHandler.post({callback!!.onError(error)})
+                                    this@GetCarsWithDealershipsUseCaseImpl.onError(error)
                                 }
 
                             })
 
                         }.onErrorReturn { err ->
-                            Log.d(tag, "getCarsByUserId() err: " + err)
                             RepositoryResponse<List<Car>>(null, false)
-                        }.doOnError({err ->
-                            Log.d(tag,"doOnError() err: "+err)
-                           mainHandler.post{callback?.onError(RequestError(err))}
-                        }).subscribe()
+                        }.doOnError({err -> this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))})
+                        .subscribe()
             }
 
             override fun onError(error: RequestError) {
-                mainHandler.post({callback!!.onError(error)})
+                this@GetCarsWithDealershipsUseCaseImpl.onError(error)
             }
         })
     }
