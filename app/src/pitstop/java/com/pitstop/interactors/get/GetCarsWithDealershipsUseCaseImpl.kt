@@ -34,7 +34,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
     fun onError(error: RequestError){
         Logger.getInstance()!!.logE(tag, "Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE)
-        mainHandler.post({onError(error)})
+        mainHandler.post({callback!!.onError(error)})
     }
 
     override fun run() {

@@ -85,9 +85,7 @@ public class Logger {
                                             @Override
                                             public void onMessageSent(GelfMessage gelfMessage) {
                                                 Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
-                                                localDebugMessageStorage
-                                                        .removeMessage(gelfMessage.getTimestamp()
-                                                                ,gelfMessage.getMessage());
+                                                localDebugMessageStorage.removeAllMessages();
                                             }
 
                                             @Override
