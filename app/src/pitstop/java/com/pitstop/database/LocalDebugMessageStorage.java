@@ -27,13 +27,8 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     }
 
     public void removeAllMessages(){
-        mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,null,null);
-    }
-
-    public void removeMessage(long timestamp, String message){
-        int removed = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,COLUMN_TIMESTAMP + "=? AND "+COLUMN_MESSAGE + "=? "
-                ,String.valueOf(timestamp),message);
-        Log.d(TAG,"removeMessage() removed rows: "+removed);
+        int removed = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,null,null);
+        Log.d(TAG,"removeAllMessages() rows removed: "+removed);
     }
 
     public QueryObservable getQueryObservable(int type) {

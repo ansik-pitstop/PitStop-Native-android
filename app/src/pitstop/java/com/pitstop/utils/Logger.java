@@ -85,8 +85,6 @@ public class Logger {
                                             @Override
                                             public void onMessageSent(GelfMessage gelfMessage) {
                                                 Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
-                                                localDebugMessageStorage.removeMessage((long)gelfMessage.getTimestamp()
-                                                        ,gelfMessage.getMessage());
                                             }
 
                                             @Override
@@ -148,9 +146,7 @@ public class Logger {
 
     public void logV(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
-            if (showLogcat) {
-                Log.v(tag, message);
-            }
+            Log.v(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_V));
         }
@@ -158,9 +154,7 @@ public class Logger {
 
     public void logD(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
-            if (showLogcat) {
-                Log.d(tag, message);
-            }
+            Log.d(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D));
         }
@@ -168,9 +162,7 @@ public class Logger {
 
     public void logI(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
-            if (showLogcat) {
-                Log.i(tag, message);
-            }
+            Log.i(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I));
         }
@@ -178,9 +170,7 @@ public class Logger {
 
     public void logW(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
-            if (showLogcat) {
-                Log.w(tag, message);
-            }
+            Log.w(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W));
         }
@@ -188,9 +178,7 @@ public class Logger {
 
     public void logE(String tag, String message, boolean showLogcat, int type) {
         if(NOT_RELEASE && NOT_BETA) {
-            if (showLogcat) {
-                Log.e(tag, message);
-            }
+            Log.e(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));
         }
