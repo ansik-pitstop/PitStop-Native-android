@@ -1259,7 +1259,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void setConnectionState(String deviceConnState){
-        Logger.getInstance().logI(TAG,"Connection status change: "+deviceConnState,false,DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Connection status change: state="+deviceConnState+", device="+readyDevice
+                ,false,DebugMessage.TYPE_BLUETOOTH);
         this.deviceConnState = deviceConnState;
     }
 

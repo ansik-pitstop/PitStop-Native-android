@@ -432,7 +432,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
-                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevices,false,DebugMessage.TYPE_BLUETOOTH);
+
+                    String foundDevicesString = "{";
+                    for (Map.Entry<BluetoothDevice,Short> d: foundDevices.entrySet()){
+                        foundDevicesString += d.getKey().getName()+"="+d.getValue()+",";
+                    }
+                    foundDevicesString+="}";
+
+                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevicesString,false,DebugMessage.TYPE_BLUETOOTH);
                     mixpanelHelper.trackFoundDevices(foundDevices);
                     if (foundDevices.size() > 0){
                         //Try to connect to available device, if none qualify then finish scan
