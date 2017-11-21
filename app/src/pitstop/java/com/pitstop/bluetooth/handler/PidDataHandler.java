@@ -34,12 +34,25 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class PidDataHandler {
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
-
     private static boolean pidDataSentVisible = false;
 
     private int networkChunkSize = 10;
 
+    private Handler handler = new Handler();
+    private final Runnable periodicPidStatsLogger = new Runnable() {
+        @Override
+        public void run() {
+            Logger.getInstance().logI(TAG,"Pid retrieval info for last 60 seconds: total="
+                    +pidsReceived+", invalid="+nullPidsReceived+", sent="+pidsSavedToServer, true
+                    , DebugMessage.TYPE_BLUETOOTH);
+            handler.postDelayed(this,60000);
+        }
+    };
 
+    //Tracking variables for logs
+    private int pidsReceived = 0;
+    private int nullPidsReceived = 0;
+    private int pidsSavedToServer = 0;
 
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
@@ -59,22 +72,26 @@ public class PidDataHandler {
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
-
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
         this.context = context;
         initPidPriorityList();
+        handler.post(periodicPidStatsLogger);
     }
 
     public void clearPendingData(){
         pendingPidPackages.clear();
     }
 
-
-
     public void handlePidData(PidPackage pidPackage){
+        pidsReceived++;
+        if (pidPackage == null){
+            nullPidsReceived++;
+            return;
+        }
+
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
@@ -96,11 +113,9 @@ public class PidDataHandler {
                 @Override
                 public void onDataSent() {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
-                        if (pendingPidPackages.size() > 0) {
-                            Log.d(TAG, p.timestamp + "Data sent to Server");
-                            visualizePidDataSent(true, context, p.timestamp);
-                        }
-                        else {Log.d(TAG, "???????????");}
+                        Log.d(TAG, p.timestamp + "Data sent to Server");
+                        visualizePidDataSent(true, context, p.timestamp);
+                        pidsSavedToServer++;
                     }
                     else {
                         Log.d(TAG, "notRightBuild");

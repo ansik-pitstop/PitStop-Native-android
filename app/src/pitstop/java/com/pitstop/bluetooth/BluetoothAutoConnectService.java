@@ -658,17 +658,16 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
-        if (pidPackage == null) return;
 
         //Set device id if its found in pid package
-        if (pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
+        if (pidPackage != null && pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
             currentDeviceId = pidPackage.deviceId;
         }
         pidPackage.deviceId = currentDeviceId;
         pidDataHandler.handlePidData(pidPackage);
 
         //212 pid "snapshot" broadcast logic
-        if (!deviceManager.isConnectedTo215()){
+        if (pidPackage != null && !deviceManager.isConnectedTo215()){
             if (pidPackage.pids == null){
                 pidPackage.pids = new HashMap<>();
                 notifyGotAllPid(pidPackage);

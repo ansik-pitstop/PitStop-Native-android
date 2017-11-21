@@ -181,7 +181,7 @@ public class Logger {
     }
 
     public void logD(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE) {
+        if(NOT_RELEASE && false) {
             Log.d(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D));
