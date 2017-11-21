@@ -1,7 +1,8 @@
 package com.pitstop.utils;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
@@ -20,10 +21,7 @@ import org.graylog2.gelfclient.transport.GelfTransport;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
-
-import rx.schedulers.Schedulers;
 
 public class Logger {
 
@@ -37,6 +35,7 @@ public class Logger {
     private GelfTransport gelfTransport = null;
     private Context context;
     private LocalUserStorage localUserStorage;
+    private Handler logHandler = new Handler((new HandlerThread("LoggerThread")).getLooper());
 
     public static Logger getInstance(){
         if (INSTANCE == null){
@@ -49,123 +48,101 @@ public class Logger {
     public Logger(Context context){
         this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
-        LocalDebugMessageStorage localDebugMessageStorage = new LocalDebugMessageStorage(context);
-        localDebugMessageStorage.getQueryObservableAll()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .onErrorReturn(err -> {
-                    Log.d(TAG,"error");
-                    return null;
-                }).doOnError(err -> Log.d(TAG,"err: "+err))
-                .map(query -> {
-                    Cursor c = query.run();
-                    List<DebugMessage> messageList = new ArrayList<>();
-                    if(c.moveToFirst()) {
-                        while(!c.isAfterLast()) {
-                            messageList.add(DebugMessage.fromCursor(c));
-                            c.moveToNext();
-                        }
-                    }
-                    c.close();
-                    return messageList;
-                }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null)
-                .subscribe(messageList -> {
-                    Log.d(TAG,"messages received: "+messageList);
-                    if (gelfTransport == null){
-                        gelfTransport = GelfTransports.create(
-                                new GelfConfiguration(new InetSocketAddress(
-                                        "graylog.backend-service.getpitstop.io", 12900))
-                                        .transport(GelfTransports.TCP)
-                                        .tcpKeepAlive(false)
-                                        .queueSize(512)
-                                        .connectTimeout(12000)
-                                        .reconnectDelay(1000)
-                                        .sendBufferSize(-1)
-                                        .resultListener(new GelfTransportResultListener() {
-                                            @Override
-                                            public void onMessageSent(GelfMessage gelfMessage) {
-                                                Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
-                                                localDebugMessageStorage.removeAllMessages();
-                                            }
+        logHandler.post(() -> {
+            if (gelfTransport == null) {
+                gelfTransport = GelfTransports.create(
+                        new GelfConfiguration(new InetSocketAddress(
+                                "graylog.backend-service.getpitstop.io", 12900))
+                                .transport(GelfTransports.TCP)
+                                .tcpKeepAlive(false)
+                                .queueSize(512)
+                                .connectTimeout(12000)
+                                .reconnectDelay(1000)
+                                .sendBufferSize(-1)
+                                .resultListener(new GelfTransportResultListener() {
+                                    @Override
+                                    public void onMessageSent(GelfMessage gelfMessage) {
+                                        Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
+                                    }
 
-                                            @Override
-                                            public void onFailedToSend(GelfMessage gelfMessage) {
-                                                Log.d(TAG,"resultListener.onFailedToSend() gelfMessage: "+gelfMessage);
+                                    @Override
+                                    public void onFailedToSend(GelfMessage gelfMessage) {
+                                        Log.d(TAG, "resultListener.onFailedToSend() gelfMessage: " + gelfMessage);
 
-                                            }
+                                    }
 
-                                            @Override
-                                            public void onFailedToConnect(List<GelfMessage> list) {
-                                                Log.d(TAG,"resultListener.onFailedToConnect() gelfMessageList: "+list);
+                                    @Override
+                                    public void onFailedToConnect(List<GelfMessage> list) {
+                                        Log.d(TAG, "resultListener.onFailedToConnect() gelfMessageList: " + list);
 
-                                            }
-                                        }));
-                    }
+                                    }
+                                }));
+            }
+        });
+    }
 
-                    Log.d(TAG,"Logger, received debug message list: "+messageList);
+    private void sendMessage(DebugMessage d) {
+        GelfMessageLevel gelfLevel;
+        switch (d.getLevel()) {
+            case 0:
+                gelfLevel = GelfMessageLevel.INFO;
+                break;
+            case 1:
+                gelfLevel = GelfMessageLevel.DEBUG;
+                break;
+            case 2:
+                gelfLevel = GelfMessageLevel.INFO;
+                break;
+            case 3:
+                gelfLevel = GelfMessageLevel.WARNING;
+                break;
+            case 4:
+                gelfLevel = GelfMessageLevel.ERROR;
+                break;
+            case 5:
+                gelfLevel = GelfMessageLevel.CRITICAL;
+                break;
+            default:
+                gelfLevel = GelfMessageLevel.CRITICAL;
 
-                    for (DebugMessage d: messageList){
-                        GelfMessageLevel gelfLevel;
-                        switch(d.getLevel()){
-                            case 0:
-                                gelfLevel = GelfMessageLevel.INFO;
-                                break;
-                            case 1:
-                                gelfLevel = GelfMessageLevel.DEBUG;
-                                break;
-                            case 2:
-                                gelfLevel = GelfMessageLevel.INFO;
-                                break;
-                            case 3:
-                                gelfLevel = GelfMessageLevel.WARNING;
-                                break;
-                            case 4:
-                                gelfLevel = GelfMessageLevel.ERROR;
-                                break;
-                            case 5:
-                                gelfLevel = GelfMessageLevel.CRITICAL;
-                                break;
-                            default:
-                                gelfLevel = GelfMessageLevel.CRITICAL;
+        }
 
-                        }
+        String type = "";
+        switch (d.getType()) {
+            case DebugMessage.TYPE_NETWORK:
+                type = "network";
+                break;
+            case DebugMessage.TYPE_BLUETOOTH:
+                type = "bluetooth";
+                break;
+            case DebugMessage.TYPE_REPO:
+                type = "repository";
+                break;
+            case DebugMessage.TYPE_USE_CASE:
+                type = "use case";
+                break;
+            case DebugMessage.TYPE_VIEW:
+                type = "view";
+                break;
+            case DebugMessage.TYPE_PRESENTER:
+                type = "presenter";
+                break;
+            default:
+                type = "other";
 
-                        String type = "";
-                        switch(d.getType()){
-                            case DebugMessage.TYPE_NETWORK:
-                                type = "network";
-                                break;
-                            case DebugMessage.TYPE_BLUETOOTH:
-                                type = "bluetooth";
-                                break;
-                            case DebugMessage.TYPE_REPO:
-                                type = "repository";
-                                break;
-                            case DebugMessage.TYPE_USE_CASE:
-                                type = "use case";
-                                break;
-                            case DebugMessage.TYPE_VIEW:
-                                type = "view";
-                                break;
-                            case DebugMessage.TYPE_PRESENTER:
-                                type = "presenter";
-                                break;
-                            default:
-                                type = "other";
+        }
 
-                        }
+        final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(), "com.pitstop.android")
+                .timestamp(d.getTimestamp())
+                .additionalField("tag", d.getTag())
+                .additionalField("userId", localUserStorage.getUser().getId())
+                .additionalField("type", type)
+                .level(gelfLevel)
+                .build();
 
-                        final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.pitstop.android")
-                                .timestamp(d.getTimestamp())
-                                .additionalField("tag",d.getTag())
-                                .additionalField("userId",localUserStorage.getUser().getId())
-                                .additionalField("type",type)
-                                .level(gelfLevel)
-                                .build();
-                        boolean trySend = gelfTransport.trySend(gelfMessage);
-                        Log.d(TAG,"log dispatched? "+trySend);
-                    }
-                });
+        boolean trySend = gelfTransport.trySend(gelfMessage);
+        Log.d(TAG,"log dispatched? "+trySend);
+
     }
 
     public static void initLogger(Context context){
@@ -190,20 +167,24 @@ public class Logger {
 
     public void logI(String tag, String message, int type) {
         Log.i(tag, message);
-        new LocalDebugMessageStorage(context).addMessage(
-                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I));
+        DebugMessage debugMessage
+                = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I);
+        sendMessage(debugMessage);
+        new LocalDebugMessageStorage(context).addMessage(debugMessage);
     }
 
     public void logW(String tag, String message, int type) {
         Log.w(tag, message);
-        new LocalDebugMessageStorage(context).addMessage(
-                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W));
+        DebugMessage debugMessage
+                = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W);
+        new LocalDebugMessageStorage(context).addMessage(debugMessage);
     }
 
     public void logE(String tag, String message, int type) {
         Log.e(tag, message);
-        new LocalDebugMessageStorage(context).addMessage(
-                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));
+        DebugMessage debugMessage
+                = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E);
+        new LocalDebugMessageStorage(context).addMessage(debugMessage);
     }
 
     public void logException(String tag, Exception e, int type){
@@ -211,8 +192,9 @@ public class Logger {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String sStackTrace = sw.toString(); // stack trace as a string
-        new LocalDebugMessageStorage(context).addMessage(
-                new DebugMessage(System.currentTimeMillis(), sStackTrace, tag, type, DebugMessage.LEVEL_E));
+        DebugMessage debugMessage
+                = new DebugMessage(System.currentTimeMillis(), sStackTrace, tag, type, DebugMessage.LEVEL_E);
+        new LocalDebugMessageStorage(context).addMessage(debugMessage);
         e.printStackTrace();
     }
 

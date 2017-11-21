@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.pitstop.models.DebugMessage;
 import com.squareup.sqlbrite.QueryObservable;
@@ -11,7 +10,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
             + TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + COLUMN_TYPE + " INTEGER,"
             + COLUMN_MESSAGE + " TEXT,"
-            + COLUMN_TIMESTAMP + " FLOAT,"
+            + COLUMN_TIMESTAMP + " INTEGER,"
             + COLUMN_LEVEL + " INTEGER,"
             + COLUMN_TAG +" TEXT,"
             + KEY_CREATED_AT + " DATETIME" + ")";
@@ -25,17 +24,6 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
     public void addMessage(DebugMessage message) {
         mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message));
-    }
-
-    public void removeAllMessages(){
-        int removed = mDatabaseHelper.getWritableDatabase().delete(TABLE_NAME,null,null);
-        Log.d(TAG,"removeAllMessages() rows removed: "+removed);
-    }
-
-    public void removeMessage(double timestamp ,String message){
-        int removed = mDatabaseHelper.getWritableDatabase().delete(TABLE_NAME,COLUMN_TIMESTAMP
-                        + " =? AND "+COLUMN_MESSAGE +"=?",new String[]{String.valueOf(timestamp),message});
-        Log.d(TAG,"removed message count: "+removed);
     }
 
     public QueryObservable getQueryObservable(int type) {
