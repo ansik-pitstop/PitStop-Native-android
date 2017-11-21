@@ -372,7 +372,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             do {
                 DebugMessage debugMessage = DebugMessage.fromCursor(cursor);
 
-                calendar.setTimeInMillis(debugMessage.getTimestamp());
+                calendar.setTimeInMillis((long)debugMessage.getTimestamp()*1000);
                 stringBuilder.append("\n");
                 stringBuilder.append(DateTimeFormatUtil.format(calendar, DateTimeFormatUtil.TIMESTAMP_FORMAT));
                 stringBuilder.append(": ");
