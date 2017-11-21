@@ -96,7 +96,7 @@ public class PidDataHandler {
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            Logger.getInstance().logD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
+            Logger.getInstance().logV(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
                     , DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
