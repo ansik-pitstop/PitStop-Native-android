@@ -52,7 +52,7 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
     }
 
     public void onNotificationsRetrieved(List<Notification> notificationList){
-        Logger.getInstance().logI(TAG, "Use case finished: notificationList="+notificationList
+        Logger.getInstance().logI(TAG, "Use case finished: notificationList.size="+notificationList.size()
                 , false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNotificationsRetrieved(notificationList));
     }
