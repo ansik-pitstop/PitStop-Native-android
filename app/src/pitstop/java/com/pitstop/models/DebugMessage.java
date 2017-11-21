@@ -24,7 +24,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
     public static final int LEVEL_E = 4;
     public static final int LEVEL_WTF = 5;
 
-    private long mTimestamp;
+    private double mTimestamp;
     private String mMessage;
 
     private String tag;
@@ -40,18 +40,18 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
             mMessage = message;
         }
         this.tag = tag;
-        mTimestamp = timestamp;
+        mTimestamp = timestamp/1000.0D;
         mType = type;
         mLevel = level;
     }
 
     public DebugMessage() {}
 
-    public long getTimestamp() {
+    public double getTimestamp() {
         return mTimestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(double timestamp) {
         mTimestamp = timestamp;
     }
 
@@ -91,7 +91,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         DebugMessage message = new DebugMessage();
 
         message.setMessage(c.getString(c.getColumnIndex(COLUMN_MESSAGE)));
-        message.setTimestamp(c.getLong(c.getColumnIndex(COLUMN_TIMESTAMP)));
+        message.setTimestamp(c.getDouble(c.getColumnIndex(COLUMN_TIMESTAMP)));
         message.setType(c.getInt(c.getColumnIndex(COLUMN_TYPE)));
         message.setLevel(c.getInt(c.getColumnIndex(COLUMN_LEVEL)));
         message.setTag(c.getString(c.getColumnIndex(COLUMN_TAG)));
