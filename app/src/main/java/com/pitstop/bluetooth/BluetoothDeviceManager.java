@@ -245,6 +245,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
+        Logger.getInstance().logI(TAG,"Connecting to device: deviceName="+device.getName()
+                ,true,DebugMessage.TYPE_BLUETOOTH);
         communicator.connectToDevice(device);
     }
 
