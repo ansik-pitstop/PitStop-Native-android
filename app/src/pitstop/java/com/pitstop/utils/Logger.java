@@ -35,7 +35,6 @@ public class Logger {
     private GelfTransport gelfTransport = null;
     private Context context;
     private LocalUserStorage localUserStorage;
-    private Handler logHandler = new Handler((new HandlerThread("LoggerThread")).getLooper());
 
     public static Logger getInstance(){
         if (INSTANCE == null){
@@ -48,6 +47,7 @@ public class Logger {
     public Logger(Context context){
         this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
+        Handler logHandler = new Handler((new HandlerThread("LoggerThread")).getLooper());
         logHandler.post(() -> {
             if (gelfTransport == null) {
                 gelfTransport = GelfTransports.create(
