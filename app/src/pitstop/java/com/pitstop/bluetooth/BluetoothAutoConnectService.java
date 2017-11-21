@@ -394,30 +394,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public void trackBluetoothEvent(String event, String scannerId, String vin){
-        Log.d(TAG,"trackBluetoothEvent() event: "+event);
-
-        if (scannerId == null) scannerId = "";
-        if (vin == null) vin = "";
-
-        mixpanelHelper.trackBluetoothEvent(event,scannerId,vin,deviceIsVerified,deviceConnState
-                ,terminalRtcTime);
-    }
-
-    @Override
-    public void trackBluetoothEvent(String event){
-        Log.d(TAG,"trackBluetoothEvent() event: "+event);
-        if (readyDevice == null){
-            mixpanelHelper.trackBluetoothEvent(event,deviceIsVerified,deviceConnState
-                    ,terminalRtcTime);
-        }
-        else{
-            trackBluetoothEvent(event,readyDevice.getScannerId()
-                    ,readyDevice.getVin());
-        }
-    }
-
-    @Override
     public void onHandlerReadVin(String vin) {
         Log.d(TAG,"onHandlersReadVin() vin: "+vin);
         notifyVin(vin);
@@ -485,7 +461,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         if (dtcTimeoutTimer.isRunning())
             dtcTimeoutTimer.cancel();
         dtcTimeoutTimer.startTimer();
-        trackBluetoothEvent(MixpanelHelper.BT_DTC_REQUESTED);
         deviceManager.getDtcs();
         return true;
     }
@@ -542,15 +517,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && !deviceConnState.equals(State.SEARCHING)) return;
 
         if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
-
-            if (urgent){
-                trackBluetoothEvent(MixpanelHelper.BT_SCAN_URGENT);
-            }
-            else{
-                trackBluetoothEvent(MixpanelHelper.BT_SCAN_NOT_URGENT);
-
-            }
-
             setConnectionState(State.SEARCHING);
             notifySearchingForDevice();
             Log.d(TAG,"Started scan");
@@ -624,8 +590,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Logger.getInstance().logI(TAG, "Rtc time received: " + parameterPackage.value
                         , true, DebugMessage.TYPE_BLUETOOTH);
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
-                trackBluetoothEvent(MixpanelHelper.BT_RTC_GOT,currentDeviceId
-                        ,String.valueOf(rtcTime));
                 notifyRtc(rtcTime);
 
                 if (readyDevice != null){
@@ -1012,7 +976,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifySearchingForDevice() {
         Log.d(TAG,"notifySearchingForDevice()");
-        trackBluetoothEvent(MixpanelHelper.BT_SEARCHING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 mainHandler.post(()
@@ -1024,7 +987,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void notifyDeviceReady(String vin, String scannerId, String scannerName) {
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
-        trackBluetoothEvent(MixpanelHelper.BT_CONNECTED);
 
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
@@ -1036,7 +998,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyDeviceDisconnected() {
         Log.d(TAG,"notifyDeviceDisconnected()");
-        trackBluetoothEvent(MixpanelHelper.BT_DISCONNECTED);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 mainHandler.post(()
@@ -1047,7 +1008,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyVerifyingDevice() {
         Log.d(TAG,"notifyVerifyingDevice()");
-        trackBluetoothEvent(MixpanelHelper.BT_VERIFYING);
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 mainHandler.post(()
@@ -1072,7 +1032,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dtcRequested = false;
         receivedDtcResponse = false; //Reset flag
 
-        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
                 mainHandler.post(()
@@ -1087,7 +1046,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dtcRequested = false;
         receivedDtcResponse = false;
 
-        trackBluetoothEvent(MixpanelHelper.BT_DTC_GOT);
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothDtcObserver) {
                 mainHandler.post(()
