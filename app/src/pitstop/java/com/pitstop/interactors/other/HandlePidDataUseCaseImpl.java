@@ -79,19 +79,19 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         useCaseHandler.post(this);
     }
     private void onDataStored(){
-        Logger.getInstance().logI(TAG,"Use case finished: data stored"
+        Logger.getInstance().logD(TAG,"Use case finished: data stored"
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDataStored());
     }
 
     private void onError(RequestError error){
-        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+        Logger.getInstance().logD(TAG,"Use case returned error: err="+error
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     private void onDataSent(int size){
-        Logger.getInstance().logI(TAG,"Use case finished: data sent"
+        Logger.getInstance().logD(TAG,"Use case finished: data sent"
                 ,false, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDataSent(size));
     }
