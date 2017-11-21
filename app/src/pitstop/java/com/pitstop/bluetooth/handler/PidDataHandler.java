@@ -111,11 +111,11 @@ public class PidDataHandler {
         for (PidPackage p: pendingPidPackages){
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
-                public void onDataSent() {
+                public void onDataSent(int size) {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
                         Log.d(TAG, p.timestamp + "Data sent to Server");
                         visualizePidDataSent(true, context, p.timestamp);
-                        pidsSavedToServer++;
+                        pidsSavedToServer += size;
                     }
                     else {
                         Log.d(TAG, "notRightBuild");
@@ -200,7 +200,7 @@ public class PidDataHandler {
     public void setPidCommunicationParameters(String[] pids, String vin){
         Log.d(TAG,"setPidCommunicationParameters() pids: "+pids+", vin: "+vin);
         // the interval being -1 lets the method know that this isnt a overwrite and to use default parameters for time interval
-        setDevicePIDs(pids, vin, -1);
+        setDevicePIDs(pids, vin, 1, false);
     }
 
     private String getSupportedPid(String[] pids, int max){
@@ -257,7 +257,7 @@ public class PidDataHandler {
         mainHandler.postDelayed(() -> pidDataSentVisible = false, 15000);
     }
 
-    private void setDevicePIDs(String[] pids, String vin, int interval){
+    private void setDevicePIDs(String[] pids, String vin, int interval, boolean fromDrawer){
 
         // if device interval is less than 1, it means that it is being called by default add car process
         // if not then it is from debug drawer and doesnt use default parameters
@@ -265,35 +265,39 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
-                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
-                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
-
+                if(fromDrawer){
                     String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    int timeInterval = (interval<1)? TIME_INTERVAL_SAFE: interval;
+                    int timeInterval = interval;
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,timeInterval);
-
-                    Log.d(TAG,"setDeviceRTCInterval() Car make matches Chevrolet, Dodge" +
-                            ", Chrystler or Jeep setting pid time interval to "+timeInterval
+                    Log.d(TAG,"setDeviceRTCInterval()setting pid time interval to "+timeInterval
                             +", and supported pids to: "+supportedPids);
                 }
-                else{
-                    String supportedPids = getSupportedPid(pids,PID_COUNT_DEFAULT);
-                    int timeInterval = (interval<1)? TIME_INTERVAL_SAFE: interval;
-                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,timeInterval);
-                    Log.d(TAG,"setDeviceRTCInterval() Car make doesn't match" +
-                            " any of the 'safe cars' setting supported pids to "+supportedPids +
-                            "and device interval to " + timeInterval);
+                else {
+                    if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
+                            || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                            || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                            || car.getMake().equalsIgnoreCase(Car.Make.JEEP)) {
+
+                        String supportedPids = getSupportedPid(pids, PID_COUNT_SAFE);
+                        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_SAFE);
+
+                        Log.d(TAG, "setDeviceRTCInterval() Car make matches Chevrolet, Dodge" +
+                                ", Chrystler or Jeep setting pid time interval to " + TIME_INTERVAL_SAFE
+                                + ", and supported pids to: " + supportedPids);
+                    } else {
+                        String supportedPids = getSupportedPid(pids, PID_COUNT_DEFAULT);
+                        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_DEFAULT);
+                        Log.d(TAG, "setDeviceRTCInterval() Car make doesn't match" +
+                                " any of the 'safe cars' setting supported pids to " + supportedPids +
+                                "and device interval to " + TIME_INTERVAL_DEFAULT);
+                    }
                 }
             }
-
             @Override
             public void onNoCarFound() {
                 Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onNoCarFound()");
                 //Do nothing, car is probably being added and will handle supported pids again
             }
-
             @Override
             public void onError(RequestError error) {
                 Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onError()");
@@ -303,7 +307,7 @@ public class PidDataHandler {
     }
 
     public void setDeviceRtcInterval(String[] pids, String vin, int interval){
-       setDevicePIDs(pids, vin, interval);
+       setDevicePIDs(pids, vin, interval, true);
     }
 
     public void setChunkSize(int size) {

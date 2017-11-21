@@ -91,10 +91,10 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         mainHandler.post(() -> callback.onError(error));
     }
 
-    private void onDataSent(){
+    private void onDataSent(int size){
         Logger.getInstance().logI(TAG,"Use case finished: data sent"
                 ,false, DebugMessage.TYPE_USE_CASE);
-        mainHandler.post(() -> callback.onDataSent());
+        mainHandler.post(() -> callback.onDataSent(size));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
                     @Override
                     public void onSuccess(List<Pid> pid){
                         Log.d(TAG,"PIDS added!");
-                        HandlePidDataUseCaseImpl.this.onDataSent();
+                        HandlePidDataUseCaseImpl.this.onDataSent(pid.size());
                         localPidStorage.deletePidEntries(pid);
                     }
                     @Override
