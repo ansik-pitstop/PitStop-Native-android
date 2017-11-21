@@ -13,7 +13,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
@@ -46,7 +45,10 @@ import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
-import com.pitstop.models.*
+import com.pitstop.models.Car
+import com.pitstop.models.Dealership
+import com.pitstop.models.ObdScanner
+import com.pitstop.models.ReadyDevice
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
@@ -58,7 +60,10 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.utils.*
+import com.pitstop.utils.AnimatedDialogBuilder
+import com.pitstop.utils.MigrationService
+import com.pitstop.utils.MixpanelHelper
+import com.pitstop.utils.NetworkHelper
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -146,15 +151,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        Handler().post(object: Runnable{
-                            override fun run(){
-                                for (i in 1..10)
-                                    Logger.getInstance().logI("Test TAG","Test log #${counter++}"
-                                            , false, DebugMessage.TYPE_OTHER)
-                                Handler().postDelayed(this,1000)
-                            }
-                        })
 
         userSignedUp = intent.getBooleanExtra(LoginActivity.USER_SIGNED_UP, false)
 

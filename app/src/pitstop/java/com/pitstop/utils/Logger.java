@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalDebugMessageStorage;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.DebugMessage;
 
 import org.graylog2.gelfclient.GelfConfiguration;
@@ -35,6 +36,7 @@ public class Logger {
 
     private GelfTransport gelfTransport = null;
     private Context context;
+    private LocalUserStorage localUserStorage;
 
     public static Logger getInstance(){
         if (INSTANCE == null){
@@ -46,6 +48,7 @@ public class Logger {
 
     public Logger(Context context){
         this.context = context;
+        this.localUserStorage = new LocalUserStorage(context);
         LocalDebugMessageStorage localDebugMessageStorage = new LocalDebugMessageStorage(context);
         localDebugMessageStorage.getQueryObservable(DebugMessage.TYPE_BLUETOOTH)
                 .subscribeOn(Schedulers.io())
@@ -126,8 +129,9 @@ public class Logger {
                                 gelfLevel = GelfMessageLevel.CRITICAL;
 
                         }
-                        final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.android.pitstop")
+                        final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.pitstop.android")
                                 .additionalField("Tag",d.getTag())
+                                .additionalField("userId",localUserStorage.getUser().getId())
                                 .level(gelfLevel)
                                 .build();
                         boolean trySend = gelfTransport.trySend(gelfMessage);
