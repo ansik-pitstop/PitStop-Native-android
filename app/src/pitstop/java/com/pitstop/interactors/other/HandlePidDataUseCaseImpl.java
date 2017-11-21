@@ -65,7 +65,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
     @Override
     public void execute(PidPackage pidPackage, Callback callback, int chunkSize) {
-        Logger.getInstance().logI(TAG,"Use case execution started",false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logD(TAG,"Use case execution started",false, DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.pidPackage = pidPackage;
         this.pidChunkSize = chunkSize;

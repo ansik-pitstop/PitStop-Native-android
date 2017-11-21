@@ -117,7 +117,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     .doOnNext(response -> {
                         if (response.isLocal()) return;
                         if (response.getData() == null){
-                            callback.onError(RequestError.getUnknownError());
+                            HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
                         Car car = response.getData();
