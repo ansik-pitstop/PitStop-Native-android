@@ -130,10 +130,36 @@ public class Logger {
 
                         }
 
+                        String type = "";
+                        switch(d.getType()){
+                            case DebugMessage.TYPE_NETWORK:
+                                type = "network";
+                                break;
+                            case DebugMessage.TYPE_BLUETOOTH:
+                                type = "bluetooth";
+                                break;
+                            case DebugMessage.TYPE_REPO:
+                                type = "repository";
+                                break;
+                            case DebugMessage.TYPE_USE_CASE:
+                                type = "use case";
+                                break;
+                            case DebugMessage.TYPE_VIEW:
+                                type = "view";
+                                break;
+                            case DebugMessage.TYPE_PRESENTER:
+                                type = "presenter";
+                                break;
+                            default:
+                                type = "other";
+
+                        }
+
                         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.pitstop.android")
                                 .timestamp(d.getTimestamp())
                                 .additionalField("tag",d.getTag())
                                 .additionalField("userId",localUserStorage.getUser().getId())
+                                .additionalField("type",type)
                                 .level(gelfLevel)
                                 .build();
                         boolean trySend = gelfTransport.trySend(gelfMessage);
@@ -155,7 +181,7 @@ public class Logger {
     }
 
     public void logD(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE && NOT_BETA) {
+        if(NOT_RELEASE) {
             Log.d(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D));
@@ -163,27 +189,21 @@ public class Logger {
     }
 
     public void logI(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE && NOT_BETA) {
-            Log.i(tag, message);
-            new LocalDebugMessageStorage(context).addMessage(
-                    new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I));
-        }
+        Log.i(tag, message);
+        new LocalDebugMessageStorage(context).addMessage(
+                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I));
     }
 
     public void logW(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE && NOT_BETA) {
-            Log.w(tag, message);
-            new LocalDebugMessageStorage(context).addMessage(
-                    new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W));
-        }
+        Log.w(tag, message);
+        new LocalDebugMessageStorage(context).addMessage(
+                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W));
     }
 
     public void logE(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE && NOT_BETA) {
-            Log.e(tag, message);
-            new LocalDebugMessageStorage(context).addMessage(
-                    new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));
-        }
+        Log.e(tag, message);
+        new LocalDebugMessageStorage(context).addMessage(
+                new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));
     }
 
     public void logException(String tag, Exception e, int type){
