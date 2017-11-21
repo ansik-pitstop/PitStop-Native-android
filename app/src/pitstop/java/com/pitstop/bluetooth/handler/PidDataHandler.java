@@ -280,27 +280,26 @@ public class PidDataHandler {
 
                         String supportedPids = getSupportedPid(pids, PID_COUNT_SAFE);
                         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_SAFE);
-
-                        Log.d(TAG, "setDeviceRTCInterval() Car make matches Chevrolet, Dodge" +
-                                ", Chrystler or Jeep setting pid time interval to " + TIME_INTERVAL_SAFE
-                                + ", and supported pids to: " + supportedPids);
+                        Logger.getInstance().logI(TAG," Setting pid time interval: interval=" + TIME_INTERVAL_SAFE
+                                        + ", supportedPid=" + supportedPids, true,DebugMessage.TYPE_BLUETOOTH);
                     } else {
                         String supportedPids = getSupportedPid(pids, PID_COUNT_DEFAULT);
                         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_DEFAULT);
-                        Log.d(TAG, "setDeviceRTCInterval() Car make doesn't match" +
-                                " any of the 'safe cars' setting supported pids to " + supportedPids +
-                                "and device interval to " + TIME_INTERVAL_DEFAULT);
+                        Logger.getInstance().logI(TAG, "Setting pid time interval: interval=" + TIME_INTERVAL_DEFAULT +
+                                ", supportedPid-" + supportedPids, true,DebugMessage.TYPE_BLUETOOTH);
                     }
                 }
             }
             @Override
             public void onNoCarFound() {
-                Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onNoCarFound()");
+                Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(not set)"
+                        ,true,DebugMessage.TYPE_BLUETOOTH);
                 //Do nothing, car is probably being added and will handle supported pids again
             }
             @Override
             public void onError(RequestError error) {
-                Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onError()");
+                Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(error returned by use case)"
+                        ,true,DebugMessage.TYPE_BLUETOOTH);
             }
         });
 
