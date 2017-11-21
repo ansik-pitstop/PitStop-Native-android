@@ -700,16 +700,11 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
                 getActivity()).inflate(R.layout.buy_device_dialog, null);
             fuelExpensesAlertDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Fuel Price")
+                    .setTitle("Fuel Expense")
                     .setView(dialogLayout)
-                    .setMessage("It appears you do not have a Pitstop device paired to this " +
-                            "car.With the device,we can track your car's engine " +
-                            "mileage, fuel consumption, trips, engine codes, and " +
-                            "driving alarms. If you would like all these features, " +
-                            "please purchase a device and connect it to your car. ")
-                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
-                            -> openPitstopAmazonLink())
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setMessage(getString(R.string.fuel_expense_dialog_description))
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
+                            -> dialog.cancel())
                     .create();
         }
         fuelExpensesAlertDialog.show();
