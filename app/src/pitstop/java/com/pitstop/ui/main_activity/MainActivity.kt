@@ -703,31 +703,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
    fun myTrips(){
-        val thisInstance:MainActivity = this
-
-        showLoading("Loading...");
-        useCaseComponent?.getUserCarUseCase()!!.execute(object:  GetUserCarUseCase.Callback{
-            override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
-                if (isLocal) return
-                val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-                intent.putExtra(MainActivity.CAR_EXTRA, car)
-                startActivity(intent)
-                hideLoading()
-            }
-
-            override fun onNoCarSet(isLocal: Boolean) {
-                if (isLocal) return
-                hideLoading()
-                Toast.makeText(thisInstance,"Please add a car",Toast.LENGTH_LONG).show()
-            }
-
-            override fun onError(error: RequestError?) {
-                hideLoading()
-                Toast.makeText(thisInstance,"Error loading car",Toast.LENGTH_LONG).show()
-            }
-
-
-        })
+       val thisInstance:MainActivity = this
+       val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
+       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.getmCar()!!);
+       startActivity(intent);
     }
 
     override fun startDisplayIssueActivity(issues: List<CarIssue>, position: Int) {
@@ -790,7 +769,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
                 && !ignoreMissingDeviceName && allowDeviceOverwrite) {
-
             displayGetScannerIdDialog()
         }
     }

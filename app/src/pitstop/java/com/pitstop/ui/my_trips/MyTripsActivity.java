@@ -33,6 +33,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,6 +90,7 @@ import java.util.Random;
 
 
 public class MyTripsActivity extends AppCompatActivity{
+    public static final String TAG = MyTripsActivity.class.getSimpleName();
 
     private TripHistory tripHistory;
     private PrevTrip prevTripView;
@@ -155,6 +157,7 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_my_trips);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         application = (GlobalApplication) getApplicationContext();
