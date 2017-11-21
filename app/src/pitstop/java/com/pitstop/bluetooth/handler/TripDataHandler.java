@@ -99,7 +99,7 @@ public class TripDataHandler{
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            Logger.getInstance().logI(TAG,"Trip update received: "+tripInfoPackage
+            Logger.getInstance().logD(TAG,"Trip update received: "+tripInfoPackage
                     , false, DebugMessage.TYPE_BLUETOOTH);
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
