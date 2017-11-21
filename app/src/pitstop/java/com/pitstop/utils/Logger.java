@@ -179,6 +179,7 @@ public class Logger {
         Log.w(tag, message);
         DebugMessage debugMessage
                 = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W);
+        sendMessage(debugMessage);
         new LocalDebugMessageStorage(context).addMessage(debugMessage);
     }
 
@@ -186,6 +187,7 @@ public class Logger {
         Log.e(tag, message);
         DebugMessage debugMessage
                 = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E);
+        sendMessage(debugMessage);
         new LocalDebugMessageStorage(context).addMessage(debugMessage);
     }
 
@@ -196,6 +198,7 @@ public class Logger {
         String sStackTrace = sw.toString(); // stack trace as a string
         DebugMessage debugMessage
                 = new DebugMessage(System.currentTimeMillis(), sStackTrace, tag, type, DebugMessage.LEVEL_E);
+        sendMessage(debugMessage);
         new LocalDebugMessageStorage(context).addMessage(debugMessage);
         e.printStackTrace();
     }
