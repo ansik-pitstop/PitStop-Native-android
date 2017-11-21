@@ -1,7 +1,11 @@
 package com.pitstop.ui.dashboard;
 
+import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.facebook.stetho.inspector.protocol.module.DOM;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -11,6 +15,7 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
+import com.pitstop.interactors.get.GetFuelPricesUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
@@ -22,11 +27,23 @@ import com.pitstop.utils.MixpanelHelper;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Karol Zdebel on 9/7/2017.
  */
 
 public class DashboardPresenter extends TabPresenter<DashboardView>{
+
+    public static final String GAS_PRICE_SHARED_PREF = "gasPrices";
+    public static final String LAST_UPDATED_DATE = "lastUpdatedDate";
+    public static final String PRICE_AT_UPDATE = "priceAtUpdate";
+    public static final String TOTAL_FUEL_CONSUMED_AT_UPDATE = "totalFuel";
+    public static final String TOTAL_MONEY_SPENT_AT_UPDATE = "totalMoney";
+
+
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
@@ -79,6 +96,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 DashboardPresenter.this.car = car;
                 if (getView() == null) return;
                 getFuelConsumed();
+                getAmountSpent();
                 carHasScanner = !(car.getScanner() == null);
                 useCaseComponent.getGetAlarmCountUseCase().execute(car.getId(), new GetAlarmCountUseCase.Callback() {
                     @Override
@@ -248,18 +266,6 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     }
 
-    void onMyAppointmentsButtonClicked(){
-        Log.d(TAG,"onMyAppointmentsButtonClicked()");
-        if (getView() != null)
-            getView().startMyAppointmentsActivity();
-    }
-
-    void onServiceRequestButtonClicked(){
-        Log.d(TAG,"onServiceRequestButtonClicked()");
-        if (getView() != null)
-            getView().startRequestServiceActivity();
-    }
-
     void onMyTripsButtonClicked(){
         Log.d(TAG,"onMyTripsButtonClicked()");
         if (getView() != null)
@@ -287,14 +293,114 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     public void onTotalAlarmsClicked() {
         Log.d(TAG,"onTotalAlarmsClicked()");
         if (updating)return;
+        if (getView() == null) return;
         if (hasScanner){
             getView().openAlarmsActivity();
         }
         else {
             getView().displayBuyDeviceDialog();
         }
+    }
+
+    public void getAmountSpent(){
+        Log.d(TAG, "getAmountSpent();");
+        if (getView() == null) return;
+        if (this.car.getScannerId()==null || this.car.getScannerId() == ""){
+            getView().showFuelExpense((float) 0.0);
+            return;
+        }
+        SharedPreferences sharedPreferences = ((android.support.v4.app.Fragment)getView()).
+                                            getActivity().getSharedPreferences(GAS_PRICE_SHARED_PREF, Context.MODE_PRIVATE);
+        if (!sharedPreferences.contains(LAST_UPDATED_DATE+car.getVin())){
+            updatePrice(sharedPreferences);
+            return;
+        }
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String currentDate = Integer.toString(Calendar.getInstance().getTime().getYear())+ Integer.toString(Calendar.getInstance().getTime().getMonth()) +
+                Integer.toString(Calendar.getInstance().getTime().getDate());
+        Log.d(TAG, "current date: " + currentDate);
+        Log.d(TAG, "last update date: " +sharedPreferences.getString(LAST_UPDATED_DATE+car.getVin(), "0000") );
+        if (Integer.parseInt(currentDate) > Integer.parseInt(sharedPreferences.getString(LAST_UPDATED_DATE+car.getVin(), "0000"))){
+            updatePrice(sharedPreferences);
+            return;
+        }
+
+        else {
+            useCaseComponent.getGetFuelConsumedUseCase().execute(car.getScannerId(), new GetFuelConsumedUseCase.Callback() {
+                @Override
+                public void onFuelConsumedGot(double fuelConsumed) {
+                    if (getView() == null) return;
+                    float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE + car.getVin(), (float) 0.0);
+                    float oldFuelConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE + car.getVin(), (float) 0.0);
+                    float price = sharedPreferences.getFloat(PRICE_AT_UPDATE + car.getVin(), (float) 1.09);
+                    if (getView() == null) return;
+                    Log.d(TAG, "new fuel consumed: " + Double.toString(fuelConsumed));
+                    Log.d(TAG, "old money spent: " + Float.toString(oldMoneySpent));
+                    Log.d(TAG, "old fuel consumed: " + Float.toString(oldMoneySpent));
+                    Log.d(TAG, "price: " + Float.toString(sharedPreferences.getFloat(PRICE_AT_UPDATE + car.getVin(), (float) 1.09)));
+
+                    float moneyInCents = ((float) fuelConsumed - oldFuelConsumed) * price + oldMoneySpent;
+                    getView().showFuelExpense(moneyInCents);
+                }
+
+                @Override
+                public void onError(@NotNull RequestError error) {
+                }
+            });
+        }
+
 
     }
+
+
+
+    private void updatePrice(final SharedPreferences sharedPreferences) {
+        Log.d(TAG, "updatePrice();");
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        useCaseComponent.getFuelPriceUseCase().execute(getView().getLastKnowLocation(), new GetFuelPricesUseCase.Callback() {
+            @Override
+            public void onFuelPriceGot(double fuelPrice) {
+                if (getView() == null) return;
+                Log.d(TAG, "just got fuel price, its: " + Double.toString(fuelPrice));
+                useCaseComponent.getGetFuelConsumedUseCase().execute(car.getScannerId(), new GetFuelConsumedUseCase.Callback() {
+                    @Override
+                    public void onFuelConsumedGot(double fuelConsumed) {
+                        if (getView() == null) return;
+                        Log.d(TAG, "fuel consumed got: "  + Double.toString(fuelConsumed));
+                        float oldConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+car.getVin(), 0);
+                        float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE+car.getVin(), 0);
+                        editor.putFloat(PRICE_AT_UPDATE+car.getVin(), (float)fuelPrice);
+                        String date = Integer.toString(Calendar.getInstance().getTime().getYear()) + Integer.toString(Calendar.getInstance().getTime().getMonth()) +
+                                Integer.toString(Calendar.getInstance().getTime().getDate());
+                        editor.putString(LAST_UPDATED_DATE+car.getVin(), date);
+                        editor.putFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+car.getVin(), (float)fuelConsumed);
+                        float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed-oldConsumed)*(float) fuelPrice;
+                        Log.d(TAG, "old fuel consumed "  + Double.toString(oldConsumed));
+                        Log.d(TAG, "old moeny total: "  + Double.toString(oldMoneySpent));
+                        Log.d(TAG, "new Money spent: "  + Double.toString(newMoneySpent));
+
+                        editor.putFloat(TOTAL_MONEY_SPENT_AT_UPDATE+car.getVin(), newMoneySpent);
+                        editor.commit();
+
+                        getView().showFuelExpense(newMoneySpent);
+                    }
+                    @Override
+                    public void onError(@NotNull RequestError error) {
+                        Log.d(TAG, "couldnt update price");
+                    }
+                });
+            }
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG, "couldnt update price");
+
+            }
+        });
+
+
+
+    }
+
 
     public boolean isDealershipMercedes(){
         return this.isDealershipMercedes;
@@ -319,6 +425,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     public void getFuelConsumed() {
         if (this.car.getScannerId()==null || this.car.getScannerId() == ""){
+            if (getView() ==null) return;
             getView().showFuelConsumed(0.0);
             return;
         }
@@ -334,5 +441,18 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 Log.d(TAG, "getFuelConsumedError");
             }
         });
+    }
+
+    public void onFuelExpensesClicked() {
+        if (updating)return;
+        if (getView() == null) return;
+        if (!hasScanner){
+            getView().displayBuyDeviceDialog();
+
+        }
+        else {
+            getView().showFuelExpensesDialog();
+        }
+
     }
 }

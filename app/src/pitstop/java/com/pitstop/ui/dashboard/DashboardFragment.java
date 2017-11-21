@@ -1,14 +1,23 @@
 
 package com.pitstop.ui.dashboard;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -42,6 +51,9 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,6 +94,9 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
+
+    @BindView(R.id.fuel_expense_textview)
+    TextView fuelExpensesTextView;
 
     @BindView(R.id.fuel_consumption_container)
     LinearLayout fuelConsumption;
@@ -130,6 +145,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private AlertDialog updateMileageDialog;
     private AlertDialog mileageErrorDialog;
     private AlertDialog buyDeviceAlertDialog;
+    private AlertDialog fuelExpensesAlertDialog;
     private DashboardPresenter presenter;
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
@@ -513,6 +529,12 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     }
 
     @Override
+    public void showFuelExpense(float v) {
+        fuelExpensesTextView.setText(String.format("%.2f", v/100));
+
+    }
+
+    @Override
     public void displayCarDetails(Car car){
         Log.d(TAG,"displayCarDetails() car: "+car);
         hasBeenPopulated = true;
@@ -613,6 +635,12 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onFuelConsumptionClicked();
     }
 
+    @OnClick(R.id.fuel_expense_container)
+    public void onFuelExpensesClicked(){
+        Log.d(TAG, "onFuelExpensesCLicked()");
+        presenter.onFuelExpensesClicked();
+    }
+
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
         Intent intent = new Intent(getActivity(), AlarmsActivity.class);
@@ -665,6 +693,29 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         buyDeviceAlertDialog.show();
     }
 
+
+    @Override
+    public void showFuelExpensesDialog() {
+        if (fuelExpensesAlertDialog == null){ final View dialogLayout = LayoutInflater.from(
+                getActivity()).inflate(R.layout.buy_device_dialog, null);
+            fuelExpensesAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Fuel Price")
+                    .setView(dialogLayout)
+                    .setMessage("It appears you do not have a Pitstop device paired to this " +
+                            "car.With the device,we can track your car's engine " +
+                            "mileage, fuel consumption, trips, engine codes, and " +
+                            "driving alarms. If you would like all these features, " +
+                            "please purchase a device and connect it to your car. ")
+                    .setPositiveButton("Purchase Pitstop Device", (dialog, which)
+                            -> openPitstopAmazonLink())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        fuelExpensesAlertDialog.show();
+
+    }
+
     private void openPitstopAmazonLink() {
         Log.d(TAG, "openPitstopAmazonLink()");
         if(getActivity() == null) return;
@@ -686,6 +737,51 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
             alarms.setText(Integer.toString(alarmCount));
 
     }
+
+    public String getLastKnowLocation(){
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria,true);
+        if(ContextCompat.checkSelfPermission( getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
+            String locationProvider = LocationManager.NETWORK_PROVIDER;
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            locationManager.removeUpdates(locationListener);
+            Geocoder geocoder = new Geocoder(getActivity());
+            try {
+                ArrayList<Address> list = new ArrayList<>(geocoder.getFromLocation(lastKnownLocation.getLatitude(),
+                        lastKnownLocation.getLongitude(), 5));
+                return list.get(0).getPostalCode();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+        else {
+            return null;
+        }
+    }
+
+
+
 
     @Override
     public void showFuelConsumed(double fuelCOnsumed) {

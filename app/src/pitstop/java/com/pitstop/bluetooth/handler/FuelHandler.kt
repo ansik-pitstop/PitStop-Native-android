@@ -25,8 +25,4 @@ class FuelHandler(private val fuelObservable: FuelObservable, private val useCas
             }
         })
     }
-
-
-
-
 }
