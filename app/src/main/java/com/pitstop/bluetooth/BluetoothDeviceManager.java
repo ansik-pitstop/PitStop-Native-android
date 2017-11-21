@@ -207,7 +207,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
      * @param device
      */
     @SuppressLint("NewApi")
-    public void connectToDevice(final BluetoothDevice device) {
+    public synchronized void connectToDevice(final BluetoothDevice device) {
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
@@ -352,7 +352,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns whether a device qualified for connection
-    public boolean connectToNextDevice(){
+    public synchronized boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
         short minRssiThreshold;
