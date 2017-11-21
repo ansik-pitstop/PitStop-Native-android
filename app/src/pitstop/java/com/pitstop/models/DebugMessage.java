@@ -107,4 +107,11 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
         return values;
     }
+
+    @Override
+    public String toString(){
+        return String.format("{ message: %s, tag: %s, type: %d, level: %d, timestamp: %ld }"
+                ,mMessage,tag,mType,mLevel,mTimestamp);
+    }
+
 }

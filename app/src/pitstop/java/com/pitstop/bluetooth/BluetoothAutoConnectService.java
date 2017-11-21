@@ -509,12 +509,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
-        Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
-                ,false, DebugMessage.TYPE_BLUETOOTH);
         this.ignoreVerification = ignoreVerification;
 
         if (!deviceConnState.equals(State.DISCONNECTED)
                 && !deviceConnState.equals(State.SEARCHING)) return;
+
+        Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
+                ,false, DebugMessage.TYPE_BLUETOOTH);
 
         if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
             setConnectionState(State.SEARCHING);

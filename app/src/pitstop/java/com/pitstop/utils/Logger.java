@@ -85,7 +85,8 @@ public class Logger {
                                             @Override
                                             public void onMessageSent(GelfMessage gelfMessage) {
                                                 Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
-                                                localDebugMessageStorage.removeAllMessages();
+                                                localDebugMessageStorage.removeMessage((long)gelfMessage.getTimestamp()
+                                                        ,gelfMessage.getMessage());
                                             }
 
                                             @Override
@@ -130,6 +131,7 @@ public class Logger {
 
                         }
                         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.pitstop.android")
+                                .timestamp(d.getTimestamp())
                                 .additionalField("Tag",d.getTag())
                                 .additionalField("userId",localUserStorage.getUser().getId())
                                 .level(gelfLevel)
