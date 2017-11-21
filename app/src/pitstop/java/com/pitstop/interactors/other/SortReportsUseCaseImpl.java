@@ -32,7 +32,7 @@ public class SortReportsUseCaseImpl implements SortReportsUseCase {
     public void execute(List<FullReport> reports, SortType sortType
             , Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: reports="+reports
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.reports = reports;
         this.sortType = sortType;
         this.callback = callback;
@@ -75,7 +75,7 @@ public class SortReportsUseCaseImpl implements SortReportsUseCase {
 
         mainHandler.post(() -> callback.onSorted(reports));
         Logger.getInstance().logI(TAG,"Use case finished: reports="+reports
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
 
     }
 }

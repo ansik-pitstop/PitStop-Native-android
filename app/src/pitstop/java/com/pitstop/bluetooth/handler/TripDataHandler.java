@@ -100,15 +100,15 @@ public class TripDataHandler{
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
             Logger.getInstance().logD(TAG,"Trip update received: "+tripInfoPackage
-                    , false, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
             Logger.getInstance().logI(TAG,"Trip end received: "+tripInfoPackage
-                    , false, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.START)){
             Logger.getInstance().logI(TAG,"Trip start received: "+tripInfoPackage
-                    , false, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
             if (processedTripStartIds.contains(tripInfoPackage.rtcTime)){
                 return; //Duplicate start, return;
             }

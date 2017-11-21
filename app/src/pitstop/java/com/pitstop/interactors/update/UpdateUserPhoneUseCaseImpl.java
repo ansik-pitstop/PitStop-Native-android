@@ -33,7 +33,7 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
     @Override
     public void execute(String phone, UpdateUserPhoneUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started: phoneNumber="+phone
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.phone = phone;
         useCaseHandler.post(this);
@@ -41,13 +41,13 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
 
     private void onUserPhoneUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: user phone number updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onUserPhoneUpdated());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

@@ -172,7 +172,7 @@ public class Logger {
         INSTANCE = new Logger(context);
     }
 
-    public void logV(String tag, String message, boolean showLogcat, int type) {
+    public void logV(String tag, String message, int type) {
         if(NOT_RELEASE && NOT_BETA) {
             Log.v(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
@@ -180,27 +180,27 @@ public class Logger {
         }
     }
 
-    public void logD(String tag, String message, boolean showLogcat, int type) {
-        if(NOT_RELEASE && false) {
+    public void logD(String tag, String message, int type) {
+        if(BuildConfig.DEBUG) {
             Log.d(tag, message);
             new LocalDebugMessageStorage(context).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D));
         }
     }
 
-    public void logI(String tag, String message, boolean showLogcat, int type) {
+    public void logI(String tag, String message, int type) {
         Log.i(tag, message);
         new LocalDebugMessageStorage(context).addMessage(
                 new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_I));
     }
 
-    public void logW(String tag, String message, boolean showLogcat, int type) {
+    public void logW(String tag, String message, int type) {
         Log.w(tag, message);
         new LocalDebugMessageStorage(context).addMessage(
                 new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_W));
     }
 
-    public void logE(String tag, String message, boolean showLogcat, int type) {
+    public void logE(String tag, String message, int type) {
         Log.e(tag, message);
         new LocalDebugMessageStorage(context).addMessage(
                 new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_E));

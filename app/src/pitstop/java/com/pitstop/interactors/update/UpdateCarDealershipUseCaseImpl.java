@@ -51,20 +51,20 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
 
     private void onCarDealerUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: car dealer updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarDealerUpdated());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(int carId, Dealership dealership, String eventSource, UpdateCarDealershipUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started: carId="+carId+", dealership="+dealership
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carId = carId;

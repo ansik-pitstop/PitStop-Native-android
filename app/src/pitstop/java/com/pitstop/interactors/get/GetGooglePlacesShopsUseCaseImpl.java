@@ -63,20 +63,20 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
 
     private void onShopsGot(List<Dealership> dealerships){
         Logger.getInstance().logI(TAG, "Use case finished: dealerships="+dealerships
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopsGot(dealerships));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(double latitude, double longitude, String query, GetGooglePlacesShopsUseCase.CallbackShops callback) {
         Logger.getInstance().logI(TAG, "Use case execution started: latitude="+latitude+", longitude="+longitude+", query"+query
-                , false, DebugMessage.TYPE_USE_CASE);   this.callback = callback;
+                , DebugMessage.TYPE_USE_CASE);   this.callback = callback;
         this.longitude = Double.toString(longitude);
         this.latitude = Double.toString(latitude);
         this.query = query;

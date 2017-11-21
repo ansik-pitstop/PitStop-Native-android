@@ -63,7 +63,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     public void execute(int carToDeleteId,String eventSource, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: carToDeleteId="+carToDeleteId
                         +", eventSource="+eventSource
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.carToDeleteId = carToDeleteId;
         this.callback = callback;
@@ -72,13 +72,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private void onCarRemoved(){
         Logger.getInstance().logI(TAG,"Use case execution finished: car removed"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarRemoved());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

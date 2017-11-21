@@ -52,19 +52,19 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
 
     private void onShopRemoved(){
         Logger.getInstance().logI(TAG,"Use case finished: shop removed"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopRemoved());
     }
 
     private void onCantRemoveShop(){
         Logger.getInstance().logI(TAG,"Use case finished: cant remove shop"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCantRemoveShop());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -118,7 +118,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     @Override
     public void execute(Dealership dealership, RemoveShopUseCase.Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: dealership="+dealership
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.dealership = dealership;
         this.callback = callback;
         useCaseHandler.post(this);

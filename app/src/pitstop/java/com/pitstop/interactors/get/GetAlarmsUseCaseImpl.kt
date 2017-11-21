@@ -27,8 +27,8 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
     private var callback: GetAlarmsUseCase.Callback? = null
 
     override fun execute( callback: GetAlarmsUseCase.Callback) {
-        Logger.getInstance().logI(TAG,"Use case execution started"
-                ,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG, "Use case execution started"
+                , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -56,21 +56,21 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
                                     }
                                     Log.d(TAG, settings.toString())
 
-                                    Logger.getInstance().logI(TAG,"Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
-                                        ,false, DebugMessage.TYPE_USE_CASE)
+                                    Logger.getInstance().logI(TAG, "Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
+                                        , DebugMessage.TYPE_USE_CASE)
                                     mainHandler.post({callback?.onAlarmsGot(map, settings.isAlarmsEnabled)})
                                 }
                                 override fun onError(error: RequestError?) {
-                                    Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                                            ,false, DebugMessage.TYPE_USE_CASE)
+                                    Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                                            , DebugMessage.TYPE_USE_CASE)
                                     mainHandler.post({callback?.onError(RequestError.getUnknownError())})
                                 }
 
                     })
             }
             override fun onError(error: RequestError?) {
-                Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                        ,false, DebugMessage.TYPE_USE_CASE)
+                Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onError(RequestError.getUnknownError())})
             }
         })

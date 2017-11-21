@@ -31,7 +31,7 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started"
-                , false, DebugMessage.TYPE_USE_CASE);   this.callback = callback;
+                , DebugMessage.TYPE_USE_CASE);   this.callback = callback;
         this.bluetooth = bluetooth;
         useCaseHandler.post(this);
     }
@@ -45,7 +45,7 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
 
     private void onGotDTCs(DtcPackage dtc, BluetoothDtcObserver bluetoothDtcObserver){
         Logger.getInstance().logI(TAG, "Use case finished: dtc="+dtc
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             callback.onGotDTCs(dtc);
             bluetooth.unsubscribe(bluetoothDtcObserver);
@@ -54,7 +54,7 @@ public class GetDTCUseCaseImpl implements GetDTCUseCase {
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

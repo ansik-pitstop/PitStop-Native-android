@@ -31,13 +31,13 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
 
     private void onServiceRequested(){
         Logger.getInstance().logI(TAG,"Use case finished result: service requested successfully"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onServiceRequested());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -60,7 +60,7 @@ public class AddServiceUseCaseImpl implements AddServiceUseCase {
     @Override
     public void execute(CarIssue carIssue, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: carIssue="+carIssue
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carIssue = carIssue;
         useCaseHandler.post(this);

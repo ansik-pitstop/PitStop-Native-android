@@ -32,7 +32,7 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
     @Override
     public void execute(boolean sent, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started: sent="+sent
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.sent = sent;
         this.callback = callback;
         useCaseHandler.post(this);
@@ -40,12 +40,12 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
     private void onFirstCarAddedSet(){
         Logger.getInstance().logI(TAG, "Use case finished"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onFirstCarAddedSet());
     }
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

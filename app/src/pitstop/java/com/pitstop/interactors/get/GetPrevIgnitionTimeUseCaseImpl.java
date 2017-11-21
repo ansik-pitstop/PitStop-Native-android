@@ -33,7 +33,7 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
     @Override
     public void execute(String device215Fullname, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution: device215FullName="+device215Fullname
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.device215FullName = device215Fullname;
         this.callback = callback;
 
@@ -42,17 +42,17 @@ public class GetPrevIgnitionTimeUseCaseImpl implements GetPrevIgnitionTimeUseCas
 
     private void onGotIgnitionTime(long ignitionTime){
         Logger.getInstance().logI(TAG, "Use case finished: ignitionTime="+ignitionTime
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotIgnitionTime(ignitionTime));
     }
     private void onNoneExists(){
         Logger.getInstance().logI(TAG, "Use case finished: none exists!"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoneExists());
     }
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

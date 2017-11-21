@@ -44,10 +44,10 @@ final class BluetoothServiceBroadcastReceiver extends BroadcastReceiver {
             if (NetworkHelper.isConnected(context)) {
                 connectionStatusObserver.onConnectedToInternet();
                 Logger.getInstance().logW(TAG,"Internet connection state change: ON"
-                        ,true, DebugMessage.TYPE_NETWORK);
+                        , DebugMessage.TYPE_NETWORK);
             }else{
                 Logger.getInstance().logW(TAG,"Internet connection state change: OFF"
-                        ,true, DebugMessage.TYPE_NETWORK);
+                        , DebugMessage.TYPE_NETWORK);
             }
 
         }

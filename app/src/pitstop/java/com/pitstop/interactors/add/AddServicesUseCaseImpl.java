@@ -46,12 +46,12 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     }
 
     private void onServicesAdded(){
-        Logger.getInstance().logI(TAG,"Use case finished result: service added",false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logI(TAG,"Use case finished result: service added", DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onServicesAdded());
     }
 
     private void onError(RequestError error){
-        Logger.getInstance().logE(TAG,"Use case returned error: err="+error,false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -88,7 +88,7 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     @Override
     public void execute(List<CarIssue> carIssues, String eventSource, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: carIssues="+carIssues
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carIssues = carIssues;

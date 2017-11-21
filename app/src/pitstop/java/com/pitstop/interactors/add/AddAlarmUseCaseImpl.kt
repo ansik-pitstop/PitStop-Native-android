@@ -26,24 +26,24 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
 
 
     override fun execute(alarm: Alarm, callback: AddAlarmUseCase.Callback) {
-        Logger.getInstance().logI(TAG,"Use case execution started, input alarm: "+alarm,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG, "Use case execution started, input alarm: "+alarm, DebugMessage.TYPE_USE_CASE)
         this.alarm = alarm
         this.callback = callback
         useCaseHandler.post(this);
     }
 
     private fun onError(err: RequestError){
-        Logger.getInstance().logE(TAG,"Use case returned error: "+err,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logE(TAG, "Use case returned error: "+err, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onError(err)})
     }
 
     private fun onAlarmAdded(alarm: Alarm){
-        Logger.getInstance().logI(TAG,"Use case finished: "+alarm,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG, "Use case finished: "+alarm, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onAlarmAdded(alarm)})
     }
 
     private fun onAlarmsDisabled(){
-        Logger.getInstance().logI(TAG,"Use case finished: alarm disabled!",false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG, "Use case finished: alarm disabled!", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onAlarmsDisabled()})
     }
 

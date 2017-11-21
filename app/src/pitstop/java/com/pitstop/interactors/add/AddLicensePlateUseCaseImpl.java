@@ -32,7 +32,7 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     @Override
     public void execute(int carid, String plate, AddLicensePlateUseCase.Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: carId="+carid+", plate="+plate
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carID = carid;
         this.carLicensePlate = plate;
@@ -40,13 +40,13 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
 
     public void onError(RequestError error){
-        Logger.getInstance().logE(TAG,"Use case returned error: err="+error,false, DebugMessage.TYPE_USE_CASE);
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     public void onLicensePlateStored(String licensePlate){
         Logger.getInstance().logI(TAG,"Use case finished: license plate= "+licensePlate
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onLicensePlateStored(licensePlate));
     }
 

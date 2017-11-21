@@ -42,7 +42,7 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
     @Override
     public void execute(String deviceId, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: deviceId="+deviceId
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.deviceId = deviceId;
         this.callback = callback;
         handler.post(this);

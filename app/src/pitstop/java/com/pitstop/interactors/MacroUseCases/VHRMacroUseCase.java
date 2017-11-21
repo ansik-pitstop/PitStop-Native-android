@@ -91,7 +91,7 @@ public class VHRMacroUseCase {
     }
     public void start(){
         Logger.getInstance().logI(TAG,"Macro use case execution started"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         next();
     }
     private void next(){
@@ -250,12 +250,12 @@ public class VHRMacroUseCase {
                     if (retrievedDtc == null || retrievedPid == null || vehicleHealthReport == null){
                         callback.onErrorGeneratingReport();
                         Logger.getInstance().logE(TAG,"Macro use case: error generating report!"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         finish();
                     }
                     else{
                         Logger.getInstance().logI(TAG,"Macro use case: finished generating report"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         callback.onFinishGeneratingReport(vehicleHealthReport, emissionsReport);
                         progressTimerQueue.remove();
                         next();
@@ -265,13 +265,13 @@ public class VHRMacroUseCase {
                 case TYPE_GET_DTC:
                     if (retrievedDtc == null){
                         Logger.getInstance().logE(TAG,"Macro use case: error retrieving dtc"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         callback.onDTCError();
                         finish();
                     }
                     else{
                         Logger.getInstance().logI(TAG,"Macro use case: got dtc successfully!"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         callback.onGotDTC();
                         progressTimerQueue.remove();
                         next();
@@ -281,13 +281,13 @@ public class VHRMacroUseCase {
                 case TYPE_GET_PID:
                     if (retrievedPid == null){
                         Logger.getInstance().logE(TAG,"Macro use case: error retrieving pids!"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         callback.onPIDError();
                         finish();
                     }
                     else{
                         Logger.getInstance().logI(TAG,"Macro use case: retrieved pids successfully"
-                                ,false, DebugMessage.TYPE_USE_CASE);
+                                , DebugMessage.TYPE_USE_CASE);
                         callback.onGotPID();
                         progressTimerQueue.remove();
                         next();

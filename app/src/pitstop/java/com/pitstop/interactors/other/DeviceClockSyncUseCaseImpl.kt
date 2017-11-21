@@ -22,8 +22,8 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
 
     override fun execute(rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
-        Logger.getInstance().logI(tag,"Use case started execution: rtcTime=$rtcTime, deviceId=$deviceId, vin=$vin"
-                ,false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(tag, "Use case started execution: rtcTime=$rtcTime, deviceId=$deviceId, vin=$vin"
+                , DebugMessage.TYPE_USE_CASE)
         this.rtcTime = rtcTime
         this.deviceId = deviceId
         this.vin = vin
@@ -36,14 +36,14 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                 , object: Repository.Callback<String>{
 
             override fun onSuccess(data: String) {
-                Logger.getInstance().logI(tag,"Use case finished: success"
-                        ,false, DebugMessage.TYPE_USE_CASE)
+                Logger.getInstance().logI(tag, "Use case finished: success"
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback!!.onClockSynced()})
             }
 
             override fun onError(error: RequestError) {
-                Logger.getInstance().logE(tag,"Use case returned error: error=$error"
-                        ,false, DebugMessage.TYPE_USE_CASE)
+                Logger.getInstance().logE(tag, "Use case returned error: error=$error"
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback!!.onError(error)})
             }
 

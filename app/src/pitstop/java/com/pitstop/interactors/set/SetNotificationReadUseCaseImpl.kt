@@ -16,7 +16,7 @@ class SetNotificationReadUseCaseImpl(val useCaseHandler: Handler, val mainHandle
     private val tag = javaClass.simpleName
 
     override fun execute(notifications: List<Notification>, read: Boolean, callback: SetNotificationReadUseCase.Callback) {
-        Logger.getInstance()!!.logI(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
         this.notifications = notifications
         this.read = read
         this.callback = callback
@@ -26,7 +26,7 @@ class SetNotificationReadUseCaseImpl(val useCaseHandler: Handler, val mainHandle
     override fun run() {
         for (n in notifications.orEmpty())
             n.isRead = read
-        Logger.getInstance()!!.logI(tag, "Use case finished", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case finished", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback!!.onMarkedAsRead()})
     }
 }

@@ -45,26 +45,26 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     @Override
     public void execute(Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
         Logger.getInstance().logI(TAG, "Use case finished: serviceMap="+serviceMap
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap));
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: car not added!"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

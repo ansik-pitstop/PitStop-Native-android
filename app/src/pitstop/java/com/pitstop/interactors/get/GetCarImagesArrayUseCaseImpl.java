@@ -37,20 +37,20 @@ public class GetCarImagesArrayUseCaseImpl implements GetCarImagesArrayUseCase{
 
     private void onImagesArrayGot(String imageLink){
         Logger.getInstance().logI(TAG,"Use case execution finished: imageLink="+imageLink
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onArrayGot(imageLink));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(String stylesID, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: stylesID="+stylesID
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.stylesID = stylesID;
         this.callback = callback;
         useCaseHandler.post(this);

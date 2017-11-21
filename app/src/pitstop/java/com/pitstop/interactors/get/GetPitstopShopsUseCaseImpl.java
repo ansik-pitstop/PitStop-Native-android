@@ -36,13 +36,13 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
 
     private void onShopsGot(List<Dealership> dealerships){
         Logger.getInstance().logI(TAG, "Use case finished executing: dealerships="+dealerships
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopsGot(dealerships));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -64,7 +64,7 @@ public class GetPitstopShopsUseCaseImpl implements GetPitstopShopsUseCase {
     @Override
     public void execute(GetPitstopShopsUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }

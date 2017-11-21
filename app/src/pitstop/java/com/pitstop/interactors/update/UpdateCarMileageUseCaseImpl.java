@@ -42,7 +42,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     @Override
     public void execute(double mileage, Callback callback){
         Logger.getInstance().logI(TAG, "Use case execution started: mileage="+mileage
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.mileage = mileage;
         usecaseHandler.post(this);
@@ -50,19 +50,19 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
 
     private void onMileageUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: mileage updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onMileageUpdated());
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: no car added"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

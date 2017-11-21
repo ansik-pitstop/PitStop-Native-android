@@ -33,7 +33,7 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
     @Override
     public void execute(String name, UpdateUserNameUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case finished: shop updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.name = name;
         useCaseHandler.post(this);
@@ -41,13 +41,13 @@ public class UpdateUserNameUseCaseImpl implements UpdateUserNameUseCase {
 
     private void onUserNameUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: user name updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onUserNameUpdated());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

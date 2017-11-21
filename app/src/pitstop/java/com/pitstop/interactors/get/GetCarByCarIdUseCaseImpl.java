@@ -46,7 +46,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     @Override
     public void execute(int carId,Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: carId="+carId
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carId = carId;
         useCaseHandler.post(this);
@@ -54,13 +54,13 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
     private void onCarGot(Car car, Dealership dealership){
         Logger.getInstance().logI(TAG,"Use case finished result: car="+car+", dealership="+dealership
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarGot(car, dealership));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     };
 

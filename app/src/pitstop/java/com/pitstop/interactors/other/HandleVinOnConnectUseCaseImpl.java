@@ -49,7 +49,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     @Override
     public void execute(String vin, String deviceId, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case started execution: vin="+vin+", deviceId="+deviceId
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.vin = vin;
         this.deviceId = deviceId;
         this.callback = callback;
@@ -58,37 +58,37 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
     private void onSuccess(){
         Logger.getInstance().logI(TAG,"Use case finished: success"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onSuccess());
     }
 
     private void onDeviceBrokenAndCarMissingScanner(){
         Logger.getInstance().logI(TAG,"Use case finished: device broken and car missing scanner"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDeviceBrokenAndCarMissingScanner());
     }
 
     private void onDeviceBrokenAndCarHasScanner(String scannerId){
         Logger.getInstance().logI(TAG,"Use case finished: device broken and car has scanner"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDeviceBrokenAndCarHasScanner(scannerId));
     }
 
     private void onDeviceInvalid(){
         Logger.getInstance().logI(TAG,"Use case finished: device invalid"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDeviceInvalid());
     }
 
     private void onDeviceAlreadyActive(){
         Logger.getInstance().logI(TAG,"Use case finished: device already active"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDeviceAlreadyActive());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

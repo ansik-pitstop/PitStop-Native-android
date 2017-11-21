@@ -50,13 +50,13 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
     private void onServicesRequested(){
         Logger.getInstance().logI(TAG,"Use case finished: service requested"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onServicesRequested());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -114,7 +114,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     public void execute(String state, String timeStamp, String comments, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: state"+state
                         +", timeStamp: "+timeStamp+", comments: "+comments
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.state = state;
         this.timeStamp = timeStamp;
         this.comments = comments;

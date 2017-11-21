@@ -30,7 +30,7 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
     @Override
     public void execute(int discoveryNum, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case started execution: discovery num="+discoveryNum
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.discoveryNum = discoveryNum;
         useCaseHandler.post(this);
@@ -47,7 +47,7 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
             @Override
             public void onFinish() {
                 Logger.getInstance().logI(TAG,"Use case finished"
-                        ,false, DebugMessage.TYPE_USE_CASE);
+                        , DebugMessage.TYPE_USE_CASE);
                 mainHandler.post(() -> callback.onFinish(discoveryNum));
             }
         }.start();

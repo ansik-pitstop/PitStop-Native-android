@@ -37,7 +37,7 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
     @Override
     public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: tripInfoPackage="+tripInfoPackage
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
         useCaseHandler.post(this);
@@ -45,19 +45,19 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
     private void onRealTimeTripStartSuccess(){
         Logger.getInstance().logI(TAG,"Use case execution finished: real time trip start success"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onRealTimeTripStartSuccess());
     }
 
     private void onHistoricalTripStartSuccess(){
         Logger.getInstance().logI(TAG,"Use case execution finished: historical trip start success"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onHistoricalTripStartSuccess());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

@@ -36,7 +36,7 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
     @Override
     public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started:tripInfoPackage="+tripInfoPackage
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
         useCaseHandler.post(this);
@@ -44,22 +44,22 @@ public class Trip215EndUseCaseImpl implements Trip215EndUseCase {
 
     private void onHistoricalTripEndSuccess(){
         Logger.getInstance().logI(TAG,"Use case finished: historical trip end success"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onHistoricalTripEndSuccess());
     }
     private void onRealTimeTripEndSuccess(){
         Logger.getInstance().logI(TAG,"Use case finished: real time trip end success"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onRealTimeTripEndSuccess());
     }
     private void onStartTripNotFound(){
         Logger.getInstance().logI(TAG,"Use case finished: start trip not found"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onStartTripNotFound());
     }
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

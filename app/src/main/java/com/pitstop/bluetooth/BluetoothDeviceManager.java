@@ -209,7 +209,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
-            Log.d(TAG,"ConnectToDevice() device: "+device+", already connecting, return");
+            Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting to a device"
+                    , DebugMessage.TYPE_BLUETOOTH);
             return;
         }
 
@@ -246,7 +247,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
 
         Logger.getInstance().logI(TAG,"Connecting to device: deviceName="+device.getName()
-                ,true,DebugMessage.TYPE_BLUETOOTH);
+                , DebugMessage.TYPE_BLUETOOTH);
         communicator.connectToDevice(device);
     }
 
@@ -285,14 +286,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
-            Logger.getInstance().logI(TAG,"Discovery started",false,DebugMessage.TYPE_BLUETOOTH);
+            Logger.getInstance().logI(TAG,"Discovery started", DebugMessage.TYPE_BLUETOOTH);
             //If discovery takes longer than 20 seconds, timeout and cancel it
             discoveryWasStarted = true;
             discoveryNum++;
             useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, timerDiscoveryNum -> {
                 if (discoveryNum == timerDiscoveryNum
                         && discoveryWasStarted){
-                    Logger.getInstance().logE(TAG,"Discovery timeout",false,DebugMessage.TYPE_BLUETOOTH);
+                    Logger.getInstance().logE(TAG,"Discovery timeout", DebugMessage.TYPE_BLUETOOTH);
                     mBluetoothAdapter.cancelDiscovery();
                 }
             });
@@ -429,7 +430,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 discoveryWasStarted = false;
                 discoveryNum++;
-                Logger.getInstance().logI(TAG,"Discovery finished",false,DebugMessage.TYPE_BLUETOOTH);
+                Logger.getInstance().logI(TAG,"Discovery finished", DebugMessage.TYPE_BLUETOOTH);
 
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
@@ -441,7 +442,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     }
                     foundDevicesString+="}";
 
-                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevicesString,false,DebugMessage.TYPE_BLUETOOTH);
+                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevicesString, DebugMessage.TYPE_BLUETOOTH);
                     mixpanelHelper.trackFoundDevices(foundDevices);
                     if (foundDevices.size() > 0){
                         //Try to connect to available device, if none qualify then finish scan
@@ -551,7 +552,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
     public void getSupportedPids() {
-        Logger.getInstance().logI(TAG,"Requested supported pid",false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Requested supported pid", DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -561,7 +562,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids, int timeInterval) {
-        Logger.getInstance().logI(TAG,"Set pids to be sent: "+pids+", interval: "+timeInterval,false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Set pids to be sent: "+pids+", interval: "+timeInterval, DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }

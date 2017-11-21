@@ -18,7 +18,7 @@ class SetAlarmsEnabledUseCaseImpl(val userRepository: UserRepository, val useCas
 
     override fun execute(alarmsEnabled: Boolean, callback: SetAlarmsEnabledUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started: alarmsEnabled=$alarmsEnabled"
-                , false, DebugMessage.TYPE_USE_CASE)
+                , DebugMessage.TYPE_USE_CASE)
         this.alarmsEnabled = alarmsEnabled
         this.callback = callback
         useCaseHandler.post(this)
@@ -28,12 +28,12 @@ class SetAlarmsEnabledUseCaseImpl(val userRepository: UserRepository, val useCas
         userRepository.setAlarmsEnabled(alarmsEnabled, object : Repository.Callback<Any> {
             override fun onSuccess(data: Any?) {
                 Logger.getInstance()!!.logI(tag, "Use case finished"
-                        , false, DebugMessage.TYPE_USE_CASE)
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onAlarmsEnabledSet()})
             }
             override fun onError(error: RequestError?) {
                 Logger.getInstance()!!.logI(tag, "Use case returned error: err=$error"
-                        , false, DebugMessage.TYPE_USE_CASE)
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onError(error!!)})
             }
         })

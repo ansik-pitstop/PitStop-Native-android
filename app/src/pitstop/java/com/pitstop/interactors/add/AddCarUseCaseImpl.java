@@ -59,7 +59,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
             ,String scannerName, String eventSource, Callback callback) {
 
         Logger.getInstance().logI(TAG,"Use case execution started input: vin"+vin+", baseMileage: "+baseMileage+", scannerId: "
-                +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource,false, DebugMessage.TYPE_USE_CASE);
+                +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource, DebugMessage.TYPE_USE_CASE);
 
         this.vin = vin;
         this.baseMileage = baseMileage;
@@ -72,25 +72,25 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private void onCarAddedWithBackendShop(Car car){
         Logger.getInstance().logI(TAG,"Use case finished: car added with backend shop, car= "+car
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarAddedWithBackendShop(car));
     }
 
     private void onCarAdded(Car car){
         Logger.getInstance().logI(TAG,"Use case finished: car added car= "+car
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarAdded(car));
     }
 
     private void onCarAlreadyAdded(Car car){
         Logger.getInstance().logI(TAG,"Use case finished: car already added!"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarAlreadyAdded(car));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: "+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

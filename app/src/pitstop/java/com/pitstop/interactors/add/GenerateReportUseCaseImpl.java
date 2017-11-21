@@ -43,7 +43,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
     @Override
     public void execute(PidPackage pid, DtcPackage dtc, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: pid="+pid+", dtc="+dtc
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.pid = pid;
         this.dtc = dtc;
         this.callback = callback;
@@ -52,20 +52,20 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     private void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport){
         Logger.getInstance().logI(TAG,"Use case finished: added without emissions result="+vehicleHealthReport
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onReportAddedWithoutEmissions(vehicleHealthReport));
     }
 
     private void onReportAdded(VehicleHealthReport vehicleHealthReport
             , EmissionsReport emissionsReport){
         Logger.getInstance().logI(TAG,"Use case execution started: added with emissions, vhr="+vehicleHealthReport
-                +"et="+emissionsReport,false, DebugMessage.TYPE_USE_CASE);
+                +"et="+emissionsReport, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onReportAdded(vehicleHealthReport,emissionsReport));
     }
 

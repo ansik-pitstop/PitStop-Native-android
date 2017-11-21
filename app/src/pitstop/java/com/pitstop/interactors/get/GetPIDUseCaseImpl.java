@@ -31,7 +31,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
     @Override
     public void execute(BluetoothConnectionObservable bluetooth, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.bluetooth = bluetooth;
         useCaseHandler.post(this);
@@ -39,7 +39,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
 
     private void onGotPIDs(PidPackage allPid, BluetoothPidObserver pidObserver){
         Logger.getInstance().logI(TAG, "Use case finished: allPid="+allPid
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             bluetooth.unsubscribe(pidObserver);
             callback.onGotPIDs(allPid);
@@ -55,7 +55,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

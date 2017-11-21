@@ -43,8 +43,8 @@ public class PidDataHandler {
         @Override
         public void run() {
             Logger.getInstance().logI(TAG,"Pid retrieval info for last 60 seconds: total="
-                    +pidsReceived+", invalid="+nullPidsReceived+", sent="+pidsSavedToServer, true
-                    , DebugMessage.TYPE_BLUETOOTH);
+                    +pidsReceived+", invalid="+nullPidsReceived+", sent="+pidsSavedToServer,
+                    DebugMessage.TYPE_BLUETOOTH);
             handler.postDelayed(this,60000);
         }
     };
@@ -98,14 +98,14 @@ public class PidDataHandler {
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
             Logger.getInstance().logD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
-                    , true, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
         }
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
             Logger.getInstance().logD(TAG, "Pid data added to pending list, device not verified"
-                    , true, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
             return;
         }
         for (PidPackage p: pendingPidPackages){
@@ -244,13 +244,13 @@ public class PidDataHandler {
             Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
                     .show();
             Logger.getInstance().logD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
-                    ,true, DebugMessage.TYPE_NETWORK);
+                    , DebugMessage.TYPE_NETWORK);
         }
         else {
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
             Logger.getInstance().logD(TAG, "Pid values failed to send to server: "
-                    , true, DebugMessage.TYPE_NETWORK);
+                    , DebugMessage.TYPE_NETWORK);
         }
         pidDataSentVisible = true;
         //Only allow one toast showing failure every 15 seconds
@@ -281,25 +281,25 @@ public class PidDataHandler {
                         String supportedPids = getSupportedPid(pids, PID_COUNT_SAFE);
                         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_SAFE);
                         Logger.getInstance().logI(TAG," Setting pid time interval: interval=" + TIME_INTERVAL_SAFE
-                                        + ", supportedPid=" + supportedPids, true,DebugMessage.TYPE_BLUETOOTH);
+                                        + ", supportedPid=" + supportedPids, DebugMessage.TYPE_BLUETOOTH);
                     } else {
                         String supportedPids = getSupportedPid(pids, PID_COUNT_DEFAULT);
                         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_DEFAULT);
                         Logger.getInstance().logI(TAG, "Setting pid time interval: interval=" + TIME_INTERVAL_DEFAULT +
-                                ", supportedPid-" + supportedPids, true,DebugMessage.TYPE_BLUETOOTH);
+                                ", supportedPid-" + supportedPids, DebugMessage.TYPE_BLUETOOTH);
                     }
                 }
             }
             @Override
             public void onNoCarFound() {
                 Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(not set)"
-                        ,true,DebugMessage.TYPE_BLUETOOTH);
+                        , DebugMessage.TYPE_BLUETOOTH);
                 //Do nothing, car is probably being added and will handle supported pids again
             }
             @Override
             public void onError(RequestError error) {
                 Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(error returned by use case)"
-                        ,true,DebugMessage.TYPE_BLUETOOTH);
+                        , DebugMessage.TYPE_BLUETOOTH);
             }
         });
 

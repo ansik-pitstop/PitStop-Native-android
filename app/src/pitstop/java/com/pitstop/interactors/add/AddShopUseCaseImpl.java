@@ -36,20 +36,20 @@ public class AddShopUseCaseImpl implements AddShopUseCase {
 
     private void onShopAdded(){
         Logger.getInstance().logI(TAG,"Use case finished result: shop added successfully"
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(Dealership dealership, AddShopUseCase.Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: dealership="+dealership
-                ,false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.dealership = dealership;
         useCaseHandler.post(this);

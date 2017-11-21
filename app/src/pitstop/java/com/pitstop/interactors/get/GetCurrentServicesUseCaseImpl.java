@@ -40,26 +40,26 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     @Override
     public void execute(Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues){
         Logger.getInstance().logI(TAG, "Use case finished: currentServices="+currentServices+", customIssues="+customIssues
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotCurrentServices(currentServices,customIssues));
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: no car added!"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

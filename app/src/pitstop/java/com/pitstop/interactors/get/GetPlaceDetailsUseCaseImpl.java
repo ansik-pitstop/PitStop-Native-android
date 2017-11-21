@@ -54,7 +54,7 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
     @Override
     public void execute(Dealership dealership, GetPlaceDetailsUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.dealership = dealership;
         this.callback = callback;
         useCaseHandler.post(this);
@@ -62,13 +62,13 @@ public class GetPlaceDetailsUseCaseImpl implements GetPlaceDetailsUseCase {
 
     private void onDetailsGot(Dealership dealership){
         Logger.getInstance().logI(TAG, "Use case finished execution: dealership="+dealership
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onDetailsGot(dealership));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

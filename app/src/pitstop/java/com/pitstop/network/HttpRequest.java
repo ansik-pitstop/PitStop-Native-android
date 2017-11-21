@@ -63,7 +63,7 @@ public class HttpRequest {
         this.body = body;
 
         Logger.getInstance().logD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
-                false, DebugMessage.TYPE_NETWORK);
+                DebugMessage.TYPE_NETWORK);
 
 
         application = context == null ? null : (GlobalApplication) context.getApplicationContext();
@@ -215,13 +215,13 @@ public class HttpRequest {
                     }
 
                     Logger.getInstance().logD(TAG, requestType.type() + " RESPONSE " + BASE_ENDPOINT + uri + ": " + responseString,
-                            true, DebugMessage.TYPE_NETWORK);
+                            DebugMessage.TYPE_NETWORK);
 
                     listener.done(response.getBody(), null);
                 } else {
                     Logger.getInstance().logE(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
                                     + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
-                            true, DebugMessage.TYPE_NETWORK);
+                            DebugMessage.TYPE_NETWORK);
 
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
                     error.setStatusCode(response.getStatusCode());

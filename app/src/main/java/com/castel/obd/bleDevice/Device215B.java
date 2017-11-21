@@ -454,7 +454,7 @@ public class Device215B implements AbstractDevice {
 
                     Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                         +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
-                            +idrInfo.terminalSN, true, DebugMessage.TYPE_BLUETOOTH);
+                            +idrInfo.terminalSN, DebugMessage.TYPE_BLUETOOTH);
 
                     if (idrInfo.alarmEvents.equals("2")){
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.END;

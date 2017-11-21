@@ -164,7 +164,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         public void onTimeout() {
             if (!vinRequested) return;
             vinRequested = false;
-            Logger.getInstance().logW(TAG,"VIN retrieval timeout",false,DebugMessage.TYPE_BLUETOOTH);
+            Logger.getInstance().logW(TAG,"VIN retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
 
             //For verification progress
             if (deviceConnState.equals(State.CONNECTED_UNVERIFIED)){
@@ -195,7 +195,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onTimeout() {
             if (!dtcRequested) return;
-            Logger.getInstance().logW(TAG,"DTC retrieval timeout",false,DebugMessage.TYPE_BLUETOOTH);
+            Logger.getInstance().logW(TAG,"DTC retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
 
             if (!receivedDtcResponse) notifyErrorGettingDtcData();
             else notifyDtcData(requestedDtcs);
@@ -215,7 +215,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Pid data wasn't sent before timer is done
             if (allPidRequested){
                 notifyErrorGettingAllPid();
-                Logger.getInstance().logW(TAG,"Get all pids retrieval timeout",false,DebugMessage.TYPE_BLUETOOTH);
+                Logger.getInstance().logW(TAG,"Get all pids retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
 
             }
         }
@@ -234,7 +234,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             //Rtc data wasn't sent before timer is done
             if (rtcTimeRequested){
                 notifyErrorGettingRtcTime();
-                Logger.getInstance().logW(TAG,"Rtc time retrieval timeout",false,DebugMessage.TYPE_BLUETOOTH);
+                Logger.getInstance().logW(TAG,"Rtc time retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
 
             }
         }
@@ -454,7 +454,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean requestDtcData() {
         if (dtcRequested) return false;
-        Logger.getInstance().logI(TAG,"Engine codes requested",false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Engine codes requested", DebugMessage.TYPE_BLUETOOTH);
 
         dtcRequested = true;
         requestedDtcs = null;
@@ -468,7 +468,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean requestVin() {
         if (vinRequested) return false;
-        Logger.getInstance().logI(TAG,"VIN requested",false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN requested", DebugMessage.TYPE_BLUETOOTH);
         vinRequested = true;
 
         if (getVinTimeoutTimer.isRunning()){
@@ -483,7 +483,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean requestAllPid() {
         if (allPidRequested) return false;
-        Logger.getInstance().logI(TAG,"All pid requested",false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"All pid requested", DebugMessage.TYPE_BLUETOOTH);
 
         allPidRequested = true;
         if (pidTimeoutTimer.isRunning()){
@@ -497,7 +497,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean requestDeviceTime() {
         if (rtcTimeRequested) return false;
-        Logger.getInstance().logI(TAG,"Rtc time requested",false, DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 
         if (rtcTimeoutTimer.isRunning()){
             rtcTimeoutTimer.cancel();
@@ -515,7 +515,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && !deviceConnState.equals(State.SEARCHING)) return;
 
         Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
-                ,false, DebugMessage.TYPE_BLUETOOTH);
+                , DebugMessage.TYPE_BLUETOOTH);
 
         if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
             setConnectionState(State.SEARCHING);
@@ -589,7 +589,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             try{
                 long rtcTime = Long.valueOf(parameterPackage.value);
                 Logger.getInstance().logI(TAG, "Rtc time received: " + parameterPackage.value
-                        , true, DebugMessage.TYPE_BLUETOOTH);
+                        , DebugMessage.TYPE_BLUETOOTH);
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
                 notifyRtc(rtcTime);
 
@@ -617,14 +617,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
             Logger.getInstance().logI(TAG, "Vin retrieval result: " + parameterPackage.value
-                    , true, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
             vinDataHandler.handleVinData(parameterPackage.value
                     ,currentDeviceId,ignoreVerification);
         }
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.SUPPORTED_PIDS)
                 && readyDevice != null){
             Logger.getInstance().logI(TAG,"Got supported pid: " + parameterPackage.value
-                    , true, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
             if (overWriteInterval){
                 pidDataHandler.setDeviceRtcInterval(parameterPackage.value.split(",")
                         ,readyDevice.getVin(), debugDrawerInterval);
@@ -654,7 +654,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void idrPidData(PidPackage pidPackage) {
         Logger.getInstance().logD(TAG, "IDR pid data received: " + pidPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH);
+                , DebugMessage.TYPE_BLUETOOTH);
 
         deviceManager.requestData();
         trackIdrPidData(pidPackage);
@@ -680,7 +680,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void pidData(PidPackage pidPackage) {
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH);
+                , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
     }
 
@@ -688,7 +688,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void dtcData(DtcPackage dtcPackage) {
         if (dtcPackage == null) return;
         Logger.getInstance().logI(TAG, "Engine codes received: " + dtcPackage.toString()
-                , true, DebugMessage.TYPE_BLUETOOTH);
+                , DebugMessage.TYPE_BLUETOOTH);
         //Set device id if its found in dtc package
         if (dtcPackage.deviceId != null && !dtcPackage.deviceId.isEmpty()){
             currentDeviceId = dtcPackage.deviceId;
@@ -757,7 +757,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             // Here's where the app get the device id for the first time
 
             Logger.getInstance().logD(TAG, "Login package: " + loginPackageInfo.toString()
-                    , true, DebugMessage.TYPE_BLUETOOTH);
+                    , DebugMessage.TYPE_BLUETOOTH);
 
             if (loginPackageInfo.deviceId != null && !loginPackageInfo.deviceId.isEmpty()){
                 currentDeviceId = loginPackageInfo.deviceId;
@@ -772,8 +772,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationSuccess(String vin) {
-        Logger.getInstance().logI(TAG,"VIN verification success", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification success",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -790,8 +790,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationDeviceBrokenAndCarMissingScanner(String vin) {
-        Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has no scanner", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has no scanner",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -816,8 +816,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId) {
-        Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has scanner", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has scanner",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -842,8 +842,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationDeviceInvalid(String vin) {
-        Logger.getInstance().logI(TAG,"VIN verification failed due to invalid device", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification failed due to invalid device",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -863,8 +863,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onVerificationDeviceAlreadyActive(String vin) {
-        Logger.getInstance().logI(TAG,"VIN verification failed due to device being already active", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification failed due to device being already active",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -883,8 +883,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void onVerificationError(String vin) {
 
-        Logger.getInstance().logI(TAG,"VIN verification failed due to error", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"VIN verification failed due to error",
+                DebugMessage.TYPE_BLUETOOTH);
 
         //ignore result if verification state changed mid use-case execution
         if (deviceConnState.equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -901,8 +901,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOn() {
-        Logger.getInstance().logI(TAG,"Bluetooth OFF", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Bluetooth OFF",
+                DebugMessage.TYPE_BLUETOOTH);
         if (deviceManager != null) {
             deviceManager.close();
         }
@@ -919,8 +919,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void onBluetoothOff() {
-        Logger.getInstance().logI(TAG,"Bluetooth OFF", false
-                , DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Bluetooth OFF",
+                DebugMessage.TYPE_BLUETOOTH);
         Log.d(TAG,"onBluetoothOff()");
         setConnectionState(State.DISCONNECTED);
         notifyDeviceDisconnected();
@@ -1258,7 +1258,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void setConnectionState(String deviceConnState){
-        Logger.getInstance().logI(TAG,"Connection status change: "+deviceConnState,false,DebugMessage.TYPE_BLUETOOTH);
+        Logger.getInstance().logI(TAG,"Connection status change: "+deviceConnState, DebugMessage.TYPE_BLUETOOTH);
         this.deviceConnState = deviceConnState;
     }
 

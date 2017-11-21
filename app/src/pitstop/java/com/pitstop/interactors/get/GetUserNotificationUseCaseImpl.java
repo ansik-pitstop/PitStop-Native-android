@@ -40,20 +40,20 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
     @Override
     public void execute(Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     public void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     public void onNotificationsRetrieved(List<Notification> notificationList){
         Logger.getInstance().logI(TAG, "Use case finished: notificationList.size="+notificationList.size()
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNotificationsRetrieved(notificationList));
     }
 

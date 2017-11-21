@@ -17,7 +17,7 @@ class CheckAlarmsEnabledUseCaseImpl(val userRepository: UserRepository, val useC
     val tag = javaClass.simpleName
 
     override fun execute(callback: CheckAlarmsEnabledUse.Callback) {
-        Logger.getInstance()!!.logI(tag, "Use case execution started", false, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -27,14 +27,14 @@ class CheckAlarmsEnabledUseCaseImpl(val userRepository: UserRepository, val useC
 
             override fun onSuccess(data: Settings?) {
                 Logger.getInstance()!!.logI(tag, "Use case finished: result="+data?.isAlarmsEnabled!!
-                        , false, DebugMessage.TYPE_USE_CASE)
+                        , DebugMessage.TYPE_USE_CASE)
                 callback?.onAlarmsEnabledChecked(data?.isAlarmsEnabled!!)
 
             }
 
             override fun onError(error: RequestError?) {
                 Logger.getInstance()!!.logI(tag, "Use case returned error: err="+error
-                        , false, DebugMessage.TYPE_USE_CASE)
+                        , DebugMessage.TYPE_USE_CASE)
                 callback?.onError(error!!)
             }
         })

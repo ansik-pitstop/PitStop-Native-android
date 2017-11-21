@@ -34,7 +34,7 @@ public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
     @Override
     public void execute(int Carid, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution: carId="+Carid
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carID = Carid;
         useCaseHandler.post(this);
@@ -42,13 +42,13 @@ public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
 
     public void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     public void onLicensePlateStored(String licensePlate){
         Logger.getInstance().logI(TAG, "Use case finished: license{late="+licensePlate
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onLicensePlateGot(licensePlate));
     }
 

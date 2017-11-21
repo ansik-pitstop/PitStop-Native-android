@@ -49,7 +49,7 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     @Override
     public void execute(Dealership dealership,String eventSource, UpdateShopUseCase.Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.dealership = dealership;
@@ -58,13 +58,13 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
 
     private void onShopUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: shop updated"
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onShopUpdated());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG, "Use case returned error: err="+error
-                , false, DebugMessage.TYPE_USE_CASE);
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
