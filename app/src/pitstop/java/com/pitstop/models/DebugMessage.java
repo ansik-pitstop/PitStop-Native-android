@@ -94,6 +94,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         message.setTimestamp(c.getLong(c.getColumnIndex(COLUMN_TIMESTAMP)));
         message.setType(c.getInt(c.getColumnIndex(COLUMN_TYPE)));
         message.setLevel(c.getInt(c.getColumnIndex(COLUMN_LEVEL)));
+        message.setTag(c.getString(c.getColumnIndex(COLUMN_TAG)));
 
         return message;
     }
@@ -104,6 +105,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         values.put(COLUMN_MESSAGE, message.getMessage());
         values.put(COLUMN_TIMESTAMP, message.getTimestamp());
         values.put(COLUMN_LEVEL, message.getLevel());
+        values.put(COLUMN_TAG, message.getTag());
 
         return values;
     }

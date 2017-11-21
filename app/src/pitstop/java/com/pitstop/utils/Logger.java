@@ -50,7 +50,7 @@ public class Logger {
         this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
         LocalDebugMessageStorage localDebugMessageStorage = new LocalDebugMessageStorage(context);
-        localDebugMessageStorage.getQueryObservable(DebugMessage.TYPE_BLUETOOTH)
+        localDebugMessageStorage.getQueryObservableAll()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .onErrorReturn(err -> {
@@ -68,7 +68,7 @@ public class Logger {
                     }
                     c.close();
                     return messageList;
-                }).filter(messageList -> !messageList.isEmpty())
+                }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null)
                 .subscribe(messageList -> {
                     Log.d(TAG,"messages received: "+messageList);
                     if (gelfTransport == null){
@@ -85,6 +85,7 @@ public class Logger {
                                             @Override
                                             public void onMessageSent(GelfMessage gelfMessage) {
                                                 Log.d(TAG,"resultListener.onMessageSent() gelfMessage: "+gelfMessage);
+                                                localDebugMessageStorage.removeAllMessages();
                                             }
 
                                             @Override
@@ -128,9 +129,10 @@ public class Logger {
                                 gelfLevel = GelfMessageLevel.CRITICAL;
 
                         }
+
                         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(),"com.pitstop.android")
                                 .timestamp(d.getTimestamp())
-                                .additionalField("Tag",d.getTag())
+                                .additionalField("tag",d.getTag())
                                 .additionalField("userId",localUserStorage.getUser().getId())
                                 .level(gelfLevel)
                                 .build();

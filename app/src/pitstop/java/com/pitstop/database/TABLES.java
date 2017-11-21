@@ -19,6 +19,7 @@ public final class TABLES {
         String COLUMN_TYPE = "type";
         String COLUMN_MESSAGE = "message";
         String COLUMN_LEVEL = "level";
+        String COLUMN_TAG = "tag";
     }
 
     public interface PID {

@@ -219,7 +219,7 @@ public class HttpRequest {
 
                     listener.done(response.getBody(), null);
                 } else {
-                    Logger.getInstance().logD(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
+                    Logger.getInstance().logE(TAG, requestType.type() + " ERROR " + BASE_ENDPOINT + uri + ": "
                                     + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
                             true, DebugMessage.TYPE_NETWORK);
 
