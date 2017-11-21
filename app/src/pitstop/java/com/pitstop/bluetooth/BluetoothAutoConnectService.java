@@ -497,6 +497,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public boolean requestDeviceTime() {
         if (rtcTimeRequested) return false;
+        rtcTimeRequested = true;
         Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 
         if (rtcTimeoutTimer.isRunning()){
