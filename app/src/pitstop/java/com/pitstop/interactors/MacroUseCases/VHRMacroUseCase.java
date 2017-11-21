@@ -13,10 +13,12 @@ import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDTCUseCaseImpl;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPIDUseCaseImpl;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.utils.Logger;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -88,6 +90,8 @@ public class VHRMacroUseCase {
 
     }
     public void start(){
+        Logger.getInstance().logI(TAG,"Macro use case execution started"
+                ,false, DebugMessage.TYPE_USE_CASE);
         next();
     }
     private void next(){
@@ -243,13 +247,15 @@ public class VHRMacroUseCase {
 
             switch(type){
                 case TYPE_GENERATE_REPORT:
-                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GENERATE_REPORT dtc: "
-                            +retrievedDtc+", pid: "+retrievedPid);
                     if (retrievedDtc == null || retrievedPid == null || vehicleHealthReport == null){
                         callback.onErrorGeneratingReport();
+                        Logger.getInstance().logE(TAG,"Macro use case: error generating report!"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         finish();
                     }
                     else{
+                        Logger.getInstance().logI(TAG,"Macro use case: finished generating report"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         callback.onFinishGeneratingReport(vehicleHealthReport, emissionsReport);
                         progressTimerQueue.remove();
                         next();
@@ -257,13 +263,15 @@ public class VHRMacroUseCase {
                     break;
 
                 case TYPE_GET_DTC:
-                    Log.d(TAG,"progressTimer.onFinish() type: TYPE_GET_DTC, retrieviedDtc null? "
-                            +(retrievedDtc == null));
                     if (retrievedDtc == null){
+                        Logger.getInstance().logE(TAG,"Macro use case: error retrieving dtc"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         callback.onDTCError();
                         finish();
                     }
                     else{
+                        Logger.getInstance().logI(TAG,"Macro use case: got dtc successfully!"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         callback.onGotDTC();
                         progressTimerQueue.remove();
                         next();
@@ -271,13 +279,15 @@ public class VHRMacroUseCase {
                     break;
 
                 case TYPE_GET_PID:
-                    Log.d(TAG,"progressTimer().onFinish() type: TYPE_GET_PID, retrievedPid null? "
-                            +(retrievedPid == null));
                     if (retrievedPid == null){
+                        Logger.getInstance().logE(TAG,"Macro use case: error retrieving pids!"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         callback.onPIDError();
                         finish();
                     }
                     else{
+                        Logger.getInstance().logI(TAG,"Macro use case: retrieved pids successfully"
+                                ,false, DebugMessage.TYPE_USE_CASE);
                         callback.onGotPID();
                         progressTimerQueue.remove();
                         next();
