@@ -2,6 +2,7 @@ package com.pitstop.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.util.Log;
 
 import com.pitstop.models.DebugMessage;
 import com.squareup.sqlbrite.QueryObservable;
@@ -31,7 +32,8 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     public void markAllAsSent(){
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_SENT,"1");
-        mDatabaseHelper.getWritableDatabase().update(TABLE_NAME,contentValues,null,null);
+        int rows = mDatabaseHelper.getWritableDatabase().update(TABLE_NAME,contentValues,null,null);
+        Log.d(TAG,"Rows marked as read: "+rows);
     }
 
     public QueryObservable getQueryObservable(int type) {

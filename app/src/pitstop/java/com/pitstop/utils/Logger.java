@@ -2,6 +2,7 @@ package com.pitstop.utils;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
@@ -38,6 +39,8 @@ public class Logger {
     private GelfTransport gelfTransport = null;
     private Context context;
     private LocalUserStorage localUserStorage;
+    private ConnectivityManager connectivityManager;
+    private LocalDebugMessageStorage localDebugMessageStorage;
 
     public static Logger getInstance(){
         if (INSTANCE == null){
@@ -50,7 +53,9 @@ public class Logger {
     public Logger(Context context){
         this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
-        LocalDebugMessageStorage localDebugMessageStorage = new LocalDebugMessageStorage(context);
+        connectivityManager =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        localDebugMessageStorage = new LocalDebugMessageStorage(context);
                 localDebugMessageStorage.getUnsentQueryObservable()
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
@@ -79,14 +84,13 @@ public class Logger {
                                             .transport(GelfTransports.TCP)
                                             .tcpKeepAlive(false)
                                             .queueSize(512)
-                                            .connectTimeout(12000)
-                                            .reconnectDelay(1000)
+                                            .connectTimeout(1000)
+                                            .reconnectDelay(500)
                                             .sendBufferSize(-1)
                                             .resultListener(new GelfTransportResultListener() {
                                                 @Override
                                                 public void onMessageSent(GelfMessage gelfMessage) {
                                                     Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
-                                                    localDebugMessageStorage.markAllAsSent();
                                                 }
 
                                                 @Override
@@ -103,13 +107,16 @@ public class Logger {
                                 }
 
                                 for (DebugMessage d: messageList){
-                                    sendMessage(d);
+                                    boolean sent = sendMessage(d);
+                                    if (sent){
+                                        localDebugMessageStorage.markAllAsSent();
+                                    }
                                 }
                             });
 
     }
 
-    private void sendMessage(DebugMessage d) {
+    private boolean sendMessage(DebugMessage d) {
         GelfMessageLevel gelfLevel;
         switch (d.getLevel()) {
             case 0:
@@ -168,8 +175,16 @@ public class Logger {
                 .level(gelfLevel)
                 .build();
 
-        boolean trySend = gelfTransport.trySend(gelfMessage);
-        Log.d(TAG,"log dispatched? "+trySend);
+        if (connectivityManager.getActiveNetworkInfo() != null
+                && connectivityManager.getActiveNetworkInfo().isConnected()){
+            boolean trySend = gelfTransport.trySend(gelfMessage);
+            Log.d(TAG,"log dispatched? "+trySend);
+            if (trySend)
+                return true;
+        }else{
+            Log.d(TAG,"No connection! not sending.");
+        }
+        return false;
 
     }
 
