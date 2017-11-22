@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_specs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
@@ -394,7 +395,9 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     private void updatePrice(final SharedPreferences sharedPreferences) {
         Log.d(TAG, "updatePrice();");
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        useCaseComponent.getFuelPriceUseCase().execute(getView().getLastKnowLocation(), new GetFuelPricesUseCase.Callback() {
+        String lastKnownLocation = getView().getLastKnowLocation();
+        if (lastKnownLocation == null) return;
+        useCaseComponent.getFuelPriceUseCase().execute(lastKnownLocation, new GetFuelPricesUseCase.Callback() {
             @Override
             public void onFuelPriceGot(double fuelPrice) {
                 if (getView() == null) return;

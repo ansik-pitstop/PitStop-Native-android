@@ -37,7 +37,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
-import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
@@ -813,6 +812,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
             String locationProvider = LocationManager.NETWORK_PROVIDER;
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (lastKnownLocation == null){
+                return null;
+            }
             locationManager.removeUpdates(locationListener);
             Geocoder geocoder = new Geocoder(getActivity());
             try {
