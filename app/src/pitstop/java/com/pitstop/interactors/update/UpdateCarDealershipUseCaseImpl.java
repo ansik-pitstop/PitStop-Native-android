@@ -9,12 +9,14 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -48,25 +50,21 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
     }
 
     private void onCarDealerUpdated(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarDealerUpdated();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: car dealer updated"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onCarDealerUpdated());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(int carId, Dealership dealership, String eventSource, UpdateCarDealershipUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started: carId="+carId+", dealership="+dealership
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.carId = carId;

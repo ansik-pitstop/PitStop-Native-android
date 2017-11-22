@@ -60,7 +60,10 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.utils.*
+import com.pitstop.utils.AnimatedDialogBuilder
+import com.pitstop.utils.MigrationService
+import com.pitstop.utils.MixpanelHelper
+import com.pitstop.utils.NetworkHelper
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -132,7 +135,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     // Views
     private var rootView: View? = null
     private var toolbar: Toolbar? = null
-
     private var progressDialog: ProgressDialog? = null
     private var isLoading = false
 
@@ -144,6 +146,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var tabFragmentManager: TabFragmentManager? = null
 
     private var useCaseComponent: UseCaseComponent? = null
+
+    var counter = 0
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -350,9 +354,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun notifyCarDataChanged() {
         carsAdapter?.notifyDataSetChanged()
     }
-
-
-    // public void removeBluetoothFragmentCallback
 
     private fun setGreetingsNotSent() {
         useCaseComponent!!.setFirstCarAddedUseCase().execute(false, object : SetFirstCarAddedUseCase.Callback {
@@ -755,15 +756,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     private fun logAuthInfo() {
-        LogUtils.LOGD(TAG, "RefreshToken: " + application!!.refreshToken)
-        LogUtils.LOGD(TAG, "AccessToken: " + application!!.accessToken)
+        Log.d(TAG,"RefreshToken: " + application!!.refreshToken)
+        Log.d(TAG,"AccessToken: " + application!!.accessToken)
     }
 
     override fun onDeviceNeedsOverwrite() {
-
-        LogUtils.LOGD(TAG, "onDeviceNeedsOverwrite(), BuildConfig.DEBUG?" + BuildConfig.DEBUG
-                + " ignoreMissingDeviceName?" + ignoreMissingDeviceName)
-
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
 
@@ -847,7 +844,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         messageIcon?.setImageResource(R.drawable.mercedes_chat_3x)
         callIcon?.setImageResource(R.drawable.call_mercedes_3x)
         findDirectionsIcon?.setImageResource(R.drawable.mercedes_directions_3x)
-
     }
 
     override fun showNormalLAyout() {
@@ -874,7 +870,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             addCarBtn?.visibility = View.VISIBLE
         }
         else {
-            drawerRefreshLayout?.isRefreshing = false;
+            drawerRefreshLayout?.isRefreshing = false
         }
     }
 

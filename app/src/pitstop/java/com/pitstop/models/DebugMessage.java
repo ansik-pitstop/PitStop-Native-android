@@ -7,11 +7,15 @@ import com.pitstop.database.TABLES;
 
 public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
-    private final static int MESSAGE_MAX_LENGTH = 500;
+    private final static int MESSAGE_MAX_LENGTH = 200;
 
     public static final int TYPE_NETWORK = 0;
     public static final int TYPE_BLUETOOTH = 1;
     public static final int TYPE_OTHER = 2;
+    public static final int TYPE_REPO = 3;
+    public static final int TYPE_USE_CASE = 4;
+    public static final int TYPE_VIEW = 5;
+    public static final int TYPE_PRESENTER = 6;
 
     public static final int LEVEL_V = 0;
     public static final int LEVEL_D = 1;
@@ -20,12 +24,14 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
     public static final int LEVEL_E = 4;
     public static final int LEVEL_WTF = 5;
 
-    private long mTimestamp;
+    private double mTimestamp;
     private String mMessage;
+
+    private String tag;
     private int mType;
     private int mLevel;
 
-    public DebugMessage(long timestamp, String message, int type, int level) {
+    public DebugMessage(long timestamp, String message, String tag, int type, int level) {
 
         if (message.length() > MESSAGE_MAX_LENGTH){
             mMessage = message.substring(0,MESSAGE_MAX_LENGTH)+"...";
@@ -33,19 +39,19 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         else{
             mMessage = message;
         }
-
-        mTimestamp = timestamp;
+        this.tag = tag;
+        mTimestamp = timestamp/1000.0D;
         mType = type;
         mLevel = level;
     }
 
     public DebugMessage() {}
 
-    public long getTimestamp() {
+    public double getTimestamp() {
         return mTimestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(double timestamp) {
         mTimestamp = timestamp;
     }
 
@@ -73,13 +79,22 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         mLevel = level;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
     public static DebugMessage fromCursor(Cursor c) {
         DebugMessage message = new DebugMessage();
 
         message.setMessage(c.getString(c.getColumnIndex(COLUMN_MESSAGE)));
-        message.setTimestamp(c.getLong(c.getColumnIndex(COLUMN_TIMESTAMP)));
+        message.setTimestamp(c.getDouble(c.getColumnIndex(COLUMN_TIMESTAMP)));
         message.setType(c.getInt(c.getColumnIndex(COLUMN_TYPE)));
         message.setLevel(c.getInt(c.getColumnIndex(COLUMN_LEVEL)));
+        message.setTag(c.getString(c.getColumnIndex(COLUMN_TAG)));
 
         return message;
     }
@@ -90,7 +105,15 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         values.put(COLUMN_MESSAGE, message.getMessage());
         values.put(COLUMN_TIMESTAMP, message.getTimestamp());
         values.put(COLUMN_LEVEL, message.getLevel());
+        values.put(COLUMN_TAG, message.getTag());
 
         return values;
     }
+
+    @Override
+    public String toString(){
+        return String.format("{ message: %s, tag: %s, type: %d, level: %d, timestamp: %f }"
+                ,mMessage,tag,mType,mLevel,mTimestamp);
+    }
+
 }

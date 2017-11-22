@@ -21,12 +21,13 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.TripEnd;
 import com.pitstop.models.TripIndicator;
 import com.pitstop.models.TripStart;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -98,20 +99,20 @@ public class TripDataHandler{
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-            Log.d(TAG, "trip update received. ");
+            Logger.getInstance().logV(TAG,"Trip update received: "+tripInfoPackage
+                    , DebugMessage.TYPE_BLUETOOTH);
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.END)){
-            Log.d(TAG, "Trip end received: " + tripInfoPackage.toString());
-            bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RECEIVED);
+            Logger.getInstance().logI(TAG,"Trip end received: "+tripInfoPackage
+                    , DebugMessage.TYPE_BLUETOOTH);
         }
         else if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.START)){
-            Log.d(TAG, "Trip start received: " + tripInfoPackage.toString());
+            Logger.getInstance().logI(TAG,"Trip start received: "+tripInfoPackage
+                    , DebugMessage.TYPE_BLUETOOTH);
             if (processedTripStartIds.contains(tripInfoPackage.rtcTime)){
-                Log.d(TAG,"Duplictate Start! Returning!");
                 return; //Duplicate start, return;
             }
             processedTripStartIds.add(tripInfoPackage.tripId); //Store for later comparison for duplicates
-            bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RECEIVED);
         }
 
         /*Code for handling 212 trip logic, moved to private method since its being
@@ -138,7 +139,6 @@ public class TripDataHandler{
 
             //Only send mixpanel event for non-update trip events
             if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){
-                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_NOT_PROCESSED);
             }
             return;
         }
@@ -158,14 +158,11 @@ public class TripDataHandler{
                 useCaseComponent.trip215EndUseCase().execute(trip, new Trip215EndUseCase.Callback() {
                             @Override
                             public void onHistoricalTripEndSuccess() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_HT_SUCCESS);
                                 Log.d(TAG, "Historical trip END saved successfully");
                             }
 
                             @Override
                             public void onRealTimeTripEndSuccess() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_RT_SUCCESS);
-
                                 Log.d(TAG, "Real-time END trip end saved successfully");
 
                                 //Send update mileage notification after 5 seconds to allow back-end to process mileage
@@ -180,13 +177,11 @@ public class TripDataHandler{
 
                             @Override
                             public void onStartTripNotFound() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
                                 Log.d(TAG, "Trip start not found, mileage will update on " +"next trip start");
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_END_FAILED);
                                 Log.d(TAG,"TRIP END Use case returned error");
                             }
                         });
@@ -199,7 +194,6 @@ public class TripDataHandler{
                 useCaseComponent.trip215StartUseCase().execute(trip, new Trip215StartUseCase.Callback() {
                             @Override
                             public void onRealTimeTripStartSuccess() {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_RT_SUCCESS);
                                 Log.d(TAG, "Real-time trip START saved successfully");
 
                                 handler.postDelayed(new Runnable() {
@@ -212,14 +206,12 @@ public class TripDataHandler{
 
                             @Override
                             public void onHistoricalTripStartSuccess(){
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_HT_SUCCESS);
                                 Log.d(TAG, "Historical trip START saved successfully");
 
                             }
 
                             @Override
                             public void onError(RequestError error) {
-                                bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_TRIP_START_FAILED);
                                 Log.d(TAG,"Error saving trip start");
                             }
                         });

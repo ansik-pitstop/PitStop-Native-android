@@ -1,15 +1,16 @@
 package com.pitstop.interactors.add
 
 import android.os.Handler
-import android.util.Log
 import com.pitstop.database.LocalAlarmStorage
 import com.pitstop.models.Alarm
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.RepositoryResponse
 import com.pitstop.repositories.UserRepository
+import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -25,27 +26,42 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
 
 
     override fun execute(alarm: Alarm, callback: AddAlarmUseCase.Callback) {
-        Log.d(TAG, "execute() " )
+        Logger.getInstance().logI(TAG, "Use case execution started, input alarm: "+alarm, DebugMessage.TYPE_USE_CASE)
         this.alarm = alarm
         this.callback = callback
         useCaseHandler.post(this);
+    }
+
+    private fun onError(err: RequestError){
+        Logger.getInstance().logE(TAG, "Use case returned error: "+err, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onError(err)})
+    }
+
+    private fun onAlarmAdded(alarm: Alarm){
+        Logger.getInstance().logI(TAG, "Use case finished: "+alarm, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onAlarmAdded(alarm)})
+    }
+
+    private fun onAlarmsDisabled(){
+        Logger.getInstance().logI(TAG, "Use case finished: alarm disabled!", DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onAlarmsDisabled()})
     }
 
     override fun run() {
        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings>{
            override fun onSuccess(settings: Settings) {
                if (!settings.hasMainCar()) {
-                   callback?.onError(RequestError.getUnknownError());
+                   this@AddAlarmUseCaseImpl.onError(RequestError.getUnknownError())
                    return
                }
                if (!settings.isAlarmsEnabled) {
-                   mainHandler.post({ callback?.onAlarmsDisabled() })
+                   this@AddAlarmUseCaseImpl.onAlarmsDisabled()
                } else {
 
                    carRepository.get(settings.carId)
                            .subscribeOn(Schedulers.io())
                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                           .doOnError{ err -> mainHandler.post{callback?.onError(RequestError(err))}}
+                           .doOnError{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err))}
                            .doOnNext{response ->
                                if (response.isLocal) return@doOnNext
                                val car = response.data
@@ -57,12 +73,10 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                                localAlarmStorage.storeAlarm(alarm,
                                        object : Repository.Callback<Alarm> {
                                            override fun onSuccess(alarm: Alarm?) {
-                                               Log.d(TAG, "store alarm on success")
-                                               mainHandler.post({ callback?.onAlarmAdded(alarm!!) })
+                                               this@AddAlarmUseCaseImpl.onAlarmAdded(alarm!!)
                                            }
                                            override fun onError(error: RequestError) {
-                                               Log.d(TAG, "Error adding alarm:  " + error.message)
-                                               mainHandler.post({ callback?.onError(error) })
+                                               this@AddAlarmUseCaseImpl.onError(error)
                                            }
                                        })
 
@@ -70,9 +84,8 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                            .subscribe()
                }
            }
-           override fun onError(error: RequestError?) {
-               Log.d(TAG,"Error storing alarm: ")
-               mainHandler.post({callback?.onError(error!!)})
+           override fun onError(error: RequestError) {
+               this@AddAlarmUseCaseImpl.onError(error)
            }
        })
     }

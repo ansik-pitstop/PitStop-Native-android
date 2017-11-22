@@ -2,6 +2,7 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -10,6 +11,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import io.reactivex.schedulers.Schedulers;
 
@@ -18,6 +20,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private UserRepository userRepository;
     private CarRepository carRepository;
@@ -37,6 +41,8 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
 
     @Override
     public void execute(String deviceId, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: deviceId="+deviceId
+                , DebugMessage.TYPE_USE_CASE);
         this.deviceId = deviceId;
         this.callback = callback;
         handler.post(this);

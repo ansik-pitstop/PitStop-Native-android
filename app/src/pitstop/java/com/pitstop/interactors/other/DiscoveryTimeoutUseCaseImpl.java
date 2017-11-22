@@ -4,6 +4,9 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.models.DebugMessage;
+import com.pitstop.utils.Logger;
+
 /**
  * Created by Karol Zdebel on 9/14/2017.
  */
@@ -26,6 +29,8 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
 
     @Override
     public void execute(int discoveryNum, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case started execution: discovery num="+discoveryNum
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.discoveryNum = discoveryNum;
         useCaseHandler.post(this);
@@ -41,7 +46,8 @@ public class DiscoveryTimeoutUseCaseImpl implements DiscoveryTimeoutUseCase {
 
             @Override
             public void onFinish() {
-                Log.d(TAG,"onFinish() discovery num: "+discoveryNum);
+                Logger.getInstance().logI(TAG,"Use case finished"
+                        , DebugMessage.TYPE_USE_CASE);
                 mainHandler.post(() -> callback.onFinish(discoveryNum));
             }
         }.start();

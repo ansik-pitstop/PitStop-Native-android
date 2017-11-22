@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
@@ -12,6 +13,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -46,6 +48,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
     @Override
     public void execute(String vin, String deviceId, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case started execution: vin="+vin+", deviceId="+deviceId
+                , DebugMessage.TYPE_USE_CASE);
         this.vin = vin;
         this.deviceId = deviceId;
         this.callback = callback;
@@ -53,57 +57,39 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     }
 
     private void onSuccess(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onSuccess();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: success"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onSuccess());
     }
 
     private void onDeviceBrokenAndCarMissingScanner(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onDeviceBrokenAndCarMissingScanner();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: device broken and car missing scanner"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onDeviceBrokenAndCarMissingScanner());
     }
 
     private void onDeviceBrokenAndCarHasScanner(String scannerId){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onDeviceBrokenAndCarHasScanner(scannerId);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: device broken and car has scanner"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onDeviceBrokenAndCarHasScanner(scannerId));
     }
 
     private void onDeviceInvalid(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onDeviceInvalid();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: device invalid"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onDeviceInvalid());
     }
 
     private void onDeviceAlreadyActive(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onDeviceAlreadyActive();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: device already active"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onDeviceAlreadyActive());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     private boolean isValidVin(final String vin) {
@@ -131,7 +117,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     .doOnNext(response -> {
                         if (response.isLocal()) return;
                         if (response.getData() == null){
-                            callback.onError(RequestError.getUnknownError());
+                            HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
                         Car car = response.getData();

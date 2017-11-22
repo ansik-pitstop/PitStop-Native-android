@@ -9,7 +9,6 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.DeviceVerificationObserver;
-import com.pitstop.utils.MixpanelHelper;
 
 /**
  * Created by Karol Zdebel on 8/16/2017.
@@ -40,9 +39,6 @@ public class VinDataHandler{
                 +", ignoreVerification?"+ignoreVerification);
 
         bluetoothDataHandlerManager.onHandlerReadVin(vin);
-
-        bluetoothDataHandlerManager.trackBluetoothEvent(MixpanelHelper.BT_VIN_GOT,deviceId
-                ,vin);
         boolean deviceIsVerified = bluetoothDataHandlerManager.isDeviceVerified();
 
         //If adding car connect to first recognized device

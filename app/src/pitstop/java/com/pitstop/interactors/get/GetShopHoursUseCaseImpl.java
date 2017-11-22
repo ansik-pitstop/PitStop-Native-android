@@ -3,11 +3,13 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -26,8 +28,10 @@ import java.util.List;
  */
 
 public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
-    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
 
+    private final String TAG = getClass().getSimpleName();
+
+    private static final String API_KEY = "AIzaSyAjUxXRoOW21-c-LDudqgOZLvBQpiXp58k";
     private static final String PLACES_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
     private final int DEFAULT_OPEN_HOUR = 900;
@@ -56,39 +60,27 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
     }
 
     private void onHoursGot(List<String> hours){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onHoursGot(hours);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished execution: hours="+hours
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onHoursGot(hours));
     }
 
     private void onNoHoursAvailable(List<String> defaultHours){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNoHoursAvailable(defaultHours);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished execution: no hours available, default="+defaultHours
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onNoHoursAvailable(defaultHours));
     }
 
     private void onNotOpen(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onNotOpen();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished execution: not open!"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onNotOpen());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -212,6 +204,9 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
 
     @Override
     public void execute(int year, int month, int day, int shopId, String dayInWeek, Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution: y="+year+", m="
+                        +month+",day="+day+",shopId="+shopId+", dayInWeek="+dayInWeek
+                , DebugMessage.TYPE_USE_CASE);
         this.year = year;
         this.month = month;
         this.day = day;

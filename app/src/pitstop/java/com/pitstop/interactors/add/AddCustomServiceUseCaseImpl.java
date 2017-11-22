@@ -6,6 +6,7 @@ import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
@@ -13,6 +14,7 @@ import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -21,6 +23,9 @@ import org.greenrobot.eventbus.EventBus;
  */
 
 public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private CarIssueRepository carIssueRepository;
     private CarRepository carRepository;
     private UserRepository userRepository;
@@ -43,6 +48,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
 
     @Override
     public void execute(CarIssue issue, EventSource eventSource, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started input: issue="+issue, DebugMessage.TYPE_USE_CASE);
         this.eventSource = eventSource;
         this.issue = issue;
         this.callback = callback;
@@ -50,10 +56,12 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     }
 
     private void onIssueAdded(CarIssue data){
+        Logger.getInstance().logI(TAG,"Use case finished: result="+data, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onIssueAdded(data));
     }
 
     private void onError(RequestError requestError){
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+requestError, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(requestError));
     }
 

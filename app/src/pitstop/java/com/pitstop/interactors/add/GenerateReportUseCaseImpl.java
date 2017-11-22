@@ -5,13 +5,15 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.models.report.EmissionsReport;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
+import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Karol Zdebel on 9/19/2017.
@@ -40,7 +42,8 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     @Override
     public void execute(PidPackage pid, DtcPackage dtc, Callback callback) {
-        Log.d(TAG,"execute() pid: "+pid+", dtc: "+dtc);
+        Logger.getInstance().logI(TAG,"Use case execution started: pid="+pid+", dtc="+dtc
+                , DebugMessage.TYPE_USE_CASE);
         this.pid = pid;
         this.dtc = dtc;
         this.callback = callback;
@@ -48,15 +51,21 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     private void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport){
+        Logger.getInstance().logI(TAG,"Use case finished: added without emissions result="+vehicleHealthReport
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onReportAddedWithoutEmissions(vehicleHealthReport));
     }
 
     private void onReportAdded(VehicleHealthReport vehicleHealthReport
             , EmissionsReport emissionsReport){
+        Logger.getInstance().logI(TAG,"Use case execution started: added with emissions, vhr="+vehicleHealthReport
+                +"et="+emissionsReport, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onReportAdded(vehicleHealthReport,emissionsReport));
     }
 

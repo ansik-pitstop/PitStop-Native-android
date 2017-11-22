@@ -6,15 +6,19 @@ import com.pitstop.EventBus.EventBusNotifier;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
  */
 
 public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private CarIssueRepository carIssueRepository;
     private Callback callback;
@@ -31,6 +35,8 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     }
 
     private void onServiceMarkedAsDone(CarIssue carIssue){
+        Logger.getInstance().logI(TAG,"Use case finished: service marked as done carIssue="+carIssue
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> {
             EventBusNotifier.notifyCarDataChanged(
                     new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY), eventSource);
@@ -39,6 +45,8 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -62,6 +70,8 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
 
     @Override
     public void execute(CarIssue carIssue, EventSource eventSource, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: carIssue="+carIssue
+                , DebugMessage.TYPE_USE_CASE);
         this.carIssue = carIssue;
         this.eventSource = eventSource;
         this.callback = callback;

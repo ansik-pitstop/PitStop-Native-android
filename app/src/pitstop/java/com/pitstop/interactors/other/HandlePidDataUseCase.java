@@ -11,7 +11,7 @@ import com.pitstop.network.RequestError;
 public interface HandlePidDataUseCase extends Interactor {
     interface Callback{
         void onDataStored();
-        void onDataSent();
+        void onDataSent(int size);
         void onError(RequestError error);
 
     }

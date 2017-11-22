@@ -82,11 +82,9 @@ public class EmissionsMacroUseCase {
         }
         else if(current instanceof Post2141UseCaseImpl){
             if(bluetooth.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-                System.out.print("Testing scanner "+ bluetooth.getReadyDevice().getScannerId());
                 ((Post2141UseCaseImpl) current).execute(pid2141, bluetooth.getReadyDevice().getScannerId(), new Post2141UseCase.Callback() {
                     @Override
                     public void onPIDPosted(JSONObject response) {
-                        System.out.println("Testing json response"+response);
                         callback.onDonePost2141(response);
                         next();
                     }
@@ -97,7 +95,6 @@ public class EmissionsMacroUseCase {
                     }
                 });
             }else{
-                System.out.println("Testing device not connected "+bluetooth.getDeviceState());
                 finish();
             }
         }

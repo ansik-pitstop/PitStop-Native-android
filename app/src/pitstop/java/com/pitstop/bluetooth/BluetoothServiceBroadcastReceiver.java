@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.observer.ConnectionStatusObserver;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 /**
@@ -41,7 +43,13 @@ final class BluetoothServiceBroadcastReceiver extends BroadcastReceiver {
         } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) { // internet connectivity listener
             if (NetworkHelper.isConnected(context)) {
                 connectionStatusObserver.onConnectedToInternet();
+                Logger.getInstance().logW(TAG,"Internet connection state change: ON"
+                        , DebugMessage.TYPE_NETWORK);
+            }else{
+                Logger.getInstance().logW(TAG,"Internet connection state change: OFF"
+                        , DebugMessage.TYPE_NETWORK);
             }
+
         }
     }
 }

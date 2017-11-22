@@ -10,6 +10,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -17,6 +18,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -56,8 +58,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     public void execute(String vin, double baseMileage, String scannerId
             ,String scannerName, String eventSource, Callback callback) {
 
-        Log.d(TAG,"execute() vin: "+vin+", baseMileage: "+baseMileage+", scannerId: "
-                +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource);
+        Logger.getInstance().logI(TAG,"Use case execution started input: vin"+vin+", baseMileage: "+baseMileage+", scannerId: "
+                +scannerId+", scannerName: "+scannerName+", eventSource: "+eventSource, DebugMessage.TYPE_USE_CASE);
 
         this.vin = vin;
         this.baseMileage = baseMileage;
@@ -69,39 +71,27 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
     }
 
     private void onCarAddedWithBackendShop(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAddedWithBackendShop(car);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: car added with backend shop, car= "+car
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onCarAddedWithBackendShop(car));
     }
 
     private void onCarAdded(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAdded(car);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: car added car= "+car
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onCarAdded(car));
     }
 
     private void onCarAlreadyAdded(Car car){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCarAlreadyAdded(car);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: car already added!"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onCarAlreadyAdded(car));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: "+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -147,7 +137,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                 +obdScanner.getScannerId()
                                                 +", active?"+obdScanner.getStatus());
 
-                                        //Active, deactivate then add
+                                        //Active, deactivate then adds
                                         if (obdScanner.getStatus()){
 
                                             obdScanner.setStatus(false);

@@ -12,9 +12,11 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
             + COLUMN_MESSAGE + " TEXT,"
             + COLUMN_TIMESTAMP + " INTEGER,"
             + COLUMN_LEVEL + " INTEGER,"
+            + COLUMN_TAG +" TEXT,"
             + KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper mDatabaseHelper;
+    private final String TAG = getClass().getSimpleName();
 
     public LocalDebugMessageStorage(Context context) {
         mDatabaseHelper = LocalDatabaseHelper.getInstance(context);
@@ -28,6 +30,13 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
                 "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_TYPE + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 30",
                 String.valueOf(type));
+
+        return observable;
+    }
+
+    public QueryObservable getQueryObservableAll() {
+        QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
+                "SELECT * FROM " + TABLE_NAME + " ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 512");
 
         return observable;
     }

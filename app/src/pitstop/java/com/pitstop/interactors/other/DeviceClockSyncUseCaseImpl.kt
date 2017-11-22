@@ -1,10 +1,12 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
-import android.util.Log
+import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.ScannerRepository
+import com.pitstop.utils.Logger
+
 /**
  * Created by Karol Zdebel on 11/3/2017.
  */
@@ -20,6 +22,8 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
 
     override fun execute(rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
+        Logger.getInstance().logI(tag, "Use case started execution: rtcTime=$rtcTime, deviceId=$deviceId, vin=$vin"
+                , DebugMessage.TYPE_USE_CASE)
         this.rtcTime = rtcTime
         this.deviceId = deviceId
         this.vin = vin
@@ -32,12 +36,14 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                 , object: Repository.Callback<String>{
 
             override fun onSuccess(data: String) {
-                Log.d(tag,"onSuccess() data: $data")
+                Logger.getInstance().logI(tag, "Use case finished: success"
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback!!.onClockSynced()})
             }
 
             override fun onError(error: RequestError) {
-                Log.d(tag,"onError() error: $error")
+                Logger.getInstance().logE(tag, "Use case returned error: error=$error"
+                        , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback!!.onError(error)})
             }
 

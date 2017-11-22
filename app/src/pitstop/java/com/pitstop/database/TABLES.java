@@ -14,11 +14,12 @@ public final class TABLES {
 
     public interface DEBUG_MESSAGES extends COMMON {
         String TABLE_NAME = "debug_messages";
-
+        String COLUMN_ID = "id";
         String COLUMN_TIMESTAMP = "timestamp";
         String COLUMN_TYPE = "type";
         String COLUMN_MESSAGE = "message";
         String COLUMN_LEVEL = "level";
+        String COLUMN_TAG = "tag";
     }
 
     public interface PID {
