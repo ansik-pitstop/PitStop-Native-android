@@ -1,7 +1,9 @@
 package com.pitstop.ui.dashboard;
 
+import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
-
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -10,6 +12,8 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedUseCase;
+import com.pitstop.interactors.get.GetFuelPricesUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Car;
@@ -21,20 +25,30 @@ import com.pitstop.utils.MixpanelHelper;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Karol Zdebel on 9/7/2017.
  */
 
 public class DashboardPresenter extends TabPresenter<DashboardView>{
 
+
+
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
-    private boolean hasScanner = false;
+
     private boolean isDealershipMercedes;
     private boolean updating = false;
     private int numAlarms = 0;
+    private int carID = 0;
+    private Car car = null;
+
+    private boolean carHasScanner  = false;
 
     public DashboardPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper){
@@ -74,6 +88,9 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 if (getView() == null) return;
 
                 if (!isLocal){
+                    DashboardPresenter.this.carID = car.getId();
+                    DashboardPresenter.this.car = car;
+                    carHasScanner = !(car.getScanner() == null);
                     useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
                             , new GetAlarmCountUseCase.Callback() {
                         @Override
@@ -110,9 +127,9 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 }
                 if (car.getScannerId()==null || car.getScannerId().equalsIgnoreCase("null")) {
                     getView().noScanner();
-                    hasScanner = false;
+                    carHasScanner = false;
                 }
-                else hasScanner = true;
+                else carHasScanner= true;
 
                 getView().displayCarDetails(car);
                 if (!isLocal)
@@ -123,7 +140,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             public void onNoCarSet(boolean isLocal) {
                 if (!isLocal){
                     updating = false;
-                    hasScanner = false;
+                    carHasScanner = false;
                     if (getView() == null) return;
                     getView().displayNoCarView();
                     getView().hideLoading();
@@ -251,18 +268,6 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     }
 
-    void onMyAppointmentsButtonClicked(){
-        Log.d(TAG,"onMyAppointmentsButtonClicked()");
-        if (getView() != null)
-            getView().startMyAppointmentsActivity();
-    }
-
-    void onServiceRequestButtonClicked(){
-        Log.d(TAG,"onServiceRequestButtonClicked()");
-        if (getView() != null)
-            getView().startRequestServiceActivity();
-    }
-
     void onMyTripsButtonClicked(){
         Log.d(TAG,"onMyTripsButtonClicked()");
         if (getView() != null)
@@ -290,14 +295,16 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     public void onTotalAlarmsClicked() {
         Log.d(TAG,"onTotalAlarmsClicked()");
         if (updating)return;
-        if (hasScanner){
+        if (getView() == null) return;
+        if (carHasScanner){
             getView().openAlarmsActivity();
         }
         else {
             getView().displayBuyDeviceDialog();
         }
-
     }
+
+
 
     public boolean isDealershipMercedes(){
         return this.isDealershipMercedes;
@@ -310,4 +317,6 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
     public int getNumAlarms(){
         return this.numAlarms;
     }
+
+
 }

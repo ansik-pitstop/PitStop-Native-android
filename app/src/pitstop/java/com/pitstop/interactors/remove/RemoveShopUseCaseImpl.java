@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -12,6 +13,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     public RemoveShopUseCaseImpl(ShopRepository shopRepository, CarRepository carRepository
             , UserRepository userRepository, NetworkHelper networkHelper
             , Handler useCaseHandler, Handler mainHandler){
+
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
         this.carRepository = carRepository;
@@ -48,30 +51,21 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     }
 
     private void onShopRemoved(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onShopRemoved();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: shop removed"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onShopRemoved());
     }
 
     private void onCantRemoveShop(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onCantRemoveShop();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: cant remove shop"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onCantRemoveShop());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
@@ -123,6 +117,8 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
 
     @Override
     public void execute(Dealership dealership, RemoveShopUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: dealership="+dealership
+                , DebugMessage.TYPE_USE_CASE);
         this.dealership = dealership;
         this.callback = callback;
         useCaseHandler.post(this);

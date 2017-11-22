@@ -4,10 +4,12 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Trip215;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Karol Zdebel on 7/6/2017.
@@ -34,36 +36,29 @@ public class Trip215StartUseCaseImpl implements Trip215StartUseCase {
 
     @Override
     public void execute(TripInfoPackage tripInfoPackage, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: tripInfoPackage="+tripInfoPackage
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.tripInfoPackage = tripInfoPackage;
         useCaseHandler.post(this);
     }
 
     private void onRealTimeTripStartSuccess(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onRealTimeTripStartSuccess();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case execution finished: real time trip start success"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onRealTimeTripStartSuccess());
     }
 
     private void onHistoricalTripStartSuccess(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onHistoricalTripStartSuccess();
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case execution finished: historical trip start success"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onHistoricalTripStartSuccess());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

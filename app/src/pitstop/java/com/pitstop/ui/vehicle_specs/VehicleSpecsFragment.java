@@ -1,12 +1,21 @@
 package com.pitstop.ui.vehicle_specs;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -23,15 +32,25 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.observer.FuelObservable;
+import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,7 +62,7 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
@@ -51,8 +70,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     public static final String CAR_POSITION ="position" ;
     public static final String CAR_SELECTED ="carCurrent" ;
 
+    private AlertDialog fuelConsumptionExplanationDialog;
     public static final int START_CUSTOM = 347;
     private AlertDialog buyDeviceDialog;
+    private AlertDialog fuelExpensesAlertDialog;
     private AlertDialog licensePlateDialog;
     private AlertDialog updateMileageDialog;
     private AlertDialog deleteCarAlertDialog;
@@ -62,6 +83,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     private AlertDialog unknownErrorDialog;
     private AlertDialog offlineErrorDialog;
     private boolean isPoppulated = false;
+    private FuelObservable fuelObservable;
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -110,6 +132,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @BindView(R.id.tank_size_icon)
     protected ImageView tankSizeIcon;
 
+    @BindView(R.id.money_spent)
+    TextView fuelExpensesTextView;
+
 
 //    @BindView(R.id.banner_overlay)
 //    protected FrameLayout bannerOverlay;
@@ -156,6 +181,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @BindView(R.id.car_engine)
     protected TextView engine;
 
+    @BindView(R.id.fuel_consumed)
+    protected TextView fuelConsumed;
+
     @BindView(R.id.city_mileage_specs)
     protected TextView cityMileage;
 
@@ -194,6 +222,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         Log.d(TAG, "onCreateView()");
         View view  = inflater.inflate(R.layout.fragment_vehicle_specs, null);
         ButterKnife.bind(this, view);
+        ((MainActivity)getActivity()).subscribe(this);
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -684,6 +713,28 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
         totalMileagetv.setText(String.format("%.2f km",mileage));
     }
 
+
+    @Override
+    public void showFuelConsumptionExplanationDialog() {
+
+        Log.d(TAG, "displayBuyDeviceDialog()");
+        if (fuelConsumptionExplanationDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            fuelConsumptionExplanationDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Fuel Consumption")
+                    .setView(dialogLayout)
+                    .setMessage("With the device, we are able to track your fuel usage from the time the device was plugged in. ")
+                    .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        fuelConsumptionExplanationDialog.show();
+
+
+
+    }
+
     @Override
     public boolean hasBeenPopulated() {
         return isPoppulated;
@@ -697,5 +748,103 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView {
     @OnClick(R.id.unknown_error_try_again)
     public void onUnknownTryAgainClicked(){
         presenter.onUpdateNeeded();
+    }
+
+    @OnClick(R.id.fuel_consumption_card_view)
+    public void onfuelConsumptionClicked(){
+        Log.d(TAG, "onFuelConsumptionClicked()");
+        presenter.onFuelConsumptionClicked();
+
+    }
+
+    @Override
+    public void onFuelConsumedUpdated() {
+        presenter.getFuelConsumed();
+
+    }
+
+    @Override
+    public void showFuelConsumed(double fuelCOnsumed) {
+        fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
+    }
+
+    @Override
+    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
+        fuelObservable.subscribe(this);
+    }
+
+
+    @OnClick(R.id.fuel_expenses_card_view)
+    public void onFuelExpensesClicked(){
+        Log.d(TAG, "onFuelExpensesCLicked()");
+        presenter.onFuelExpensesClicked();
+    }
+
+
+    @Override
+    public void showFuelExpense(float v) {
+        fuelExpensesTextView.setText(String.format("%.2f", v/100));
+
+    }
+
+    public String getLastKnowLocation(){
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria,true);
+        if(ContextCompat.checkSelfPermission( getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
+            String locationProvider = LocationManager.NETWORK_PROVIDER;
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            locationManager.removeUpdates(locationListener);
+            Geocoder geocoder = new Geocoder(getActivity());
+            try {
+                ArrayList<Address> list = new ArrayList<>(geocoder.getFromLocation(lastKnownLocation.getLatitude(),
+                        lastKnownLocation.getLongitude(), 5));
+                return list.get(0).getPostalCode();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    @Override
+    public void showFuelExpensesDialog() {
+        if (fuelExpensesAlertDialog == null){ final View dialogLayout = LayoutInflater.from(
+                getActivity()).inflate(R.layout.buy_device_dialog, null);
+            fuelExpensesAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Fuel Expense")
+                    .setView(dialogLayout)
+                    .setMessage(getString(R.string.fuel_expense_dialog_description))
+                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
+                            -> dialog.cancel())
+                    .create();
+        }
+        fuelExpensesAlertDialog.show();
+
     }
 }

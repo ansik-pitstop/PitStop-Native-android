@@ -8,12 +8,14 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -22,6 +24,9 @@ import org.greenrobot.eventbus.EventBus;
  */
 
 public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private ShopRepository shopRepository;
@@ -30,9 +35,7 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     private UpdateShopUseCase.Callback callback;
 
     private EventSource eventSource;
-
     private Dealership dealership;
-
 
     public UpdateShopUseCaseImpl(ShopRepository shopRepository, UserRepository userRepository
             , CarRepository carRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -45,6 +48,8 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
 
     @Override
     public void execute(Dealership dealership,String eventSource, UpdateShopUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started"
+                , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
         this.callback = callback;
         this.dealership = dealership;
@@ -52,21 +57,15 @@ public class UpdateShopUseCaseImpl implements UpdateShopUseCase {
     }
 
     private void onShopUpdated(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onShopUpdated();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: shop updated"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onShopUpdated());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

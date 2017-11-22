@@ -3,8 +3,10 @@ package com.pitstop.repositories;
 import android.util.Log;
 
 import com.pitstop.database.LocalPidStorage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Pid;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -47,7 +49,7 @@ public class PidRepository implements Repository{
                 jsonObject.put("pids", new JSONArray(p.getPids()));
                 pidArray.put(jsonObject);
             }catch(JSONException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             }
         }
 
@@ -58,7 +60,7 @@ public class PidRepository implements Repository{
             body.put("scannerId", pids.get(0).getDeviceId());
             body.put("pidArray", pidArray);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
         }
 
         networkHelper.postNoAuth("scan/pids", (response, requestError) -> {

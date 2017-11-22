@@ -3,19 +3,18 @@ package com.pitstop.interactors.add;
 import android.os.Handler;
 
 import com.pitstop.database.LocalSpecsStorage;
-import com.pitstop.interactors.get.GetUserNotificationUseCase;
-import com.pitstop.models.Notification;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.UserRepository;
-
-import java.util.List;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by ishan on 2017-09-26.
  */
 
 public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
+
+    private final String TAG = getClass().getSimpleName();
 
     private AddLicensePlateUseCase.Callback callback;
     private Handler mainHandler;
@@ -32,6 +31,8 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
     @Override
     public void execute(int carid, String plate, AddLicensePlateUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started input: carId="+carid+", plate="+plate
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.carID = carid;
         this.carLicensePlate = plate;
@@ -39,21 +40,14 @@ public class AddLicensePlateUseCaseImpl implements AddLicensePlateUseCase {
     }
 
     public void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     public void onLicensePlateStored(String licensePlate){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onLicensePlateStored(licensePlate);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: license plate= "+licensePlate
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onLicensePlateStored(licensePlate));
     }
 
     @Override

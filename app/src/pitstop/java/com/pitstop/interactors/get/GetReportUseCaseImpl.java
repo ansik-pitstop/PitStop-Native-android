@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.FullReport;
@@ -11,6 +12,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,15 +42,21 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
 
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case started execution"
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
     private void onGotReports(List<FullReport> fullReports){
+        Logger.getInstance().logI(TAG, "Use case finished: reports="+fullReports
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotReports(fullReports));
     }
 

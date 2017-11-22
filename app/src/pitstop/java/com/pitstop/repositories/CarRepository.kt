@@ -9,8 +9,10 @@ import com.google.gson.reflect.TypeToken
 import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
+import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
+import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -49,7 +51,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onSuccess(car)
 
                 } catch (e: JSONException) {
-                    e.printStackTrace()
+                    Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                     callback.onError(RequestError.getUnknownError())
                 }
 
@@ -72,6 +74,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                         callback.onSuccess(-1)
                     }
                 } catch (e: JSONException) {
+                    Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                     e.printStackTrace()
                     callback.onError(RequestError.getUnknownError())
                 }
@@ -90,7 +93,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             body.put("userId", userId)
             body.put("scannerId", scannerId)
         } catch (e: JSONException) {
-            e.printStackTrace()
+            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
         }
 
         networkHelper.post("car", { response, requestError ->
@@ -100,7 +103,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     try {
                         car = Car.createCar(response)
                     } catch (e: JSONException) {
-                        e.printStackTrace()
+                        Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                         callback.onError(RequestError.getUnknownError())
                         return@post
                     }
@@ -112,6 +115,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onError(requestError)
                 }
             } catch (e: JsonIOException) {
+                Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                 callback.onError(RequestError.getUnknownError())
             }
         }, body)
@@ -127,6 +131,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             body.put("totalMileage", car.totalMileage)
             body.put("shopId", car.shopId)
         } catch (e: JSONException) {
+            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
             e.printStackTrace()
         }
 
@@ -240,6 +245,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onError(requestError)
                 }
             } catch (e: JsonIOException) {
+                Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                 callback.onError(RequestError.getUnknownError())
             }
         }

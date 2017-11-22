@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
@@ -14,6 +15,7 @@ import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -97,7 +99,7 @@ public class ReportRepository implements Repository {
             body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
         }
 
         Log.d(TAG,"createEmissionsReport() body: "+body);
@@ -141,7 +143,7 @@ public class ReportRepository implements Repository {
             else
                 return etDieselToJson(response);
         }catch(JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
     }
@@ -150,7 +152,7 @@ public class ReportRepository implements Repository {
         try{
             return jsonResponse.getJSONObject("content").has("NMHC Catalyst");
         }catch (JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return false;
         }
     }
@@ -182,7 +184,7 @@ public class ReportRepository implements Repository {
                     ,NMHCCatalyst,components,EGRVVTSystem, NOxSCRMonitor, boostPressure, reserved1
                     , reserved2, exhaustSensor, PMFilterMonitoring);
         }catch(JSONException | ParseException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
 
@@ -215,7 +217,7 @@ public class ReportRepository implements Repository {
                     , createdAt, pass, reason, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
                     , O2Sensor, O2SensorHeater, EGR);
         }catch(JSONException | ParseException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
 
@@ -245,7 +247,7 @@ public class ReportRepository implements Repository {
             }
             return emissionsReportList;
         }catch(JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
     }
@@ -261,7 +263,7 @@ public class ReportRepository implements Repository {
             body.put("pid", pidPackageToJSON(pid));
             body.put("isInternal", isInternal);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
         }
 
         Log.d(TAG,"createVehicleHealthReport() body: "+body);
@@ -298,7 +300,7 @@ public class ReportRepository implements Repository {
                 dtcJson.put("rtcTime",Long.valueOf(dtcPackage.rtcTime));
                 dtcArr.put(dtcJson);
             }catch(JSONException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             }
 
         }
@@ -315,7 +317,7 @@ public class ReportRepository implements Repository {
                 dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime));
                 pidArr.put(dtcJson);
             }catch(JSONException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             }
 
         }
@@ -334,7 +336,7 @@ public class ReportRepository implements Repository {
                 }
             }
         }catch (JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
         return vehicleHealthReports;
@@ -358,10 +360,10 @@ public class ReportRepository implements Repository {
                     ,new TypeToken<List<Service>>() {}.getType());
             return new VehicleHealthReport(id, createdAt , engineIssues,recalls,services);
         }catch (JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }catch(ParseException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
     }
@@ -370,7 +372,7 @@ public class ReportRepository implements Repository {
         try{
             return vhrContentToJson(new JSONObject(response).getJSONObject("response"));
         }catch (JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
     }

@@ -2,7 +2,9 @@ package com.pitstop.interactors.other;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.report.FullReport;
+import com.pitstop.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +31,8 @@ public class SortReportsUseCaseImpl implements SortReportsUseCase {
     @Override
     public void execute(List<FullReport> reports, SortType sortType
             , Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: reports="+reports
+                , DebugMessage.TYPE_USE_CASE);
         this.reports = reports;
         this.sortType = sortType;
         this.callback = callback;
@@ -70,6 +74,8 @@ public class SortReportsUseCaseImpl implements SortReportsUseCase {
         }
 
         mainHandler.post(() -> callback.onSorted(reports));
+        Logger.getInstance().logI(TAG,"Use case finished: reports="+reports
+                , DebugMessage.TYPE_USE_CASE);
 
     }
 }

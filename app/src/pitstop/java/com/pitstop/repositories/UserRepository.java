@@ -4,10 +4,12 @@ import android.util.Log;
 
 import com.google.gson.JsonIOException;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -70,7 +72,7 @@ public class UserRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(RequestError.getUnknownError());
             }
         };
@@ -103,7 +105,7 @@ public class UserRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(requestError);
             }
         };
@@ -148,7 +150,7 @@ public class UserRepository implements Repository{
                     }
                 }
                 catch(JsonIOException e){
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(RequestError.getUnknownError());
                 }
             }
@@ -168,7 +170,8 @@ public class UserRepository implements Repository{
 
                     networkHelper.put("user/" + userId + "/settings", getUserSetCarRequestCallback(callback, carId), putOptions);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
+                    callback.onError(RequestError.getUnknownError());
                 }
             }
             else{
@@ -196,7 +199,7 @@ public class UserRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(requestError);
             }
         };
@@ -223,7 +226,7 @@ public class UserRepository implements Repository{
                     networkHelper.put("user/" + userId + "/settings", requestCallback, putSettings);
                 }
                 catch(JSONException e){
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(requestError);
                 }
 
@@ -259,7 +262,7 @@ public class UserRepository implements Repository{
                         Log.d("alarms:" ,settings.toString() );
                     }
                     catch(JSONException e){
-                        e.printStackTrace();
+                        Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                         callback.onError(requestError);
                     }
 
@@ -289,7 +292,7 @@ public class UserRepository implements Repository{
                     }
                 }
                 catch(JsonIOException e){
-                    e.printStackTrace();
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                     callback.onError(requestError);
                 }
             }
@@ -317,7 +320,7 @@ public class UserRepository implements Repository{
                 }
             }
             catch(JsonIOException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 callback.onError(requestError);
             }
         };
@@ -365,7 +368,8 @@ public class UserRepository implements Repository{
                 callback.onSuccess(user.getSettings());
             }
             catch(JSONException e){
-                e.printStackTrace();
+                Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
+                callback.onError(RequestError.getUnknownError());
             }
         });
     }
@@ -383,7 +387,8 @@ public class UserRepository implements Repository{
             json.put("phone", phoneNumber);
             networkHelper.put(END_POINT_USER, callback, json);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
+            callback.done(null,RequestError.getUnknownError());
         }
     }
 

@@ -1,12 +1,11 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
-import android.util.Log;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
-import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -38,27 +37,23 @@ public class GetCarStyleIDUSeCaseImpl implements GetCarStyleIDUseCase {
 
     @Override
     public void execute(String VIN, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: vin="+VIN
+                , DebugMessage.TYPE_USE_CASE);
         this.vin = VIN;
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onStylesIDGot(String stylesID){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onStyleIDGot(stylesID);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: stylesID="+stylesID
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onStyleIDGot(stylesID));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

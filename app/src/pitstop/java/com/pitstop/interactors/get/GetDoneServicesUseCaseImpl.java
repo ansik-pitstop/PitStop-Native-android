@@ -3,12 +3,14 @@ package com.pitstop.interactors.get;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.List;
 
@@ -36,19 +38,27 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started"
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onGotDoneServices(List<CarIssue> doneServices){
+        Logger.getInstance().logI(TAG, "Use case finished: doneServices="+doneServices
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onGotDoneServices(doneServices));
     }
 
     private void onNoCarAdded(){
+        Logger.getInstance().logI(TAG, "Use case finished: no car added!"
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

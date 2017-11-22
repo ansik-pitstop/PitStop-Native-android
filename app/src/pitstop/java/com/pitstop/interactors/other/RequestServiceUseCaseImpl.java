@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -12,6 +13,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -21,6 +23,9 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private CarIssueRepository carIssueRepository;
     private UserRepository userRepository;
     private CarRepository carRepository;
@@ -44,10 +49,14 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     }
 
     private void onServicesRequested(){
+        Logger.getInstance().logI(TAG,"Use case finished: service requested"
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onServicesRequested());
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logI(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -103,6 +112,9 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
     @Override
     public void execute(String state, String timeStamp, String comments, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: state"+state
+                        +", timeStamp: "+timeStamp+", comments: "+comments
+                , DebugMessage.TYPE_USE_CASE);
         this.state = state;
         this.timeStamp = timeStamp;
         this.comments = comments;

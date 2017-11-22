@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class AlarmHandler {
 
-    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+
     private static final String TAG = AlarmHandler.class.getSimpleName();
     private AlarmObservable alarmObservable;
     private UseCaseComponent useCaseComponent;

@@ -2,11 +2,13 @@ package com.pitstop.interactors.check;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  *
@@ -34,26 +36,19 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
     @Override
     public void execute(Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started", DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onFirstCarAddedChecked(boolean added){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onFirstCarAddedChecked(added);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case finished: added="+added, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onFirstCarAddedChecked(added));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

@@ -14,11 +14,12 @@ public final class TABLES {
 
     public interface DEBUG_MESSAGES extends COMMON {
         String TABLE_NAME = "debug_messages";
-
+        String COLUMN_ID = "id";
         String COLUMN_TIMESTAMP = "timestamp";
         String COLUMN_TYPE = "type";
         String COLUMN_MESSAGE = "message";
         String COLUMN_LEVEL = "level";
+        String COLUMN_TAG = "tag";
     }
 
     public interface PID {
@@ -147,6 +148,12 @@ public final class TABLES {
         String RTC_TIME = "rtcTime";
         String ALARM_EVENT = "alarmEvent";
         String ALARM_VALUE = "alarmValue";
+    }
+
+    public interface LOCAL_FUEL_CONSUMPTION{
+        String TABLE_NAME = "LocalFuelConsumption";
+        String SCANNER_ID = "scannerID";
+        String FUEL_CONSUMED = "fuelConsumed";
     }
 
 

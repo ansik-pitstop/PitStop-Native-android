@@ -2,19 +2,22 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by ishan on 2017-09-28.
  */
 
 public class GetCarImagesArrayUseCaseImpl implements GetCarImagesArrayUseCase{
+
+    private final String TAG = getClass().getSimpleName();
 
     public static final String BASE_URL = "https://api.edmunds.com/v1/api/vehiclephoto/service/findphotosbystyleid?styleId=";
     public static final String FORMAT_URL ="&fmt=json&api_key=";
@@ -33,25 +36,21 @@ public class GetCarImagesArrayUseCaseImpl implements GetCarImagesArrayUseCase{
     }
 
     private void onImagesArrayGot(String imageLink){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onArrayGot(imageLink);
-            }
-        });
+        Logger.getInstance().logI(TAG,"Use case execution finished: imageLink="+imageLink
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onArrayGot(imageLink));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(String stylesID, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: stylesID="+stylesID
+                , DebugMessage.TYPE_USE_CASE);
         this.stylesID = stylesID;
         this.callback = callback;
         useCaseHandler.post(this);

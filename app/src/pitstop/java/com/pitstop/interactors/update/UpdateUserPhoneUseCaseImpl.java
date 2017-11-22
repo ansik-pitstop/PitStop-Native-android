@@ -2,22 +2,26 @@ package com.pitstop.interactors.update;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 /**
  * Created by Matt on 2017-06-15.
  */
 
 public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
+
+    private final String TAG = getClass().getSimpleName();
+
     private Handler useCaseHandler;
     private Handler mainHandler;
     private UserRepository userRepository;
     private UpdateUserPhoneUseCase.Callback callback;
     private String phone;
-
 
     public UpdateUserPhoneUseCaseImpl(UserRepository userRepository, Handler useCaseHandler
             , Handler mainHandler) {
@@ -28,27 +32,23 @@ public class UpdateUserPhoneUseCaseImpl implements UpdateUserPhoneUseCase {
 
     @Override
     public void execute(String phone, UpdateUserPhoneUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started: phoneNumber="+phone
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.phone = phone;
         useCaseHandler.post(this);
     }
 
     private void onUserPhoneUpdated(){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onUserPhoneUpdated();
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: user phone number updated"
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onUserPhoneUpdated());
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override

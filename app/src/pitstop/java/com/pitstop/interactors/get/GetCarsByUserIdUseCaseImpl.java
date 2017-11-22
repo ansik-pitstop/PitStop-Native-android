@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
@@ -11,6 +12,7 @@ import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +46,21 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void execute(GetCarsByUserIdUseCase.Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started"
+                , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         useCaseHandler.post(this);
     }
 
     private void onCarsRetrieved(List<Car> cars){
+        Logger.getInstance().logI(TAG,"Use case execution finished: cars="+cars
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarsRetrieved(cars));
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG,"Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
     }
 

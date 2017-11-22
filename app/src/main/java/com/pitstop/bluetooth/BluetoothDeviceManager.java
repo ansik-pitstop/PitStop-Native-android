@@ -24,12 +24,13 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -176,6 +177,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
             bytes = deviceInterface.getBytes(data);
 
+
             if (bytes == null || bytes.length == 0) {
                 return;
             }
@@ -204,9 +206,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
      * @param device
      */
     @SuppressLint("NewApi")
-    public void connectToDevice(final BluetoothDevice device) {
-        if (btConnectionState == BluetoothCommunicator.CONNECTING) {
-            Log.d(TAG,"ConnectToDevice() device: "+device+", already connecting, return");
+    public synchronized void connectToDevice(final BluetoothDevice device) {
+        if (btConnectionState == BluetoothCommunicator.CONNECTING
+                || btConnectionState == BluetoothCommunicator.CONNECTED) {
+            Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
+                    , DebugMessage.TYPE_BLUETOOTH);
             return;
         }
 
@@ -242,6 +246,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 break;
         }
 
+        Logger.getInstance().logI(TAG,"Connecting to device: deviceName="+device.getName()
+                , DebugMessage.TYPE_BLUETOOTH);
         communicator.connectToDevice(device);
     }
 
@@ -280,20 +286,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         //Order matters in the IF condition below, if rssiScan=true then discovery will not be started
         if (!rssiScan && mBluetoothAdapter.startDiscovery()){
-
+            Logger.getInstance().logI(TAG,"Discovery started", DebugMessage.TYPE_BLUETOOTH);
             //If discovery takes longer than 20 seconds, timeout and cancel it
             discoveryWasStarted = true;
             discoveryNum++;
             useCaseComponent.discoveryTimeoutUseCase().execute(discoveryNum, timerDiscoveryNum -> {
                 if (discoveryNum == timerDiscoveryNum
                         && discoveryWasStarted){
-                    Log.d(TAG,"discovery timeout!");
+                    Logger.getInstance().logE(TAG,"Discovery timeout", DebugMessage.TYPE_BLUETOOTH);
                     mBluetoothAdapter.cancelDiscovery();
                 }
             });
 
             rssiScan = true;
-            Log.i(TAG, "BluetoothAdapter starts discovery");
             foundDevices.clear(); //Reset found devices map from previous scan
             return true;
         }
@@ -308,6 +313,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 , BluetoothDeviceManager.this, device.getName());
         connectToDevice(device);
     }
+
+
 
     private void connectTo215Device(BluetoothDevice device) {
         Log.d(TAG,"connectTo215Device() device: "+device.getName());
@@ -347,7 +354,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     //Returns whether a device qualified for connection
-    public boolean connectToNextDevice(){
+    public synchronized boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
         short minRssiThreshold;
@@ -425,13 +432,20 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
                 discoveryWasStarted = false;
                 discoveryNum++;
-                Log.d(TAG,"Discovery finished! rssi scan? "+rssiScan+" found devices size: "
-                        +foundDevices.size());
+                Logger.getInstance().logI(TAG,"Discovery finished", DebugMessage.TYPE_BLUETOOTH);
+
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
+
+                    String foundDevicesString = "{";
+                    for (Map.Entry<BluetoothDevice,Short> d: foundDevices.entrySet()){
+                        foundDevicesString += d.getKey().getName()+"="+d.getValue()+",";
+                    }
+                    foundDevicesString+="}";
+
+                    Logger.getInstance().logI(TAG,"Found devices: "+foundDevicesString, DebugMessage.TYPE_BLUETOOTH);
                     mixpanelHelper.trackFoundDevices(foundDevices);
-                    Log.d(TAG,"mHandler().postDelayed() rssiScan, calling connectToNextDevce()");
                     if (foundDevices.size() > 0){
                         //Try to connect to available device, if none qualify then finish scan
                         if (!connectToNextDevice()) dataListener.scanFinished();
@@ -540,7 +554,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
     public void getSupportedPids() {
-        Log.d(TAG,"getSupportedPids()");
+        Logger.getInstance().logI(TAG,"Requested supported pid", DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -550,7 +564,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     // sets pids to check and sets data interval
     public void setPidsToSend(String pids, int timeInterval) {
-        Log.d(TAG,"setPidsToSend: "+pids);
+        Logger.getInstance().logI(TAG,"Set pids to be sent: "+pids+", interval: "+timeInterval, DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }

@@ -36,6 +36,7 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
@@ -104,6 +105,8 @@ public class GlobalApplication extends Application {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
+
+        Logger.initLogger(this);
 
         Stetho.initializeWithDefaults(this);
 

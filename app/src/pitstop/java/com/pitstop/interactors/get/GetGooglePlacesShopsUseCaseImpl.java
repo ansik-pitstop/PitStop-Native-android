@@ -4,7 +4,9 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.pitstop.models.Dealership;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONArray;
@@ -60,25 +62,21 @@ public class GetGooglePlacesShopsUseCaseImpl implements GetGooglePlacesShopsUseC
     }
 
     private void onShopsGot(List<Dealership> dealerships){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onShopsGot(dealerships);
-            }
-        });
+        Logger.getInstance().logI(TAG, "Use case finished: dealerships="+dealerships
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onShopsGot(dealerships));
     }
 
     private void onError(RequestError error){
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(error);
-            }
-        });
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
+        mainHandler.post(() -> callback.onError(error));
     }
 
     @Override
     public void execute(double latitude, double longitude, String query, GetGooglePlacesShopsUseCase.CallbackShops callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started: latitude="+latitude+", longitude="+longitude+", query"+query
+                , DebugMessage.TYPE_USE_CASE);   this.callback = callback;
         this.longitude = Double.toString(longitude);
         this.latitude = Double.toString(latitude);
         this.query = query;

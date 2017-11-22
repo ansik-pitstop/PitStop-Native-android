@@ -253,112 +253,6 @@
                         <include layout="@layout/divider"/>
 
 
-
-
-
-                        <TextView
-                            android:id="@+id/fuel_consumption_header"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@color/grey"
-                            android:text="@string/fuel_consumption"
-                            android:padding="10dp"
-                            android:textSize="12sp"/>
-
-
-                        <LinearLayout
-                            android:id="@+id/fuel_consumption_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="10dp">
-                            <ImageView
-                                android:id="@+id/fuel_consumption_icon"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_gas_station_3x"
-                                android:layout_gravity="center"/>
-                            <LinearLayout
-                                android:orientation="vertical"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/fuel_consumption_header"
-                                    android:textStyle="bold"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_gravity="center_vertical"/>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/fuel_consumption_desc"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_gravity="center_vertical"/>
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/fuel_consumption_textview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="end"
-                                />
-
-                        </LinearLayout>
-
-
-                        <include layout="@layout/divider"/>
-
-
-                        <LinearLayout
-                            android:id="@+id/fuel_expense_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="10dp">
-                            <ImageView
-                                android:id="@+id/fuel_expense_icon"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_dollar_sign_3x"
-                                android:layout_gravity="center"/>
-                            <LinearLayout
-                                android:orientation="vertical"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/fuel_expense"
-                                    android:textStyle="bold"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_gravity="center_vertical"/>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/fuel_expense_description"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_gravity="center_vertical"/>
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/fuel_expense_textview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="end"
-                                />
-
-                        </LinearLayout>
-
-
                         <TextView
                             android:id="@+id/tools_header"
                             android:layout_width="match_parent"
@@ -464,8 +358,6 @@
                         </LinearLayout>
 
                         <include layout="@layout/divider" />
-
-
 
                     </LinearLayout>
 

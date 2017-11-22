@@ -16,8 +16,7 @@ import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
-import com.pitstop.utils.BluetoothDataVisualizer;
-import com.pitstop.utils.LogUtils;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.PIDParser;
 
 import java.util.ArrayList;
@@ -35,12 +34,25 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class PidDataHandler {
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
-
     private static boolean pidDataSentVisible = false;
 
     private int networkChunkSize = 10;
 
+    private Handler handler = new Handler();
+    private final Runnable periodicPidStatsLogger = new Runnable() {
+        @Override
+        public void run() {
+            Logger.getInstance().logI(TAG,"Pid retrieval info for last 60 seconds: total="
+                    +pidsReceived+", invalid="+nullPidsReceived+", sent="+pidsSavedToServer,
+                    DebugMessage.TYPE_BLUETOOTH);
+            handler.postDelayed(this,60000);
+        }
+    };
 
+    //Tracking variables for logs
+    private int pidsReceived = 0;
+    private int nullPidsReceived = 0;
+    private int pidsSavedToServer = 0;
 
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
@@ -60,49 +72,50 @@ public class PidDataHandler {
 
     public PidDataHandler(BluetoothDataHandlerManager bluetoothDataHandlerManager
             , Context context){
-
         this.bluetoothDataHandlerManager = bluetoothDataHandlerManager;
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
         this.context = context;
         initPidPriorityList();
+        handler.post(periodicPidStatsLogger);
     }
 
     public void clearPendingData(){
         pendingPidPackages.clear();
     }
 
-
-
     public void handlePidData(PidPackage pidPackage){
+        pidsReceived++;
+        if (pidPackage == null){
+            nullPidsReceived++;
+            return;
+        }
+
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-            LogUtils.debugLogD(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
+            Logger.getInstance().logV(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
-                    , true, DebugMessage.TYPE_BLUETOOTH, getApplicationContext());
+                    , DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
         }
 
         pendingPidPackages.add(pidPackage);
         if (!bluetoothDataHandlerManager.isDeviceVerified()){
-            LogUtils.debugLogD(TAG, "Pid data added to pending list, device not verified"
-                    , true, DebugMessage.TYPE_BLUETOOTH
-                    , getApplicationContext());
+            Logger.getInstance().logD(TAG, "Pid data added to pending list, device not verified"
+                    , DebugMessage.TYPE_BLUETOOTH);
             return;
         }
         for (PidPackage p: pendingPidPackages){
             useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
                 @Override
-                public void onDataSent() {
+                public void onDataSent(int size) {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
-                        if (pendingPidPackages.size() > 0) {
-                            Log.d(TAG, p.timestamp + "Data sent to Server");
-                            visualizePidDataSent(true, context, p.timestamp);
-                        }
-                        else {Log.d(TAG, "???????????");}
+                        Log.d(TAG, p.timestamp + "Data sent to Server");
+                        visualizePidDataSent(true, context, p.timestamp);
+                        pidsSavedToServer += size;
                     }
                     else {
                         Log.d(TAG, "notRightBuild");
@@ -124,7 +137,6 @@ public class PidDataHandler {
                 @Override
                 public void onDataStored() {
                     Log.d(TAG, p + " Stored in local database");
-
                 }
             }, this.networkChunkSize);
         }
@@ -187,7 +199,7 @@ public class PidDataHandler {
     public void setPidCommunicationParameters(String[] pids, String vin){
         Log.d(TAG,"setPidCommunicationParameters() pids: "+pids+", vin: "+vin);
         // the interval being -1 lets the method know that this isnt a overwrite and to use default parameters for time interval
-        setDevicePIDs(pids, vin, -1);
+        setDevicePIDs(pids, vin, 1, false);
     }
 
     private String getSupportedPid(String[] pids, int max){
@@ -230,21 +242,21 @@ public class PidDataHandler {
         if (success&& timeStampFirst!= null) {
             Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
                     .show();
-            LogUtils.debugLogD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
-                    ,true, DebugMessage.TYPE_NETWORK, context);
+            Logger.getInstance().logD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
+                    , DebugMessage.TYPE_NETWORK);
         }
         else {
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
-            LogUtils.debugLogD(TAG, "Pid values failed to send to server: "
-                    , true, DebugMessage.TYPE_NETWORK, context);
+            Logger.getInstance().logD(TAG, "Pid values failed to send to server: "
+                    , DebugMessage.TYPE_NETWORK);
         }
         pidDataSentVisible = true;
         //Only allow one toast showing failure every 15 seconds
         mainHandler.postDelayed(() -> pidDataSentVisible = false, 15000);
     }
 
-    private void setDevicePIDs(String[] pids, String vin, int interval){
+    private void setDevicePIDs(String[] pids, String vin, int interval, boolean fromDrawer){
 
         // if device interval is less than 1, it means that it is being called by default add car process
         // if not then it is from debug drawer and doesnt use default parameters
@@ -252,45 +264,48 @@ public class PidDataHandler {
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
-                if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
-                        || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
-                        || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                        || car.getMake().equalsIgnoreCase(Car.Make.JEEP)){
-
+                if(fromDrawer){
                     String supportedPids = getSupportedPid(pids,PID_COUNT_SAFE);
-                    int timeInterval = (interval<1)? TIME_INTERVAL_SAFE: interval;
+                    int timeInterval = interval;
                     bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,timeInterval);
-
-                    Log.d(TAG,"setDeviceRTCInterval() Car make matches Chevrolet, Dodge" +
-                            ", Chrystler or Jeep setting pid time interval to "+timeInterval
+                    Log.d(TAG,"setDeviceRTCInterval()setting pid time interval to "+timeInterval
                             +", and supported pids to: "+supportedPids);
                 }
-                else{
-                    String supportedPids = getSupportedPid(pids,PID_COUNT_DEFAULT);
-                    int timeInterval = (interval<1)? TIME_INTERVAL_SAFE: interval;
-                    bluetoothDataHandlerManager.setPidsToBeSent(supportedPids,timeInterval);
-                    Log.d(TAG,"setDeviceRTCInterval() Car make doesn't match" +
-                            " any of the 'safe cars' setting supported pids to "+supportedPids +
-                            "and device interval to " + timeInterval);
+                else {
+                    if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
+                            || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
+                            || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
+                            || car.getMake().equalsIgnoreCase(Car.Make.JEEP)) {
+
+                        String supportedPids = getSupportedPid(pids, PID_COUNT_SAFE);
+                        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_SAFE);
+                        Logger.getInstance().logI(TAG," Setting pid time interval: interval=" + TIME_INTERVAL_SAFE
+                                        + ", supportedPid=" + supportedPids, DebugMessage.TYPE_BLUETOOTH);
+                    } else {
+                        String supportedPids = getSupportedPid(pids, PID_COUNT_DEFAULT);
+                        bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_DEFAULT);
+                        Logger.getInstance().logI(TAG, "Setting pid time interval: interval=" + TIME_INTERVAL_DEFAULT +
+                                ", supportedPid-" + supportedPids, DebugMessage.TYPE_BLUETOOTH);
+                    }
                 }
             }
-
             @Override
             public void onNoCarFound() {
-                Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onNoCarFound()");
+                Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(not set)"
+                        , DebugMessage.TYPE_BLUETOOTH);
                 //Do nothing, car is probably being added and will handle supported pids again
             }
-
             @Override
             public void onError(RequestError error) {
-                Log.d(TAG,"setDeviceRTCInterval() getCarByVinUseCase().onError()");
+                Logger.getInstance().logE(TAG,"Setting pid time interval: Error could not retrieve car(error returned by use case)"
+                        , DebugMessage.TYPE_BLUETOOTH);
             }
         });
 
     }
 
     public void setDeviceRtcInterval(String[] pids, String vin, int interval){
-       setDevicePIDs(pids, vin, interval);
+       setDevicePIDs(pids, vin, interval, true);
     }
 
     public void setChunkSize(int size) {

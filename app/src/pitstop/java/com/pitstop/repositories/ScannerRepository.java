@@ -3,9 +3,11 @@ package com.pitstop.repositories;
 import android.util.Log;
 
 import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +54,7 @@ public class ScannerRepository implements Repository {
             body.put("isActive", isActive);
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
         }
 
         Log.d(TAG,"PUT scanner, body= "+body.toString());
@@ -136,8 +138,8 @@ public class ScannerRepository implements Repository {
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){
+                        Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                         callback.onError(requestError);
-                        e.printStackTrace();
                     }
                 }
                 else{
@@ -169,7 +171,7 @@ public class ScannerRepository implements Repository {
                 }
             },body);
         }catch(JSONException e){
-            e.printStackTrace();
+            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             callback.onError(RequestError.getUnknownError());
         }
 

@@ -3,6 +3,7 @@ package com.pitstop.dependency;
 import android.os.Handler;
 
 import com.pitstop.database.LocalAlarmStorage;
+import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddAlarmUseCase;
@@ -59,6 +60,10 @@ import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCaseImpl;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
+import com.pitstop.interactors.get.GetFuelConsumedUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedUseCaseImpl;
+import com.pitstop.interactors.get.GetFuelPricesUseCase;
+import com.pitstop.interactors.get.GetFuelPricesUseCaseImpl;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCaseImpl;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
@@ -97,6 +102,8 @@ import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.SortReportsUseCaseImpl;
+import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
+import com.pitstop.interactors.other.StoreFuelConsumedUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -619,4 +626,23 @@ public class UseCaseModule {
 
         return new GetAlarmCountUseCaseImpl(localAlarmStorage, useCaseHandler, mainHandler);
     }
+
+    @Provides
+    StoreFuelConsumedUseCase getStoreFuelConsumedUseCase(UserRepository userRepository, LocalFuelConsumptionStorage localFuelConsumptionStorage
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+        return new StoreFuelConsumedUseCaseImpl(userRepository, mainHandler, useCaseHandler, localFuelConsumptionStorage);
+    }
+
+    @Provides
+    GetFuelConsumedUseCase getGetFuelConsumedUseCase(LocalFuelConsumptionStorage localFuelConsumptionStorage
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+        return new GetFuelConsumedUseCaseImpl(mainHandler, useCaseHandler, localFuelConsumptionStorage);
+    }
+
+    @Provides
+    GetFuelPricesUseCase getFuelPriceUseCase( @Named("useCaseHandler")Handler useCaseHandler,
+                                              @Named("mainHandler")Handler mainHandler,NetworkHelper networkHelper){
+        return new GetFuelPricesUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
 }
+
