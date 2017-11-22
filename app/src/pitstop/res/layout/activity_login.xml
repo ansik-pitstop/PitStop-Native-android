@@ -130,7 +130,7 @@
             android:layout_weight="1"
             android:background="@drawable/color_button_rectangle_primary_dark"
             android:onClick="goToLogin"
-            android:text="@string/log_in_button"
+            android:text="@string/log_in_fb"
             android:textColor="#fff"
             android:textStyle="bold"
             android:typeface="normal" />

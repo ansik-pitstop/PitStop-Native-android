@@ -236,7 +236,7 @@
         android:elegantTextHeight="true"
         android:elevation="6dp"
         android:onClick="signUpSwitcher"
-        android:text="@string/log_in_button"
+        android:text="@string/log_in_fb"
         android:textColor="#fff"/>
 
     <TextView

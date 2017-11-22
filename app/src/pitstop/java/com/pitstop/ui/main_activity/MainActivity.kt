@@ -403,13 +403,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         runOnUiThread {
             if (state == BluetoothConnectionObservable.State.CONNECTED_VERIFIED) {
-                supportActionBar!!.subtitle = "Device connected"
+                supportActionBar!!.subtitle = getString(R.string.device_connected_action_bar)
             } else if (state == BluetoothConnectionObservable.State.VERIFYING) {
-                supportActionBar!!.subtitle = "Verifying device"
+                supportActionBar!!.subtitle = getString(R.string.verifying_device_action_bar)
             } else if (state == BluetoothConnectionObservable.State.SEARCHING) {
-                supportActionBar!!.subtitle = "Searching for device"
+                supportActionBar!!.subtitle = getString(R.string.searching_for_device_action_bar)
             } else if (state == BluetoothConnectionObservable.State.DISCONNECTED) {
-                supportActionBar!!.subtitle = "Device not connected"
+                supportActionBar!!.subtitle = getString(R.string.device_not_connected_action_bar)
             }
         }
     }

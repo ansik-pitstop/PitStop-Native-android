@@ -499,7 +499,7 @@ public class LoginActivity extends DebugDrawerActivity {
         mixpanelHelper.trackViewAppeared(MixpanelHelper.REGISTER_VIEW);
         mFbButton.setText(R.string.sign_up_fb);
         mLoginButton.setText(R.string.sign_up_button);
-        mSwitcherButton.setText(R.string.log_in_button);
+        mSwitcherButton.setText(R.string.log_in_fb);
         confirmPasswordLayout.setVisibility(View.VISIBLE);
         signup = true;
     }
@@ -512,7 +512,7 @@ public class LoginActivity extends DebugDrawerActivity {
         phoneLayout.setVisibility(View.GONE);
         confirmPasswordLayout.setVisibility(View.GONE);
         mFbButton.setText(R.string.log_in_fb);
-        mLoginButton.setText(R.string.log_in_button);
+        mLoginButton.setText(R.string.log_in_fb);
         mSwitcherButton.setText(R.string.sign_up_button);
         signup = false;
     }
