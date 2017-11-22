@@ -41,6 +41,8 @@ public class Logger {
     private LocalUserStorage localUserStorage;
     private ConnectivityManager connectivityManager;
     private LocalDebugMessageStorage localDebugMessageStorage;
+    private GelfConfiguration gelfConfiguration = null;
+
 
     public static Logger getInstance(){
         if (INSTANCE == null){
@@ -63,60 +65,70 @@ public class Logger {
                             Log.d(TAG,"error");
                             return null;
                         }).doOnError(err -> Log.d(TAG,"err: "+err))
-                            .map(query -> {
-                                Cursor c = query.run();
-                                List<DebugMessage> messageList = new ArrayList<>();
-                                if(c.moveToFirst()) {
-                                    while(!c.isAfterLast()) {
-                                        messageList.add(DebugMessage.fromCursor(c));
-                                        c.moveToNext();
-                                    }
+                        .map(query -> {
+                            Cursor c = query.run();
+                            List<DebugMessage> messageList = new ArrayList<>();
+                            if(c.moveToFirst()) {
+                                while(!c.isAfterLast()) {
+                                    messageList.add(DebugMessage.fromCursor(c));
+                                    c.moveToNext();
                                 }
-                                c.close();
-                                return messageList;
-                            }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null)
-                            .subscribe(messageList -> {
-                                Log.d(TAG, "messages received: " + messageList);
-                                if (gelfTransport == null) {
-                                    InetSocketAddress inetSocketAddress
-                                            = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
-                                    GelfConfiguration gelfConfiguration = new GelfConfiguration(inetSocketAddress)
-                                            .transport(GelfTransports.TCP)
-                                            .tcpKeepAlive(false)
-                                            .queueSize(512)
-                                            .connectTimeout(1000)
-                                            .reconnectDelay(500)
-                                            .sendBufferSize(-1)
-                                            .resultListener(new GelfTransportResultListener() {
-                                                @Override
-                                                public void onMessageSent(GelfMessage gelfMessage) {
-                                                    Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
-                                                }
+                            }
+                            c.close();
+                            return messageList;
+                        }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null
+                                && connectivityManager.getActiveNetworkInfo() != null
+                                && connectivityManager.getActiveNetworkInfo().isConnected())
+                        .subscribe(messageList -> {
+                            Log.d(TAG, String.format("Received %d messages in subscribe()",messageList.size()));
 
-                                                @Override
-                                                public void onFailedToSend(GelfMessage gelfMessage) {
-                                                    Log.d(TAG, "resultListener.onFailedToSend() gelfMessage: " + gelfMessage);
-                                                }
+                            if (gelfConfiguration == null) { //Create once
+                                InetSocketAddress inetSocketAddress
+                                    = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
+                                 gelfConfiguration = new GelfConfiguration(inetSocketAddress)
+                                        .transport(GelfTransports.TCP)
+                                        .tcpKeepAlive(false)
+                                        .queueSize(512)
+                                        .connectTimeout(1000)
+                                        .reconnectDelay(500)
+                                        .sendBufferSize(-1)
+                                        .resultListener(new GelfTransportResultListener() {
+                                            @Override
+                                            public void onMessageSent(GelfMessage gelfMessage) {
+                                                Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
+                                            }
 
-                                                @Override
-                                                public void onFailedToConnect(List<GelfMessage> list) {
-                                                    Log.d(TAG, "resultListener.onFailedToConnect() gelfMessageList: " + list);
-                                                }
-                                            });
-                                    gelfTransport = new GelfTcpTransport(gelfConfiguration);
-                                }
+                                            @Override
+                                            public void onFailedToSend(GelfMessage gelfMessage) {
+                                                Log.d(TAG, "resultListener.onFailedToSend() gelfMessage: " + gelfMessage);
+                                            }
 
-                                for (DebugMessage d: messageList){
-                                    boolean sent = sendMessage(d);
-                                    if (sent){
-                                        localDebugMessageStorage.markAllAsSent();
-                                    }
-                                }
-                            });
+                                            @Override
+                                            public void onFailedToConnect(List<GelfMessage> list) {
+                                                Log.d(TAG, "resultListener.onFailedToConnect() gelfMessageList: " + list);
+                                            }
+                                        });
+                            }else{
+                                gelfTransport.stop(); //stop previous
+                            }
+
+                            if (gelfConfiguration != null)
+                                gelfTransport = new GelfTcpTransport(gelfConfiguration); //recreate every time
+
+                            List<DebugMessage> sentList = new ArrayList<>();
+                            for (DebugMessage d: messageList){
+                                boolean sent = sendMessage(d);
+                                if (sent)
+                                    sentList.add(d);
+                            }
+                            localDebugMessageStorage.markAsSent(sentList);
+                        });
 
     }
 
     private boolean sendMessage(DebugMessage d) {
+        if (localUserStorage.getUser() == null) return false;
+
         GelfMessageLevel gelfLevel;
         switch (d.getLevel()) {
             case 0:
