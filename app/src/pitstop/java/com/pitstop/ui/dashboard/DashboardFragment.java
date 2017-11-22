@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver, FuelObserver {
+public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver {
 
     public static String TAG = DashboardFragment.class.getSimpleName();
     public static String  CAR_ID_KEY = "carId";
@@ -86,23 +86,11 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(mileage)
     TextView mMileageText;
 
-    @BindView(R.id.fuel_consumption_textview)
-    TextView fuelConsumed;
-
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
 
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
-
-    @BindView(R.id.fuel_expense_textview)
-    TextView fuelExpensesTextView;
-
-    @BindView(R.id.fuel_consumption_container)
-    LinearLayout fuelConsumption;
-
-    @BindView(R.id.fuel_expense_container)
-    LinearLayout fuelExpenses;
 
     @BindView(R.id.car_name)
     TextView carName;
@@ -110,11 +98,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(R.id.driving_alarms_icon)
     ImageView drivingAlarmsIcon;
 
-    @BindView(R.id.fuel_expense_icon)
-    ImageView fuelExpensesIcon;
-
-    @BindView(R.id.fuel_consumption_icon)
-    ImageView fuelConsumptionIcon;
 
     @BindView(R.id.dealership_name)
     TextView dealershipName;
@@ -149,8 +132,8 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private DashboardPresenter presenter;
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
-    private AlertDialog fuelConsumptionExplanationDialog;
-    private FuelObservable fuelObservable;
+
+
 
 
     @Nullable
@@ -486,8 +469,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         dealershipPhone.setText(dealership.getPhone());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
 
-        fuelConsumptionIcon.setImageResource(R.drawable.gas_station_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_3x);
         drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
         mMileageIcon.setImageResource(R.drawable.odometer);
         mMyTripsIcon.setImageResource(R.drawable.route_2);
@@ -514,8 +495,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
         mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.mercedes_dollar_sign_3x);
+
         drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
         mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
         ((MainActivity)getActivity()).changeTheme(true);
@@ -526,12 +506,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
                 , "fonts/mercedes.otf"));
         mDealerBannerOverlay.setVisibility(View.GONE);
         carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-    }
-
-    @Override
-    public void showFuelExpense(float v) {
-        fuelExpensesTextView.setText(String.format("%.2f", v/100));
-
     }
 
     @Override
@@ -549,8 +523,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @Override
     public void noScanner() {
         drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_disabled_3x);
-        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
 
     }
 
@@ -629,17 +601,8 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onTotalAlarmsClicked();
     }
 
-    @OnClick(R.id.fuel_consumption_container)
-    public void onFuelConsumptionClicked(){
-        Log.d(TAG, "onFuelConsumptionClicked()");
-        presenter.onFuelConsumptionClicked();
-    }
 
-    @OnClick(R.id.fuel_expense_container)
-    public void onFuelExpensesClicked(){
-        Log.d(TAG, "onFuelExpensesCLicked()");
-        presenter.onFuelExpensesClicked();
-    }
+
 
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
@@ -648,25 +611,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         bundle.putBoolean("isMercedes", presenter.isDealershipMercedes());
         intent.putExtras(bundle);
         startActivity(intent);
-    }
-
-    @Override
-    public void showFuelConsumptionExplanationDialog() {
-        Log.d(TAG, "displayBuyDeviceDialog()");
-        if (fuelConsumptionExplanationDialog == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.buy_device_dialog, null);
-            fuelConsumptionExplanationDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Fuel Consumption")
-                    .setView(dialogLayout)
-                    .setMessage("With the device, we are able to track your fuel usage from the time the device was plugged in. ")
-                    .setPositiveButton("OK", (dialog, which) -> dialog.cancel())
-                    .create();
-        }
-        fuelConsumptionExplanationDialog.show();
-
-
     }
 
 
@@ -694,23 +638,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     }
 
 
-    @Override
-    public void showFuelExpensesDialog() {
-        if (fuelExpensesAlertDialog == null){ final View dialogLayout = LayoutInflater.from(
-                getActivity()).inflate(R.layout.buy_device_dialog, null);
-            fuelExpensesAlertDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Fuel Expense")
-                    .setView(dialogLayout)
-                    .setMessage(getString(R.string.fuel_expense_dialog_description))
-                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
-                            -> dialog.cancel())
-                    .create();
-        }
-        fuelExpensesAlertDialog.show();
-
-    }
-
     private void openPitstopAmazonLink() {
         Log.d(TAG, "openPitstopAmazonLink()");
         if(getActivity() == null) return;
@@ -733,55 +660,10 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     }
 
-    public String getLastKnowLocation(){
-        LocationListener locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-            }
-        };
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria,true);
-        if(ContextCompat.checkSelfPermission( getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED){
-            locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
-            String locationProvider = LocationManager.NETWORK_PROVIDER;
-            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-            locationManager.removeUpdates(locationListener);
-            Geocoder geocoder = new Geocoder(getActivity());
-            try {
-                ArrayList<Address> list = new ArrayList<>(geocoder.getFromLocation(lastKnownLocation.getLatitude(),
-                        lastKnownLocation.getLongitude(), 5));
-                return list.get(0).getPostalCode();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-        else {
-            return null;
-        }
-    }
 
 
 
 
-    @Override
-    public void showFuelConsumed(double fuelCOnsumed) {
-        fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
-    }
 
     @Override
     public void onAlarmAdded(Alarm alarm) {
@@ -789,17 +671,12 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         showBadges(presenter.getNumAlarms());
     }
 
-    @Override
-    public void onFuelConsumedUpdated() {
-        presenter.getFuelConsumed();
 
-    }
 
     @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
         alarmObservable.subscribe(this);
-        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
-        fuelObservable.subscribe(this);
+
     }
 }

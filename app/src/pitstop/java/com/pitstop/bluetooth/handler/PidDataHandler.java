@@ -124,7 +124,6 @@ public class PidDataHandler {
                 @Override
                 public void onDataStored() {
                     Log.d(TAG, p + " Stored in local database");
-
                 }
             }, this.networkChunkSize);
         }

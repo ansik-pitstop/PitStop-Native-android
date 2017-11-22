@@ -38,4 +38,14 @@ public interface VehicleSpecsView {
     void showMercedesLayout();
 
     void showNormalLayout();
+
+    void showFuelConsumptionExplanationDialog();
+
+    void showFuelConsumed(double fuelConsumed);
+
+    void showFuelExpensesDialog();
+
+    void showFuelExpense(float v);
+
+    String getLastKnowLocation();
 }
