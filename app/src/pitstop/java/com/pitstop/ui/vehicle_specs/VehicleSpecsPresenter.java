@@ -2,7 +2,6 @@ package com.pitstop.ui.vehicle_specs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.util.Log;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
