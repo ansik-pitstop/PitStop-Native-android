@@ -1,8 +1,7 @@
 package com.pitstop.utils;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
@@ -16,12 +15,16 @@ import org.graylog2.gelfclient.GelfMessageBuilder;
 import org.graylog2.gelfclient.GelfMessageLevel;
 import org.graylog2.gelfclient.GelfTransportResultListener;
 import org.graylog2.gelfclient.GelfTransports;
+import org.graylog2.gelfclient.transport.GelfTcpTransport;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
+
+import rx.schedulers.Schedulers;
 
 public class Logger {
 
@@ -47,40 +50,59 @@ public class Logger {
     public Logger(Context context){
         this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
-        HandlerThread logHandlerThread = new HandlerThread("LoggerThread");
-        logHandlerThread.start();
-        Handler logHandler = new Handler(logHandlerThread.getLooper());
-        logHandler.post(() -> {
-            if (gelfTransport == null) {
-                gelfTransport = GelfTransports.create(
-                        new GelfConfiguration(new InetSocketAddress(
-                                "graylog.backend-service.getpitstop.io", 12900))
-                                .transport(GelfTransports.TCP)
-                                .tcpKeepAlive(false)
-                                .queueSize(512)
-                                .connectTimeout(12000)
-                                .reconnectDelay(1000)
-                                .sendBufferSize(-1)
-                                .resultListener(new GelfTransportResultListener() {
-                                    @Override
-                                    public void onMessageSent(GelfMessage gelfMessage) {
-                                        Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
+        LocalDebugMessageStorage localDebugMessageStorage = new LocalDebugMessageStorage(context);
+                localDebugMessageStorage.getUnsentQueryObservable()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .onErrorReturn(err -> {
+                            Log.d(TAG,"error");
+                            return null;
+                        }).doOnError(err -> Log.d(TAG,"err: "+err))
+                            .map(query -> {
+                                Cursor c = query.run();
+                                List<DebugMessage> messageList = new ArrayList<>();
+                                if(c.moveToFirst()) {
+                                    while(!c.isAfterLast()) {
+                                        messageList.add(DebugMessage.fromCursor(c));
+                                        c.moveToNext();
                                     }
+                                }
+                                c.close();
+                                return messageList;
+                            }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null)
+                            .subscribe(messageList -> {
+                                Log.d(TAG, "messages received: " + messageList);
+                                if (gelfTransport == null) {
+                                    InetSocketAddress inetSocketAddress
+                                            = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
+                                    GelfConfiguration gelfConfiguration = new GelfConfiguration(inetSocketAddress)
+                                            .transport(GelfTransports.TCP)
+                                            .tcpKeepAlive(false)
+                                            .queueSize(512)
+                                            .connectTimeout(12000)
+                                            .reconnectDelay(1000)
+                                            .sendBufferSize(-1)
+                                            .resultListener(new GelfTransportResultListener() {
+                                                @Override
+                                                public void onMessageSent(GelfMessage gelfMessage) {
+                                                    Log.d(TAG, "resultListener.onMessageSent() gelfMessage: " + gelfMessage);
+                                                    localDebugMessageStorage.markAllAsSent();
+                                                }
 
-                                    @Override
-                                    public void onFailedToSend(GelfMessage gelfMessage) {
-                                        Log.d(TAG, "resultListener.onFailedToSend() gelfMessage: " + gelfMessage);
+                                                @Override
+                                                public void onFailedToSend(GelfMessage gelfMessage) {
+                                                    Log.d(TAG, "resultListener.onFailedToSend() gelfMessage: " + gelfMessage);
+                                                }
 
-                                    }
+                                                @Override
+                                                public void onFailedToConnect(List<GelfMessage> list) {
+                                                    Log.d(TAG, "resultListener.onFailedToConnect() gelfMessageList: " + list);
+                                                }
+                                            });
+                                    gelfTransport = new GelfTcpTransport(gelfConfiguration);
+                                }
+                            });
 
-                                    @Override
-                                    public void onFailedToConnect(List<GelfMessage> list) {
-                                        Log.d(TAG, "resultListener.onFailedToConnect() gelfMessageList: " + list);
-
-                                    }
-                                }));
-            }
-        });
     }
 
     private void sendMessage(DebugMessage d) {
