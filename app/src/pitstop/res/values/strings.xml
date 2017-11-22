@@ -158,6 +158,7 @@
     <string name="empty_email_pass_error">Email or Password Field are not filled</string>
     <string name="empty_name_error">First and last name are required</string>
     <string name="password_length_error">Password length must be greater than 8</string>
+    <string name="my_garage"> My Garage</string>
     <string name="password_no_match_error">Passwords do not match</string>
     <string name="invalid_phone_error">Invalid phone number</string>
     <string name="generic_error">An error occurred, please try again</string>
@@ -192,7 +193,7 @@
     <string name="mileage_title">Mileage</string>
     <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
-    <string name="fuel_consumption_header">FUEL CONSUMPTION</string>
+    <string name="fuel_consumption_header">Fuel Consumption</string>
     <string name="highway_title">Highway</string>
     <string name="city_title">City</string>
     <string name="tools_header">TOOLS</string>

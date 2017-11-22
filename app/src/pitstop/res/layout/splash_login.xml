@@ -202,7 +202,7 @@
             android:onClick="loginFacebook"
             android:paddingLeft="34dp"
             android:paddingTop="1dp"
-            android:text="@string/sign_up_fb"
+            android:text="@string/sign_up_button"
             android:textColor="@color/facebook_blue" />
 
         <com.facebook.login.widget.LoginButton
@@ -236,7 +236,7 @@
         android:elegantTextHeight="true"
         android:elevation="6dp"
         android:onClick="signUpSwitcher"
-        android:text="@string/log_in_fb"
+        android:text="@string/log_in_button"
         android:textColor="#fff"/>
 
     <TextView

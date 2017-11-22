@@ -6,7 +6,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="CONTACT"
+        android:text="@string/contact"
         android:id="@+id/appointments_title_garage"
         android:textStyle="bold"
         android:paddingLeft="16dp"
@@ -54,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Message"
+                    android:text="@string/message"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
@@ -100,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Call"
+                    android:text="@string/call"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
@@ -146,7 +146,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Find Directions"
+                    android:text="@string/find_directions"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 
