@@ -31,7 +31,6 @@ import com.pitstop.utils.MixpanelHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -314,6 +313,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 , BluetoothDeviceManager.this, device.getName());
         connectToDevice(device);
     }
+
+
 
     private void connectTo215Device(BluetoothDevice device) {
         Log.d(TAG,"connectTo215Device() device: "+device.getName());

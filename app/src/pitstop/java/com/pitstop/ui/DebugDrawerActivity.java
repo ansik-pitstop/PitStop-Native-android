@@ -104,6 +104,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         }
     }
 
+
+
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         if (!BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {

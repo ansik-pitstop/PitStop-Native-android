@@ -29,6 +29,7 @@ import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
+import com.pitstop.bluetooth.handler.FuelHandler;
 import com.pitstop.bluetooth.handler.PidDataHandler;
 import com.pitstop.bluetooth.handler.TripDataHandler;
 import com.pitstop.bluetooth.handler.VinDataHandler;
@@ -54,6 +55,8 @@ import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.observer.ConnectionStatusObserver;
 import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
+import com.pitstop.observer.FuelObservable;
+import com.pitstop.observer.FuelObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
@@ -77,7 +80,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable {
+        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -140,6 +143,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private DtcPackage requestedDtcs;
     private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
     private AlarmHandler alarmHandler;
+    private FuelHandler fuelHandler;
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
@@ -296,6 +300,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.vinDataHandler = new VinDataHandler(this,this,this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
         this.alarmHandler = new AlarmHandler(this, useCaseComponent);
+        this.fuelHandler = new FuelHandler(this, useCaseComponent);
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         backgroundHandler.postDelayed(periodicGetVinRunnable,5000);
 
@@ -507,6 +512,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.getRtc();
         return true;
     }
+
 
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
@@ -1224,6 +1230,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void alarmEvent(Alarm alarm) {
         alarmHandler.handleAlarm(alarm);
+    }
+
+    @Override
+    public void idrFuelEvent(String scannerID, double fuelConsumed) {
+        Log.d(TAG, "myScannerId is: " + scannerID);
+        fuelHandler.handleFuelUpdate(scannerID, fuelConsumed);
+
+
+
+    }
+
+    @Override
+    public void notifyFuelConsumedUpdate(double fuelConsumed) {
+        for (Observer o: observerList){
+            if (o instanceof FuelObserver){
+                ((FuelObserver) o).onFuelConsumedUpdated();
+            }
+        }
+
     }
 
     @Override

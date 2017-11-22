@@ -525,7 +525,7 @@
     <string name="ignition_off_desc">Your pitstop device has noted you turned off your engine. Hope you had a safe trip!</string>
     <string name="high_rpm_desc">We can\'t tell if you\'re just a regular driver or someone from Fast and Furious! Either way, just remember to take extra precaution when accelerating at a high rate.</string>
     <string name="low_voltage_desc">Uh oh! We\'ve detected your car\'s battery is low which most likely means you won\'t be able to start your car soon. Car batteries usually have a lifespan of about 5-7 years, but that can be shortened by things like weather, driving habits and leaving your accessories on</string>
-    <string name="idling_desc">We have detected that your car's engine has been running for over 15 mins and the car has been stationary. Your engine is a powerful machine, don't waste its talents! Letting your engine idle can potentially lead to its components undergoing wear unnecessarily and can also lead to poor fuel economy.</string>
+    <string name="idling_desc">We have detected that your car\'s engine has been running for over 15 mins and the car has been stationary. Your engine is a powerful machine, don\'t waste its talents! Letting your engine idle can potentially lead to its components undergoing wear unnecessarily and can also lead to poor fuel economy.</string>
     <string name="fatigue_driving_desc">Your Pitstop device has taken note that you have been driving your car for 4 consecutive hours or more. We understand how fun road trips can be, but driving for extended periods of time can be cause for concern.</string>
     <string name="speeding_desc">This is just a friendly reminder to drive extra cautiously when driving at a speed greater than 125 km/h. Happy driving!</string>
     <string name="collision_desc">Collision</string>
@@ -538,4 +538,5 @@
     <string name="idling_proposal">Next time you\'re waiting in your car, just turn the engine off and let your car relax for a bit.</string>
     <string name="fatigue_driving_proposal">If you feel tired and/or sleepy, take a break and relax, or hand over the wheel to a buddy. Happy road tripping!</string>
     <string name="decceleration_proposal">Leave about 1.5 car lengths between you and that driver ahead, that way your ninja reflexes have time to activate and bring your car to a smooth stop.</string>
+    <string name="fuel_expense_dialog_description">Once a day we check the average fuel price based on your location. If the value isn\'t found, we use the value of $1.09 as we found this to be the average fuel price this year. We will eventually be adding in capability for you to enter your own price so you can track your fuel more accurately.</string>
 </resources>

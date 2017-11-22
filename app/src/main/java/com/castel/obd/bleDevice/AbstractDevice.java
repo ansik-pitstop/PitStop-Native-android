@@ -15,6 +15,8 @@ public interface AbstractDevice {
 
     UUID getWriteChar();
 
+
+
     BluetoothDeviceManager.CommType commType();
 
     byte[] getBytes(String payload);

@@ -150,52 +150,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/vin_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/vin_2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
-
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="VIN"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
-
-
-            </LinearLayout>
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingRight="16dp"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:id="@+id/car_vin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-        </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
             android:id="@+id/scanner_view"
@@ -395,11 +349,155 @@
 
         </android.support.v7.widget.CardView>
 
+
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/fuel_consumption_card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="2dp"
+            android:layout_gravity="center_horizontal"
+            >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/fuel_consumption_icon"
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/gas_station_3x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Fuel consumption"
+                    android:textSize="22sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
+            <TextView
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:id="@+id/fuel_consumed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/fuel_expenses_card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="2dp"
+            android:layout_gravity="center_horizontal"
+            >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/dollar_sign_3x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Fuel Expenses"
+                    android:textSize="22sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
+            <TextView
+
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:id="@+id/money_spent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+
+
         <TextView
             android:padding="10dp"
             android:text="Vehicle Specs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="2dp"
+            android:layout_gravity="center_horizontal"
+            >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/vin_icon"
+                    android:paddingLeft="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/vin_2x"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="VIN"
+                    android:textSize="22sp"
+                    android:textColor="@color/Smooch_inputTextColor" />
+
+
+            </LinearLayout>
+            <TextView
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:id="@+id/car_vin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
 
 
         <android.support.v7.widget.CardView
@@ -623,6 +721,9 @@
                 android:layout_height="wrap_content" />
 
         </android.support.v7.widget.CardView>
+
+
+
 
 
         <android.support.v7.widget.CardView

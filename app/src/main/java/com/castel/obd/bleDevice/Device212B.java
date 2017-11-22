@@ -99,7 +99,7 @@ public class Device212B implements AbstractDevice {
     public String getVin() {
         return OBD.getParameter(VIN_TAG);
     }
-
+//TODO: change this too
     @Override
     public String getRtc() {
         return OBD.getParameter(RTC_TAG);

@@ -1,14 +1,23 @@
 
 package com.pitstop.ui.dashboard;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -18,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pitstop.R;
@@ -32,6 +42,8 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
+import com.pitstop.observer.FuelObservable;
+import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -39,6 +51,9 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +66,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     public static String TAG = DashboardFragment.class.getSimpleName();
     public static String  CAR_ID_KEY = "carId";
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
+
 
     @BindView(R.id.dealer_background_imageview)
     ImageView mDealerBanner;
@@ -82,11 +98,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(R.id.driving_alarms_icon)
     ImageView drivingAlarmsIcon;
 
-    @BindView(R.id.fuel_expense_icon)
-    ImageView fuelExpensesIcon;
-
-    @BindView(R.id.fuel_consumption_icon)
-    ImageView fuelConsumptionIcon;
 
     @BindView(R.id.dealership_name)
     TextView dealershipName;
@@ -117,9 +128,13 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private AlertDialog updateMileageDialog;
     private AlertDialog mileageErrorDialog;
     private AlertDialog buyDeviceAlertDialog;
+    private AlertDialog fuelExpensesAlertDialog;
     private DashboardPresenter presenter;
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
+
+
+
 
     @Nullable
     @Override
@@ -454,8 +469,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         dealershipPhone.setText(dealership.getPhone());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
 
-        fuelConsumptionIcon.setImageResource(R.drawable.gas_station_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_3x);
         drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
         mMileageIcon.setImageResource(R.drawable.odometer);
         mMyTripsIcon.setImageResource(R.drawable.route_2);
@@ -482,8 +495,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
         mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.mercedes_dollar_sign_3x);
+
         drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
         mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
         ((MainActivity)getActivity()).changeTheme(true);
@@ -511,8 +523,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @Override
     public void noScanner() {
         drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
-        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_disabled_3x);
-        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
 
     }
 
@@ -591,6 +601,9 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onTotalAlarmsClicked();
     }
 
+
+
+
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
         Intent intent = new Intent(getActivity(), AlarmsActivity.class);
@@ -599,6 +612,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
 
     @Override
     public void displayBuyDeviceDialog() {
@@ -623,6 +637,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         buyDeviceAlertDialog.show();
     }
 
+
     private void openPitstopAmazonLink() {
         Log.d(TAG, "openPitstopAmazonLink()");
         if(getActivity() == null) return;
@@ -645,15 +660,23 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     }
 
+
+
+
+
+
     @Override
     public void onAlarmAdded(Alarm alarm) {
         presenter.setNumAlarms(presenter.getNumAlarms()+1);
         showBadges(presenter.getNumAlarms());
     }
 
+
+
     @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
         alarmObservable.subscribe(this);
+
     }
 }
