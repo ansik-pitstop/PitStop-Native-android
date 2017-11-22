@@ -1,5 +1,6 @@
 package com.pitstop.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 
 import com.pitstop.models.DebugMessage;
@@ -13,6 +14,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
             + COLUMN_TIMESTAMP + " INTEGER,"
             + COLUMN_LEVEL + " INTEGER,"
             + COLUMN_TAG +" TEXT,"
+            + COLUMN_SENT + " TEXT,"
             + KEY_CREATED_AT + " DATETIME" + ")";
 
     private LocalDatabaseHelper mDatabaseHelper;
@@ -26,6 +28,12 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message));
     }
 
+    public void markAllAsSent(){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_SENT,"1");
+        mDatabaseHelper.getWritableDatabase().update(TABLE_NAME,contentValues,null,null);
+    }
+
     public QueryObservable getQueryObservable(int type) {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
                 "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_TYPE + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 30",
@@ -34,9 +42,9 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         return observable;
     }
 
-    public QueryObservable getQueryObservableAll() {
+    public QueryObservable getUnsentQueryObservable() {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
-                "SELECT * FROM " + TABLE_NAME + " ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 512");
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SENT + "=?" + "ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 512","1");
 
         return observable;
     }

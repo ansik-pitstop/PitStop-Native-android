@@ -106,6 +106,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         values.put(COLUMN_TIMESTAMP, message.getTimestamp());
         values.put(COLUMN_LEVEL, message.getLevel());
         values.put(COLUMN_TAG, message.getTag());
+        values.put(COLUMN_SENT, "0");
 
         return values;
     }
