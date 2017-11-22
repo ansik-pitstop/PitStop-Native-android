@@ -33,7 +33,7 @@
         <TextView
             android:id="@+id/title"
             android:textSize="20dp"
-            android:text="Vehicle Health Report"
+            android:text="@string/vehicle_health_report"
             android:textColor="@color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

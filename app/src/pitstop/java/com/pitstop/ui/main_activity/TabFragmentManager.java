@@ -30,7 +30,7 @@ public class TabFragmentManager implements BadgeDisplayer{
     public static final int TAB_VEHICLE_SPECS = 3;
     public static final int TAB_NOTIF = 4;
 
-    public static final String[] TAB_NAMES = {"Dashboard","Services","Vehicle Health Report","Garage", "Notifications"};
+    public String[] TAB_NAMES;
 
     @BindView(R.id.main_container)
     ViewPager mViewPager;
@@ -49,6 +49,12 @@ public class TabFragmentManager implements BadgeDisplayer{
 
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
+        TAB_NAMES = new String[]{mActivity.getApplicationContext().getString(R.string.dashboard),
+                mActivity.getApplicationContext().getString(R.string.services_tab_name),
+                mActivity.getApplicationContext().getString(R.string.scan),
+                mActivity.getApplicationContext().getString(R.string.my_garage),
+                mActivity.getApplicationContext().getString(R.string.notification_tab_name)
+        };
     }
 
 

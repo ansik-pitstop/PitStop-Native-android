@@ -8,7 +8,6 @@
 	<string name="add_trip">Adicione trajeto</string>
 	<string name="add_vehicle">Adicione veículo</string>
 	<string name="additional_comments">Comentários adicionais</string>
-	<string name="additional_info">Informação adicional</string>
 	<string name="air_filter">Filtro de ar</string>
 	<string name="appointment">Agendamento</string>
 	<string name="no_shop_alert_dialog_title">Você tem certeza que deseja selecionar Sem concessionária?</string>
@@ -48,7 +47,7 @@
 	<string name="log_service">Serviço de log</string>
 	<string name="severity_indicator_low">Baixa</string>
 	<string name="severity_indicator_medium">MÉDIA</string>
-	<string name="mileage_title">Kilometragem</string>
+	<string name="mileage_title">Quilometragem</string>
 	<string name="past_appts_title">Meus Agendamentos</string>
 	<string name="my_services">Meus Serviços</string>
 	<string name="my_shops">Minhas Concessionárias</string>
@@ -59,8 +58,10 @@
 	<string name="no_issues">Nenhum problema encontrado</string>
 	<string name="no_matching_shops_text">Sem concessionária</string>
 	<string name="no_trips">Nenhuma viagem registrada ainda</string>
-	<string name="notifications">Notificações</string>
+	<string name="notifications">Avisos</string>
+	<string name="my_garage">Garagem</string>
 	<string name="ok_button">OK</string>
+	<string name="additional_info">Informações Adicionais</string>
 	<string name="what_car_part">Em qual parte do seu carro?</string>
 	<string name="feature_notification">O Pitstop alerta quando o seu veículo necessita de serviço, quando há um recall de fábrica e quando há um problema com o motor.</string>
 	<string name="first_service_booking_2">O Pitstop calculou um tempo estimado o qual acreditamos ser adequado para o seu primeiro agendamento de serviço.\n\ nQuando seu compromisso estiver chegando perto, nós lhe enviaremos uma lembrete xxxxxxxxx \n\nO poder de estar conectado.</string>
@@ -69,7 +70,7 @@
 	<string name="forgot_password_dialog_message">Por favor, digite seu e-mail</string>
 	<string name="last_name_hint">SOBRENOME</string>
 	<string name="first_name_hint">NOME</string>
-	<string name="enter_mileage">Por favor, digite a kilometragem do seu veículo</string>
+	<string name="enter_mileage">Por favor, digite a Quilometragem do seu veículo</string>
 	<string name="enter_vin">Por favor, digite o número do chassi do seu veículo</string>
 	<string name="bluetooth_desc">Por favor, acessar configurações para ativar o bluetooth</string>
 	<string name="select_car_request_toast">Selecione um carro em configurações ou adicione um carro novo</string>
@@ -105,9 +106,9 @@
 	<string name="add_car_error_alert_title">Ocorreu um erro. Não foi possível adicionar o carro</string>
 	<string name="spark_plugs">Velas de Ignição</string>
 	<string name="suspension">Suspensão</string>
-	<string name="mileage_subtitle">Toque aqui para atualizar manualmente sua kilometragem</string>
+	<string name="mileage_subtitle">Toque aqui para atualizar manualmente sua Quilometragem</string>
 	<string name="no_shop_alert_dialog_message">Isso significa que você não poderá solicitar serviço para este carro. No entanto, você pode selecionar uma loja para este carro mais tarde entrando em configurações.</string>
-	<string name="time">Tempo</string>
+	<string name="time">HORA</string>
 	<string name="tires">Pneus</string>
 	<string name="add_car_manual">Para adicionar seu carro ao Pitstop, digite ou digitalize o número do veículo (Chassi). O Chassi pode estar em qualquer um dos locais indicados abaixo.</string>
 	<string name="tools_header">Ferramentas</string>
@@ -115,7 +116,7 @@
 	<string name="transmission">Transmissão</string>
 	<string name="tripsMade">Viagens feitas</string>
 	<string name="try_again">Tente Novamente</string>
-	<string name="update_mileage">Atualiar Kilometragem</string>
+	<string name="update_mileage">Atualiar Quilometragem</string>
 	<string name="vin_retrieval_failed_alert_message">O número do chassi não pôde ser identificado porque este veículo não suporta identificação automática do numero do chassi. Por favor, informe o  número do chassi manualmente ou tente novamente.</string>
 	<string name="wipers_fluids_description">A visibilidade é uma parte crítica da segurança durante a condução. Certifique-se de que seus fluidos estão cobertos e os limpadores do pára-brisa estão em perfeitas condições,  esta é uma maneira importante de se certificar de que seu carro está seguro para dirigir.</string>
 	<string name="first_service_booking_1">Bem vindo à Pitstop!\n\nVamos ser proativo e agendar o primeiro serviço para seu veículo hoje!</string>]
@@ -191,6 +192,7 @@
 	<string name="add_car_toast_text">Por favor, adicione um veículo</string>
 	<string name="error_loading_car_toast_text">Erro carregando um veículo</string>
 	<string name="request_service_get_started_button">Iniciar</string>
+	<string name="request_service_title">Pedido de Serviço</string>
 	<string name="dealership_updated_toast_text">Concessionária de veículos atualizada</string>
 	<string name="no_salesperson">Nenhum vendedor</string>
 	<string name="delete_car">Tem certeza que deseja excluir este veículo?</string>
@@ -273,7 +275,7 @@
 	<string name="enter_email_select_failures">Digite seu e-mail ou nome e selecione as falhas que este veículo possui:</string>
 	<string name="search">Pesquisa</string>
 	<string name="scan_car">Verificar veículo</string>
-	<string name="dashboard">Painel de Controle</string>
+	<string name="dashboard">Painel</string>
 	<string name="make_sure_following">Certifique-se do seguinte:</string>
 	<string name="car_turned_on">Seu veículo está ligado</string>
 	<string name="device_plugged_in_30_seconds">O dispositivo Pitstop está conectado há pelo menos 30 segundos</string>
@@ -293,7 +295,7 @@
 	<string name="add_service_message">Adicione todos serviços que você não vê abaixo</string>
 	<string name="potential_engine_issues">Potenciais problemas de motor</string>
 	<string name="shop">Concessionária</string>
-	<string name="select_time">Selecione o Tempo</string>
+	<string name="select_time">Selecione o horário</string>
 	<string name="submit_button">Enviar</string>
 	<string name="shop_name">Nome da Concessionária</string>
 	<string name="enter_shop_email">Entre o e-mail da sua concessionária</string>
@@ -317,21 +319,22 @@
 	<string name="select_as_current">Selecione como carro atual</string>
 	<string name="change_dealership">Alterar concessionária</string>
 	<string name="edit">Editar</string>
+	<string name="vehicle_health_report">Relatório de Saúde do Veículo</string>
     <string name="fuel_consumption">Uso do combustível</string>
 	<string name="fuel_expense_description">Estimado com base no preço médio \n do combustível em sua área</string>
 	<string name="driving_alarms">Total de Alarmes de Condução</string>
     <string name="quick_lane_change_description">Seu dispositivo Pitstop detectou uma mudança súbita na direção do movimento do seu veículo, o que indica que uma curva acentuada foi feita. Se você estava praticando suas habilidades de derivação, esperamos que tudo esteja bem.</string>
 	<string name="quick_lane_change_proposal">Se você está na estrada ou vias locais, não se esqueça de verificar seus espelhos e pontos cegos toda vez que você mudar de faixa. Boa viagem.</string>
 	<string name="sharp_turn_description">Seu dispositivo Pitstop detectou uma mudança súbita na direção do movimento do seu carro, o que indica que uma curva acentuada foi feita. Se você estava praticando suas habilidades de derivação, esperamos que tudo esteja bem</string>
-
-
-
-
-
-
-
 	<string name="collision_desc">Collision</string>
 
+	<string name="sort_by_newest">Ordene por mais novos</string>
+	<string name="sort_by_oldest">Ordene por mais velhos</string>
+	<string name="sort_by_engine_issues">Ordene por serviços no motor</string>
+	<string name="sort_by_service_issues">Ordene por serviços</string>
+	<string name="sort_by_recalls">Ordene por recalls</string>
+	<string name="retrieving_real_time_engine_data">Recuperando dados do motor em tempo real</string>
+	<string name="retrieving_engine_codes">Recuperando códigos do motor...</string>
 
 
 </resources>

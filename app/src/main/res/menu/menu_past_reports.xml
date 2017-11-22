@@ -8,20 +8,20 @@
         <menu>
             <item
                 android:id="@+id/action_sort_date_newest"
-                android:title="Sort by Newest"/>
+                android:title="@string/sort_by_newest"/>
             <item
                 android:id="@+id/action_sort_date_oldest"
-                android:title="Sort by Oldest"/>
+                android:title="@string/sort_by_oldest"/>
             <item
                 android:id="@+id/action_sort_engine_issue"
-                android:title="Sort by Engine Issues"/>
+                android:title="@string/sort_by_engine_issues"/>
             <item
                 android:id="@+id/action_sort_services"
-                android:title="Sort by Services Issues"/>
+                android:title="@string/sort_by_service_issues"/>
+
             <item
                 android:id="@+id/action_sort_recalls"
-                android:title="Sort by Recalls"/>
-
+                android:title="@string/sort_by_recalls"/>
         </menu>
 
     </item>

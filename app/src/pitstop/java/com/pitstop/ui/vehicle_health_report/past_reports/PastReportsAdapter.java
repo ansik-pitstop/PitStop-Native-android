@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.past_reports;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,11 +23,13 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
 
     private List<FullReport> reports;
     private PastReportsView pastReportsView;
+    private Context ctx;
 
     public PastReportsAdapter(PastReportsView pastReportsView
-            , List<FullReport> reports) {
+            , List<FullReport> reports, Context context) {
         this.reports = reports;
         this.pastReportsView = pastReportsView;
+        this.ctx = context;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
         public void bind(FullReport report){
             this.report = report;
             VehicleHealthReport vehicleHealthReport = report.getVehicleHealthReport();
-            title.setText("Vehicle Health Report");
+            title.setText(ctx.getString(R.string.vehicle_health_report));
 
             if (report.getEmissionsReport() == null)
                 description.setText(String.format("Contains %d engine issues" +
