@@ -1,8 +1,5 @@
 package com.pitstop.ui.settings.main_settings;
 
-import android.app.Fragment;
-
-import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
@@ -101,7 +98,7 @@ public class MainSettingsPresenter {
             public void onError(RequestError error) {
                 if(mainSettings != null){
                     switcher.loading(false);
-                    mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
+                    mainSettings.toast(error.getMessage());
                 }
             }
         });
@@ -121,7 +118,7 @@ public class MainSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if (mainSettings != null)
-                        mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
+                        mainSettings.toast(error.getMessage());
                 }
             });
         }else if(key.equals(PHONE_PREF_KEY)){
@@ -136,7 +133,7 @@ public class MainSettingsPresenter {
                 @Override
                 public void onError(RequestError error) {
                     if (mainSettings != null)
-                        mainSettings.toast(((Fragment)mainSettings).getString(R.string.car_load_error_toast));
+                        mainSettings.toast(error.getMessage());
                 }
             });
 
