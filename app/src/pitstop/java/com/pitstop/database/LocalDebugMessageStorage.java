@@ -48,7 +48,6 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
         //Remove any unsent logs more than 4 weeks old or sent logs that are more than a day old
         double monthAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24 * 28);
-        Log.d(TAG,"month ago: "+monthAgo);
         double dayAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24);
         int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
                 ,"("+COLUMN_SENT + "=? AND " + COLUMN_TIMESTAMP +" <?) " +
