@@ -202,7 +202,7 @@
             android:onClick="loginFacebook"
             android:paddingLeft="34dp"
             android:paddingTop="1dp"
-            android:text="@string/sign_up_fb"
+            android:text="@string/sign_up_button"
             android:textColor="@color/facebook_blue" />
 
         <com.facebook.login.widget.LoginButton

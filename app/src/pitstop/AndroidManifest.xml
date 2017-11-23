@@ -111,11 +111,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
 
-        <activity android:name=".ui.vehicle_specs.VehicleSpecsActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
-            />
 
         <activity android:name=".ui.alarms.AlarmsActivity"
             android:label="@string/app_name"
@@ -277,7 +272,7 @@
 
         <activity android:name=".ui.vehicle_health_report.health_report_progress.ReportProgressActivity"
             android:noHistory="true"
-            android:label="Vehicle Health Report"
+            android:label="@string/vehicle_health_report"
             android:screenOrientation="portrait" />
 
         <activity android:name=".ui.vehicle_health_report.show_report.ShowReportActivity"
@@ -308,11 +303,7 @@
             android:parentActivityName=".ui.main_activity.MainActivity"
             />
 
-        <activity android:name=".ui.DealershipActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="Dealership"
-            android:parentActivityName=".ui.main_activity.MainActivity"
-            android:screenOrientation="portrait"/>
+
     </application>
 
 </manifest>

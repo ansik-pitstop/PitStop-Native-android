@@ -124,7 +124,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
                 = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
         presenter = new HealthReportPresenter(component, mixpanelHelper);
 
-        getActivity().setTitle("Vehicle Health Report");
+        getActivity().setTitle(getString(R.string.vehicle_health_report));
 
         engineIssueRightChevron.setRotation(90);
         recallRightChevron.setRotation(90);

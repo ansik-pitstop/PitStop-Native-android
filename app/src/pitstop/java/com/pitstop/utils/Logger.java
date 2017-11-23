@@ -199,7 +199,6 @@ public class Logger {
                 type = "other";
 
         }
-
         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(), "com.pitstop.android")
                 .timestamp(d.getTimestamp())
                 .additionalField("tag", d.getTag())
