@@ -926,9 +926,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun errorLoadingCars() {
-        carRecyclerView?.visibility = View.GONE
         errorLoadingCars?.visibility = View.VISIBLE
-        carsTapDescription?.visibility = View.GONE
 
     }
 
