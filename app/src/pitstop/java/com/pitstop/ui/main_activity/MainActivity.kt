@@ -704,10 +704,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
    fun myTrips(){
+       if (presenter?.getmCar() == null) return
        val thisInstance:MainActivity = this
        val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.getmCar()!!);
-       startActivity(intent);
+       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.getmCar())
+       startActivity(intent)
     }
 
     override fun startDisplayIssueActivity(issues: List<CarIssue>, position: Int) {
