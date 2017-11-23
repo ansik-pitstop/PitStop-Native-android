@@ -45,11 +45,20 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     public void markAsSent(List<DebugMessage> messages){
         int rows = 0;
         BriteDatabase.Transaction t = mDatabaseHelper.getBriteDatabase().newTransaction();
+
+        //Remove any logs more than 4 weeks old
+        double monthAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24 * 28);
+        int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
+                ,COLUMN_TIMESTAMP +" <?",String.valueOf(monthAgo));
+        Log.d(TAG,"deleted "+deletedRows+" debug messages, that were more than 4 weeks old");
+
+        //Mark all as sent
         for (DebugMessage d: messages){
             rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
                     ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
                     ,String.valueOf(d.getTimestamp()),d.getMessage());
         }
+        Log.d(TAG,"updated "+rows+" messages to sent.");
         t.markSuccessful();
         t.end();
     }
