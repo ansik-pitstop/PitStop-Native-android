@@ -71,7 +71,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     if (jsonArray.length() > 0){
                         callback.onSuccess(jsonArray.getJSONObject(0).getInt("shopId"))
                     }else{
-                        callback.onSuccess(-1)
+                        callback.onSuccess(0)
                     }
                 } catch (e: JSONException) {
                     Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
