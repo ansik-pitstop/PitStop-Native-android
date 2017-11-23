@@ -64,7 +64,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
     public QueryObservable getUnsentQueryObservable() {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
-                "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SENT + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 30","0");
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SENT + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 512","0");
 
         return observable;
     }

@@ -8,7 +8,6 @@ import android.util.Log;
 import com.pitstop.BuildConfig;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalUserStorage;
-import com.pitstop.database.TABLES;
 import com.pitstop.models.DebugMessage;
 
 import org.graylog2.gelfclient.GelfConfiguration;
@@ -71,7 +70,6 @@ public class Logger {
                     List<DebugMessage> messageList = new ArrayList<>();
                     if(c.moveToFirst()) {
                         while(!c.isAfterLast()) {
-                            Log.d(TAG,"Cursor.getSent: "+c.getInt(c.getColumnIndex(TABLES.DEBUG_MESSAGES.COLUMN_SENT)));
                             messageList.add(DebugMessage.fromCursor(c));
                             c.moveToNext();
                         }
@@ -111,7 +109,6 @@ public class Logger {
                                     }
                                 });
                     }else{
-                        gelfTransport.stop(); //stop previous
                     }
 
                     if (gelfConfiguration != null)
