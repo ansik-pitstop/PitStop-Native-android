@@ -539,4 +539,6 @@
     <string name="fatigue_driving_proposal">If you feel tired and/or sleepy, take a break and relax, or hand over the wheel to a buddy. Happy road tripping!</string>
     <string name="decceleration_proposal">Leave about 1.5 car lengths between you and that driver ahead, that way your ninja reflexes have time to activate and bring your car to a smooth stop.</string>
     <string name="fuel_expense_dialog_description">Once a day we check the average fuel price based on your location. If the value isn\'t found, we use the value of $1.09 as we found this to be the average fuel price this year. We will eventually be adding in capability for you to enter your own price so you can track your fuel more accurately.</string>
+    <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
+    <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
 </resources>
