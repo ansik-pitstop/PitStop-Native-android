@@ -37,12 +37,11 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
-import com.pitstop.observer.BluetoothRtcObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.observer.MileageObservable;
-import com.pitstop.observer.MileageObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -64,7 +63,7 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver, MileageObserver {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
@@ -89,6 +88,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private MileageObservable mileageObservable;
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
+
+
 
     @BindView(R.id.main_view_lin_layout)
     protected LinearLayout mainLayout;
@@ -769,7 +770,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
         fuelObservable.subscribe(this);
-        this.mileageObservable = (MileageObservable) bluetoothAutoConnectService;
     }
 
 
@@ -811,9 +811,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             locationManager.requestLocationUpdates(provider, 1, 1,locationListener);
             String locationProvider = LocationManager.NETWORK_PROVIDER;
             Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-            if (lastKnownLocation == null){
-                return null;
-            }
             locationManager.removeUpdates(locationListener);
             Geocoder geocoder = new Geocoder(getActivity());
             try {
@@ -853,27 +850,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         return this.mileageObservable;
     }
 
-    @Override
-    public void requestRTCandMileage()
-    {
-        mileageObservable.requestRtcAndMileage();
-    }
 
-    @Override
-    public void onMileageAndRtcGot(String mileage, String rtc) {
-        Log.d(TAG, "onGotMileageAndRtc()");
-        Log.d(TAG, "Mileage: " + mileage + " rtc: " + rtc);
-        presenter.sendMileageAndRtc(mileage, rtc);
-    }
 
-    @Override
-    public void onGetMileageAndRtcError() {
-        Log.d(TAG, "onGetMileageAndRtcError()");
-
-    }
-
-    @Override
-    public void onNotConnected() {
-        Log.d(TAG, "onNotConnected()");
-    }
 }

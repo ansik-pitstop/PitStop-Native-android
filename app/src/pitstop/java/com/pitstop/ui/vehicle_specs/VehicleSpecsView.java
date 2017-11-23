@@ -52,5 +52,7 @@ public interface VehicleSpecsView {
 
     void requestRTCandMileage();
 
+
+
     MileageObservable getMileageObservable();
 }
