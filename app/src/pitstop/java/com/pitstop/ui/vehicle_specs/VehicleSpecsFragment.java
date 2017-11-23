@@ -38,8 +38,11 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.observer.BluetoothRtcObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
+import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -61,7 +64,7 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver, MileageObserver {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
@@ -83,14 +86,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog offlineErrorDialog;
     private boolean isPoppulated = false;
     private FuelObservable fuelObservable;
+    private MileageObservable mileageObservable;
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
-
-//    @BindView(R.id.car_logo_imageview)
-//    protected ImageView carLogo;
-
-//    @BindView(R.id.car_name_banner)
-//    protected TextView carName;
 
     @BindView(R.id.main_view_lin_layout)
     protected LinearLayout mainLayout;
@@ -771,6 +769,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
         fuelObservable.subscribe(this);
+        this.mileageObservable = (MileageObservable) bluetoothAutoConnectService;
+        mileageObservable.subscribe(this);
     }
 
 
@@ -847,6 +847,26 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                     .create();
         }
         fuelExpensesAlertDialog.show();
+
+    }
+
+    @Override
+    public void requestRTCandMileage() {
+        mileageObservable.requestRtcAndMileage();
+    }
+
+    @Override
+    public void onMileageAndRtcGot(double mileage, int rtc) {
+
+    }
+
+    @Override
+    public void onGetMileageAndRtcError() {
+
+    }
+
+    @Override
+    public void onNotConnected() {
 
     }
 }

@@ -77,14 +77,9 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(R.id.car_logo_imageview)
     ImageView mCarLogoImage;
 
-    @BindView(R.id.mileage_icon)
-    ImageView mMileageIcon;
-
     @BindView(R.id.alarm_badge)
     TextView alarms;
 
-    @BindView(mileage)
-    TextView mMileageText;
 
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
@@ -320,11 +315,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onMyTripsButtonClicked();
     }
 
-    @OnClick(R.id.mileage_container)
-    protected void onMileageClicked(){
-        Log.d(TAG,"onMileageClicked()");
-        presenter.onMileageClicked();
-    }
 
     @OnClick(R.id.addCarButton)
     public void onAddCarButtonClicked(){
@@ -462,15 +452,11 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
         Log.d(TAG,"displayDefaultDealershipVisual()");
-
-
         dealershipName.setText(dealership.getName());
         dealershipAddress.setText(dealership.getAddress());
         dealershipPhone.setText(dealership.getPhone());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
-
         drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
-        mMileageIcon.setImageResource(R.drawable.odometer);
         mMyTripsIcon.setImageResource(R.drawable.route_2);
         if( (getActivity()) != null){
             ((MainActivity)getActivity()).changeTheme(false);
@@ -494,7 +480,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
 
         mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
-        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
 
         drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
         mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
@@ -514,7 +499,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
-        mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
 
@@ -523,35 +507,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @Override
     public void noScanner() {
         drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
-
-    }
-
-    @Override
-    public void displayMileage(double mileage) {
-        Log.d(TAG,"displayMileage() mileage: "+mileage);
-        mMileageText.setText(String.format("%.2f km",mileage));
-    }
-
-    @Override
-    public void displayUpdateMileageDialog() {
-        Log.d(TAG,"displayUpdateMileageDialog()");
-        if (updateMileageDialog == null){
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
-            final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
-                    .findViewById(R.id.mileage_input);
-            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle(getString(R.string.update_mileage))
-                    .setView(dialogLayout)
-                    .setPositiveButton(getString(R.string.confirm_button), (dialog, which)
-                            -> presenter.onUpdateMileageDialogConfirmClicked(
-                                    textInputEditText.getText().toString()))
-                    .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> dialog.cancel())
-                    .create();
-        }
-
-        updateMileageDialog.show();
 
     }
 
@@ -574,22 +529,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     }
 
     @Override
-    public void displayUpdateMileageError() {
-        Log.d(TAG,"displayUpdateMileageError()");
-        if (mileageErrorDialog == null){
-            mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle(getString(R.string.invalid_device_alert_title))
-                    .setMessage(getString(R.string.invalid_mileage_alert_message))
-                    .setPositiveButton(getString(R.string.ok_button), (dialog, which)
-                            -> dialog.dismiss())
-                    .create();
-        }
-
-        mileageErrorDialog.show();
-    }
-
-    @Override
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
@@ -601,9 +540,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         presenter.onTotalAlarmsClicked();
     }
 
-
-
-
     public void openAlarmsActivity(){
         Log.d(TAG ,"openAlarmsActivity");
         Intent intent = new Intent(getActivity(), AlarmsActivity.class);
@@ -612,7 +548,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         intent.putExtras(bundle);
         startActivity(intent);
     }
-
 
     @Override
     public void displayBuyDeviceDialog() {
@@ -660,18 +595,11 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     }
 
-
-
-
-
-
     @Override
     public void onAlarmAdded(Alarm alarm) {
         presenter.setNumAlarms(presenter.getNumAlarms()+1);
         showBadges(presenter.getNumAlarms());
     }
-
-
 
     @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {

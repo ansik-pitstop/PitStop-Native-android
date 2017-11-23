@@ -68,7 +68,8 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
                 parseQuery.findInBackground(new FindCallback<Notification>() {
                     @Override
                     public void done(List<Notification> notificationsList, ParseException e) {
-                        GetUserNotificationUseCaseImpl.this.onNotificationsRetrieved(notificationsList);
+                        if (notificationsList==null) GetUserNotificationUseCaseImpl.this.onError(RequestError.getUnknownError());
+                        else {GetUserNotificationUseCaseImpl.this.onNotificationsRetrieved(notificationsList);}
                     }
                 });
             }
