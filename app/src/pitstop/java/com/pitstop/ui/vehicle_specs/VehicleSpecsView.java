@@ -48,4 +48,6 @@ public interface VehicleSpecsView {
     void showFuelExpense(float v);
 
     String getLastKnowLocation();
+
+    void requestRTCandMileage();
 }

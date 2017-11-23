@@ -288,6 +288,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             return;
         }
 
+        getView().requestRTCandMileage();
         useCaseComponent.updateCarMileageUseCase().execute(mileage
                 , new UpdateCarMileageUseCase.Callback() {
 
