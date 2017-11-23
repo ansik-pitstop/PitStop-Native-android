@@ -360,13 +360,16 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         var selectedCar: Car? = null
         for (currCar in carList){
             when {
-                currCar.isCurrentCar -> prevCurrCar = currCar
+                currCar.isCurrentCar -> {
+                    prevCurrCar = currCar
+                    currCar.isCurrentCar = false
+                }
                 currCar.id == car.id -> {
                     currCar.isCurrentCar = true
                     mCar = currCar
                     selectedCar = currCar
                 }
-                currCar.id != car.id -> currCar.isCurrentCar = false
+                else -> currCar.isCurrentCar = false
             }
         }
         view?.notifyCarDataChanged()
