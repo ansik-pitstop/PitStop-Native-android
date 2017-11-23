@@ -71,7 +71,11 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                     if (jsonArray.length() > 0){
                         callback.onSuccess(jsonArray.getJSONObject(0).getInt("shopId"))
                     }else{
-                        callback.onSuccess(0)
+                        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)) {
+                            callback.onSuccess(1)
+                        } else if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE) {
+                            callback.onSuccess(19)
+                        }
                     }
                 } catch (e: JSONException) {
                     Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)

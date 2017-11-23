@@ -361,7 +361,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         for (currCar in carList){
             when {
                 currCar.isCurrentCar -> {
-                    prevCurrCar = currCars
+                    prevCurrCar = currCar
                     currCar.isCurrentCar = false
                 }
                 currCar.id == car.id -> {
