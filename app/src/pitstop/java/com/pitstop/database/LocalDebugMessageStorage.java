@@ -29,7 +29,10 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     }
 
     public void addMessage(DebugMessage message) {
+        BriteDatabase.Transaction t = mDatabaseHelper.getBriteDatabase().newTransaction();
         mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message,false));
+        t.markSuccessful();
+        t.end();
     }
 
     public void markAllAsSent(){
@@ -44,10 +47,10 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         BriteDatabase.Transaction t = mDatabaseHelper.getBriteDatabase().newTransaction();
         for (DebugMessage d: messages){
             rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
-                    ,COLUMN_TIMESTAMP+"=? AND "+COLUMN_MESSAGE+"=?"
+                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
                     ,String.valueOf(d.getTimestamp()),d.getMessage());
         }
-        Log.d(TAG,String.format("Marked %d/%d messages as sent.",rows,messages.size()));
+        t.markSuccessful();
         t.end();
     }
 
@@ -61,7 +64,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
     public QueryObservable getUnsentQueryObservable() {
         QueryObservable observable = mDatabaseHelper.getBriteDatabase().createQuery(TABLE_NAME,
-                "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SENT + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 512","0");
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SENT + "=? ORDER BY " + COLUMN_TIMESTAMP + " DESC LIMIT 30","0");
 
         return observable;
     }

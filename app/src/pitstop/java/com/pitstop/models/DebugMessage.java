@@ -96,7 +96,6 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         message.setType(c.getInt(c.getColumnIndex(COLUMN_TYPE)));
         message.setLevel(c.getInt(c.getColumnIndex(COLUMN_LEVEL)));
         message.setTag(c.getString(c.getColumnIndex(COLUMN_TAG)));
-        Log.d("FROM_CURSOR",""+c.getInt(c.getColumnIndex(COLUMN_SENT)));
 
         return message;
     }
@@ -109,6 +108,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         values.put(COLUMN_LEVEL, message.getLevel());
         values.put(COLUMN_TAG, message.getTag());
         values.put(COLUMN_SENT, sent? 1 : 0);
+        Log.d("DebugMessage.content","toContentValues: "+values);
 
         return values;
     }
