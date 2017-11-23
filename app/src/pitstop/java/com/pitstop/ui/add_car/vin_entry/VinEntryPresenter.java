@@ -33,24 +33,23 @@ public class VinEntryPresenter {
     private int mileage = 0;
 
 
-    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
+    public VinEntryPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
 
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    public void subscribe(VinEntryView view){
-        Log.d(TAG,"subscribe()");
+    public void subscribe(VinEntryView view) {
+        Log.d(TAG, "subscribe()");
 
         this.view = view;
-
         //Get scanner id and scanner name in case they were set before presenter was subscribed
         this.scannerId = view.getScannerId();
         this.scannerName = view.getScannerName();
     }
 
-    public void unsubscribe(){
-        Log.d(TAG,"unsubscribe()");
+    public void unsubscribe() {
+        Log.d(TAG, "unsubscribe()");
 
         this.view = null;
         this.scannerId = "";
@@ -58,38 +57,59 @@ public class VinEntryPresenter {
         this.mileage = 0;
     }
 
-    public void vinChanged(String vin){
-        Log.d(TAG,"vinChanged() vin:"+vin);
+    public void vinChanged(String vin) {
+        Log.d(TAG, "vinChanged() vin:" + vin);
         if (view == null) return;
 
-        if (AddCarUtils.isVinValid(vin)){
+        if (AddCarUtils.isVinValid(vin)) {
             view.onValidVinInput();
-        }
-        else{
+        } else {
             view.onInvalidVinInput();
         }
     }
 
+    public void vinChanged(String vin, String scanner) {
+        Log.d(TAG, "vinChanged() vin:" + vin + " scanner: " + scanner);
+        if (view == null) return;
+        if (AddCarUtils.isVinValid(vin) && validScannerInput(scanner)) {
+            view.onValidVinInput();
+        } else {
+            view.onInvalidVinInput();
+        }
+    }
 
-    void loadInfo(){
+    private boolean validScannerInput(String scanner) {
+        try {
+            Integer.parseInt(scanner);
+            if (scanner.length() == 6)
+                return true;
+            else return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+
+    void loadInfo() {
         if (view != null)
             view.displayMileage(view.getTransferredMileage());
     }
 
-    private void addVehicleToServer(String vin, int mileage, String scannerId, String scannerName){
-        Log.d(TAG,"addVehicleToServer() vin:"+vin+", mileage:"+mileage+", scannerId:"+scannerId
-                +", scannerName:"+scannerName);
+    private void addVehicleToServer(String vin, int mileage, String scannerId, String scannerName) {
+        Log.d(TAG, "addVehicleToServer() vin:" + vin + ", mileage:" + mileage + ", scannerId:" + scannerId
+                + ", scannerName:" + scannerName);
 
 
-        view.showLoading(((Fragment)view).getContext().getString(R.string.saving_car_message));
+        view.showLoading(((Fragment) view).getContext().getString(R.string.saving_car_message));
         useCaseComponent.addCarUseCase().execute(vin, mileage, scannerId, scannerName
                 , EventSource.SOURCE_ADD_CAR, new AddCarUseCase.Callback() {
 
                     @Override
-                    public void onCarAlreadyAdded(Car car){
-                        Log.d(TAG,"addCarUseCase().onCarAlreadyAdded() car: "+car);
+                    public void onCarAlreadyAdded(Car car) {
+                        Log.d(TAG, "addCarUseCase().onCarAlreadyAdded() car: " + car);
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.ADD_CAR_CAR_EXISTS);addingCar = false;
+                                , MixpanelHelper.ADD_CAR_CAR_EXISTS);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
@@ -99,51 +119,53 @@ public class VinEntryPresenter {
 
                     @Override
                     public void onCarAddedWithBackendShop(Car car) {
-                        Log.d(TAG,"addCarUseCase().onCarAddedWithBackendShop() car: "+car);
+                        Log.d(TAG, "addCarUseCase().onCarAddedWithBackendShop() car: " + car);
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.SUCCESS);addingCar = false;
+                                , MixpanelHelper.SUCCESS);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
                         view.onCarAddedWithShop(car);
-                        view.hideLoading(((Fragment)view).getContext().getString(R.string.car_added_successfully_toast_message));
+                        view.hideLoading(((Fragment) view).getContext().getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override
                     public void onCarAdded(Car car) {
-                        Log.d(TAG,"addCarUseCase().onCarAdded() car: "+car);
+                        Log.d(TAG, "addCarUseCase().onCarAdded() car: " + car);
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.SUCCESS);addingCar = false;
+                                , MixpanelHelper.SUCCESS);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
                         view.onCarAddedWithoutShop(car);
-                        view.hideLoading(((Fragment)view).getContext().getString(R.string.car_added_successfully_toast_message));
+                        view.hideLoading(((Fragment) view).getContext().getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override
                     public void onError(RequestError error) {
-                        Log.d(TAG,"addCarUseCase().onError() error: "+error.getMessage());
+                        Log.d(TAG, "addCarUseCase().onError() error: " + error.getMessage());
                         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_SAVE_TO_SERVER
-                                ,MixpanelHelper.FAIL);addingCar = false;
+                                , MixpanelHelper.FAIL);
+                        addingCar = false;
                         if (view == null) return;
 
                         view.setLoadingCancelable(true);
-                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                            view.beginPendingAddCarActivity(vin,mileage,scannerId);
-                            view.hideLoading(((Fragment)view).getContext().getString(R.string.connect_to_internet_toast_message));
-                        }
-                        else{
-                            view.onErrorAddingCar(((Fragment)view).getContext().getString(R.string.unexpected_car_adding_error_message));
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                            view.beginPendingAddCarActivity(vin, mileage, scannerId);
+                            view.hideLoading(((Fragment) view).getContext().getString(R.string.connect_to_internet_toast_message));
+                        } else {
+                            view.onErrorAddingCar(((Fragment) view).getContext().getString(R.string.unexpected_car_adding_error_message));
                             view.hideLoading(null);
                         }
                     }
                 });
     }
 
-    public void addVehicle(){
-        Log.d(TAG,"addVehicle() vin:"+view.getVin()+", addingCar?"+addingCar +", scannerId: "
-                +scannerId+", scannerName: "+scannerName);
+    public void addVehicle() {
+        Log.d(TAG, "addVehicle() vin:" + view.getVin() + ", addingCar?" + addingCar + ", scannerId: "
+                + scannerId + ", scannerName: " + scannerName);
 
         if (view == null) return;
         if (addingCar) return;
@@ -151,13 +173,13 @@ public class VinEntryPresenter {
         final String correctVin = AddCarUtils.removeWhitespace(view.getVin());
 
         //Check for valid vin again, even though it should be valid here
-        if (!AddCarUtils.isVinValid(correctVin)){
+        if (!AddCarUtils.isVinValid(correctVin)) {
             view.onInvalidVinInput();
             return;
         }
 
         //Check for valid mileage
-        if (!AddCarUtils.isMileageValid(view.getMileage())){
+        if (!AddCarUtils.isMileageValid(view.getMileage())) {
             view.onInvalidMileage();
             return;
         }
@@ -171,33 +193,32 @@ public class VinEntryPresenter {
 
         //Add vehicle logic below
         int mileage = Integer.valueOf(view.getMileage());
-        addVehicleToServer(correctVin,mileage,scannerId,scannerName);
+        addVehicleToServer(correctVin, mileage, scannerId, scannerName);
 
 
     }
 
-    public void onGotVinScanResult(String result){
-        Log.d(TAG,"onGotVinScanResult() result: "+result);
+    public void onGotVinScanResult(String result) {
+        Log.d(TAG, "onGotVinScanResult() result: " + result);
         if (view == null || result == null) return;
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE
-                ,MixpanelHelper.SUCCESS);
+                , MixpanelHelper.SUCCESS);
 
         view.displayVin(result);
 
-        if (AddCarUtils.isVinValid(result)){
+        if (AddCarUtils.isVinValid(result)) {
             view.displayScannedVinValid();
             view.onValidVinInput();
-        }
-        else{
+        } else {
             view.displayScannedVinInvalid();
             view.onInvalidVinInput();
         }
     }
 
-    public void gotDeviceInfo(String scannerName, String scannerId, int mileage){
-        Log.d(TAG,"gotDeviceInfo() scannerName: "+scannerName+", scannerId: "+scannerId
-                +", mileage: "+mileage);
+    public void gotDeviceInfo(String scannerName, String scannerId, int mileage) {
+        Log.d(TAG, "gotDeviceInfo() scannerName: " + scannerName + ", scannerId: " + scannerId
+                + ", mileage: " + mileage);
 
         this.scannerName = scannerName;
         this.scannerId = scannerId;
@@ -207,43 +228,46 @@ public class VinEntryPresenter {
             view.displayMileage(mileage);
     }
 
-    public void onProgressDialogKeyPressed(int keyCode){
-        Log.d(TAG,"onProgressDialogKeyPressed(), backButton?"+(keyCode == KeyEvent.KEYCODE_BACK));
+    public void onProgressDialogKeyPressed(int keyCode) {
+        Log.d(TAG, "onProgressDialogKeyPressed(), backButton?" + (keyCode == KeyEvent.KEYCODE_BACK));
         if (keyCode == KEYCODE_BACK) {
             onBackPressed();
         }
     }
 
-    public void onBackPressed(){
-        Log.d(TAG,"onBackPressed()");
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed()");
         if (view == null) return;
 
         //Ignore back press if adding car
-        if (!addingCar){
+        if (!addingCar) {
             view.showAskHasDeviceView();
             view.hideLoading("");
         }
     }
 
     public void onGotPendingActivityResults(String vin, int mileage, String scannerId
-            , String scannerName){
+            , String scannerName) {
 
-        Log.d(TAG,"onGotPendingActivityResults() vin: "+vin+", mileage:"+mileage+", scannerId:"
-                +scannerId+", scanner");
+        Log.d(TAG, "onGotPendingActivityResults() vin: " + vin + ", mileage:" + mileage + ", scannerId:"
+                + scannerId + ", scanner");
 
         if (view == null) return;
 
         this.scannerId = scannerId;
 
-        if (!AddCarUtils.isVinValid(vin)){
+        if (!AddCarUtils.isVinValid(vin)) {
             view.onInvalidVinInput();
-        }
-        else if (!AddCarUtils.isMileageValid(mileage)){
+        } else if (!AddCarUtils.isMileageValid(mileage)) {
             view.onInvalidMileage();
-        }
-        else{
-            addVehicleToServer(vin,mileage,scannerId,scannerName);
+        } else {
+            addVehicleToServer(vin, mileage, scannerId, scannerName);
         }
     }
 
+
+    public void addVehicleWithScanner() {
+        int integerMileage = Integer.parseInt(view.getMileage());
+        addVehicleToServer(view.getVin(), integerMileage, view.getScannerId(), view.getScannerName());
+    }
 }

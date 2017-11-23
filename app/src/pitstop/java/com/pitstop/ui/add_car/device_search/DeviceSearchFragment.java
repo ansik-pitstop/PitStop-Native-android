@@ -21,6 +21,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -135,6 +136,12 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         presenter.startSearch();
     }
 
+    @OnClick(R.id.cant_turn_on_car_button)
+    public void onCantTurnOnCarClicked(){
+        Log.d(TAG, "onCantTurnOnCarClicked");
+        ((AddCarActivity)getActivity()).setViewVinAndDeviceEntry();
+    }
+
     @Override
     public void onVinRetrievalFailed(String scannerName, String scannerId, int mileage) {
 
@@ -200,9 +207,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void onMileageInvalid() {
         Log.d(TAG,"onMileageInvalid()");
-
         if (getActivity() == null) return;
-
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.invalid_mileage_alert_title))
                 .setMessage(getString(R.string.invalid_mileage_alert_message))

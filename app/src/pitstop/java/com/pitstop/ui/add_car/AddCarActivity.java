@@ -90,6 +90,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         deviceSearchFragment = DeviceSearchFragment.getInstance();
         vinEntryFragment = VinEntryFragment.getInstance();
 
+
         setViewAskHasDevice();
     }
 
@@ -150,7 +151,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Log.d(TAG,"setViewVinEntry()");
 
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
-
+        vinEntryFragment.setHasScanner(false);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
         currentFragment = vinEntryFragment;
@@ -234,5 +235,13 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     public BluetoothConnectionObservable getBluetoothConnectionObservable(){
         return bluetoothConnectionObservable;
+    }
+
+    public void setViewVinAndDeviceEntry() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
+        vinEntryFragment.setHasScanner(true);
+        currentFragment = vinEntryFragment;
+        fragmentTransaction.commit();
     }
 }

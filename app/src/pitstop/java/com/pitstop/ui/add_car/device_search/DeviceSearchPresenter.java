@@ -395,4 +395,5 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void onGotSuportedPIDs(String value) {
 
     }
+
 }

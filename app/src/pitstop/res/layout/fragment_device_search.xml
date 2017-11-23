@@ -99,8 +99,23 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="16dp"
                     android:textSize="16sp"
-                    android:textColor="#000" />
+                    android:textColor="#000"
+                    android:layout_marginBottom="10dp"
+                    />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/cant_turn_on_car_button"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginStart="10dp"
+                android:padding="7dp"
+                android:textColor="@color/white"
+                android:background="@drawable/color_button_primary"
+                android:text="@string/cant_turn_on_car"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
