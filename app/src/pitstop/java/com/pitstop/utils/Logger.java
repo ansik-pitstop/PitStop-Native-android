@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
@@ -33,31 +35,28 @@ import rx.schedulers.Schedulers;
 public class Logger {
 
     private final static String TAG = Logger.class.getSimpleName();
-
-    private static boolean DEBUG = BuildConfig.DEBUG;
-    private static boolean NOT_RELEASE = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE);
-    private static boolean NOT_BETA = !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA);
     private static Logger INSTANCE = null;
 
     private GelfTransport gelfTransport = null;
-    private Context context;
     private LocalUserStorage localUserStorage;
     private ConnectivityManager connectivityManager;
     private LocalDebugMessageStorage localDebugMessageStorage;
     private GelfConfiguration gelfConfiguration = null;
-
+    private Handler handler;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
+
+                //Check for gelfTransport not null because we want to re-instantiate it here, not create the first instance
                 if (connectivityManager.getActiveNetworkInfo() != null
-                        && connectivityManager.getActiveNetworkInfo().isConnected()) {
+                        && connectivityManager.getActiveNetworkInfo().isConnected()
+                        && gelfTransport != null && handler != null) {
                     Log.d(TAG,"Received internet ON, creating new instance of gelf transport");
-                    gelfTransport = new GelfTcpTransport(gelfConfiguration);
+                    handler.post(() -> gelfTransport = new GelfTcpTransport(gelfConfiguration));
                 }else{
-                    Log.d(TAG,"Received internet OFF, stopping gelf transport");
-                    gelfTransport.stop();
+                    Log.d(TAG,"Received internet OFF");
                 }
             }
         }
@@ -72,12 +71,46 @@ public class Logger {
     }
 
     public Logger(Context context){
-        this.context = context;
         this.localUserStorage = new LocalUserStorage(context);
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        context.registerReceiver(broadcastReceiver, intentFilter);
         connectivityManager =
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //Listen for network changes
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        context.registerReceiver(broadcastReceiver, intentFilter);
+
+        //Background handler creation
+        HandlerThread handlerThread = new HandlerThread("LOG_HANDLER");
+        handlerThread.start();
+        this.handler = new Handler(handlerThread.getLooper());
+
+        handler.post(() -> {
+            InetSocketAddress inetSocketAddress
+                    = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
+            gelfConfiguration = new GelfConfiguration(inetSocketAddress)
+                    .transport(GelfTransports.TCP)
+                    .tcpKeepAlive(false)
+                    .queueSize(512)
+                    .connectTimeout(1000)
+                    .reconnectDelay(500)
+                    .sendBufferSize(-1)
+                    .resultListener(new GelfTransportResultListener() {
+                        @Override
+                        public void onMessageSent(GelfMessage gelfMessage) {
+                        }
+
+                        @Override
+                        public void onFailedToSend(GelfMessage gelfMessage) {
+                        }
+
+                        @Override
+                        public void onFailedToConnect(List<GelfMessage> list) {
+                        }
+                    });
+
+            gelfTransport = new GelfTcpTransport(gelfConfiguration); //Create here first, recreated in broadcast receiver
+        });
+
         localDebugMessageStorage = new LocalDebugMessageStorage(context);
         localDebugMessageStorage.getUnsentQueryObservable()
                 .subscribeOn(Schedulers.io())
@@ -102,33 +135,6 @@ public class Logger {
                         && connectivityManager.getActiveNetworkInfo().isConnected())
                 .subscribe(messageList -> {
                     Log.d(TAG, String.format("Received %d messages in subscribe()",messageList.size()));
-
-                    if (gelfConfiguration == null) { //Create once
-                        InetSocketAddress inetSocketAddress
-                            = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
-                         gelfConfiguration = new GelfConfiguration(inetSocketAddress)
-                                .transport(GelfTransports.TCP)
-                                .tcpKeepAlive(false)
-                                .queueSize(512)
-                                .connectTimeout(1000)
-                                .reconnectDelay(500)
-                                .sendBufferSize(-1)
-                                .resultListener(new GelfTransportResultListener() {
-                                    @Override
-                                    public void onMessageSent(GelfMessage gelfMessage) {
-                                    }
-
-                                    @Override
-                                    public void onFailedToSend(GelfMessage gelfMessage) {
-                                    }
-
-                                    @Override
-                                    public void onFailedToConnect(List<GelfMessage> list) {
-                                    }
-                                });
-
-                        gelfTransport = new GelfTcpTransport(gelfConfiguration); //Create here first, recreated in broadcast receiver
-                    }
 
                     List<DebugMessage> sentList = new ArrayList<>();
                     for (DebugMessage d: messageList){
@@ -204,16 +210,12 @@ public class Logger {
 
         if (connectivityManager.getActiveNetworkInfo() != null
                 && connectivityManager.getActiveNetworkInfo().isConnected()
-                && gelfTransport != null){
+                && gelfTransport != null) {
             boolean trySend = gelfTransport.trySend(gelfMessage);
-            Log.d(TAG,"log dispatched? "+trySend);
             if (trySend)
                 return true;
-        }else{
-            Log.d(TAG,"No connection! not sending.");
         }
         return false;
-
     }
 
     public static void initLogger(Context context){

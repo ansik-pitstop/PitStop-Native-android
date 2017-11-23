@@ -15,7 +15,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
             + TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + COLUMN_TYPE + " INTEGER,"
             + COLUMN_MESSAGE + " TEXT,"
-            + COLUMN_TIMESTAMP + " INTEGER,"
+            + COLUMN_TIMESTAMP + " REAL,"
             + COLUMN_LEVEL + " INTEGER,"
             + COLUMN_TAG +" TEXT,"
             + COLUMN_SENT + " INTEGER,"
@@ -48,20 +48,22 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
         //Remove any unsent logs more than 4 weeks old or sent logs that are more than a day old
         double monthAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24 * 28);
+        Log.d(TAG,"month ago: "+monthAgo);
         double dayAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24);
         int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
                 ,"("+COLUMN_SENT + "=? AND " + COLUMN_TIMESTAMP +" <?) " +
                         "OR ("+COLUMN_SENT + "=? AND "+COLUMN_TIMESTAMP+" <?)"
                 ,"0",String.valueOf(monthAgo),"1",String.valueOf(dayAgo));
+
         Log.d(TAG,"deleted "+deletedRows+" debug messages");
 
-        //Mark all as sent
-//        for (DebugMessage d: messages){
-//            rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
-//                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
-//                    ,String.valueOf(d.getTimestamp()),d.getMessage());
-//        }
-//        Log.d(TAG,"updated "+rows+" messages to sent.");
+        //Mark as sent
+        for (DebugMessage d: messages){
+            rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
+                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
+                    ,String.valueOf(d.getTimestamp()),d.getMessage());
+        }
+        Log.d(TAG,"updated "+rows+" messages to sent.");
         t.markSuccessful();
         t.end();
     }
