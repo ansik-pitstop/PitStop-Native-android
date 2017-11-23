@@ -73,6 +73,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     private String scannerId = "";
     private String scannerName = "";
     private int mileage = 0;
+    private String VIN = "";
 
     public static VinEntryFragment getInstance(){
         return new VinEntryFragment();
@@ -156,7 +157,9 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()" );
         super.onResume();
+        vinEditText.setText(this.VIN);
         if (hasScanner) {
             scannerDescription.setVisibility(View.VISIBLE);
             scannerInput.setVisibility(View.VISIBLE);
@@ -170,14 +173,14 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
 
     @Override
     public void onStop() {
+        Log.d(TAG,"onResume()" );
         super.onStop();
-        setHasScanner(false);
     }
 
     @OnClick(R.id.scan_vin)
     protected void scanVinClicked(){
         Log.d(TAG,"scanVinClicked()");
-
+        this.VIN = vinEditText.getText().toString();
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
 
         if (!checkBackCamera()) {
@@ -428,12 +431,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG,"onActivityResult()");
         if (presenter == null) return;
 
+
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
                     ", result: "+(result == null ? "" : result.getContents()));
 
-            if (result == null || result.getContents() == null) presenter.onGotVinScanResult("");
+            if (result == null || result.getContents() == null){
+                vinEditText.setText(this.VIN);
+                presenter.onGotVinScanResult("");}
             else{
                 presenter.onGotVinScanResult(result.getContents());
             }
