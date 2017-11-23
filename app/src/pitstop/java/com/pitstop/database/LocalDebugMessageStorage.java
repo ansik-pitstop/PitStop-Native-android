@@ -52,16 +52,16 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
                 ,"("+COLUMN_SENT + "=? AND " + COLUMN_TIMESTAMP +" <?) " +
                         "OR ("+COLUMN_SENT + "=? AND "+COLUMN_TIMESTAMP+" <?)"
-                ,String.valueOf(monthAgo),"0",String.valueOf(dayAgo),"1");
+                ,"0",String.valueOf(monthAgo),"1",String.valueOf(dayAgo));
         Log.d(TAG,"deleted "+deletedRows+" debug messages");
 
         //Mark all as sent
-        for (DebugMessage d: messages){
-            rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
-                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
-                    ,String.valueOf(d.getTimestamp()),d.getMessage());
-        }
-        Log.d(TAG,"updated "+rows+" messages to sent.");
+//        for (DebugMessage d: messages){
+//            rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
+//                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
+//                    ,String.valueOf(d.getTimestamp()),d.getMessage());
+//        }
+//        Log.d(TAG,"updated "+rows+" messages to sent.");
         t.markSuccessful();
         t.end();
     }
