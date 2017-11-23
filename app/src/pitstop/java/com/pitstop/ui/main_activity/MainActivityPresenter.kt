@@ -355,13 +355,18 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (car.isCurrentCar)return
         isLoading = true
 
+        var prevCurrCar: Car? = null
+        var selectedCar: Car? = null
         for (currCar in carList){
-            if (currCar.id == car.id){
-                currCar.isCurrentCar = true
-                mCar = currCar
+            when {
+                currCar.isCurrentCar -> prevCurrCar = currCar
+                currCar.id == car.id -> {
+                    currCar.isCurrentCar = true
+                    mCar = currCar
+                    selectedCar = currCar
+                }
+                currCar.id != car.id -> currCar.isCurrentCar = false
             }
-            else
-                currCar.isCurrentCar = false
         }
         view?.notifyCarDataChanged()
         view?.closeDrawer()
@@ -376,6 +381,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 isLoading = false
                 if (view == null) return
                 view?.toast(error.message)
+
+                selectedCar?.isCurrentCar = false
+                prevCurrCar?.isCurrentCar = true
+                view?.notifyCarDataChanged()
             }
         })
     }
