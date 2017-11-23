@@ -35,8 +35,6 @@ import java.util.Date;
 
 public class DashboardPresenter extends TabPresenter<DashboardView>{
 
-
-
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_DASHBOARD);
     private UseCaseComponent useCaseComponent;
@@ -176,7 +174,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     }
 
-    void onUpdateMileageDialogConfirmClicked(String mileageText){
+   /* void onUpdateMileageDialogConfirmClicked(String mileageText){
         Log.d(TAG,"onUpdateMileageDialogConfirmClicked()");
         if (updating) return;
         updating = true;
@@ -248,13 +246,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 getView().hideLoading();
             }
         });
-    }
-
-    void onMileageClicked(){
-        Log.d(TAG,"onMileageClicked()");
-        if (getView() != null)
-            getView().displayUpdateMileageDialog();
-    }
+    }*/
 
     void onRefresh(){
         Log.d(TAG,"onRefresh()");

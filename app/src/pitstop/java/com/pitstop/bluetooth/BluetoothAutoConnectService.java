@@ -57,6 +57,8 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
+import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
@@ -80,7 +82,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable {
+        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable, MileageObservable {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -115,6 +117,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean allPidRequested = false;
     private boolean dtcRequested = false;
     private boolean receivedDtcResponse = false;
+
+    private boolean isRequestingMileageAndRTC = false;
 
     //Connection state values
     private long terminalRtcTime = -1;
@@ -1209,6 +1213,31 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.clearDtcs();
         return true;
     }
+
+    @Override
+    public void requestRtcAndMileage() {
+        if(deviceConnState == State.DISCONNECTED)
+            notifyNotConnected();
+        if (isRequestingMileageAndRTC) return;
+        else {
+           /* isRequestingMileageAndRTC = true;*/
+            deviceManager.requestRtcAndMileage();
+        }
+    }
+
+    public void notifyNotConnected(){
+
+        Log.d(TAG,"notifySearchingForDevice()");
+        for (Observer observer: observerList){
+            if (observer instanceof MileageObserver){
+                mainHandler.post(()
+                        -> ((MileageObserver)observer).onNotConnected());
+            }
+        }
+
+    }
+
+
 
     @Override
     public boolean setChunkSize(int size) {

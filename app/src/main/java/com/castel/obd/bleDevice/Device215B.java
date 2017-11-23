@@ -50,6 +50,8 @@ public class Device215B implements AbstractDevice {
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
     public static final String MILEAGE_PARAM = "A09";
+    private String mileage = null;
+    private String rtcTime = null;
 
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
@@ -210,6 +212,10 @@ public class Device215B implements AbstractDevice {
 
     public String getRtcAndMileage(){
         return qiMulti(RTC_TIME_PARAM +","+ MILEAGE_PARAM);
+    }
+
+    public String getMileage(){
+        return qiSingle(MILEAGE_PARAM);
     }
 
     public String replyIDRPackage() {
@@ -415,6 +421,22 @@ public class Device215B implements AbstractDevice {
             Log.v(TAG, "Data Read: " + msgInfo);
 
             sbRead = new StringBuilder();
+
+            if (msgInfo.contains("A09")){
+                Log.d("my mileage is","mileage: " + msgInfo);
+                String[] info = msgInfo.split(",");
+                this.mileage = info[7];
+            }
+            if (msgInfo.contains("A03")){
+                Log.d("mileage and rtc time"," rtcTime: "+  msgInfo);
+                String[] info = msgInfo.split(",");
+                this.rtcTime = info[7];
+            }
+            if (this.mileage!=null && this.rtcTime!=null){
+                dataListener.gotRTCAndmileage(mileage, rtcTime);
+                this.mileage = null;
+                this.rtcTime= null;
+            }
 
             // determine response type
             if (Constants.INSTRUCTION_IDR.equals(DataParseUtil
