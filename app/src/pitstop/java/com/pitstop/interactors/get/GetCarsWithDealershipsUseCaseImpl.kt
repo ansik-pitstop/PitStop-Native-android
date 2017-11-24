@@ -41,6 +41,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
         userRepository.getCurrentUser(object : Repository.Callback<User> {
 
             override fun onSuccess(user: User) {
+                Log.d(tag,"Got user")
                 carRepository.getCarsByUserId(user.id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
@@ -50,12 +51,14 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         })
                         .doOnNext { carListResponse ->
                             val carList = carListResponse.data
+                            Log.d(tag,"got car list: "+carList)
                             if (carList == null) {
                                 this@GetCarsWithDealershipsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
                                 return@doOnNext
                             }
                             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                                 override fun onSuccess(settings: Settings) {
+                                    Log.d(tag,"Got current settings: "+settings)
                                     if (carList.isEmpty()) {
                                         this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()
                                                 ,carListResponse.isLocal)
@@ -64,6 +67,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
                                     shopRepository.getAllShops(object : Repository.Callback<List<Dealership>> {
                                         override fun onSuccess(dealershipList: List<Dealership>) {
+                                            Log.d(tag,"Got all shops shops: "+dealershipList)
                                             val map = LinkedHashMap<Car,Dealership>()
                                             for (c in carList) {
                                                 c.isCurrentCar = c.id == settings.carId

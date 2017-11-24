@@ -55,11 +55,11 @@ public class ShopRepository implements Repository{
         return true;
     }
 
-    private boolean allShopsLoaded = false;
     public void getAllShops(Callback<List<Dealership>> callback){
 
-        if (allShopsLoaded){
-            callback.onSuccess(localShopStorage.getAllDealerships());
+        List<Dealership> localDealerships = localShopStorage.getAllDealerships();
+        if (localDealerships.size() > 0){
+            callback.onSuccess(localDealerships);
             return;
         }
 
@@ -69,7 +69,6 @@ public class ShopRepository implements Repository{
                     List<Dealership> dealerships = Dealership.createDealershipList(response);
                     localShopStorage.removeAllDealerships();
                     localShopStorage.storeDealerships(dealerships);
-                    allShopsLoaded = true;
                     callback.onSuccess(dealerships);
                 }catch(JSONException e){
                     Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
