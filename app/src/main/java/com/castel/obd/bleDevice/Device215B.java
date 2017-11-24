@@ -27,8 +27,11 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -423,14 +426,26 @@ public class Device215B implements AbstractDevice {
             sbRead = new StringBuilder();
 
             if (msgInfo.contains("A09")){
-                Log.d("my mileage is","mileage: " + msgInfo);
-                String[] info = msgInfo.split(",");
-                this.mileage = info[7];
+                Log.d("mileage and rtc time"," rtcTime: "+  msgInfo);
+                ArrayList<String> info = new ArrayList<>(Arrays.asList(msgInfo.split(",")));
+                int index = 0;
+                for (String s: info){
+                    index = info.indexOf("A09");
+                    Log.d(TAG, s);
+                }
+
+                this.mileage = info.get(index+1);
             }
             if (msgInfo.contains("A03")){
                 Log.d("mileage and rtc time"," rtcTime: "+  msgInfo);
-                String[] info = msgInfo.split(",");
-                this.rtcTime = info[7];
+                ArrayList<String> info = new ArrayList<>(Arrays.asList(msgInfo.split(",")));
+                int index = 0;
+                for (String s: info){
+                    index = info.indexOf("A03");
+                    Log.d(TAG, s);
+                }
+
+                this.rtcTime = info.get(index+1);
             }
             if (this.mileage!=null && this.rtcTime!=null){
                 dataListener.gotRTCAndmileage(mileage, rtcTime);
