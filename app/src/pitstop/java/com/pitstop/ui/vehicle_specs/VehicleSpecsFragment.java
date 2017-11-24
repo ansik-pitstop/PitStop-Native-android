@@ -850,6 +850,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     }
 
+    public MileageObservable getMileageObservable(){
+        return this.mileageObservable;
+    }
+
     @Override
     public void requestRTCandMileage()
     {

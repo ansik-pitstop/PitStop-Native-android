@@ -6,6 +6,8 @@ import android.util.Log;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
@@ -19,7 +21,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by Karol Zdebel on 9/7/2017.
  */
 
-public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
+public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, MileageObserver{
 
     private final String TAG = getClass().getSimpleName();
 
@@ -29,6 +31,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     private Handler mainHandler;
 
     private Callback callback;
+
     private double mileage;
 
     public UpdateCarMileageUseCaseImpl(CarRepository carRepository, UserRepository userRepository
@@ -37,15 +40,17 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
         this.userRepository = userRepository;
         this.usecaseHandler = usecaseHandler;
         this.mainHandler = mainHandler;
+
     }
 
     @Override
-    public void execute(double mileage, Callback callback){
+    public void execute(MileageObservable mileageObservable, double mileage, Callback callback){
         Logger.getInstance().logI(TAG, "Use case execution started: mileage="+mileage
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.mileage = mileage;
         usecaseHandler.post(this);
+        mileageObservable.subscribe(this);
     }
 
     private void onMileageUpdated(){
