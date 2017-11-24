@@ -6,7 +6,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="APPOINTMENTS"
+        android:text="@string/appointment"
         android:id="@+id/appointments_title_garage"
         android:textStyle="bold"
         android:paddingLeft="16dp"
@@ -54,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="My Appointments"
+                    android:text="@string/past_appts_title"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
@@ -100,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Request Service Appointment"
+                    android:text="@string/request_appts_title"
                     android:textSize="18sp"
                     android:textColor="@color/Smooch_inputTextColor" />
 

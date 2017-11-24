@@ -121,13 +121,17 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView()");
+
         context = getActivity().getApplicationContext();
         application = (GlobalApplication) context;
         View view = inflater.inflate(R.layout.fragment_service_form, container, false);
         ButterKnife.bind(this, view);
+
         calendarView.setVisibility(View.GONE);
         timeListHolder.setVisibility(View.GONE);
         serviceListHolder.setVisibility(View.GONE);
+        progressDialog = new ProgressDialog(getActivity());
+
         UseCaseComponent component = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(application))
                 .build();
@@ -161,6 +165,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
+        progressDialog = null;
     }
 
     @Override
@@ -182,9 +187,8 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public void showLoading(boolean show) {
         Log.d(TAG,"showLoading() show? "+show);
+        if (progressDialog == null) return;
         if(show){
-            if (progressDialog == null)
-                progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCancelable(false);
             progressDialog.setMessage("Loading...");
             progressDialog.show();

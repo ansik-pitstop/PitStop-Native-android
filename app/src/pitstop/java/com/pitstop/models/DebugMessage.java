@@ -2,6 +2,7 @@ package com.pitstop.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
 
 import com.pitstop.database.TABLES;
 
@@ -99,13 +100,15 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
         return message;
     }
 
-    public static ContentValues toContentValues(DebugMessage message) {
+    public static ContentValues toContentValues(DebugMessage message, boolean sent) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TYPE, message.getType());
         values.put(COLUMN_MESSAGE, message.getMessage());
         values.put(COLUMN_TIMESTAMP, message.getTimestamp());
         values.put(COLUMN_LEVEL, message.getLevel());
         values.put(COLUMN_TAG, message.getTag());
+        values.put(COLUMN_SENT, sent? 1 : 0);
+        Log.d("DebugMessage.content","toContentValues: "+values);
 
         return values;
     }

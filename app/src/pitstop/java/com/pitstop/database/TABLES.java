@@ -20,6 +20,7 @@ public final class TABLES {
         String COLUMN_MESSAGE = "message";
         String COLUMN_LEVEL = "level";
         String COLUMN_TAG = "tag";
+        String COLUMN_SENT = "sent";
     }
 
     public interface PID {

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -30,6 +31,8 @@ import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jsoup.select.Evaluator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +56,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     EditText vinEditText;
     @BindView(R.id.input_mileage2)
     EditText mileageEditText;
+    @BindView(R.id.scanner_desc)
+    TextView scannerDescription;
+    @BindView(R.id.input_scanner)
+    EditText scannerInput;
 
     private ViewGroup rootView;
     private VinEntryPresenter presenter;
@@ -60,11 +67,13 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
+    private Boolean hasScanner = false;
 
     //These are empty UNLESS we enter this fragment from SearchDeviceFragment which retrieved them
     private String scannerId = "";
     private String scannerName = "";
     private int mileage = 0;
+    private String VIN = "";
 
     public static VinEntryFragment getInstance(){
         return new VinEntryFragment();
@@ -145,10 +154,33 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         return false;
     }
 
+
+    @Override
+    public void onResume() {
+        Log.d(TAG,"onResume()" );
+        super.onResume();
+        vinEditText.setText(this.VIN);
+        if (hasScanner) {
+            scannerDescription.setVisibility(View.VISIBLE);
+            scannerInput.setVisibility(View.VISIBLE);
+        }
+        else {
+            scannerDescription.setVisibility(View.GONE);
+            scannerInput.setVisibility(View.GONE);
+
+        }
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG,"onResume()" );
+        super.onStop();
+    }
+
     @OnClick(R.id.scan_vin)
     protected void scanVinClicked(){
         Log.d(TAG,"scanVinClicked()");
-
+        this.VIN = vinEditText.getText().toString();
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SCAN_VIN_BARCODE, MixpanelHelper.ADD_CAR_VIEW);
 
         if (!checkBackCamera()) {
@@ -172,7 +204,10 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_ADD_CAR_TAPPED
                 ,MixpanelHelper.ADD_CAR_VIEW);
         if (presenter != null){
-            presenter.addVehicle();
+            if (hasScanner)
+                presenter.addVehicleWithScanner();
+            else
+                presenter.addVehicle();
         }
     }
 
@@ -195,8 +230,23 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     @OnTextChanged(R.id.VIN)
     protected void onVinTextChanged(Editable editable){
         Log.d(TAG,"onVinTextChanged() vin:"+editable.toString());
-        presenter.vinChanged(vinEditText.getText().toString());
+        if (hasScanner){
+            this.scannerId = "215B" + scannerInput.getText().toString();
+            presenter.vinChanged(vinEditText.getText().toString(), scannerInput.getText().toString());
+        }
+        else
+            presenter.vinChanged(vinEditText.getText().toString());
     }
+
+    @OnTextChanged(R.id.input_scanner)
+    protected void onScannerTextChanged(Editable editable){
+        Log.d(TAG,"onScannerTextChanged() vin:"+editable.toString());
+        this.scannerId = "215B" + scannerInput.getText().toString();
+        presenter.vinChanged(vinEditText.getText().toString(),scannerInput.getText().toString() );
+    }
+
+
+
 
     @Override
     public void onValidVinInput() {
@@ -381,12 +431,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         Log.d(TAG,"onActivityResult()");
         if (presenter == null) return;
 
+
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
                     ", result: "+(result == null ? "" : result.getContents()));
 
-            if (result == null || result.getContents() == null) presenter.onGotVinScanResult("");
+            if (result == null || result.getContents() == null){
+                vinEditText.setText(this.VIN);
+                presenter.onGotVinScanResult("");}
             else{
                 presenter.onGotVinScanResult(result.getContents());
             }
@@ -405,11 +458,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         }
 
     }
+    public void setHasScanner(boolean scanner){
+        this.hasScanner = scanner;
+    }
 
     public void onBackPressed(){
         Log.d(TAG,"onBackPressed()");
         if (presenter == null) return;
-
         presenter.onBackPressed();
     }
+
+
 }

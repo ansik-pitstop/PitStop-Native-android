@@ -198,6 +198,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     private fun loadCars() {
         Log.d(TAG, "loadCars()")
+        if (isLoading) return
         if (!carListLoaded){
             view?.showCarsLoading()
             isLoading  = true
@@ -205,10 +206,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
                 override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
                     Log.d(TAG, "onCarsRetrieved() local? $local, map: $data")
+                    if (!local) isLoading = false
                     if(view == null)return
                     if (!local){
                         view?.hideCarsLoading()
-                        isLoading = false
                     }
                     if (data.keys.size == 0){
                         view?.noCarsView()
@@ -238,8 +239,9 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     isLoading = false
                     if (view == null) return
                     view?.hideCarsLoading()
-                    view?.errorLoadingCars()
-                    // do nothing
+                    if (carList.isEmpty()){
+                        view?.errorLoadingCars()
+                    }
                 }
             })
         }
@@ -252,24 +254,30 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()")
-        if (this.view == null) return;
-        view?.hideLoading()
-        if (mDealership == null || mDealership?.id == 1) {
-            view?.toast("Please add a dealership to your car")
-            return
+        if (this.view == null) return
+
+        if (mCar == null){
+            view?.toast("Please add a car first")
         }
-        view?.openAppointments(mCar!!);
+        else if (mDealership == null || mDealership?.id == 1) {
+            view?.toast("Please add a dealership to your car")
+        }
+        else{
+            view?.openAppointments(mCar!!)
+        }
     }
 
     fun onRequestServiceClicked() {
         Log.d(TAG, "onRequestServiceCLicked()")
-        if (this.view == null) return;
-        view?.hideLoading()
-        if (mDealership == null || mDealership?.id == 1) {
+        if (this.view == null) return
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        }else if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
-            return
         }
-        view?.openRequestService(false)
+        else{
+            view?.openRequestService(false)
+        }
 
 
     }
@@ -290,63 +298,57 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onMessageClicked() {
         Log.d(TAG, "onMessageClicked()")
-        if (view == null || isLoading) return
-        isLoading = true
+        if (view == null) return
         if (customProperties == null){
-            if (view == null) return
-            view?.hideLoading()
             customProperties = HashMap()
-            if (mCar == null) {
-                //TODO
-                return
+            if (mCar != null) {
+                customProperties?.put("VIN", mCar!!.getVin())
+                customProperties?.put("Car Make", mCar!!.getMake())
+                customProperties?.put("Car Model", mCar!!.getModel())
+                customProperties?.put("Car Year", mCar!!.getYear())
+                if (mDealership != null)
+                    customProperties?.put("Email", mDealership!!.email)
             }
-            customProperties?.put("VIN", mCar!!.getVin())
-            customProperties?.put("Car Make", mCar!!.getMake())
-            customProperties?.put("Car Model", mCar!!.getModel())
-            customProperties?.put("Car Year", mCar!!.getYear())
-
-            customProperties?.put("Email", mDealership!!.email)
-            User.getCurrentUser().addProperties(customProperties)
             if (!(view?.isUserNull())!!) {
                 customProperties?.put("Phone", view?.getUserPhone()?: "" )
                 User.getCurrentUser().firstName = view?.getUserFirstName()
                 User.getCurrentUser().email = view?.getUserEmail()
             }
-            isLoading  = false
+            User.getCurrentUser().addProperties(customProperties)
             view?.openSmooch()
         }
         else {
-            isLoading = false
-            if (view == null) return
-            view?.hideLoading()
             view?.openSmooch()
         }
     }
 
     fun onCallClicked() {
         if (!isCarLoaded){
-            view?.toast("still loading vehicle information")
+            view?.toast("Car data has not been loaded yet. Check your connection.")
             return
         }
-        if (mDealership == null)return
-        if (mDealership?.id?.equals(1)!!){
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        }else if (mDealership == null || mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
-            return
+        }else{
+            view?.callDealership(mDealership)
         }
-        view?.callDealership(mDealership)
     }
 
     fun onFindDirectionsClicked() {
         if (!isCarLoaded){
-            view?.toast("still loading vehicle information")
+            view?.toast("Car data has not been loaded yet. Check your connection.")
             return
         }
         if (mDealership == null)return
-        if (mDealership?.id?.equals(1)!!){
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        } else if (mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
-            return
+        }else{
+            view?.openDealershipDirections(mDealership)
         }
-        view?.openDealershipDirections(mDealership)
     }
 
     fun makeCarCurrent(car: Car) {
@@ -355,13 +357,21 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (car.isCurrentCar)return
         isLoading = true
 
+        var prevCurrCar: Car? = null
+        var selectedCar: Car? = null
         for (currCar in carList){
-            if (currCar.id == car.id){
-                currCar.isCurrentCar = true
-                mCar = currCar
+            when {
+                currCar.isCurrentCar -> {
+                    prevCurrCar = currCar
+                    currCar.isCurrentCar = false
+                }
+                currCar.id == car.id -> {
+                    currCar.isCurrentCar = true
+                    mCar = currCar
+                    selectedCar = currCar
+                }
+                else -> currCar.isCurrentCar = false
             }
-            else
-                currCar.isCurrentCar = false
         }
         view?.notifyCarDataChanged()
         view?.closeDrawer()
@@ -376,6 +386,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 isLoading = false
                 if (view == null) return
                 view?.toast(error.message)
+
+                selectedCar?.isCurrentCar = false
+                prevCurrCar?.isCurrentCar = true
+                view?.notifyCarDataChanged()
             }
         })
     }

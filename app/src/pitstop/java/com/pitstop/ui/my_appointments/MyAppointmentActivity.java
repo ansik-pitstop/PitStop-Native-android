@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -85,25 +86,43 @@ public class MyAppointmentActivity extends AppCompatActivity {
         networkHelper.getAppointments(dashboardCar.getId(),  new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
-                JSONObject jObject  = null;
-                try {
-                    mAppts.clear();
-                    jObject = new JSONObject(response);
-                    JSONArray responseArray = jObject.getJSONArray("results");
-                    for(int i=0; i<responseArray.length(); i++){
-                        JSONObject jAppoiontment = responseArray.getJSONObject(i);
-                        Appointment addAppt = new Appointment();
-                        addAppt.setDate(jAppoiontment.getString("appointmentDate"));
-                        addAppt.setComments(jAppoiontment.getString("comments"));
-                        addAppt.setState(jAppoiontment.getString("state"));
-                        mAppts.add(addAppt);
-                    }
+                //Load locally
+                if (requestError != null && requestError.getError().equals(RequestError.ERR_OFFLINE)){
+                    mAppts = localAppointmentStorage.getAllAppointments();
                     setupList();
-                    localAppointmentStorage.deleteAllAppointments();
-                    localAppointmentStorage.storeAppointments(mAppts);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    Toast.makeText(MyAppointmentActivity.this
+                            ,"Please connect to the internet to sync your appointments."
+                            ,Toast.LENGTH_SHORT).show();
                 }
+                //Load from remote server
+                else if (requestError == null){
+                    JSONObject jObject  = null;
+                    try {
+                        mAppts.clear();
+                        jObject = new JSONObject(response);
+                        JSONArray responseArray = jObject.getJSONArray("results");
+                        for(int i=0; i<responseArray.length(); i++){
+                            JSONObject jAppoiontment = responseArray.getJSONObject(i);
+                            Appointment addAppt = new Appointment();
+                            addAppt.setDate(jAppoiontment.getString("appointmentDate"));
+                            addAppt.setComments(jAppoiontment.getString("comments"));
+                            addAppt.setState(jAppoiontment.getString("state"));
+                            mAppts.add(addAppt);
+                        }
+                        setupList();
+                        localAppointmentStorage.deleteAllAppointments();
+                        localAppointmentStorage.storeAppointments(mAppts);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Toast.makeText(MyAppointmentActivity.this
+                            ,"An error occurred."
+                            ,Toast.LENGTH_SHORT).show();
+                    finish();
+
+                }
+
             }
         });
 

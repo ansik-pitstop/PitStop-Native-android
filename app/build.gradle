@@ -208,7 +208,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation files('C:/Users/Work/StudioProjects/PitStop-Native-android/libs/gelfclient.jar')
+    implementation files('../libs/gelfclient.jar')
 }
 
 apply plugin: 'com.google.gms.google-services'

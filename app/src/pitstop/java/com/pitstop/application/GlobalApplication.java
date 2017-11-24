@@ -26,6 +26,7 @@ import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -78,6 +79,7 @@ public class GlobalApplication extends Application {
     private LocalDeviceTripStorage mLocalDeviceTripStorage;
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
+    private LocalDebugMessageStorage mLocalDebugMessageStorage;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -365,6 +367,7 @@ public class GlobalApplication extends Application {
         mLocalDeviceTripStorage = new LocalDeviceTripStorage(this);
         mLocalSpecsStorage  = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
+        mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
 
     }
 
@@ -383,8 +386,8 @@ public class GlobalApplication extends Application {
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalSpecsStorage.deleteAllRows();
         mLocalAlarmStorage.deleteAllRows();
-
-
+        mLocalDeviceTripStorage.deleteAllRows();
+        mLocalDebugMessageStorage.deleteAllRows();
     }
 
 }

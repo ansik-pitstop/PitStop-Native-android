@@ -51,6 +51,27 @@
                     android:text="0"/>
 
                 <TextView
+                    android:id="@+id/scanner_desc"
+                    android:visibility="gone"
+                    android:text="@string/enter_scanner_id"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/input_scanner"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:singleLine="true"
+                    android:imeOptions="actionGo"
+                    android:inputType="number"
+                    android:text="000000"/>
+
+                <TextView
                     android:text="@string/enter_vehicle_vin"
                     android:layout_marginTop="16dp"
                     android:layout_marginLeft="16dp"

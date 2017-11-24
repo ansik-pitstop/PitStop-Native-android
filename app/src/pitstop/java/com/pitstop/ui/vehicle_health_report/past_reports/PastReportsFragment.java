@@ -64,7 +64,7 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
         ButterKnife.bind(this,root);
 
         //Setup adapter
-        pastReportsAdapter = new PastReportsAdapter(this, reports);
+        pastReportsAdapter = new PastReportsAdapter(this, reports, getActivity());
         reportsRecyclerView.setAdapter(pastReportsAdapter);
         reportsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 

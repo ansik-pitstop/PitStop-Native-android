@@ -25,7 +25,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:drawableRight="@drawable/request_service_button"
-            android:text="Request Service"
+            android:text="@string/request_service_title"
             android:textColor="@color/white"/>
 
         <Button

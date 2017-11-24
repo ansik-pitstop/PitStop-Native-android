@@ -20,8 +20,7 @@
             android:layout_centerInParent="true"
             android:layout_margin="10dp"
             android:background="@color/red"
-            android:src="@drawable/ic_delete_white"
-            android:visibility="gone" />
+            android:src="@drawable/ic_delete_white"/>
 
         <ImageView
             android:id="@+id/image_icon"
@@ -43,8 +42,8 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_toRightOf="@id/image_icon"
-            android:orientation="horizontal"
-            android:layout_toStartOf="@+id/remove_service_button">
+            android:layout_toLeftOf="@id/remove_service_button"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/title"
