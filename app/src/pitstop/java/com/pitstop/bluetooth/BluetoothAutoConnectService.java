@@ -164,6 +164,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     };
 
+
+
     /**For when VIN isn't returned from device(usually means ignition isn't ON)**/
     private final TimeoutTimer getVinTimeoutTimer
             = new TimeoutTimer(VERIFICATION_TIMEOUT,0) {

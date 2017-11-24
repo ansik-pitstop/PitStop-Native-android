@@ -39,9 +39,11 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.observer.BluetoothRtcObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -770,6 +772,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
         this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
         fuelObservable.subscribe(this);
+        this.mileageObservable = (MileageObservable) bluetoothAutoConnectService;
     }
 
 
