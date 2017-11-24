@@ -585,6 +585,6 @@
     <string name="request_service_title">Request Service</string>
     <string name="retrieving_real_time_engine_data">Retrieving real time engine data</string>
     <string name="vehicle__health_report">Vehicle Health Report</string>
-    <string name="cant_turn_on_car">I can't turn my car on right now</string>
+    <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
     <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
 </resources>

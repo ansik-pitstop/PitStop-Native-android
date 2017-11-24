@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,14 +71,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
             progressDialog.setIndeterminate(true);
             /*Has to be handled because when the ProgressDialog
             **is open onBackPressed() is not invoked*/
-            progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                    if (presenter != null){
-                        presenter.onProgressDialogKeyPressed(keyCode);
-                    }
-                    return false;
+            progressDialog.setOnKeyListener((dialog, keyCode, event) -> {
+                if (presenter != null){
+                    presenter.onProgressDialogKeyPressed(keyCode);
                 }
+                return false;
             });
         }
 

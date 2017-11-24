@@ -998,7 +998,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer: observerList){
             if (observer instanceof BluetoothConnectionObserver){
                 mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
-                        .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName)));
+                        .onDeviceReady(new ReadyDevice("", scannerId, scannerName))); //TODO return VIN to vin
             }
         }
     }
@@ -1070,7 +1070,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         for (Observer observer : observerList) {
             if (observer instanceof BluetoothVinObserver) {
                 mainHandler.post(()
-                        -> ((BluetoothVinObserver)observer).onGotVin(vin));
+                        -> ((BluetoothVinObserver)observer).onGotVin(""));
             }
         }
     }
