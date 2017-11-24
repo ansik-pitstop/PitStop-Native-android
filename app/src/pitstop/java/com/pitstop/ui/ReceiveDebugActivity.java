@@ -107,9 +107,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
             });
         }
         if (state == IBluetoothCommunicator.CONNECTED) {
-            BTSTATUS.setText(R.string.bluetooth_connected);
+            BTSTATUS.setText(R.string.car_connected);
         } else {
-            BTSTATUS.setText(R.string.bluetooth_disconnected);
+            BTSTATUS.setText(R.string.no_device_connection);
         }
     }
 
