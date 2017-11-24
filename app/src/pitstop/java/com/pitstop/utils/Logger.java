@@ -130,7 +130,7 @@ public class Logger {
                     }
                     c.close();
                     return messageList;
-                }).filter(messageList -> !messageList.isEmpty() && localUserStorage.getUser() != null
+                }).filter(messageList -> !messageList.isEmpty()
                         && connectivityManager.getActiveNetworkInfo() != null
                         && connectivityManager.getActiveNetworkInfo().isConnected())
                 .subscribe(messageList -> {
@@ -148,7 +148,6 @@ public class Logger {
     }
 
     private boolean sendMessage(DebugMessage d) {
-        if (localUserStorage.getUser() == null) return false;
 
         GelfMessageLevel gelfLevel;
         switch (d.getLevel()) {
@@ -199,10 +198,15 @@ public class Logger {
                 type = "other";
 
         }
+
+        int userId = 0;
+        if (localUserStorage.getUser() != null)
+            userId = localUserStorage.getUser().getId();
+
         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(), "com.pitstop.android")
                 .timestamp(d.getTimestamp())
                 .additionalField("tag", d.getTag())
-                .additionalField("userId", localUserStorage.getUser().getId())
+                .additionalField("userId", userId)
                 .additionalField("type", type)
                 .level(gelfLevel)
                 .build();
