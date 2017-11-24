@@ -146,12 +146,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.vin_retrieval_failed_alert_title))
                 .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
-                .setCancelable(false)
-                .setNeutralButton("Enter Manually", (dialog1, which) -> {
+                .setPositiveButton("Enter Manually", (dialog1, which) -> {
                     if (fragmentSwitcher != null && getActivity() != null)
                         fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
                 })
-                .setNeutralButton("Try Again", (dialogInterface, i) -> {
+                .setNegativeButton("Try Again", (dialogInterface, i) -> {
                     if (presenter != null)
                         presenter.startSearch();
                 }).create();
@@ -167,7 +166,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.cannot_find_device_alert_title))
                 .setMessage(getString(R.string.cannot_find_device_alert_message))
-                .setCancelable(false)
                 .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
                     if (presenter != null){
                         presenter.startSearch();
