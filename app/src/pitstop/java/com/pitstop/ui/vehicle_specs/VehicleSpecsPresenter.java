@@ -289,7 +289,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         }
 
         getView().requestRTCandMileage();
-        useCaseComponent.updateCarMileageUseCase().execute(mileage
+        useCaseComponent.updateCarMileageUseCase().execute(getView().getMileageObservable(), mileage
                 , new UpdateCarMileageUseCase.Callback() {
 
                     @Override
@@ -481,6 +481,5 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     }
 
     public void sendMileageAndRtc(String mileage, String rtc) {
-
     }
 }

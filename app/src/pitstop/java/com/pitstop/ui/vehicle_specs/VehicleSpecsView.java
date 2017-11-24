@@ -1,6 +1,7 @@
 package com.pitstop.ui.vehicle_specs;
 
 import com.pitstop.models.Car;
+import com.pitstop.observer.MileageObservable;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -50,4 +51,6 @@ public interface VehicleSpecsView {
     String getLastKnowLocation();
 
     void requestRTCandMileage();
+
+    MileageObservable getMileageObservable();
 }
