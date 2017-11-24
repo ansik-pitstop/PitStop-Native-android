@@ -477,4 +477,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             getView().showFuelExpensesDialog();
         }
     }
+
+    public void sendMileageAndRtc(String mileage, String rtc) {
+
+    }
 }

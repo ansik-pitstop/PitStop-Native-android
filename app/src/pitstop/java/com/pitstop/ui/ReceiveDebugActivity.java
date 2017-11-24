@@ -329,4 +329,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void idrFuelEvent(String scannerID, double fuelConsumed) {
         // do nothing
     }
+
+    @Override
+    public void gotRTCAndmileage(String mileage, String rtc) {
+
+    }
 }
