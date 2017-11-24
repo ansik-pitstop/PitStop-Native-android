@@ -99,4 +99,10 @@ public class PendingAddCarActivity extends AppCompatActivity{
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (NetworkHelper.isConnected(this)){
+            goBackToAddCar();
+        }
+    }
 }

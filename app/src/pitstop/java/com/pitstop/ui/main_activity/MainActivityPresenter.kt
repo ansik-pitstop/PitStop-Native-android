@@ -198,6 +198,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     private fun loadCars() {
         Log.d(TAG, "loadCars()")
+        if (isLoading) return
         if (!carListLoaded){
             view?.showCarsLoading()
             isLoading  = true
