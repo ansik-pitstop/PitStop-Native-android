@@ -324,7 +324,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onCallClicked() {
         if (!isCarLoaded){
-            view?.toast("still loading vehicle information")
+            view?.toast("Car data has not been loaded yet. Check your connection.")
             return
         }
         if (mCar == null){
@@ -338,7 +338,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onFindDirectionsClicked() {
         if (!isCarLoaded){
-            view?.toast("still loading vehicle information")
+            view?.toast("Car data has not been loaded yet. Check your connection.")
             return
         }
         if (mDealership == null)return
