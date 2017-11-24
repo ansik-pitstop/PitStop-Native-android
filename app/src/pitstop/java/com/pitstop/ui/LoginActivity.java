@@ -56,10 +56,12 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.MigrationService;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -259,7 +261,7 @@ public class LoginActivity extends DebugDrawerActivity {
 
                 @Override
                 public void onError(FacebookException error) {
-                    Log.d(FACEBOOK_TAG, "error" + error.getMessage());
+                    Logger.getInstance().logE(TAG,"Facebook login error: err="+error.getMessage(), DebugMessage.TYPE_OTHER);
                 }
             });
         }
@@ -642,7 +644,7 @@ public class LoginActivity extends DebugDrawerActivity {
                         mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_EMAIL, MixpanelHelper.REGISTER_VIEW);
                         login(email.getText().toString().toLowerCase(), password.getText().toString());
                     } else {
-                        Log.e(TAG, "Sign up error: " + requestError.getMessage());
+                        Logger.getInstance().logE(TAG,"Sign up error: err="+requestError.getMessage(),DebugMessage.TYPE_OTHER);
                         Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
                         hideLoading();
                     }
@@ -666,6 +668,8 @@ public class LoginActivity extends DebugDrawerActivity {
                                     Log.d(MIXPANEL_TAG, "Register facebook");
                                     mixpanelHelper.trackButtonTapped(MixpanelHelper.LOGIN_REGISTER_WITH_FACEBOOK, MixpanelHelper.REGISTER_VIEW);
                                 } else {
+                                    Logger.getInstance().logE(TAG,"Facebook register error: err="
+                                            +requestError.getMessage(),DebugMessage.TYPE_OTHER);
                                     Toast.makeText(LoginActivity.this, R.string.generic_error, Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -742,7 +746,7 @@ public class LoginActivity extends DebugDrawerActivity {
 
                     goToMainActivity(true);
                 } else {
-                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                    Logger.getInstance().logE(TAG,"Facebook login error: err="+requestError.getMessage(),DebugMessage.TYPE_OTHER);
                     Snackbar.make(findViewById(R.id.splash_layout), R.string.facebook_login_error, Snackbar.LENGTH_LONG)
                             .show();
                 }
@@ -796,6 +800,8 @@ public class LoginActivity extends DebugDrawerActivity {
                 } else if (requestError.getMessage().contains("is already used") && application.getAccessToken() != null
                         && application.getRefreshToken() != null && application.getCurrentUserId() != -1) { // retry migration because first time failed
                     migrationFailedDialog();
+                }else{
+                    Logger.getInstance().logE(TAG,"Parse login error: err="+requestError.getMessage(),DebugMessage.TYPE_OTHER);
                 }
             }
         });
@@ -828,7 +834,8 @@ public class LoginActivity extends DebugDrawerActivity {
                     application.setUpMixPanel();
                     goToMainActivity(true);
                 } else {
-                    Log.e(TAG, "Login: " + requestError.getError() + ": " + requestError.getMessage());
+                    Logger.getInstance().logE(TAG,"Regular login error: err="+requestError.getMessage()
+                            ,DebugMessage.TYPE_OTHER);
                     Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
