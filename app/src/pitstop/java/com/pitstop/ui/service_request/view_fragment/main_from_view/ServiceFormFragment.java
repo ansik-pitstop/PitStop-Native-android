@@ -165,6 +165,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         Log.d(TAG,"onDestroy()");
         super.onDestroy();
         presenter.unsubscribe();
+        progressDialog = null;
     }
 
     @Override
@@ -186,6 +187,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     @Override
     public void showLoading(boolean show) {
         Log.d(TAG,"showLoading() show? "+show);
+        if (progressDialog == null) return;
         if(show){
             progressDialog.setCancelable(false);
             progressDialog.setMessage("Loading...");
