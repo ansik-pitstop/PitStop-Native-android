@@ -222,7 +222,7 @@
     <!-- device search fragment-->
     <!-- on vin retrieval failed-->
     <string name="vin_retrieval_failed_alert_title">Could not retrieve VIN</string>
-    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device, please input it manually</string>
+    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device</string>
     <!-- on cannot find device -->
     <string name="cannot_find_device_alert_title">Could not find OBD device</string>
     <string name="cannot_find_device_alert_message">We were unable to find a Pitstop OBD device, please make sure that the device is plugged in and that the lights are flashing. Try again?</string>

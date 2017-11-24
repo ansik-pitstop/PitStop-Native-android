@@ -21,7 +21,6 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.add_car.AddCarActivity;
@@ -148,20 +147,18 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"onVinRetrievalFailed() scannerName: "+scannerName+", scannerId: "+scannerId);
 
         //Fragment switcher, go toVinEntryFragment
-        if (fragmentSwitcher == null || getActivity() == null ) return;
-        fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
-
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.vin_retrieval_failed_alert_title))
                 .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
+                .setNeutralButton("Enter Manually", (dialog1, which) -> {
+                    if (fragmentSwitcher != null && getActivity() != null)
+                        fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
                 })
-                .setNegativeButton("", null).create();
+                .setNeutralButton("Try Again", (dialogInterface, i) -> {
+                    if (presenter != null)
+                        presenter.startSearch();
+                }).create();
         dialog.show();
     }
 
@@ -173,22 +170,14 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.cannot_find_device_alert_title))
-                .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
+                .setMessage(getString(R.string.cannot_find_device_alert_message))
                 .setCancelable(false)
-                .setPositiveButton(getString(R.string.yes_button_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (presenter != null){
-                            presenter.startSearch();
-                        }
+                .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
+                    if (presenter != null){
+                        presenter.startSearch();
                     }
                 })
-                .setNegativeButton(getString(R.string.no_button_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }).create();
+                .setNegativeButton(getString(R.string.no_button_text), (dialog12, which) -> dialog12.cancel()).create();
         dialog.show();
     }
 
