@@ -267,16 +267,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         addCarBtn?.setOnClickListener { presenter?.onAddCarClicked() }
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
-            showLoading("Loading...")
             this.presenter?.onMyAppointmentsClicked() }
         this.requestAppointmentButton = findViewById(R.id.request_service_garage)
         requestAppointmentButton?.setOnClickListener {
-            showLoading("Loading...")
             this.presenter?.onRequestServiceClicked()
         }
         this.messageBtn = findViewById(R.id.message_my_garage)
         messageBtn?.setOnClickListener {
-            showLoading("Loading...")
             presenter?.onMessageClicked()
         }
         this.callBtn = findViewById(R.id.call_garage)
@@ -807,6 +804,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun openSmooch() {
+        Log.d(TAG,"openSmooch()");
         ConversationActivity.show(this)
     }
 

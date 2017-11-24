@@ -206,10 +206,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
                 override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
                     Log.d(TAG, "onCarsRetrieved() local? $local, map: $data")
+                    if (!local) isLoading = false
                     if(view == null)return
                     if (!local){
                         view?.hideCarsLoading()
-                        isLoading = false
                     }
                     if (data.keys.size == 0){
                         view?.noCarsView()
@@ -254,19 +254,17 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()")
-        if (this.view == null) return;
-        view?.hideLoading()
+        if (this.view == null) return
         if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
             return
         }
-        view?.openAppointments(mCar!!);
+        view?.openAppointments(mCar!!)
     }
 
     fun onRequestServiceClicked() {
         Log.d(TAG, "onRequestServiceCLicked()")
         if (this.view == null) return;
-        view?.hideLoading()
         if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
             return
@@ -292,35 +290,26 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onMessageClicked() {
         Log.d(TAG, "onMessageClicked()")
-        if (view == null || isLoading) return
-        isLoading = true
+        if (view == null) return
         if (customProperties == null){
-            if (view == null) return
-            view?.hideLoading()
             customProperties = HashMap()
-            if (mCar == null) {
-                //TODO
-                return
+            if (mCar != null) {
+                customProperties?.put("VIN", mCar!!.getVin())
+                customProperties?.put("Car Make", mCar!!.getMake())
+                customProperties?.put("Car Model", mCar!!.getModel())
+                customProperties?.put("Car Year", mCar!!.getYear())
+                if (mDealership != null)
+                    customProperties?.put("Email", mDealership!!.email)
             }
-            customProperties?.put("VIN", mCar!!.getVin())
-            customProperties?.put("Car Make", mCar!!.getMake())
-            customProperties?.put("Car Model", mCar!!.getModel())
-            customProperties?.put("Car Year", mCar!!.getYear())
-
-            customProperties?.put("Email", mDealership!!.email)
-            User.getCurrentUser().addProperties(customProperties)
             if (!(view?.isUserNull())!!) {
                 customProperties?.put("Phone", view?.getUserPhone()?: "" )
                 User.getCurrentUser().firstName = view?.getUserFirstName()
                 User.getCurrentUser().email = view?.getUserEmail()
             }
-            isLoading  = false
+            User.getCurrentUser().addProperties(customProperties)
             view?.openSmooch()
         }
         else {
-            isLoading = false
-            if (view == null) return
-            view?.hideLoading()
             view?.openSmooch()
         }
     }
