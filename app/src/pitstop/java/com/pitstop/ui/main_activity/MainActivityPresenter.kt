@@ -327,12 +327,13 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.toast("still loading vehicle information")
             return
         }
-        if (mDealership == null)return
-        if (mDealership?.id?.equals(1)!!){
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        }else if (mDealership == null || mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
-            return
+        }else{
+            view?.callDealership(mDealership)
         }
-        view?.callDealership(mDealership)
     }
 
     fun onFindDirectionsClicked() {
@@ -341,11 +342,13 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             return
         }
         if (mDealership == null)return
-        if (mDealership?.id?.equals(1)!!){
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        } else if (mDealership?.id?.equals(1)!!){
             view?.toast("Please add a dealership first")
-            return
+        }else{
+            view?.openDealershipDirections(mDealership)
         }
-        view?.openDealershipDirections(mDealership)
     }
 
     fun makeCarCurrent(car: Car) {
