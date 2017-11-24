@@ -592,7 +592,7 @@ public class LoginActivity extends DebugDrawerActivity {
                 }
             }
 
-            showLoading(getString(R.string.loading));
+            showLoading(getString(R.string.show_loading_string));
             if (Utils.isEmpty(firstName.getText().toString()) || Utils.isEmpty(lastName.getText().toString())) {
                 Toast.makeText(LoginActivity.this, R.string.empty_name_error, Toast.LENGTH_LONG).show();
                 hideLoading();

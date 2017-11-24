@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -240,7 +239,7 @@ public class MyTripsActivity extends AppCompatActivity{
         isTaskRunning = false;
 
         loading = new ProgressDialog(MyTripsActivity.this);
-        loading.setMessage(getString(R.string.loading));
+        loading.setMessage(getString(R.string.show_loading_string));
         loading.hide();
         boolean isServiceRunning = isMyServiceRunning(TripService.class);
 
