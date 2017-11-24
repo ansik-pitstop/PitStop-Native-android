@@ -255,21 +255,29 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()")
         if (this.view == null) return
-        if (mDealership == null || mDealership?.id == 1) {
-            view?.toast("Please add a dealership to your car")
-            return
+
+        if (mCar == null){
+            view?.toast("Please add a car first")
         }
-        view?.openAppointments(mCar!!)
+        else if (mDealership == null || mDealership?.id == 1) {
+            view?.toast("Please add a dealership to your car")
+        }
+        else{
+            view?.openAppointments(mCar!!)
+        }
     }
 
     fun onRequestServiceClicked() {
         Log.d(TAG, "onRequestServiceCLicked()")
-        if (this.view == null) return;
-        if (mDealership == null || mDealership?.id == 1) {
+        if (this.view == null) return
+        if (mCar == null){
+            view?.toast("Please add a car first")
+        }else if (mDealership == null || mDealership?.id == 1) {
             view?.toast("Please add a dealership to your car")
-            return
         }
-        view?.openRequestService(false)
+        else{
+            view?.openRequestService(false)
+        }
 
 
     }
