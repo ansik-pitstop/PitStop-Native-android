@@ -1,7 +1,6 @@
 package com.pitstop.ui.main_activity;
 
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -50,10 +49,10 @@ public class TabFragmentManager implements BadgeDisplayer{
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{mActivity.getApplicationContext().getString(R.string.dashboard),
-                mActivity.getApplicationContext().getString(R.string.services_tab_name),
+                mActivity.getApplicationContext().getString(R.string.services_nav_text),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.my_garage),
-                mActivity.getApplicationContext().getString(R.string.notification_tab_name)
+                mActivity.getApplicationContext().getString(R.string.notifications)
         };
     }
 
