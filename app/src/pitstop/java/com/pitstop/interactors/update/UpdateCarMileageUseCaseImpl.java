@@ -14,6 +14,8 @@ import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -29,6 +31,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
     private UserRepository userRepository;
     private Handler usecaseHandler;
     private Handler mainHandler;
+
 
     private Callback callback;
 
@@ -52,6 +55,8 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
         usecaseHandler.post(this);
         mileageObservable.subscribe(this);
     }
+
+
 
     private void onMileageUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: mileage updated"
@@ -120,5 +125,21 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
                 UpdateCarMileageUseCaseImpl.this.onError(error);
             }
         });
+    }
+
+
+    @Override
+    public void onMileageAndRtcGot(@NotNull String mileage, @NotNull String rtc) {
+
+    }
+
+    @Override
+    public void onGetMileageAndRtcError() {
+
+    }
+
+    @Override
+    public void onNotConnected() {
+
     }
 }
