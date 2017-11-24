@@ -5,7 +5,7 @@ package com.pitstop.observer
  */
 interface MileageObserver: Observer {
 
-    fun onMileageAndRtcGot(mileage:Double, rtc: Int )
+    fun onMileageAndRtcGot(mileage:String, rtc: String )
     fun onGetMileageAndRtcError();
     fun onNotConnected();
 

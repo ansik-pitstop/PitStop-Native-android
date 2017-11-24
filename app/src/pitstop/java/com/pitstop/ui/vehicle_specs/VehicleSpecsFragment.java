@@ -821,7 +821,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                 ArrayList<Address> list = new ArrayList<>(geocoder.getFromLocation(lastKnownLocation.getLatitude(),
                         lastKnownLocation.getLongitude(), 5));
                 return list.get(0).getPostalCode();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
@@ -851,22 +851,26 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @Override
-    public void requestRTCandMileage() {
+    public void requestRTCandMileage()
+    {
         mileageObservable.requestRtcAndMileage();
     }
 
     @Override
-    public void onMileageAndRtcGot(double mileage, int rtc) {
-
+    public void onMileageAndRtcGot(String mileage, String rtc) {
+        Log.d(TAG, "onGotMileageAndRtc()");
+        Log.d(TAG, "Mileage: " + mileage + " rtc: " + rtc);
+        presenter.sendMileageAndRtc(mileage, rtc);
     }
 
     @Override
     public void onGetMileageAndRtcError() {
+        Log.d(TAG, "onGetMileageAndRtcError()");
 
     }
 
     @Override
     public void onNotConnected() {
-
+        Log.d(TAG, "onNotConnected()");
     }
 }
