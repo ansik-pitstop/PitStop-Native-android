@@ -77,7 +77,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    private final int FIND_DEVICE_RETRY_TIME = 13;
+    private final int FIND_DEVICE_RETRY_TIME = 18;  //Approx 12 seconds for finding device and 6 for verification
     private final int FIND_DEVICE_RETRY_AMOUNT = 0;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
@@ -244,6 +244,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     @Override
     public void onDeviceVerifying() {
         Log.d(TAG,"onDeviceDisconnected()");
+        if (view == null) return;
+        if (!searchingForDevice) return;
+        view.showLoading(((android.support.v4.app.Fragment)view)
+                .getString(R.string.verifying_device_action_bar));
     }
 
     @Override
