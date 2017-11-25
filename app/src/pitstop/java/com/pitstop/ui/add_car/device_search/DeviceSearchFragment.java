@@ -145,14 +145,14 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         //Fragment switcher, go toVinEntryFragment
         AlertDialog dialog = new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.vin_retrieval_failed_alert_title))
+                .setCancelable(true)
                 .setMessage(getString(R.string.vin_retrieval_failed_alert_message))
                 .setPositiveButton("Enter Manually", (dialog1, which) -> {
                     if (fragmentSwitcher != null && getActivity() != null)
                         fragmentSwitcher.setViewVinEntry(scannerName, scannerId, mileage);
                 })
-                .setNegativeButton("Try Again", (dialogInterface, i) -> {
-                    if (presenter != null)
-                        presenter.startSearch();
+                .setNegativeButton(getString(R.string.try_again), (dialogInterface, i) -> {
+                    presenter.startSearch();
                 }).create();
         dialog.show();
     }
@@ -166,12 +166,14 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.cannot_find_device_alert_title))
                 .setMessage(getString(R.string.cannot_find_device_alert_message))
+                .setCancelable(true)
                 .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
                     if (presenter != null){
                         presenter.startSearch();
                     }
                 })
-                .setNegativeButton(getString(R.string.no_button_text), (dialog12, which) -> dialog12.cancel()).create();
+                .setNegativeButton(getString(R.string.no_button_text), (dialog12, which) -> dialog12.cancel())
+                .create();
         dialog.show();
     }
 
@@ -194,7 +196,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.invalid_mileage_alert_title))
                 .setMessage(getString(R.string.invalid_mileage_alert_message))
-                .setCancelable(false)
                 .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -233,7 +234,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.add_car_error_alert_title))
                 .setMessage(message)
-                .setCancelable(false)
                 .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -254,7 +254,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         AlertDialog dialog= new AnimatedDialogBuilder(getActivity())
                 .setTitle(getString(R.string.car_already_added_alert_title))
                 .setMessage(getString(R.string.car_already_added_alert_message))
-                .setCancelable(false)
                 .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

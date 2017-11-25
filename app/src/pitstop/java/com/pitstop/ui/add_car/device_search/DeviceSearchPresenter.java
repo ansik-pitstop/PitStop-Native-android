@@ -52,8 +52,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         public void onTimeout() {
             Log.d(TAG,"getVinTimer.onTimeout()");
 
-            if (view == null) return;
+            if (view == null || !searchingForVin) return;
 
+            searchingForVin = false;
             int mileage = 0;
             try{
                 mileage = Integer.valueOf(view.getMileage());
