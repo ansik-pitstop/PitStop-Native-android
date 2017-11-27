@@ -159,13 +159,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.dealership_tv)
     protected TextView dealership;
 
-    @BindView(R.id.dealership_view)
+    @BindView(R.id.dealership_row)
     protected View dealershipView;
 
     @BindView(R.id.car_vin)
     protected TextView carVin;
 
-    @BindView(R.id.scanner_view)
+    @BindView(R.id.scanner_row)
     protected View scannerView;
 
     @BindView(R.id.delete_car)
@@ -189,16 +189,16 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.highway_mileage_specs)
     protected TextView highwayMileage;
 
-    @BindView(R.id.license_plate_cardview)
+    @BindView(R.id.license_plate_row)
     protected View plateView;
 
-    @BindView(R.id.trim_card_view)
+    @BindView(R.id.fuel_trim_row)
     protected View trimView;
 
     @BindView(R.id.trim)
     protected TextView trim;
 
-    @BindView(R.id.tank_size_card_view)
+    @BindView(R.id.tank_size_row)
     protected View tankSizeView;
 
     @BindView(R.id.tank_size)
@@ -510,7 +510,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
 
-    @OnClick(R.id.license_plate_cardview)
+    @OnClick(R.id.license_plate_row)
     public void showLicensePlateDialog(){
         Log.d(TAG, "showLicensePlateDialog()");
         if (licensePlateDialog == null){
@@ -532,7 +532,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         licensePlateDialog.show();
     }
 
-    @OnClick(R.id.scanner_view)
+    @OnClick(R.id.scanner_row)
     public void onScannerViewClicked(){
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
@@ -595,7 +595,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         }
     }
 
-    @OnClick(R.id.dealership_view)
+    @OnClick(R.id.dealership_row)
     public void showDealershipChangeDialog(){
         if (changeDealershipAlertDialog == null){
             final View dialogLayout = LayoutInflater.from(
@@ -613,7 +613,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         changeDealershipAlertDialog.show();
     }
 
-    @OnClick(R.id.car_mileage_view)
+    @OnClick(R.id.mileage_row)
     public void displayUpdateMileageDialog() {
         Log.d(TAG,"displayUpdateMileageDialog()");
         if (updateMileageDialog == null){
@@ -749,7 +749,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.onUpdateNeeded();
     }
 
-    @OnClick(R.id.fuel_consumption_card_view)
+    @OnClick(R.id.fuel_consumption_row)
     public void onfuelConsumptionClicked(){
         Log.d(TAG, "onFuelConsumptionClicked()");
         presenter.onFuelConsumptionClicked();
@@ -774,7 +774,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
 
-    @OnClick(R.id.fuel_expenses_card_view)
+    @OnClick(R.id.fuel_expense_row)
     public void onFuelExpensesClicked(){
         Log.d(TAG, "onFuelExpensesCLicked()");
         presenter.onFuelExpensesClicked();

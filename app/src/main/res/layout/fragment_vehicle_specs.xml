@@ -58,7 +58,7 @@
         android:paddingRight="10dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:background="grey"
+        android:background="@color/grey"
         android:text="Vehicle Overview"
         android:layout_gravity="center"
         android:layout_width="match_parent"
@@ -73,6 +73,7 @@
 
             <!-- Device Id Row -->
             <RelativeLayout
+                android:id="@+id/scanner_row"
                 android:background="@color/white"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
@@ -115,6 +116,7 @@
 
         <!-- License Plate Row -->
         <RelativeLayout
+            android:id="@+id/license_plate_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -167,6 +169,7 @@
 
         <!-- Dealership Row -->
         <RelativeLayout
+            android:id="@+id/dealership_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -210,6 +213,7 @@
 
         <!-- Mileage Row -->
         <RelativeLayout
+            android:id="@+id/mileage_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -254,6 +258,7 @@
 
         <!-- Fuel Consumption Row -->
         <RelativeLayout
+            android:id="@+id/fuel_consumption_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -297,6 +302,7 @@
 
         <!-- Fuel Expense Row -->
         <RelativeLayout
+            android:id="@+id/fuel_expense_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -524,6 +530,7 @@
 
         <!-- Fuel Trim Row -->
         <RelativeLayout
+            android:id="@+id/fuel_trim_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -565,6 +572,7 @@
 
         <!-- Tank Size Row -->
         <RelativeLayout
+            android:id="@+id/tank_size_row"
             android:background="@color/white"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
