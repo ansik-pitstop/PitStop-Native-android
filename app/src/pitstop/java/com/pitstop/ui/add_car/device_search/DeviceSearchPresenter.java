@@ -1,7 +1,5 @@
 package com.pitstop.ui.add_car.device_search;
 
-import android.app.Fragment;
-import android.content.res.Resources;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -36,9 +34,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private boolean searchingForDevice;
     private boolean addingCar = false;
 
-    //Try to get VIN 8 times, every 6 seconds
+    //Try to get VIN 2 times, every 6 seconds
     private final int GET_VIN_RETRY_TIME = 6;
-    private final int GET_VIN_RETRY_AMOUNT = 8;
+    private final int GET_VIN_RETRY_AMOUNT = 1;
     private final TimeoutTimer getVinTimer = new TimeoutTimer(GET_VIN_RETRY_TIME
             , GET_VIN_RETRY_AMOUNT) {
         @Override
@@ -54,8 +52,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         public void onTimeout() {
             Log.d(TAG,"getVinTimer.onTimeout()");
 
-            if (view == null) return;
+            if (view == null || !searchingForVin) return;
 
+            searchingForVin = false;
             int mileage = 0;
             try{
                 mileage = Integer.valueOf(view.getMileage());
@@ -78,8 +77,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    private final int FIND_DEVICE_RETRY_TIME = 17;
-    private final int FIND_DEVICE_RETRY_AMOUNT = 3;
+    private final int FIND_DEVICE_RETRY_TIME = 18;  //Approx 12 seconds for finding device and 6 for verification
+    private final int FIND_DEVICE_RETRY_AMOUNT = 0;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
@@ -173,6 +172,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (!AddCarUtils.isVinValid(readyDevice.getVin())){
                 view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
                 searchingForVin = true;
+                bluetoothConnectionObservable.requestVin();
                 getVinTimer.start();
             }
 
@@ -231,6 +231,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Try to get valid VIN
             searchingForVin = true;
+            bluetoothConnectionObservable.requestVin();
             getVinTimer.start();
         }
     }
@@ -243,6 +244,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     @Override
     public void onDeviceVerifying() {
         Log.d(TAG,"onDeviceDisconnected()");
+        if (view == null) return;
+        if (!searchingForDevice) return;
+        view.showLoading(((android.support.v4.app.Fragment)view)
+                .getString(R.string.verifying_device_action_bar));
     }
 
     @Override

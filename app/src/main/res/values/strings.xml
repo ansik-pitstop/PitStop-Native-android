@@ -222,7 +222,7 @@
     <!-- device search fragment-->
     <!-- on vin retrieval failed-->
     <string name="vin_retrieval_failed_alert_title">Could not retrieve VIN</string>
-    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device, please input it manually</string>
+    <string name="vin_retrieval_failed_alert_message">VIN could not be retrieved from your device</string>
     <!-- on cannot find device -->
     <string name="cannot_find_device_alert_title">Could not find OBD device</string>
     <string name="cannot_find_device_alert_message">We were unable to find a Pitstop OBD device, please make sure that the device is plugged in and that the lights are flashing. Try again?</string>
@@ -585,6 +585,6 @@
     <string name="request_service_title">Request Service</string>
     <string name="retrieving_real_time_engine_data">Retrieving real time engine data</string>
     <string name="vehicle__health_report">Vehicle Health Report</string>
-    <string name="cant_turn_on_car">I can't turn my car on right now</string>
+    <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
     <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
 </resources>
