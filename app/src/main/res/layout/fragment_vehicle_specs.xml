@@ -484,168 +484,140 @@
             layout="@layout/divider" />
 
         <!-- Highway Fuel Consumption Row -->
-        <android.support.v7.widget.CardView
+        <RelativeLayout
+            android:background="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/highway_mileage_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/highway_mileage2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            android:layout_height="wrap_content">
 
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/highway_title"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/highway_mileage_icon"
+                android:src="@drawable/highway_mileage2x"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
+
+            <TextView
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@id/highway_mileage_icon"
+                android:id="@+id/highway_mileage_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="@string/highway_title"/>
+
             <TextView
                 android:text="N/A"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingRight="16dp"
+                android:layout_alignParentEnd="true"
+                android:layout_toRightOf="@+id/highway_mileage_title"
+                android:textAlignment="viewEnd"
                 android:id="@+id/highway_mileage_specs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:id="@+id/trim_card_view"
+        </RelativeLayout>
+
+        <include
+            layout="@layout/divider" />
+
+        <!-- Fuel Trim Row -->
+        <RelativeLayout
+            android:background="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/trim_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/trim_2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            android:layout_height="wrap_content">
 
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/trim"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+            <ImageView
+                android:layout_alignParentStart="true"
+                android:id="@+id/trim_icon"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/trim_2x"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
 
-
-            </LinearLayout>
             <TextView
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@id/trim_icon"
+                android:id="@+id/fuel_trim_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="@string/trim"/>
+
+            <TextView
+                android:textAlignment="viewEnd"
+                android:layout_toRightOf="@id/fuel_expense_title"
+                android:layout_alignParentEnd="true"
                 android:text="N/A"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingRight="16dp"
                 android:id="@+id/trim"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </android.support.v7.widget.CardView>
-        <android.support.v7.widget.CardView
-            android:id="@+id/tank_size_card_view"
+        </RelativeLayout>
+
+        <include
+            layout="@layout/divider" />
+
+        <!-- Tank Size Row -->
+        <RelativeLayout
+            android:background="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/tank_size_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/tank_size_2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            android:layout_height="wrap_content">
 
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/tank_size"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+            <ImageView
+                android:layout_alignParentStart="true"
+                android:id="@+id/tank_size_icon"
+                android:layout_centerVertical="true"
+                android:src="@drawable/tank_size_2x"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
 
-
-            </LinearLayout>
             <TextView
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingRight="16dp"
+                android:layout_toRightOf="@id/tank_size_icon"
+                android:layout_marginLeft="8dp"
+                android:layout_centerVertical="true"
+                android:id="@+id/tank_size_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tank_size"
+                android:textStyle="bold"/>
+
+
+            <TextView
+                android:text="N/A"
+                android:layout_alignParentEnd="true"
+                android:layout_alignRight="@id/tank_size_title"
+                android:textAlignment="viewEnd"
+                android:layout_centerVertical="true"
                 android:id="@+id/tank_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </android.support.v7.widget.CardView>
+        </RelativeLayout>
 
+        <include
+            layout="@layout/divider" />
 
-
-
-
-        <android.support.v7.widget.CardView
+        <Button
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
             android:id="@+id/delete_car"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <TextView
-                android:textSize="22sp"
-                android:text="@string/delete"
-                android:textColor="#D50000"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingRight="16dp"
-                android:layout_gravity="center_horizontal"
-                android:gravity="right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </android.support.v7.widget.CardView>
+            android:background="@color/red"
+            android:text="@string/delete"/>
 
     </LinearLayout>
     </LinearLayout>
