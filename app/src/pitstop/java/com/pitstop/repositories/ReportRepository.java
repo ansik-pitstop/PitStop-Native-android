@@ -207,7 +207,7 @@ public class ReportRepository implements Repository {
             String O2Sensor = data.getString("O2 Sensor");
             String O2SensorHeater = data.getString("O2 Sensor Heater");
             String EGR = data.getString("EGR");
-            boolean pass = content.getBoolean("pass");
+            boolean pass = content.getBoolean("result");
             String reason = "";
             if (content.has("reason"))
                 reason = content.getString("reason");

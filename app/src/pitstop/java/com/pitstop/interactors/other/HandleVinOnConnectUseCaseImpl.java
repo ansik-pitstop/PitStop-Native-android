@@ -117,6 +117,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     .doOnNext(response -> {
                         if (response.isLocal()) return;
                         if (response.getData() == null){
+                            Log.d(TAG,"Received empty car response.");
                             HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
@@ -210,7 +211,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            HandleVinOnConnectUseCaseImpl.this.onError(error);
+                                            HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarHasScanner(car.getScannerId());
                                         }
                                     });
                                 }
@@ -241,7 +242,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    HandleVinOnConnectUseCaseImpl.this.onError(error);
+                                    HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarMissingScanner();
                                 }
                             });
                         }
