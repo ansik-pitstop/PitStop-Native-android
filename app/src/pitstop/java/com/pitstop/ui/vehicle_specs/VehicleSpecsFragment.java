@@ -64,7 +64,7 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver, MileageObserver {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
@@ -770,6 +770,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
         fuelObservable.subscribe(this);
         this.mileageObservable = (MileageObservable) bluetoothAutoConnectService;
+
     }
 
 
@@ -853,27 +854,4 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         return this.mileageObservable;
     }
 
-    @Override
-    public void requestRTCandMileage()
-    {
-        mileageObservable.requestRtcAndMileage();
-    }
-
-    @Override
-    public void onMileageAndRtcGot(String mileage, String rtc) {
-        Log.d(TAG, "onGotMileageAndRtc()");
-        Log.d(TAG, "Mileage: " + mileage + " rtc: " + rtc);
-        presenter.sendMileageAndRtc(mileage, rtc);
-    }
-
-    @Override
-    public void onGetMileageAndRtcError() {
-        Log.d(TAG, "onGetMileageAndRtcError()");
-
-    }
-
-    @Override
-    public void onNotConnected() {
-        Log.d(TAG, "onNotConnected()");
-    }
 }
