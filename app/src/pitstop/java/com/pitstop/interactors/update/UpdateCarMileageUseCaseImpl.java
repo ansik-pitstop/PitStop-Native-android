@@ -31,6 +31,8 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
     private UserRepository userRepository;
     private Handler usecaseHandler;
     private Handler mainHandler;
+    private int carId;
+    private MileageObservable mileageObservable;
 
 
     private Callback callback;
@@ -53,6 +55,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
         this.callback = callback;
         this.mileage = mileage;
         usecaseHandler.post(this);
+        this.mileageObservable = mileageObservable;
         mileageObservable.subscribe(this);
     }
 
@@ -79,6 +82,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
     @Override
     public void run() {
         Log.d(TAG,"run()");
+        mileageObservable.requestRtcAndMileage();
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings settings) {
@@ -87,7 +91,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
                     UpdateCarMileageUseCaseImpl.this.onNoCarAdded();
                     return;
                 }
-
+                carId = settings.getCarId();
                 carRepository.get(settings.getCarId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
@@ -129,17 +133,35 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, Mil
 
 
     @Override
-    public void onMileageAndRtcGot(@NotNull String mileage, @NotNull String rtc) {
+    public void onMileageAndRtcGot(@NotNull String deviceMileage, @NotNull String rtc) {
+        Log.d(TAG, "onMileageAndRtcGot(), deviceMileage: " + deviceMileage + " rtc: " + rtc);
+
+        int metre = (Integer.parseInt(deviceMileage) % 1000);
+        int km = Integer.parseInt(deviceMileage)/1000;
+        double decimal = (double)metre/1000;
+        double total  = decimal + (double)km;
+        Log.d(TAG, Double.toString(total));
+        carRepository.updateCarMileage(this.mileage, total, this.carId, rtc, new Repository.Callback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                Log.d(TAG, "onMileageAndRtcSentToBackendSuccess()");
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG, "onMileageAndRtcSentToBackendError()");
+            }
+        });
 
     }
 
     @Override
     public void onGetMileageAndRtcError() {
-
+        Log.d(TAG, "onGetDeviceMileageAndRTCError()");
     }
 
     @Override
     public void onNotConnected() {
-
+        Log.d(TAG, "onDeviceNotConnected()");
     }
 }

@@ -287,8 +287,9 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             updating = false;
             return;
         }
-
-        getView().requestRTCandMileage();
+        if (mCar.getScannerId()!=null && !mCar.getScannerId().equalsIgnoreCase("")) {
+            getView().requestRTCandMileage();
+        }
         useCaseComponent.updateCarMileageUseCase().execute(getView().getMileageObservable(), mileage
                 , new UpdateCarMileageUseCase.Callback() {
 
