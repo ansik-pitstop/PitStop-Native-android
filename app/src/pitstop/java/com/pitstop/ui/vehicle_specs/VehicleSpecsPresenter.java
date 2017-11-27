@@ -287,7 +287,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             updating = false;
             return;
         }
-
         useCaseComponent.updateCarMileageUseCase().execute(getView().getMileageObservable(), mileage
                 , new UpdateCarMileageUseCase.Callback() {
 
@@ -477,9 +476,5 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         else {
             getView().showFuelExpensesDialog();
         }
-    }
-
-    public void sendMileageAndRtc(String mileage, String rtc) {
-
     }
 }
