@@ -203,11 +203,22 @@ public class Logger {
         if (localUserStorage.getUser() != null)
             userId = localUserStorage.getUser().getId();
 
+        String build = "";
+        if (BuildConfig.DEBUG){
+            build = "debug";
+        }else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            build = "beta";
+        }else{
+            build = "release";
+        }
+
         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(), "com.pitstop.android")
                 .timestamp(d.getTimestamp())
                 .additionalField("tag", d.getTag())
                 .additionalField("userId", userId)
                 .additionalField("type", type)
+                .additionalField("build",build)
+                .additionalField("version", BuildConfig.VERSION_NAME)
                 .level(gelfLevel)
                 .build();
 

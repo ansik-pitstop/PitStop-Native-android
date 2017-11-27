@@ -147,6 +147,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/build-info" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -198,7 +199,6 @@
     <orderEntry type="library" name="bolts-android-1.4.0" level="project" />
     <orderEntry type="library" name="stetho-urlconnection-1.5.0" level="project" />
     <orderEntry type="library" name="viewanimator-1.0.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="multidex-instrumentation-1.0.2" level="project" />
     <orderEntry type="library" name="library-2.4.0" level="project" />
     <orderEntry type="library" name="fabric-1.3.16" level="project" />
     <orderEntry type="library" name="crashlytics-2.6.7" level="project" />
