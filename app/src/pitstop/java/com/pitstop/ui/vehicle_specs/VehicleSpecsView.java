@@ -50,7 +50,6 @@ public interface VehicleSpecsView {
 
     String getLastKnowLocation();
 
-
     MileageObservable getMileageObservable();
 
 }
