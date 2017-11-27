@@ -770,7 +770,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
         fuelObservable.subscribe(this);
         this.mileageObservable = (MileageObservable) bluetoothAutoConnectService;
-        mileageObservable.subscribe(this);
     }
 
 

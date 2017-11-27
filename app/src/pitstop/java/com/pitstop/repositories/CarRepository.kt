@@ -126,14 +126,16 @@ class CarRepository(private val localCarStorage: LocalCarStorage
 
     }
 
-    fun updateCarMileage(totalMileage: Double, deviceMileage: Double, carId: Int, rtcTime: Int,  callback: Repository.Callback<Any>){
+    fun updateCarMileage(totalMileage: Double, deviceMileage: Double, carId: Int, rtcTime: String,  callback: Repository.Callback<Any>){
         Log.d(tag, "updatecarMileage()");
         val body = JSONObject();
+        val rtc:Long = rtcTime.toLong();
         try {
             body.put("carId", carId)
             body.put("totalMileage", totalMileage)
             body.put("deviceMileage", deviceMileage)
-            body.put("rtcTime", rtcTime);
+            body.put("rtcTime", rtc);
+            Log.d(tag, body.toString());
 
         } catch (e: JSONException) {
         Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)

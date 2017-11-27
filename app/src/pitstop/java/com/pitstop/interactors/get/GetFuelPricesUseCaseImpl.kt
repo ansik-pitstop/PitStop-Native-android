@@ -33,6 +33,7 @@ class GetFuelPricesUseCaseImpl(val useCaseHandler: Handler, val mainHandler: Han
             Uri = "?search=" + mPostalCode!!
             Log.d(TAG, Uri);
         }
+
         var doc: Document = Jsoup.connect(BASE_URL+Uri).get();
         var docString = doc.text();
         if (docString == null || docString.equals("", true)){
