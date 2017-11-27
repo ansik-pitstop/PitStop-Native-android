@@ -52,256 +52,148 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <!--<RelativeLayout-->
-            <!--android:id="@+id/main_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
-
-
-        <!--<RelativeLayout-->
-            <!--android:id="@+id/banner_container"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
-            <!--<ImageView-->
-                <!--android:id="@+id/background_image"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="220dp"-->
-                <!--tools:src="@drawable/mercedes_brampton"-->
-                <!--android:scaleType="centerCrop"-->
-                <!--/>-->
-
-            <!--<FrameLayout-->
-                <!--android:id="@+id/banner_overlay"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="220dp"-->
-                <!--android:background="@color/white"-->
-                <!--android:alpha="0.6"-->
-                <!--android:visibility="gone"/>-->
-
-            <!--<RelativeLayout-->
-                <!--android:id="@+id/carName"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerInParent="true"-->
-                <!--android:paddingTop="10dp"-->
-                <!--android:orientation="vertical">-->
-                <!--<include-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:id="@+id/progress"-->
-                    <!--android:visibility="gone"-->
-                    <!--layout="@layout/layout_load"/>-->
-
-                <!--<de.hdodenhof.circleimageview.CircleImageView-->
-                    <!--android:id="@+id/car_logo_imageview"-->
-                    <!--android:layout_width="60dp"-->
-                    <!--android:layout_height="60dp"-->
-                    <!--android:layout_centerHorizontal="true"-->
-                    <!--tools:src="@drawable/bmw" />-->
-
-
-                <!--<LinearLayout-->
-                    <!--android:id="@+id/car_name_container"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_below="@id/car_logo_imageview"-->
-                    <!--android:orientation="horizontal">-->
-
-                    <!--<ImageView-->
-                        <!--android:id="@+id/car_connected_indicator_layout"-->
-                        <!--android:layout_width="16dp"-->
-                        <!--android:layout_height="16dp"-->
-                        <!--android:layout_gravity="center_vertical"-->
-                        <!--android:src="@drawable/circle_indicator_stroke"-->
-                        <!--android:visibility="gone"/>-->
-
-                    <!--<TextView-->
-                        <!--android:id="@+id/car_name_banner"-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:maxLines="1"-->
-                        <!--android:textColor="#fff"-->
-                        <!--android:textSize="20sp"-->
-                        <!--android:textStyle="bold"-->
-                        <!--tools:text="Your car"/>-->
-
-                <!--</LinearLayout>-->
-
-                <!--<TextView-->
-                    <!--android:id="@+id/dealership_name_banner"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_below="@+id/car_name_container"-->
-                    <!--android:textColor="@color/white"-->
-                    <!--android:textSize="18sp"-->
-                    <!--tools:text="Dealership"/>-->
-
-            <!--</RelativeLayout>-->
-        <!--</RelativeLayout>-->
-        <!--</RelativeLayout>-->
     <TextView
-        android:layout_marginTop="5dp"
         android:padding="10dp"
+        android:background="grey"
         android:text="Vehicle Overview"
-        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/scanner_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
+            <!-- Device Id Row -->
+            <RelativeLayout
+                android:background="@color/white"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <ImageView
                     android:id="@+id/scanner_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/scanner_2x"
                     android:layout_width="30dp"
                     android:layout_height="30dp" />
 
                 <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@+id/scanner_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/scanner_id"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+                    android:layout_centerVertical="true"
+                    android:textStyle="bold"
+                    android:text="@string/scanner_id"/>
 
-
-            </LinearLayout>
                 <TextView
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:paddingRight="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
                     android:id="@+id/scanner_id"
+                    android:text="N/A"
+                    android:layout_toEndOf="@id/scanner_id"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
-        </android.support.v7.widget.CardView>
+            </RelativeLayout>
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/license_plate_cardview"
+        <include
+            layout="@layout/divider" />
+
+        <!-- License Plate Row -->
+        <RelativeLayout
+            android:background="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            ><LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
+
             <ImageView
                 android:id="@+id/license_icon"
-                android:paddingLeft="6dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/license_2x"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
 
             <TextView
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/license_icon"
+                android:id="@+id/license_plate_title"
+                android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/license_plate"
-                android:textSize="22sp"
-                android:textColor="@color/Smooch_inputTextColor" />
+                android:textStyle="bold"
+                android:text="@string/license_plate"/>
 
 
-        </LinearLayout>
-            <LinearLayout
-                android:gravity="right"
-                android:layout_gravity="right"
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingRight="6dp"
-                    android:id="@+id/car_license_plate_specs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <ImageView
-                    android:layout_marginRight="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/editpencil"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
-
-            </LinearLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/dealership_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="2dp"
-            android:layout_gravity="center_horizontal"
-            >
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/dealership_icon"
-                    android:src="@drawable/dealership_2x"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
-
-
-                <TextView
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/dealership"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
-            </LinearLayout>
             <TextView
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:paddingRight="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:id="@+id/car_license_plate_specs"
+                android:layout_toEndOf="@id/license_plate_title"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/editpencil" />
+
+        </RelativeLayout>
+
+        <include
+            layout="@layout/divider" />
+
+        <RelativeLayout
+            android:background="@color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/dealership_icon"
+                android:src="@drawable/dealership_2x"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+
+
+            <TextView
+                android:id="@+id/dealership_title"
+                android:layout_marginStart="8dp"
+                android:layout_alignEnd="@id/dealership_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"
+                android:text="@string/dealership"/>
+
+            <TextView
                 android:id="@+id/dealership_tv"
+                android:layout_alignEnd="@id/dealership_title"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </android.support.v7.widget.CardView>
+        </RelativeLayout>
 
         <android.support.v7.widget.CardView
             android:id="@+id/car_mileage_view"
@@ -462,40 +354,48 @@
             android:layout_gravity="center_horizontal"
             >
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:id="@+id/vin_icon"
-                    android:paddingLeft="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/vin_2x"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/vin_icon"
+                        android:paddingLeft="6dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/vin_2x"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
+
+                    <TextView
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="VIN"
+                        android:textSize="22sp"
+                        android:textColor="@color/Smooch_inputTextColor" />
+
+
+                </LinearLayout>
 
                 <TextView
+                    android:text="N/A"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
+                    android:paddingRight="16dp"
+                    android:layout_gravity="right"
+                    android:gravity="right"
+                    android:id="@+id/car_vin"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="VIN"
-                    android:textSize="22sp"
-                    android:textColor="@color/Smooch_inputTextColor" />
+                    android:layout_height="wrap_content" />
 
-
-            </LinearLayout>
-            <TextView
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingRight="16dp"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:id="@+id/car_vin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            </RelativeLayout>
 
         </android.support.v7.widget.CardView>
 
@@ -535,6 +435,7 @@
 
             </LinearLayout>
             <TextView
+                android:text="N/A"
                 android:maxLength="24"
                 android:layout_marginLeft="2dp"
                 android:id="@+id/car_engine"
@@ -579,6 +480,7 @@
                 android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
             <TextView
+                android:text="N/A"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:paddingTop="8dp"
@@ -621,6 +523,7 @@
                     android:textColor="@color/Smooch_inputTextColor" />
             </LinearLayout>
             <TextView
+                android:text="N/A"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:paddingTop="8dp"
@@ -666,6 +569,7 @@
 
             </LinearLayout>
             <TextView
+                android:text="N/A"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:paddingTop="8dp"

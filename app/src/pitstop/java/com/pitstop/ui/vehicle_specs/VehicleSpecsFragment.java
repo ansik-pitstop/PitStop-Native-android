@@ -783,7 +783,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showFuelExpense(float v) {
-        fuelExpensesTextView.setText(String.format("%.2f", v/100));
+        fuelExpensesTextView.setText(String.format("$%.2f", v/100));
 
     }
 
