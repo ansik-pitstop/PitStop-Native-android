@@ -13,7 +13,6 @@ import com.pitstop.ui.NoCarAddedHandlingView;
 public interface DashboardView extends ErrorHandlingView, LoadingTabView
         , NoCarAddedHandlingView {
     void displayDefaultDealershipVisuals(Dealership dealership);
-    void displayMercedesDealershipVisuals(Dealership dealership);
     void displayCarDetails(Car car);
     void displayMileage(double mileage);
     void displayUpdateMileageDialog();

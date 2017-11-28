@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -19,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,10 +40,12 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
+import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
@@ -61,7 +66,7 @@ import butterknife.OnClick;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, FuelObserver, AutoConnectServiceBindingObserver {
+public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, AutoConnectServiceBindingObserver {
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
@@ -82,7 +87,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog unknownErrorDialog;
     private AlertDialog offlineErrorDialog;
     private boolean isPoppulated = false;
-    private FuelObservable fuelObservable;
+
+
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -91,6 +97,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
 //    @BindView(R.id.car_name_banner)
 //    protected TextView carName;
+
+    @BindView(R.id.alarms_row)
+    protected View alarmsView;
+
+    @BindView(R.id.alarm_badge)
+    TextView alarmsCount;
 
     @BindView(R.id.main_view_lin_layout)
     protected LinearLayout mainLayout;
@@ -103,6 +115,24 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.vin_icon)
     protected ImageView vinIcon;
+
+    @BindView(R.id.dealer_background_imageview)
+    ImageView mDealerBanner;
+
+    @BindView(R.id.banner_overlay)
+    FrameLayout mDealerBannerOverlay;
+
+    @BindView(R.id.dealership_name)
+    TextView dealershipName;
+
+
+
+    @BindView(R.id.car_logo_imageview)
+    ImageView mCarLogoImage;
+
+
+    @BindView(R.id.car_name)
+    TextView carName;
 
     @BindView(R.id.scanner_icon)
     protected ImageView scannerIcon;
@@ -756,11 +786,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     }
 
-    @Override
-    public void onFuelConsumedUpdated() {
-        presenter.getFuelConsumed();
 
-    }
 
     @Override
     public void showFuelConsumed(double fuelCOnsumed) {
@@ -769,8 +795,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
-        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
-        fuelObservable.subscribe(this);
+        this.presenter.onServiceBound(bluetoothAutoConnectService);
     }
 
 
@@ -780,6 +805,22 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.onFuelExpensesClicked();
     }
 
+    @Override
+    public void hideBadge() {
+        alarmsCount.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showBadges(int alarmCount) {
+        alarmsCount.setVisibility(View.VISIBLE);
+        if (alarmCount>9)
+            alarmsCount.setText("9+");
+        else
+            alarmsCount.setText(Integer.toString(alarmCount));
+
+
+
+    }
 
     @Override
     public void showFuelExpense(float v) {
@@ -832,6 +873,37 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         }
     }
 
+    @Override
+    public void displayCarDetails(Car car){
+        Log.d(TAG,"displayCarDetails() car: "+car);
+        carName.setText(car.getYear() + " " + car.getMake() + " "
+                + car.getModel());
+        totalMileagetv.setText(String.format("%.2f km",car.getTotalMileage()));
+        mCarLogoImage.setVisibility(View.VISIBLE);
+        mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
+
+    }
+
+    @Override
+    public void displayDefaultDealershipVisuals(Dealership dealership) {
+        Log.d(TAG,"displayDefaultDealershipVisual()");
+
+
+        dealershipName.setText(dealership.getName());
+        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+        /*drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);*/
+        if( (getActivity()) != null){
+            ((MainActivity)getActivity()).changeTheme(false);
+        }
+        mCarLogoImage.setVisibility(View.VISIBLE);
+        dealershipName.setVisibility(View.VISIBLE);
+        carName.setTextColor(Color.BLACK);
+        dealershipName.setTextColor(Color.BLACK);
+        carName.setTypeface(Typeface.DEFAULT_BOLD);
+        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        mDealerBannerOverlay.setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public void showFuelExpensesDialog() {
@@ -847,6 +919,164 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                     .create();
         }
         fuelExpensesAlertDialog.show();
+
+    }
+
+
+    public static int getDealerSpecificBanner(String name) {
+        Log.d(TAG,"getDealerSpecificBanner()");
+        if (name.equalsIgnoreCase("Waterloo Dodge")) {
+            return R.drawable.waterloo_dodge;
+        }else if (name.equalsIgnoreCase("Galt Chrysler")) {
+            return R.drawable.galt_chrysler;
+        }else if (name.equalsIgnoreCase("GBAutos")) {
+            return R.drawable.gbautos;
+        }else if (name.equalsIgnoreCase("Cambridge Toyota")) {
+            return R.drawable.cambridge_toyota;
+        }else if (name.equalsIgnoreCase("Bay King Chrysler")) {
+            return R.drawable.bay_king_chrysler;
+        }else if (name.equalsIgnoreCase("Willowdale Subaru")) {
+            return R.drawable.willowdale_subaru;
+        }else if (name.equalsIgnoreCase("Parkway Ford")) {
+            return R.drawable.parkway_ford;
+        }else if (name.equalsIgnoreCase("Mountain Mitsubishi")) {
+            return R.drawable.mountain_mitsubishi;
+        }else if (name.equalsIgnoreCase("Subaru Of Maple")) {
+            return R.drawable.subaru_maple;
+        }else if (name.equalsIgnoreCase("Village Ford")) {
+            return R.drawable.villageford;
+        }else if (name.equalsIgnoreCase("Maple Volkswagen")) {
+            return R.drawable.maple_volkswagon;
+        }else if (name.equalsIgnoreCase("Toronto North Mitsubishi")) {
+            return R.drawable.torontonorth_mitsubishi;
+        }else if (name.equalsIgnoreCase("Kia Of Richmondhill")) {
+            return R.drawable.kia_richmondhill;
+        }else if (name.equalsIgnoreCase("Mercedes Benz Brampton")) {
+            return R.drawable.mercedesbenz_brampton;
+        }else if (name.equalsIgnoreCase("401DixieKia")) {
+            return R.drawable.dixie_king;
+        }else if (name.equalsIgnoreCase("Cambridge Honda")) {
+            return R.drawable.cambridge_honda;
+        } else{
+            return R.drawable.no_dealership_background;
+        }
+
+    }
+
+    public static int getCarSpecificLogo(String make) {
+        Log.d(TAG,"getCarSpecificLogo()");
+        if (make == null) return R.drawable.ford;
+        if (make.equalsIgnoreCase("abarth")){
+            return R.drawable.abarth;
+        }else if (make.equalsIgnoreCase("acura")){
+            return R.drawable.acura;
+        }else if (make.equalsIgnoreCase("alfa romeo")){
+            return 0;
+        }else if (make.equalsIgnoreCase("aston martin")){
+            return R.drawable.aston_martin;
+        }else if (make.equalsIgnoreCase("audi")){
+            return R.drawable.audi;
+        }else if (make.equalsIgnoreCase("bentley")){
+            return R.drawable.bentley;
+        }else if (make.equalsIgnoreCase("bmw")){
+            return R.drawable.bmw;
+        }else if (make.equalsIgnoreCase("buick")){
+            return R.drawable.buick;
+        }else if (make.equalsIgnoreCase("cadillac")){
+            return R.drawable.cadillac;
+        }else if (make.equalsIgnoreCase("chevrolet")){
+            return R.drawable.chevrolet;
+        }else if (make.equalsIgnoreCase("chrysler")){
+            return R.drawable.chrysler;
+        }else if (make.equalsIgnoreCase("dodge")){
+            return R.drawable.dodge;
+        }else if (make.equalsIgnoreCase("ferrari")){
+            return R.drawable.ferrari;
+        }else if (make.equalsIgnoreCase("fiat")){
+            return R.drawable.fiat;
+        }else if (make.equalsIgnoreCase("ford")){
+            return R.drawable.ford;
+        }else if (make.equalsIgnoreCase("gmc")){
+            return R.drawable.gmc;
+        }else if (make.equalsIgnoreCase("honda")){
+            return R.drawable.honda;
+        }else if (make.equalsIgnoreCase("hummer")){
+            return R.drawable.hummer;
+        }else if (make.equalsIgnoreCase("hyundai")){
+            return R.drawable.hyundai;
+        }else if (make.equalsIgnoreCase("infiniti")){
+            return R.drawable.infiniti;
+        }else if (make.equalsIgnoreCase("jaguar")){
+            return R.drawable.jaguar;
+        }else if (make.equalsIgnoreCase("jeep")){
+            return R.drawable.jeep;
+        }else if (make.equalsIgnoreCase("kia")){
+            return R.drawable.kia;
+        }else if (make.equalsIgnoreCase("landrover")){
+            return 0;//R.drawable.landrover;
+        }else if (make.equalsIgnoreCase("lexus")){
+            return R.drawable.lexus;
+        }else if (make.equalsIgnoreCase("lincoln")){
+            return R.drawable.lincoln;
+        }else if (make.equalsIgnoreCase("maserati")){
+            return R.drawable.maserati;
+        }else if (make.equalsIgnoreCase("mazda")){
+            return R.drawable.mazda;
+        }else if (make.equalsIgnoreCase("mercedes-benz")){
+            return R.drawable.mercedes;
+        }else if (make.equalsIgnoreCase("mercury")){
+            return R.drawable.mercury;
+        }else if (make.equalsIgnoreCase("mini")){
+            return R.drawable.mini;
+        }else if (make.equalsIgnoreCase("mitsubishi")){
+            return R.drawable.mitsubishi;
+        }else if (make.equalsIgnoreCase("nissan")){
+            return R.drawable.nissan;
+        }else if (make.equalsIgnoreCase("pontiac")){
+            return R.drawable.pontiac;
+        }else if (make.equalsIgnoreCase("porsche")){
+            return R.drawable.porsche;
+        }else if (make.equalsIgnoreCase("ram")){
+            return R.drawable.ram;
+        }else if (make.equalsIgnoreCase("saab")){
+            return R.drawable.saab;
+        }else if (make.equalsIgnoreCase("saturn")){
+            return R.drawable.saturn;
+        }else if (make.equalsIgnoreCase("scion")){
+            return R.drawable.scion;
+        }else if (make.equalsIgnoreCase("skota")){
+            return 0;//R.drawable.skota;
+        }else if (make.equalsIgnoreCase("smart")){
+            return R.drawable.smart;
+        }else if (make.equalsIgnoreCase("subaru")){
+            return R.drawable.subaru;
+        }else if (make.equalsIgnoreCase("suzuki")){
+            return R.drawable.suzuki;
+        }else if (make.equalsIgnoreCase("toyota")){
+            return R.drawable.toyota;
+        }else if (make.equalsIgnoreCase("volkswagen")){
+            return R.drawable.volkswagen;
+        }else if (make.equalsIgnoreCase("volvo")){
+            return R.drawable.volvo;
+        }else{
+            return 0;
+        }
+    }
+
+    @OnClick(R.id.alarms_row)
+    public void onTotalAlarmsClicked(){
+        Log.d(TAG, "onTotalAlarmsClicked()");
+        presenter.onTotalAlarmsClicked();
+    }
+
+    @Override
+    public void openAlarmsActivity() {
+        Log.d(TAG ,"openAlarmsActivity");
+        Intent intent = new Intent(getActivity(), AlarmsActivity.class);
+        Bundle bundle  = new Bundle();
+        bundle.putBoolean("isMercedes", false);
+        intent.putExtras(bundle);
+        startActivity(intent);
 
     }
 }

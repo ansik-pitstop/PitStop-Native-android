@@ -3,14 +3,17 @@ package com.pitstop.ui.vehicle_specs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
 import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
@@ -19,9 +22,15 @@ import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
+import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.AlarmObservable;
+import com.pitstop.observer.AlarmObserver;
+import com.pitstop.observer.AutoConnectServiceBindingObserver;
+import com.pitstop.observer.FuelObservable;
+import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -34,7 +43,7 @@ import java.util.Calendar;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
+public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implements  FuelObserver, AlarmObserver {
 
     public static final String GAS_PRICE_SHARED_PREF = "gasPrices";
     public static final String LAST_UPDATED_DATE = "lastUpdatedDate";
@@ -47,6 +56,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     private MixpanelHelper mixpanelHelper;
     private boolean updating;
     private Car mCar;
+    private boolean carHasScanner  = false;
+    private FuelObservable fuelObservable;
+    private AlarmObservable alarmObservable;
+
 
     private Dealership mdealership;
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_MY_CAR);
@@ -55,6 +68,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             new EventTypeImpl(EventType.EVENT_DTC_NEW),
             new EventTypeImpl(EventType.EVENT_SERVICES_NEW)
     };
+    private int numAlarms;
 
 
     @Override
@@ -195,8 +209,31 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                         getView().hideLoading();
                     getView().setCarView(mCar);
                     getFuelConsumed();
+                    carHasScanner = !(car.getScannerId() == null || car.getScannerId().equalsIgnoreCase(""));
                     getAmountSpent();
+                    getView().displayCarDetails(car);
                     getView().showNormalLayout();
+                    getView().displayDefaultDealershipVisuals(dealership);
+                    carHasScanner = !(car.getScanner() == null);
+                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
+                            , new GetAlarmCountUseCase.Callback() {
+                                @Override
+                                public void onAlarmCountGot(int alarmCount) {
+                                    numAlarms = alarmCount;
+                                    if (alarmCount == 0){
+                                        if (getView()==null) return;
+                                        getView().hideBadge();
+                                    }
+                                    else {
+                                        getView().showBadges(alarmCount);
+                                    }
+                                }
+                                @Override
+                                public void onError(@NotNull RequestError error) {
+                                    if (getView() == null )return;
+                                    getView().hideBadge();
+                                }
+                            });
                     //getCarImage(mCar.getVin());
                 }
             }
@@ -477,5 +514,38 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
         else {
             getView().showFuelExpensesDialog();
         }
+    }
+
+    public void onTotalAlarmsClicked() {
+        Log.d(TAG,"onTotalAlarmsClicked()");
+        if (updating)return;
+        if (getView() == null) return;
+        if (carHasScanner){
+            getView().openAlarmsActivity();
+        }
+        else {
+            getView().showBuyDeviceDialog();
+        }
+    }
+
+    @Override
+    public void onFuelConsumedUpdated() {
+        getFuelConsumed();
+    }
+
+
+    @Override
+    public void onAlarmAdded(Alarm alarm) {
+        numAlarms++;
+        if (getView()!= null)
+            getView().showBadges(numAlarms);
+
+    }
+
+    public void onServiceBound(BluetoothAutoConnectService bluetoothAutoConnectService) {
+        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
+        fuelObservable.subscribe(this);
+        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
+        alarmObservable.subscribe(this);
     }
 }
