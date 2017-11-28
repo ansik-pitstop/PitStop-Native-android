@@ -173,9 +173,11 @@
 
     <!--Dashboard-->
     <string name="mileage_title">Mileage</string>
+    <string name="mileage_estimated_title">Estimated Mileage</string>
     <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
-    <string name="fuel_consumption_header">Fuel consumption</string>
+    <string name="fuel_consumption_header">Fuel Consumption</string>
+    <string name="estimated_fuel_consumption_header">Estimated Fuel Consumption</string>
     <string name="highway_title">Highway</string>
     <string name="city_title">City</string>
     <string name="tools_header">TOOLS</string>
@@ -504,6 +506,7 @@
     <string name="current_car_set">Current car set</string>
     <string name="fuel_consumption">FUEL USAGE</string>
     <string name="fuel_expense">Fuel Expense</string>
+    <string name="estimated_fuel_expense">Estimated Fuel Expense</string>
     <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
     <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
     <string name="driving_alarms">Total Driving Alarms</string>
@@ -587,4 +590,5 @@
     <string name="vehicle__health_report">Vehicle Health Report</string>
     <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
     <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
+    <string name="estimated_usage">Estimated Usage</string>
 </resources>
