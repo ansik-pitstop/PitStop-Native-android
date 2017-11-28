@@ -37,6 +37,7 @@
 
                 <RelativeLayout
                     android:id="@+id/enable_alarms_holder"
+                    android:background="@color/white"
                     android:gravity="start"
                     android:layout_gravity="start"
                     android:paddingLeft="10dp"
@@ -47,6 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <TextView
+                        android:layout_centerVertical="true"
                         android:layout_gravity="left"
                         android:textStyle="bold"
                         android:text="Alarms Enabled"
@@ -54,12 +56,15 @@
                         android:layout_height="wrap_content" />
                     <android.support.v7.widget.SwitchCompat
                         android:id="@+id/alarms_enabled_switch"
+                        android:layout_centerVertical="true"
                         android:layout_width="fill_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_horizontal|end"
                         android:gravity="center_horizontal|end"/>
                 </RelativeLayout>
+                <include layout="@layout/divider"/>
                 <android.support.v7.widget.RecyclerView
+                    android:layout_marginTop="2dp"
                     android:id="@+id/main_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">

@@ -2,16 +2,11 @@ package com.pitstop.ui.alarms
 
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.check.CheckAlarmsEnabledUse
 import com.pitstop.interactors.get.GetAlarmsUseCase
-import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCase
 import com.pitstop.models.Alarm
-import com.pitstop.models.Car
-import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.utils.MixpanelHelper
-import kotlin.collections.ArrayList
 
 /**
  * Created by ishan on 2017-10-30.
@@ -74,8 +69,6 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
             override fun onAlarmsEnabledSet() {
                 updating = false;
                 if (alarmsView == null) return
-                if (!firstLoad)
-                    alarmsView?.toast("Alarms Enabled")
                 refreshAlarms()
                 firstLoad = false;
             }
@@ -83,7 +76,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
             override fun onError(error: RequestError) {
                 updating = false;
                 if (alarmsView == null) return
-                alarmsView?.toast("An error occurred, please try again")
+                alarmsView?.toast("An error occurred, please check internet connection.")
             }
         })
     }
@@ -97,7 +90,6 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
             override fun onAlarmsEnabledSet() {
                 updating = false;
                 if (alarmsView == null) return
-                alarmsView?.toast("Alarms Disabled")
                 refreshAlarms()
             }
 
