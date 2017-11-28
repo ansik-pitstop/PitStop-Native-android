@@ -1,6 +1,5 @@
 package com.pitstop.ui.alarms
 
-import android.app.FragmentManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -18,7 +17,6 @@ import android.view.WindowManager
 import com.pitstop.R
 import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.models.Alarm
-import com.pitstop.observer.AlarmObservable
 
 /**
  * Created by ishan on 2017-10-30.
@@ -61,7 +59,7 @@ class AlarmsActivity: AppCompatActivity() {
                 window.statusBarColor = ContextCompat.getColor(this, R.color.black)
             }
         }
-        supportActionBar!!.subtitle = "Driving Alarms"
+        supportActionBar!!.title = "Driving Alarms"
 
         fragmentTransaction.replace(R.id.alarms_fragment_holder, alarmsFragment)
         fragmentTransaction.commit()
