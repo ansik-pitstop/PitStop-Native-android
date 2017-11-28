@@ -258,26 +258,20 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
     @Override
     public void showNoCarView(){
-        if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setGravity(Gravity.CENTER);
-            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER;
-            mainLinearLayout.setLayoutParams(params);
-            Log.d(TAG, "showNoCarView()");
-            mainLayout.setVisibility(View.GONE);
-            loadingView.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.VISIBLE);
-            loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(true);
-        }
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-
+        mainLinearLayout.setGravity(Gravity.CENTER);
+        mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        mainLinearLayout.setLayoutParams(params);
+        Log.d(TAG, "showNoCarView()");
+        mainLayout.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
+        loadingView.bringToFront();
+        swipeRefreshLayout.setEnabled(true);
     }
 
     public void showOfflineErrorView(){
