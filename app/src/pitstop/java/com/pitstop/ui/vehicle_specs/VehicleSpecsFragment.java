@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,9 +91,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.main_view_lin_layout)
     protected LinearLayout mainLayout;
-
-    @BindView(R.id.main_linear_layout)
-    protected RelativeLayout mainLinearLayout;
 
     @BindView(R.id.loading_view_main)
     protected View loadingView;
