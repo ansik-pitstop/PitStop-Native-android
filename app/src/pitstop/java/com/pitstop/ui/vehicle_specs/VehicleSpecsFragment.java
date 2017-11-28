@@ -19,11 +19,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -259,12 +257,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void showNoCarView(){
         Log.d(TAG, "showNoCarView()");
-        mainLinearLayout.setGravity(Gravity.CENTER);
-        mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        mainLinearLayout.setLayoutParams(params);
         mainLayout.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
@@ -330,6 +322,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void setCarView(Car car) {
         Log.d(TAG, "setView()");
 
+        //Set other views to GONE and main to VISIBLE
+        offlineView.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
+
+        //Populate view
         carVin.setText(car.getVin());
         if (car.getScannerId() == null)
             scannerID.setText("No scanner connected");

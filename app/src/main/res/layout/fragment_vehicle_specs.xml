@@ -7,9 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.NestedScrollView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <RelativeLayout
             android:gravity="center_vertical"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content">
                 <include
                     android:id="@+id/no_car"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     layout="@layout/layout_no_car_dashboard"/>
 
                 <include
@@ -51,6 +51,7 @@
             <LinearLayout
                 android:id="@+id/main_view_lin_layout"
                 android:orientation="vertical"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <LinearLayout
@@ -209,61 +210,61 @@
                     <include
                         layout="@layout/divider" />
 
+                    <TextView
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:text="Overview"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <include
+                        layout="@layout/divider" />
+
+                    <!-- Device Id Row -->
+                    <RelativeLayout
+                        android:id="@+id/scanner_row"
+                        android:background="@color/white"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/scanner_icon"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/scanner_2x"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp" />
+
                         <TextView
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:paddingTop="6dp"
-                            android:paddingBottom="6dp"
-                            android:text="Overview"
-                            android:layout_gravity="center"
-                            android:layout_width="match_parent"
+                            android:id="@+id/scanner_title"
+                            android:layout_marginStart="8dp"
+                            android:layout_toEndOf="@+id/scanner_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            style="@style/vehicle_specs_text"
+                            android:textStyle="bold"
+                            android:text="@string/scanner_id"/>
+
+                        <TextView
+                            android:id="@+id/scanner_id"
+                            android:text="N/A"
+                            style="@style/vehicle_specs_text"
+                            android:textAlignment="viewEnd"
+                            android:layout_toEndOf="@id/scanner_title"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
-                        <include
-                            layout="@layout/divider" />
-
-                        <!-- Device Id Row -->
-                        <RelativeLayout
-                            android:id="@+id/scanner_row"
-                            android:background="@color/white"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:paddingTop="6dp"
-                            android:paddingBottom="6dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <ImageView
-                                android:id="@+id/scanner_icon"
-                                android:layout_alignParentStart="true"
-                                android:layout_centerVertical="true"
-                                android:src="@drawable/scanner_2x"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp" />
-
-                            <TextView
-                                android:id="@+id/scanner_title"
-                                android:layout_marginStart="8dp"
-                                android:layout_toEndOf="@+id/scanner_icon"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_centerVertical="true"
-                                style="@style/vehicle_specs_text"
-                                android:textStyle="bold"
-                                android:text="@string/scanner_id"/>
-
-                            <TextView
-                                android:id="@+id/scanner_id"
-                                android:text="N/A"
-                                style="@style/vehicle_specs_text"
-                                android:textAlignment="viewEnd"
-                                android:layout_toEndOf="@id/scanner_title"
-                                android:layout_centerVertical="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-
-                        </RelativeLayout>
+                    </RelativeLayout>
 
                     <include
                         layout="@layout/divider" />
@@ -666,5 +667,6 @@
             </LinearLayout>
         </RelativeLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </FrameLayout>
+
 </android.support.v4.widget.SwipeRefreshLayout>

@@ -449,7 +449,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
 
     public void getFuelConsumed() {
 
-        if (!(this.mCar.getScannerId()!=null && !this.mCar.getScannerId().equals(""))){
+        if (this.mCar.getScannerId()==null || this.mCar.getScannerId().equals("")){
             if (getView() ==null) return;
             getView().showFuelConsumed(0.0);
             return;
