@@ -1,6 +1,7 @@
 package com.pitstop.ui.main_activity
 
 import android.util.Log
+import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.R.array.car
 import com.pitstop.dependency.UseCaseComponent
@@ -78,6 +79,15 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 ignoredEvents.add(e)
             }
         }
+    }
+
+    private fun hasDealership(): Boolean{
+        //"No Shop" has id of 1 on staging and 19 on production
+        return if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                && mDealership != null && mDealership?.id == 1) {
+            false
+        }else !(BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE
+                && mDealership != null && mDealership?.id == 19)
     }
 
     override fun unsubscribe() {
@@ -259,7 +269,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (mCar == null){
             view?.toast("Please add a car first")
         }
-        else if (mDealership == null || mDealership?.id == 1) {
+        else if (!hasDealership()) {
             view?.toast("Please add a dealership to your car")
         }
         else{
@@ -272,7 +282,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (this.view == null) return
         if (mCar == null){
             view?.toast("Please add a car first")
-        }else if (mDealership == null || mDealership?.id == 1) {
+        }else if (!hasDealership()) {
             view?.toast("Please add a dealership to your car")
         }
         else{
@@ -329,7 +339,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
         if (mCar == null){
             view?.toast("Please add a car first")
-        }else if (mDealership == null || mDealership?.id?.equals(1)!!){
+        }else if (!hasDealership()){
             view?.toast("Please add a dealership first")
         }else{
             view?.callDealership(mDealership)
@@ -341,10 +351,9 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.toast("Car data has not been loaded yet. Check your connection.")
             return
         }
-        if (mDealership == null)return
         if (mCar == null){
             view?.toast("Please add a car first")
-        } else if (mDealership?.id?.equals(1)!!){
+        } else if (!hasDealership()){
             view?.toast("Please add a dealership first")
         }else{
             view?.openDealershipDirections(mDealership)
