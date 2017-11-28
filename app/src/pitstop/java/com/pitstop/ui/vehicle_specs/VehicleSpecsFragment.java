@@ -113,10 +113,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.dealership_icon)
     protected ImageView dealershipIcon;
 
-    @BindView(R.id.fuel_consumption_card_view)
+    @BindView(R.id.fuel_consumption_row)
     protected View fuelConsumptionView;
 
-    @BindView(R.id.fuel_expenses_card_view)
+    @BindView(R.id.fuel_expense_row)
     protected View fuelExpensesView;
 
     @BindView(R.id.mileage_icon)
@@ -204,14 +204,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     protected View plateView;
 
     @BindView(R.id.fuel_trim_row)
+    protected View trimView;
+
     @BindView(R.id.fuel_consumption_icon)
     protected ImageView fuelConsumptionIcon;
 
-    @BindView(R.id.fuel_expenses_icon)
+    @BindView(R.id.fuel_expense_icon)
     protected ImageView fuelExpensesIcon;
-
-    @BindView(R.id.trim_card_view)
-    protected View trimView;
 
     @BindView(R.id.trim)
     protected TextView trim;

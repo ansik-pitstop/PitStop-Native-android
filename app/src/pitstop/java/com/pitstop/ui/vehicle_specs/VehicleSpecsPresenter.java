@@ -298,7 +298,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
 
         useCaseComponent.updateCarMileageUseCase().execute(mileage
                 , new UpdateCarMileageUseCase.Callback() {
-
                     @Override
                     public void onMileageUpdated() {
                         updating = false;
@@ -314,7 +313,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                             getView().displayUnknownErrorDialog();
                         }
                     }
-
                     @Override
                     public void onNoCarAdded() {
                         updating = false;
@@ -322,12 +320,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                         getView().hideLoading();
                         getView().showNoCarView();
                     }
-
                     @Override
                     public void onError(RequestError error) {
                         updating = false;
                         if (getView() == null) return;
-
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
                             if (getView().hasBeenPopulated()){
                                 getView().displayOfflineErrorDialog();
@@ -340,7 +336,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                             getView().hideLoading();
                             getView().displayUnknownErrorDialog();
                         }
-
                         getView().hideLoading();
                     }
                 });
@@ -448,12 +443,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                         Log.d(TAG, "fuel consumed got: "  + Double.toString(fuelConsumed));
                         float oldConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), 0);
                         float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE+mCar.getVin(), 0);
-                        editor.putFloat(PRICE_AT_UPDATE+mCar.getVin(), (float)fuelPrice);
+                        editor.putFloat(PRICE_AT_UPDATE+mCar.getVin(), fuelPrice);
                         String date = Integer.toString(Calendar.getInstance().getTime().getYear()) + Integer.toString(Calendar.getInstance().getTime().getMonth()) +
                                 Integer.toString(Calendar.getInstance().getTime().getDate());
                         editor.putString(LAST_UPDATED_DATE+mCar.getVin(), date);
                         editor.putFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), (float)fuelConsumed);
-                        float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed-oldConsumed)*(float) fuelPrice;
+                        float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed-oldConsumed)* fuelPrice;
                         Log.d(TAG, "old fuel consumed "  + Double.toString(oldConsumed));
                         Log.d(TAG, "old moeny total: "  + Double.toString(oldMoneySpent));
                         Log.d(TAG, "new Money spent: "  + Double.toString(newMoneySpent));
