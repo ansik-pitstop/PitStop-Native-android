@@ -81,14 +81,9 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
     }
 
-    private fun hasDealership(): Boolean{
-        //"No Shop" has id of 1 on staging and 19 on production
-        return if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                && mDealership != null && mDealership?.id == 1) {
-            false
-        }else !(BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE
-                && mDealership != null && mDealership?.id == 19)
-    }
+    private fun hasDealership(): Boolean = (((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
+                && mDealership != null && mDealership?.id != 1) || (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE
+                && mDealership != null && mDealership?.id != 19))
 
     override fun unsubscribe() {
         Log.d(TAG, "unSubscribe()")
@@ -278,7 +273,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun onRequestServiceClicked() {
-        Log.d(TAG, "onRequestServiceCLicked()")
+        Log.d(TAG, "onRequestServiceCLicked() mDealership: $mDealership")
         if (this.view == null) return
         if (mCar == null){
             view?.toast("Please add a car first")
@@ -368,15 +363,18 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
         var prevCurrCar: Car? = null
         var selectedCar: Car? = null
+        var prevDealership: Dealership? = null
         for (currCar in carList){
             when {
                 currCar.isCurrentCar -> {
                     prevCurrCar = currCar
+                    prevDealership = currCar.shop
                     currCar.isCurrentCar = false
                 }
                 currCar.id == car.id -> {
                     currCar.isCurrentCar = true
                     mCar = currCar
+                    mDealership = currCar.shop
                     selectedCar = currCar
                 }
                 else -> currCar.isCurrentCar = false
@@ -396,8 +394,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                 if (view == null) return
                 view?.toast(error.message)
 
+                //Revert car selection if an error occurs
                 selectedCar?.isCurrentCar = false
                 prevCurrCar?.isCurrentCar = true
+                mDealership = prevDealership
                 view?.notifyCarDataChanged()
             }
         })
