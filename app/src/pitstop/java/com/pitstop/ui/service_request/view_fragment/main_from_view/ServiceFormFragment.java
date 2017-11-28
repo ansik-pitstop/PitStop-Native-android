@@ -315,6 +315,13 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     }
 
     @Override
+    public void finish() {
+        Log.d(TAG,"finish()");
+        if (getActivity() != null)
+            getActivity().finish();
+    }
+
+    @Override
     public void showCalender() {
         Log.d(TAG,"showCalednar()");
         calendarView.setVisibility(View.VISIBLE);
