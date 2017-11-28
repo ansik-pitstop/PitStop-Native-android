@@ -198,58 +198,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_below="@+id/banner_container">
-
-                        <LinearLayout
-                            android:id="@+id/mileage_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:weightSum="6"
-                            android:orientation="horizontal"
-                            android:paddingTop="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:paddingLeft="8dp"
-                            android:paddingRight="8dp">
-                            <ImageView
-                                android:layout_weight="0"
-                                android:id="@+id/mileage_icon"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:layout_marginRight="10dp"
-                                tools:src="@drawable/mercedes_mileage"
-                                android:layout_gravity="center"/>
-                            <LinearLayout
-                                android:layout_weight="5"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:id="@+id/mileage_title"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/mileage_title"
-                                    android:textStyle="bold"
-                                    android:layout_marginBottom="8dp"/>
-                                <TextView
-                                    android:id="@+id/mileage_subtitle"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textSize="12sp"
-                                    android:text="@string/mileage_subtitle"/>
-
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/mileage"
-                                android:layout_weight="1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                tools:text="250000.18 km"
-                                android:layout_gravity="center"
-                                android:gravity="end"
-                                />
-
-                        </LinearLayout>
-
                         <include layout="@layout/divider"/>
 
 

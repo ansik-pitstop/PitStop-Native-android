@@ -287,8 +287,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
             updating = false;
             return;
         }
-
-        useCaseComponent.updateCarMileageUseCase().execute(mileage
+        useCaseComponent.updateCarMileageUseCase().execute(getView().getMileageObservable(), mileage
                 , new UpdateCarMileageUseCase.Callback() {
 
                     @Override

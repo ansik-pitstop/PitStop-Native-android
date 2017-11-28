@@ -59,6 +59,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean nonUrgentScanInProgress = false;
     private boolean discoveryWasStarted = false;
 
+    public void requestRtcAndMileage() {
+        if (isConnectedTo215()){
+            writeToObd(deviceInterface.getRtc());
+            writeToObd(((Device215B)deviceInterface).getMileage());
+        }
+    }
+
+
     public enum CommType {
         CLASSIC, LE
     }

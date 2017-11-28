@@ -57,6 +57,8 @@ import com.pitstop.observer.Device215BreakingObserver;
 import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
+import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
@@ -80,7 +82,7 @@ import java.util.Map;
  */
 public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
-        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable {
+        , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable, MileageObservable {
 
     public class BluetoothBinder extends Binder {
         public BluetoothAutoConnectService getService() {
@@ -115,6 +117,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean allPidRequested = false;
     private boolean dtcRequested = false;
     private boolean receivedDtcResponse = false;
+    private boolean mileageAndRtcRequested = false;
+
+
+    private boolean isRequestingMileageAndRTC = false;
 
     //Connection state values
     private long terminalRtcTime = -1;
@@ -157,6 +163,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             allowPidTracking = true;
         }
     };
+
+
 
     /**For when VIN isn't returned from device(usually means ignition isn't ON)**/
     private final TimeoutTimer getVinTimeoutTimer
@@ -222,6 +230,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Logger.getInstance().logW(TAG,"Get all pids retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
 
             }
+        }
+    };
+
+    private final TimeoutTimer rtcAndMileagTimeOutTimer = new TimeoutTimer(10, 2) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG, "rtcAndMileageTimer.onRetry() rtcAndMileageRequested? " + isRequestingMileageAndRTC);
+        }
+
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG, "rtcAndMileageTimeOutTimer.onTimeOut");
+            //Rtc data wasn't sent before timer is done
+            notifyErrorGettingMileageAndRTC();
         }
     };
 
@@ -1186,6 +1209,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dtcRequested = false;
         readyDevice = null;
         deviceIsVerified = false;
+        mileageAndRtcRequested = false;
         currentDeviceId = null;
     }
 
@@ -1209,6 +1233,73 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.clearDtcs();
         return true;
     }
+
+    @Override
+    public void requestRtcAndMileage() {
+        Log.d(TAG,"requestRtcAndmileage()");
+        if(deviceConnState == State.DISCONNECTED) {
+            Log.d(TAG, "device is disconnected, ");
+            notifyNotConnected();
+        }
+        if (isRequestingMileageAndRTC) return;
+        isRequestingMileageAndRTC = true;
+        if (rtcAndMileagTimeOutTimer.isRunning()){
+            rtcAndMileagTimeOutTimer.cancel();
+        }
+        rtcAndMileagTimeOutTimer.startTimer();
+        deviceManager.requestRtcAndMileage();
+    }
+
+
+    @Override
+    public void gotRTCAndmileage(String mileage, String rtc) {
+        Log.d(TAG, "gotRTCAndMileage()");
+        notifyGotRtcAndMileage(mileage, rtc);
+
+    }
+
+    private void notifyGotRtcAndMileage(String mileage, String rtc) {
+        Log.d(TAG, "notifyGotRtcAndMileage()");
+        if (!isRequestingMileageAndRTC) return;
+        isRequestingMileageAndRTC = false;
+        rtcAndMileagTimeOutTimer.cancel();
+        Log.d(TAG, "Mileage: "  + mileage + " rtcTime: " + rtc);
+
+        for (Observer observer: observerList){
+            if (observer instanceof MileageObserver){
+                Log.d(TAG, observer.getClass().getSimpleName() + "is instance of mileage observer");
+                mainHandler.post(()
+                        -> ((MileageObserver)observer).onMileageAndRtcGot(mileage, rtc));
+            }
+        }
+    }
+
+
+    public void notifyErrorGettingMileageAndRTC(){
+        Log.d(TAG, "notifyErrorGettingMileageAndRtc");
+        isRequestingMileageAndRTC = false;
+        for (Observer observer: observerList){
+            if (observer instanceof MileageObserver){
+                mainHandler.post(()
+                        -> ((MileageObserver)observer).onGetMileageAndRtcError());
+            }
+        }
+
+    }
+
+    public void notifyNotConnected(){
+        isRequestingMileageAndRTC = false;
+        Log.d(TAG,"notifySearchingForDevice()");
+        for (Observer observer: observerList){
+            if (observer instanceof MileageObserver){
+                mainHandler.post(()
+                        -> ((MileageObserver)observer).onNotConnected());
+            }
+        }
+
+    }
+
+
 
     @Override
     public boolean setChunkSize(int size) {

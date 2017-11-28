@@ -6,11 +6,15 @@ import android.util.Log;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.MileageObservable;
+import com.pitstop.observer.MileageObserver;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
+
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -19,7 +23,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by Karol Zdebel on 9/7/2017.
  */
 
-public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
+public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase, MileageObserver{
 
     private final String TAG = getClass().getSimpleName();
 
@@ -27,8 +31,12 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     private UserRepository userRepository;
     private Handler usecaseHandler;
     private Handler mainHandler;
+    private int carId;
+    private MileageObservable mileageObservable;
+
 
     private Callback callback;
+
     private double mileage;
 
     public UpdateCarMileageUseCaseImpl(CarRepository carRepository, UserRepository userRepository
@@ -37,16 +45,21 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
         this.userRepository = userRepository;
         this.usecaseHandler = usecaseHandler;
         this.mainHandler = mainHandler;
+
     }
 
     @Override
-    public void execute(double mileage, Callback callback){
+    public void execute(MileageObservable mileageObservable, double mileage, Callback callback){
         Logger.getInstance().logI(TAG, "Use case execution started: mileage="+mileage
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.mileage = mileage;
         usecaseHandler.post(this);
+        this.mileageObservable = mileageObservable;
+        mileageObservable.subscribe(this);
     }
+
+
 
     private void onMileageUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: mileage updated"
@@ -69,6 +82,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     @Override
     public void run() {
         Log.d(TAG,"run()");
+        mileageObservable.requestRtcAndMileage();
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings settings) {
@@ -77,7 +91,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     UpdateCarMileageUseCaseImpl.this.onNoCarAdded();
                     return;
                 }
-
+                carId = settings.getCarId();
                 carRepository.get(settings.getCarId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
@@ -115,5 +129,39 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                 UpdateCarMileageUseCaseImpl.this.onError(error);
             }
         });
+    }
+
+
+    @Override
+    public void onMileageAndRtcGot(@NotNull String deviceMileage, @NotNull String rtc) {
+        Log.d(TAG, "onMileageAndRtcGot(), deviceMileage: " + deviceMileage + " rtc: " + rtc);
+
+        int metre = (Integer.parseInt(deviceMileage) % 1000);
+        int km = Integer.parseInt(deviceMileage)/1000;
+        double decimal = (double)metre/1000;
+        double total  = decimal + (double)km;
+        Log.d(TAG, Double.toString(total));
+        carRepository.updateCarMileage(this.mileage, total, this.carId, rtc, new Repository.Callback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                Log.d(TAG, "onMileageAndRtcSentToBackendSuccess()");
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                Log.d(TAG, "onMileageAndRtcSentToBackendError()");
+            }
+        });
+
+    }
+
+    @Override
+    public void onGetMileageAndRtcError() {
+        Log.d(TAG, "onGetDeviceMileageAndRTCError()");
+    }
+
+    @Override
+    public void onNotConnected() {
+        Log.d(TAG, "onDeviceNotConnected()");
     }
 }
