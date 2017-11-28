@@ -297,6 +297,7 @@
     <string name="done">Done</string>
     <string name="dealership_not_found">Couldn\'t find any dealerships</string>
     <string name="delete">Delete</string>
+    <string name="delete_car_title">Delete Car</string>
     <string name="delete_car">Are you sure you want to delete this car?</string>
     <string name="car_error_update_toast">An error occurred while updating your car</string>
     <string name="car_load_error_toast">There was an error loading your car details</string>

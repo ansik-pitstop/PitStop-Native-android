@@ -660,7 +660,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/red"
-            android:text="@string/delete"/>
+            android:text="@string/delete_car_title"/>
 
     </LinearLayout>
     </LinearLayout>
