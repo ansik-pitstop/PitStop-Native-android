@@ -89,7 +89,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 //    @BindView(R.id.car_name_banner)
 //    protected TextView carName;
 
-    @BindView(R.id.main_view_lin_layout)
+    @BindView(R.id.main_view)
     protected LinearLayout mainLayout;
 
     @BindView(R.id.loading_view_main)
