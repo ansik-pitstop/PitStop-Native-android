@@ -1,41 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-        <LinearLayout
-            android:gravity="start"
-            android:layout_gravity="start"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:padding="5dp"
-                android:layout_gravity="left"
-                android:textStyle="bold"
-                android:textSize="20dp"
-                android:text="Alarms Enabled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <android.support.v7.widget.SwitchCompat
-                android:id="@+id/alarms_enabled_switch"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal|end"
-                android:gravity="center_horizontal|end"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" />
-        </LinearLayout>
 
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
             android:visibility="gone"
             android:id="@+id/unknown_error_view"
             layout="@layout/layout_unknown_error"/>
@@ -43,7 +14,7 @@
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
             layout="@layout/loading_layout"
             android:visibility="gone"
             android:id="@+id/loading_view"/>
@@ -51,21 +22,48 @@
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
             android:id="@+id/no_alarms_view"
             android:visibility="gone"
             layout="@layout/layout_no_alarms"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/main_recycler_view"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-        </android.support.v7.widget.RecyclerView>
-
-
-    </LinearLayout>
-
-
-
-</android.support.v4.widget.NestedScrollView>
+                <RelativeLayout
+                    android:id="@+id/enable_alarms_holder"
+                    android:gravity="start"
+                    android:layout_gravity="start"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_gravity="left"
+                        android:textStyle="bold"
+                        android:text="Alarms Enabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/alarms_enabled_switch"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal|end"
+                        android:gravity="center_horizontal|end"/>
+                </RelativeLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/main_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
+        </ScrollView>
+</RelativeLayout>
