@@ -40,10 +40,8 @@ public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
         useCaseHandler.post(this);
     }
 
-    public void onError(RequestError error){
-        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                , DebugMessage.TYPE_USE_CASE);
-        mainHandler.post(() -> callback.onError(error));
+    public void onNoLicensePlateExisting(){
+        mainHandler.post(() -> callback.onNoLicensePlateExisting());
     }
 
     public void onLicensePlateStored(String licensePlate){
@@ -62,7 +60,7 @@ public class GetLicensePlateUseCaseImpl implements GetLicensePlateUseCase{
 
             @Override
             public void onError(RequestError error) {
-                GetLicensePlateUseCaseImpl.this.onError(error);
+                GetLicensePlateUseCaseImpl.this.onNoLicensePlateExisting();
             }
         });
 

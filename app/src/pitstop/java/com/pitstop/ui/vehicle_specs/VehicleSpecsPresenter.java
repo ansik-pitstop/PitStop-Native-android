@@ -145,12 +145,14 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 Log.d(TAG, "licensePlateGot");
                 getView().showLicensePlate(licensePlate);
             }
+
             @Override
-            public void onError(RequestError error) {
+            public void onNoLicensePlateExisting() {
                 if (getView() == null) return;
                 Log.d(TAG, "gettingLicensePlateFailed");
                 getView().showLicensePlate("");
             }
+
         });
     }
 
@@ -196,6 +198,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                     getView().setCarView(mCar);
                     getFuelConsumed();
                     getAmountSpent();
+                    if (car.getScannerId() == null || car.getScannerId().equalsIgnoreCase("")){
+                        getView().showNoScannerIcons();
+                    }
+                    else{
+                        getView().normalIcons();
+                    }
                     getView().showNormalLayout();
                     //getCarImage(mCar.getVin());
                 }
@@ -290,7 +298,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
 
         useCaseComponent.updateCarMileageUseCase().execute(mileage
                 , new UpdateCarMileageUseCase.Callback() {
-
                     @Override
                     public void onMileageUpdated() {
                         updating = false;
@@ -306,7 +313,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                             getView().displayUnknownErrorDialog();
                         }
                     }
-
                     @Override
                     public void onNoCarAdded() {
                         updating = false;
@@ -314,12 +320,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                         getView().hideLoading();
                         getView().showNoCarView();
                     }
-
                     @Override
                     public void onError(RequestError error) {
                         updating = false;
                         if (getView() == null) return;
-
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
                             if (getView().hasBeenPopulated()){
                                 getView().displayOfflineErrorDialog();
@@ -332,7 +336,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                             getView().hideLoading();
                             getView().displayUnknownErrorDialog();
                         }
-
                         getView().hideLoading();
                     }
                 });
@@ -357,7 +360,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 Integer.toString(Calendar.getInstance().getTime().getDate());
         Log.d(TAG, "current date: " + currentDate);
         Log.d(TAG, "last update date: " +sharedPreferences.getString(LAST_UPDATED_DATE+mCar.getVin(), "0000") );
-        if (Integer.parseInt(currentDate) > Integer.parseInt(sharedPreferences.getString(LAST_UPDATED_DATE+mCar.getVin(), "0000"))){
+       if (Integer.parseInt(currentDate) > Integer.parseInt(sharedPreferences.getString(LAST_UPDATED_DATE+mCar.getVin(), "0000"))){
             updatePrice(sharedPreferences);
             return;
         }
@@ -385,7 +388,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                 }
             });
         }
-
 
     }
 
@@ -425,30 +427,55 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
                     }
                     @Override
                     public void onError(@NotNull RequestError error) {
-                        Log.d(TAG, "couldnt update price");
+                        Log.d(TAG, "couldnt get fuel consumed");
                     }
                 });
             }
             @Override
             public void onError(@NotNull RequestError error) {
+                // if we cant get fuel price, we use 109.0 as average price
                 Log.d(TAG, "couldnt update price");
+                float fuelPrice = (float)109.0;
+                useCaseComponent.getGetFuelConsumedUseCase().execute(mCar.getScannerId(), new GetFuelConsumedUseCase.Callback() {
+                    @Override
+                    public void onFuelConsumedGot(double fuelConsumed) {
+                        if (getView() == null) return;
+                        Log.d(TAG, "fuel consumed got: "  + Double.toString(fuelConsumed));
+                        float oldConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), 0);
+                        float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE+mCar.getVin(), 0);
+                        editor.putFloat(PRICE_AT_UPDATE+mCar.getVin(), fuelPrice);
+                        String date = Integer.toString(Calendar.getInstance().getTime().getYear()) + Integer.toString(Calendar.getInstance().getTime().getMonth()) +
+                                Integer.toString(Calendar.getInstance().getTime().getDate());
+                        editor.putString(LAST_UPDATED_DATE+mCar.getVin(), date);
+                        editor.putFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), (float)fuelConsumed);
+                        float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed-oldConsumed)* fuelPrice;
+                        Log.d(TAG, "old fuel consumed "  + Double.toString(oldConsumed));
+                        Log.d(TAG, "old moeny total: "  + Double.toString(oldMoneySpent));
+                        Log.d(TAG, "new Money spent: "  + Double.toString(newMoneySpent));
+
+                        editor.putFloat(TOTAL_MONEY_SPENT_AT_UPDATE+mCar.getVin(), newMoneySpent);
+                        editor.commit();
+
+                        getView().showFuelExpense(newMoneySpent);
+                    }
+                    @Override
+                    public void onError(@NotNull RequestError error) {
+                        Log.d(TAG, "couldnt get fuel consumed");
+                    }
+                });
 
             }
         });
-
-
-
     }
 
     public void onFuelConsumptionClicked() {
-        if (this.mCar.getScanner()==null || this.mCar.getScannerId() == "" )
+        if (this.mCar.getScannerId()==null || this.mCar.getScannerId().equalsIgnoreCase(""))
             getView().showBuyDeviceDialog();
         else
             getView().showFuelConsumptionExplanationDialog();
     }
 
     public void getFuelConsumed() {
-
         if (this.mCar.getScannerId()==null || this.mCar.getScannerId() == ""){
             if (getView() ==null) return;
             getView().showFuelConsumed(0.0);
@@ -471,7 +498,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> {
     public void onFuelExpensesClicked() {
         if (updating)return;
         if (getView() == null) return;
-        if (mCar.getScannerId()==null){
+        if (mCar.getScannerId()==null || mCar.getScannerId().equalsIgnoreCase("")){
             getView().showBuyDeviceDialog();
         }
         else {
