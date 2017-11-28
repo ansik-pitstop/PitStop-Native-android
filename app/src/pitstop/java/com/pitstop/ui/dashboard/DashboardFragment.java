@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment extends Fragment implements DashboardView, AlarmObserver, AutoConnectServiceBindingObserver {
+public class DashboardFragment extends Fragment implements DashboardView{
 
     public static String TAG = DashboardFragment.class.getSimpleName();
     public static String  CAR_ID_KEY = "carId";
@@ -123,7 +123,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_main_dashboard, null);
         ButterKnife.bind(this, view);
-        ((MainActivity)getActivity()).subscribe(this);
         if (presenter == null){
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
@@ -133,7 +132,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
             presenter = new DashboardPresenter(useCaseComponent, mixpanelHelper);
 
         }
-
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;
@@ -412,6 +410,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         offlineView.bringToFront();
     }
 
+
     @Override
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
@@ -440,50 +439,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         }
     }
 
-    @Override
-    public void displayDefaultDealershipVisuals(Dealership dealership) {
-    /*    Log.d(TAG,"displayDefaultDealershipVisual()");
 
-
-        dealershipName.setText(dealership.getName());
-        dealershipAddress.setText(dealership.getAddress());
-        dealershipPhone.setText(dealership.getPhone());
-        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
-
-        drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);
-        mMileageIcon.setImageResource(R.drawable.odometer);
-        mMyTripsIcon.setImageResource(R.drawable.route_2);
-        if( (getActivity()) != null){
-            ((MainActivity)getActivity()).changeTheme(false);
-        }
-        mCarLogoImage.setVisibility(View.VISIBLE);
-        dealershipName.setVisibility(View.VISIBLE);
-        carName.setTextColor(Color.BLACK);
-        dealershipName.setTextColor(Color.BLACK);
-        carName.setTypeface(Typeface.DEFAULT_BOLD);
-        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        mDealerBannerOverlay.setVisibility(View.VISIBLE);*/
-    }
-
-
-
-    @Override
-    public void displayCarDetails(Car car){
-     /*   Log.d(TAG,"displayCarDetails() car: "+car);
-        hasBeenPopulated = true;
-        carName.setText(car.getYear() + " " + car.getMake() + " "
-                + car.getModel());
-        mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
-        mCarLogoImage.setVisibility(View.VISIBLE);
-        mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));*/
-
-    }
-
-    @Override
-    public void noScanner() {
-        drivingAlarmsIcon.setImageResource(R.drawable.disabled_car_alarms_3x);
-
-    }
 
     @Override
     public void displayMileage(double mileage) {
@@ -513,17 +469,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     }
 
-    @Override
-    public void startRequestServiceActivity() {
-        Log.d(TAG,"startRequestServiceActivity()");
-        ((MainActivity)getActivity()).requestMultiService(null);
-    }
-
-    @Override
-    public void startMyAppointmentsActivity() {
-        Log.d(TAG,"startMyAppointmentsActivity()");
-        ((MainActivity)getActivity()).myAppointments();
-    }
 
     @Override
     public void startMyTripsActivity() {
@@ -551,24 +496,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     public boolean hasBeenPopulated() {
         Log.d(TAG,"hasBeenPopulated() ? "+hasBeenPopulated);
         return hasBeenPopulated;
-    }
-
-    @OnClick(R.id.driving_alarms_button)
-    public void onTotalAlarmsClicked(){
-        Log.d(TAG, "onTotalAlarmsClicked()");
-        presenter.onTotalAlarmsClicked();
-    }
-
-
-
-
-    public void openAlarmsActivity(){
-        Log.d(TAG ,"openAlarmsActivity");
-        Intent intent = new Intent(getActivity(), AlarmsActivity.class);
-        Bundle bundle  = new Bundle();
-        bundle.putBoolean("isMercedes", presenter.isDealershipMercedes());
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
 
@@ -603,38 +530,4 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         startActivity(browserIntent);
     }
 
-    @Override
-    public void hideBadge() {
-        alarms.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showBadges(int alarmCount) {
-        alarms.setVisibility(View.VISIBLE);
-        if (alarmCount>9)
-            alarms.setText("9+");
-        else
-            alarms.setText(Integer.toString(alarmCount));
-
-    }
-
-
-
-
-
-
-    @Override
-    public void onAlarmAdded(Alarm alarm) {
-        presenter.setNumAlarms(presenter.getNumAlarms()+1);
-        showBadges(presenter.getNumAlarms());
-    }
-
-
-
-    @Override
-    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
-        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
-        alarmObservable.subscribe(this);
-
-    }
 }
