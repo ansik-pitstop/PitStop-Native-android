@@ -68,23 +68,13 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
 
 
-    @BindView(R.id.dealer_background_imageview)
-    ImageView mDealerBanner;
 
-    @BindView(R.id.banner_overlay)
-    FrameLayout mDealerBannerOverlay;
 
-    @BindView(R.id.car_logo_imageview)
-    ImageView mCarLogoImage;
-
-    @BindView(R.id.mileage_icon)
-    ImageView mMileageIcon;
 
     @BindView(R.id.alarm_badge)
     TextView alarms;
 
-    @BindView(mileage)
-    TextView mMileageText;
+
 
     @BindView(R.id.my_trips_icon)
     ImageView mMyTripsIcon;
@@ -92,21 +82,12 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     @BindView(R.id.swiperefresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.car_name)
-    TextView carName;
 
     @BindView(R.id.driving_alarms_icon)
     ImageView drivingAlarmsIcon;
 
 
-    @BindView(R.id.dealership_name)
-    TextView dealershipName;
 
-    @BindView(R.id.dealership_address)
-    TextView dealershipAddress;
-
-    @BindView(R.id.dealership_phone)
-    TextView dealershipPhone;
 
     @BindView(R.id.offline_view)
     View offlineView;
@@ -158,21 +139,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"onViewCreated()");
-        super.onViewCreated(view, savedInstanceState);
-        presenter.subscribe(this);
-        presenter.onUpdateNeeded();
-    }
-
-    @Override
-    public void onDestroyView() {
-        Log.d(TAG,"onDestroyView()");
-        super.onDestroyView();
-        hasBeenPopulated = false;
-        presenter.unsubscribe();
-    }
 
     public static int getDealerSpecificBanner(String name) {
         Log.d(TAG,"getDealerSpecificBanner()");
@@ -312,6 +278,21 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         }else{
             return 0;
         }
+    }
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG,"onViewCreated()");
+        super.onViewCreated(view, savedInstanceState);
+        presenter.subscribe(this);
+        presenter.onUpdateNeeded();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+        super.onDestroyView();
+        hasBeenPopulated = false;
+        presenter.unsubscribe();
     }
 
     @OnClick(R.id.my_trips_btn)
@@ -461,7 +442,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
-        Log.d(TAG,"displayDefaultDealershipVisual()");
+    /*    Log.d(TAG,"displayDefaultDealershipVisual()");
 
 
         dealershipName.setText(dealership.getName());
@@ -481,42 +462,20 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
         dealershipName.setTextColor(Color.BLACK);
         carName.setTypeface(Typeface.DEFAULT_BOLD);
         carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        mDealerBannerOverlay.setVisibility(View.VISIBLE);
+        mDealerBannerOverlay.setVisibility(View.VISIBLE);*/
     }
 
-    @Override
-    public void displayMercedesDealershipVisuals(Dealership dealership) {
-        Log.d(TAG,"displayMercedesDealershipVisuals()");
 
-        dealershipName.setText(dealership.getName());
-        dealershipAddress.setText(dealership.getAddress());
-        dealershipPhone.setText(dealership.getPhone());
-        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
-
-        mDealerBanner.setImageResource(R.drawable.mercedes_brampton);
-        mMileageIcon.setImageResource(R.drawable.mercedes_mileage);
-
-        drivingAlarmsIcon.setImageResource(R.drawable.mercedes_car_alarms_3x);
-        mMyTripsIcon.setImageResource(R.drawable.mercedes_way_2);
-        ((MainActivity)getActivity()).changeTheme(true);
-        mCarLogoImage.setVisibility(View.GONE);
-        dealershipName.setVisibility(View.GONE);
-        carName.setTextColor(Color.WHITE);
-        carName.setTypeface(Typeface.createFromAsset(getActivity().getAssets()
-                , "fonts/mercedes.otf"));
-        mDealerBannerOverlay.setVisibility(View.GONE);
-        carName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-    }
 
     @Override
     public void displayCarDetails(Car car){
-        Log.d(TAG,"displayCarDetails() car: "+car);
+     /*   Log.d(TAG,"displayCarDetails() car: "+car);
         hasBeenPopulated = true;
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
         mMileageText.setText(String.format("%.2f km",car.getTotalMileage()));
         mCarLogoImage.setVisibility(View.VISIBLE);
-        mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
+        mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));*/
 
     }
 
@@ -528,8 +487,7 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
 
     @Override
     public void displayMileage(double mileage) {
-        Log.d(TAG,"displayMileage() mileage: "+mileage);
-        mMileageText.setText(String.format("%.2f km",mileage));
+
     }
 
     @Override

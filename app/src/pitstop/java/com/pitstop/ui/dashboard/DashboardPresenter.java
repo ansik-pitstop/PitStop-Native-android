@@ -117,14 +117,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                 isDealershipMercedes = (dealership.getId() == 4
                         || dealership.getId() == 18);
 
-                if (BuildConfig.DEBUG && (dealership.getId() == 4
-                        || dealership.getId() == 18)){
-                    getView().displayMercedesDealershipVisuals(dealership);
-                } else if (!BuildConfig.DEBUG && dealership.getId() == 14){
-                    getView().displayMercedesDealershipVisuals(dealership);
-                } else {
-                    getView().displayDefaultDealershipVisuals(dealership);
-                }
+                getView().displayDefaultDealershipVisuals(dealership);
                 if (car.getScannerId()==null || car.getScannerId().equalsIgnoreCase("null")) {
                     getView().noScanner();
                     carHasScanner = false;
