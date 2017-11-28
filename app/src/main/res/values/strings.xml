@@ -173,9 +173,11 @@
 
     <!--Dashboard-->
     <string name="mileage_title">Mileage</string>
+    <string name="mileage_estimated_title">Estimated Mileage</string>
     <string name="mileage_subtitle">Tap here to manually update your mileage</string>
     <string name="engine_title">Engine</string>
-    <string name="fuel_consumption_header">Fuel consumption</string>
+    <string name="fuel_consumption_header">Fuel Consumption</string>
+    <string name="estimated_fuel_consumption_header">Estimated Fuel Consumption</string>
     <string name="highway_title">Highway</string>
     <string name="city_title">City</string>
     <string name="tools_header">TOOLS</string>
@@ -295,6 +297,7 @@
     <string name="done">Done</string>
     <string name="dealership_not_found">Couldn\'t find any dealerships</string>
     <string name="delete">Delete</string>
+    <string name="delete_car_title">Delete Car</string>
     <string name="delete_car">Are you sure you want to delete this car?</string>
     <string name="car_error_update_toast">An error occurred while updating your car</string>
     <string name="car_load_error_toast">There was an error loading your car details</string>
@@ -504,6 +507,7 @@
     <string name="current_car_set">Current car set</string>
     <string name="fuel_consumption">FUEL USAGE</string>
     <string name="fuel_expense">Fuel Expense</string>
+    <string name="estimated_fuel_expense">Estimated Fuel Expense</string>
     <string name="fuel_expense_description">Estimates based on the average  \nfuel price in your area</string>
     <string name="fuel_consumption_desc">Since your Pitsop device was first installed</string>
     <string name="driving_alarms">Total Driving Alarms</string>
@@ -545,7 +549,7 @@
     <string name="sort_by_service_issues">Ordene por serviços</string>
     <string name="sort_by_recalls">Ordene por recalls</string>
     <string name="fuel_expense_dialog_description">Once a day we check the average fuel price based on your location. If the value isn\'t found, we use the value of $1.09 as we found this to be the average fuel price this year. We will eventually be adding in capability for you to enter your own price so you can track your fuel more accurately.</string>
-    <string name="tank_size">Tank SIze</string>
+    <string name="tank_size">Tank Size</string>
     <string name="call">Call</string>
     <string name="my_vehicles">My Vehicles</string>
     <string name="contact">Contact</string>
@@ -587,4 +591,5 @@
     <string name="vehicle__health_report">Vehicle Health Report</string>
     <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
     <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
+    <string name="estimated_usage">Estimated Usage</string>
 </resources>
