@@ -113,6 +113,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.dealership_icon)
     protected ImageView dealershipIcon;
 
+    @BindView(R.id.fuel_consumption_card_view)
+    protected View fuelConsumptionView;
+
+    @BindView(R.id.fuel_expenses_card_view)
+    protected View fuelExpensesView;
+
     @BindView(R.id.mileage_icon)
     protected ImageView mileageIcon;
 
@@ -134,6 +140,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.money_spent)
     TextView fuelExpensesTextView;
 
+    @BindView(R.id.city_mileage_view)
+    protected View cityMileageView;
+
+    @BindView(R.id.highway_mileage_view)
+    protected View highwayMileageView;
 
 //    @BindView(R.id.banner_overlay)
 //    protected FrameLayout bannerOverlay;
@@ -191,6 +202,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.license_plate_cardview)
     protected View plateView;
+
+    @BindView(R.id.fuel_consumption_icon)
+    protected ImageView fuelConsumptionIcon;
+
+    @BindView(R.id.fuel_expenses_icon)
+    protected ImageView fuelExpensesIcon;
 
     @BindView(R.id.trim_card_view)
     protected View trimView;
@@ -384,24 +401,27 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             scannerID.setText("No scanner connected");
         else
             scannerID.setText(car.getScannerId());
-        if (car.getEngine() == null){
+        if (car.getEngine() == null|| car.getEngine() == ""){
             engine.setVisibility(View.GONE);
         }
         else
             engine.setText(car.getEngine());
-
-        cityMileage.setText(car.getCityMileage());
-        highwayMileage.setText(car.getHighwayMileage());
-        if (car.getTrim() == null)
+        if (car.getCityMileage() == null || car.getCityMileage() == "")
+            cityMileageView.setVisibility(View.GONE);
+        else
+            cityMileage.setText(car.getCityMileage());
+        if (car.getHighwayMileage() == null || car.getHighwayMileage() == "")
+            highwayMileageView.setVisibility(View.GONE);
+        else
+            highwayMileage.setText(car.getHighwayMileage());
+        if (car.getTrim() == null || car.getTrim() == "")
             trimView.setVisibility(View.GONE);
         else
             trim.setText(car.getTrim());
-
-        if (car.getTankSize() == null)
+        if (car.getTankSize() == null|| car.getTankSize()=="")
             tankSizeView.setVisibility(View.GONE);
         else
             tankSize.setText(car.getTankSize());
-
         if(!(presenter.getDealership()== null)) {
             dealership.setText(presenter.getDealership().getName());
         }
@@ -487,8 +507,17 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         tankSizeIcon.setImageResource(R.drawable.tank_size_2x);
     }
 
+    @Override
+    public void normalIcons() {
+
+        fuelConsumptionIcon.setImageResource(R.drawable.gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_3x);
+        fuelConsumptionView.setBackgroundColor(getResources().getColor(R.color.white));
+        fuelExpensesView.setBackgroundColor(getResources().getColor(R.color.white));
 
 
+
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -784,6 +813,17 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void showFuelExpense(float v) {
         fuelExpensesTextView.setText(String.format("%.2f", v/100));
+
+    }
+
+    @Override
+    public void showNoScannerIcons() {
+        fuelConsumptionIcon.setImageResource(R.drawable.mercedes_gas_station_3x);
+        fuelExpensesIcon.setImageResource(R.drawable.dollar_sign_disabled_3x);
+        fuelConsumptionView.setBackgroundColor(getResources().getColor(R.color.light_grey));
+        fuelExpensesView.setBackgroundColor(getResources().getColor(R.color.light_grey));
+
+
 
     }
 

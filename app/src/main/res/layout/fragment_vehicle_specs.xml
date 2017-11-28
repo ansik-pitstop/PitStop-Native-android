@@ -411,6 +411,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
+                    android:id="@+id/fuel_expenses_icon"
                     android:paddingLeft="6dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/dollar_sign_3x"
@@ -553,6 +554,7 @@
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="2dp"
+           android:id="@+id/city_mileage_view"
             android:layout_gravity="center_horizontal"
             >
             <LinearLayout
@@ -594,6 +596,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
+            android:id="@+id/highway_mileage_view"
             android:layout_marginBottom="2dp"
             android:layout_gravity="center_horizontal"
             >
