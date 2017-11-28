@@ -1,1 +1,5 @@
-<resources></resources>
+<resources>
+    <style name="vehicle_specs_text" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>
