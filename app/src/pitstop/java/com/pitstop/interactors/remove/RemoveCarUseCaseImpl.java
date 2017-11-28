@@ -110,34 +110,23 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                     RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                                                     return;
                                                 }
-                                                if(cars.size()>0){//does the user have another car?
-                                                    userRepository.setUserCar(user.getId(), cars.get(cars.size() - 1).getId(), new Repository.Callback<Object>() {
 
-                                                        @Override
-                                                        public void onSuccess(Object object) {
-                                                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                                    ,eventSource));
-                                                            RemoveCarUseCaseImpl.this.onCarRemoved();
-                                                        }
+                                                int carId = cars.size() > 0 ? cars.get(cars.size() - 1).getId() : -1;
+                                                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
 
-                                                        @Override
-                                                        public void onError(RequestError error) {
-                                                            RemoveCarUseCaseImpl.this.onError(error);
-                                                        }
-                                                    });
-                                                }else{//user doesn't have another car
-                                                    networkHelper.setNoMainCar(user.getId(), (response1, requestError) -> {
-                                                        if(requestError ==null){
-                                                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                                    ,eventSource));
-                                                            RemoveCarUseCaseImpl.this.onCarRemoved();
-                                                        }else{
-                                                            RemoveCarUseCaseImpl.this.onError(requestError);
-                                                        }
-                                                    });
-                                                }
+                                                    @Override
+                                                    public void onSuccess(Object object) {
+                                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                                ,eventSource));
+                                                        RemoveCarUseCaseImpl.this.onCarRemoved();
+                                                    }
+
+                                                    @Override
+                                                    public void onError(RequestError error) {
+                                                        RemoveCarUseCaseImpl.this.onError(error);
+                                                    }
+                                                });
                                             }).onErrorReturn(err -> {
                                                 Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
                                                 return new RepositoryResponse<List<Car>>(null,false);
