@@ -187,8 +187,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 .doOnNext({next ->
                     if (next == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                    localCarStorage.deleteAllCars()
-                    localCarStorage.storeCars(next.data)
+                    localCarStorage.deleteAndStoreCars(next.data)
                 }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err err cause: {${err.cause}}")
                     RepositoryResponse(null,false)
@@ -214,8 +213,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                             next.data.shopId = 1
                         else next.data.shopId = 19
 
-                    localCarStorage.deleteCar(next.data.id)
-                    localCarStorage.storeCarData(next.data)
+                    localCarStorage.deleteAndStoreCar(next.data)
                 }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err")
                     RepositoryResponse(null,false)
