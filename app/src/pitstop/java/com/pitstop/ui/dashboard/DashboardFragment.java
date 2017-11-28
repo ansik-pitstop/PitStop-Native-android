@@ -132,10 +132,6 @@ public class DashboardFragment extends Fragment implements DashboardView, AlarmO
     private DashboardPresenter presenter;
     private AlarmObservable alarmObservable;
     private boolean hasBeenPopulated = false;
-
-
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {

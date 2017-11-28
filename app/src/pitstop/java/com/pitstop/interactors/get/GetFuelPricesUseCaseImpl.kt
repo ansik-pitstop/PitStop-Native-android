@@ -33,19 +33,21 @@ class GetFuelPricesUseCaseImpl(val useCaseHandler: Handler, val mainHandler: Han
             Uri = "?search=" + mPostalCode!!
             Log.d(TAG, Uri);
         }
-        var doc: Document = Jsoup.connect(BASE_URL+Uri).get();
-        var docString = doc.text();
+
+        try{
+        val doc: Document = Jsoup.connect(BASE_URL+Uri).get();
+        val docString = doc.text();
         if (docString == null || docString.equals("", true)){
-            mainHandler?.post({mCallback?.onFuelPriceGot(0.0)})
+            mainHandler?.post({mCallback?.onError(RequestError.getOfflineError())})
             return;
         }
-        var index = docString.indexOf("Average Price ");
-        try {
-            var price = (docString.substring(index + 14, index+19)).toDouble();
+        val index = docString.indexOf("Average Price ");
+            val price = (docString.substring(index + 14, index+19)).toDouble();
             mainHandler.post({mCallback?.onFuelPriceGot(price)})
         }
-        catch (e: NumberFormatException){
-            mainHandler?.post({mCallback?.onFuelPriceGot(0.0)})
+
+        catch (e: Exception){
+            mainHandler?.post({mCallback?.onError(RequestError.getOfflineError())})
         }
 
     }

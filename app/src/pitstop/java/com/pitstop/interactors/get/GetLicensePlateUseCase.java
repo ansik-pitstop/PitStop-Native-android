@@ -14,7 +14,7 @@ public interface GetLicensePlateUseCase extends Interactor {
 
     interface Callback{
         void onLicensePlateGot(String licensePlate);
-        void onError(RequestError error);
+        void onNoLicensePlateExisting();
     }
     void execute(int CarID, Callback callback);
 }
