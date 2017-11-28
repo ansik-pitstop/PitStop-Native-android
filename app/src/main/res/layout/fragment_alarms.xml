@@ -57,6 +57,7 @@
                     <android.support.v7.widget.SwitchCompat
                         android:id="@+id/alarms_enabled_switch"
                         android:layout_centerVertical="true"
+                        android:enabled="true"
                         android:layout_width="fill_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_horizontal|end"
