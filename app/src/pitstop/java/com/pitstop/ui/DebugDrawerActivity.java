@@ -191,6 +191,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                     setChunkSize(k);
                 }
                 catch(NumberFormatException e){
+                    // if input isnt an integer
                     editText.setText("Make sure you input an integer.");
                 }
             }
