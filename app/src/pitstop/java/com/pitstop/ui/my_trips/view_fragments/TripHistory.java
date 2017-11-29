@@ -1,7 +1,6 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.app.Fragment;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,7 +41,6 @@ public class TripHistory extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_trip_history, container, false);
         color  = ((MyTripsActivity)getActivity()).getLineColor();
         addTripFab = (FloatingActionButton)rootView.findViewById(R.id.add_trip_fab);
-        addTripFab.setBackgroundTintList(ColorStateList.valueOf(color));
         addTripFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 ((MyTripsActivity)getActivity()).setViewAddTrip();

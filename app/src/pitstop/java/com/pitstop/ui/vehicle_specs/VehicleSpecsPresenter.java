@@ -144,7 +144,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                getView().toast(error.getMessage());
+                getView().displayOfflineErrorDialog();
             }
         });
     }
