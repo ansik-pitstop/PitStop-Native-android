@@ -56,7 +56,7 @@ public class PidDataHandler {
 
     private final int PID_COUNT_DEFAULT = 10;
     private final int PID_COUNT_SAFE = 5;
-    private final int TIME_INTERVAL_DEFAULT = 4;
+    private final int TIME_INTERVAL_DEFAULT = 8;
     private final int TIME_INTERVAL_SAFE = 120;
 
     private final static  String TAG = PidDataHandler.class.getSimpleName();
