@@ -110,7 +110,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         });
     }
 
-    public void getCarImage(String Vin){
+  /*  public void getCarImage(String Vin){
         if (getView() == null || updating)return;
         updating = true;
         Log.d(TAG, "getCarImage()");
@@ -147,7 +147,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 Log.d(TAG, error.getMessage());
             }
         });
-    }
+    }*/
 
     public void getLicensePlate(int carID){
         Log.d(TAG, "getLicensePlate()");
@@ -547,5 +547,11 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         fuelObservable.subscribe(this);
         this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
         alarmObservable.subscribe(this);
+    }
+
+    public void onMyTripsButtonClicked() {
+        Log.d(TAG,"onMyTripsButtonClicked()");
+        if (getView() != null)
+            getView().startMyTripsActivity();
     }
 }

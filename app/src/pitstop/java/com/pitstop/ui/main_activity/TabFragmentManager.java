@@ -23,7 +23,7 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     private final String TAG = getClass().getSimpleName();
 
-    public static final int TAB_DASHBOARD = 0;
+
     public static final int TAB_SERVICES = 1;
     public static final int TAB_SCAN = 2;
     public static final int TAB_VEHICLE_SPECS = 3;
@@ -48,7 +48,7 @@ public class TabFragmentManager implements BadgeDisplayer{
 
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
-        TAB_NAMES = new String[]{mActivity.getApplicationContext().getString(R.string.dashboard),
+        TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.services_nav_text),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.my_garage),
@@ -68,9 +68,6 @@ public class TabFragmentManager implements BadgeDisplayer{
 
         bottomBar.setOnTabSelectListener(tabId -> {
             switch(tabId){
-                case R.id.tab_dashboard:
-                    mViewPager.setCurrentItem(TAB_DASHBOARD);
-                    break;
                 case R.id.tab_services:
                     mViewPager.setCurrentItem(TAB_SERVICES);
                     break;
@@ -101,9 +98,7 @@ public class TabFragmentManager implements BadgeDisplayer{
             @Override
             public void onPageSelected(int position) {
                 switch(position){
-                    case TAB_DASHBOARD:
-                        mMixpanelHelper.trackSwitchedToTab("Dashboard");
-                        break;
+
                     case TAB_SERVICES:
                         mMixpanelHelper.trackSwitchedToTab("Services");
                         break;
@@ -140,9 +135,6 @@ public class TabFragmentManager implements BadgeDisplayer{
                 //Change actionbar title
                 mToolbar.setTitle(TAB_NAMES[position]);
                 switch(position){
-                    case TAB_DASHBOARD:
-                        bottomBar.selectTabWithId(R.id.tab_dashboard);
-                        break;
                     case TAB_SERVICES:
                         bottomBar.selectTabWithId(R.id.tab_services);
                         break;
