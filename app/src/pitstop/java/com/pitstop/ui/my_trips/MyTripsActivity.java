@@ -33,7 +33,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,7 +52,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalTripStorage;
@@ -173,29 +171,29 @@ public class MyTripsActivity extends AppCompatActivity{
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         tripStarted = false;
 
-        if(dashboardCar != null) {
-            if(dashboardCar.getShopId() > 0){
-                if (BuildConfig.DEBUG && (dashboardCar.getShopId() == 4 || dashboardCar.getShopId() == 18)) {
-                    setMerc();
-                } else if (!BuildConfig.DEBUG && dashboardCar.getShopId() == 14) {
-                    setMerc();
-                } else {
-                    TypedValue defaultColor = new TypedValue();
-                    getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
-                    startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
-                    endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
-                    lineColor = defaultColor.data;
-                    isMerc = false;
-                }
-            }
-        }else{
-            TypedValue defaultColor = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
-            startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
-            endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
-            lineColor = defaultColor.data;
-            isMerc = false;
-        }
+//        if(dashboardCar != null) {
+//            if(dashboardCar.getShopId() > 0){
+//                if (BuildConfig.DEBUG && (dashboardCar.getShopId() == 4 || dashboardCar.getShopId() == 18)) {
+//                    setMerc();
+//                } else if (!BuildConfig.DEBUG && dashboardCar.getShopId() == 14) {
+//                    setMerc();
+//                } else {
+//                    TypedValue defaultColor = new TypedValue();
+//                    getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
+//                    startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
+//                    endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
+//                    lineColor = defaultColor.data;
+//                    isMerc = false;
+//                }
+//            }
+//        }else{
+//            TypedValue defaultColor = new TypedValue();
+//            getTheme().resolveAttribute(R.attr.colorPrimary, defaultColor, true);
+//            startIcon = BitmapDescriptorFactory.fromResource(R.drawable.start_annotation);
+//            endIcon = BitmapDescriptorFactory.fromResource(R.drawable.end_annotation);
+//            lineColor = defaultColor.data;
+//            isMerc = false;
+//        }
 
         locationListener = new LocationListener() {
             @Override
