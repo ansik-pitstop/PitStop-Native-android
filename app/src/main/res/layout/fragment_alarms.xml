@@ -25,13 +25,14 @@
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <RelativeLayout
+                    android:focusableInTouchMode="true"
                     android:id="@+id/enable_alarms_holder"
                     android:background="@color/white"
                     android:gravity="start"
@@ -79,19 +80,21 @@
                         android:layout_height="wrap_content" />
 
                 </RelativeLayout>
+
                 <include layout="@layout/divider"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/main_recycler_view"
+                        android:overScrollMode="never"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                     </android.support.v7.widget.RecyclerView>
-
                 </RelativeLayout>
+
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
 </RelativeLayout>

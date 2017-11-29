@@ -63,7 +63,6 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
         alarmsAdapter = AlarmsAdapter(presenter?.alarmsMap, activity, this)
         recyclerView?.layoutManager = LinearLayoutManager(activity)
         recyclerView?.adapter = alarmsAdapter
-        recyclerView?.isNestedScrollingEnabled = false
         alarmsEnabledSwitch = view?.findViewById(R.id.alarms_enabled_switch)
         errorLoadingAlarmsView = view?.findViewById(R.id.unknown_error_view)
         loadingView = view?.findViewById(R.id.loading_view)
