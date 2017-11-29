@@ -1,19 +1,15 @@
 package com.pitstop.ui.alarms
 
+import android.app.Fragment
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
-import android.view.WindowManager
 import com.pitstop.R
 import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.models.Alarm
@@ -28,6 +24,8 @@ class AlarmsActivity: AppCompatActivity() {
     var bundle: Bundle? = Bundle()
     var alarmClicked: Alarm? = null;
     var autoConnectService : BluetoothAutoConnectService? = null;
+    var currFragment: Fragment? = null
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             Log.d(TAG, "serviceConnection.onServiceConnected()")
@@ -49,21 +47,30 @@ class AlarmsActivity: AppCompatActivity() {
         bindService(Intent(this, BluetoothAutoConnectService::class.java),
                 serviceConnection, Context.BIND_AUTO_CREATE)
         alarmsFragment = AlarmsFragment()
+        currFragment = alarmsFragment
         alarmsFragment?.arguments = intent.extras;
         val fragmentTransaction = fragmentManager.beginTransaction()
-        if(intent.extras.getBoolean("isMercedes")){
-            supportActionBar!!.setBackgroundDrawable(ColorDrawable( Color.BLACK ))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.statusBarColor = ContextCompat.getColor(this, R.color.black)
-            }
-        }
         supportActionBar!!.title = "Driving Alarms"
 
         fragmentTransaction.replace(R.id.alarms_fragment_holder, alarmsFragment)
         fragmentTransaction.commit()
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    }
+
+    fun switchToAlarmsDescriptionFragment(title: String){
+        fragmentManager.beginTransaction()
+                .replace(R.id.alarms_fragment_holder, AlarmDescriptionFragment())
+                .addToBackStack("descriptionFragment")
+                .commit()
+        supportActionBar!!.title = title
+
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (fragmentManager.findFragmentById(R.id.alarms_fragment_holder) is AlarmsFragment){
+            supportActionBar!!.title = "Driving Alarms"
+        }
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {

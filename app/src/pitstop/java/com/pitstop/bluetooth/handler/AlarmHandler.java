@@ -1,7 +1,5 @@
 package com.pitstop.bluetooth.handler;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
@@ -43,7 +41,7 @@ public class AlarmHandler {
 
 
     public boolean isAlarmProductionAlarm(Alarm alarm){
-        int alarmEvent = alarm.getAlarmEvent();
+        int alarmEvent = alarm.getEvent();
         int[] productionAlarms = {1,2,6,7,8, 13, 14, 15, 16};
         for (int i = 0; i<9; i++){
             if (alarmEvent == productionAlarms[i])

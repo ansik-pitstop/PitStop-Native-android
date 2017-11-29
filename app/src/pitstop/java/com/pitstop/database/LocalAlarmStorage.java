@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.adapters.AlarmsAdapter;
 import com.pitstop.models.Alarm;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
@@ -37,14 +36,14 @@ public class LocalAlarmStorage {
 
 
     public void storeAlarm(Alarm alarm,  Repository.Callback<Alarm> callback){
-        Log.d(TAG, "storeAlarm " + Integer.toString(alarm.getCarID()) + " " + Integer.toString(alarm.getAlarmEvent()) +
-                " " + Float.toString(alarm.getAlarmValue()) + " " + alarm.getRtcTime() );
+        Log.d(TAG, "storeAlarm " + Integer.toString(alarm.getCarID()) + " " + Integer.toString(alarm.getEvent()) +
+                " " + Float.toString(alarm.getValue()) + " " + alarm.getRtcTime() );
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.execSQL(CREATE_LOCAL_ALARM_STORAGE);
         ContentValues values = new ContentValues();
         values.put(TABLES.LOCAL_ALARMS.CAR_ID, alarm.getCarID());
-        values.put(TABLES.LOCAL_ALARMS.ALARM_EVENT, alarm.getAlarmEvent());
-        values.put(TABLES.LOCAL_ALARMS.ALARM_VALUE, alarm.getAlarmValue());
+        values.put(TABLES.LOCAL_ALARMS.ALARM_EVENT, alarm.getEvent());
+        values.put(TABLES.LOCAL_ALARMS.ALARM_VALUE, alarm.getValue());
         values.put(TABLES.LOCAL_ALARMS.RTC_TIME, alarm.getRtcTime());
         long result = db.insert(TABLES.LOCAL_ALARMS.TABLE_NAME, null, values);
         callback.onSuccess(alarm);
@@ -63,7 +62,7 @@ public class LocalAlarmStorage {
                 while(!c.isAfterLast()) {
                     Alarm alarm = cursorToAlarm(c);
                     alarmArrayList.add(alarm);
-                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
+                    Log.d(TAG, alarm.getName() );
                     c.moveToNext();
                 }
             }
@@ -90,7 +89,7 @@ public class LocalAlarmStorage {
                 while(!c.isAfterLast()) {
                     Alarm alarm = cursorToAlarm(c);
                     alarmArrayList.add(alarm);
-                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
+                    Log.d(TAG, alarm.getName() );
                     c.moveToNext();
                 }
             }

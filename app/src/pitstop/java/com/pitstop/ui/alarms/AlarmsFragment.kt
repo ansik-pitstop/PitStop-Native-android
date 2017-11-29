@@ -1,14 +1,7 @@
 package com.pitstop.ui.alarms
 
-import android.app.Activity
 import android.app.Fragment
-import android.bluetooth.BluetoothAdapter
-import android.content.*
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.IBinder
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SwitchCompat
@@ -21,15 +14,11 @@ import android.widget.Toast
 import com.pitstop.R
 import com.pitstop.adapters.AlarmsAdapter
 import com.pitstop.application.GlobalApplication
-import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.models.Alarm
 import com.pitstop.observer.AlarmObservable
 import com.pitstop.observer.AlarmObserver
-import com.pitstop.ui.dashboard.DashboardFragment
-import com.pitstop.ui.my_garage.MyGaragePresenter
-import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
 
 /**
@@ -156,13 +145,8 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     }
 
     override fun onAlarmClicked(alarm: Alarm) {
-        if (activity == null) return;
-        val nextFrag:Fragment = AlarmDescriptionFragment()
-        (activity as AlarmsActivity).alarmClicked = alarm;
-        activity.fragmentManager.beginTransaction()
-                .replace(R.id.alarms_fragment_holder, nextFrag, "findThisFragment")
-                .addToBackStack(null)
-                .commit()
+        if (activity == null) return
+        (activity as AlarmsActivity).switchToAlarmsDescriptionFragment(alarm.name)
     }
 
     fun serviceUnbinded() {
