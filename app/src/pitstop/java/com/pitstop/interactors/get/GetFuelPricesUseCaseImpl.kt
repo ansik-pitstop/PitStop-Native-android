@@ -28,23 +28,23 @@ class GetFuelPricesUseCaseImpl(val useCaseHandler: Handler, val mainHandler: Han
 
     override fun run() {
         var Uri:String = "";
-        if (mPostalCode!=null){
+        if (mPostalCode!=null && mPostalCode!!.length >=6){
             mPostalCode = mPostalCode?.substring(0,4) + mPostalCode?.substring(((mPostalCode?.length)!!-3), mPostalCode?.length!!)
             Uri = "?search=" + mPostalCode!!
             Log.d(TAG, Uri);
         }
-        var doc: Document = Jsoup.connect(BASE_URL+Uri).get();
-        var docString = doc.text();
-        if (docString == null || docString.equals("", true)){
-            mainHandler?.post({mCallback?.onFuelPriceGot(0.0)})
-            return;
-        }
-        var index = docString.indexOf("Average Price ");
         try {
-            var price = (docString.substring(index + 14, index+19)).toDouble();
-            mainHandler.post({mCallback?.onFuelPriceGot(price)})
+            var doc: Document = Jsoup.connect(BASE_URL + Uri).get();
+            var docString = doc.text();
+            if (docString == null || docString.equals("", true)) {
+                mainHandler?.post({ mCallback?.onFuelPriceGot(0.0) })
+                return;
+            }
+            var index = docString.indexOf("Average Price ");
+            var price = (docString.substring(index + 14, index + 19)).toDouble();
+            mainHandler.post({ mCallback?.onFuelPriceGot(price) })
         }
-        catch (e: NumberFormatException){
+        catch (e: Exception){
             mainHandler?.post({mCallback?.onFuelPriceGot(0.0)})
         }
 

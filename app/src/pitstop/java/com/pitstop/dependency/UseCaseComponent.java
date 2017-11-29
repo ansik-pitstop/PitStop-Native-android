@@ -26,6 +26,7 @@ import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetDTCUseCase;
 import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetFuelPricesUseCase;
 import com.pitstop.interactors.get.GetGooglePlacesShopsUseCase;
@@ -201,5 +202,7 @@ public interface UseCaseComponent {
     GetFuelConsumedUseCase getGetFuelConsumedUseCase();
 
     GetFuelPricesUseCase getFuelPriceUseCase();
+
+    GetFuelConsumedAndPriceUseCase getGetFuelConsumedAndPriceUseCase();
 
 }

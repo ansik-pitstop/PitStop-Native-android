@@ -397,12 +397,12 @@
     <string name="finished_at">Finished At</string>
     <string name="car_pending_added">You have 1 car pending to be added!</string>
     <string name="connect_to_internet">Please connect to internet to complete the process and see more details about your car.</string>
-    <string name="no_cars_dashboard">There are no cars \n in your dashboard</string>
+    <string name="no_cars_dashboard">There are no cars \n in your Garage</string>
     <string name="or">OR</string>
     <string name="contact_us_for_support">Contact us for support</string>
     <string name="car_connected">Car is Connected</string>
     <string name="address">Address</string>
-    <string name="input_mileage_dashboard">Please input the mileage in the dashboard</string>
+    <string name="input_mileage_dashboard">Please input your current Mileage</string>
     <string name="change_later">You can change this anytime later</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
