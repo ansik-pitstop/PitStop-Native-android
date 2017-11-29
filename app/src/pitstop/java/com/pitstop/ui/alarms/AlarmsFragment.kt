@@ -55,6 +55,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
             presenter = AlarmsPresenter(useCaseComponent, mixpanelHelper)
 
         }
+        setAlarmsEnabled(true)
         isDealershipMercedes = arguments.getBoolean("isMercedes");
         presenter?.subscribe(this)
         noALarmsView = view?.findViewById(R.id.no_alarms_view)
@@ -124,7 +125,10 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     }
 
     override fun setAlarmsEnabled(alarmsEnabled: Boolean){
-        alarmsEnabledSwitch?.isChecked = alarmsEnabled
+        Log.d(TAG,"setAlarmsEnabled $alarmsEnabled")
+        if (alarmsEnabledSwitch?.isChecked != alarmsEnabled) {
+            alarmsEnabledSwitch?.isChecked = alarmsEnabled
+        }
     }
 
     override fun errorLoadingAlarms() {

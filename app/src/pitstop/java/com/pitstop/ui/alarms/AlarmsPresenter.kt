@@ -62,7 +62,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
 
     fun enableAlarms() {
         Log.d(TAG, "enableAlarms")
-        if (updating) return
+        if (updating || alarmsEnabled) return
         updating = true
         this.alarmsEnabled = true;
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
@@ -83,7 +83,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
 
     fun disableAlarms() {
         Log.d(TAG, "disableAlarms")
-        if (updating)return
+        if (updating || !alarmsEnabled)return
         updating = true
         this.alarmsEnabled = false;
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
