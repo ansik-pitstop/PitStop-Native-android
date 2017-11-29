@@ -378,14 +378,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private fun loadDealerDesign(dealership: Dealership?) {
         //Update tab design to the current dealerships custom design if applicable
         if (dealership != null) {
-            if (BuildConfig.DEBUG && (dealership.id == 4 || dealership.id == 18)) {
-
-                bindMercedesDealerUI()
-            } else if (!BuildConfig.DEBUG && dealership.id == 14) {
-                bindMercedesDealerUI()
-            } else {
-                bindDefaultDealerUI()
-            }
+            bindDefaultDealerUI()
             hideLoading()
         }
     }
@@ -530,10 +523,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-    }
-
-    private fun bindMercedesDealerUI() {
-        changeTheme(true)
     }
 
     private fun bindDefaultDealerUI() {

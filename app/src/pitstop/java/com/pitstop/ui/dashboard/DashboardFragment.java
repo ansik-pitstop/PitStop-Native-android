@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 import static com.pitstop.R.id.mileage;
 
-public class DashboardFragment{
+public class DashboardFragment extends Fragment{
 
 
 }
