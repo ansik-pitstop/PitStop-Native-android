@@ -60,6 +60,8 @@ import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCase;
 import com.pitstop.interactors.get.GetDealershipWithCarIssuesUseCaseImpl;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.interactors.get.GetDoneServicesUseCaseImpl;
+import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
+import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCaseImpl;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCaseImpl;
 import com.pitstop.interactors.get.GetFuelPricesUseCase;
@@ -643,6 +645,13 @@ public class UseCaseModule {
     GetFuelPricesUseCase getFuelPriceUseCase( @Named("useCaseHandler")Handler useCaseHandler,
                                               @Named("mainHandler")Handler mainHandler,NetworkHelper networkHelper){
         return new GetFuelPricesUseCaseImpl(useCaseHandler, mainHandler, networkHelper);
+    }
+
+    @Provides
+    GetFuelConsumedAndPriceUseCase getGetFuelConsumedAndPriceUseCase(@Named("useCaseHandler")Handler useCaseHandler,
+                                                                     @Named("mainHandler")Handler mainHandler,NetworkHelper networkHelper,
+                                                                     LocalFuelConsumptionStorage localFuelConsumptionStorage){
+        return new GetFuelConsumedAndPriceUseCaseImpl(useCaseHandler, mainHandler, networkHelper, localFuelConsumptionStorage);
     }
 }
 

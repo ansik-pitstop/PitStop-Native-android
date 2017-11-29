@@ -55,4 +55,6 @@ public interface VehicleSpecsView {
     void showBadges(int alarmCount);
 
     void startMyTripsActivity();
+
+    void startAddCarActivity();
 }

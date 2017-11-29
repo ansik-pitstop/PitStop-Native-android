@@ -290,6 +290,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     public void showOfflineErrorView(){
+        Log.d(TAG, "showOfflineErrorView()");
         mainLayout.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
@@ -299,6 +300,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     public void showUnknownErrorView(){
+        Log.d(TAG, "showUnknownErrorView()");
         mainLayout.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
@@ -321,7 +323,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void hideLoading(){
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
-           swipeRefreshLayout.setEnabled(true);
+            swipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
         }
         else {
@@ -343,44 +345,27 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void setCarView(Car car) {
         Log.d(TAG, "setView()");
-
         //Set other views to GONE and main to VISIBLE
         offlineView.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         mainLayout.setVisibility(View.VISIBLE);
-
         //Populate view
         carVin.setText(car.getVin());
         if (car.getScannerId() == null)
             scannerID.setText("No scanner connected");
         else
             scannerID.setText(car.getScannerId());
-        if (car.getEngine() == null){
-            engine.setVisibility(View.GONE);
-        }
-        else
-            engine.setText(car.getEngine());
-
+        engine.setText(car.getEngine());
         cityMileage.setText(car.getCityMileage());
         highwayMileage.setText(car.getHighwayMileage());
-        if (car.getTrim() == null)
-            trimView.setVisibility(View.GONE);
-        else
-            trim.setText(car.getTrim());
-
-        if (car.getTankSize() == null)
-            tankSizeView.setVisibility(View.GONE);
-        else
-            tankSize.setText(car.getTankSize());
-
+        trim.setText(car.getTrim());
+        tankSize.setText(car.getTankSize());
         if(!(presenter.getDealership()== null)) {
             dealership.setText(presenter.getDealership().getName());
         }
-
         presenter.getLicensePlate(car.getId());
-
         totalMileagetv.setText(String.format("%.2fkm", car.getTotalMileage()));
         isPoppulated = true;
     }
@@ -418,22 +403,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-
-
-
-    public void showMercedesLayout(){
-        vinIcon.setImageResource(R.drawable.mercedes_vin_3x);
-        scannerIcon.setImageResource(R.drawable.mercedes_scanner_3x);
-        licenseIcon.setImageResource(R.drawable.mercedes_license_3x);
-        dealershipIcon.setImageResource(R.drawable.mercedes_dealership);
-        mileageIcon.setImageResource(R.drawable.mercedes_mileage);
-        engineIcon.setImageResource(R.drawable.mercedes_engine);
-        cityMileageIcon.setImageResource(R.drawable.traffic_lights_mercedes_3x);
-        highwayMileageIcon.setImageResource(R.drawable.highway_mileage_mercedes_2x);
-        trimIcon.setImageResource(R.drawable.mercedes_trim_3x);
-        tankSizeIcon.setImageResource(R.drawable.mercedes_tank_size_3x);
-    }
-
     @Override
     public void startMyTripsActivity() {
         Log.d(TAG,"startMyTripsActivity()");
@@ -441,6 +410,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     public void showNormalLayout(){
+        Log.d(TAG, "showNormalLayout()");
         vinIcon.setImageResource(R.drawable.vin_2x);
         scannerIcon.setImageResource(R.drawable.scanner_2x);
         licenseIcon.setImageResource(R.drawable.license_2x);
@@ -537,6 +507,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     public void startCustomShop(){
+        Log.d(TAG,"startCustomShop");
         if (presenter.getCar()!=null && getActivity() != null) {
             Intent intent = new Intent(getActivity(), CustomShopActivity.class);
             intent.putExtra(MainActivity.CAR_EXTRA, presenter.getCar());
@@ -546,6 +517,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @OnClick(R.id.dealership_row)
     public void showDealershipChangeDialog(){
+        Log.d(TAG, "showDealershipChangeDialog()");
         if (changeDealershipAlertDialog == null){
             final View dialogLayout = LayoutInflater.from(
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
@@ -615,12 +587,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                             -> dialog.dismiss())
                     .create();
         }
-
         mileageErrorDialog.show();
     }
 
 
     public void showLoadingDialog(String text) {
+        Log.d(TAG, "showLoadingDialog()");
         if (progressDialog == null) {
             return;
         }
@@ -631,6 +603,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     public void hideLoadingDialog() {
+        Log.d(TAG, "hidLoafingDialog()");
         if (progressDialog != null) {
             progressDialog.dismiss();
         } else {
@@ -640,8 +613,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @OnClick(R.id.addCarButton)
-    public void startaddCarActivity(){
+    public void onAddCarClicked(){
         Log.d(TAG, "onAddCarClicked()");
+        presenter.onAddCarClicked();
+    }
+    @Override
+    public void startAddCarActivity(){
+        Log.d(TAG, "startAddCarActivity()");
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
         startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
@@ -656,7 +634,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void showFuelConsumptionExplanationDialog() {
 
-        Log.d(TAG, "displayBuyDeviceDialog()");
+        Log.d(TAG, "showFuelConsumptionExplanationDialog()");
         if (fuelConsumptionExplanationDialog == null){
             final View dialogLayout = LayoutInflater.from(
                     getActivity()).inflate(R.layout.buy_device_dialog, null);
@@ -681,47 +659,50 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @OnClick(R.id.offline_try_again)
     public void onOfflineTryAgainClicked(){
+        Log.d(TAG, "onOfflineTryAgainClicked()");
         presenter.onUpdateNeeded();
     }
 
     @OnClick(R.id.unknown_error_try_again)
     public void onUnknownTryAgainClicked(){
+        Log.d(TAG, "onUnknownTryAgainClicked()");
         presenter.onUpdateNeeded();
     }
 
     @OnClick(R.id.fuel_consumption_row)
-    public void onfuelConsumptionClicked(){
+    public void onFuelConsumptionClicked(){
         Log.d(TAG, "onFuelConsumptionClicked()");
         presenter.onFuelConsumptionClicked();
 
     }
 
-
-
     @Override
     public void showFuelConsumed(double fuelCOnsumed) {
+        Log.d(TAG, String.format("showFuelConsumed: %.2f", fuelCOnsumed));
         fuelConsumed.setText(Double.toString(fuelCOnsumed) + " L");
     }
 
     @Override
     public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+        Log.d(TAG, "onServiceBinded()");
         this.presenter.onServiceBound(bluetoothAutoConnectService);
     }
 
-
     @OnClick(R.id.fuel_expense_row)
     public void onFuelExpensesClicked(){
-        Log.d(TAG, "onFuelExpensesCLicked()");
+        Log.d(TAG, "onFuelExpensesClicked()");
         presenter.onFuelExpensesClicked();
     }
 
     @Override
     public void hideBadge() {
+        Log.d(TAG, "hideBadge()");
         alarmsCount.setVisibility(View.GONE);
     }
 
     @Override
     public void showBadges(int alarmCount) {
+        Log.d(TAG, "showBadges, number of Badges: " + Integer.toString(alarmCount));
         alarmsCount.setVisibility(View.VISIBLE);
         if (alarmCount>9)
             alarmsCount.setText("9+");
@@ -734,11 +715,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showFuelExpense(float v) {
+        Log.d(TAG, String.format("Show Fuel Expenses: $%.2f", v/100));
         fuelExpensesTextView.setText(String.format("$%.2f", v/100));
 
     }
 
     public String getLastKnowLocation(){
+        Log.d(TAG, "getLastKnownLocation()");
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -797,8 +780,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
         Log.d(TAG,"displayDefaultDealershipVisual()");
-
-
         dealershipName.setText(dealership.getName());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
         /*drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);*/
@@ -817,6 +798,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showFuelExpensesDialog() {
+        Log.d(TAG, "showFuelExpensesDialog()");
         if (fuelExpensesAlertDialog == null){ final View dialogLayout = LayoutInflater.from(
                 getActivity()).inflate(R.layout.buy_device_dialog, null);
             fuelExpensesAlertDialog = new AnimatedDialogBuilder(getActivity())
@@ -873,7 +855,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     }
 
-    public static int getCarSpecificLogo(String make) {ma
+    public static int getCarSpecificLogo(String make) {
         Log.d(TAG,"getCarSpecificLogo()");
         if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
@@ -987,8 +969,5 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         bundle.putBoolean("isMercedes", false);
         intent.putExtras(bundle);
         startActivity(intent);
-
     }
-
-
 }

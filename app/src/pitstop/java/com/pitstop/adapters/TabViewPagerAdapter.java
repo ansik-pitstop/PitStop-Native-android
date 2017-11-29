@@ -23,6 +23,7 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
+    DashboardFragment dashboardFragment;
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
     VehicleSpecsFragment vehicleSpecsFragment;
@@ -67,8 +68,8 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 4 total pages.
-        return 5;
+
+        return 4;
     }
 
     @Override
