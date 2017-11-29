@@ -623,10 +623,10 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetAlarmCountUseCase getAlarmCountUseCase(LocalAlarmStorage localAlarmStorage
+    GetAlarmCountUseCase getAlarmCountUseCase(LocalAlarmStorage localAlarmStorage, UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new GetAlarmCountUseCaseImpl(localAlarmStorage, useCaseHandler, mainHandler);
+        return new GetAlarmCountUseCaseImpl(localAlarmStorage, userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

@@ -3,7 +3,6 @@ package com.pitstop.ui.vehicle_specs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.View;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -14,11 +13,8 @@ import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
-import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
-import com.pitstop.interactors.get.GetCarStyleIDUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
-import com.pitstop.interactors.get.GetFuelPricesUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -29,7 +25,6 @@ import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
-import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.ui.mainFragments.TabPresenter;
@@ -111,45 +106,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         });
     }
 
-  /*  public void getCarImage(String Vin){
-        if (getView() == null || updating)return;
-        updating = true;
-        Log.d(TAG, "getCarImage()");
-        getView().showImageLoading();
-        useCaseComponent.getCarStyleIDUseCase().execute(Vin, new GetCarStyleIDUseCase.Callback() {
-            @Override
-            public void onStyleIDGot(String styleID) {
-                if (getView() == null)return;
-                Log.d(TAG, styleID);
-                useCaseComponent.getCarImagesArrayUseCase().execute(styleID, new GetCarImagesArrayUseCase.Callback() {
-                    @Override
-                    public void onArrayGot(String imageLink) {
-                        updating = false;
-                        if (getView() == null) return;
-                        getView().hideImageLoading();
-                        getView().showImage(BASE_URL_PHOTO + imageLink);
-                    }
-                    @Override
-                    public void onError(RequestError error) {
-                        updating = false;
-                        if (getView() ==null) return;
-                        getView().hideImageLoading();
-                        getView().showDealershipBanner();
-                       // Log.d(TAG, error.getMessage());
-                    }
-                });
-            }
-            @Override
-            public void onError(RequestError error) {
-                updating = false;
-                if (getView() == null) return;
-                getView().hideImageLoading();
-                getView().showDealershipBanner();
-                Log.d(TAG, error.getMessage());
-            }
-        });
-    }*/
-
     public void getLicensePlate(int carID){
         Log.d(TAG, "getLicensePlate()");
         if (getView() == null) return;
@@ -193,11 +149,53 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         });
     }
 
-    public void getCurrentCar() {
+    public Car getCar() {
+        Log.d(TAG, "getCar()");
+        if (this.mCar!=null){
+            return this.mCar;
+        }
+        else
+            return null;
+    }
+
+    public Dealership getDealership(){
+        Log.d(TAG, "getDealership()");
+        return this.mdealership;
+    }
+
+    public void onScannerViewClicked() {
+        Log.d(TAG, "onScannerVIewCLicked()");
+        if (this.mCar.getScannerId() == null&& getView()!= null)
+            getView().showBuyDeviceDialog();
+
+    }
+
+    public void onUpdateNeeded() {
+        Log.d(TAG, "onUdateNeeded()");
         Log.d(TAG, "getCurrentCar()");
         if (getView() == null|| updating)return;
         updating = true;
         getView().showLoading();
+
+        useCaseComponent.getGetAlarmCountUseCase().execute(new GetAlarmCountUseCase.Callback() {
+                    @Override
+                    public void onAlarmCountGot(int alarmCount) {
+                        numAlarms = alarmCount;
+                        if (alarmCount == 0){
+                            if (getView()==null) return;
+                            getView().hideBadge();
+                        }
+                        else {
+                            getView().showBadges(alarmCount);
+                        }
+                    }
+                    @Override
+                    public void onError(@NotNull RequestError error) {
+                        if (getView() == null )return;
+                        getView().hideBadge();
+                    }
+                });
+
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
@@ -217,33 +215,14 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                     getView().showNormalLayout();
 
                     getView().displayDefaultDealershipVisuals(dealership);
-                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
-                            , new GetAlarmCountUseCase.Callback() {
-                                @Override
-                                public void onAlarmCountGot(int alarmCount) {
-                                    numAlarms = alarmCount;
-                                    if (alarmCount == 0){
-                                        if (getView()==null) return;
-                                        getView().hideBadge();
-                                    }
-                                    else {
-                                        getView().showBadges(alarmCount);
-                                    }
-                                }
-                                @Override
-                                public void onError(@NotNull RequestError error) {
-                                    if (getView() == null )return;
-                                    getView().hideBadge();
-                                }
-                            });
                     //getCarImage(mCar.getVin());
                 }
             }
 
             @Override
             public void onNoCarSet(boolean isLocal) {
-                updating = false;
                 if (getView()!=null && !isLocal){
+                    updating = false;
                     getView().showNoCarView();
                     getView().hideLoading();
                 }
@@ -268,33 +247,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 getView().hideLoading();
             }
         });
-
-    }
-
-    public Car getCar() {
-        Log.d(TAG, "getCar()");
-        if (this.mCar!=null){
-            return this.mCar;
-        }
-        else
-            return null;
-    }
-
-    public Dealership getDealership(){
-        Log.d(TAG, "getDealership()");
-        return this.mdealership;
-    }
-
-    public void onScannerViewClicked() {
-        Log.d(TAG, "onScannerVIewCLicked()");
-        if (this.mCar.getScannerId() == null&& getView()!= null)
-            getView().showBuyDeviceDialog();
-
-    }
-
-    public void onUpdateNeeded() {
-        Log.d(TAG, "onUdateNeeded()");
-        getCurrentCar();
     }
 
     public void onRefresh() {
@@ -422,8 +374,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             });
         }
     }
-
-
 
     private void updatePrice(final SharedPreferences sharedPreferences) {
         Log.d(TAG, "updatePrice();");

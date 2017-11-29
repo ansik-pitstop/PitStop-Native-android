@@ -302,20 +302,17 @@
                             android:layout_height="25dp"
                             android:layout_marginRight="10dp"
                             android:src="@drawable/car_alarms_3x"
-                            android:layout_gravity="center" />
+                            android:layout_centerVertical="true"/>
 
                         <TextView
+                            android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
                             android:id="@+id/driving_alarms_text"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="@string/driving_alarms"
                             android:textStyle="bold"
-                            android:layout_toEndOf="@+id/driving_alarms_icon"
-                            android:layout_marginBottom="4dp"
-                            android:layout_weight="1"
-                            android:layout_gravity="center"
-                            android:gravity="center_vertical" />
+                            android:layout_toEndOf="@+id/driving_alarms_icon"/>
 
                         <TextView
                             android:visibility="gone"
@@ -335,7 +332,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical|end"
+                            android:layout_centerVertical="true"
                             android:src="@drawable/right_chevron" />
 
                     </RelativeLayout>
@@ -359,19 +356,18 @@
                             android:layout_height="25dp"
                             android:layout_marginRight="10dp"
                             android:src="@drawable/route_2"
-                            android:layout_gravity="center" />
+                            android:layout_centerVertical="true"/>
 
                         <TextView
                             style="@style/vehicle_specs_text"
-                            android:layout_toRightOf="@id/trips_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:text="@string/my_trips"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp"
-                            android:layout_weight="1"
+                            android:layout_alignParentTop="true"
                             android:layout_gravity="center"
-                            android:gravity="center_vertical" />
+                            android:layout_toEndOf="@+id/trips_icon"
+                            android:layout_centerVertical="true"
+                            android:text="@string/my_trips"
+                            android:textStyle="bold" />
 
 
                         <ImageView

@@ -1,7 +1,6 @@
 package com.pitstop.interactors.get
 
 import com.pitstop.interactors.Interactor
-import com.pitstop.models.Alarm
 import com.pitstop.network.RequestError
 
 /**
@@ -9,7 +8,7 @@ import com.pitstop.network.RequestError
  */
 interface GetAlarmCountUseCase : Interactor{
 
-    fun execute(carID:Int, callback: Callback)
+    fun execute(callback: Callback)
 
     interface Callback{
         fun onAlarmCountGot(alarmCount: Int);
