@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tabs>
-    <tab
-        id="@+id/tab_dashboard"
-        icon="@drawable/ic_dashboard"
-        title = "@string/dashboard" />
+
     <tab
         id="@+id/tab_services"
         icon="@drawable/ic_services"

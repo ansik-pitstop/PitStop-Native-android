@@ -348,10 +348,77 @@
             </LinearLayout>
 
         </RelativeLayout>
-        <!-- Alarms row-->
+        <!-- My Trips row-->
 
         <include
             layout="@layout/divider" />
+
+
+                    <!-- Alarms Row -->
+                    <RelativeLayout
+                        android:id="@+id/my_trips_row"
+                        android:background="@color/white"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="5dp"
+                            >
+
+                            <ImageView
+
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_marginRight="10dp"
+                                tools:src="@drawable/route_2"
+                                android:layout_gravity="center"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="@string/driving_alarms"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:visibility="gone"
+                                android:id="@+id/alarm_badge"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="12dp"
+                                android:background="@drawable/badge"
+                                android:gravity="center"
+                                android:text="9+"
+                                android:textColor="@color/white"
+                                android:textSize="11sp" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:src="@drawable/right_chevron"
+                                />
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+
+                    <include
+                        layout="@layout/divider" />
+
+                    <!-- My trips row-->
 
                     <TextView
                         android:paddingLeft="10dp"

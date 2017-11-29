@@ -12,11 +12,6 @@ public interface VehicleSpecsView {
     void showLicensePlate(String s);
     void toast(String message);
     void showImage(String s);
-    void showDealershipBanner();
-
-    void showImageLoading();
-    void hideImageLoading();
-
     void showLoading();
     void hideLoading();
 
@@ -36,7 +31,7 @@ public interface VehicleSpecsView {
     void displayOfflineErrorDialog();
     boolean hasBeenPopulated();
 
-    void showMercedesLayout();
+
 
     void showNormalLayout();
 
@@ -58,4 +53,6 @@ public interface VehicleSpecsView {
     void hideBadge();
 
     void showBadges(int alarmCount);
+
+    void startMyTripsActivity();
 }

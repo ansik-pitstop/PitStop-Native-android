@@ -23,7 +23,6 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    DashboardFragment dashboardFragment;
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
     VehicleSpecsFragment vehicleSpecsFragment;
@@ -40,11 +39,6 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
-            case TabFragmentManager.TAB_DASHBOARD:
-                if (dashboardFragment == null) {
-                    dashboardFragment = new DashboardFragment();
-                }
-                return dashboardFragment;
             case TabFragmentManager.TAB_SERVICES:
                 if (mainServicesFragment == null){
                     mainServicesFragment = new MainServicesFragment();
@@ -80,8 +74,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch(position){
-            case TabFragmentManager.TAB_DASHBOARD:
-                return context.getString(R.string.dashboard);
+
             case TabFragmentManager.TAB_NOTIF:
                 return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:

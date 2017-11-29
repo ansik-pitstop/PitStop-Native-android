@@ -91,7 +91,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                     DashboardPresenter.this.carID = car.getId();
                     DashboardPresenter.this.car = car;
                     carHasScanner = !(car.getScanner() == null);
-                    useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
+                 /*   useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
                             , new GetAlarmCountUseCase.Callback() {
                         @Override
                         public void onAlarmCountGot(int alarmCount) {
@@ -109,10 +109,10 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
                             if (getView() == null )return;
                             getView().hideBadge();
                         }
-                    });
+                    });*/
                 }
 
-                getView().displayOnlineView();
+            /*    getView().displayOnlineView();
                 Log.d(TAG, Integer.toString(car.getId()));
                 isDealershipMercedes = (dealership.getId() == 4
                         || dealership.getId() == 18);
@@ -126,7 +126,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
                 getView().displayCarDetails(car);
                 if (!isLocal)
-                    getView().hideLoading();
+                    getView().hideLoading();*/
             }
 
             @Override
@@ -290,7 +290,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
         if (updating)return;
         if (getView() == null) return;
         if (carHasScanner){
-            getView().openAlarmsActivity();
+     /*       getView().openAlarmsActivity();*/
         }
         else {
             getView().displayBuyDeviceDialog();

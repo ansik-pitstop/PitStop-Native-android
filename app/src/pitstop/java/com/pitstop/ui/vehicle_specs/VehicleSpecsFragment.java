@@ -26,7 +26,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +40,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
@@ -66,10 +70,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public static final String TAG = VehicleSpecsFragment.class.getSimpleName();
 
     public static final String PITSTOP_AMAZON_LINK = "https://www.amazon.ca/gp/product/B012GWJQZE";
-    public static final String CAR_DELETED = "deleted";
-    public static final String CAR_POSITION ="position" ;
-    public static final String CAR_SELECTED ="carCurrent" ;
-
     private AlertDialog fuelConsumptionExplanationDialog;
     public static final int START_CUSTOM = 347;
     private AlertDialog buyDeviceDialog;
@@ -100,11 +100,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.alarm_badge)
     TextView alarmsCount;
 
-    @BindView(R.id.main_view_lin_layout)
-    protected LinearLayout mainLayout;
-
-    @BindView(R.id.main_linear_layout)
-    protected RelativeLayout mainLinearLayout;
+    @BindView(R.id.main_view)
+    protected View mainLayout;
 
     @BindView(R.id.loading_view_main)
     protected View loadingView;
@@ -113,22 +110,20 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     protected ImageView vinIcon;
 
     @BindView(R.id.dealer_background_imageview)
-    ImageView mDealerBanner;
+    protected ImageView mDealerBanner;
 
     @BindView(R.id.banner_overlay)
-    FrameLayout mDealerBannerOverlay;
+    protected FrameLayout mDealerBannerOverlay;
 
     @BindView(R.id.dealership_name)
-    TextView dealershipName;
-
-
+    protected TextView dealershipName;
 
     @BindView(R.id.car_logo_imageview)
-    ImageView mCarLogoImage;
+    protected ImageView mCarLogoImage;
 
 
     @BindView(R.id.car_name)
-    TextView carName;
+    protected TextView carName;
 
     @BindView(R.id.scanner_icon)
     protected ImageView scannerIcon;
@@ -232,7 +227,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
 //    @BindView(R.id.progress)
 //    protected View imageLoadingView;
-
 
     public static VehicleSpecsFragment newInstance(){
         return new VehicleSpecsFragment();
@@ -424,21 +418,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void showDealershipBanner() {
-        Log.d(TAG, "showDealershipBanner()");
-        carPicgetError = true;
-        //carLogo.setVisibility(View.VISIBLE);
-//        dealershipName.setVisibility(View.VISIBLE);
-//        carName.setVisibility(View.VISIBLE);
-//        carName.setText(Integer.toString(presenter.getCar().getYear()) + " " +
-//                        presenter.getCar().getMake() + " " +
-//                        presenter.getCar().getModel());
-        //carLogo.setImageResource(DashboardFragment.getCarSpecificLogo( presenter.getCar().getMake()));
-//        dealershipName.setText(presenter.getDealership().getName());
-//        carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(presenter.getDealership().getName()));
-        //bannerOverlay.setVisibility(View.VISIBLE);
-    }
+
+
 
     public void showMercedesLayout(){
         vinIcon.setImageResource(R.drawable.mercedes_vin_3x);
@@ -453,6 +434,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         tankSizeIcon.setImageResource(R.drawable.mercedes_tank_size_3x);
     }
 
+    @Override
+    public void startMyTripsActivity() {
+        Log.d(TAG,"startMyTripsActivity()");
+        ((MainActivity)getActivity()).myTrips();
+    }
+
     public void showNormalLayout(){
         vinIcon.setImageResource(R.drawable.vin_2x);
         scannerIcon.setImageResource(R.drawable.scanner_2x);
@@ -465,29 +452,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         trimIcon.setImageResource(R.drawable.trim_2x);
         tankSizeIcon.setImageResource(R.drawable.tank_size_2x);
     }
-
-
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult()");
-        if(requestCode == START_CUSTOM && (resultCode == AddCarActivity.ADD_CAR_SUCCESS_HAS_DEALER)) {
-            dealership.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
-            //dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
-            if (carPicgetError) {
-                showDealershipBanner();
-                //dealershipName.setText(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY));
-                //carPic.setImageResource(DashboardFragment.getDealerSpecificBanner(data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY)));
-            }
-            Log.d(TAG,data.getStringExtra(CustomShopActivity.DEALERSHIP_NAME_KEY) );
-
-        }
-        else{
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
 
     @OnClick(R.id.license_plate_row)
     public void showLicensePlateDialog(){
@@ -515,6 +479,12 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onScannerViewClicked(){
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
+    }
+
+    @OnClick(R.id.my_trips_row)
+    protected void onMyTripsButtonClicked(){
+        Log.d(TAG,"onMyTripsButtonClicked()");
+        presenter.onMyTripsButtonClicked();
     }
 
 
@@ -650,11 +620,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
 
-    public void showImageLoading(){
-//        imageLoadingView.bringToFront();
-//        imageLoadingView.setVisibility(View.VISIBLE);
-    }
-
     public void showLoadingDialog(String text) {
         if (progressDialog == null) {
             return;
@@ -672,10 +637,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setCanceledOnTouchOutside(false);
         }
-    }
-
-    public void hideImageLoading(){
-        //imageLoadingView.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.addCarButton)
@@ -912,7 +873,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     }
 
-    public static int getCarSpecificLogo(String make) {
+    public static int getCarSpecificLogo(String make) {ma
         Log.d(TAG,"getCarSpecificLogo()");
         if (make == null) return R.drawable.ford;
         if (make.equalsIgnoreCase("abarth")){
@@ -1028,4 +989,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         startActivity(intent);
 
     }
+
+
 }
