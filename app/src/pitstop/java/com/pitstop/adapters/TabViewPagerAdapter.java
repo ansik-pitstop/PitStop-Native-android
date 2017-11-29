@@ -23,7 +23,6 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    DashboardFragment dashboardFragment;
     MainServicesFragment mainServicesFragment;
     StartReportFragment startReportFragment;
     VehicleSpecsFragment vehicleSpecsFragment;

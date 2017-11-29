@@ -206,14 +206,16 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 if (!isLocal)
                     updating = false;
                 if (getView()!=null) {
-                    if (!isLocal)
+                    if (!isLocal) {
                         getView().hideLoading();
+                    }
                     getView().setCarView(mCar);
                     getFuelConsumed();
                     carHasScanner = !(car.getScannerId() == null || car.getScannerId().equalsIgnoreCase(""));
                     getAmountSpent();
                     getView().displayCarDetails(car);
                     getView().showNormalLayout();
+
                     getView().displayDefaultDealershipVisuals(dealership);
                     useCaseComponent.getGetAlarmCountUseCase().execute(car.getId()
                             , new GetAlarmCountUseCase.Callback() {

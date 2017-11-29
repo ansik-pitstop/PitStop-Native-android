@@ -57,4 +57,5 @@ public interface VehicleSpecsView {
     void startMyTripsActivity();
 
     void startAddCarActivity();
+
 }

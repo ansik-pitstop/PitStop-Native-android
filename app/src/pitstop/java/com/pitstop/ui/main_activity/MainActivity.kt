@@ -84,21 +84,21 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var serviceIntent: Intent? = null
     private var appointmentsButton: View? = null
     private var requestAppointmentButton: View? = null
-    private var drawerToggle : ActionBarDrawerToggle? = null
-    private var carRecyclerView:RecyclerView? = null
-    private var carsAdapter:CarsAdapter?  = null
-    private var addCarBtn:View? = null
-    private var messageBtn: View?  = null
-    private var callBtn: View?  = null
-    private var findDirectionsBtn:View? = null
-    private var contactView : View? = null
-    private var appointmentsView: View?  = null
-    private var progressView : View? = null
+    private var drawerToggle: ActionBarDrawerToggle? = null
+    private var carRecyclerView: RecyclerView? = null
+    private var carsAdapter: CarsAdapter? = null
+    private var addCarBtn: View? = null
+    private var messageBtn: View? = null
+    private var callBtn: View? = null
+    private var findDirectionsBtn: View? = null
+    private var contactView: View? = null
+    private var appointmentsView: View? = null
+    private var progressView: View? = null
     private var textAboveCars: LinearLayout? = null
-    private var drawerRefreshLayout:SwipeRefreshLayout? = null
+    private var drawerRefreshLayout: SwipeRefreshLayout? = null
     private var drawerLinearLayout: LinearLayout? = null
-    private var errorLoadingCars: TextView?  = null
-    private var carsTapDescription : TextView? = null
+    private var errorLoadingCars: TextView? = null
+    private var carsTapDescription: TextView? = null
     private var serviceObservers: ArrayList<AutoConnectServiceBindingObserver> = ArrayList();
     private var viewAppointmentsIcon: ImageView? = null;
     private var requestAppointmentIcon: ImageView? = null;
@@ -179,7 +179,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
 
-        if (this.presenter == null){
+        if (this.presenter == null) {
             this.presenter = MainActivityPresenter(useCaseComponent!!, mixpanelHelper!!)
         }
         presenter?.subscribe(this)
@@ -219,16 +219,15 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
 
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true )){
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true)) {
             val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
             (drawerLayout as DrawerLayout).addView(rootView)
 
-            drawerToggle = ActionBarDrawerToggle(this, drawerLayout,R.string.app_name, R.string.app_name );
+            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
             drawerLayout!!.setDrawerListener(drawerToggle)
             setContentView(drawerLayout)
-        }
-        else{
-            drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout,R.string.app_name, R.string.app_name )
+        } else {
+            drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name)
             drawerToggle?.isDrawerIndicatorEnabled = true
             mDrawerLayout.setDrawerListener(drawerToggle)
 
@@ -247,7 +246,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
         tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
         tabFragmentManager!!.createTabs()
-       supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        tabFragmentManager!!.openServices()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
     }
@@ -256,7 +256,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG, "setUpDrawer")
         this.carRecyclerView = findViewById(R.id.car_recycler_view)
         carRecyclerView?.layoutManager = LinearLayoutManager(this)
-        carsAdapter = CarsAdapter(this, presenter?.dealershipList,presenter?.carList )
+        carsAdapter = CarsAdapter(this, presenter?.dealershipList, presenter?.carList)
         carRecyclerView?.adapter = carsAdapter
         drawerRefreshLayout = findViewById(R.id.drawer_layout_garage)
         drawerRefreshLayout?.setOnRefreshListener { presenter?.onRefresh() }
@@ -267,7 +267,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         addCarBtn?.setOnClickListener { presenter?.onAddCarClicked() }
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
-            this.presenter?.onMyAppointmentsClicked() }
+            this.presenter?.onMyAppointmentsClicked()
+        }
         this.requestAppointmentButton = findViewById(R.id.request_service_garage)
         requestAppointmentButton?.setOnClickListener {
             this.presenter?.onRequestServiceClicked()
@@ -291,8 +292,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         serviceObservers.add(autoConnectBinderObserver);
     }
 
-    fun notifyServiceBinded(bluetoothAutoConnectService: BluetoothAutoConnectService){
-        for (listener in serviceObservers){
+    fun notifyServiceBinded(bluetoothAutoConnectService: BluetoothAutoConnectService) {
+        for (listener in serviceObservers) {
             listener.onServiceBinded(bluetoothAutoConnectService)
         }
     }
@@ -336,15 +337,15 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onCarClicked(car: Car) {
         Log.d(TAG, "onCarClicked()")
-        if (car.shopId == 4|| car.shopId==18)
+        if (car.shopId == 4 || car.shopId == 18)
             showMercedesLayout()
         else
             showNormalLAyout()
         makeCarCurrent(car)
     }
 
-    fun makeCarCurrent(car: Car){
-        Log.d(TAG, "make car Current " + car.year + " " + car.make  + " " + car.model)
+    fun makeCarCurrent(car: Car) {
+        Log.d(TAG, "make car Current " + car.year + " " + car.make + " " + car.model)
         presenter?.makeCarCurrent(car)
     }
 
@@ -386,6 +387,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     fun getBluetoothConnectService(): BluetoothAutoConnectService {
         return autoConnectService
     }
+
     private fun displayDeviceState(state: String) {
         Log.d(TAG, "displayDeviceState(): " + state)
 
@@ -407,21 +409,21 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onResume() {
         super.onResume();
 
-        Log.d(TAG, "onResume, serviceBound? "+serviceIsBound);
+        Log.d(TAG, "onResume, serviceBound? " + serviceIsBound);
 
         checkPermissions();
-        if (!serviceIsBound){
+        if (!serviceIsBound) {
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             serviceIsBound = true;
         }
-        if (autoConnectService != null){
+        if (autoConnectService != null) {
             displayDeviceState(autoConnectService.getDeviceState());
             autoConnectService.subscribe(this);
             autoConnectService.requestDeviceSearch(false, false);
         }
 
-        useCaseComponent?.getGetCurrentDealershipUseCase()!!.execute(object: GetCurrentCarDealershipUseCase.Callback{
-            override fun onGotDealership(dealership:Dealership) {
+        useCaseComponent?.getGetCurrentDealershipUseCase()!!.execute(object : GetCurrentCarDealershipUseCase.Callback {
+            override fun onGotDealership(dealership: Dealership) {
                 loadDealerDesign(dealership);
             }
 
@@ -448,7 +450,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent : Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
 
         if (requestCode == RC_ADD_CAR) {
@@ -462,23 +464,22 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             } else {
                 mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")
             }
-        }
-        else{
-            super.onActivityResult(requestCode,resultCode,intent)
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent)
         }
     }
 
     override fun showTentativeAppointmentShowcase() {
-        Log.d(TAG,"showTentativeAppointmentShowcase()")
+        Log.d(TAG, "showTentativeAppointmentShowcase()")
         val view = findViewById<View>(R.id.action_request_service)
         val requestShowCase = MaterialShowcaseView.Builder(this)
-            .setTarget(view)
-            .setDismissText("Tap to book appointment")
-            .setContentText("Let's be proactive and request service for your vehicle ahead of time!")
-            .setDelay(250)
-            .setDismissOnTouch(true)
-            .build()
-        requestShowCase.addShowcaseListener(object: IShowcaseListener{
+                .setTarget(view)
+                .setDismissText("Tap to book appointment")
+                .setContentText("Let's be proactive and request service for your vehicle ahead of time!")
+                .setDelay(250)
+                .setDismissOnTouch(true)
+                .build()
+        requestShowCase.addShowcaseListener(object : IShowcaseListener {
             override fun onShowcaseDisplayed(p0: MaterialShowcaseView?) {
             }
 
@@ -512,8 +513,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         when (item.itemId) {
             R.id.action_settings -> {
                 settingsClicked(null)
-                return true;}
-            R.id.action_request_service-> {
+                return true;
+            }
+            R.id.action_request_service -> {
                 requestMultiService(null);
                 return true
             }
@@ -663,13 +665,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         useCaseComponent!!.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
             override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
                 if (isLocal) return
-                if (dealership == null){
-                    Toast.makeText(thisInstance,"Select a dealership first", Toast.LENGTH_LONG).show();
+                if (dealership == null) {
+                    Toast.makeText(thisInstance, "Select a dealership first", Toast.LENGTH_LONG).show();
                     return
                 }
                 //if (!checkDealership(car)) return;
-                val intent:Intent = Intent(thisInstance, MyAppointmentActivity::class.java)
-                intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false)
+                val intent: Intent = Intent(thisInstance, MyAppointmentActivity::class.java)
+                intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA, false)
                 intent.putExtra(MainActivity.CAR_EXTRA, car)
                 startActivity(intent)
                 hideLoading()
@@ -689,12 +691,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     }
 
-   fun myTrips(){
-       if (presenter?.getmCar() == null) return
-       val thisInstance:MainActivity = this
-       val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-       intent.putExtra(MainActivity.CAR_EXTRA, presenter?.getmCar())
-       startActivity(intent)
+    fun myTrips(car: Car) {
+        val thisInstance: MainActivity = this
+        val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
+        intent.putExtra(MainActivity.CAR_EXTRA, car)
+        startActivity(intent)
     }
 
     override fun startDisplayIssueActivity(issues: List<CarIssue>, position: Int) {
@@ -743,8 +744,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
 
     private fun logAuthInfo() {
-        Log.d(TAG,"RefreshToken: " + application!!.refreshToken)
-        Log.d(TAG,"AccessToken: " + application!!.accessToken)
+        Log.d(TAG, "RefreshToken: " + application!!.refreshToken)
+        Log.d(TAG, "AccessToken: " + application!!.accessToken)
     }
 
     override fun onDeviceNeedsOverwrite() {
@@ -758,7 +759,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun isUserNull(): Boolean {
-        return((this.applicationContext as GlobalApplication).currentUser == null)
+        return ((this.applicationContext as GlobalApplication).currentUser == null)
     }
 
     override fun getUserPhone(): String {
@@ -793,7 +794,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun openSmooch() {
-        Log.d(TAG,"openSmooch()");
+        Log.d(TAG, "openSmooch()");
         ConversationActivity.show(this)
     }
 
@@ -856,17 +857,16 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             textAboveCars?.visibility = View.VISIBLE
             carRecyclerView?.visibility = View.VISIBLE
             addCarBtn?.visibility = View.VISIBLE
-        }
-        else {
+        } else {
             drawerRefreshLayout?.isRefreshing = false
         }
     }
 
     override fun openAppointments() {
-       myAppointments()
+        myAppointments()
     }
 
-    override fun openAppointments(car :Car) {
+    override fun openAppointments(car: Car) {
         mixpanelHelper!!.trackButtonTapped("My Appointments", "Dashboard")
         showLoading("Loading...")
         if (!checkDealership(car)) return
@@ -883,8 +883,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     companion object {
 
-         val TAG = MainActivity::class.java.simpleName
-         val CURRENT_ISSUE_SOURCE = "currentService"
+        val TAG = MainActivity::class.java.simpleName
+        val CURRENT_ISSUE_SOURCE = "currentService"
         const val CAR_ISSUE_KEY = "carIssues"
         const val CAR_ISSUE_POSITION = "issuePosition"
         const val CAR_KEY = "car"
@@ -921,13 +921,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun displayServicesBadgeCount(count: Int) {
-        Log.d(TAG,"displayServicesBadgeCount() count: "+count)
+        Log.d(TAG, "displayServicesBadgeCount() count: " + count)
         if (tabFragmentManager != null)
             tabFragmentManager?.displayServicesBadgeCount(count)
     }
 
     override fun displayNotificationsBadgeCount(count: Int) {
-        Log.d(TAG,"displayNotificationsBadgeCount() count: "+count)
+        Log.d(TAG, "displayNotificationsBadgeCount() count: " + count)
         if (tabFragmentManager != null)
             tabFragmentManager?.displayNotificationsBadgeCount(count)
     }

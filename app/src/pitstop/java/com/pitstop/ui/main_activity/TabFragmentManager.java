@@ -160,7 +160,7 @@ public class TabFragmentManager implements BadgeDisplayer{
         setCurrentServices();
     }
     public void setCurrentServices(){
-        ((MainServicesFragment) tabViewPagerAdapter.getItem(1)).setCurrent();
+        ((MainServicesFragment) tabViewPagerAdapter.getItem(TAB_SERVICES)).setCurrent();
     }
 
     public void openScanTab() {
