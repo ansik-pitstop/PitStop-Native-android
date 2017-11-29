@@ -1,6 +1,7 @@
 package com.pitstop.ui.vehicle_specs;
 
 import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -11,11 +12,6 @@ public interface VehicleSpecsView {
     void showLicensePlate(String s);
     void toast(String message);
     void showImage(String s);
-    void showDealershipBanner();
-
-    void showImageLoading();
-    void hideImageLoading();
-
     void showLoading();
     void hideLoading();
 
@@ -35,7 +31,7 @@ public interface VehicleSpecsView {
     void displayOfflineErrorDialog();
     boolean hasBeenPopulated();
 
-    void showMercedesLayout();
+
 
     void showNormalLayout();
 
@@ -48,4 +44,18 @@ public interface VehicleSpecsView {
     void showFuelExpense(float v);
 
     String getLastKnowLocation();
+    void displayDefaultDealershipVisuals(Dealership dealership);
+
+    void displayCarDetails(Car car);
+
+    void openAlarmsActivity();
+
+    void hideBadge();
+
+    void showBadges(int alarmCount);
+
+    void startMyTripsActivity();
+
+    void startAddCarActivity();
+
 }
