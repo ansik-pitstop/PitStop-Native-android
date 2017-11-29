@@ -3,8 +3,10 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.database.LocalFuelConsumptionStorage
+import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.Repository
+import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -22,9 +24,20 @@ class GetFuelConsumedAndPriceUseCaseImpl(val useCaseHandler: Handler, val mainHa
     private var lastKnownLocation: String? = null;
 
 
+    private fun onError(error: RequestError){
+        Logger.getInstance()!!.logE(TAG, "useCase returned error, Errer = ${error.message}", DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({mCallback?.onError(error)})
+    }
+    private fun onGotFuelConsumedAndPrice(price: Double, fuelconsumed: Double){
+        Logger.getInstance()!!.logI(TAG, "useCase finished price = ${price.toString()} fuelConsumed = ${fuelconsumed.toString()}", DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({mCallback?.onGotFuelConsumedAndPrice(price, fuelconsumed)})
+
+
+    }
 
 
     override fun execute(lastknowLocation: String, scannerId: String, callback: GetFuelConsumedAndPriceUseCase.Callback) {
+        Logger.getInstance()!!.logI(TAG, "Use case execution started: lastKnownlocation = $lastknowLocation, scanner id = $scannerId", DebugMessage.TYPE_USE_CASE)
         this.mCallback = callback;
         this.scannerID = scannerId
         this.lastKnownLocation = lastknowLocation;
@@ -42,7 +55,7 @@ class GetFuelConsumedAndPriceUseCaseImpl(val useCaseHandler: Handler, val mainHa
         try {
             var doc: Document = Jsoup.connect(BASE_URL + Uri).get();
             var docString = doc.text();
-            var fuelPrice: Double =109.0 ;
+            var fuelPrice: Double = 109.0 ;
             if (docString == null || docString.equals("", true)) {
                fuelPrice = 109.0;
             }
@@ -58,24 +71,25 @@ class GetFuelConsumedAndPriceUseCaseImpl(val useCaseHandler: Handler, val mainHa
             }
             localFuelConsumptionStorage.getFuelConsumed(this.scannerID, object: Repository.Callback<Double>{
                 override fun onSuccess(data: Double?) {
-                    mainHandler.post({mCallback?.onGotFuelConsumedAndPrice(fuelPrice, data!!)})
+                    this@GetFuelConsumedAndPriceUseCaseImpl.onGotFuelConsumedAndPrice(fuelPrice, data!!)
 
                 }
 
                 override fun onError(error: RequestError?) {
-                    mainHandler.post({mCallback?.onError(error!!)})
+                    this@GetFuelConsumedAndPriceUseCaseImpl.onError(error!!)
                 }
             })
         }
         catch (e: Exception){
             localFuelConsumptionStorage.getFuelConsumed(this.scannerID, object: Repository.Callback<Double>{
                 override fun onSuccess(data: Double?) {
-                    mainHandler.post({mCallback?.onGotFuelConsumedAndPrice(109.0, data!!)})
+                    this@GetFuelConsumedAndPriceUseCaseImpl.onGotFuelConsumedAndPrice(109.0, data!!)
 
-                }
+                    }
+
 
                 override fun onError(error: RequestError?) {
-                    mainHandler.post({mCallback?.onError(error!!)})
+                this@GetFuelConsumedAndPriceUseCaseImpl.onError(error!!)
                 }
             })
         }

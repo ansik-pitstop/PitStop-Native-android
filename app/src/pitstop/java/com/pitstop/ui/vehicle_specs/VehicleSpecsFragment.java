@@ -367,7 +367,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         }
         presenter.getLicensePlate(car.getId());
         totalMileagetv.setText(String.format("%.2fkm", car.getTotalMileage()));
-        isPoppulated = true;
     }
 
     @Override
@@ -406,7 +405,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void startMyTripsActivity() {
         Log.d(TAG,"startMyTripsActivity()");
-        ((MainActivity)getActivity()).myTrips();
+        if (presenter.getCar() == null){
+            displayOfflineErrorDialog();
+            return;
+        }
+        ((MainActivity)getActivity()).myTrips(presenter.getCar());
     }
 
     public void showNormalLayout(){
@@ -774,8 +777,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         totalMileagetv.setText(String.format("%.2f km",car.getTotalMileage()));
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
-
+        isPoppulated = true;
     }
+
 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
