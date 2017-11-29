@@ -20,7 +20,6 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
     var alarmsMap : HashMap<String, ArrayList<Alarm>> = HashMap();
     var alarmsEnabled : Boolean = false;
     private var updating: Boolean = false;
-    private var firstLoad: Boolean = true;
 
     fun subscribe(view: AlarmsView) {
         this.alarmsView = view
@@ -64,20 +63,14 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
 
     fun enableAlarms() {
         Log.d(TAG, "enableAlarms")
-        if (updating || alarmsEnabled) return
-        updating = true
+        if (alarmsEnabled) return
         this.alarmsEnabled = true;
         alarmsView?.setAlarmsEnabled(true)
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
             override fun onAlarmsEnabledSet() {
-                updating = false;
-                if (alarmsView == null) return
-                refreshAlarms()
-                firstLoad = false;
             }
 
             override fun onError(error: RequestError) {
-                updating = false;
                 if (alarmsView == null) return
                 alarmsView?.toast("An error occurred, please check internet connection.")
             }
@@ -86,20 +79,14 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
 
     fun disableAlarms() {
         Log.d(TAG, "disableAlarms")
-        if (updating || !alarmsEnabled)return
-        updating = true
+        if (!alarmsEnabled)return
         this.alarmsEnabled = false;
         alarmsView?.setAlarmsEnabled(false)
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
             override fun onAlarmsEnabledSet() {
-                updating = false;
-                if (alarmsView == null) return
-                refreshAlarms()
             }
 
             override fun onError(error: RequestError) {
-                updating = false;
-                if (alarmsView == null) return
                 alarmsView?.toast("An error occurred, please try again")
             }
         })

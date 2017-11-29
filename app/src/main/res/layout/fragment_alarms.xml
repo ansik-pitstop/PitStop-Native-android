@@ -23,9 +23,9 @@
             android:visibility="gone"
             layout="@layout/layout_no_alarms"/>
 
-        <!--<ScrollView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
@@ -81,11 +81,17 @@
                 </RelativeLayout>
                 <include layout="@layout/divider"/>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/main_recycler_view"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                </android.support.v7.widget.RecyclerView>
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/main_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                    </android.support.v7.widget.RecyclerView>
+
+                </RelativeLayout>
             </LinearLayout>
-        <!--</ScrollView>-->
+        </android.support.v4.widget.NestedScrollView>
 </RelativeLayout>
