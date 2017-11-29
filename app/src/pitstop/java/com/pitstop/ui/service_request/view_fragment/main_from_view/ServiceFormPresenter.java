@@ -102,11 +102,16 @@ public class ServiceFormPresenter implements PresenterCallback{
 
             @Override
             public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onError() err: "+error.getMessage());
                 if (view != null){
                     view.showLoading(false);
+                    if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                        view.toast("Error connecting to server, please check internet connection.");
+                    }else{
+                        view.toast("Unknown error occurred, please contact support.");
+                    }
+                    view.finish();
                 }
-                Log.d(TAG,"getDealershipWithCarIssuesUseCase.onError() err: "+error.getMessage());
-                //show error
             }
         });
 

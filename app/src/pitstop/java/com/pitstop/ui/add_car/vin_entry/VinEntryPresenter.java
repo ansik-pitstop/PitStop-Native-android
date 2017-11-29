@@ -1,6 +1,5 @@
 package com.pitstop.ui.add_car.vin_entry;
 
-import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -155,8 +154,11 @@ public class VinEntryPresenter {
                         if (error.getError().equals(RequestError.ERR_OFFLINE)) {
                             view.beginPendingAddCarActivity(vin, mileage, scannerId);
                             view.hideLoading(((Fragment) view).getContext().getString(R.string.connect_to_internet_toast_message));
-                        } else {
+                        }else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
                             view.onErrorAddingCar(((Fragment) view).getContext().getString(R.string.unexpected_car_adding_error_message));
+                            view.hideLoading(null);
+                        } else {
+                            view.onErrorAddingCar(error.getMessage());
                             view.hideLoading(null);
                         }
                     }

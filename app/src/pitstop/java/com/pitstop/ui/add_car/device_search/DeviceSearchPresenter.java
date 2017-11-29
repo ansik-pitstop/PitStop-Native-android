@@ -1,5 +1,6 @@
 package com.pitstop.ui.add_car.device_search;
 
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -324,8 +325,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                             view.beginPendingAddCarActivity(readyDevice.getVin(),mileage
                                     ,readyDevice.getScannerId());
                             view.hideLoading(((android.support.v4.app.Fragment)view).getString(R.string.connect_to_internet_toast_message));
-                        }
-                        else{
+                        }else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
+                            view.onErrorAddingCar(((Fragment) view).getContext().getString(R.string.unexpected_car_adding_error_message));
+                            view.hideLoading(null);
+                        } else{
                             view.onErrorAddingCar(error.getMessage());
                             view.hideLoading(null);
                         }

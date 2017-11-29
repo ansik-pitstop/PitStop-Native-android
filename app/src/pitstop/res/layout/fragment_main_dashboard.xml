@@ -252,7 +252,6 @@
 
                         <include layout="@layout/divider"/>
 
-
                         <TextView
                             android:id="@+id/tools_header"
                             android:layout_width="match_parent"
@@ -326,27 +325,19 @@
                                 android:layout_gravity="center"
                                 android:gravity="center_vertical"/>
 
-                            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                xmlns:app="http://schemas.android.com/apk/res-auto"
-                                xmlns:tools="http://schemas.android.com/tools"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                >
-
-                                <TextView
-                                    android:visibility="gone"
-                                    android:id="@+id/alarm_badge"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:layout_gravity="center"
-                                    android:layout_marginStart="10dp"
-                                    android:layout_marginEnd="12dp"
-                                    android:background="@drawable/badge"
-                                    android:gravity="center"
-                                    android:text="9+"
-                                    android:textColor="@color/white"
-                                    android:textSize="11sp" />
-                            </FrameLayout>
+                            <TextView
+                                android:visibility="gone"
+                                android:id="@+id/alarm_badge"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="12dp"
+                                android:background="@drawable/badge"
+                                android:gravity="center"
+                                android:text="9+"
+                                android:textColor="@color/white"
+                                android:textSize="11sp" />
 
                             <ImageView
                                 android:layout_width="wrap_content"

@@ -87,7 +87,6 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                             public void onSuccess(VehicleHealthReport vhr) {
                                 Log.d(TAG,"vhr generated: "+vhr);
                                 if (pid.pids.containsKey("2141")){
-                                    Log.d(TAG,"2141 pid found, generating emissions report");
                                     reportRepository.createEmissionsReport(settings.getCarId()
                                             ,vhr.getId(), false, dtc, pid
                                             , new Repository.Callback<EmissionsReport>() {
@@ -114,7 +113,6 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                                                 }
                                             });
                                 }else{
-                                    Log.d(TAG,"2141 pid not found");
                                     GenerateReportUseCaseImpl.this
                                             .onReportAddedWithoutEmissions(vhr);
                                 }

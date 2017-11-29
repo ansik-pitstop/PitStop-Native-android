@@ -19,14 +19,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,11 +88,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 //    @BindView(R.id.car_name_banner)
 //    protected TextView carName;
 
-    @BindView(R.id.main_view_lin_layout)
-    protected LinearLayout mainLayout;
-
-    @BindView(R.id.main_linear_layout)
-    protected RelativeLayout mainLinearLayout;
+    @BindView(R.id.main_view)
+    protected View mainLayout;
 
     @BindView(R.id.loading_view_main)
     protected View loadingView;
@@ -159,13 +152,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.dealership_tv)
     protected TextView dealership;
 
-    @BindView(R.id.dealership_view)
+    @BindView(R.id.dealership_row)
     protected View dealershipView;
 
     @BindView(R.id.car_vin)
     protected TextView carVin;
 
-    @BindView(R.id.scanner_view)
+    @BindView(R.id.scanner_row)
     protected View scannerView;
 
     @BindView(R.id.delete_car)
@@ -189,16 +182,16 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.highway_mileage_specs)
     protected TextView highwayMileage;
 
-    @BindView(R.id.license_plate_cardview)
+    @BindView(R.id.license_plate_row)
     protected View plateView;
 
-    @BindView(R.id.trim_card_view)
+    @BindView(R.id.fuel_trim_row)
     protected View trimView;
 
     @BindView(R.id.trim)
     protected TextView trim;
 
-    @BindView(R.id.tank_size_card_view)
+    @BindView(R.id.tank_size_row)
     protected View tankSizeView;
 
     @BindView(R.id.tank_size)
@@ -258,86 +251,39 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
     @Override
     public void showNoCarView(){
-        if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setGravity(Gravity.CENTER);
-            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER;
-            mainLinearLayout.setLayoutParams(params);
-            Log.d(TAG, "showNoCarView()");
-            mainLayout.setVisibility(View.GONE);
-            loadingView.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.VISIBLE);
-            loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(true);
-        }
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        Log.d(TAG, "showNoCarView()");
+        mainLayout.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.VISIBLE);
+        loadingView.bringToFront();
+        swipeRefreshLayout.setEnabled(true);
 
     }
 
     public void showOfflineErrorView(){
-        if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER;
-            mainLinearLayout.setLayoutParams(params);
-            Log.d(TAG, "showNoCarView()");
-            mainLayout.setVisibility(View.GONE);
-            loadingView.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.VISIBLE);
-            offlineView.bringToFront();
-            swipeRefreshLayout.setEnabled(true);
-        }
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        mainLayout.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.VISIBLE);
+        offlineView.bringToFront();
     }
 
     public void showUnknownErrorView(){
-        if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setGravity(Gravity.CENTER);
-            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER;
-            mainLinearLayout.setLayoutParams(params);
-            Log.d(TAG, "showNoCarView()");
-            mainLayout.setVisibility(View.GONE);
-            loadingView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.VISIBLE);
-            loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(true);
-        }
-
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        mainLayout.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        offlineView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.VISIBLE);
+        unknownErrorView.bringToFront();
     }
 
     @Override
     public void showLoading() {
         if (!swipeRefreshLayout.isRefreshing()) {
-            mainLinearLayout.setGravity(Gravity.CENTER);
-            mainLinearLayout.setVerticalGravity(Gravity.CENTER_VERTICAL);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER;
-            mainLinearLayout.setLayoutParams(params);
             Log.d(TAG, "showLoading()");
-            mainLayout.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.GONE);
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
             swipeRefreshLayout.setEnabled(false);
@@ -349,15 +295,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "hideLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
            swipeRefreshLayout.setEnabled(true);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.NO_GRAVITY;
-            mainLinearLayout.setLayoutParams(params);
             loadingView.setVisibility(View.GONE);
-            unknownErrorView.setVisibility(View.GONE);
-            offlineView.setVisibility(View.GONE);
-            noCarView.setVisibility(View.GONE);
-            mainLayout.setVisibility(View.VISIBLE);
         }
         else {
             swipeRefreshLayout.setRefreshing(false);
@@ -379,6 +317,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void setCarView(Car car) {
         Log.d(TAG, "setView()");
 
+        //Set other views to GONE and main to VISIBLE
+        offlineView.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        noCarView.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
+
+        //Populate view
         carVin.setText(car.getVin());
         if (car.getScannerId() == null)
             scannerID.setText("No scanner connected");
@@ -510,7 +456,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
 
-    @OnClick(R.id.license_plate_cardview)
+    @OnClick(R.id.license_plate_row)
     public void showLicensePlateDialog(){
         Log.d(TAG, "showLicensePlateDialog()");
         if (licensePlateDialog == null){
@@ -532,7 +478,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         licensePlateDialog.show();
     }
 
-    @OnClick(R.id.scanner_view)
+    @OnClick(R.id.scanner_row)
     public void onScannerViewClicked(){
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
@@ -595,7 +541,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         }
     }
 
-    @OnClick(R.id.dealership_view)
+    @OnClick(R.id.dealership_row)
     public void showDealershipChangeDialog(){
         if (changeDealershipAlertDialog == null){
             final View dialogLayout = LayoutInflater.from(
@@ -613,7 +559,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         changeDealershipAlertDialog.show();
     }
 
-    @OnClick(R.id.car_mileage_view)
+    @OnClick(R.id.mileage_row)
     public void displayUpdateMileageDialog() {
         Log.d(TAG,"displayUpdateMileageDialog()");
         if (updateMileageDialog == null){
@@ -749,7 +695,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.onUpdateNeeded();
     }
 
-    @OnClick(R.id.fuel_consumption_card_view)
+    @OnClick(R.id.fuel_consumption_row)
     public void onfuelConsumptionClicked(){
         Log.d(TAG, "onFuelConsumptionClicked()");
         presenter.onFuelConsumptionClicked();
@@ -774,7 +720,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
 
-    @OnClick(R.id.fuel_expenses_card_view)
+    @OnClick(R.id.fuel_expense_row)
     public void onFuelExpensesClicked(){
         Log.d(TAG, "onFuelExpensesCLicked()");
         presenter.onFuelExpensesClicked();
@@ -783,7 +729,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showFuelExpense(float v) {
-        fuelExpensesTextView.setText(String.format("%.2f", v/100));
+        fuelExpensesTextView.setText(String.format("$%.2f", v/100));
 
     }
 
