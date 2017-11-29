@@ -117,6 +117,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     .doOnNext(response -> {
                         if (response.isLocal()) return;
                         if (response.getData() == null){
+                            Log.d(TAG,"Received empty car response.");
                             HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                             return;
                         }
@@ -179,8 +180,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         //Anything below is case 1
 
 
-                            /*We need to check whether the car has no scanner at all, or whether it is being changed
-                            '* If the scanner is being changed, the old one needs to be deactived*/
+                        /*We need to check whether the car has no scanner at all, or whether it is being changed
+                        '* If the scanner is being changed, the old one needs to be deactived*/
 
                         ObdScanner obdScanner = new ObdScanner(car.getId(),deviceId); //Scanner to be added
                         obdScanner.setStatus(true); //Set to active
@@ -210,7 +211,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            HandleVinOnConnectUseCaseImpl.this.onError(error);
+                                            HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarHasScanner(car.getScannerId());
                                         }
                                     });
                                 }
@@ -241,7 +242,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    HandleVinOnConnectUseCaseImpl.this.onError(error);
+                                    HandleVinOnConnectUseCaseImpl.this.onDeviceBrokenAndCarMissingScanner();
                                 }
                             });
                         }

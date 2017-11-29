@@ -207,17 +207,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
      */
     @SuppressLint("NewApi")
     public synchronized void connectToDevice(final BluetoothDevice device) {
-        if (btConnectionState == BluetoothCommunicator.CONNECTING
-                || btConnectionState == BluetoothCommunicator.CONNECTED) {
+        if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
             return;
-        }
-
-        // Le can be used for 212 but it doesn't work properly on all versions of Android
-        // scanLeDevice(false);// will stop after first device detection
-
-        if (communicator != null){
+        } else if (communicator != null && btConnectionState == BluetoothCommunicator.CONNECTED){
             communicator.close();
         }
 
