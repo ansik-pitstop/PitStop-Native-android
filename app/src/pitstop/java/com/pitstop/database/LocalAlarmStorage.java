@@ -26,7 +26,7 @@ public class LocalAlarmStorage {
             + TABLES.LOCAL_ALARMS.CAR_ID + " INTEGER,"
             + TABLES.LOCAL_ALARMS.ALARM_EVENT + " INTEGER,"
             + TABLES.LOCAL_ALARMS.ALARM_VALUE + " REAL,"
-            + TABLES.LOCAL_ALARMS.RTC_TIME + " TEXT" +")";
+            + TABLES.LOCAL_ALARMS.RTC_TIME + " INTEGER" +")";
 
     private LocalDatabaseHelper databaseHelper;
     public LocalAlarmStorage(Context context){
@@ -56,7 +56,8 @@ public class LocalAlarmStorage {
         ArrayList<Alarm> alarmArrayList = new ArrayList<>();
         if (doesTableExist(db, TABLES.LOCAL_ALARMS.TABLE_NAME)){
             Log.d(TAG, "alarmsTableExists");
-            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID + "=?", values, null, null, null);
+            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID
+                    + "=? ORDER BY " + TABLES.LOCAL_ALARMS.RTC_TIME + " ASC", values, null, null, null);
             if(c.moveToFirst()) {
                 Log.d(TAG, "alarmsTableHasEntries");
                 while(!c.isAfterLast()) {

@@ -595,4 +595,6 @@
     <string name="cant_turn_on_car">I can\'t turn my car on right now</string>
     <string name="enter_scanner_id">Enter the last 6 digits found on your Pitstop device</string>
     <string name="estimated_usage">Estimated Usage</string>
+    <string name="alarms_enabled_caption">Alarms generated while driving are being read and displayed below only for your viewing. Connecting to your Pitstop device will ensure that alarms from previous trips are loaded.</string>
+    <string name="alarms_disabled_caption">Enabling driver alerts tracks important data directly from your Pitstop device, this will give you feedback on how your driving affects your car. The data collected is in safe hands and is used to help improve our predictive maintenance and alerts.</string>
 </resources>

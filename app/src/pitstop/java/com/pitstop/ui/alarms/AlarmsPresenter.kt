@@ -49,11 +49,13 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
                     }
                     alarmsView?.showAlarmsView()
                     alarmsView?.populateAlarms();
+                    alarmsView?.hideLoading()
                 }
             }
             override fun onError(error: RequestError) {
                 updating = false;
                 if (alarmsView == null) return
+                alarmsView?.hideLoading()
                 alarmsView?.errorLoadingAlarms();
             }
         })
@@ -65,6 +67,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         if (updating || alarmsEnabled) return
         updating = true
         this.alarmsEnabled = true;
+        alarmsView?.setAlarmsEnabled(true)
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
             override fun onAlarmsEnabledSet() {
                 updating = false;
@@ -86,6 +89,7 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         if (updating || !alarmsEnabled)return
         updating = true
         this.alarmsEnabled = false;
+        alarmsView?.setAlarmsEnabled(false)
         useCaseComponent.setAlarmsEnableduseCase.execute(alarmsEnabled, object : SetAlarmsEnabledUseCase.Callback{
             override fun onAlarmsEnabledSet() {
                 updating = false;
