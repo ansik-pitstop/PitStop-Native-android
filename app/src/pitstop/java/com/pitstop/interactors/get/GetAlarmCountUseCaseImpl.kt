@@ -12,9 +12,8 @@ import com.pitstop.utils.Logger
 /**
  * Created by ishan on 2017-11-07.
  */
-class GetAlarmCountUseCaseImpl (  val localAlarmStorage: LocalAlarmStorage,
-                                val useCaseHandler: Handler, val userRepository: UserRepository
-                                  , val mainHandler: Handler): GetAlarmCountUseCase {
+class GetAlarmCountUseCaseImpl (  val localAlarmStorage: LocalAlarmStorage,val userRepository: UserRepository
+                                , val useCaseHandler: Handler, val mainHandler: Handler): GetAlarmCountUseCase {
 
     private val TAG = javaClass.simpleName;
     private var callback: GetAlarmCountUseCase.Callback? = null
