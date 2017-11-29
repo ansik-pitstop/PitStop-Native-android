@@ -246,7 +246,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
         tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
         tabFragmentManager!!.createTabs()
-        tabFragmentManager!!.openServices()
+        //tabFragmentManager!!.openServices()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
