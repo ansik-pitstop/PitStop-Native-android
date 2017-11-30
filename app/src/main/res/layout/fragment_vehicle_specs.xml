@@ -139,7 +139,10 @@
 
 
                     <TextView
-                        android:padding="10dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:text="@string/estimated_usage"
                         android:layout_gravity="center"
                         android:layout_width="match_parent"
@@ -151,10 +154,10 @@
                     <RelativeLayout
                         android:id="@+id/mileage_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -197,10 +200,10 @@
                     <RelativeLayout
                         android:id="@+id/fuel_consumption_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -242,10 +245,10 @@
                     <RelativeLayout
                         android:id="@+id/fuel_expense_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -286,10 +289,10 @@
                     <RelativeLayout
                         android:id="@+id/alarms_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -340,10 +343,10 @@
                     <RelativeLayout
                         android:id="@+id/my_trips_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -382,7 +385,10 @@
                     <!-- My trips row-->
 
                     <TextView
-                        android:padding="10dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:text="Overview"
                         android:layout_gravity="center"
                         android:layout_width="match_parent"
@@ -394,10 +400,10 @@
                     <RelativeLayout
                         android:id="@+id/scanner_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -439,10 +445,10 @@
                     <RelativeLayout
                         android:id="@+id/license_plate_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -494,10 +500,10 @@
                     <RelativeLayout
                         android:id="@+id/dealership_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -536,7 +542,10 @@
                     <include layout="@layout/divider" />
 
                     <TextView
-                        android:padding="10dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:textAlignment="viewEnd"
                         android:text="Specifications"
                         android:layout_width="wrap_content"
@@ -547,10 +556,10 @@
                     <!-- VIN Row -->
                     <RelativeLayout
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -592,10 +601,10 @@
                     <!-- Engine Row -->
                     <RelativeLayout
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -638,10 +647,10 @@
                     <!-- Highway Fuel Consumption Row -->
                     <RelativeLayout
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -682,10 +691,10 @@
                     <!-- Highway Fuel Consumption Row -->
                     <RelativeLayout
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -723,10 +732,10 @@
                     <RelativeLayout
                         android:id="@+id/fuel_trim_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -766,10 +775,10 @@
                     <RelativeLayout
                         android:id="@+id/tank_size_row"
                         android:background="@color/white"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
