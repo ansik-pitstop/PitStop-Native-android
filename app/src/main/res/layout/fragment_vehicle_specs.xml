@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/swiper"
@@ -17,10 +16,11 @@
             android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <include
                 android:id="@+id/no_car"
                 android:visibility="gone"
-                layout="@layout/layout_no_car_dashboard"/>
+                layout="@layout/layout_no_car_dashboard" />
 
             <include
                 android:id="@+id/offline_view"
@@ -30,14 +30,14 @@
             <include
                 android:id="@+id/unknown_error_view"
                 layout="@layout/layout_unknown_error"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <include
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:id="@+id/loading_view_main"
                 android:visibility="gone"
-                layout="@layout/layout_load"/>
+                layout="@layout/layout_load" />
         </RelativeLayout>
 
         <android.support.v4.widget.NestedScrollView
@@ -49,10 +49,94 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
+
+                    <!-- dealership image-->
+                    <RelativeLayout
+                        android:id="@+id/banner_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/dealer_background_imageview"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            tools:src="@drawable/mercedes_brampton"
+                            android:scaleType="centerCrop" />
+
+                        <FrameLayout
+                            android:id="@+id/banner_overlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            android:background="@color/white"
+                            android:alpha="0.7"
+                            android:visibility="gone" />
+
+                        <RelativeLayout
+                            android:id="@+id/carName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:paddingTop="10dp"
+                            android:orientation="vertical">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/car_logo_imageview"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:layout_centerHorizontal="true"
+                                tools:src="@drawable/bmw" />
+
+
+                            <LinearLayout
+                                android:layout_centerHorizontal="true"
+                                android:id="@+id/car_name_container"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/car_logo_imageview"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/car_connected_indicator_layout"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:src="@drawable/circle_indicator_stroke"
+                                    android:visibility="gone" />
+
+                                <TextView
+                                    android:id="@+id/car_name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:maxLines="1"
+                                    android:textColor="#fff"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    tools:text="Your car" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_centerHorizontal="true"
+                                android:layout_centerInParent="true"
+                                android:id="@+id/dealership_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/car_name_container"
+                                android:textColor="@color/white"
+                                android:textSize="18sp"
+                                tools:text="Dealership" />
+
+                        </RelativeLayout>
+                    </RelativeLayout>
+
+                    <!-- dealership image-->
+
 
                     <TextView
                         android:paddingLeft="10dp"
@@ -64,8 +148,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Mileage Row -->
                     <RelativeLayout
@@ -96,7 +179,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:text="@string/mileage_title"/>
+                            android:text="@string/mileage_title" />
 
                         <TextView
                             android:text="N/A"
@@ -111,8 +194,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Fuel Consumption Row -->
                     <RelativeLayout
@@ -141,7 +223,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/fuel_consumption_header"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
 
                         <TextView
@@ -157,8 +239,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Fuel Expense Row -->
                     <RelativeLayout
@@ -202,8 +283,106 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
+
+                    <!-- Alarms Row -->
+                    <RelativeLayout
+                        android:id="@+id/alarms_row"
+                        android:background="@color/white"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/driving_alarms_icon"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_marginRight="10dp"
+                            android:src="@drawable/car_alarms_3x"
+                            android:layout_centerVertical="true"/>
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            style="@style/vehicle_specs_text"
+                            android:id="@+id/driving_alarms_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/driving_alarms"
+                            android:textStyle="bold"
+                            android:layout_toEndOf="@+id/driving_alarms_icon"/>
+
+                        <TextView
+                            android:visibility="gone"
+                            android:id="@+id/alarm_badge"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="right"
+                            android:background="@drawable/badge"
+                            android:gravity="center"
+                            android:text="9+"
+                            android:layout_toLeftOf="@id/chevron"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+
+                        <ImageView
+                            android:id="@+id/chevron"
+                            android:layout_alignParentEnd="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/right_chevron" />
+
+                    </RelativeLayout>
+                    <!-- My Trips row-->
+
+                    <include layout="@layout/divider" />
+
+                    <RelativeLayout
+                        android:id="@+id/my_trips_row"
+                        android:background="@color/white"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/trips_icon"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_marginRight="10dp"
+                            android:src="@drawable/route_2"
+                            android:layout_centerVertical="true"/>
+
+                        <TextView
+                            style="@style/vehicle_specs_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentTop="true"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@+id/trips_icon"
+                            android:layout_centerVertical="true"
+                            android:text="@string/my_trips"
+                            android:textStyle="bold" />
+
+
+                        <ImageView
+                            android:layout_alignParentRight="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/right_chevron" />
+
+                    </RelativeLayout>
+
+
+                    <include layout="@layout/divider" />
+
+                    <!-- My trips row-->
 
                     <TextView
                         android:paddingLeft="10dp"
@@ -215,8 +394,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Device Id Row -->
                     <RelativeLayout
@@ -246,7 +424,7 @@
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
                             android:textStyle="bold"
-                            android:text="@string/scanner_id"/>
+                            android:text="@string/scanner_id" />
 
                         <TextView
                             android:id="@+id/scanner_id"
@@ -261,8 +439,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- License Plate Row -->
                     <RelativeLayout
@@ -294,7 +471,7 @@
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
                             style="@style/vehicle_specs_text"
-                            android:text="@string/license_plate"/>
+                            android:text="@string/license_plate" />
 
 
                         <TextView
@@ -302,12 +479,13 @@
                             android:layout_toEndOf="@id/license_plate_title"
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
-                            android:layout_alignParentEnd="true"
+                            android:layout_toStartOf="@+id/pencil"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAlignment="viewEnd" />
 
                         <ImageView
+                            android:id="@+id/pencil"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_alignParentEnd="true"
@@ -316,8 +494,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Dealership Row -->
                     <RelativeLayout
@@ -348,7 +525,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:textStyle="bold"
-                            android:text="@string/dealership"/>
+                            android:text="@string/dealership" />
 
                         <TextView
                             android:id="@+id/dealership_tv"
@@ -362,8 +539,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <TextView
                         android:paddingLeft="10dp"
@@ -375,8 +551,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- VIN Row -->
                     <RelativeLayout
@@ -406,7 +581,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:text="VIN"/>
+                            android:text="VIN" />
 
                         <TextView
                             android:text="N/A"
@@ -421,8 +596,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Engine Row -->
                     <RelativeLayout
@@ -452,7 +626,7 @@
                             android:id="@+id/engine_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/engine_title"/>
+                            android:text="@string/engine_title" />
 
                         <TextView
                             android:id="@+id/car_engine"
@@ -468,8 +642,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Highway Fuel Consumption Row -->
                     <RelativeLayout
@@ -498,7 +671,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:text="@string/city_title"/>
+                            android:text="@string/city_title" />
 
                         <TextView
                             android:layout_toRightOf="@id/city_fuel_consumption_title"
@@ -513,8 +686,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Highway Fuel Consumption Row -->
                     <RelativeLayout
@@ -540,7 +712,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:text="@string/highway_title"/>
+                            android:text="@string/highway_title" />
 
                         <TextView
                             android:text="N/A"
@@ -554,8 +726,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Fuel Trim Row -->
                     <RelativeLayout
@@ -584,7 +755,7 @@
                             style="@style/vehicle_specs_text"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:text="@string/trim"/>
+                            android:text="@string/trim" />
 
                         <TextView
                             android:textAlignment="viewEnd"
@@ -598,8 +769,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <!-- Tank Size Row -->
                     <RelativeLayout
@@ -629,7 +799,7 @@
                             style="@style/vehicle_specs_text"
                             android:layout_height="wrap_content"
                             android:text="@string/tank_size"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
 
 
                         <TextView
@@ -645,8 +815,7 @@
 
                     </RelativeLayout>
 
-                    <include
-                        layout="@layout/divider" />
+                    <include layout="@layout/divider" />
 
                     <Button
                         android:layout_gravity="center"
@@ -656,7 +825,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/red"
-                        android:text="@string/delete_car_title"/>
+                        android:text="@string/delete_car_title" />
 
                 </LinearLayout>
             </LinearLayout>

@@ -1,7 +1,6 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.castel.obd215b.util.DateUtil;
 import com.pitstop.R;
 import com.pitstop.models.Alarm;
 import com.pitstop.ui.alarms.AlarmsView;
@@ -22,9 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TimeZone;
-
-import bolts.Bolts;
 
 /**
  * Created by ishan on 2017-10-30.
@@ -154,9 +149,9 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             }
 
             public void bind(Alarm alarm, boolean isDealershipMercedes){
-                Log.d(TAG, getAlarmName(alarm.getAlarmEvent()));
-                alarmIcon.setImageResource(getAlarmIcon(alarm.getAlarmEvent(), isDealershipMercedes));
-                alarmName.setText(getAlarmName(alarm.getAlarmEvent()));
+                Log.d(TAG, alarm.getName());
+                alarmIcon.setImageResource(getAlarmIcon(alarm.getEvent(), isDealershipMercedes));
+                alarmName.setText(alarm.getName());
                 Log.d(TAG, Boolean.toString(isDealershipMercedes));
                 Date date = new Date ();
                 date.setTime(Long.parseLong(alarm.getRtcTime())*1000);
@@ -169,12 +164,8 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
                 }
                 alarmTime.setText(java_date);
             }
-
         }
-
-
     }
-
 
 
     public int getAlarmIcon(int alarmEvent, boolean mercedes){
@@ -270,47 +261,5 @@ public class AlarmsAdapter extends RecyclerView.Adapter<AlarmsAdapter.AlarmViewH
             }
         }
 
-    }
-
-    public static String getAlarmName(int alarmId){
-        switch(alarmId){
-
-            case 0:
-                return "Power On Alarm";
-            case 1:
-                return "Ignition On Alarm";
-            case 2:
-                return "Ignition Off Alarm" ;
-            case 3 :
-                return "Engine Coolant Over Temperature" ;
-            case 4:
-                return "High RPM";
-            case 5:
-                return "Low Voltage";
-            case 6:
-                return "Idling";
-            case 7:
-                return "Fatigue Driving";
-            case 8:
-                return "Speeding";
-            case 9:
-                return "Collision";
-            case 10:
-                return "Shock";
-            case 11:
-                return "Towing";
-            case 12:
-                return "Dangerous Driving";
-            case 13:
-                return "Acceleration";
-            case 14:
-                return "Deceleration";
-            case 15:
-                return "Sharp Turn";
-            case 16:
-                return "Quick Lane Change";
-            default:
-                return "";
-        }
     }
 }

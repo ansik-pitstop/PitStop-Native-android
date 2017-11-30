@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.adapters.AlarmsAdapter;
 import com.pitstop.models.Alarm;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
@@ -27,7 +26,7 @@ public class LocalAlarmStorage {
             + TABLES.LOCAL_ALARMS.CAR_ID + " INTEGER,"
             + TABLES.LOCAL_ALARMS.ALARM_EVENT + " INTEGER,"
             + TABLES.LOCAL_ALARMS.ALARM_VALUE + " REAL,"
-            + TABLES.LOCAL_ALARMS.RTC_TIME + " TEXT" +")";
+            + TABLES.LOCAL_ALARMS.RTC_TIME + " INTEGER" +")";
 
     private LocalDatabaseHelper databaseHelper;
     public LocalAlarmStorage(Context context){
@@ -37,14 +36,14 @@ public class LocalAlarmStorage {
 
 
     public void storeAlarm(Alarm alarm,  Repository.Callback<Alarm> callback){
-        Log.d(TAG, "storeAlarm " + Integer.toString(alarm.getCarID()) + " " + Integer.toString(alarm.getAlarmEvent()) +
-                " " + Float.toString(alarm.getAlarmValue()) + " " + alarm.getRtcTime() );
+        Log.d(TAG, "storeAlarm " + Integer.toString(alarm.getCarID()) + " " + Integer.toString(alarm.getEvent()) +
+                " " + Float.toString(alarm.getValue()) + " " + alarm.getRtcTime() );
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.execSQL(CREATE_LOCAL_ALARM_STORAGE);
         ContentValues values = new ContentValues();
         values.put(TABLES.LOCAL_ALARMS.CAR_ID, alarm.getCarID());
-        values.put(TABLES.LOCAL_ALARMS.ALARM_EVENT, alarm.getAlarmEvent());
-        values.put(TABLES.LOCAL_ALARMS.ALARM_VALUE, alarm.getAlarmValue());
+        values.put(TABLES.LOCAL_ALARMS.ALARM_EVENT, alarm.getEvent());
+        values.put(TABLES.LOCAL_ALARMS.ALARM_VALUE, alarm.getValue());
         values.put(TABLES.LOCAL_ALARMS.RTC_TIME, alarm.getRtcTime());
         long result = db.insert(TABLES.LOCAL_ALARMS.TABLE_NAME, null, values);
         callback.onSuccess(alarm);
@@ -57,13 +56,14 @@ public class LocalAlarmStorage {
         ArrayList<Alarm> alarmArrayList = new ArrayList<>();
         if (doesTableExist(db, TABLES.LOCAL_ALARMS.TABLE_NAME)){
             Log.d(TAG, "alarmsTableExists");
-            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID + "=?", values, null, null, null);
+            Cursor c = db.query(TABLES.LOCAL_ALARMS.TABLE_NAME, null, TABLES.LOCAL_ALARMS.CAR_ID
+                    + "=? ORDER BY " + TABLES.LOCAL_ALARMS.RTC_TIME + " ASC", values, null, null, null);
             if(c.moveToFirst()) {
                 Log.d(TAG, "alarmsTableHasEntries");
                 while(!c.isAfterLast()) {
                     Alarm alarm = cursorToAlarm(c);
                     alarmArrayList.add(alarm);
-                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
+                    Log.d(TAG, alarm.getName() );
                     c.moveToNext();
                 }
             }
@@ -90,7 +90,7 @@ public class LocalAlarmStorage {
                 while(!c.isAfterLast()) {
                     Alarm alarm = cursorToAlarm(c);
                     alarmArrayList.add(alarm);
-                    Log.d(TAG, AlarmsAdapter.getAlarmName(alarm.getAlarmEvent()) );
+                    Log.d(TAG, alarm.getName() );
                     c.moveToNext();
                 }
             }
@@ -108,7 +108,7 @@ public class LocalAlarmStorage {
     public Alarm cursorToAlarm(Cursor c){
         Alarm alarm = new Alarm(c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_EVENT)),
                 c.getFloat(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_VALUE)),
-                c.getString(c.getColumnIndex(TABLES.LOCAL_ALARMS.RTC_TIME)),
+                String.valueOf((int)((c.getLong(c.getColumnIndex(TABLES.LOCAL_ALARMS.RTC_TIME))*Math.random()))),
                 c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.CAR_ID)));
         return alarm;
     }
