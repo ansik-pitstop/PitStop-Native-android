@@ -5,11 +5,8 @@
     android:id="@+id/list_car_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="0.5dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginTop="8dp"
     android:clipToPadding="false"
+    android:layout_marginBottom="4dp"
     card_view:cardElevation="2dp">
 
     <RelativeLayout
