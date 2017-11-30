@@ -274,9 +274,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onDeviceVerifying() {
-        Log.d(TAG,"onDeviceDisconnected()");
+        Log.d(TAG,"onDeviceVerifying()");
         if (view == null) return;
         if (!searchingForDevice) return;
+        Log.wtf(TAG, "error, verifying in add car, should not happen");
         view.showLoading(((android.support.v4.app.Fragment)view)
                 .getString(R.string.verifying_device_action_bar));
     }
@@ -419,6 +420,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForDevice = false;
             view.hideLoading("");
         }
+        else if (connectingToDevice){
+            connectionTimer.cancel();
+            connectingToDevice = false;
+            view.hideLoading("");
+        }
+
         else if (addingCar){
             //Do nothing
         }
