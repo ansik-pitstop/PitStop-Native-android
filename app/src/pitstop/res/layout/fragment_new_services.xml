@@ -355,7 +355,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
                                         android:text="Routine Services"
-                                        android:textStyle="bold"
+                                        android:textStyle="bold"/>
                                     <include layout="@layout/divider" />
                                 </LinearLayout>
 
