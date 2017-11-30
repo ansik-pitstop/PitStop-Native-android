@@ -171,7 +171,7 @@
 
 
                         <TextView
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_toRightOf="@id/mileage_icon"
                             android:layout_centerVertical="true"
                             android:id="@+id/mileage_title"
@@ -217,7 +217,7 @@
                         <TextView
                             android:id="@+id/fuel_consumption_title"
                             android:layout_toEndOf="@+id/fuel_consumption_icon"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
                             android:layout_width="wrap_content"
@@ -266,7 +266,7 @@
                             android:layout_height="wrap_content"
                             style="@style/vehicle_specs_text"
                             android:layout_centerVertical="true"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_toEndOf="@+id/fuel_expense_icon"
                             android:text="@string/fuel_expense"
                             android:textStyle="bold" />
@@ -304,15 +304,15 @@
                             android:layout_centerVertical="true"/>
 
                         <TextView
-                            android:layout_centerVertical="true"
-                            style="@style/vehicle_specs_text"
                             android:id="@+id/driving_alarms_text"
-                            android:layout_marginLeft="10dp"
+                            style="@style/vehicle_specs_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginLeft="15dp"
+                            android:layout_centerVertical="true"
+                            android:layout_toRightOf="@+id/driving_alarms_icon"
                             android:text="@string/driving_alarms"
-                            android:textStyle="bold"
-                            android:layout_toEndOf="@+id/driving_alarms_icon"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:visibility="gone"
@@ -333,6 +333,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
+                            android:tint="@color/dark_grey"
                             android:src="@drawable/right_chevron" />
 
                     </RelativeLayout>
@@ -375,6 +376,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
+                            android:tint="@color/dark_grey"
                             android:src="@drawable/right_chevron" />
 
                     </RelativeLayout>
@@ -417,7 +419,7 @@
 
                         <TextView
                             android:id="@+id/scanner_title"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_toEndOf="@+id/scanner_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -463,7 +465,7 @@
                             android:layout_height="25dp" />
 
                         <TextView
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_toEndOf="@id/license_icon"
                             android:id="@+id/license_plate_title"
                             android:layout_centerVertical="true"
@@ -518,7 +520,7 @@
 
                         <TextView
                             android:id="@+id/dealership_title"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="15dp"
                             android:layout_toRightOf="@id/dealership_icon"
                             style="@style/vehicle_specs_text"
                             android:layout_width="wrap_content"
@@ -573,7 +575,7 @@
                             android:layout_height="25dp" />
 
                         <TextView
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginLeft="15dp"
                             android:layout_toRightOf="@id/vin_icon"
                             android:layout_centerVertical="true"
                             android:id="@+id/vin_title"
@@ -619,7 +621,7 @@
 
                         <TextView
                             android:layout_toRightOf="@+id/engine_icon"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginLeft="15dp"
                             android:textStyle="bold"
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
@@ -665,7 +667,7 @@
                         <TextView
                             android:id="@+id/city_fuel_consumption_title"
                             android:layout_toRightOf="@+id/city_mileage_icon"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginLeft="15dp"
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
                             android:layout_width="wrap_content"
@@ -705,7 +707,7 @@
                             android:layout_height="25dp" />
 
                         <TextView
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginLeft="15dp"
                             android:layout_toRightOf="@id/highway_mileage_icon"
                             android:id="@+id/highway_mileage_title"
                             style="@style/vehicle_specs_text"
@@ -748,8 +750,8 @@
                             android:layout_height="25dp" />
 
                         <TextView
-                            android:layout_marginLeft="8dp"
                             android:layout_toRightOf="@id/trim_icon"
+                            android:layout_marginLeft="15dp"
                             android:id="@+id/fuel_trim_title"
                             android:layout_width="wrap_content"
                             style="@style/vehicle_specs_text"
@@ -792,7 +794,7 @@
 
                         <TextView
                             android:layout_toRightOf="@id/tank_size_icon"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginLeft="15dp"
                             android:layout_centerVertical="true"
                             android:id="@+id/tank_size_title"
                             android:layout_width="wrap_content"
