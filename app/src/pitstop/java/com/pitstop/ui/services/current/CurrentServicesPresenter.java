@@ -338,7 +338,6 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         }
         getView().showMoveToHistory(selectionMap.values().contains(true));
         Log.d(TAG,"selection map after selecting: "+selectionMap.values());
-        getView().notifyIssueDataChanged();
     }
 
     public void onMoveToHistoryClicked() {
