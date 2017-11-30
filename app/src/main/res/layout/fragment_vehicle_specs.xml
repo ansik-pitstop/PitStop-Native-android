@@ -139,10 +139,7 @@
 
 
                     <TextView
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
+                        android:padding="10dp"
                         android:text="@string/estimated_usage"
                         android:layout_gravity="center"
                         android:layout_width="match_parent"
@@ -385,10 +382,7 @@
                     <!-- My trips row-->
 
                     <TextView
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:padding="10dp"
                         android:text="Overview"
                         android:layout_gravity="center"
                         android:layout_width="match_parent"
@@ -542,10 +536,7 @@
                     <include layout="@layout/divider" />
 
                     <TextView
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
+                        android:padding="10dp"
                         android:textAlignment="viewEnd"
                         android:text="Specifications"
                         android:layout_width="wrap_content"

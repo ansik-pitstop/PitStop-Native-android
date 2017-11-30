@@ -11,10 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/light_grey"
         tools:text="150000"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:padding="10dp"
         android:gravity="center_vertical"/>
     <include layout="@layout/divider"/>
     <android.support.v7.widget.RecyclerView
