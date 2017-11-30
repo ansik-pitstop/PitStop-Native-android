@@ -70,6 +70,8 @@ public class MainServicesFragment extends Fragment{
         });
 
         mServicesPager.setAdapter(new ServicesAdapter(getChildFragmentManager()));
+        tabLayout.getTabAt(1).select();
+
     }
 
     @Nullable
