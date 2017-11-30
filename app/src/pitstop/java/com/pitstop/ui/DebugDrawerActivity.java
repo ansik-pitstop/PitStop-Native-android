@@ -420,6 +420,11 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     }
 
     @Override
+    public void onConnectingToDevice() {
+
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         if (bluetoothConnectionObservable != null){

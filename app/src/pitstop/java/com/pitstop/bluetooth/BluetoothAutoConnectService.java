@@ -343,6 +343,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (deviceConnState.equals(State.SEARCHING)
                         || deviceConnState.equals(State.DISCONNECTED)){
                     setConnectionState(State.CONNECTING);
+                    notifyDeviceConnecting();
                 }
 
                 break;
@@ -380,6 +381,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 break;
         }
+    }
+
+    private void notifyDeviceConnecting() {
+        Log.d(TAG, "notifyDeviceConnecting()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onConnectingToDevice());
+            }
+        }
+
     }
 
     @Override
@@ -517,7 +529,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
-
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
                 && !deviceConnState.equals(State.SEARCHING)) return;

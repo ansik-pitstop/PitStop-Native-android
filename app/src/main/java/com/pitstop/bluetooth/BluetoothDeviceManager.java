@@ -90,6 +90,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     //Returns false if search didn't begin again
     private boolean ignoreVerification = false;
+
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled() && !urgent) {
