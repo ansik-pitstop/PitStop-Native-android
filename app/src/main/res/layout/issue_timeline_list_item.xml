@@ -28,6 +28,7 @@
             android:id="@+id/image_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/right_chevron"/>
@@ -37,10 +38,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            tools:text="Issue is an issue unless its not"
+            tools:text="Issue is an issue unless its nottttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
             android:layout_marginStart="16dp"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/image_icon"
+            android:layout_toStartOf="@id/image_icon"
             android:layout_toEndOf="@+id/issue_severity_indicator" />
     </RelativeLayout>
 
