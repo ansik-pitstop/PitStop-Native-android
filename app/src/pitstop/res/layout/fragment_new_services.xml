@@ -212,7 +212,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="10dp"
-                            android:textStyle="bold"
                             android:text="My Services"/>
 
                         <include layout="@layout/divider" />
@@ -256,7 +255,6 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:textStyle="bold"
                                         android:text="Engine Issues"/>
                                 </LinearLayout>
 
@@ -290,7 +288,6 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:textStyle="bold"
                                         android:text="Potential Engine Issues"/>
                                 </LinearLayout>
 
@@ -310,7 +307,7 @@
                             <LinearLayout
                                 android:id="@+id/recalls_holder"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:visibility="gone">
 
@@ -323,7 +320,6 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:textStyle="bold"
                                         android:text="Recalls"/>
                                 </LinearLayout>
 
@@ -344,7 +340,7 @@
                                 android:id="@+id/routine_serivces_holder"
                                 android:visibility="gone"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:orientation="vertical">
 
                                 <LinearLayout
@@ -356,15 +352,14 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:text="Routine Services"
-                                        android:textStyle="bold"/>
+                                        android:text="Routine Services"/>
                                     <include layout="@layout/divider" />
                                 </LinearLayout>
 
 
                                 <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent">
+                                    android:layout_height="wrap_content">
 
                                     <android.support.v7.widget.RecyclerView
                                         android:id="@+id/routine_services_recycler_view"
