@@ -300,7 +300,6 @@
                             android:id="@+id/driving_alarms_icon"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
-                            android:layout_marginRight="10dp"
                             android:src="@drawable/car_alarms_3x"
                             android:layout_centerVertical="true"/>
 
@@ -308,6 +307,7 @@
                             android:layout_centerVertical="true"
                             style="@style/vehicle_specs_text"
                             android:id="@+id/driving_alarms_text"
+                            android:layout_marginLeft="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/driving_alarms"
