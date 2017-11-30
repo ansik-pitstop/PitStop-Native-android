@@ -1,7 +1,6 @@
 package com.pitstop.adapters;
 
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -51,6 +50,7 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.date.setVisibility(View.GONE);
+        holder.checkBox.setVisibility(View.VISIBLE);
 
         final CarIssue carIssue = carIssues.get(position);
 
@@ -81,8 +81,9 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
                 -> issueHolderListener.onServiceClicked(carIssues, position));
 
         //Get the done image view
-        holder.checkBox.setOnClickListener((View view)
-                -> issueHolderListener.onServiceSelected(carIssue));
+        holder.checkBox.setOnClickListener((View view) -> {
+            issueHolderListener.onServiceSelected(carIssue);
+        });
     }
 
     @Override
@@ -106,13 +107,11 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
         public TextView description;
         public ImageView imageView;
         public View container;
-        public CardView card;
         public View date; // Not used here so it is set to GONE
         public CheckBox checkBox;
 
         public ViewHolder(View v) {
             super(v);
-            card = v.findViewById(R.id.list_car_item);
             title = v.findViewById(R.id.title);
             description = v.findViewById(R.id.description);
             imageView = v.findViewById(R.id.image_icon);
