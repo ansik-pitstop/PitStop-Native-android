@@ -154,6 +154,7 @@
 
                     <LinearLayout
                         android:orientation="vertical"
+                        android:visibility="gone"
                         android:id="@+id/no_services_card"
                         android:background="@color/white"
                         android:layout_width="match_parent"
