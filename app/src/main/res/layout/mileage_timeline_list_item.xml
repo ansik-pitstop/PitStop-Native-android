@@ -17,6 +17,7 @@
         android:paddingRight="10dp"
         android:textStyle="bold"
         android:gravity="center_vertical"/>
+    <include layout="@layout/divider"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/mileage_specific_issues_recycler_view"
         android:layout_width="match_parent"
