@@ -518,6 +518,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
         this.ignoreVerification = ignoreVerification;
 
+        vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
                 && !deviceConnState.equals(State.SEARCHING)) return;
 
