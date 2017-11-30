@@ -141,8 +141,8 @@
                     <TextView
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:text="@string/estimated_usage"
                         android:layout_gravity="center"
                         android:layout_width="match_parent"
