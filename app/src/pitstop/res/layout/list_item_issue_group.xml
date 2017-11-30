@@ -5,7 +5,7 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     android:elevation="4dp"
-    android:background="@drawable/color_button_issue_group"
+    android:background="@color/light_grey"
     android:paddingLeft="12dp"
     android:paddingRight="12dp">
 
@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:text="@string/date"
-        android:textStyle="bold"
         android:layout_gravity="center_vertical|left"/>
 
 </FrameLayout>
