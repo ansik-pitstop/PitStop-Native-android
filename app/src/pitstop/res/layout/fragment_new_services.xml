@@ -59,6 +59,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
+                        android:layout_gravity="center_vertical"
                         android:tint="@color/primary"
                         app:srcCompat="@drawable/custom_issue3x" />
 
@@ -66,7 +67,7 @@
                         android:text="@string/create_service"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                        android:layout_gravity="center_vertical"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -92,6 +93,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
+                            android:layout_gravity="center_vertical"
                             android:tint="@color/primary"
                             app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
 
@@ -99,7 +101,7 @@
                             android:text="Move to History"
                             android:textStyle="bold"
                             android:textColor="@color/primary"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                            android:layout_gravity="center_vertical"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
@@ -115,6 +117,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
+                            android:layout_gravity="center_vertical"
                             android:tint="@color/grey"
                             app:srcCompat="@drawable/ic_history_light_blue_500_24dp" />
 
@@ -122,7 +125,7 @@
                             android:text="Move to History"
                             android:textStyle="bold"
                             android:textColor="@color/grey"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                            android:layout_gravity="center_vertical"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
@@ -149,11 +152,11 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <android.support.v7.widget.CardView
-                        android:id="@+id/no_services_card"
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:visibility="gone"
-                        android:layout_marginTop="4dp"
-                        app:cardElevation="5dp"
+                        android:id="@+id/no_services_card"
+                        android:background="@color/white"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -172,19 +175,20 @@
 
                             <LinearLayout
                                 android:layout_toRightOf="@id/green_check"
-                                android:layout_marginLeft="10dp"
+                                android:layout_marginLeft="15dp"
                                 android:orientation="vertical"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content">
 
                                 <TextView
-                                    android:text="Congrats!"
-                                    style="@style/Base.TextAppearance.AppCompat.Medium"
+                                    android:text="Congratulations!"
+                                    android:textStyle="bold"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content" />
 
                                 <TextView
                                     android:text="@string/no_services_text"
+                                    style="@style/Base.TextAppearance.AppCompat.Caption"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content" />
 
@@ -192,8 +196,9 @@
 
 
                         </RelativeLayout>
+                        <include layout="@layout/divider"/>
 
-                    </android.support.v7.widget.CardView>
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/my_services_holder"
@@ -207,8 +212,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="10dp"
-                            android:text="My Services"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                            android:text="Created Services"/>
 
                         <include layout="@layout/divider" />
 
@@ -251,8 +255,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:text="Engine Issues"
-                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                        android:text="Engine Issues"/>
                                 </LinearLayout>
 
                                 <include
@@ -285,8 +288,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:text="Potential Engine Issues"
-                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                        android:text="Potential Engine Issues"/>
                                 </LinearLayout>
 
                                 <include layout="@layout/divider" />
@@ -305,7 +307,7 @@
                             <LinearLayout
                                 android:id="@+id/recalls_holder"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:visibility="gone">
 
@@ -318,8 +320,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:text="Recalls"
-                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                        android:text="Recalls"/>
                                 </LinearLayout>
 
                                 <include layout="@layout/divider" />
@@ -337,8 +338,9 @@
 
                             <LinearLayout
                                 android:id="@+id/routine_serivces_holder"
+                                android:visibility="gone"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:orientation="vertical">
 
                                 <LinearLayout
@@ -350,15 +352,14 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_margin="10dp"
-                                        android:text="Routine Services"
-                                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                                        android:text="Routine Services"/>
                                     <include layout="@layout/divider" />
                                 </LinearLayout>
 
 
                                 <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent">
+                                    android:layout_height="wrap_content">
 
                                     <android.support.v7.widget.RecyclerView
                                         android:id="@+id/routine_services_recycler_view"
