@@ -135,6 +135,12 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
             presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
         }
 
+        routineServicesRecyclerView.setNestedScrollingEnabled(false);
+        myServicesRecyclerView.setNestedScrollingEnabled(false);
+        potentialEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
+        recallsRecyclerView.setNestedScrollingEnabled(false);
+        storedEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
+
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;

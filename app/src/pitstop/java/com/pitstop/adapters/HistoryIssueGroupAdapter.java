@@ -1,7 +1,6 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -175,12 +174,13 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
 
         //Do not show done button inside history since services are already considered completed
         checkBox.setVisibility(View.INVISIBLE);
+        date.setVisibility(View.VISIBLE);
 
         desc.setText(issue.getDescription());
         if (issue.getDoneAt() == null || issue.getDoneAt().equals("null")) {
             date.setText(convertView.getContext().getString(R.string.done));
         } else {
-            date.setText(String.format("Done on %s", DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt())));
+            date.setText(String.format("%s", DateTimeFormatUtil.formatDateToHistoryFormat(issue.getDoneAt())));
         }
 
         if (issue.getIssueType().equals(CarIssue.RECALL)) {

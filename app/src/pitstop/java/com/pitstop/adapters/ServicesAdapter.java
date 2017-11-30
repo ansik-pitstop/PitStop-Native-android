@@ -50,6 +50,7 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.date.setVisibility(View.GONE);
+        holder.checkBox.setVisibility(View.VISIBLE);
 
         final CarIssue carIssue = carIssues.get(position);
 
