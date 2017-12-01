@@ -49,8 +49,10 @@ public class Logger {
         public void onReceive(Context context, Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
 
+                if (connectivityManager == null)
+                    connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 //Check for gelfTransport not null because we want to re-instantiate it here, not create the first instance
-                if (connectivityManager.getActiveNetworkInfo() != null
+                if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
                         && connectivityManager.getActiveNetworkInfo().isConnected()
                         && gelfTransport != null && handler != null) {
                     Log.d(TAG,"Received internet ON, creating new instance of gelf transport");
@@ -131,6 +133,7 @@ public class Logger {
                     c.close();
                     return messageList;
                 }).filter(messageList -> !messageList.isEmpty()
+                        && connectivityManager != null
                         && connectivityManager.getActiveNetworkInfo() != null
                         && connectivityManager.getActiveNetworkInfo().isConnected())
                 .subscribe(messageList -> {
