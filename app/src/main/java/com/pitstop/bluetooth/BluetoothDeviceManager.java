@@ -96,7 +96,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled() && !urgent) {
             Log.i(TAG, "Scan unable to start, bluetooth is disabled and non urgent scan");
-
             return false;
         }
         else if (!mBluetoothAdapter.isEnabled() && urgent){

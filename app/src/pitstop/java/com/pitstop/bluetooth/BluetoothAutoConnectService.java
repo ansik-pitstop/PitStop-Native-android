@@ -542,7 +542,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 , DebugMessage.TYPE_BLUETOOTH);
 
         if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
-            Log.d(TAG, "startedScan");
             setConnectionState(State.SEARCHING);
             notifySearchingForDevice();
             Log.d(TAG,"Started scan");
