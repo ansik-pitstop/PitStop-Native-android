@@ -83,7 +83,9 @@ public class PastReportsAdapter extends RecyclerView.Adapter<PastReportsAdapter.
                                 ", %d services and %d recalls. Emissions results: %s",vehicleHealthReport.getEngineIssues().size()
                         , vehicleHealthReport.getServices().size()
                         ,vehicleHealthReport.getRecalls().size()
-                        , report.getEmissionsReport().isPass() ? "Pass" : "Fail"));
+                        , report.getEmissionsReport().isPass() ? "Pass"
+                                : report.getEmissionsReport().getReason().isEmpty()
+                                ? "Fail" : report.getEmissionsReport().getReason()));
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
