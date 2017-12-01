@@ -176,7 +176,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         if (getView() == null|| updating)return;
         updating = true;
         getView().showLoading();
-
         useCaseComponent.getGetAlarmCountUseCase().execute(new GetAlarmCountUseCase.Callback() {
                     @Override
                     public void onAlarmCountGot(int alarmCount) {
