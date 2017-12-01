@@ -24,4 +24,6 @@ public interface BluetoothConnectionObserver extends Observer{
     void onDeviceSyncing();
 
     void onGotSuportedPIDs(String value);
+
+    void onConnectingToDevice();
 }

@@ -5,12 +5,14 @@ import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.R.array.car
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.add.AddAlarmUseCase
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
 import com.pitstop.interactors.get.GetCurrentUserUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
+import com.pitstop.models.Alarm
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
@@ -22,6 +24,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by ishan on 2017-10-20.

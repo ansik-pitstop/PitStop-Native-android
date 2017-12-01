@@ -23,6 +23,7 @@ public class VinDataHandler{
     private UseCaseComponent useCaseComponent;
 
     private boolean verificationInProgress = false;
+    private String vinBeingVerified = "";
 
     public VinDataHandler(Context context, BluetoothDataHandlerManager bluetoothDataHandlerManager
             , DeviceVerificationObserver deviceVerificationObserver){
@@ -32,6 +33,13 @@ public class VinDataHandler{
         this.useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();
+    }
+
+    public void vinVerificationFlagChange(boolean ignoreVerification){
+        if (ignoreVerification && verificationInProgress){
+            deviceVerificationObserver.onVerificationSuccess(vinBeingVerified);
+            verificationInProgress = false;
+        }
     }
 
     public void handleVinData(String vin, String deviceId, boolean ignoreVerification){
@@ -47,7 +55,7 @@ public class VinDataHandler{
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed
         else if(!ignoreVerification && !verificationInProgress && !deviceIsVerified){
-
+            vinBeingVerified = vin;
             bluetoothDataHandlerManager.onHandlerVerifyingDevice();
             verificationInProgress = true;
 
@@ -58,6 +66,7 @@ public class VinDataHandler{
                     Log.d(TAG, "handleVinOnConnect: Success" +
                                     ", ignoreVerification?"
                                     +ignoreVerification);
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationSuccess(vin);
                 }
@@ -67,6 +76,7 @@ public class VinDataHandler{
                     Log.d(TAG, "handleVinOnConnect Device ID needs to be overriden"
                                     +"ignoreVerification?"
                                     +ignoreVerification);
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarMissingScanner(vin);
                 }
@@ -76,6 +86,7 @@ public class VinDataHandler{
                     Log.d(TAG, "Device missing id but user car has a scanner" +
                                     ", overwriting scanner id to "+scannerId+", ignoreVerification: "
                                     +ignoreVerification);
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceBrokenAndCarHasScanner(
                             vin,scannerId);
@@ -86,6 +97,7 @@ public class VinDataHandler{
                     Log.d(TAG, "handleVinOnConnect Device is invalid." +
                                     " ignoreVerification?"
                                     +ignoreVerification);
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceInvalid(vin);
                 }
@@ -95,6 +107,7 @@ public class VinDataHandler{
                     Log.d(TAG, "handleVinOnConnect Device is already active" +
                                     ", ignoreVerification?"
                                     +ignoreVerification);
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationDeviceAlreadyActive(vin);
                 }
@@ -103,6 +116,7 @@ public class VinDataHandler{
                 public void onError(RequestError error) {
                     Log.d(TAG, "handleVinOnConnect error occurred" +
                                     ", ignoreVerification?");
+                    if (!verificationInProgress) return;
                     verificationInProgress = false;
                     deviceVerificationObserver.onVerificationError(vin);
 
