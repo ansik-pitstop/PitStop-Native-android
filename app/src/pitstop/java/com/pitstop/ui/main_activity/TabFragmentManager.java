@@ -47,7 +47,7 @@ public class TabFragmentManager implements BadgeDisplayer{
 
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
-        TAB_NAMES = new String[]{mActivity.getApplicationContext().getString(R.string.dashboard),
+        TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.services_nav_text),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.my_garage),
@@ -84,6 +84,7 @@ public class TabFragmentManager implements BadgeDisplayer{
 
         setupSwitchActions();
         setupActionBar();
+        mToolbar.setTitle(TAB_NAMES[0]);
 
     }
 
