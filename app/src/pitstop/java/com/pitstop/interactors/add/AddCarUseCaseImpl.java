@@ -211,7 +211,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
     private void addCar(String vin, double baseMileage, int userId, String scannerId
             , Callback callback){
-        Log.d(TAG,"addCar() vin: "+vin+", baseMileage: "+baseMileage+", userId: "+userId+", scannerId: "+scannerId);
+        Log.d(TAG,"addCar()");
         carRepository.insert(vin, baseMileage, userId, scannerId
                 , new Repository.Callback<Car>() {
                     @Override
