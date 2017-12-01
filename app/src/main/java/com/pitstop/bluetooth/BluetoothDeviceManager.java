@@ -42,7 +42,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
-
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
