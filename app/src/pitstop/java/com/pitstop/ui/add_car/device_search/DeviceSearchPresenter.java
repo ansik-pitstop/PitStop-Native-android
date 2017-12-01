@@ -102,6 +102,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onConnectingToDevice() {
+        findDeviceTimer.cancel();
         Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
         view.connectingToDevice();
     }
