@@ -210,7 +210,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
                     getFuelConsumed(car.getScannerId());
                     String scannerId = car.getScannerId();
-                    carHasScanner = (scannerId == null || scannerId.equalsIgnoreCase(""));
+                    carHasScanner = (scannerId != null && !scannerId.equalsIgnoreCase(""));
                     getAmountSpent(scannerId);
                   
                     getView().displayCarDetails(car);
