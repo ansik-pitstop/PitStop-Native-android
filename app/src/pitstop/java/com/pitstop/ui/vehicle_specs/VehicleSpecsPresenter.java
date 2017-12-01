@@ -208,10 +208,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                         getView().hideLoading();
                     }
                     getView().setCarView(mCar);
+
                     getFuelConsumed(car.getScannerId());
                     String scannerId = car.getScannerId();
                     carHasScanner = (scannerId == null || scannerId.equalsIgnoreCase(""));
                     getAmountSpent(scannerId);
+                  
                     getView().displayCarDetails(car);
                     getView().showNormalLayout();
 
@@ -332,6 +334,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     private void getAmountSpent(String scannerId){
         Log.d(TAG, "getAmountSpent();");
         if (getView() == null) return;
+
         if (scannerId == null || scannerId.equalsIgnoreCase("")){
             getView().showFuelExpense((float) 0.0);
             return;
