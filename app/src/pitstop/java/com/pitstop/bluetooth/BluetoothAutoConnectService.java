@@ -537,7 +537,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             Log.d(TAG, "state is : " + deviceConnState);
             return;
         }
-
         Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
                 , DebugMessage.TYPE_BLUETOOTH);
 
