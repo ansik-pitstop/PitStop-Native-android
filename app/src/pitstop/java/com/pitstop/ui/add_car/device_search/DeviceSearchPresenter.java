@@ -81,7 +81,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
 
 
-    private final int CONNECTING_TIMER_RETRY_TIMEOUT = 17;
+    private final int CONNECTING_TIMER_RETRY_TIMEOUT = 30;
     private final int CONNECTING_RETRY_AMOUNT = 0;
     private final TimeoutTimer connectionTimer = new TimeoutTimer(CONNECTING_TIMER_RETRY_TIMEOUT,CONNECTING_RETRY_AMOUNT ) {
         @Override
@@ -113,7 +113,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     }
 
-    private final int FIND_DEVICE_RETRY_TIME = 6;
+    private final int FIND_DEVICE_RETRY_TIME = 7;
     private final int FIND_DEVICE_RETRY_AMOUNT = 2;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
