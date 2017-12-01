@@ -50,6 +50,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private FragmentSwitcher fragmentSwitcher;
     private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
+    private AlertDialog connectErrorDialog;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -335,5 +336,29 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"onBackPressed()");
         if (presenter == null) return;
         presenter.onBackPressed();
+    }
+
+    @Override
+    public void onCouldNotConnectToDevice() {
+        Log.d(TAG,"onCouldNotConnectToDevice()");
+        if (connectErrorDialog == null) {
+            connectErrorDialog = new AnimatedDialogBuilder(getActivity())
+                    .setTitle("Connection Error")
+                    .setCancelable(true)
+                    .setMessage("We couldn't connect to your device. Try again?")
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
+                            presenter.startSearch();
+                    })
+                    .setNegativeButton(getString(R.string.no_button_text), (dialogInterface, i) -> {
+                        dialogInterface.cancel();
+                    }).create();
+        }
+        connectErrorDialog.show();
+
+    }
+
+    @Override
+    public void connectingToDevice() {
+        showLoading("Connecting to Device");
     }
 }
