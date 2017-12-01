@@ -209,7 +209,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                     }
                     getView().setCarView(mCar);
                     getFuelConsumed();
-                    carHasScanner = !(car.getScannerId() == null || car.getScannerId().equalsIgnoreCase(""));
+                    carHasScanner = (car.getScannerId() != null && !car.getScannerId().equalsIgnoreCase(""));
                     getAmountSpent();
                     getView().displayCarDetails(car);
                     getView().showNormalLayout();
@@ -331,7 +331,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     public void getAmountSpent(){
         Log.d(TAG, "getAmountSpent();");
         if (getView() == null) return;
-        if (this.mCar.getScannerId()==null || this.mCar.getScannerId() == ""){
+        if (!(this.mCar.getScannerId() != null && !this.mCar.getScannerId().equalsIgnoreCase(""))){
             getView().showFuelExpense((float) 0.0);
             return;
         }
@@ -419,7 +419,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void getFuelConsumed() {
 
-        if (this.mCar.getScannerId()==null || this.mCar.getScannerId().equals("")){
+        if (!(this.mCar.getScannerId()!=null && !this.mCar.getScannerId().equals(""))){
             if (getView() ==null) return;
             getView().showFuelConsumed(0.0);
             return;
