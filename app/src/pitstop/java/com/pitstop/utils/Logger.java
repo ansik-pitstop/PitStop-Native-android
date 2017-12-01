@@ -49,6 +49,8 @@ public class Logger {
         public void onReceive(Context context, Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
 
+                if (connectivityManager == null)
+                    connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 //Check for gelfTransport not null because we want to re-instantiate it here, not create the first instance
                 if (connectivityManager.getActiveNetworkInfo() != null
                         && connectivityManager.getActiveNetworkInfo().isConnected()
