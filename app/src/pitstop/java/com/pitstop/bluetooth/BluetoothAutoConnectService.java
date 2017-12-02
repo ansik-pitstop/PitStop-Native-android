@@ -343,6 +343,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (deviceConnState.equals(State.SEARCHING)
                         || deviceConnState.equals(State.DISCONNECTED)){
                     setConnectionState(State.CONNECTING);
+                    notifyDeviceConnecting();
                 }
 
                 break;
@@ -380,6 +381,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 break;
         }
+    }
+
+    private void notifyDeviceConnecting() {
+        Log.d(TAG, "notifyDeviceConnecting()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onConnectingToDevice());
+            }
+        }
+
     }
 
     @Override
@@ -516,18 +528,22 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
+        Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
         this.ignoreVerification = ignoreVerification;
-
+        vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
-                && !deviceConnState.equals(State.SEARCHING)) return;
-
+                && !deviceConnState.equals(State.SEARCHING)){
+            Log.d(TAG, "device state is not searching or disconnected");
+            Log.d(TAG, "state is : " + deviceConnState);
+            return;
+        }
         Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
                 , DebugMessage.TYPE_BLUETOOTH);
 
         if (deviceManager != null && deviceManager.startScan(urgent,ignoreVerification)){
+            Log.d(TAG,"Started scan");
             setConnectionState(State.SEARCHING);
             notifySearchingForDevice();
-            Log.d(TAG,"Started scan");
         }
         else{
             Log.d(TAG,"Scan failed");
