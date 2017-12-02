@@ -13,6 +13,7 @@ public interface IBluetoothCommunicator {
     int CONNECTED = 0;
     int DISCONNECTED = 1;
     int CONNECTING = 2;
+    int DEVICES_FOUND = 3;
 
     void startScan();
     void stopScan();

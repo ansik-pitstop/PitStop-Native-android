@@ -102,7 +102,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onConnectingToDevice() {
-        findDeviceTimer.cancel();
         Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
         view.connectingToDevice();
     }
@@ -281,6 +280,19 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             getVinTimer.cancel();
             view.onCouldNotConnectToDevice();
         }
+    }
+
+    @Override
+    public void onFoundDevices() {
+        Log.d(TAG, "onFoundDevices() searchingForDevice? = " + Boolean.toString(searchingForDevice));
+        if (searchingForDevice) {
+            searchingForDevice = false;
+            findDeviceTimer.cancel();
+            connectingToDevice = true;
+            connectionTimer.start();
+            view.devicesFound();
+        }
+
     }
 
     @Override
