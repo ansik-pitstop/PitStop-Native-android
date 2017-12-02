@@ -75,6 +75,12 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
         inProgressFragment.setCallback(this);
     }
 
+
+    @Override
+    public void onFoundDevices() {
+
+    }
+
     @Override
     protected void onResume() {
         Log.d(TAG,"onResume()");

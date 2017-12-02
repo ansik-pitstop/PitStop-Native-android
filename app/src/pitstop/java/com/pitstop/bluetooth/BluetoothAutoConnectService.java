@@ -341,12 +341,21 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 Log.d(TAG,"getBluetoothState() state: connecting");
 
                 if (deviceConnState.equals(State.SEARCHING)
-                        || deviceConnState.equals(State.DISCONNECTED)){
+                        || deviceConnState.equals(State.DISCONNECTED)
+                        || deviceConnState.equals(State.FOUND_DEVICES)){
                     setConnectionState(State.CONNECTING);
                     notifyDeviceConnecting();
                 }
 
                 break;
+
+                case IBluetoothCommunicator.DEVICES_FOUND:
+                    Log.d(TAG, "get Bluetooth state() sate: devices found");
+                    if (deviceConnState.equals(State.SEARCHING)){
+                        setConnectionState(State.FOUND_DEVICES);
+                        notifyFoundDevices();
+                    }
+                    break;
             case IBluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"getBluetoothState() state: "+deviceConnState);
 
@@ -381,6 +390,17 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
                 break;
         }
+    }
+
+    private void notifyFoundDevices() {
+        Log.d(TAG, "notifyDeviceConnecting()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onFoundDevices());
+            }
+        }
+
     }
 
     private void notifyDeviceConnecting() {
