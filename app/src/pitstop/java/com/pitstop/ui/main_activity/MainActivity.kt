@@ -324,6 +324,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     }
 
+<<<<<<< Updated upstream
+=======
+    override fun onFoundDevices() {
+
+    }
+
+>>>>>>> Stashed changes
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
         carRecyclerView?.visibility = View.VISIBLE

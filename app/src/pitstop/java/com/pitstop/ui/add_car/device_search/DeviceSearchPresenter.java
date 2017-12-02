@@ -78,8 +78,40 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
+<<<<<<< Updated upstream
     private final int FIND_DEVICE_RETRY_TIME = 18;  //Approx 12 seconds for finding device and 6 for verification
     private final int FIND_DEVICE_RETRY_AMOUNT = 0;
+=======
+
+
+    private final int CONNECTING_TIMER_RETRY_TIMEOUT = 30;
+    private final int CONNECTING_RETRY_AMOUNT = 0;
+    private final TimeoutTimer connectionTimer = new TimeoutTimer(CONNECTING_TIMER_RETRY_TIMEOUT,CONNECTING_RETRY_AMOUNT ) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG, "connectionTimer.onRetry()");
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"connectionTimer.onTimeout()");
+            if (view == null) return;
+            connectingToDevice = false;
+            view.onCouldNotConnectToDevice();
+            view.hideLoading(null);
+
+        }
+    };
+
+    @Override
+    public void onConnectingToDevice() {
+        Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
+        view.connectingToDevice();
+    }
+
+    private final int FIND_DEVICE_RETRY_TIME = 7;
+    private final int FIND_DEVICE_RETRY_AMOUNT = 2;
+>>>>>>> Stashed changes
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
@@ -201,7 +233,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady()");
         if (view == null) return;
-        if (!searchingForDevice) return;
+        /*if (!searchingForDevice) return;*/
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.SUCCESS);
@@ -209,6 +241,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 , MixpanelHelper.PENDING);
 
         searchingForDevice = false;
+<<<<<<< Updated upstream
+=======
+
+        connectionTimer.cancel();
+>>>>>>> Stashed changes
         findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
