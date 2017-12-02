@@ -42,6 +42,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
+
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -434,7 +435,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
-
+                    dataListener.getBluetoothState(IBluetoothCommunicator.DEVICES_FOUND);
                     String foundDevicesString = "{";
                     for (Map.Entry<BluetoothDevice,Short> d: foundDevices.entrySet()){
                         foundDevicesString += d.getKey().getName()+"="+d.getValue()+",";

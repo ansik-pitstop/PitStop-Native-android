@@ -288,5 +288,6 @@
     <orderEntry type="library" name="gelfclient" level="project" />
     <orderEntry type="library" name="design-26.0.2" level="project" />
     <orderEntry type="library" name="multidex-1.0.2" level="project" />
+    <orderEntry type="library" name="android-android-26" level="project" />
   </component>
 </module>
