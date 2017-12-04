@@ -2,13 +2,13 @@
 <tabs>
 
     <tab
-        id="@+id/tab_services"
-        icon="@drawable/ic_services"
-        title="@string/services_nav_text" />
-    <tab
         id="@+id/tab_scan"
         icon="@drawable/ic_scan"
         title="@string/scan" />
+    <tab
+        id="@+id/tab_services"
+        icon="@drawable/ic_services"
+        title="@string/services_nav_text" />
     <tab
         id="@+id/tab_garage"
         icon="@drawable/ic_garage"
