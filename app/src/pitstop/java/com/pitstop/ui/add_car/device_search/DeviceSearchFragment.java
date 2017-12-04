@@ -362,9 +362,5 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         showLoading("Connecting to Device");
     }
 
-    @Override
-    public void onDevicesFound() {
-        presenter.onDevicesFound();
 
-    }
 }
