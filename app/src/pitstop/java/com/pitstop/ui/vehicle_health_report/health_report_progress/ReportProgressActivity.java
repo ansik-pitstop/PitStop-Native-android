@@ -77,6 +77,11 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
 
     @Override
+    public void onFoundDevices() {
+
+    }
+
+    @Override
     protected void onResume() {
         Log.d(TAG,"onResume()");
         super.onResume();

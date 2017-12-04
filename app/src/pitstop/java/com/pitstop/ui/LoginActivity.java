@@ -945,6 +945,12 @@ public class LoginActivity extends DebugDrawerActivity {
         mSliderSectionVisible = true;
     }
 
+
+    @Override
+    public void onFoundDevices() {
+
+    }
+
     private void slideOutLoginSignUpSection(final boolean switchingSection) {
         ObjectAnimator yTranslationAnimator = ObjectAnimator.ofFloat(mLoginContainer, View.TRANSLATION_Y, 0, UiUtils.getScreenHeight(this));
         ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(mLoginContainer, View.ALPHA, 1, 0);

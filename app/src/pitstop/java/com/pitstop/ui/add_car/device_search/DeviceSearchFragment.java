@@ -361,4 +361,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void connectingToDevice() {
         showLoading("Connecting to Device");
     }
+
+
 }
