@@ -135,7 +135,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         localAlarmStorage = new LocalAlarmStorage(this);
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);
-
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,findViewById(R.id.drawer_layout_debug));
 
         serviceIntent = new Intent(DebugDrawerActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);

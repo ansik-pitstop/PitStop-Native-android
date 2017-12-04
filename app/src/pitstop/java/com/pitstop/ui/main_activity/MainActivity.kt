@@ -17,7 +17,6 @@ import android.os.IBinder
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
@@ -223,20 +222,20 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
 
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true)) {
-            val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
-            (drawerLayout as DrawerLayout).addView(rootView)
-
-            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
-            drawerLayout!!.setDrawerListener(drawerToggle)
-            setContentView(drawerLayout)
-        } else {
+//        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true)) {
+//            val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
+//            (drawerLayout as DrawerLayout).addView(rootView)
+//
+//            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
+//            drawerLayout!!.setDrawerListener(drawerToggle)
+//            setContentView(drawerLayout)
+//        } else {
             drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name)
             drawerToggle?.isDrawerIndicatorEnabled = true
             mDrawerLayout.setDrawerListener(drawerToggle)
 
 
-        }
+        //}
         setUpDrawer()
         progressDialog = ProgressDialog(this)
         progressDialog!!.setCancelable(false)
