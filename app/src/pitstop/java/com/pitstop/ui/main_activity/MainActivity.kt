@@ -330,6 +330,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         carsTapDescription?.visibility = View.GONE
     }
 
+
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
         carRecyclerView?.visibility = View.VISIBLE
@@ -411,8 +412,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
         }
     }
-
-
 
     override fun onResume() {
         super.onResume();
