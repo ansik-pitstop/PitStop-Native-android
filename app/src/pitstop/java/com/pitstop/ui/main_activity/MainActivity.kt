@@ -330,6 +330,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         carsTapDescription?.visibility = View.GONE
     }
 
+    override fun onFoundDevices() {
+
+    }
+
+    override fun onFoundDevices() {
+
+    }
+
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
         carRecyclerView?.visibility = View.VISIBLE

@@ -97,6 +97,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
+    public void onDevicesFound() {
+
+    }
+
+    @Override
     public void getBluetoothState(int state) {
         if(!pendingUpload) {
             runOnUiThread(new Runnable() {

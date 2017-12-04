@@ -146,6 +146,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         vinEntryFragment.onGotDeviceInfo(scannerId, scannerName, mileage);
     }
 
+
+
     @Override
     public void setViewVinEntry() {
         Log.d(TAG,"setViewVinEntry()");
@@ -231,6 +233,11 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
             serviceBound = false;
         }
         super.onStop();
+    }
+
+    @Override
+    public void onFoundDevices() {
+
     }
 
     public BluetoothConnectionObservable getBluetoothConnectionObservable(){

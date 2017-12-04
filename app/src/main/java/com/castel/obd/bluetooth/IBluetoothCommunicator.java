@@ -14,7 +14,6 @@ public interface IBluetoothCommunicator {
     int DISCONNECTED = 1;
     int CONNECTING = 2;
 
-
     void startScan();
     void stopScan();
     int getState();

@@ -434,7 +434,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan){
                     rssiScan = false;
-
+                    dataListener.onDevicesFound();
                     String foundDevicesString = "{";
                     for (Map.Entry<BluetoothDevice,Short> d: foundDevices.entrySet()){
                         foundDevicesString += d.getKey().getName()+"="+d.getValue()+",";

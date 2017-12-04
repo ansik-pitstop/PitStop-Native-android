@@ -34,6 +34,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private boolean searchingForVin;
     private boolean searchingForDevice;
     private boolean addingCar = false;
+    private boolean connectingToDevice = false;
 
     //Try to get VIN 2 times, every 6 seconds
     private final int GET_VIN_RETRY_TIME = 6;
@@ -78,8 +79,35 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     };
 
-    private final int FIND_DEVICE_RETRY_TIME = 18;  //Approx 12 seconds for finding device and 6 for verification
-    private final int FIND_DEVICE_RETRY_AMOUNT = 0;
+
+
+    private final int CONNECTING_TIMER_RETRY_TIMEOUT = 30;
+    private final int CONNECTING_RETRY_AMOUNT = 0;
+    private final TimeoutTimer connectionTimer = new TimeoutTimer(CONNECTING_TIMER_RETRY_TIMEOUT,CONNECTING_RETRY_AMOUNT ) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG, "connectionTimer.onRetry()");
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"connectionTimer.onTimeout()");
+            if (view == null) return;
+            connectingToDevice = false;
+            view.onCouldNotConnectToDevice();
+            view.hideLoading(null);
+
+        }
+    };
+
+    @Override
+    public void onConnectingToDevice() {
+        Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
+        view.connectingToDevice();
+    }
+
+    private final int FIND_DEVICE_RETRY_TIME = 12;
+    private final int FIND_DEVICE_RETRY_AMOUNT = 1;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
@@ -103,10 +131,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.FAIL);
-
         }
 
     };
+
 
     public DeviceSearchPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
 
@@ -201,14 +229,16 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady()");
         if (view == null) return;
-        if (!searchingForDevice) return;
+
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.SUCCESS);
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                 , MixpanelHelper.PENDING);
 
+        connectingToDevice = false;
         searchingForDevice = false;
+        connectionTimer.cancel();
         findDeviceTimer.cancel();
         this.readyDevice = readyDevice;
 
@@ -240,13 +270,37 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     @Override
     public void onDeviceDisconnected() {
         Log.d(TAG,"onDeviceDisconnected()");
+        if (connectingToDevice){
+            connectingToDevice = false;
+            connectionTimer.cancel();
+            view.onCouldNotConnectToDevice();
+        }
+        if (searchingForVin){
+            searchingForVin = false;
+            getVinTimer.cancel();
+            view.onCouldNotConnectToDevice();
+        }
+    }
+
+    @Override
+    public void onFoundDevices() {
+        Log.d(TAG, "onFoundDevices() searchingForDevice? = " + Boolean.toString(searchingForDevice));
+        if (searchingForDevice) {
+            searchingForDevice = false;
+            findDeviceTimer.cancel();
+            connectingToDevice = true;
+            connectionTimer.start();
+            view.showLoading("Found Devices");
+        }
+
     }
 
     @Override
     public void onDeviceVerifying() {
-        Log.d(TAG,"onDeviceDisconnected()");
+        Log.d(TAG,"onDeviceVerifying()");
         if (view == null) return;
         if (!searchingForDevice) return;
+        Log.wtf(TAG, "error, verifying in add car, should not happen");
         view.showLoading(((android.support.v4.app.Fragment)view)
                 .getString(R.string.verifying_device_action_bar));
     }
@@ -258,16 +312,13 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     private void addCar(ReadyDevice readyDevice){
         Log.d(TAG,"addCar() addingCar?"+addingCar);
-
         //Dont allow two adds
         if (addingCar) return;
-
         //Check whether mileage is valid again, just in case it somehow changed
         if (!AddCarUtils.isMileageValid(view.getMileage())){
             view.onMileageInvalid();
             return;
         }
-
         view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.saving_car_message));
 
         addingCar = true;
@@ -336,6 +387,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 });
     }
 
+
     @Override
     public void onGotVin(String vin) {
         Log.d(TAG,"onGotVin() vin: "+vin);
@@ -364,9 +416,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         Log.d(TAG,"onGotPendingActivityResults() vin: "+vin+", mileage:"+mileage+", scannerId:"
                 +scannerId+", scanner");
-
         if (view == null) return;
-
         readyDevice.setVin(vin);
         readyDevice.setScannerId(scannerId);
         readyDevice.setScannerName(scannerName);
@@ -378,7 +428,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 +searchingForDevice+", addingCar?"+addingCar);
 
         if (view == null) return;
-
         if (searchingForVin){
             getVinTimer.cancel();
             searchingForVin = false;
@@ -389,6 +438,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             searchingForDevice = false;
             view.hideLoading("");
         }
+        else if (connectingToDevice){
+            connectionTimer.cancel();
+            connectingToDevice = false;
+            view.hideLoading("");
+        }
+
         else if (addingCar){
             //Do nothing
         }
@@ -398,6 +453,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
 
     }
+
+
+
 
     @Override
     public void onGotSuportedPIDs(String value) {
