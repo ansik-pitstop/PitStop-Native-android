@@ -159,11 +159,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
-    public void devicesFound() {
-        showLoading("Devices Found");
-    }
-
-    @Override
     public void onCannotFindDevice() {
         Log.d(TAG,"onCannotFindDevice()");
 
@@ -365,5 +360,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void connectingToDevice() {
         showLoading("Connecting to Device");
+    }
+
+    @Override
+    public void onDevicesFound() {
+        presenter.onDevicesFound();
+
     }
 }

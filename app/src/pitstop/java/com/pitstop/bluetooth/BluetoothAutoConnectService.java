@@ -334,6 +334,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public void onDevicesFound() {
+        Log.d(TAG, "onDevicesFound()");
+        if (deviceConnState.equals(State.SEARCHING)){
+            setConnectionState(State.FOUND_DEVICES);
+            notifyFoundDevices();
+        }
+    }
+
+    @Override
     public void getBluetoothState(int state) {
 
         switch(state){
@@ -348,14 +357,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 }
 
                 break;
-
-                case IBluetoothCommunicator.DEVICES_FOUND:
-                    Log.d(TAG, "get Bluetooth state() sate: devices found");
-                    if (deviceConnState.equals(State.SEARCHING)){
-                        setConnectionState(State.FOUND_DEVICES);
-                        notifyFoundDevices();
-                    }
-                    break;
             case IBluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"getBluetoothState() state: "+deviceConnState);
 
@@ -394,6 +395,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyFoundDevices() {
         Log.d(TAG, "notifyDeviceConnecting()");
+        Logger.getInstance().logI(TAG,"Devices Found", DebugMessage.TYPE_BLUETOOTH);
         for (Observer o: observerList ){
             if (o instanceof BluetoothConnectionObserver){
                 mainHandler.post(() -> ((BluetoothConnectionObserver)o)
