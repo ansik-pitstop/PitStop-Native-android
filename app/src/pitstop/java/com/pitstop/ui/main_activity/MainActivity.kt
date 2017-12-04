@@ -410,8 +410,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         super.onResume();
 
         Log.d(TAG, "onResume, serviceBound? " + serviceIsBound);
-
-        checkPermissions();
+        supportActionBar?.title = tabFragmentManager?.currentTabTitle
+        checkPermissions()
         if (!serviceIsBound) {
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             serviceIsBound = true;
