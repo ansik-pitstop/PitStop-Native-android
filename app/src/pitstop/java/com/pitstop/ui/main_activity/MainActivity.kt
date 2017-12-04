@@ -55,11 +55,13 @@ import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.add_car.AddCarActivity
+import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MigrationService
 import com.pitstop.utils.MixpanelHelper
@@ -105,6 +107,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var messageIcon: ImageView? = null;
     private var callIcon: ImageView? = null;
     private var findDirectionsIcon: ImageView? = null;
+    private var addCarDialog: AlertDialog? = null;
+    private var addDealershipDialog: AlertDialog? = null;
 
 
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
@@ -321,16 +325,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun noCarsView() {
-
+        carRecyclerView?.visibility = View.GONE
+        errorLoadingCars?.visibility = View.GONE
+        carsTapDescription?.visibility = View.GONE
     }
 
-<<<<<<< Updated upstream
-=======
-    override fun onFoundDevices() {
-
-    }
-
->>>>>>> Stashed changes
     override fun showCars(carList: MutableList<Car>) {
         Log.d(TAG, "showCars()")
         carRecyclerView?.visibility = View.VISIBLE
@@ -412,6 +411,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
         }
     }
+
+
 
     override fun onResume() {
         super.onResume();
@@ -523,10 +524,19 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 return true;
             }
             R.id.action_request_service -> {
-                requestMultiService(null);
-                return true
+                presenter?.onRequestServiceClicked()
+                return true;
             }
             else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun startSelectShopActivity(mCar: Car?) {
+        Log.d(TAG, "startSelectShopActivity()")
+        if (mCar != null) {
+            val intent = Intent(this, CustomShopActivity::class.java)
+            intent.putExtra(MainActivity.CAR_EXTRA, mCar)
+            startActivityForResult(intent, START_CUSTOM)
         }
     }
 
@@ -663,6 +673,42 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         isFirstAppointment = false
         startActivity(intent)
 
+    }
+
+    override fun showAddCarDialog() {
+        Log.d(TAG, "showAddCarDialog()")
+        if (addCarDialog == null) {
+            val dialogLayout = LayoutInflater.from(
+                    this).inflate(R.layout.buy_device_dialog, null)
+            addCarDialog = AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Please add a car")
+                    .setView(dialogLayout)
+                    .setMessage("In order to request a service appointment, you need to add your car " +
+                            "to the Pitstop app, would you like to add a car right now?")
+                    .setPositiveButton("Add my car") { dialog, which -> presenter?.onAddCarClicked() }
+                    .setNegativeButton("I'll do it later") { dialog, which -> dialog.cancel() }
+                    .create()
+        }
+        addCarDialog?.show()
+    }
+
+    override fun showAddDealerhsipDialog() {
+        Log.d(TAG, "showAddDealershipDialog()")
+        if (addDealershipDialog == null) {
+            val dialogLayout = LayoutInflater.from(
+                    this).inflate(R.layout.buy_device_dialog, null)
+            addDealershipDialog = AnimatedDialogBuilder(this)
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Please add a dealership")
+                    .setView(dialogLayout)
+                    .setMessage("In order to request a service appointment, your car must " +
+                            "be associated to a shop. Would you like to select your shop now?")
+                    .setPositiveButton("Yes") { dialog, which -> presenter?.onAddDealershipClicked() }
+                    .setNegativeButton("I'll do it later") { dialog, which -> dialog.cancel() }
+                    .create()
+        }
+        addDealershipDialog?.show()
     }
 
     fun myAppointments() {
