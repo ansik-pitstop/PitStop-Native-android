@@ -30,4 +30,7 @@ interface MainView  {
     fun showTentativeAppointmentShowcase()
     fun showMercedesLayout()
     fun showNormalLAyout()
+    fun showAddCarDialog()
+    fun showAddDealerhsipDialog()
+    fun startSelectShopActivity(mCar: Car?)
 }
