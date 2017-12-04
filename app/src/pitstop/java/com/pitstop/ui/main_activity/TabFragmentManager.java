@@ -55,7 +55,9 @@ public class TabFragmentManager implements BadgeDisplayer{
         };
     }
 
-
+    public String getCurrentTabTitle(){
+        return tabViewPagerAdapter.getPageTitle(mViewPager.getCurrentItem()).toString();
+    }
 
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
