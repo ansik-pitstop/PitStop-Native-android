@@ -91,7 +91,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         @Override
         public void onTimeout() {
-            Log.d(TAG,"discoveryTimer.onTimeout()");
+            Log.d(TAG,"connectionTimer.onTimeout()");
             if (view == null) return;
             connectingToDevice = false;
             view.onCouldNotConnectToDevice();
@@ -103,18 +103,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     @Override
     public void onConnectingToDevice() {
         Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
-        if (searchingForDevice) {
-            searchingForDevice = false;
-            findDeviceTimer.cancel();
-            connectingToDevice = true;
-            connectionTimer.start();
-            view.connectingToDevice();
-        }
-
+        view.connectingToDevice();
     }
 
-    private final int FIND_DEVICE_RETRY_TIME = 7;
-    private final int FIND_DEVICE_RETRY_AMOUNT = 2;
+    private final int FIND_DEVICE_RETRY_TIME = 12;
+    private final int FIND_DEVICE_RETRY_AMOUNT = 1;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
@@ -130,7 +123,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         @Override
         public void onTimeout() {
             Log.d(TAG,"findDeviceTimer.onTimeout()");
+
             if (view == null) return;
+
             searchingForDevice = false;
             view.onCannotFindDevice();
             view.hideLoading(null);
@@ -234,7 +229,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady()");
         if (view == null) return;
-        if (!searchingForDevice) return;
+
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.SUCCESS);
@@ -285,6 +280,19 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             getVinTimer.cancel();
             view.onCouldNotConnectToDevice();
         }
+    }
+
+    @Override
+    public void onFoundDevices() {
+        Log.d(TAG, "onFoundDevices() searchingForDevice? = " + Boolean.toString(searchingForDevice));
+        if (searchingForDevice) {
+            searchingForDevice = false;
+            findDeviceTimer.cancel();
+            connectingToDevice = true;
+            connectionTimer.start();
+            view.showLoading("Found Devices");
+        }
+
     }
 
     @Override
@@ -445,6 +453,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
 
     }
+
+
+
 
     @Override
     public void onGotSuportedPIDs(String value) {
