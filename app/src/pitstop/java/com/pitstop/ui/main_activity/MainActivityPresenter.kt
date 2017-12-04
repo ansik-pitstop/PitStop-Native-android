@@ -61,6 +61,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun getmCar(): Car?{
         return mCar;
     }
+
+    fun getmDealership(): Dealership?{
+        return this.mDealership;
+    }
     fun getSourceType(): EventSource {
         return EVENT_SOURCE
     }
@@ -170,6 +174,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
                     override fun onNoCarSet(isLocal: Boolean) {
                         Log.d(TAG,"onNoCarSet() car: "+car)
+                        if (!isLocal)
+                            view?.noCarsView()
                     }
 
                     override fun onError(error: RequestError) {
@@ -279,9 +285,9 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         Log.d(TAG, "onRequestServiceCLicked() mDealership: $mDealership")
         if (this.view == null) return
         if (mCar == null){
-            view?.toast("Please add a car first")
+            view?.showAddCarDialog();
         }else if (!hasDealership()) {
-            view?.toast("Please add a dealership to your car")
+            view?.showAddDealerhsipDialog();
         }
         else{
             view?.openRequestService(false)
@@ -301,6 +307,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun onAddCarClicked() {
+        Log.d(TAG, "onAddCarCLicked()");
         view?.openAddCarActivity()
     }
 
@@ -406,8 +413,15 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         })
     }
 
+
     fun onRefresh() {
         onUpdateNeeded()
+    }
+
+    fun onAddDealershipClicked() {
+        Log.d(TAG, "onAddDealershipClciked()");
+        if (view == null) return
+        view?.startSelectShopActivity(this.mCar);
     }
 
 
