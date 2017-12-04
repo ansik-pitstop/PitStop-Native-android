@@ -437,7 +437,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             connectingToDevice = true;
             findDeviceTimer.cancel();
             connectionTimer.start();
-            view.onDevicesFound();
+            view.showLoading("Found Devices");
         }
     }
 
@@ -446,8 +446,4 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     }
 
-    public void onDevicesFound() {
-        if (view == null) return;
-        view.showLoading("Found Devices");
-    }
 }
