@@ -49,17 +49,22 @@ public class Logger {
         public void onReceive(Context context, Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) { // internet connectivity listener
 
-                if (connectivityManager == null)
-                    connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                //Check for gelfTransport not null because we want to re-instantiate it here, not create the first instance
-                if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
-                        && connectivityManager.getActiveNetworkInfo().isConnected()
-                        && gelfTransport != null && handler != null) {
-                    Log.d(TAG,"Received internet ON, creating new instance of gelf transport");
-                    handler.post(() -> gelfTransport = new GelfTcpTransport(gelfConfiguration));
-                }else{
-                    Log.d(TAG,"Received internet OFF");
+                try{
+                    if (connectivityManager == null)
+                        connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    //Check for gelfTransport not null because we want to re-instantiate it here, not create the first instance
+                    if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
+                            && connectivityManager.getActiveNetworkInfo().isConnected()
+                            && gelfTransport != null && handler != null) {
+                        Log.d(TAG,"Received internet ON, creating new instance of gelf transport");
+                        handler.post(() -> gelfTransport = new GelfTcpTransport(gelfConfiguration));
+                    }else{
+                        Log.d(TAG,"Received internet OFF");
+                    }
+                }catch(NullPointerException e){
+                    e.printStackTrace();
                 }
+
             }
         }
     };
