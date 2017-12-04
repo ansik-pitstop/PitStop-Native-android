@@ -108,7 +108,7 @@ public class LocalAlarmStorage {
     public Alarm cursorToAlarm(Cursor c){
         Alarm alarm = new Alarm(c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_EVENT)),
                 c.getFloat(c.getColumnIndex(TABLES.LOCAL_ALARMS.ALARM_VALUE)),
-                String.valueOf((int)((c.getLong(c.getColumnIndex(TABLES.LOCAL_ALARMS.RTC_TIME))*Math.random()))),
+                c.getString(c.getColumnIndex(TABLES.LOCAL_ALARMS.RTC_TIME)),
                 c.getInt(c.getColumnIndex(TABLES.LOCAL_ALARMS.CAR_ID)));
         return alarm;
     }
