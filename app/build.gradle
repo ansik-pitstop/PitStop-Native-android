@@ -30,6 +30,14 @@ allprojects {
 }
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'pitstopandroidkey'
+            keyPassword 'Ansik.23'
+            storeFile file('C:/Users/ishan/Downloads/pitstopkeystore (1).jks')
+            storePassword 'Ansik.23'
+        }
+    }
     packagingOptions {
         exclude 'META-INF/io.netty.versions.properties'
         exclude 'META-INF/INDEX.LIST'
@@ -49,7 +57,6 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
-
     compileOptions.encoding = 'ISO-8859-1'
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
@@ -107,13 +114,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
     flavorDimensions "mode"
     productFlavors {
         pitstop {

@@ -1,30 +1,22 @@
 package com.pitstop.ui.services;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase;
-import com.pitstop.models.Dealership;
-import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.current.CurrentServicesFragment;
 import com.pitstop.ui.services.history.HistoryServicesFragment;
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment;
-
-import org.jetbrains.annotations.NotNull;
 
 public class MainServicesFragment extends Fragment{
 
@@ -85,64 +77,7 @@ public class MainServicesFragment extends Fragment{
                 .contextModule(new ContextModule(getContext().getApplicationContext()))
                 .build();
 
-        loadDealershipCustomDesign();
         return rootview;
-    }
-
-    private void loadDealershipCustomDesign(){
-        useCaseComponent.getGetCurrentDealershipUseCase().execute(new GetCurrentCarDealershipUseCase.Callback() {
-            @Override
-            public void onGotDealership(@NotNull Dealership dealership) {
-                if (dealership != null){
-                    if (BuildConfig.DEBUG
-                            && (dealership.getId() == 4
-                            || dealership.getId() == 18)){
-
-                        bindMercedesDealerUI();
-
-                    }else if (!BuildConfig.DEBUG
-                            && dealership.getId() == 14) {
-
-                        bindMercedesDealerUI();
-
-                    }
-                    else{
-                        bindDefaultDealerUI();
-                    }
-                }
-            }
-
-            @Override
-            public void onNoCarExists() {
-
-            }
-
-            @Override
-            public void onError(@NotNull RequestError error) {
-
-            }
-        });
-    }
-
-    private void bindDefaultDealerUI(){
-        //Get the themes default primary color
-        TypedValue defaultColor = new TypedValue();
-        if(getActivity() == null){return;}
-        getActivity().getTheme().resolveAttribute(android.R.attr.colorPrimary, defaultColor, true);
-
-        //Set other changed UI elements back to original color
-        tabLayout.setBackgroundColor(defaultColor.data);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getView() == null) return;
-        loadDealershipCustomDesign();
-    }
-
-    private void bindMercedesDealerUI(){
-        tabLayout.setBackgroundColor(Color.BLACK);
     }
 
     //Return data associated with fragment of the provided tab
