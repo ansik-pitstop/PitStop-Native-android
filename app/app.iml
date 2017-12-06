@@ -273,5 +273,6 @@
     <orderEntry type="library" name="design-26.0.2" level="project" />
     <orderEntry type="library" name="multidex-1.0.2" level="project" />
     <orderEntry type="library" name="android-android-26" level="project" />
+    <orderEntry type="library" scope="TEST" name="multidex-instrumentation-1.0.2" level="project" />
   </component>
 </module>

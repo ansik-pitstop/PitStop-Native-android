@@ -34,6 +34,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
@@ -135,12 +136,16 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         localAlarmStorage = new LocalAlarmStorage(this);
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,findViewById(R.id.drawer_layout_debug));
 
+        View mainActivityLayout = (View) findViewById(R.id.main_activity_layout);
         serviceIntent = new Intent(DebugDrawerActivity.this, BluetoothAutoConnectService.class);
         startService(serviceIntent);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (!(this instanceof MainActivity)){
+            mainActivityLayout.setVisibility(View.GONE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, findViewById(R.id.drawer_layout_garage));
 
+        }
 
        editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
         Button getSupportedPids = ViewUtils.findView(mDrawerLayout, R.id.debugGetSupportedPids);
