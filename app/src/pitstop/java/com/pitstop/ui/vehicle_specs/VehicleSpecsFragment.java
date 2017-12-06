@@ -787,9 +787,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         dealershipName.setText(dealership.getName());
         mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
         /*drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);*/
-        if( (getActivity()) != null){
-            ((MainActivity)getActivity()).changeTheme(false);
-        }
         mCarLogoImage.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);
         carName.setTextColor(Color.BLACK);
