@@ -30,6 +30,14 @@ allprojects {
 }
 
 android {
+    signingConfigs {
+    config {
+        keyAlias 'pitstopandroidkey'
+        keyPassword 'Ansik.23'
+        storeFile file('C:/Users/ishan/Downloads/pitstopkeystore (1).jks')
+        storePassword 'Ansik.23'
+    }
+}
     packagingOptions {
         exclude 'META-INF/io.netty.versions.properties'
         exclude 'META-INF/INDEX.LIST'
