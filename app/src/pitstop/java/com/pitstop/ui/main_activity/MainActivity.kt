@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -180,9 +181,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         callIcon = findViewById(R.id.call_icon)
         findDirectionsIcon = findViewById(R.id.direction_icon)
 
-
-
-
         if (this.presenter == null) {
             this.presenter = MainActivityPresenter(useCaseComponent!!, mixpanelHelper!!)
         }
@@ -194,8 +192,18 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(MigrationService.notificationId)
 
-        rootView = layoutInflater.inflate(R.layout.activity_main, null)
-        setContentView(rootView)
+        if(mDrawerLayout == null){
+            mDrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
+            setContentView(mDrawerLayout)
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, findViewById<ScrollView>(R.id.drawer_layout_debug));
+
+        }
+        drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name)
+        drawerToggle?.isDrawerIndicatorEnabled = true
+        mDrawerLayout.setDrawerListener(drawerToggle)
+        drawerToggle?.isDrawerIndicatorEnabled = true
+        setUpDrawer()
+
         val acl = ParseACL()
         acl.publicReadAccess = true
         acl.publicWriteAccess = true
@@ -216,28 +224,25 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         serviceIsBound = true
 
-
-
-        toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        toolbar = findViewById<View>(R.id.toolbar) as Toolbar?
         setSupportActionBar(toolbar)
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
 
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true)) {
-            val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
-            (drawerLayout as DrawerLayout).addView(rootView)
-
-            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
-            drawerLayout!!.setDrawerListener(drawerToggle)
-            setContentView(drawerLayout)
-        } else {
-            drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name)
-            drawerToggle?.isDrawerIndicatorEnabled = true
+//        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE, true)) {
+//            val drawerLayout: DrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
+//            (drawerLayout as DrawerLayout).addView(rootView)
+//
+//            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
+//            drawerLayout!!.setDrawerListener(drawerToggle)
+//            setContentView(drawerLayout)
+//        } else {
+       /*     drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name
             mDrawerLayout.setDrawerListener(drawerToggle)
 
 
-        }
-        setUpDrawer()
+        //}
+        setUpDrawer()*/
         progressDialog = ProgressDialog(this)
         progressDialog!!.setCancelable(false)
         progressDialog!!.setCanceledOnTouchOutside(false)
@@ -251,9 +256,15 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
+        drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onPostCreate(savedInstanceState, persistentState)
+        drawerToggle?.syncState()
     }
 
     private fun setUpDrawer() {
@@ -268,27 +279,35 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         carsTapDescription = findViewById(R.id.my_vehicles_description_garage);
         errorLoadingCars = findViewById(R.id.error_loading_cars)
         this.addCarBtn = findViewById(R.id.add_car_garage)
-        addCarBtn?.setOnClickListener { presenter?.onAddCarClicked() }
+        addCarBtn?.setOnClickListener {
+            Log.d(TAG, "addCarButtonClicked()")
+            presenter?.onAddCarClicked()
+        }
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
+            Log.d(TAG, "MyAppointmentsClicked()")
             this.presenter?.onMyAppointmentsClicked()
         }
         this.requestAppointmentButton = findViewById(R.id.request_service_garage)
         requestAppointmentButton?.setOnClickListener {
+            Log.d(TAG, "requestAppointmentsClicked()")
             this.presenter?.onRequestServiceClicked()
         }
         this.messageBtn = findViewById(R.id.message_my_garage)
         messageBtn?.setOnClickListener {
+            Log.d(TAG, "messageClicked()")
             presenter?.onMessageClicked()
         }
         this.callBtn = findViewById(R.id.call_garage)
         callBtn?.setOnClickListener {
+            Log.d(TAG, "CallClicked()")
             presenter?.onCallClicked()
         }
-        drawerToggle?.syncState()
 
         this.findDirectionsBtn = findViewById(R.id.find_direction_garage)
-        findDirectionsBtn?.setOnClickListener { presenter?.onFindDirectionsClicked() }
+        findDirectionsBtn?.setOnClickListener {
+            Log.d(TAG, "findDirectionsClicked")
+            presenter?.onFindDirectionsClicked() }
         presenter?.onUpdateNeeded()
     }
 
@@ -347,10 +366,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onCarClicked(car: Car) {
         Log.d(TAG, "onCarClicked()")
-        if (car.shopId == 4 || car.shopId == 18)
-            showMercedesLayout()
-        else
-            showNormalLAyout()
+        showNormalLAyout()
         makeCarCurrent(car)
     }
 
@@ -373,25 +389,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 //Error logic here
             }
         })
-    }
-
-    fun changeTheme(darkTheme: Boolean) {
-        supportActionBar!!.setBackgroundDrawable(ColorDrawable(if (darkTheme) Color.BLACK else ContextCompat.getColor(this, R.color.primary)))
-        val window = window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this, if (darkTheme) R.color.black else R.color.primary_dark)
-        }
-    }
-
-    private fun loadDealerDesign(dealership: Dealership?) {
-        //Update tab design to the current dealerships custom design if applicable
-        if (dealership != null) {
-            bindDefaultDealerUI()
-            hideLoading()
-        }
     }
 
     fun getBluetoothConnectService(): BluetoothAutoConnectService {
@@ -431,18 +428,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             autoConnectService.subscribe(this);
             autoConnectService.requestDeviceSearch(false, false);
         }
-
-        useCaseComponent?.getGetCurrentDealershipUseCase()!!.execute(object : GetCurrentCarDealershipUseCase.Callback {
-            override fun onGotDealership(dealership: Dealership) {
-                loadDealerDesign(dealership);
-            }
-
-            override fun onNoCarExists() {
-            }
-
-            override fun onError(error: RequestError) {
-            }
-        })
     }
 
     override fun onStop() {
@@ -544,12 +529,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-    }
-
-    private fun bindDefaultDealerUI() {
-        Log.d(TAG, "Binding deafult dealer UI.")
-        //Change theme elements back to default
-        changeTheme(false)
+        drawerToggle?.syncState();
     }
 
     private fun updateScannerLocalStore() {
@@ -587,7 +567,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             alertDialogBuilder.setTitle("Device Id Invalid")
             alertDialogBuilder
                     .setView(input)
-                    .setMessage("Your OBD device has lost its ID or is invalid, please input " + "the ID found on the front of the device so our algorithm can fix it.")
+                    .setMessage("Your OBD device has lost its ID or is invalid, please input " +
+                            "the ID found on the front of the device so our algorithm can fix it.")
                     .setCancelable(false)
                     .setPositiveButton("Yes") { dialog, id ->
                         autoConnectService.setDeviceNameAndId(input.text
@@ -880,14 +861,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             progressView?.bringToFront()
         }
 
-    }
-
-    override fun showMercedesLayout() {
-        viewAppointmentsIcon?.setImageResource(R.drawable.mercedes_clipboard3x)
-        requestAppointmentIcon?.setImageResource(R.drawable.mercedes_tentaicon3x)
-        messageIcon?.setImageResource(R.drawable.mercedes_chat_3x)
-        callIcon?.setImageResource(R.drawable.call_mercedes_3x)
-        findDirectionsIcon?.setImageResource(R.drawable.mercedes_directions_3x)
     }
 
     override fun showNormalLAyout() {

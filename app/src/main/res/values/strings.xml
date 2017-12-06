@@ -546,11 +546,11 @@
     <string name="idling_proposal">Next time you\'re waiting in your car, just turn the engine off and let your car relax for a bit.</string>
     <string name="fatigue_driving_proposal">If you feel tired and/or sleepy, take a break and relax, or hand over the wheel to a buddy. Happy road tripping!</string>
     <string name="decceleration_proposal">Leave about 1.5 car lengths between you and that driver ahead, that way your ninja reflexes have time to activate and bring your car to a smooth stop.</string>
-    <string name="sort_by_newest">Ordene por mais novos</string>
-    <string name="sort_by_oldest">Ordene por mais velhos</string>
-    <string name="sort_by_engine_issues">Ordene por serviços no motor</string>
-    <string name="sort_by_service_issues">Ordene por serviços</string>
-    <string name="sort_by_recalls">Ordene por recalls</string>
+    <string name="sort_by_newest">Sort by newest</string>
+    <string name="sort_by_oldest">Sort by oldest</string>
+    <string name="sort_by_engine_issues">Sort by engine issues</string>
+    <string name="sort_by_service_issues">Sort by service issues</string>
+    <string name="sort_by_recalls">Sort by recalls</string>
     <string name="fuel_expense_dialog_description">Once a day we check the average fuel price based on your location. If the value isn\'t found, we use the value of $1.09 as we found this to be the average fuel price this year. We will eventually be adding in capability for you to enter your own price so you can track your fuel more accurately.</string>
     <string name="tank_size">Tank Size</string>
     <string name="call">Call</string>

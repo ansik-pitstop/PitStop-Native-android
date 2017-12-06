@@ -23,8 +23,8 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     private final String TAG = getClass().getSimpleName();
 
-    public static final int TAB_SERVICES = 0;
-    public static final int TAB_SCAN = 1;
+    public static final int TAB_SERVICES = 1;
+    public static final int TAB_SCAN = 0;
     public static final int TAB_VEHICLE_SPECS = 2;
     public static final int TAB_NOTIF = 3;
 
@@ -48,8 +48,8 @@ public class TabFragmentManager implements BadgeDisplayer{
         mActivity = activity;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
-                mActivity.getApplicationContext().getString(R.string.services_nav_text),
                 mActivity.getApplicationContext().getString(R.string.scan),
+                mActivity.getApplicationContext().getString(R.string.services_nav_text),
                 mActivity.getApplicationContext().getString(R.string.my_garage),
                 mActivity.getApplicationContext().getString(R.string.notifications)
         };

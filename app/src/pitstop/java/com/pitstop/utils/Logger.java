@@ -137,11 +137,17 @@ public class Logger {
                     }
                     c.close();
                     return messageList;
-                }).filter(messageList -> !messageList.isEmpty()
-                        && connectivityManager != null
-                        && connectivityManager.getActiveNetworkInfo() != null
-                        && connectivityManager.getActiveNetworkInfo().isConnected())
-                .subscribe(messageList -> {
+                }).filter(messageList ->{
+                    try{
+                        return !messageList.isEmpty()
+                                && connectivityManager != null
+                                && connectivityManager.getActiveNetworkInfo() != null
+                                && connectivityManager.getActiveNetworkInfo().isConnected();
+                    }catch(NullPointerException e){
+                        return false;
+                    }
+
+                }).subscribe(messageList -> {
                     Log.d(TAG, String.format("Received %d messages in subscribe()",messageList.size()));
 
                     List<DebugMessage> sentList = new ArrayList<>();
