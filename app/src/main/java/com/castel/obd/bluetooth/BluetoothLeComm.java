@@ -109,6 +109,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
         }
     }
 
+
     @Override
     @SuppressLint("NewApi")
     public void connectToDevice(final BluetoothDevice device) {
@@ -137,6 +138,8 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     , serviceUuid, writeChar, readChar));
         }
     }
+
+
 
     private void queueCommand(WriteCommand command) {
         synchronized (mCommandQueue) {

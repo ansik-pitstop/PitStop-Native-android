@@ -1,6 +1,11 @@
 package com.castel.obd.bleDevice;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+
+import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
+import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 
 import java.util.UUID;
 
@@ -14,7 +19,7 @@ public interface AbstractDevice {
     UUID getReadChar();
 
     UUID getWriteChar();
-
+    
 
 
     BluetoothDeviceManager.CommType commType();
@@ -23,28 +28,34 @@ public interface AbstractDevice {
 
     void parseData(byte[] data);
 
-    String requestData(); // for 215 to ask for IDR
+    void requestData(); // for 215 to ask for IDR
 
     String getDeviceName();
 
     // parameters
-    String getVin();
-    String getRtc();
-    String setRtc(long rtcTime);
-    String getPids(String pids);
-    String getSupportedPids();
-    String setPidsToSend(String pids, int timeInterval);
-    String requestSnapshot();
+    void getVin();
+    void getRtc();
+    void setRtc(long rtcTime);
+    void getPids(String pids);
+    void getSupportedPids();
+    void setPidsToSend(String pids, int timeInterval);
+    void requestSnapshot();
 
     // monitor
-    String clearDtcs();
-    String getDtcs(); // stored
-    String getPendingDtcs(); // pending
-    String getFreezeFrame(); // FF
+    void clearDtcs();
+    void getDtcs(); // stored
+    void getPendingDtcs(); // pending
+    void getFreezeFrame(); // FF
 
-    String clearDeviceMemory();
-    String resetDeviceToDefaults();
-    String resetDevice();
+    void clearDeviceMemory();
+    void resetDeviceToDefaults();
+    void resetDevice();
 
 
+    void createCommunicator(Context mContext);
+    void connectToDevice(BluetoothDevice device);
+    void sendPassiveCommand(String payload);
+    void closeConnection();
+    void setCommunicatorState(int state);
+    int getCommunicatorState();
 }
