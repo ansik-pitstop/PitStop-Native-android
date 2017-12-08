@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
+import com.castel.obd.bleDevice.AbstractDevice;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -37,7 +38,7 @@ import java.util.concurrent.Semaphore;
  * given Bluetooth LE device.
  */
 public class BluetoothLeComm implements BluetoothCommunicator {
-
+    private static String TAG = BluetoothLeComm.class.getSimpleName();
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
@@ -51,25 +52,21 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private BluetoothGatt mGatt;
     private boolean hasDiscoveredServices = false;
 
-    private BluetoothDeviceManager deviceManager;
-
-    private static String TAG = BluetoothLeComm.class.getSimpleName();
-
     private UUID serviceUuid;
     private UUID writeChar;
     private UUID readChar;
+    private AbstractDevice device;
 
     private int btConnectionState = DISCONNECTED;
 
-    public BluetoothLeComm(Context context, BluetoothDeviceManager deviceManager) {
+    public BluetoothLeComm(Context context, AbstractDevice device) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-
+        this.device = device;
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
-        this.deviceManager = deviceManager;
     }
 
     public void setServiceUuid(UUID serviceUuid){
@@ -176,7 +173,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 case BluetoothProfile.STATE_CONNECTING:
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
-                    deviceManager.connectionStateChange(btConnectionState);
+                    device.setManagerState(btConnectionState);
                     break;
 
 
@@ -197,7 +194,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.DISCONNECTED);
-                    deviceManager.connectionStateChange(btConnectionState);
+                    device.setManagerState(btConnectionState);
                     NotificationManager mNotificationManager =
                             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
@@ -223,7 +220,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
                 btConnectionState = CONNECTED;
-                deviceManager.connectionStateChange(btConnectionState);
+                device.setManagerState(btConnectionState);
 
             } else {
                 Log.i(TAG, "Error onServicesDiscovered received: " + status);
@@ -251,7 +248,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 Log.v("onCharacteristicRead", "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
                 if(data != null && data.length > 0 && status == BluetoothGatt.GATT_SUCCESS) {
-                    deviceManager.readData(data);
+                    device.parseData(data);
                 }
             }
         }
@@ -275,7 +272,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 Log.v("onCharacteristicChanged", "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
 
                 if(data != null && data.length > 0) {
-                    deviceManager.readData(data);
+                    device.parseData(data);
                 }
             }
 

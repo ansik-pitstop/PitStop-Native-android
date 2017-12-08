@@ -27,6 +27,7 @@ public interface AbstractDevice {
     byte[] getBytes(String payload);
 
     void parseData(byte[] data);
+    void setManagerState(int state);
 
     void requestData(); // for 215 to ask for IDR
 

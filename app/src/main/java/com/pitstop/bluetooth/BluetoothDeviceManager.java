@@ -59,7 +59,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean discoveryWasStarted = false;
 
     public void setState(int state) {
+
         this.btConnectionState = state;
+        dataListener.getBluetoothState(state);
+
     }
 
     public enum CommType {
@@ -151,12 +154,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    public void connectionStateChange(int state) {
-        Log.d(TAG,"connectionStateChange() state:"+state);
-        btConnectionState = state;
-        dataListener.getBluetoothState(state);
-        // on device connected?
-    }
 
     public void closeDeviceConnection(){
         Log.d(TAG,"closeDeviceConnection()");
@@ -470,14 +467,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             }
         }
     };
-
-    public void readData(final byte[] data) {
-        deviceInterface.parseData(data);
-//        mHandler.post(() -> deviceInterface.parseData(data));
-    }
-
-    // functions
-
     public void getVin() {
         Log.d(TAG,"getVin()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {

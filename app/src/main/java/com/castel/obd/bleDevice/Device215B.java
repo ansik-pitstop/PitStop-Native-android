@@ -170,9 +170,7 @@ public class Device215B implements AbstractDevice {
     public void getPids(String pids) {
         int count = pids.split(",").length;
         String command =  pidPackage("0", count, pids, "0");
-
         writeToObd(command);
-
     }
 
 
@@ -449,11 +447,15 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
+    public void setManagerState(int state) {
+        this.manager.setState(state);
+    }
+
+    @Override
     public synchronized void createCommunicator(Context mContext) {
         Log.d(TAG, "createCommincator()");
         if (this.communicator == null){
-            this.communicator = new BluetoothLeComm(mContext, this.manager); }
-        //TODO communicator should not have a reference to device manager;
+            this.communicator = new BluetoothLeComm(mContext, this); }
     }
 
     @Override
@@ -875,6 +877,8 @@ public class Device215B implements AbstractDevice {
             }
         }
     }
+
+
 
 
 

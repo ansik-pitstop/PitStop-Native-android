@@ -271,6 +271,10 @@ public class Device212B implements AbstractDevice {
         }
     }
 
+    @Override
+    public void setManagerState(int state) {
+        this.manager.setState(state);
+    }
 
     /**
      * @param info
@@ -444,7 +448,6 @@ public class Device212B implements AbstractDevice {
                 }
                 dataListener.tripData(tripInfoPackage);
             }
-
             // handle freeze frame data
             if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){ // TODO: 16/12/13 Check what happen if result 6 is removed
                 if (/*dataPackageInfo.result == 6 || */(dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){
@@ -458,7 +461,6 @@ public class Device212B implements AbstractDevice {
                     dataListener.ffData(ffPackage);
                 }
             }
-
         }
 
 
@@ -488,13 +490,11 @@ public class Device212B implements AbstractDevice {
     @Override
     public void createCommunicator(Context mContext) {
         if (communicator == null)
-            communicator = new BluetoothClassicComm(mContext, manager);
-
+            communicator = new BluetoothClassicComm(mContext, this);
     }
 
     @Override
     public synchronized void connectToDevice(BluetoothDevice device) {
-
         Log.d(TAG, "connectToDevice: " + device.getName());
         if (manager.getState() == BluetoothCommunicator.CONNECTING){
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
