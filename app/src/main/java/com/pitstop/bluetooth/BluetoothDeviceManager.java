@@ -14,6 +14,7 @@ import android.util.Log;
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
 import com.castel.obd.bleDevice.Device215B;
+import com.castel.obd.bleDevice.ELM327Device;
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
@@ -358,6 +359,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void connectToCaristaDevice(BluetoothDevice device){
+        Log.d(TAG,"connectToELM327Device() device: "+device.getName());
+        deviceInterface = new ELM327Device( this);
+        deviceInterface.connectToDevice(device);
+
 
 
     }

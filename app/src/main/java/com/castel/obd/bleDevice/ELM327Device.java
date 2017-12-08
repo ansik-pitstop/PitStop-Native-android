@@ -1,10 +1,15 @@
 package com.castel.obd.bleDevice;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.util.Log;
 
+import com.github.pires.obd.commands.control.VinCommand;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -12,6 +17,18 @@ import java.util.UUID;
  */
 
 public class ELM327Device implements AbstractDevice {
+
+    private BluetoothDeviceManager deviceManager;
+    private BluetoothDevice bluetoothDevice;
+
+    private BluetoothSocket socket;
+    public ELM327Device(BluetoothDeviceManager manager){
+
+    }
+
+    private static final String TAG  = ELM327Device.class.getSimpleName();
+
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @Override
     public UUID getServiceUuid() {
@@ -60,6 +77,16 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void getVin() {
+        Log.d(TAG, "getVin()");
+        if (socket!=null){
+            VinCommand vinCommand = new VinCommand();
+            try {
+                vinCommand.run(socket.getInputStream(), socket.getOutputStream());
+            } catch (Exception e) {
+                Log.d(TAG, "exceptionThrown");
+                e.printStackTrace();
+            }
+        }
 
     }
 
@@ -135,7 +162,32 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void connectToDevice(BluetoothDevice device) {
+        this.bluetoothDevice = device;
+        BluetoothSocket socket = null;
+        BluetoothSocket fallbackSocket = null;
+        try {
+            socket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            socket.connect();
+            this.socket = socket;
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "There was an error while establishing Bluetooth connection. Falling back..");
+            Class<?> clazz = socket.getRemoteDevice().getClass();
+            Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
+            try {
+                Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+                Object[] params = new Object[]{Integer.valueOf(1)};
+                fallbackSocket = (BluetoothSocket) m.invoke(socket.getRemoteDevice(), params);
+                fallbackSocket.connect();
+                socket = fallbackSocket;
+                this.socket = socket;
+
+            } catch (Exception e2) {
+                Log.e(TAG, "Couldn't fallback while establishing Bluetooth connection.", e2);
+            }
+
+        }
     }
 
     @Override
@@ -157,4 +209,6 @@ public class ELM327Device implements AbstractDevice {
     public int getCommunicatorState() {
         return 0;
     }
+
+
 }
