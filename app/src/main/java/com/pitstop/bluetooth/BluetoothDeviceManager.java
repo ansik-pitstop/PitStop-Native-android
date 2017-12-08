@@ -357,6 +357,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 });
     }
 
+    public void connectToCaristaDevice(BluetoothDevice device){
+
+
+    }
+
     public boolean moreDevicesLeft(){
         return foundDevices.size() > 0;
     }
@@ -401,9 +406,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             connectTo212Device(strongestRssiDevice);
         } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
-
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
+        }
+        else if (strongestRssiDevice.getName().contains(ObdManager.CARISTA_DEVICE)){
+            Log.d(TAG, "CaristaDevice> RSSI_Threshold, device: " + strongestRssiDevice);
+            foundDevices.remove(strongestRssiDevice);
+            connectToCaristaDevice(strongestRssiDevice);
         }
         return true;
     }
@@ -426,7 +435,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 Log.d(TAG, "name: "+device.getName() + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
                 //Store all devices in a map
-                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
+                if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) || device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE))
                         && !foundDevices.containsKey(device)){
                     foundDevices.put(device,rssi);
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
