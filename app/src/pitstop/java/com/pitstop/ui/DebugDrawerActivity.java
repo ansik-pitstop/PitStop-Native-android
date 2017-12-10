@@ -421,7 +421,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     @Override
     public void onGotSuportedPIDs(String value) {
         Log.d(TAG, "onGotSupportedPID");
-        editText.setText(value);
+        if (editText!=null)
+            editText.setText(value);
     }
 
     @Override
