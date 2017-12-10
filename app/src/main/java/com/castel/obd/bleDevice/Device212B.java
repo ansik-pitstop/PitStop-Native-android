@@ -1,9 +1,15 @@
 package com.castel.obd.bleDevice;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.bluetooth.BluetoothClassicComm;
+import com.castel.obd.bluetooth.BluetoothCommunicator;
+import com.castel.obd.bluetooth.BluetoothLeComm;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
@@ -21,6 +27,11 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.models.DebugMessage;
+import com.pitstop.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,18 +52,21 @@ public class Device212B implements AbstractDevice {
     public final static int TYPE_DTC = 1;
     public final static int TYPE_PENDING_DTC = 2;
     public final static int TYPE_FREEZE_DATA = 3;
+    private BluetoothCommunicator communicator;
 
     private ObdManager.IBluetoothDataListener dataListener;
     private ObdManager.IPassiveCommandListener passiveCommandListener;
     private Context context;
     private final String deviceName;
+    private BluetoothDeviceManager manager;
 
     public Device212B(Context context, ObdManager.IBluetoothDataListener dataListener,
-                      ObdManager.IPassiveCommandListener passiveCommandListener, String deviceName) {
+                      ObdManager.IPassiveCommandListener passiveCommandListener, String deviceName, BluetoothDeviceManager manager) {
         this.dataListener = dataListener;
         this.context = context;
         this.passiveCommandListener = passiveCommandListener;
         this.deviceName = deviceName;
+        this.manager = manager;
     }
 
     // functions
@@ -85,9 +99,11 @@ public class Device212B implements AbstractDevice {
         return Utils.hexStringToBytes(payload);
     }
 
+
+
     @Override
-    public String requestData() {
-        return null;
+    public void requestData() {
+
     }
 
     @Override
@@ -96,53 +112,55 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public String getVin() {
-        return OBD.getParameter(VIN_TAG);
+    public void getVin() {
+        writeToObd(OBD.getParameter(VIN_TAG));
+//        return OBD.getParameter(VIN_TAG);
     }
 //TODO: change this too
     @Override
-    public String getRtc() {
-        return OBD.getParameter(RTC_TAG);
+    public void getRtc() {
+        writeToObd(OBD.getParameter(RTC_TAG));
     }
 
     @Override
-    public String setRtc(long rtcTime) {
-        return OBD.setParameter(ObdManager.RTC_TAG, String.valueOf(rtcTime / 1000));
+    public void setRtc(long rtcTime) {
+        writeToObd(OBD.setParameter(ObdManager.RTC_TAG, String.valueOf(rtcTime / 1000)));
     }
 
     @Override
-    public String getPids(String pids) {
-        return ""; // 212 does not need to explicitly get pids
+    public void getPids(String pids) {
+        // 212 does not need to explicitly get pids
     }
 
     @Override
-    public String getSupportedPids() {
-        return OBD.getParameter(PID_TAG);
+    public void getSupportedPids() {
+        writeToObd(OBD.getParameter(PID_TAG));
     }
 
     @Override
-    public String setPidsToSend(String pids, int timeInterval) {
-        return OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids);
+    public void setPidsToSend(String pids, int timeInterval) {
+        writeToObd(OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids));
     }
 
     @Override
-    public String requestSnapshot() {
-        return null; //Not supported
+    public void requestSnapshot() {
+        // not supported
     }
 
     @Override
-    public String getDtcs() {
-        return OBD.setMonitor(TYPE_DTC, "");
+    public void getDtcs() {
+        Log.d(TAG, "getDtc()");
+        writeToObd( OBD.setMonitor(TYPE_DTC, ""));
     }
 
     @Override
-    public String getPendingDtcs() {
-        return OBD.setMonitor(TYPE_PENDING_DTC, "");
+    public void getPendingDtcs() {
+        writeToObd(OBD.setMonitor(TYPE_PENDING_DTC, ""));
     }
 
     @Override
-    public String getFreezeFrame() {
-        return OBD.setMonitor(TYPE_FREEZE_DATA, "");
+    public void getFreezeFrame() {
+        writeToObd(OBD.setMonitor(TYPE_FREEZE_DATA, ""));
     }
 
     // read data handler
@@ -220,7 +238,20 @@ public class Device212B implements AbstractDevice {
         }
     }
 
+    @Override
+    public void setCommunicatorState(int state) {
+        if (communicator!=null)
+            communicator.bluetoothStateChanged(state);
+    }
 
+    @Override
+    public int getCommunicatorState() {
+        if (communicator == null)
+            return BluetoothCommunicator.DISCONNECTED;
+        else {
+            return communicator.getState();
+        }
+    }
     /**
      * @param info
      */
@@ -240,6 +271,10 @@ public class Device212B implements AbstractDevice {
         }
     }
 
+    @Override
+    public void setManagerState(int state) {
+        this.manager.setState(state);
+    }
 
     /**
      * @param info
@@ -413,7 +448,6 @@ public class Device212B implements AbstractDevice {
                 }
                 dataListener.tripData(tripInfoPackage);
             }
-
             // handle freeze frame data
             if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){ // TODO: 16/12/13 Check what happen if result 6 is removed
                 if (/*dataPackageInfo.result == 6 || */(dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){
@@ -427,7 +461,6 @@ public class Device212B implements AbstractDevice {
                     dataListener.ffData(ffPackage);
                 }
             }
-
         }
 
 
@@ -435,26 +468,99 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public String resetDeviceToDefaults() {
+    public void resetDeviceToDefaults() {
         //TODO
-        return null;
     }
 
     @Override
-    public String resetDevice() {
+    public void resetDevice() {
         //TODO
-        return null;
     }
 
     @Override
-    public String clearDeviceMemory() {
+    public void clearDeviceMemory() {
         //TODO: add this
-        return null;
     }
 
     @Override
-    public String clearDtcs() {
-        //TODO
-        return null;
+    public void clearDtcs() {
+
+    }
+
+    @Override
+    public void createCommunicator(Context mContext) {
+        if (communicator == null)
+            communicator = new BluetoothClassicComm(mContext, this);
+    }
+
+    @Override
+    public synchronized void connectToDevice(BluetoothDevice device) {
+        Log.d(TAG, "connectToDevice: " + device.getName());
+        if (manager.getState() == BluetoothCommunicator.CONNECTING){
+            Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
+                    , DebugMessage.TYPE_BLUETOOTH);
+            return;
+        } else if (communicator != null && manager.getState() == BluetoothCommunicator.CONNECTED){
+            communicator.close();
+        }
+
+        manager.setState(BluetoothCommunicator.CONNECTING);
+        dataListener.getBluetoothState(manager.getState());
+        Log.i(TAG, "Connecting to Classic device");
+        communicator.connectToDevice(device);
+
+    }
+
+    @Override
+    public void sendPassiveCommand(String payload) {
+
+        writeToObd(payload);
+    }
+
+    @Override
+    public void closeConnection() {
+        communicator.close();
+    }
+
+    private void writeToObd(String payload) {
+        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
+                +(communicator == null) + ", Connected ?  "
+                +(manager.getState() == IBluetoothCommunicator.CONNECTED));
+
+        if (communicator == null
+                || manager.getState() != IBluetoothCommunicator.CONNECTED) {
+            Log.d(TAG, "communicator is null or not connected.");
+            return;
+        }
+
+        if (payload == null || payload.isEmpty()) {
+            return;
+        }
+
+        try { // get instruction string from json payload
+            String temp = new JSONObject(payload).getString("instruction");
+            payload = temp;
+        } catch (JSONException e) {
+        }
+
+        ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
+
+        while (payload.length() > 20) {
+            sendData.add(payload.substring(0, 20));
+            payload = payload.substring(20);
+        }
+        sendData.add(payload);
+
+        for (String data : sendData) {
+            byte[] bytes;
+
+            bytes = getBytes(data);
+
+
+            if (bytes == null || bytes.length == 0) {
+                return;
+            }
+            communicator.writeData(bytes);
+        }
     }
 }

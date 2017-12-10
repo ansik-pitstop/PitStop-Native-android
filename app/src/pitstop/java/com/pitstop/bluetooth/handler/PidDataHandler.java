@@ -95,7 +95,7 @@ public class PidDataHandler {
         String deviceId = pidPackage.deviceId;
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.BUILD_TYPE.equalsIgnoreCase(BuildConfig.BUILD_TYPE_DEBUG)){
             Logger.getInstance().logV(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
                             + " real time?  " + pidPackage.realTime
                     , DebugMessage.TYPE_BLUETOOTH);
@@ -226,6 +226,7 @@ public class PidDataHandler {
 
 
     public static void visualizePidReceived(PidPackage pidPackage, Context context){
+        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase(BuildConfig.BUILD_TYPE_RELEASE))return;
         if (pidPackage == null){
             Log.d(TAG,"visualizePidReceived() pidPackage = null");
             Toast.makeText(context,"NULL pid values received",Toast.LENGTH_LONG).show();
@@ -237,6 +238,7 @@ public class PidDataHandler {
     }
 
     public static void visualizePidDataSent(boolean success, Context context, String timeStampFirst){
+        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase(BuildConfig.BUILD_TYPE_RELEASE))return;
         Log.d(TAG,"visualizePidDataSent() success ? "+success);
         if (pidDataSentVisible) return;
         if (success&& timeStampFirst!= null) {

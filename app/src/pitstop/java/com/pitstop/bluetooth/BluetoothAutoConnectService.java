@@ -554,7 +554,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.ignoreVerification = ignoreVerification;
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
-                && !deviceConnState.equals(State.SEARCHING)){
+                && !deviceConnState.equals(State.SEARCHING)&& !deviceConnState.equals(State.FOUND_DEVICES)){
             Log.d(TAG, "device state is not searching or disconnected");
             Log.d(TAG, "state is : " + deviceConnState);
             return;
@@ -724,6 +724,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        if (pidPackage == null)return;
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);

@@ -1,9 +1,13 @@
 package com.castel.obd.bleDevice;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
+import com.castel.obd.bluetooth.BluetoothCommunicator;
+import com.castel.obd.bluetooth.BluetoothLeComm;
+import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.FaultInfo;
@@ -22,13 +26,18 @@ import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +59,8 @@ public class Device215B implements AbstractDevice {
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
     public static final String MILEAGE_PARAM = "A09";
+    private BluetoothCommunicator communicator;
+    private BluetoothDeviceManager manager;
 
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
@@ -57,20 +68,22 @@ public class Device215B implements AbstractDevice {
     private long prevIgnitionTime = -1;
 
     public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName
-            , long prevIgnitionTime) {
+            , long prevIgnitionTime, BluetoothDeviceManager manager) {
 
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
         this.prevIgnitionTime = prevIgnitionTime;
+        this.manager = manager;
     }
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName) {
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
 
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
         this.prevIgnitionTime = -1;
+        this.manager = manager;
     }
 
     // functions
@@ -101,14 +114,15 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public String requestData() {
-        return replyIDRPackage();
+    public void requestData() {
+        writeToObd(replyIDRPackage());
     }
 
     @Override
-    public String requestSnapshot(){
+    public void requestSnapshot(){
         Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"0"));
-        return pidPackage("0",0,null,"0");
+        String command =  pidPackage("0",0,null,"0");
+        writeToObd(command);
     }
 
     @Override
@@ -117,96 +131,91 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public String getVin() {
-        return qiSingle(VIN_PARAM);
+    public void getVin() {
+        Log.d(TAG, "getVin");
+        writeToObd(qiSingle(VIN_PARAM));
+//        return qiSingle(VIN_PARAM);
     }
 
-    public String setDeviceNameAndId(String name, String id){
-        return siMulti(BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM
+    public void setDeviceNameAndId(String name, String id){
+        String command =  siMulti(BT_NAME_PARAM + ","  +TERMINAL_ID_PARAM
                 ,name + "," + id);
+        writeToObd(command);
     }
 
-    public String setDeviceId(String id){
-        return siSingle(TERMINAL_ID_PARAM,id);
+    public void setDeviceId(String id){
+        String command =siSingle(TERMINAL_ID_PARAM,id);
+        Log.d(TAG,"Setting device id to "+ id + ", command: "  + command );
+        writeToObd(command);
     }
 
     @Override
-    public String getRtc() {
-        return qiSingle(RTC_TIME_PARAM);
+    public void  getRtc() {
+        writeToObd( qiSingle(RTC_TIME_PARAM));
     }
 
     @Override
-    public String setRtc(long rtcTime) {
+    public void setRtc(long rtcTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(rtcTime);
         String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
+        String command =  siSingle(RTC_TIME_PARAM, dateString);
+        Log.d(TAG, "settingRtcTo: " + dateString);
+        writeToObd(command);
 
-        return siSingle(RTC_TIME_PARAM, dateString);
+
     }
 
     @Override
-    public String getPids(String pids) {
+    public void getPids(String pids) {
         int count = pids.split(",").length;
-        return pidPackage("0", count, pids, "0");
+        String command =  pidPackage("0", count, pids, "0");
+        writeToObd(command);
+    }
+
+
+    @Override
+    public void getSupportedPids() {
+        String command = pidtPackage("0");
+        writeToObd(command);
     }
 
     @Override
-    public String getSupportedPids() {
-        return pidtPackage("0");
-    }
-
-    @Override
-    public String setPidsToSend(String pids, int timeInterval) {
-        Log.d(TAG,"setPidsToSend: "+pids);
-        return siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
+    public void setPidsToSend(String pids, int timeInterval) {
+        Log.d(TAG,"setPidsToSend: "+pids  + " time interval : " + Integer.toString(timeInterval));
+        String command = siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
                 ,  pids.replace(",", "/") + ","+timeInterval);
+        writeToObd(command);
+
+
     }
 
     @Override
-    public String clearDtcs() {
-        return dtcPackage("1", "0");
+    public void clearDtcs() {
+        String command =  dtcPackage("1", "0");
+        Log.d(TAG, "clearing DTC, command:  " +command);
+        writeToObd(command);
+
     }
 
     @Override
-    public String getDtcs() {
-        return dtcPackage("0", "0");
+    public void getDtcs() {
+        String command = dtcPackage("0", "0");
+        Log.d(TAG, "getDtc()");
+        writeToObd(command);
     }
 
     @Override
-    public String getPendingDtcs() {
-        return "";
+    public void getPendingDtcs() {
+        writeToObd("");
     }
 
     @Override
-    public String getFreezeFrame() {
-        return null; // 215B does not require explicit command to read FF
+    public void getFreezeFrame() {
+        // 215B does not require explicit command to read FF
     }
 
     // read data handler
-
-    @Override
-    public void parseData(byte[] data) {
-        String readData = "";
-
-        try {
-            readData = new String(data, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
-
-        if(readData.isEmpty()) {
-            return;
-        }
-
-        try {
-            parseReadData(readData);
-        } catch (Exception e){
-            sbRead = new StringBuilder(); // reset sb
-            e.printStackTrace();
-        }
-    }
 
     public String getRtcAndMileage(){
         return qiMulti(RTC_TIME_PARAM +","+ MILEAGE_PARAM);
@@ -358,17 +367,21 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public String clearDeviceMemory() {
-        return ciSingle(Constants.CONTROL_EVENT_ID_CHD);
+    public void clearDeviceMemory() {
+        String command = ciSingle(Constants.CONTROL_EVENT_ID_CHD);
+        Log.d(TAG, "clearing Device Memory, command:  " + command);
+        writeToObd(command);
     }
-    public String resetDeviceToDefaults(){
-        return ciSingle(Constants.CONTROL_EVENT_ID_RTD);
-
+    public void resetDeviceToDefaults(){
+        String command = ciSingle(Constants.CONTROL_EVENT_ID_RTD);
+        Log.d(TAG, "resetting to defaults, command:  " +command);
+        writeToObd(command);
     }
 
-    public String resetDevice(){
-        return ciSingle(Constants.CONTROL_EVENT_ID_RESET);
-
+    public void resetDevice(){
+        String command = ciSingle(Constants.CONTROL_EVENT_ID_RESET);
+        Log.d(TAG, "resetting Device, command:  " + command);
+        writeToObd(command);
     }
 
     private String ciSingle(String command){
@@ -404,12 +417,165 @@ public class Device215B implements AbstractDevice {
     private long lastSentTripEnd = -1;
 
     // parser for 215B data
+
+
+    private long parseRtcTime(String rtcTime) throws ParseException {
+        Log.d(TAG,"parseRtcTime() rtc: "+rtcTime);
+        return new SimpleDateFormat("yyMMddHHmmss").parse(rtcTime).getTime() / 1000;
+    }
+
+    private HashMap<String, String> parsePids(String unparsedPidString) {
+        HashMap<String, String> pidMap = new HashMap<>();
+
+        // unparsedPidString should look like "2105/7C/210C/2ED3/210D/0A/210F/19/2110/BCAB/212F/32"
+
+        String[] pidArray = unparsedPidString.split("/");
+
+        for(int i = 0 ; i + 1 < pidArray.length ; i += 2) {
+            pidMap.put(pidArray[i], pidArray[i + 1]);
+        }
+
+        return pidMap;
+    }
+
+    private HashMap<String, String> parseFreezeFrame(String[] pidArray) {
+        HashMap<String, String> pidMap = new HashMap<>();
+        for (int i = 1; i < pidArray.length - 1; i += 2) {
+            pidMap.put(pidArray[i], pidArray[i + 1]);
+        }
+        return pidMap;
+    }
+
+    @Override
+    public void setManagerState(int state) {
+        this.manager.setState(state);
+    }
+
+    @Override
+    public synchronized void createCommunicator(Context mContext) {
+        Log.d(TAG, "createCommincator()");
+        if (this.communicator == null){
+            this.communicator = new BluetoothLeComm(mContext, this); }
+    }
+
+    @Override
+    public synchronized void connectToDevice(BluetoothDevice device) {
+        if (manager.getState() == BluetoothCommunicator.CONNECTING){
+            Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
+                    , DebugMessage.TYPE_BLUETOOTH);
+            return;
+        } else if (communicator != null && manager.getState() == BluetoothCommunicator.CONNECTED){
+            communicator.close();
+        }
+        manager.setState(BluetoothCommunicator.CONNECTING);
+        dataListener.getBluetoothState(manager.getState());
+        Log.i(TAG, "Connecting to LE device");
+        Log.d(TAG, "connectToDevice: " + device.getName());
+        ((BluetoothLeComm) communicator)
+                .setReadChar(getReadChar());
+        ((BluetoothLeComm) communicator)
+                .setServiceUuid(getServiceUuid());
+        ((BluetoothLeComm) communicator)
+                .setWriteChar(getWriteChar());
+        communicator.connectToDevice(device);
+
+    }
+
+    @Override
+    public void sendPassiveCommand(String payload) {
+        writeToObd(payload);
+    }
+
+    @Override
+    public void closeConnection() {
+        communicator.close();
+    }
+
+    @Override
+    public void setCommunicatorState(int state) {
+        if (communicator!=null)
+            communicator.bluetoothStateChanged(state);
+    }
+
+    @Override
+    public int getCommunicatorState() {
+        if (communicator == null)
+            return BluetoothCommunicator.DISCONNECTED;
+        else {
+            return communicator.getState();
+        }
+    }
+
+
+    private void writeToObd(String payload) {
+        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
+                +(communicator == null) + ", Connected ?  "
+                +(manager.getState() == IBluetoothCommunicator.CONNECTED));
+
+        if (communicator == null
+                || manager.getState() != IBluetoothCommunicator.CONNECTED) {
+            Log.d(TAG, "communicator is null or not connected.");
+            return;
+        }
+
+        if (payload == null || payload.isEmpty()) {
+            return;
+        }
+
+        try { // get instruction string from json payload
+            String temp = new JSONObject(payload).getString("instruction");
+            payload = temp;
+        } catch (JSONException e) {
+        }
+
+        ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
+
+        while (payload.length() > 20) {
+            sendData.add(payload.substring(0, 20));
+            payload = payload.substring(20);
+        }
+        sendData.add(payload);
+
+        for (String data : sendData) {
+            byte[] bytes;
+
+            bytes = getBytes(data);
+
+
+            if (bytes == null || bytes.length == 0) {
+                return;
+            }
+            communicator.writeData(bytes);
+        }
+    }
+
+    @Override
+    public void parseData(byte[] data) {
+
+        String readData = "";
+        try {
+            readData = new String(data, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Log.v(TAG, "Data Read: " + readData.replace("\r", "\\r").replace("\n", "\\n"));
+        if(readData.isEmpty()) {
+            return;
+        }
+
+        try {
+            parseReadData(readData);
+        } catch (Exception e){
+            sbRead = new StringBuilder(); // reset sb
+            e.printStackTrace();
+        }
+    }
+
     private void parseReadData(String msg) throws Exception{
         sbRead.append(msg);
 
         if (sbRead.toString().contains("\r\n")) {
             String msgInfo = sbRead.toString().replace("\r\n", "\\r\\n");
-
             msgInfo = msgInfo.substring(msgInfo.lastIndexOf("$$"), msgInfo.length() - 1); // TODO: 16/12/13 Test this
 
             Log.v(TAG, "Data Read: " + msgInfo);
@@ -461,7 +627,7 @@ public class Device215B implements AbstractDevice {
                             +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
                     Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
-                        +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
+                            +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
                             +idrInfo.terminalSN, DebugMessage.TYPE_BLUETOOTH);
 
                     if (idrInfo.alarmEvents.equals("2")){
@@ -476,7 +642,7 @@ public class Device215B implements AbstractDevice {
                         tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
                     }
                     if (idrInfo.alarmEvents != null && !idrInfo.alarmEvents.isEmpty()){
-                    Float alarmValue;
+                        Float alarmValue;
                         if (idrInfo.alarmValues == null|| idrInfo.alarmValues.equalsIgnoreCase("")){
                             alarmValue =(float)0;
                         }
@@ -712,30 +878,9 @@ public class Device215B implements AbstractDevice {
         }
     }
 
-    private long parseRtcTime(String rtcTime) throws ParseException {
-        Log.d(TAG,"parseRtcTime() rtc: "+rtcTime);
-        return new SimpleDateFormat("yyMMddHHmmss").parse(rtcTime).getTime() / 1000;
-    }
 
-    private HashMap<String, String> parsePids(String unparsedPidString) {
-        HashMap<String, String> pidMap = new HashMap<>();
 
-        // unparsedPidString should look like "2105/7C/210C/2ED3/210D/0A/210F/19/2110/BCAB/212F/32"
 
-        String[] pidArray = unparsedPidString.split("/");
 
-        for(int i = 0 ; i + 1 < pidArray.length ; i += 2) {
-            pidMap.put(pidArray[i], pidArray[i + 1]);
-        }
 
-        return pidMap;
-    }
-
-    private HashMap<String, String> parseFreezeFrame(String[] pidArray) {
-        HashMap<String, String> pidMap = new HashMap<>();
-        for (int i = 1; i < pidArray.length - 1; i += 2) {
-            pidMap.put(pidArray[i], pidArray[i + 1]);
-        }
-        return pidMap;
-    }
 }
