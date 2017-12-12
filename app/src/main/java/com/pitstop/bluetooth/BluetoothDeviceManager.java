@@ -66,10 +66,14 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     }
 
+    public void onGotVin(String VIN) {
+        Log.d(TAG, VIN);
+        dataListener.handleVinData(VIN);
+    }
+
     public enum CommType {
         CLASSIC, LE
     }
-
 
 
     public BluetoothDeviceManager(Context context) {
@@ -361,10 +365,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void connectToCaristaDevice(BluetoothDevice device){
         Log.d(TAG,"connectToELM327Device() device: "+device.getName());
         deviceInterface = new ELM327Device( this);
+        deviceInterface.createCommunicator(mContext);
         deviceInterface.connectToDevice(device);
-
-
-
     }
 
     public boolean moreDevicesLeft(){

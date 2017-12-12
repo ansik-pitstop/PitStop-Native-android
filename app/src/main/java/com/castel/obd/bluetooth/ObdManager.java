@@ -332,6 +332,8 @@ public class ObdManager {
         void idrFuelEvent(String scannerID, double fuelConsumed);
 
         void onDevicesFound();
+
+        void handleVinData(String vin);
     }
 
 

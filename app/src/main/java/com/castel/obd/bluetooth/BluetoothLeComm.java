@@ -236,7 +236,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
 
             if (readChar.equals(characteristic.getUuid())) {
                 final byte[] data = characteristic.getValue();
-
+                Log.d(TAG, data.toString());
                 String readData = "";
 
                 try {

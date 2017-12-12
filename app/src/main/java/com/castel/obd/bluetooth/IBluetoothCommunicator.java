@@ -9,6 +9,7 @@ public interface IBluetoothCommunicator {
     int BLUETOOTH_CONNECT_EXCEPTION = 2;
     int BLUETOOTH_READ_DATA = 4;
     int CANCEL_DISCOVERY = 5;
+    int NO_DATA = 6;
 
     int CONNECTED = 0;
     int DISCONNECTED = 1;
