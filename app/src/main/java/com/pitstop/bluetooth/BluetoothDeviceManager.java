@@ -320,7 +320,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         Log.d(TAG,"connectTo212Device() device: "+device.getName());
         deviceInterface = new Device212B(mContext, dataListener
                 , BluetoothDeviceManager.this, device.getName(), this);
-        deviceInterface.createCommunicator(mContext);
+
         deviceInterface.connectToDevice(device);
     }
 
@@ -336,7 +336,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         Log.v(TAG, "Received ignition time: " + ignitionTime);
                         deviceInterface = new Device215B(mContext, dataListener
                                 , device.getName(), ignitionTime, BluetoothDeviceManager.this);
-                        deviceInterface.createCommunicator(mContext);
+
                         deviceInterface.connectToDevice(device);
 
                     }
@@ -346,7 +346,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                         Log.v(TAG, "No previous ignition time exists!");
                         deviceInterface = new Device215B(mContext, dataListener
                                 , device.getName(), BluetoothDeviceManager.this);
-                        deviceInterface.createCommunicator(mContext);
                         deviceInterface.connectToDevice(device);
                     }
 
@@ -354,7 +353,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     public void onError(RequestError error) {
                         deviceInterface = new Device215B(mContext, dataListener
                                 , device.getName(), BluetoothDeviceManager.this);
-                        deviceInterface.createCommunicator(mContext);
                         deviceInterface.connectToDevice(device);
                         Log.v(TAG, "ERROR: could not get previous ignition time");
 
@@ -364,8 +362,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void connectToCaristaDevice(BluetoothDevice device){
         Log.d(TAG,"connectToELM327Device() device: "+device.getName());
-        deviceInterface = new ELM327Device( this);
-        deviceInterface.createCommunicator(mContext);
+        deviceInterface = new ELM327Device( mContext, this);
         deviceInterface.connectToDevice(device);
     }
 

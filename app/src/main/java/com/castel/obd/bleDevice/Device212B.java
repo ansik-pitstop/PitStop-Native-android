@@ -67,6 +67,8 @@ public class Device212B implements AbstractDevice {
         this.passiveCommandListener = passiveCommandListener;
         this.deviceName = deviceName;
         this.manager = manager;
+        if (communicator == null)
+            communicator = new BluetoothClassicComm(context, this);
     }
 
     // functions
@@ -485,12 +487,6 @@ public class Device212B implements AbstractDevice {
     @Override
     public void clearDtcs() {
 
-    }
-
-    @Override
-    public void createCommunicator(Context mContext) {
-        if (communicator == null)
-            communicator = new BluetoothClassicComm(mContext, this);
     }
 
     @Override

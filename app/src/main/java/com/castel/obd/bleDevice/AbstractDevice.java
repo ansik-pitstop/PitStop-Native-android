@@ -51,9 +51,6 @@ public interface AbstractDevice {
     void clearDeviceMemory();
     void resetDeviceToDefaults();
     void resetDevice();
-
-
-    void createCommunicator(Context mContext);
     void connectToDevice(BluetoothDevice device);
     void sendPassiveCommand(String payload);
     void closeConnection();

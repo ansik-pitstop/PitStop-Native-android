@@ -39,13 +39,12 @@ import java.util.regex.Pattern;
 
 public class ELM327Device implements AbstractDevice {
 
-    private BluetoothDeviceManager deviceManager;
-    private BluetoothDevice bluetoothDevice;
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
 
-    public ELM327Device(BluetoothDeviceManager manager){
+    public ELM327Device(Context mContext, BluetoothDeviceManager manager){
         this.manager  = manager;
+        this.communicator = new BluetoothCommunicatorELM327(mContext, this);
 
     }
 
@@ -176,12 +175,6 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void resetDevice() {
 
-    }
-    @Override
-    public synchronized void createCommunicator(Context mContext) {
-        Log.d(TAG, "createCommunicator()");
-        if (this.communicator == null){
-            this.communicator = new BluetoothCommunicatorELM327(mContext, this); }
     }
 
     @Override

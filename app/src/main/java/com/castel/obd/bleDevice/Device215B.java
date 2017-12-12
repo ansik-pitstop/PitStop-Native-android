@@ -75,6 +75,8 @@ public class Device215B implements AbstractDevice {
         this.deviceName = deviceName;
         this.prevIgnitionTime = prevIgnitionTime;
         this.manager = manager;
+        if (this.communicator == null){
+            this.communicator = new BluetoothLeComm(context, this); }
     }
 
     public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
@@ -84,6 +86,8 @@ public class Device215B implements AbstractDevice {
         this.deviceName = deviceName;
         this.prevIgnitionTime = -1;
         this.manager = manager;
+        if (this.communicator == null){
+            this.communicator = new BluetoothLeComm(context, this); }
     }
 
     // functions
@@ -451,12 +455,7 @@ public class Device215B implements AbstractDevice {
         this.manager.setState(state);
     }
 
-    @Override
-    public synchronized void createCommunicator(Context mContext) {
-        Log.d(TAG, "createCommincator()");
-        if (this.communicator == null){
-            this.communicator = new BluetoothLeComm(mContext, this); }
-    }
+
 
     @Override
     public synchronized void connectToDevice(BluetoothDevice device) {
