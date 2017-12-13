@@ -14,6 +14,7 @@ import android.util.Log;
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
 import com.castel.obd.bleDevice.Device215B;
+import com.castel.obd.bleDevice.ELM327Device;
 import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
@@ -51,7 +52,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private Handler mHandler = new Handler();
 
     private AbstractDevice deviceInterface;
-    private BluetoothCommunicator communicator;
     private UseCaseComponent useCaseComponent;
 
     private int discoveryNum = 0;
@@ -59,9 +59,22 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean nonUrgentScanInProgress = false;
     private boolean discoveryWasStarted = false;
 
+    public void setState(int state) {
+
+        this.btConnectionState = state;
+        dataListener.getBluetoothState(state);
+
+    }
+
+    public void onGotVin(String VIN) {
+        Log.d(TAG, VIN);
+        dataListener.handleVinData(VIN);
+    }
+
     public enum CommType {
         CLASSIC, LE
     }
+
 
     public BluetoothDeviceManager(Context context) {
 
@@ -125,8 +138,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(payload);
+        deviceInterface.sendPassiveCommand(payload);
     }
 
     public void close() {
@@ -137,8 +149,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             dataListener.scanFinished();
         }
 
-        if (communicator != null ) {
-            communicator.close();
+        if (deviceInterface != null ) {
+            deviceInterface.closeConnection();
         }
         try {
             mContext.unregisterReceiver(receiver);
@@ -147,7 +159,16 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    private void writeToObd(String payload) {
+
+    public void closeDeviceConnection(){
+        Log.d(TAG,"closeDeviceConnection()");
+        if (deviceInterface != null){
+            deviceInterface.closeConnection();
+        }
+        btConnectionState = IBluetoothCommunicator.DISCONNECTED;
+    }
+
+    /*private void writeToObd(String payload) {
         Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
                 +(communicator == null) + ", Connected ?  "
                 +(btConnectionState == IBluetoothCommunicator.CONNECTED));
@@ -187,28 +208,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
             communicator.writeData(bytes);
         }
-    }
-
-    public void connectionStateChange(int state) {
-        Log.d(TAG,"connectionStateChange() state:"+state);
-        btConnectionState = state;
-        dataListener.getBluetoothState(state);
-
-        // on device connected?
-    }
-
-    public void closeDeviceConnection(){
-        Log.d(TAG,"closeDeviceConnection()");
-        if (communicator != null){
-            communicator.close();
-        }
-        btConnectionState = IBluetoothCommunicator.DISCONNECTED;
-    }
+    }*/
 
     /**
-     * @param device
+     *
      */
-    @SuppressLint("NewApi")
+
+/*    @SuppressLint("NewApi")
     public synchronized void connectToDevice(final BluetoothDevice device) {
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
@@ -218,8 +224,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             communicator.close();
         }
 
-        switch (deviceInterface.commType()) {
+       *//* switch (deviceInterface.commType()) {
             case LE:
+
+                // this should not be here, its only here for now becaause manager needs a communicator for now
                 btConnectionState = BluetoothCommunicator.CONNECTING;
                 dataListener.getBluetoothState(btConnectionState);
                 Log.i(TAG, "Connecting to LE device");
@@ -240,20 +248,21 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 if (communicator == null){
                     communicator = new BluetoothClassicComm(mContext, this);
                 }
+                communicator.connectToDevice(device);
                 break;
-        }
+        }*//*
 
         Logger.getInstance().logI(TAG,"Connecting to device: deviceName="+device.getName()
                 , DebugMessage.TYPE_BLUETOOTH);
-        communicator.connectToDevice(device);
-    }
+
+    }*/
 
     public void bluetoothStateChanged(int state) {
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
             dataListener.getBluetoothState(btConnectionState);
-            if (communicator != null){
-                communicator.bluetoothStateChanged(state);
+            if (deviceInterface != null){
+                deviceInterface.setCommunicatorState(state);
             }
         }
     }
@@ -264,8 +273,11 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
-        btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
-
+        if (deviceInterface == null)
+            btConnectionState = BluetoothCommunicator.DISCONNECTED;
+        else {
+            btConnectionState = deviceInterface.getCommunicatorState();
+        }
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
             return false;
@@ -307,8 +319,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private void connectTo212Device(BluetoothDevice device){
         Log.d(TAG,"connectTo212Device() device: "+device.getName());
         deviceInterface = new Device212B(mContext, dataListener
-                , BluetoothDeviceManager.this, device.getName());
-        connectToDevice(device);
+                , BluetoothDeviceManager.this, device.getName(), this);
+
+        deviceInterface.connectToDevice(device);
     }
 
 
@@ -322,8 +335,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     public void onGotIgnitionTime(long ignitionTime) {
                         Log.v(TAG, "Received ignition time: " + ignitionTime);
                         deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName(), ignitionTime);
-                        connectToDevice(device);
+                                , device.getName(), ignitionTime, BluetoothDeviceManager.this);
+
+                        deviceInterface.connectToDevice(device);
 
                     }
 
@@ -331,19 +345,25 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                     public void onNoneExists() {
                         Log.v(TAG, "No previous ignition time exists!");
                         deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName());
-                        connectToDevice(device);
+                                , device.getName(), BluetoothDeviceManager.this);
+                        deviceInterface.connectToDevice(device);
                     }
 
                     @Override
                     public void onError(RequestError error) {
                         deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName());
-                        connectToDevice(device);
+                                , device.getName(), BluetoothDeviceManager.this);
+                        deviceInterface.connectToDevice(device);
                         Log.v(TAG, "ERROR: could not get previous ignition time");
 
                     }
                 });
+    }
+
+    public void connectToCaristaDevice(BluetoothDevice device){
+        Log.d(TAG,"connectToELM327Device() device: "+device.getName());
+        deviceInterface = new ELM327Device( mContext, this);
+        deviceInterface.connectToDevice(device);
     }
 
     public boolean moreDevicesLeft(){
@@ -390,9 +410,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             connectTo212Device(strongestRssiDevice);
         } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
-
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
+        }
+        else if (strongestRssiDevice.getName().contains(ObdManager.CARISTA_DEVICE)){
+            Log.d(TAG, "CaristaDevice> RSSI_Threshold, device: " + strongestRssiDevice);
+            foundDevices.remove(strongestRssiDevice);
+            connectToCaristaDevice(strongestRssiDevice);
         }
         return true;
     }
@@ -415,7 +439,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 Log.d(TAG, "name: "+device.getName() + ", address: " + device.getAddress()+" RSSI: "+rssi);
 
                 //Store all devices in a map
-                if (device.getName() != null && device.getName().contains(ObdManager.BT_DEVICE_NAME)
+                if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) || device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE))
                         && !foundDevices.containsKey(device)){
                     foundDevices.put(device,rssi);
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
@@ -456,20 +480,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             }
         }
     };
-
-    public void readData(final byte[] data) {
-        mHandler.post(() -> deviceInterface.parseData(data));
-    }
-
-    // functions
-
     public void getVin() {
         Log.d(TAG,"getVin()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.getVin()); // 212 parser returns json
+        Log.d(TAG, "deviceInterface.getVin()");
+        deviceInterface.getVin();
     }
 
     public void getRtc() {
@@ -477,8 +494,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.getRtc());
+        deviceInterface.getRtc();
+        /*writeToObd(deviceInterface.getRtc());*/
     }
 
     public void setDeviceNameAndId(String id){
@@ -486,7 +503,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         //Device name should never be set for 212
         if (isConnectedTo215()){
             Device215B device215B = (Device215B)deviceInterface;
-            writeToObd(device215B.setDeviceNameAndId(ObdManager.BT_DEVICE_NAME_215 + " " + id,id));
+            device215B.setDeviceNameAndId(ObdManager.BT_DEVICE_NAME_215 + " " + id,id);
         }
     }
 
@@ -494,16 +511,17 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         Log.d(TAG,"setDeviceId() id: "+id);
         if (isConnectedTo215()){
             Device215B device215B = (Device215B)deviceInterface;
-            Log.d(TAG,"Setting device id to "+id+", command: "+device215B.setDeviceId(id));
-            writeToObd(device215B.setDeviceId(id));
+            device215B.setDeviceId(id);
         }
     }
+
+
 
     public void clearDeviceMemory(){
         Log.d(TAG, "clearDeviceMemory() ");
         if (isConnectedTo215()){
-            Log.d(TAG, "clearing Device Memory, command:  " + deviceInterface.clearDeviceMemory());
-            writeToObd(deviceInterface.clearDeviceMemory());
+            deviceInterface.clearDeviceMemory();
+
         }
     }
 
@@ -511,8 +529,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         Log.d(TAG, "resetToDefualts() ");
         if (isConnectedTo215()){
-            Log.d(TAG, "resetting to defaults, command:  " + deviceInterface.resetDeviceToDefaults());
-            writeToObd(deviceInterface.resetDeviceToDefaults());
+            deviceInterface.resetDeviceToDefaults();
         }
 
     }
@@ -520,8 +537,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void resetDevice(){
         Log.d(TAG, "resetDevice() ");
         if (isConnectedTo215()){
-            Log.d(TAG, "resetting Device, command:  " + deviceInterface.resetDevice());
-            writeToObd(deviceInterface.resetDevice());
+            deviceInterface.resetDevice();
         }
 
     }
@@ -530,8 +546,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.setRtc(rtcTime));
+        deviceInterface.setRtc(rtcTime);
     }
 
     public void getPids(String pids) {
@@ -539,15 +554,13 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.getPids(pids));
+        deviceInterface.getPids(pids);
     }
 
     public void clearDtcs(){
         Log.d(TAG, "clearDTCs");
         if (isConnectedTo215()){
-            Log.d(TAG, "clearing DTC, command:  " + deviceInterface.clearDtcs());
-            writeToObd(deviceInterface.clearDtcs());
+            deviceInterface.clearDtcs();
         }
     }
     public void getSupportedPids() {
@@ -555,8 +568,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.getSupportedPids());
+        deviceInterface.getSupportedPids();
     }
 
     // sets pids to check and sets data interval
@@ -565,8 +577,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.setPidsToSend(pids,timeInterval));
+        deviceInterface.setPidsToSend(pids,timeInterval);
     }
 
     public void getDtcs() {
@@ -574,9 +585,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
-
-        writeToObd(deviceInterface.getDtcs());
-        writeToObd(deviceInterface.getPendingDtcs());
+        deviceInterface.getDtcs();
+        deviceInterface.getPendingDtcs();
     }
 
     public void getFreezeFrame() {
@@ -585,7 +595,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return;
         }
 
-        writeToObd(deviceInterface.getFreezeFrame());
+        deviceInterface.getFreezeFrame();
     }
 
     public void requestData() {
@@ -594,7 +604,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             return;
         }
 
-        writeToObd(deviceInterface.requestData());
+        deviceInterface.requestData();
     }
 
     public void requestSnapshot(){
@@ -602,7 +612,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         if (deviceInterface instanceof Device215B
                 && btConnectionState == BluetoothCommunicator.CONNECTED){
             Log.d(TAG,"executing writeToOBD requestSnapshot()");
-            writeToObd(deviceInterface.requestSnapshot());
+            deviceInterface.requestSnapshot();
         }
     }
 

@@ -300,6 +300,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void getRtc(View view) {
     }
 
+    @Override
+    public void handleVinData(String vin) {
+
+    }
+
     public void setRtc(View view) {
         service.requestDeviceSync();
     }

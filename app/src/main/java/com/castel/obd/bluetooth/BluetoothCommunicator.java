@@ -24,4 +24,5 @@ public interface BluetoothCommunicator {
     int getState();
     void close();
     void bluetoothStateChanged(int state);
+
 }

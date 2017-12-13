@@ -554,7 +554,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.ignoreVerification = ignoreVerification;
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
-                && !deviceConnState.equals(State.SEARCHING)){
+                && !deviceConnState.equals(State.SEARCHING)&& !deviceConnState.equals(State.FOUND_DEVICES)){
             Log.d(TAG, "device state is not searching or disconnected");
             Log.d(TAG, "state is : " + deviceConnState);
             return;
@@ -682,6 +682,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
     }
+    public void handleVinData(String Vin){
+        Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
+                , DebugMessage.TYPE_BLUETOOTH);
+        vinDataHandler.handleVinData(Vin
+                ,currentDeviceId,ignoreVerification);
+    }
 
 
 
@@ -724,6 +730,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void pidData(PidPackage pidPackage) {
+        if (pidPackage == null)return;
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
@@ -1032,12 +1039,25 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private void notifyDeviceReady(String vin, String scannerId, String scannerName) {
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
+        // this is for carista testing make sure to remove this
 
-        for (Observer observer: observerList){
-            if (observer instanceof BluetoothConnectionObserver){
-                mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
+
+        if (scannerName == null || scannerId == null){
+            String temp = "Carista";
+            for (Observer observer: observerList){
+                if (observer instanceof BluetoothConnectionObserver){
+                    mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
+                            .onDeviceReady(new ReadyDevice(vin, temp, temp)));
+                }
+            }
+
+        }else {
+        for (Observer observer: observerList) {
+            if (observer instanceof BluetoothConnectionObserver) {
+                mainHandler.post(() -> ((BluetoothConnectionObserver) observer)
                         .onDeviceReady(new ReadyDevice(vin, scannerId, scannerName)));
             }
+        }
         }
     }
 
