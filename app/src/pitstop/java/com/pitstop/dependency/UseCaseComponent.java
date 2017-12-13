@@ -5,6 +5,7 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddDtcUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
@@ -204,5 +205,7 @@ public interface UseCaseComponent {
     GetFuelPricesUseCase getFuelPriceUseCase();
 
     GetFuelConsumedAndPriceUseCase getGetFuelConsumedAndPriceUseCase();
+
+    AddScannerUseCase getAddScannerUseCase();
 
 }

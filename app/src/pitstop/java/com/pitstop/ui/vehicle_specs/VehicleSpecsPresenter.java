@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_specs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -11,7 +12,9 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
@@ -39,7 +42,7 @@ import java.util.Calendar;
  * Created by ishan on 2017-09-25.
  */
 
-public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implements  FuelObserver, AlarmObserver {
+public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implements FuelObserver, AlarmObserver {
 
     public static final String GAS_PRICE_SHARED_PREF = "gasPrices";
     public static final String LAST_UPDATED_DATE = "lastUpdatedDate";
@@ -52,7 +55,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     private MixpanelHelper mixpanelHelper;
     private boolean updating;
     private Car mCar;
-    private boolean carHasScanner  = false;
+    private boolean carHasScanner = false;
     private FuelObservable fuelObservable;
     private AlarmObservable alarmObservable;
 
@@ -91,22 +94,23 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void onUpdateLicensePlateDialogConfirmClicked(int carID, String s) {
         Log.d(TAG, "onUpdateLicensePlateDialogConfirmClicked()");
-        if (getView()== null|| updating)return;
+        if (getView() == null || updating) return;
         updating = true;
         useCaseComponent.addLicensePlateUseCase().execute(carID, s, new AddLicensePlateUseCase.Callback() {
             @Override
             public void onLicensePlateStored(String licensePlate) {
                 updating = false;
-                if (getView()== null)return;
+                if (getView() == null) return;
                 getView().showLicensePlate(licensePlate);
             }
 
             @Override
-            public void onError(RequestError error) {}
+            public void onError(RequestError error) {
+            }
         });
     }
 
-    public void getLicensePlate(int carID){
+    public void getLicensePlate(int carID) {
         Log.d(TAG, "getLicensePlate()");
         if (getView() == null) return;
         useCaseComponent.getLicensePlateUseCase().execute(carID, new GetLicensePlateUseCase.Callback() {
@@ -116,6 +120,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 Log.d(TAG, "licensePlateGot");
                 getView().showLicensePlate(licensePlate);
             }
+
             @Override
             public void onError(RequestError error) {
                 if (getView() == null) return;
@@ -125,8 +130,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         });
     }
 
-    public void deleteCar(){
-        if(getView() == null||updating)return;
+    public void deleteCar() {
+        if (getView() == null || updating) return;
         updating = true;
         getView().showLoadingDialog("Loading...");
         Log.d(TAG, "deleteCar()");
@@ -134,11 +139,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             @Override
             public void onCarRemoved() {
                 updating = false;
-                if (getView() == null)return;
+                if (getView() == null) return;
                 getView().hideLoadingDialog();
                 onUpdateNeeded();
 
             }
+
             @Override
             public void onError(RequestError error) {
                 updating = false;
@@ -151,51 +157,46 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public Car getCar() {
         Log.d(TAG, "getCar()");
-        if (this.mCar!=null){
+        if (this.mCar != null) {
             return this.mCar;
-        }
-        else
+        } else
             return null;
     }
 
-    public Dealership getDealership(){
+    public Dealership getDealership() {
         Log.d(TAG, "getDealership()");
         return this.mdealership;
     }
 
     public void onScannerViewClicked() {
-        Log.d(TAG, "onScannerVIewCLicked()");
+        Log.d(TAG, "onScannerViewCLicked()");
         if (getView() == null) return;
-        if (this.mCar.getScannerId() == null)
-            getView().showPairScannerDialog();
-        else {
-            // do nothing
-        }
+        getView().showPairScannerDialog();
     }
 
     public void onUpdateNeeded() {
         Log.d(TAG, "onUdateNeeded()");
-        if (getView() == null|| updating)return;
+        if (getView() == null || updating) return;
         updating = true;
         getView().showLoading();
         useCaseComponent.getGetAlarmCountUseCase().execute(new GetAlarmCountUseCase.Callback() {
-                    @Override
-                    public void onAlarmCountGot(int alarmCount) {
-                        numAlarms = alarmCount;
-                        if (alarmCount == 0){
-                            if (getView()==null) return;
-                            getView().hideBadge();
-                        }
-                        else {
-                            getView().showBadges(alarmCount);
-                        }
-                    }
-                    @Override
-                    public void onError(@NotNull RequestError error) {
-                        if (getView() == null )return;
-                        getView().hideBadge();
-                    }
-                });
+            @Override
+            public void onAlarmCountGot(int alarmCount) {
+                numAlarms = alarmCount;
+                if (alarmCount == 0) {
+                    if (getView() == null) return;
+                    getView().hideBadge();
+                } else {
+                    getView().showBadges(alarmCount);
+                }
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                if (getView() == null) return;
+                getView().hideBadge();
+            }
+        });
 
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
@@ -204,7 +205,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 mdealership = car.getShop();
                 if (!isLocal)
                     updating = false;
-                if (getView()!=null) {
+                if (getView() != null) {
                     if (!isLocal) {
                         getView().hideLoading();
                     }
@@ -214,7 +215,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                     String scannerId = car.getScannerId();
                     carHasScanner = (scannerId != null && !scannerId.equalsIgnoreCase(""));
                     getAmountSpent(scannerId);
-                  
+
                     getView().displayCarDetails(car);
                     getView().showNormalLayout();
 
@@ -225,7 +226,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
             @Override
             public void onNoCarSet(boolean isLocal) {
-                if (getView()!=null && !isLocal){
+                if (getView() != null && !isLocal) {
                     updating = false;
                     getView().showNoCarView();
                     getView().hideLoading();
@@ -241,8 +242,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                         getView().displayOfflineErrorDialog();
                     else
                         getView().showOfflineErrorView();
-                }
-                else {
+                } else {
                     if (getView().hasBeenPopulated())
                         getView().displayUnknownErrorDialog();
                     else
@@ -258,15 +258,15 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         onUpdateNeeded();
     }
 
-    void onUpdateMileageDialogConfirmClicked(String mileageText){
-        Log.d(TAG,"onUpdateMileageDialogConfirmClicked()");
+    void onUpdateMileageDialogConfirmClicked(String mileageText) {
+        Log.d(TAG, "onUpdateMileageDialogConfirmClicked()");
         if (updating) return;
         updating = true;
         getView().showLoading();
         double mileage;
-        try{
+        try {
             mileage = Double.valueOf(mileageText);
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             getView().displayUpdateMileageError();
             getView().hideLoading();
@@ -274,7 +274,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             return;
         }
 
-        if (mileage < 0 || mileage > 3000000){
+        if (mileage < 0 || mileage > 3000000) {
             getView().hideLoading();
             getView().displayUpdateMileageError();
             updating = false;
@@ -288,13 +288,13 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                     public void onMileageUpdated() {
                         updating = false;
                         EventBus.getDefault().post(new CarDataChangedEvent(
-                                new EventTypeImpl(EventType.EVENT_MILEAGE),EVENT_SOURCE));
+                                new EventTypeImpl(EventType.EVENT_MILEAGE), EVENT_SOURCE));
                         if (getView() == null) return;
                         getView().hideLoading();
 
-                        try{
+                        try {
                             getView().displayMileage(mileage);
-                        }catch(NumberFormatException e){
+                        } catch (NumberFormatException e) {
                             e.printStackTrace();
                             getView().displayUnknownErrorDialog();
                         }
@@ -313,15 +313,13 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                         updating = false;
                         if (getView() == null) return;
 
-                        if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                            if (getView().hasBeenPopulated()){
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                            if (getView().hasBeenPopulated()) {
                                 getView().displayOfflineErrorDialog();
-                            }
-                            else{
+                            } else {
                                 getView().showOfflineErrorView();
                             }
-                        }
-                        else{
+                        } else {
                             getView().hideLoading();
                             getView().displayUnknownErrorDialog();
                         }
@@ -332,30 +330,29 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
 
-    private void getAmountSpent(String scannerId){
+    private void getAmountSpent(String scannerId) {
         Log.d(TAG, "getAmountSpent();");
         if (getView() == null) return;
 
-        if (scannerId == null || scannerId.equalsIgnoreCase("")){
+        if (scannerId == null || scannerId.equalsIgnoreCase("")) {
             getView().showFuelExpense((float) 0.0);
             return;
         }
-        SharedPreferences sharedPreferences = ((android.support.v4.app.Fragment)getView()).
+        SharedPreferences sharedPreferences = ((android.support.v4.app.Fragment) getView()).
                 getActivity().getSharedPreferences(GAS_PRICE_SHARED_PREF, Context.MODE_PRIVATE);
-        if (!sharedPreferences.contains(LAST_UPDATED_DATE+mCar.getVin())){
-            updatePrice(scannerId,sharedPreferences);
+        if (!sharedPreferences.contains(LAST_UPDATED_DATE + mCar.getVin())) {
+            updatePrice(scannerId, sharedPreferences);
             return;
         }
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        String currentDate = Integer.toString(Calendar.getInstance().getTime().getYear())+ Integer.toString(Calendar.getInstance().getTime().getMonth()) +
+        String currentDate = Integer.toString(Calendar.getInstance().getTime().getYear()) + Integer.toString(Calendar.getInstance().getTime().getMonth()) +
                 Integer.toString(Calendar.getInstance().getTime().getDate());
         Log.d(TAG, "current date: " + currentDate);
-        Log.d(TAG, "last update date: " +sharedPreferences.getString(LAST_UPDATED_DATE+mCar.getVin(), "0000") );
-       if (Integer.parseInt(currentDate) > Integer.parseInt(sharedPreferences.getString(LAST_UPDATED_DATE+mCar.getVin(), "0000"))){
-            updatePrice(scannerId,sharedPreferences);
+        Log.d(TAG, "last update date: " + sharedPreferences.getString(LAST_UPDATED_DATE + mCar.getVin(), "0000"));
+        if (Integer.parseInt(currentDate) > Integer.parseInt(sharedPreferences.getString(LAST_UPDATED_DATE + mCar.getVin(), "0000"))) {
+            updatePrice(scannerId, sharedPreferences);
             return;
-        }
-        else {
+        } else {
             useCaseComponent.getGetFuelConsumedUseCase().execute(scannerId, new GetFuelConsumedUseCase.Callback() {
                 @Override
                 public void onFuelConsumedGot(double fuelConsumed) {
@@ -389,24 +386,25 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             @Override
             public void onGotFuelConsumedAndPrice(double price, double fuelConsumed) {
                 if (getView() == null) return;
-                Log.d(TAG, "onGotFuelConsumedAndPrice, Price: " +  Double.toString(price) + " fuelConsumed: " + Double.toString(fuelConsumed));
+                Log.d(TAG, "onGotFuelConsumedAndPrice, Price: " + Double.toString(price) + " fuelConsumed: " + Double.toString(fuelConsumed));
                 if (getView() == null) return;
-                Log.d(TAG, "fuel consumed got: "  + Double.toString(fuelConsumed));
-                float oldConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), 0);
-                float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE+mCar.getVin(), 0);
-                editor.putFloat(PRICE_AT_UPDATE+mCar.getVin(), (float)price);
+                Log.d(TAG, "fuel consumed got: " + Double.toString(fuelConsumed));
+                float oldConsumed = sharedPreferences.getFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE + mCar.getVin(), 0);
+                float oldMoneySpent = sharedPreferences.getFloat(TOTAL_MONEY_SPENT_AT_UPDATE + mCar.getVin(), 0);
+                editor.putFloat(PRICE_AT_UPDATE + mCar.getVin(), (float) price);
                 String date = Integer.toString(Calendar.getInstance().getTime().getYear()) + Integer.toString(Calendar.getInstance().getTime().getMonth()) +
                         Integer.toString(Calendar.getInstance().getTime().getDate());
-                editor.putString(LAST_UPDATED_DATE+mCar.getVin(), date);
-                editor.putFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE+mCar.getVin(), (float)fuelConsumed);
-                float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed-oldConsumed)*(float) price;
-                Log.d(TAG, "old fuel consumed "  + Double.toString(oldConsumed));
-                Log.d(TAG, "old moeny total: "  + Double.toString(oldMoneySpent));
-                Log.d(TAG, "new Money spent: "  + Double.toString(newMoneySpent));
-                editor.putFloat(TOTAL_MONEY_SPENT_AT_UPDATE+mCar.getVin(), newMoneySpent);
+                editor.putString(LAST_UPDATED_DATE + mCar.getVin(), date);
+                editor.putFloat(TOTAL_FUEL_CONSUMED_AT_UPDATE + mCar.getVin(), (float) fuelConsumed);
+                float newMoneySpent = (oldMoneySpent) + ((float) fuelConsumed - oldConsumed) * (float) price;
+                Log.d(TAG, "old fuel consumed " + Double.toString(oldConsumed));
+                Log.d(TAG, "old moeny total: " + Double.toString(oldMoneySpent));
+                Log.d(TAG, "new Money spent: " + Double.toString(newMoneySpent));
+                editor.putFloat(TOTAL_MONEY_SPENT_AT_UPDATE + mCar.getVin(), newMoneySpent);
                 editor.commit();
                 getView().showFuelExpense(newMoneySpent);
             }
+
             @Override
             public void onError(@NotNull RequestError error) {
                 Log.d(TAG, "couldnt update price");
@@ -416,7 +414,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onFuelConsumptionClicked() {
-        if (this.mCar.getScanner()==null || this.mCar.getScannerId().equalsIgnoreCase(""))
+        if (this.mCar.getScanner() == null || this.mCar.getScannerId().equalsIgnoreCase(""))
             getView().showBuyDeviceDialog();
         else
             getView().showFuelConsumptionExplanationDialog();
@@ -424,8 +422,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void getFuelConsumed(String scannerId) {
 
-        if (scannerId == null || scannerId.equals("")){
-            if (getView() ==null) return;
+        if (scannerId == null || scannerId.equals("")) {
+            if (getView() == null) return;
             getView().showFuelConsumed(0.0);
             return;
         }
@@ -444,24 +442,22 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onFuelExpensesClicked() {
-        if (updating)return;
+        if (updating) return;
         if (getView() == null) return;
-        if (mCar.getScannerId()==null){
+        if (mCar.getScannerId() == null) {
             getView().showBuyDeviceDialog();
-        }
-        else {
+        } else {
             getView().showFuelExpensesDialog();
         }
     }
 
     public void onTotalAlarmsClicked() {
-        Log.d(TAG,"onTotalAlarmsClicked()");
-        if (updating)return;
+        Log.d(TAG, "onTotalAlarmsClicked()");
+        if (updating) return;
         if (getView() == null) return;
-        if (carHasScanner){
+        if (carHasScanner) {
             getView().openAlarmsActivity();
-        }
-        else {
+        } else {
             getView().showBuyDeviceDialog();
         }
     }
@@ -476,7 +472,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     @Override
     public void onAlarmAdded(Alarm alarm) {
         numAlarms++;
-        if (getView()!= null)
+        if (getView() != null)
             getView().showBadges(numAlarms);
 
     }
@@ -489,7 +485,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onMyTripsButtonClicked() {
-        Log.d(TAG,"onMyTripsButtonClicked()");
+        Log.d(TAG, "onMyTripsButtonClicked()");
         if (getView() != null)
             getView().startMyTripsActivity();
     }
@@ -500,11 +496,59 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onPairScannerConfirmClicked(String s) {
-        if (s.length()!=6){
-            getView().toast("Make sure you only enter the last 6 digits");
+        Log.d(TAG, "showUpdateScannerConfirmClicked()");
+        Log.d(TAG, "new scanner id should be : " + s);
+        String scannerID = s.contains("b") ? s.replace("b", "B") : s;
+        if (updating) return;
+        updating = true;
+        boolean carHasScanner = getCar().getScannerId() != null && !getCar().getScannerId().equalsIgnoreCase("");
+        getView().showLoadingDialog("Updating Device ID");
+        useCaseComponent.getAddScannerUseCase().execute(carHasScanner, getCar().getScannerId(), getCar().getId(), scannerID, new AddScannerUseCase.Callback() {
+            @Override
+            public void onDeviceAlreadyActive() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoadingDialog();
+                getView().showScannerAlreadyActiveDialog();
+            }
+
+            @Override
+            public void onScannerCreated() {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoadingDialog();
+                getCar().setScannerId(scannerID);
+                getView().showScannerID(scannerID);
+                getView().toast("Scanner ID successfully updated");
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                updating = false;
+                if (getView() == null) return;
+                getView().hideLoadingDialog();
+                getView().displayUnknownErrorDialog();
+            }
+        });
+
+    }
+    public void onUpdateScannerClicked(String s) {
+        Log.d(TAG, "onUpdateScannerClicked");
+        if (s.length() != 10) {
+            getView().toast("Invalid device ID");
+            return;
         }
-        else {
-            getView().toast("Bout to make your scanner to 215B" + s );
+        if (!(s.substring(0, 4).equalsIgnoreCase("215B"))) {
+            getView().toast("Invalid device ID");
+            return;
         }
+        try {
+            int k = Integer.parseInt(s.substring(4));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            getView().toast("Invalid device ID");
+            return;
+        }
+        getView().showConfirmUpdateScannerDialog(s);
     }
 }
