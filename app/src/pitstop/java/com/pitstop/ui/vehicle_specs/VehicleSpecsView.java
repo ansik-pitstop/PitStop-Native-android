@@ -59,4 +59,10 @@ public interface VehicleSpecsView {
     void startAddCarActivity();
 
     void showPairScannerDialog();
+
+    void showScannerAlreadyActiveDialog();
+
+    void showScannerID(String s);
+
+    void showConfirmUpdateScannerDialog(String s);
 }

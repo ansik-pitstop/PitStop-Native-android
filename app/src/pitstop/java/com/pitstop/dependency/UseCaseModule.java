@@ -16,6 +16,8 @@ import com.pitstop.interactors.add.AddDtcUseCase;
 import com.pitstop.interactors.add.AddDtcUseCaseImpl;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
+import com.pitstop.interactors.add.AddScannerUseCase;
+import com.pitstop.interactors.add.AddScannerUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
 import com.pitstop.interactors.add.AddServiceUseCaseImpl;
 import com.pitstop.interactors.add.AddServicesUseCase;
@@ -652,6 +654,13 @@ public class UseCaseModule {
                                                                      @Named("mainHandler")Handler mainHandler,NetworkHelper networkHelper,
                                                                      LocalFuelConsumptionStorage localFuelConsumptionStorage){
         return new GetFuelConsumedAndPriceUseCaseImpl(useCaseHandler, mainHandler, networkHelper, localFuelConsumptionStorage);
+    }
+
+    @Provides
+    AddScannerUseCase getAddScannerUseCase(@Named("useCaseHandler")Handler useCaseHandler,
+                                           @Named("mainHandler")Handler mainHandler, ScannerRepository scannerRepository){
+
+        return new AddScannerUseCaseImpl(useCaseHandler, mainHandler, scannerRepository);
     }
 }
 
