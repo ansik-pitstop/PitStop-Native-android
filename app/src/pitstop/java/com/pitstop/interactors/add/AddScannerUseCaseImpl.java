@@ -74,40 +74,56 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
             });
         } else {
             Log.d(TAG, "car has scanner");
-            ObdScanner oldCarScanner = new ObdScanner(this.carId, oldScannerId);
-            oldCarScanner.setStatus(false); //Set to inactive
-            scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
+            scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
                 @Override
-                public void onSuccess(Object data) {
-                    //Scanner set to inactive, now add the new one
-                    addScanner(obdScanner, new Callback() {
-                        @Override
-                        public void onDeviceAlreadyActive() {
-                            //Another user has this scanner
-                            Log.d(TAG, "Adding scanner that is already active, onDeviceAlreadyActive()");
-                            AddScannerUseCaseImpl.this.onDeviceAlreadyActive();
-                        }
+                public void onSuccess(ObdScanner data) {
+                    if (data == null || !data.getStatus()){
+                        // asssume that scanner doesnt exist if response is null
+                        ObdScanner oldCarScanner = new ObdScanner(carId, oldScannerId);
+                        oldCarScanner.setStatus(false); //Set to inactive
+                        scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object data) {
+                                //Scanner set to inactive, now add the new one
+                                addScanner(obdScanner, new Callback() {
+                                    @Override
+                                    public void onDeviceAlreadyActive() {
+                                        //this shouldnt happen since we check if that scanner id is active first
+                                        // most likely means that the resposne was null
+                                        Log.d(TAG, "Adding scanner that is already active, onDeviceAlreadyActive()");
+                                        AddScannerUseCaseImpl.this.onDeviceAlreadyActive();
+                                    }
 
-                        @Override
-                        public void onScannerCreated() {
-                            Log.d(TAG, "Overwrote scanner id, onSuccess()");
-                            AddScannerUseCaseImpl.this.onSuccess();
-                        }
+                                    @Override
+                                    public void onScannerCreated() {
+                                        Log.d(TAG, "Overwrote scanner id, onSuccess()");
+                                        AddScannerUseCaseImpl.this.onSuccess();
+                                    }
 
-                        @Override
-                        public void onError(RequestError error) {
-                            AddScannerUseCaseImpl.this.onError(error);
-                        }
-                    });
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        AddScannerUseCaseImpl.this.onError(error);
+                                    }
+                                });
 
+                            }
+                            @Override
+                            public void onError(RequestError error) {
+                                AddScannerUseCaseImpl.this.onError(error);
+                            }
+                        });
+
+                    }
+                    else{
+                        // device is active already
+                        AddScannerUseCaseImpl.this.callback.onDeviceAlreadyActive();
+                    }
                 }
-
                 @Override
                 public void onError(RequestError error) {
-                    AddScannerUseCaseImpl.this.onError(error);
+                   AddScannerUseCaseImpl.this.callback.onError(error);
                 }
             });
-
         }
     }
 
