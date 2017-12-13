@@ -76,6 +76,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog fuelExpensesAlertDialog;
     private AlertDialog licensePlateDialog;
     private AlertDialog updateMileageDialog;
+    private AlertDialog pairScannerAlertDialog;
     private AlertDialog deleteCarAlertDialog;
     private AlertDialog changeDealershipAlertDialog;
     private VehicleSpecsPresenter presenter;
@@ -970,5 +971,28 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         bundle.putBoolean("isMercedes", false);
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    @Override
+    public void showPairScannerDialog() {
+        Log.d(TAG, "showBuyDeviceDialog()");
+        if (pairScannerAlertDialog == null){
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.dialog_input_scanner_id, null);
+            final TextInputEditText textInputEditText = (TextInputEditText)dialogLayout
+                    .findViewById(R.id.scanner_input);
+            textInputEditText.setHint("Enter the last six digits found on your Pitstop Device");
+            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle("Pair Scanner")
+                    .setView(dialogLayout)
+                    .setPositiveButton("Confirm", (dialog, which)
+                            -> presenter.onPairScannerConfirmClicked(
+                            textInputEditText.getText().toString()))
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        pairScannerAlertDialog.show();
+
     }
 }

@@ -165,14 +165,16 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void onScannerViewClicked() {
         Log.d(TAG, "onScannerVIewCLicked()");
-        if (this.mCar.getScannerId() == null && getView()!= null)
-            getView().showBuyDeviceDialog();
-
+        if (getView() == null) return;
+        if (this.mCar.getScannerId() == null)
+            getView().showPairScannerDialog();
+        else {
+            // do nothing
+        }
     }
 
     public void onUpdateNeeded() {
         Log.d(TAG, "onUdateNeeded()");
-        Log.d(TAG, "getCurrentCar()");
         if (getView() == null|| updating)return;
         updating = true;
         getView().showLoading();
@@ -495,5 +497,14 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     public void onAddCarClicked() {
         Log.d(TAG, "onAddCarClicked()");
         getView().startAddCarActivity();
+    }
+
+    public void onPairScannerConfirmClicked(String s) {
+        if (s.length()!=6){
+            getView().toast("Make sure you only enter the last 6 digits");
+        }
+        else {
+            getView().toast("Bout to make your scanner to 215B" + s );
+        }
     }
 }

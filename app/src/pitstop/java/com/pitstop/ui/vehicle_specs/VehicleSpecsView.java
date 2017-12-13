@@ -58,4 +58,5 @@ public interface VehicleSpecsView {
 
     void startAddCarActivity();
 
+    void showPairScannerDialog();
 }
