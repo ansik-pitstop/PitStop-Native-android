@@ -496,6 +496,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onPairScannerConfirmClicked(String s) {
+        Log.d(TAG, "new new scanner id" + s);
         Log.d(TAG, "showUpdateScannerConfirmClicked()");
         Log.d(TAG, "new scanner id should be : " + s);
         String scannerID = s.contains("b") ? s.replace("b", "B") : s;
@@ -533,6 +534,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     }
     public void onUpdateScannerClicked(String s) {
+        Log.d(TAG, "new new scanner id" + s);
         Log.d(TAG, "onUpdateScannerClicked");
         if (s.length() != 10) {
             getView().toast("Invalid device ID");

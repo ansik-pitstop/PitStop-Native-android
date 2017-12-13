@@ -983,29 +983,36 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showConfirmUpdateScannerDialog(String s) {
-        Log.d(TAG, "showConfirmUpdateScannerDialog()");
-        if (confirmScannerUpdateDialog == null) {
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.buy_device_dialog, null);
-            confirmScannerUpdateDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Device Update")
-                    .setView(dialogLayout)
-                    .setMessage("Are you sure you want to pair this device with this car?")
-                    .setNegativeButton(getString(R.string.no_button_text), (dialog, which)
-                            -> dialog.cancel())
-                    .setPositiveButton(getString(R.string.yes_button_text), ((dialogInterface, i)
-                            -> presenter.onPairScannerConfirmClicked(s)))
-                    .create();
-        }
-        confirmScannerUpdateDialog.show();
 
+        // DO NOT DO LAMBDA EXPRESSIONS OR ONE TIME INITIALIZATION IN THIS BECAUSE THAT LEAVES THE
+        //SCANNER ID AS FINAL AND DOESNT UPDATE CORRECTLY
+        Log.d(TAG, "showConfirmUpdateScannerDialog()");
+        View dialogLayout = LayoutInflater.from(
+                getActivity()).inflate(R.layout.buy_device_dialog, null);
+        confirmScannerUpdateDialog = new AnimatedDialogBuilder(getActivity())
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setTitle("Device Update")
+                .setView(dialogLayout)
+                .setMessage("Are you sure you want to pair this device with this car?")
+                .setNegativeButton(getString(R.string.no_button_text), (dialog, which)
+                        -> dialog.cancel())
+                .setPositiveButton(getString(R.string.yes_button_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        presenter.onPairScannerConfirmClicked(s);
+                    }
+                })
+                .create();
+
+        confirmScannerUpdateDialog.show();
 
     }
 
 
     @Override
     public void showPairScannerDialog() {
+        // DO NOT DO LAMBDA EXPRESSIONS OR ONE TIME INITIALIZATION IN THIS BECAUSE THAT LEAVES THE
+        //SCANNER ID AS FINAL AND DOESNT UPDATE CORRECTLY
         Log.d(TAG, "showPairScannerDialog()");
         View dialogLayout = LayoutInflater.from(
                 getActivity()).inflate(R.layout.dialog_input_scanner_id, null);
@@ -1019,6 +1026,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                 .setPositiveButton("Update Scanner", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "new new scanner id " + textInputEditText.getText().toString());
                         presenter.onUpdateScannerClicked(textInputEditText.getText().toString());
                     }
                 })
