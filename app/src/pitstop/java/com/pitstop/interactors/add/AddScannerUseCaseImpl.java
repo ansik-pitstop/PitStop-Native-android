@@ -77,8 +77,6 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
                 @Override
                 public void onSuccess(ObdScanner data) {
                     if (data == null || !data.getStatus()){
-                        Log.d(TAG, "got Scanner: name " + data.getDeviceName() + " status "  + Boolean.toString(data.getStatus()));
-                        // asssume that scanner doesnt exist if response is null
                         ObdScanner oldCarScanner = new ObdScanner(carId, oldScannerId);
                         oldCarScanner.setStatus(false); //Set to inactive
                         scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
