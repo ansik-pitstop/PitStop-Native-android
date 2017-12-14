@@ -506,6 +506,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             @Override
             public void onDeviceAlreadyActive() {
                 updating = false;
+                EventBus.getDefault().post(new CarDataChangedEvent(
+                        new EventTypeImpl(EventType.EVENT_SCANNER), EVENT_SOURCE));
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
                 getView().showScannerAlreadyActiveDialog();
@@ -513,6 +515,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
             @Override
             public void onScannerCreated() {
+
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
