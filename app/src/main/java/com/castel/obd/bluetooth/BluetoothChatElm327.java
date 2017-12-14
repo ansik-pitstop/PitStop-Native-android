@@ -49,7 +49,7 @@ public class BluetoothChatElm327 {
     }
 
     public boolean isConnected(){
-        return connectedThread != null;
+        return connectedThread != null && connectedThread.isAlive();
     }
 
     public synchronized void connectBluetooth(BluetoothDevice device) {
@@ -113,6 +113,7 @@ public class BluetoothChatElm327 {
 
                     } catch (IOException e2) {
                         e2.printStackTrace();
+                        mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
                         Log.i(TAG, "fallback connection didnt work, failed to connect");
                     }
                 }
@@ -137,6 +138,12 @@ public class BluetoothChatElm327 {
         private OutputStream mmOutStream;
         private ObdCommand obdCommand = new EchoOffCommand();
         private ReadResponseThread responseThread;
+
+        /* The fallback thread is used because of a known android bug where the first socket fails
+        ** when the exception is caught you connect to the device again.
+        **SEE:  https://stackoverflow.com/questions/18657427/ioexception-read-failed-socket-might-closed-bluetooth-on-android-4-3/18786701#18786701
+         */
+
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.i(TAG, "Creating connected thread");
