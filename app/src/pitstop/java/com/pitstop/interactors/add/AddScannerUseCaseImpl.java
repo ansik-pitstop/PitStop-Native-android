@@ -36,14 +36,13 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
     }
 
     @Override
-    public void execute(boolean carHasScanner, String oldScannerID, int carId, String scannerID, Callback callback) {
+    public void execute(boolean carHasScanner, String oldScannerID, int carId, String newScannerID, Callback callback) {
         this.carId = carId;
-        this.scannerId = scannerID;
+        this.scannerId = newScannerID;
         this.callback = callback;
         this.carHasScanner = carHasScanner;
         this.oldScannerId = oldScannerID;
         this.useCaseHandler.post(this);
-
 
     }
 
@@ -78,6 +77,7 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
                 @Override
                 public void onSuccess(ObdScanner data) {
                     if (data == null || !data.getStatus()){
+                        Log.d(TAG, "got Scanner: name " + data.getDeviceName() + " status "  + Boolean.toString(data.getStatus()));
                         // asssume that scanner doesnt exist if response is null
                         ObdScanner oldCarScanner = new ObdScanner(carId, oldScannerId);
                         oldCarScanner.setStatus(false); //Set to inactive
@@ -158,8 +158,6 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
                     callback.onDeviceAlreadyActive();
                     return;
                 }
-
-
                 //Create scanner otherwise
                 obdScanner.setStatus(true);
                 scannerRepository.createScanner(obdScanner, new Repository.Callback() {

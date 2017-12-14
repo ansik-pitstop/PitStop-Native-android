@@ -14,55 +14,33 @@ public interface VehicleSpecsView {
     void showImage(String s);
     void showLoading();
     void hideLoading();
-
     void showLoadingDialog(String message);
     void hideLoadingDialog();
     void setCarView(Car car);
-
     void showBuyDeviceDialog();
     void showNoCarView();
     void showOfflineErrorView();
     void showUnknownErrorView();
     void displayUpdateMileageError();
-
     void displayMileage(double mileage);
     void displayUnknownErrorDialog();
-
     void displayOfflineErrorDialog();
     boolean hasBeenPopulated();
-
-
-
     void showNormalLayout();
-
     void showFuelConsumptionExplanationDialog();
-
     void showFuelConsumed(double fuelConsumed);
-
     void showFuelExpensesDialog();
-
     void showFuelExpense(float v);
-
     String getLastKnowLocation();
     void displayDefaultDealershipVisuals(Dealership dealership);
-
     void displayCarDetails(Car car);
-
     void openAlarmsActivity();
-
     void hideBadge();
-
     void showBadges(int alarmCount);
-
     void startMyTripsActivity();
-
     void startAddCarActivity();
-
     void showPairScannerDialog();
-
     void showScannerAlreadyActiveDialog();
-
     void showScannerID(String s);
-
     void showConfirmUpdateScannerDialog(String s);
 }

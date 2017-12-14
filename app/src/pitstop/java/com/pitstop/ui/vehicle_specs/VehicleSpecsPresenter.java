@@ -496,15 +496,13 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onPairScannerConfirmClicked(String s) {
-        Log.d(TAG, "new new scanner id" + s);
-        Log.d(TAG, "showUpdateScannerConfirmClicked()");
-        Log.d(TAG, "new scanner id should be : " + s);
-        String scannerID = s.contains("b") ? s.replace("b", "B") : s;
+        Log.d(TAG, "onPairScannerConfirmClicked()");
+        String newScannerID = s.contains("b") ? s.replace("b", "B") : s;
         if (updating) return;
         updating = true;
         boolean carHasScanner = getCar().getScannerId() != null && !getCar().getScannerId().equalsIgnoreCase("");
         getView().showLoadingDialog("Updating Device ID");
-        useCaseComponent.getAddScannerUseCase().execute(carHasScanner, getCar().getScannerId(), getCar().getId(), scannerID, new AddScannerUseCase.Callback() {
+        useCaseComponent.getAddScannerUseCase().execute(carHasScanner, getCar().getScannerId(), getCar().getId(), newScannerID, new AddScannerUseCase.Callback() {
             @Override
             public void onDeviceAlreadyActive() {
                 updating = false;
@@ -518,8 +516,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                getCar().setScannerId(scannerID);
-                getView().showScannerID(scannerID);
+                getCar().setScannerId(newScannerID);
+                getView().showScannerID(newScannerID);
                 getView().toast("Scanner ID successfully updated");
             }
 
