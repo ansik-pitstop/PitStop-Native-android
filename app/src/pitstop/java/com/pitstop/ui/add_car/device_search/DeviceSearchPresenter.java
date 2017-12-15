@@ -37,7 +37,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private boolean connectingToDevice = false;
 
     //Try to get VIN 2 times, every 6 seconds
-    private final int GET_VIN_RETRY_TIME = 6;
+    private final int GET_VIN_RETRY_TIME = 20;
     private final int GET_VIN_RETRY_AMOUNT = 1;
     private final TimeoutTimer getVinTimer = new TimeoutTimer(GET_VIN_RETRY_TIME
             , GET_VIN_RETRY_AMOUNT) {

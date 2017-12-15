@@ -118,9 +118,9 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                     btConnectionState = CONNECTED;
                     ELM327.setManagerState(btConnectionState);
                     // set up the device
-                    /*writeData(new EchoOffCommand());
+                    writeData(new EchoOffCommand());
                     writeData(new LineFeedOffCommand());
-                    writeData(new TimeoutCommand(125));*/
+                    writeData(new TimeoutCommand(125));
                     writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
                     break;
                 }
@@ -141,9 +141,9 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                     break;
                 }
                 case BLUETOOTH_READ_DATA: {
-                    if (msg.obj != null && ((String) msg.obj).length() > 0) {
-                        Log.v(TAG, "Bluetooth read data... - ELM 327 " + (String)msg.obj);
-                        ELM327.parseData((String)msg.obj);
+                    if (msg.obj != null && msg.obj instanceof ObdCommand) {
+                        Log.v(TAG, "Bluetooth read data- ELM 327 ");
+                        ELM327.parseData((ObdCommand)msg.obj);
                     }
                     break;
                 }

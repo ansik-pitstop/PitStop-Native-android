@@ -12,9 +12,12 @@ import com.github.pires.obd.commands.ObdCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.exceptions.NoDataException;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -29,7 +32,10 @@ public class BluetoothChatElm327 {
     public Handler mHandler;
 
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    public BluetoothChatElm327(Handler handler){this.mHandler = handler;}
+
+    public BluetoothChatElm327(Handler handler) {
+        this.mHandler = handler;
+    }
 
     public void closeConnect() {
         Log.w(TAG, "Closing connection threads");
@@ -44,74 +50,69 @@ public class BluetoothChatElm327 {
     }
 
 
-    public boolean isConnecting(){
+    public boolean isConnecting() {
         return connectThread != null && connectThread.isAlive();
     }
 
-    public boolean isConnected(){
-        return connectedThread != null && connectedThread.isAlive();
+    public boolean isConnected() {
+        return connectedThread != null;
     }
 
     public synchronized void connectBluetooth(BluetoothDevice device) {
         Log.d(TAG, "ConnectBluetooth: " + device.getName());
-        if (isConnecting()){
+        if (isConnecting()) {
             Log.d(TAG, "already Connecting");
             return;
         }
         connectThread = new ConnectThread(device);
-        connectThread.start();
+        mHandler.post(connectThread);
     }
 
 
     private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
+        private BluetoothSocket mmSocket;
         private BluetoothDevice mmDevice;
 
         @SuppressLint("NewApi")
         public ConnectThread(BluetoothDevice device) {
-            BluetoothSocket temp = null;
-            mmDevice = device;
-            try {
 
-                temp = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            mmSocket = temp;
+            mmDevice = device;
 
         }
 
         @Override
         public void run() {
-            Log.i(TAG, "Creating connect thread");
+            mHandler.sendEmptyMessage(IBluetoothCommunicator.CANCEL_DISCOVERY);
             try {
-                if(mmSocket!=null) {
-                    Log.i(TAG, "Connecting to socket");
-                    if(!mmSocket.isConnected()) {
-                        mmSocket.connect();
-                    }
+                mmSocket = mmDevice.createRfcommSocketToServiceRecord(MY_UUID);
+                mmSocket.connect();
+                mHandler.sendMessage(mHandler.obtainMessage(
+                        IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
+                        mmDevice.getAddress()));
 
-                    mHandler.sendMessage(mHandler.obtainMessage(
-                            IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
-                            mmDevice.getAddress()));
+                connectedThread = new ConnectedThread(mmSocket);
+                connectedThread.start();
 
-                    connectedThread = new ConnectedThread(mmSocket);
-                    connectedThread.start();
-                }
-
-            } catch (IOException connectException) {
-                connectException.printStackTrace();
-                if(mmSocket.isConnected()) {
-                    Log.e(TAG, "Already connected to socket");
-                } else {
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                Log.d(TAG, "tryingFallbacksocket");
+                if (mmSocket.isConnected()) {
+                    Log.d(TAG, "already connected");
+                }else {
+                    Class<?> clazz = mmSocket.getRemoteDevice().getClass();
+                    Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
                     try {
                         Log.i(TAG, "trying fallback connection");
-                        BluetoothSocket temp2 = mmDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-                        temp2.connect();
-                        connectedThread = new ConnectedThread(mmSocket);
-                        connectedThread.start();
-
-                    } catch (IOException e2) {
+                        Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+                        Object[] params = new Object[]{Integer.valueOf(1)};
+                        BluetoothSocket sockFallback = (BluetoothSocket) m.invoke(mmSocket.getRemoteDevice(), params);
+                        sockFallback.connect();
+                        mHandler.sendMessage(mHandler.obtainMessage(
+                                IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
+                                mmDevice.getAddress()));
+                        connectedThread = new ConnectedThread(sockFallback);
+                        mHandler.post(connectedThread);
+                    } catch (Exception e2) {
                         e2.printStackTrace();
                         mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
                         Log.i(TAG, "fallback connection didnt work, failed to connect");
@@ -164,7 +165,7 @@ public class BluetoothChatElm327 {
             responseThread.setCommand(obdCommand);
         }
 
-        public synchronized void SendCommand(ObdCommand obdCommand){
+        public synchronized void SendCommand(ObdCommand obdCommand) {
             Log.d(TAG, "sendCommand: " + obdCommand.getName());
             this.obdCommand = obdCommand;
             responseThread.setCommand(obdCommand);
@@ -183,7 +184,7 @@ public class BluetoothChatElm327 {
             } else {
                 try {
                     obdCommand.run(mmInStream, mmOutStream);
-                    mHandler.postDelayed(responseThread, 500);
+                    mHandler.postDelayed(responseThread, 1000);
                 } catch (Exception e) {
                     e.printStackTrace();
                     if (e instanceof NoDataException) {
@@ -199,15 +200,15 @@ public class BluetoothChatElm327 {
         }
 
 
-
-        public class ReadResponseThread extends  Thread{
+        public class ReadResponseThread extends Thread {
             private ObdCommand obdCommand;
-            public void setCommand(ObdCommand cmd){
-                Log.d(TAG, "response thread set command " + cmd.getName());
 
+            public void setCommand(ObdCommand cmd) {
+                Log.d(TAG, "response thread set command " + cmd.getName());
                 this.obdCommand = cmd;
             }
-            public ReadResponseThread(){
+
+            public ReadResponseThread() {
                 Log.d(TAG, "response thread created");
                 this.obdCommand = obdCommand;
 
@@ -216,7 +217,9 @@ public class BluetoothChatElm327 {
             @Override
             public void run() {
                 Log.d(TAG, "ResponseThreadRun");
-                mHandler.sendMessage(mHandler.obtainMessage(IBluetoothCommunicator.BLUETOOTH_READ_DATA, obdCommand.getFormattedResult()));
+                Log.d(TAG, "obd command: " + this.obdCommand.getName() + " value: " + obdCommand.getFormattedResult());
+                mHandler.sendMessage(mHandler.obtainMessage(IBluetoothCommunicator.BLUETOOTH_READ_DATA, obdCommand));
+
             }
         }
 
@@ -231,7 +234,7 @@ public class BluetoothChatElm327 {
                     mmInStream.close();
                     mmInStream = null;
                 }
-                if ( mmSocket != null) {
+                if (mmSocket != null) {
                     mmSocket.close();
                     mmSocket = null;
                 }

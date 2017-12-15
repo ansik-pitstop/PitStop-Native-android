@@ -380,9 +380,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 break;
             case IBluetoothCommunicator.DISCONNECTED:
                 Log.d(TAG,"getBluetoothState() state: disconnected");
-
                 //Only notify that device disonnected if a verified connection was established previously
-                if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
+                if ((deviceIsVerified && !ignoreVerification) || !deviceManager.moreDevicesLeft()){
                     setConnectionState(State.DISCONNECTED);
                     notifyDeviceDisconnected();
                     resetConnectionVars();
