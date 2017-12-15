@@ -15,7 +15,8 @@ public class EventTypeImpl implements EventType {
                 && !eventType.equals(EventType.EVENT_SERVICES_HISTORY)
                 && !eventType.equals(EventType.EVENT_SERVICES_NEW)
                 && !eventType.equals(EventType.EVENT_CAR_DEALERSHIP)
-                && !eventType.equals(EventType.EVENT_DTC_NEW)){
+                && !eventType.equals(EventType.EVENT_DTC_NEW)
+                && !eventType.equals(EventType.EVENT_SCANNER)){
 
             throw new IllegalArgumentException();
         }
