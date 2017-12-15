@@ -10,14 +10,21 @@ import com.castel.obd.bluetooth.BluetoothChatElm327;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
+import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.control.TroubleCodesCommand;
 import com.github.pires.obd.commands.control.VinCommand;
+import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
+import com.github.pires.obd.commands.protocol.ResetTroubleCodesCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
+import com.github.pires.obd.enums.AvailableCommandNames;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.pitstop.bluetooth.BluetoothCommunicatorELM327;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
@@ -29,6 +36,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -139,16 +149,42 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void requestSnapshot() {
+        // make sure you change this
+        Log.d(TAG, "getVin()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
+
+
 
     }
 
     @Override
     public void clearDtcs() {
+        Log.d(TAG, "getVin()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new ResetTroubleCodesCommand());
+
 
     }
 
     @Override
     public void getDtcs() {
+        Log.d(TAG, "getVin()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand());
+
 
     }
 
@@ -159,6 +195,14 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void getFreezeFrame() {
+        // make sure you change this
+        Log.d(TAG, "getVin()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
 
     }
 
@@ -219,6 +263,12 @@ public class ELM327Device implements AbstractDevice {
 
 
     private void setUpDevice(){
+        Log.d(TAG, "getVin()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
         ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
         ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
         ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
@@ -228,11 +278,35 @@ public class ELM327Device implements AbstractDevice {
     }
 
 
-    public void parseData(String obj) {
-        Log.w(TAG, "I am Parsing Data " + obj);
-        if (obj.length() == 17){
-            manager.onGotVin(obj);
+    public void parseData(ObdCommand obdCommand) {
+        Log.w(TAG, "Got obd Result for command: " + obdCommand.getFormattedResult()) ;
+        if( obdCommand.getName().equalsIgnoreCase(AvailableCommandNames.VIN.getValue()))
+            manager.onGotVin(obdCommand.getFormattedResult());
+        else if(obdCommand.getName().equalsIgnoreCase(AvailableCommandNames.TROUBLE_CODES.getValue())){
+            String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
+            DtcPackage dtcPackage = new DtcPackage();
+            dtcPackage.deviceId = "Carista";
+            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+            dtcPackage.dtcs = new HashMap<>();
+            for (int i = 0; i<dtcsFromDevice.length; i++){
+                dtcPackage.dtcs.put(dtcsFromDevice[i], true);
+            }
+            manager.gotDtcData(dtcPackage);
         }
+
+        if (obdCommand instanceof RPMCommand){
+            PidPackage pidPackage = new PidPackage();
+            pidPackage.deviceId = "Carista";
+            pidPackage.tripId = "tripID";
+            pidPackage.tripMileage = "tripMileage";
+            pidPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+            pidPackage.timestamp = "timestamp";
+            pidPackage.realTime = true;
+            pidPackage.pids = new HashMap<>();
+            pidPackage.pids.put("210C", obdCommand.getCalculatedResult());
+            manager.gotPidPackage(pidPackage);
+        }
+
 
     }
 }

@@ -21,6 +21,8 @@ import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -71,10 +73,19 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         dataListener.handleVinData(VIN);
     }
 
+    public void gotDtcData(DtcPackage dtcPackage) {
+        Log.d(TAG, "gotDtcData");
+        dataListener.dtcData(dtcPackage);
+    }
+
+    public void gotPidPackage(PidPackage pidPackage) {
+        Log.d(TAG, "pidData: " + pidPackage.toString());
+        dataListener.idrPidData(pidPackage);
+    }
+
     public enum CommType {
         CLASSIC, LE
     }
-
 
     public BluetoothDeviceManager(Context context) {
 
@@ -432,12 +443,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
             //Found device
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
-
                 Log.d(TAG, "name: "+device.getName() + ", address: " + device.getAddress()+" RSSI: "+rssi);
-
                 //Store all devices in a map
                 if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) || device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE))
                         && !foundDevices.containsKey(device)){
@@ -450,7 +458,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             }
             //Finished scanning
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-
                 discoveryWasStarted = false;
                 discoveryNum++;
                 Logger.getInstance().logI(TAG,"Discovery finished", DebugMessage.TYPE_BLUETOOTH);

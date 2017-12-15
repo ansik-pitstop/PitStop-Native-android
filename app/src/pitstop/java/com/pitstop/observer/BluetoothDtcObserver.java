@@ -10,5 +10,6 @@ public interface BluetoothDtcObserver extends Observer {
 
     //DTC data retrieved from the device that is currently being used
     void onGotDtc(DtcPackage dtc);
+
     void onErrorGettingDtc();
 }
