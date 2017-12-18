@@ -272,6 +272,7 @@ public class ReportRepository implements Repository {
                 , (response, requestError) -> {
 
                     if (requestError == null){
+                        Log.d(TAG, "VHR RESPONSE: " + response);
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
                         if (vehicleHealthReport == null){
                             Log.d(TAG,"Error parsing response.");
@@ -344,7 +345,7 @@ public class ReportRepository implements Repository {
 
     private VehicleHealthReport vhrContentToJson(JSONObject vhrResponse){
         try{
-            int id = vhrResponse.getInt("id");
+            int id = vhrResponse.getInt("_id");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .parse(vhrResponse.getString("createdAt"));
             JSONObject healthReportContentJson = vhrResponse.getJSONObject("content");

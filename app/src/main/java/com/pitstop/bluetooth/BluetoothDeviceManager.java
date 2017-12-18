@@ -80,7 +80,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void gotPidPackage(PidPackage pidPackage) {
         Log.d(TAG, "pidData: " + pidPackage.toString());
-        dataListener.idrPidData(pidPackage);
+        dataListener.pidData(pidPackage);
+    }
+
+    public void onGotRtc(long l) {
+
+        dataListener.onGotRtc(l);
     }
 
     public enum CommType {
@@ -371,7 +376,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 });
     }
 
-    public void connectToCaristaDevice(BluetoothDevice device){
+    private void connectToELMDevice(BluetoothDevice device){
         Log.d(TAG,"connectToELM327Device() device: "+device.getName());
         deviceInterface = new ELM327Device( mContext, this);
         deviceInterface.connectToDevice(device);
@@ -424,11 +429,15 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
         }
-        else if (strongestRssiDevice.getName().contains(ObdManager.CARISTA_DEVICE)){
+        else if (strongestRssiDevice.getName().contains(ObdManager.CARISTA_DEVICE)||
+                strongestRssiDevice.getName().contains(ObdManager.VIECAR_DEVICE)||
+                strongestRssiDevice.getName().contains(ObdManager.OBDII_DEVICE_NAME)
+                ){
             Log.d(TAG, "CaristaDevice> RSSI_Threshold, device: " + strongestRssiDevice);
             foundDevices.remove(strongestRssiDevice);
-            connectToCaristaDevice(strongestRssiDevice);
+            connectToELMDevice(strongestRssiDevice);
         }
+
         return true;
     }
 
@@ -447,7 +456,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                 Log.d(TAG, "name: "+device.getName() + ", address: " + device.getAddress()+" RSSI: "+rssi);
                 //Store all devices in a map
-                if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) || device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE))
+                if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) ||
+                        device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE)
+                        ||device.getName().equalsIgnoreCase(ObdManager.VIECAR_DEVICE)
+                        || device.getName().equalsIgnoreCase(ObdManager.OBDII_DEVICE_NAME))
                         && !foundDevices.containsKey(device)){
                     foundDevices.put(device,rssi);
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());

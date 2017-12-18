@@ -303,6 +303,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         if (mQueryOtherObservable != null) {
             mQueryOtherObservable.unsubscribeOn(AndroidSchedulers.mainThread());
         }
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
     }
 
     public void setupLogging() {
@@ -421,7 +424,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     @Override
     public void onGotSuportedPIDs(String value) {
         Log.d(TAG, "onGotSupportedPID");
-
+        if (editText!=null)
+            editText.setText(value);
     }
 
     @Override

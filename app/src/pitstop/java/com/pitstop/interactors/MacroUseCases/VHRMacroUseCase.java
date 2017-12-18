@@ -279,6 +279,9 @@ public class VHRMacroUseCase {
                     break;
 
                 case TYPE_GET_PID:
+
+
+
                     if (retrievedPid == null){
                         Logger.getInstance().logE(TAG,"Macro use case: error retrieving pids!"
                                 , DebugMessage.TYPE_USE_CASE);

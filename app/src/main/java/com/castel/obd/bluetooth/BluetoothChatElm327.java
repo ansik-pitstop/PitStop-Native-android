@@ -65,7 +65,7 @@ public class BluetoothChatElm327 {
             return;
         }
         connectThread = new ConnectThread(device);
-        mHandler.post(connectThread);
+        connectThread.start();
     }
 
 
@@ -111,7 +111,7 @@ public class BluetoothChatElm327 {
                                 IBluetoothCommunicator.BLUETOOTH_CONNECT_SUCCESS,
                                 mmDevice.getAddress()));
                         connectedThread = new ConnectedThread(sockFallback);
-                        mHandler.post(connectedThread);
+                        connectedThread.start();
                     } catch (Exception e2) {
                         e2.printStackTrace();
                         mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
