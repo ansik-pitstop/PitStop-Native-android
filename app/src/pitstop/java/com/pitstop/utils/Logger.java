@@ -239,7 +239,7 @@ public class Logger {
                 .level(gelfLevel)
                 .build();
 
-        if (connectivityManager.getActiveNetworkInfo() != null
+        if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
                 && connectivityManager.getActiveNetworkInfo().isConnected()
                 && gelfTransport != null) {
             boolean trySend = gelfTransport.trySend(gelfMessage);
