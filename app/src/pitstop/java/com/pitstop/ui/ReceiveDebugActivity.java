@@ -183,6 +183,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         });
     }
 
+
+    @Override
+    public void onGotRtc(long l) {
+
+    }
+
     @Override
     public void pidData(PidPackage pidPackage) {
 

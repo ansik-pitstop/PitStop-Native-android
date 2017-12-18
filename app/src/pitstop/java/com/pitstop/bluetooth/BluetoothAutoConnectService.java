@@ -101,7 +101,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public static final int PID_RETRY_COUNT = 2;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
-    private final int VERIFICATION_TIMEOUT = 15; //Seconds
+    private final int VERIFICATION_TIMEOUT = 30; //Seconds // is actually 15 (MAKE SURE YOU CHANGE THIS BACK
     private final int PERIOD_TRACK_PID_LEN = 60; //Seconds
     private final int PERIOD_RTC_LEN = 60000; //Milliseconds
     private final int PERIOD_VIN_LEN = 10000; //Milliseconds
@@ -705,6 +705,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Set device id if its found in pid package
         if (pidPackage != null && pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
+            Log.d(TAG, "setting current device ID to " + pidPackage.deviceId);
             currentDeviceId = pidPackage.deviceId;
         }
         pidPackage.deviceId = currentDeviceId;
@@ -712,6 +713,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //212 pid "snapshot" broadcast logic
         if (pidPackage != null && !deviceManager.isConnectedTo215()){
+            Log.d(TAG ,"deviceManager is not connected to 215");
             if (pidPackage.pids == null){
                 pidPackage.pids = new HashMap<>();
                 notifyGotAllPid(pidPackage);
@@ -724,9 +726,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void pidData(PidPackage pidPackage) {
         if (pidPackage == null)return;
+
+        pidTimeoutTimer.cancel();
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
+        pidDataHandler.handlePidData(pidPackage);
     }
 
     @Override
@@ -743,6 +748,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dtcDataHandler.handleDtcData(dtcPackage);
         Log.d(TAG,"requestedDtcs before appending: "+requestedDtcs);
         if (dtcRequested){
+            Log.d(TAG, "setting received DTCs to true");
             appendDtc(dtcPackage);
             receivedDtcResponse = true;
         }
@@ -1126,6 +1132,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    @Override
+    public void onGotRtc(long l) {
+        notifyRtc(l);
+    }
+
     private void notifyRtc(Long rtc) {
         Log.d(TAG,"notifyRtc() rtc: "+rtc);
         if (!rtcTimeRequested) return;
@@ -1156,11 +1167,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyGotAllPid(PidPackage pidPackage){
         Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
-        if (!allPidRequested) return;
+        if (!allPidRequested){{
+            Log.d(TAG, "allPidRequested is false so im not gonna notify got all pid");
+            return;
+        }}
         allPidRequested = false;
-
         pidTimeoutTimer.cancel();
         for (Observer observer: observerList){
+            Log.d(TAG, "notifying that pids were received");
             if (observer instanceof BluetoothPidObserver){
                 mainHandler.post(()
                         -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage));
@@ -1339,4 +1353,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.deviceConnState = deviceConnState;
     }
 
+    @Override
+    public void disconnect() {
+        deviceManager.setState(IBluetoothCommunicator.DISCONNECTED);
+
+    }
 }

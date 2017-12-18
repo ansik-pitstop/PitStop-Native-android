@@ -47,6 +47,7 @@ public class GetPIDUseCaseImpl implements GetPIDUseCase {
     }
 
     private void subscribeAndRequest(BluetoothPidObserver pidObserver){
+        Log.d(TAG, "subscribeAndRequest");
         mainHandler.post(() -> {
             bluetooth.subscribe(pidObserver);
             bluetooth.requestAllPid();

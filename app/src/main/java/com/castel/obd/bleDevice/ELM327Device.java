@@ -124,6 +124,8 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void getRtc() {
+        //ELM devices dont have internal clock or memore so the rtc tome returned should just be current time
+        manager.onGotRtc(System.currentTimeMillis() / 1000);
 
     }
 
@@ -222,7 +224,7 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public void connectToDevice(BluetoothDevice device) {
+    public synchronized void connectToDevice(BluetoothDevice device) {
         Log.d(TAG, "connectToDevice: " + device.getName());
         if (manager.getState() == BluetoothCommunicator.CONNECTING){
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
@@ -295,10 +297,11 @@ public class ELM327Device implements AbstractDevice {
         }
 
         if (obdCommand instanceof RPMCommand){
+            
             PidPackage pidPackage = new PidPackage();
             pidPackage.deviceId = "Carista";
-            pidPackage.tripId = "tripID";
-            pidPackage.tripMileage = "tripMileage";
+            pidPackage.tripId = "1000000000000";
+            pidPackage.tripMileage = "100.00";
             pidPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
             pidPackage.timestamp = "timestamp";
             pidPackage.realTime = true;

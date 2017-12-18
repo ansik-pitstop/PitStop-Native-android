@@ -34,6 +34,8 @@ public class ObdManager {
     public final static String BT_DEVICE_NAME_215 = "IDD-215";
     public final static String BT_DEVICE_NAME = "IDD";
     public final static String CARISTA_DEVICE = "Carista";
+    public static final String VIECAR_DEVICE = "Viecar";
+    public static final String OBDII_DEVICE_NAME = "OBDII";
     public final static String FIXED_UPLOAD_TAG = "1202,1201,1203,1204,1205,1206";
     public final static String RTC_TAG = "1A01";
     public final static String VIN_TAG = "2201";
@@ -334,6 +336,8 @@ public class ObdManager {
         void onDevicesFound();
 
         void handleVinData(String vin);
+
+        void onGotRtc(long l);
     }
 
 

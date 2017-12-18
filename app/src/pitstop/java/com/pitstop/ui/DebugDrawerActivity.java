@@ -303,6 +303,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         if (mQueryOtherObservable != null) {
             mQueryOtherObservable.unsubscribeOn(AndroidSchedulers.mainThread());
         }
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
     }
 
     public void setupLogging() {

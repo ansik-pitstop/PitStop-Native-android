@@ -19,6 +19,8 @@ public interface BluetoothConnectionObservable extends Subject{
             * BluetoothAutoConnectService.DTC_RETRY_LEN
             + BluetoothAutoConnectService.DTC_RETRY_LEN;
 
+    void disconnect();
+
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
         String SEARCHING = "state_searching"; //Searching for bluetooth device
