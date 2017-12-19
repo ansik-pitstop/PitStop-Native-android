@@ -344,7 +344,7 @@ public class ReportRepository implements Repository {
 
     private VehicleHealthReport vhrContentToJson(JSONObject vhrResponse){
         try{
-            int id = vhrResponse.getInt("_id");
+            int id = vhrResponse.getInt("id");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .parse(vhrResponse.getString("createdAt"));
             JSONObject healthReportContentJson = vhrResponse.getJSONObject("content");
