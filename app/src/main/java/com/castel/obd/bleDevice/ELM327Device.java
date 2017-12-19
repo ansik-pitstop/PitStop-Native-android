@@ -11,6 +11,7 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.control.PendingTroubleCodesCommand;
 import com.github.pires.obd.commands.control.TroubleCodesCommand;
 import com.github.pires.obd.commands.control.VinCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
@@ -137,10 +138,13 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void getPids(String pids) {
 
+
     }
 
     @Override
     public void getSupportedPids() {
+
+
 
     }
 
@@ -152,15 +156,13 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void requestSnapshot() {
         // make sure you change this
-        Log.d(TAG, "getVin()");
+        Log.d(TAG, "requestSnapshot()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return;
 
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
-
-
 
     }
 
@@ -179,7 +181,7 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void getDtcs() {
-        Log.d(TAG, "getVin()");
+        Log.d(TAG, "getDtc()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return;
@@ -193,18 +195,21 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void getPendingDtcs() {
 
-    }
-
-    @Override
-    public void getFreezeFrame() {
-        // make sure you change this
-        Log.d(TAG, "getVin()");
+        Log.d(TAG, "getPendingDtc()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
+        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand());
+
+
+    }
+
+    @Override
+    public void getFreezeFrame() {
+        // make sure you change this
+        Log.d(TAG, "getFreezeData()");
 
     }
 
@@ -281,10 +286,10 @@ public class ELM327Device implements AbstractDevice {
 
 
     public void parseData(ObdCommand obdCommand) {
-        Log.w(TAG, "Got obd Result for command: " + obdCommand.getFormattedResult()) ;
-        if( obdCommand.getName().equalsIgnoreCase(AvailableCommandNames.VIN.getValue()))
+        Log.w(TAG, "Got obd Result for command: " + obdCommand.getName() + " : "  + obdCommand.getFormattedResult()) ;
+        if(obdCommand instanceof VinCommand)
             manager.onGotVin(obdCommand.getFormattedResult());
-        else if(obdCommand.getName().equalsIgnoreCase(AvailableCommandNames.TROUBLE_CODES.getValue())){
+        else if(obdCommand instanceof TroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
             DtcPackage dtcPackage = new DtcPackage();
             dtcPackage.deviceId = "Carista";
@@ -296,7 +301,7 @@ public class ELM327Device implements AbstractDevice {
             manager.gotDtcData(dtcPackage);
         }
 
-        if (obdCommand instanceof RPMCommand){
+        else if (obdCommand instanceof RPMCommand){
             
             PidPackage pidPackage = new PidPackage();
             pidPackage.deviceId = "Carista";
@@ -308,6 +313,20 @@ public class ELM327Device implements AbstractDevice {
             pidPackage.pids = new HashMap<>();
             pidPackage.pids.put("210C", obdCommand.getCalculatedResult());
             manager.gotPidPackage(pidPackage);
+            Log.d(TAG, "gotPidPackage " + pidPackage.toString());
+        }
+
+        else if (obdCommand instanceof PendingTroubleCodesCommand){
+            String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
+            DtcPackage dtcPackage = new DtcPackage();
+            dtcPackage.deviceId = "Carista";
+            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+            dtcPackage.dtcs = new HashMap<>();
+            for (int i = 0; i<dtcsFromDevice.length; i++){
+                dtcPackage.dtcs.put(dtcsFromDevice[i], true);
+            }
+            manager.gotDtcData(dtcPackage);
+
         }
 
 

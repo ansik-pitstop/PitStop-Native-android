@@ -97,7 +97,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Timer length values
     public static final int DTC_RETRY_LEN = 3; //Seconds
     public static final int DTC_RETRY_COUNT = 4;
-    public static final int PID_RETRY_LEN = 15; //Seconds
+    public static final int PID_RETRY_LEN = 20;
     public static final int PID_RETRY_COUNT = 0;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
@@ -1173,10 +1173,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyGotAllPid(PidPackage pidPackage){
         Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
-        if (!allPidRequested){{
+        /*if (!allPidRequested){{
             Log.d(TAG, "allPidRequested is false so im not gonna notify got all pid");
             return;
-        }}
+        }}*/
         allPidRequested = false;
         pidTimeoutTimer.cancel();
         for (Observer observer: observerList){

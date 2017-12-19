@@ -57,7 +57,10 @@ public class Logger {
                             && connectivityManager.getActiveNetworkInfo().isConnected()
                             && gelfTransport != null && handler != null) {
                         Log.d(TAG,"Received internet ON, creating new instance of gelf transport");
-                        handler.post(() -> gelfTransport = new GelfTcpTransport(gelfConfiguration));
+                        handler.post(() -> {
+                            gelfTransport.stop();
+                            gelfTransport = new GelfTcpTransport(gelfConfiguration);
+                        });
                     }else{
                         Log.d(TAG,"Received internet OFF");
                     }
@@ -236,7 +239,7 @@ public class Logger {
                 .level(gelfLevel)
                 .build();
 
-        if (connectivityManager.getActiveNetworkInfo() != null
+        if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
                 && connectivityManager.getActiveNetworkInfo().isConnected()
                 && gelfTransport != null) {
             boolean trySend = gelfTransport.trySend(gelfMessage);

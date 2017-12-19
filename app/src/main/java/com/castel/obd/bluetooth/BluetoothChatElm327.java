@@ -166,9 +166,9 @@ public class BluetoothChatElm327 {
         }
 
         public synchronized void SendCommand(ObdCommand obdCommand) {
-            Log.d(TAG, "sendCommand: " + obdCommand.getName());
+            if (obdCommand.getName()!=null)
+                Log.d(TAG, "sendCommand: " + obdCommand.getName());
             this.obdCommand = obdCommand;
-            responseThread.setCommand(obdCommand);
             mHandler.post(this);
         }
 
@@ -184,6 +184,7 @@ public class BluetoothChatElm327 {
             } else {
                 try {
                     obdCommand.run(mmInStream, mmOutStream);
+                    responseThread.setCommand(obdCommand);
                     mHandler.postDelayed(responseThread, 1000);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -215,9 +216,10 @@ public class BluetoothChatElm327 {
             }
 
             @Override
-            public void run() {
+            public synchronized void run() {
                 Log.d(TAG, "ResponseThreadRun");
-                Log.d(TAG, "obd command: " + this.obdCommand.getName() + " value: " + obdCommand.getFormattedResult());
+                if (obdCommand.getName()!=null)
+                    Log.d(TAG, "obd command: " + this.obdCommand.getName() + " value: " + obdCommand.getFormattedResult());
                 mHandler.sendMessage(mHandler.obtainMessage(IBluetoothCommunicator.BLUETOOTH_READ_DATA, obdCommand));
 
             }

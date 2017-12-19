@@ -68,7 +68,9 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
             Log.d(TAG, "not Connected");
             return;
         }
-        Log.d(TAG, obdCommand.getName());
+        if (obdCommand.getName()!=null)
+            // some commands dont have a name or return results as name which is null when being
+            Log.d(TAG, "sending command: " + obdCommand.getName());
         mBluetoothChat.connectedThread.SendCommand(obdCommand);
     }
 
