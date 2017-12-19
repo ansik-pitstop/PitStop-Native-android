@@ -124,6 +124,7 @@ public class VHRMacroUseCase {
             });
         }
         else if(current instanceof GetPIDUseCaseImpl){
+            Log.d(TAG, "current is instance of GETPIDUSECASEIMPL");
             callback.onStartPID();
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override

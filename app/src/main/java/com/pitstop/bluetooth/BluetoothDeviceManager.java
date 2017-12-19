@@ -80,6 +80,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void gotPidPackage(PidPackage pidPackage) {
         Log.d(TAG, "pidData: " + pidPackage.toString());
+        dataListener.idrPidData(pidPackage);
         dataListener.pidData(pidPackage);
     }
 
@@ -578,7 +579,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void clearDtcs(){
         Log.d(TAG, "clearDTCs");
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B ||
+                deviceInterface instanceof ELM327Device){
             deviceInterface.clearDtcs();
         }
     }
@@ -628,7 +630,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void requestSnapshot(){
         Log.d(TAG,"requestSnapshot()");
-        if (deviceInterface instanceof Device215B
+        if ((deviceInterface instanceof Device215B || deviceInterface instanceof ELM327Device)
                 && btConnectionState == BluetoothCommunicator.CONNECTED){
             Log.d(TAG,"executing writeToOBD requestSnapshot()");
             deviceInterface.requestSnapshot();
