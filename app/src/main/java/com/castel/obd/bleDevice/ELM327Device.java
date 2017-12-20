@@ -52,7 +52,9 @@ public class ELM327Device implements AbstractDevice {
 
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
+    private boolean currentDtcsRequested;
 
+    private DtcPackage dtcPackage;
     public ELM327Device(Context mContext, BluetoothDeviceManager manager){
         this.manager  = manager;
         this.communicator = new BluetoothCommunicatorELM327(mContext, this);
@@ -187,20 +189,22 @@ public class ELM327Device implements AbstractDevice {
             return;
 
         }
+        currentDtcsRequested = true;
         ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand());
+
 
 
     }
 
     @Override
     public void getPendingDtcs() {
-
         Log.d(TAG, "getPendingDtc()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return;
 
         }
+        if (currentDtcsRequested)return;
         ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand());
 
 
@@ -291,14 +295,17 @@ public class ELM327Device implements AbstractDevice {
             manager.onGotVin(obdCommand.getFormattedResult());
         else if(obdCommand instanceof TroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
-            DtcPackage dtcPackage = new DtcPackage();
+            if (dtcPackage== null)
+                dtcPackage = new DtcPackage();
             dtcPackage.deviceId = "Carista";
             dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-            dtcPackage.dtcs = new HashMap<>();
-            for (int i = 0; i<dtcsFromDevice.length; i++){
-                dtcPackage.dtcs.put(dtcsFromDevice[i], true);
+            if (dtcPackage.dtcs == null)
+                dtcPackage.dtcs = new HashMap<>();
+            for (String DtcsFromDevice : dtcsFromDevice) {
+                dtcPackage.dtcs.put(DtcsFromDevice, false);
             }
-            manager.gotDtcData(dtcPackage);
+            currentDtcsRequested = false;
+            getPendingDtcs();
         }
 
         else if (obdCommand instanceof RPMCommand){
@@ -318,15 +325,33 @@ public class ELM327Device implements AbstractDevice {
 
         else if (obdCommand instanceof PendingTroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
-            DtcPackage dtcPackage = new DtcPackage();
-            dtcPackage.deviceId = "Carista";
+            if (dtcPackage== null)
+                dtcPackage = new DtcPackage();
+            if (dtcPackage.dtcs == null)
+                dtcPackage.dtcs = new HashMap<>();
             dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-            dtcPackage.dtcs = new HashMap<>();
-            for (int i = 0; i<dtcsFromDevice.length; i++){
-                dtcPackage.dtcs.put(dtcsFromDevice[i], true);
+            for (String DtcsFromDevice : dtcsFromDevice) {
+                dtcPackage.dtcs.put(DtcsFromDevice, true);
             }
             manager.gotDtcData(dtcPackage);
+            dtcPackage = null;
+        }
+    }
 
+    public void noData(ObdCommand obdCommand) {
+        if (obdCommand instanceof TroubleCodesCommand){
+            if (dtcPackage== null)
+                dtcPackage = new DtcPackage();
+            dtcPackage.deviceId = "Carista";
+            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+            if (dtcPackage.dtcs == null)
+                dtcPackage.dtcs = new HashMap<>();
+            currentDtcsRequested = false;
+            getPendingDtcs();
+        }
+        if (obdCommand instanceof TroubleCodesCommand){
+            if (dtcPackage!=null)
+                manager.gotDtcData(dtcPackage);
         }
 
 
