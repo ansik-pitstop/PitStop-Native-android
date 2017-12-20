@@ -604,6 +604,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void getDtcs() {
         Log.d(TAG,"getDtcs()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+            Log.d(TAG," can't get Dtcs because my sate is not connected");
             return;
         }
         deviceInterface.getDtcs();
@@ -630,10 +631,12 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     public void requestSnapshot(){
         Log.d(TAG,"requestSnapshot()");
-        if ((deviceInterface instanceof Device215B || deviceInterface instanceof ELM327Device)
-                && btConnectionState == BluetoothCommunicator.CONNECTED){
-            Log.d(TAG,"executing writeToOBD requestSnapshot()");
-            deviceInterface.requestSnapshot();
+        if (deviceInterface!= null) {
+            if ((deviceInterface instanceof Device215B || deviceInterface instanceof ELM327Device)
+                    && btConnectionState == BluetoothCommunicator.CONNECTED) {
+                Log.d(TAG, "executing writeToOBD requestSnapshot()");
+                deviceInterface.requestSnapshot();
+            }
         }
     }
 

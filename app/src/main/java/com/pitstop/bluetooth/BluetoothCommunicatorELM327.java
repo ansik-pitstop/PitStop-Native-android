@@ -136,6 +136,13 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                 }
                 case NO_DATA: {
                     Log.w(TAG, "noData");
+                    if (msg.obj != null && msg.obj instanceof ObdCommand) {
+                        if (((ObdCommand) msg.obj).getName()!=null) {
+                            Log.v(TAG, ((ObdCommand) msg.obj).getName() + " command got no data");
+                            ELM327.noData((ObdCommand) msg.obj);
+                        }
+                    }
+                    break;
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION: {
                     btConnectionState = DISCONNECTED;
