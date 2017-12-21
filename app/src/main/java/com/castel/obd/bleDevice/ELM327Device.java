@@ -11,10 +11,21 @@ import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.control.DistanceMILOnCommand;
+import com.github.pires.obd.commands.control.DistanceSinceCCCommand;
+import com.github.pires.obd.commands.control.DtcNumberCommand;
+import com.github.pires.obd.commands.control.IgnitionMonitorCommand;
 import com.github.pires.obd.commands.control.PendingTroubleCodesCommand;
+import com.github.pires.obd.commands.control.PermanentTroubleCodesCommand;
 import com.github.pires.obd.commands.control.TroubleCodesCommand;
 import com.github.pires.obd.commands.control.VinCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.FindFuelTypeCommand;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand_21_40;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand_41_60;
+import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.ResetTroubleCodesCommand;
@@ -24,8 +35,17 @@ import com.github.pires.obd.enums.AvailableCommandNames;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.pitstop.bluetooth.BluetoothCommunicatorELM327;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.OBDcommands.CalibrationIDCommand;
+import com.pitstop.bluetooth.OBDcommands.CalibrationVehicleNumberCommand;
+import com.pitstop.bluetooth.OBDcommands.EmmisionsPIDCommand;
+import com.pitstop.bluetooth.OBDcommands.OBDStandardCommand;
+import com.pitstop.bluetooth.OBDcommands.StatusSinceDTCsClearedCommand;
+import com.pitstop.bluetooth.OBDcommands.TimeSinceCC;
+import com.pitstop.bluetooth.OBDcommands.TimeSinceMIL;
+import com.pitstop.bluetooth.OBDcommands.WarmupsSinceCC;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.database.TABLES;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
@@ -40,9 +60,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rx.functions.Function;
 
 /**
  * Created by ishan on 2017-12-08.
@@ -53,13 +76,19 @@ public class ELM327Device implements AbstractDevice {
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
     private boolean currentDtcsRequested;
-
+    private final static String PIDTAG = "PID: ";
     private DtcPackage dtcPackage;
+    Queue<ObdCommand> pidCommandQueue = new LinkedList<>();
     public ELM327Device(Context mContext, BluetoothDeviceManager manager){
         this.manager  = manager;
         this.communicator = new BluetoothCommunicatorELM327(mContext, this);
 
+
     }
+
+
+
+
 
     private static final String TAG  = ELM327Device.class.getSimpleName();
 
@@ -158,13 +187,30 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void requestSnapshot() {
         // make sure you change this
-        Log.d(TAG, "requestSnapshot()");
+        /*Log.d(TAG, "requestSnapshot()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
+        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());*/
+        pidCommandQueue.add(new VinCommand());
+        pidCommandQueue.add(new DescribeProtocolCommand());
+        pidCommandQueue.add(new StatusSinceDTCsClearedCommand());
+        pidCommandQueue.add(new EmmisionsPIDCommand());
+        pidCommandQueue.add(new RPMCommand());
+        pidCommandQueue.add(new DistanceMILOnCommand());
+        pidCommandQueue.add(new WarmupsSinceCC());
+        pidCommandQueue.add(new DistanceSinceCCCommand());
+        pidCommandQueue.add(new TimeSinceCC());
+        pidCommandQueue.add(new TimeSinceMIL());
+        pidCommandQueue.add(new CalibrationIDCommand());
+        pidCommandQueue.add(new CalibrationVehicleNumberCommand());
+        pidCommandQueue.add(new OBDStandardCommand());
+        pidCommandQueue.add(new FindFuelTypeCommand());
+
+
+
 
     }
 
@@ -209,11 +255,11 @@ public class ELM327Device implements AbstractDevice {
 
 
     }
-
+    int k = 0 ;
     @Override
     public void getFreezeFrame() {
-        // make sure you change this
-        Log.d(TAG, "getFreezeData()");
+
+
 
     }
 
@@ -246,8 +292,6 @@ public class ELM327Device implements AbstractDevice {
         manager.setState(BluetoothCommunicator.CONNECTING);
         Log.i(TAG, "Connecting to Classic device");
         communicator.connectToDevice(device);
-
-
     }
 
     @Override
@@ -287,7 +331,6 @@ public class ELM327Device implements AbstractDevice {
         ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand());
 
     }
-
 
     public void parseData(ObdCommand obdCommand) {
         Log.w(TAG, "Got obd Result for command: " + obdCommand.getName() + " : "  + obdCommand.getFormattedResult()) ;
@@ -336,6 +379,29 @@ public class ELM327Device implements AbstractDevice {
             manager.gotDtcData(dtcPackage);
             dtcPackage = null;
         }
+        else if (obdCommand instanceof DescribeProtocolCommand){
+            Log.d(PIDTAG, "Describe Protocol: " + obdCommand.getFormattedResult());
+        }
+        else if (obdCommand instanceof DtcNumberCommand){
+            Log.d(PIDTAG, "DTC number Command: " + obdCommand.getFormattedResult());
+        }
+        else if(obdCommand instanceof AvailablePidsCommand){
+            Log.d(PIDTAG, "Available PIDS: " + obdCommand.getFormattedResult());
+        }
+        else if (obdCommand instanceof DistanceMILOnCommand){
+            Log.d(PIDTAG, "Distance since MIL: " + obdCommand.getFormattedResult());
+        }
+        else if (obdCommand instanceof DistanceSinceCCCommand){
+            Log.d(PIDTAG, "Distance since CC: " + obdCommand.getFormattedResult());
+
+        }
+        else if (obdCommand instanceof FindFuelTypeCommand){
+            Log.d(PIDTAG, "Fuel Type: "  + obdCommand.getFormattedResult());
+
+        }
+
+
+
     }
 
     public void noData(ObdCommand obdCommand) {
@@ -349,11 +415,107 @@ public class ELM327Device implements AbstractDevice {
             currentDtcsRequested = false;
             getPendingDtcs();
         }
-        if (obdCommand instanceof TroubleCodesCommand){
+        else if (obdCommand instanceof PendingTroubleCodesCommand){
             if (dtcPackage!=null)
                 manager.gotDtcData(dtcPackage);
         }
 
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    private void getProtocol(){
+        Log.d(TAG, "getProtocol()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
+    }
+
+    private void checkEngineLight(){
+        Log.d(TAG, "checkEngineLight()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DtcNumberCommand());
+    }
+
+    private void getAvailablePids1_20(){
+        Log.d(TAG, "availabalePIDS_1-20()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new AvailablePidsCommand_01_20());
 
     }
+    private void getAvailablePids21_40(){
+        Log.d(TAG, "availabalePIDS_21-40()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new AvailablePidsCommand_21_40());
+
+    }
+    private void getAvailablePids41_60(){
+        Log.d(TAG, "availabalePIDS_41-60()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new AvailablePidsCommand_41_60());
+
+    }
+    private void getPermanentDtcs(){
+        Log.d(TAG, "permanentDtcCommand");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new PermanentTroubleCodesCommand());
+    }
+    private void distanceSinceMIL(){
+        Log.d(TAG, "distanceSinceMIL");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DistanceMILOnCommand());
+    }
+
+    private void distanceSinceCC(){
+        Log.d(TAG, "distanceSinceCodesCleared");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DistanceSinceCCCommand());
+
+    }
+
+    private void getFuelType(){
+        Log.d(TAG, "getFuelType");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return;
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new FindFuelTypeCommand());
+
+
+    }
+
+
 }
