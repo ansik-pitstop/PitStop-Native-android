@@ -127,7 +127,7 @@ public class PidDataHandler {
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
                     if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-                        visualizePidDataSent(false,context, null);
+                        visualizePidDataSent(false,context, p.timestamp);
                     }
                     if (error.getMessage().contains("not found")){
                         //Let trip handler know to get his shit together
@@ -245,11 +245,12 @@ public class PidDataHandler {
             Logger.getInstance().logD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
                     , DebugMessage.TYPE_NETWORK);
         }
-        else {
+        else if (timeStampFirst!= null) {
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
-            Logger.getInstance().logD(TAG, "Pid values failed to send to server: "
+            Logger.getInstance().logE(TAG, "Pid values failed to send to server, first timestamp of PIDs: " + timeStampFirst
                     , DebugMessage.TYPE_NETWORK);
+
         }
         pidDataSentVisible = true;
         //Only allow one toast showing failure every 15 seconds
