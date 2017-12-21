@@ -41,16 +41,11 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
 
     public static final String TAG = BluetoothCommunicatorELM327.class.getSimpleName();
     private ELM327Device ELM327;
-    private BluetoothDevice device;
-
     private int btConnectionState = DISCONNECTED;
-    private BluetoothSocket socket;
     private BluetoothChatElm327 mBluetoothChat;
     private BluetoothAdapter mBluetoothAdapter;
 
-    public BluetoothSocket getSocket(){
-        return this.socket;
-    }
+
 
     public BluetoothCommunicatorELM327(Context context, ELM327Device ELM327){
         this.ELM327 = ELM327;
@@ -71,6 +66,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
         if (obdCommand.getName()!=null)
             // some commands dont have a name or return results as name which is null when being
             Log.d(TAG, "sending command: " + obdCommand.getName());
+
         mBluetoothChat.connectedThread.SendCommand(obdCommand);
     }
 
