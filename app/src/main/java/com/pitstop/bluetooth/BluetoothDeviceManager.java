@@ -68,9 +68,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     }
 
-    public void onGotVin(String VIN) {
+    public void onGotVin(String VIN, String deviceID) {
         Log.d(TAG, VIN);
-        dataListener.handleVinData(VIN);
+        dataListener.handleVinData(VIN, deviceID);
     }
 
     public void gotDtcData(DtcPackage dtcPackage) {
@@ -380,6 +380,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private void connectToELMDevice(BluetoothDevice device){
         Log.d(TAG,"connectToELM327Device() device: "+device.getName());
         deviceInterface = new ELM327Device( mContext, this);
+        dataListener.setDeviceName(device.getAddress());
         deviceInterface.connectToDevice(device);
     }
 

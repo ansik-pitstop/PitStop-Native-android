@@ -230,9 +230,9 @@ public class PidDataHandler {
             Log.d(TAG,"visualizePidReceived() pidPackage = null");
             Toast.makeText(context,"NULL pid values received",Toast.LENGTH_LONG).show();
         }else{
-            Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
+           /* Log.d(TAG,"visualizePidReceived() pidPackage.pids: "+pidPackage.pids.keySet());
             int rpm = Integer.parseInt(pidPackage.pids.get("210C"),16);
-            Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"Pid values received, RPM: "+rpm,Toast.LENGTH_LONG).show();*/
         }
     }
 

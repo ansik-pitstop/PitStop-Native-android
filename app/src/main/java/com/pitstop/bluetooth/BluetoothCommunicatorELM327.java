@@ -120,6 +120,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                     writeData(new LineFeedOffCommand());
                     writeData(new TimeoutCommand(125));
                     writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
+                    writeData(new VinCommand());
                     break;
                 }
                 case BLUETOOTH_CONNECT_FAIL: {

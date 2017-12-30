@@ -1,6 +1,7 @@
 package com.castel.obd.bluetooth;
 
 import android.content.Context;
+import android.os.ParcelUuid;
 import android.util.Log;
 import com.castel.obd.OBD;
 import com.castel.obd.data.OBDInfoSP;
@@ -36,6 +37,7 @@ public class ObdManager {
     public final static String CARISTA_DEVICE = "Carista";
     public static final String VIECAR_DEVICE = "Viecar";
     public static final String OBDII_DEVICE_NAME = "OBDII";
+    public static final String OBD_LINK_MX = "OBDLink MX";
     public final static String FIXED_UPLOAD_TAG = "1202,1201,1203,1204,1205,1206";
     public final static String RTC_TAG = "1A01";
     public final static String VIN_TAG = "2201";
@@ -335,9 +337,11 @@ public class ObdManager {
 
         void onDevicesFound();
 
-        void handleVinData(String vin);
+        void handleVinData(String vin, String deviceId);
 
         void onGotRtc(long l);
+
+        void setDeviceName(String address);
     }
 
 

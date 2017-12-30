@@ -13,6 +13,18 @@ public class StatusSinceDTCsClearedCommand extends DtcNumberCommand {
     private boolean milOn = false;
     private String  ignitionType;
 
+    public int getCodeCount() {
+        return codeCount;
+    }
+
+    public boolean isMilOn() {
+        return milOn;
+    }
+
+    public String getIgnitionType() {
+        return ignitionType;
+    }
+
     /**
      * Default ctor.
      */
