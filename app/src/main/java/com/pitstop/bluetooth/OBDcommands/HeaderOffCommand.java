@@ -3,13 +3,12 @@ package com.pitstop.bluetooth.OBDcommands;
 import com.github.pires.obd.commands.ObdCommand;
 
 /**
- * Created by ishan on 2017-12-21.
+ * Created by ishan on 2017-12-30.
  */
 
-public class OBDStandardCommand extends ObdCommand {
-
-    public OBDStandardCommand(){
-        super("01 1C");
+public class HeaderOffCommand extends ObdCommand {
+    public HeaderOffCommand() {
+        super("AT H0");
     }
 
     @Override
@@ -19,16 +18,16 @@ public class OBDStandardCommand extends ObdCommand {
 
     @Override
     public String getFormattedResult() {
-        return rawData;
+        return "";
     }
 
     @Override
     public String getCalculatedResult() {
-        return rawData;
+        return "";
     }
 
     @Override
     public String getName() {
-        return "OBDStandardCommand";
+        return HeaderOnCommand.class.getSimpleName();
     }
 }

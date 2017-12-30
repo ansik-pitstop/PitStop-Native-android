@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelUuid;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -28,7 +29,9 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
 
-public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+public
+
+class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
 
@@ -69,6 +72,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_receive_debug, menu);
         return true;
+    }
+
+    @Override
+    public void setDeviceName(String deviceName) {
+
     }
 
     @Override
@@ -307,7 +315,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void handleVinData(String vin) {
+    public void handleVinData(String vin, String deviceName) {
 
     }
 

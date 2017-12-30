@@ -10,6 +10,10 @@ import java.io.InputStream;
  */
 
 public class EmmisionsPIDCommand extends ObdCommand {
+    public static final String AVAILABLE = "Available";
+    public static final String INCOMPLETE = "Incomplete";
+    private String PID;
+
 
     public EmmisionsPIDCommand(){
         super("01 41");
@@ -17,17 +21,21 @@ public class EmmisionsPIDCommand extends ObdCommand {
 
     @Override
     protected void performCalculations() {
+        PID = rawData.substring(4);
+
+
+
 
     }
 
     @Override
     public String getFormattedResult() {
-        return rawData;
+        return PID;
     }
 
     @Override
     public String getCalculatedResult() {
-        return rawData;
+        return PID;
     }
 
     @Override

@@ -90,6 +90,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private boolean overWriteInterval = false;
     private int debugDrawerInterval = 4;
+    private String ElmMacAddress ="";
 
     public static final int notifID = 1360119;
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
@@ -574,6 +575,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
+
+
     }
 
     /**
@@ -682,12 +685,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
     }
-    public void handleVinData(String Vin){
+    public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
         vinDataHandler.handleVinData(Vin
-                ,currentDeviceId,ignoreVerification);
+                ,deviceID,ignoreVerification);
     }
+
 
 
 
@@ -784,6 +788,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 requestedDtcs.dtcs.put(dtc.getKey(),dtc.getValue());
             }
         }
+    }
+
+    @Override
+    public void setDeviceName(String deviceName) {
+        Log.d(TAG, "setDeviceName: " +deviceName);
+        this.ElmMacAddress =deviceName;
+        currentDeviceId = deviceName;
     }
 
     @Override
@@ -1046,10 +1057,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
         // this is for carista testing make sure to remove this
-
-
         if (scannerName == null || scannerId == null){
-            String temp = "Carista";
+            String temp = ElmMacAddress;
             for (Observer observer: observerList){
                 if (observer instanceof BluetoothConnectionObserver){
                     mainHandler.post(() -> ((BluetoothConnectionObserver)observer)

@@ -38,6 +38,8 @@ import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.OBDcommands.CalibrationIDCommand;
 import com.pitstop.bluetooth.OBDcommands.CalibrationVehicleNumberCommand;
 import com.pitstop.bluetooth.OBDcommands.EmmisionsPIDCommand;
+import com.pitstop.bluetooth.OBDcommands.HeaderOffCommand;
+import com.pitstop.bluetooth.OBDcommands.HeaderOnCommand;
 import com.pitstop.bluetooth.OBDcommands.OBDStandardCommand;
 import com.pitstop.bluetooth.OBDcommands.StatusSinceDTCsClearedCommand;
 import com.pitstop.bluetooth.OBDcommands.TimeSinceCC;
@@ -48,6 +50,7 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.TABLES;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
+import com.pitstop.utils.TimeoutTimer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,21 +76,86 @@ import rx.functions.Function;
 
 public class ELM327Device implements AbstractDevice {
 
+    private final int PID_TIMEOUT_LENGTH = 2;
+    private final int PID_TIMEOUT_RETRIES = 0;
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
     private boolean currentDtcsRequested;
     private final static String PIDTAG = "PID: ";
     private DtcPackage dtcPackage;
-    Queue<ObdCommand> pidCommandQueue = new LinkedList<>();
+    private PidPackage pidPackage = new PidPackage();
+    private String deviceName ="";
+    private Queue<ObdCommand> pidCommandQueue = new LinkedList<>();
     public ELM327Device(Context mContext, BluetoothDeviceManager manager){
         this.manager  = manager;
         this.communicator = new BluetoothCommunicatorELM327(mContext, this);
-
-
     }
 
 
+    private final TimeoutTimer individualPidTimeoutTimer = new TimeoutTimer(PID_TIMEOUT_LENGTH, 0 ) {
+        @Override
+        public void onRetry() {
+            Log.d(TAG, "individualPidTimeoutTimer.onRetry");
 
+        }
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG, "individualPidTimeoutTimer.onTimeout");
+            next();
+
+        }
+    };
+
+
+
+    private void start(){
+        pidPackage.pids = new HashMap<>();
+
+        next();
+    }
+
+    private void next() {
+        Log.d(TAG, "next()");
+        if (pidCommandQueue.isEmpty()){
+            Log.d(TAG, "queue is empty()");
+            finish();
+            return;
+        }
+
+        else{
+            if (communicator==null){
+                Log.d(TAG, "communicator is null ");
+                return;
+
+            }
+            individualPidTimeoutTimer.cancel();
+            individualPidTimeoutTimer.startTimer();
+            ObdCommand currCommand = pidCommandQueue.peek();
+            pidCommandQueue.remove(currCommand);
+            ((BluetoothCommunicatorELM327)communicator).writeData(currCommand);
+        }
+
+    }
+
+    private void finish() {
+        Log.d(TAG,"finish()");
+
+        // when the pidCommandQueeue is finished executing, it sets up the pidPackage object ,
+        // sends it up to the manager to handle it and then creates a new empty pid package;
+        pidPackage.deviceId = this.deviceName;
+        pidPackage.tripId = "1000000000000";
+        pidPackage.tripMileage = "100.00";
+        pidPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+        pidPackage.timestamp = "timestamp";
+        pidPackage.realTime = true;
+        manager.gotPidPackage(pidPackage);
+        pidPackage  = new PidPackage();
+        pidPackage.pids = new HashMap<>();
+        pidCommandQueue = new LinkedList<>();
+
+
+    }
 
 
     private static final String TAG  = ELM327Device.class.getSimpleName();
@@ -138,7 +206,7 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public String getDeviceName() {
-        return "Carista";
+        return deviceName;
     }
 
 
@@ -192,11 +260,13 @@ public class ELM327Device implements AbstractDevice {
             Log.d(TAG, "communicator is null ");
             return;
 
-        }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());*/
-        pidCommandQueue.add(new VinCommand());
+        }*/
+//        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
         pidCommandQueue.add(new DescribeProtocolCommand());
         pidCommandQueue.add(new StatusSinceDTCsClearedCommand());
+        pidCommandQueue.add(new HeaderOnCommand());
+        pidCommandQueue.add(new AvailablePidsCommand_01_20());
+        pidCommandQueue.add(new HeaderOffCommand());
         pidCommandQueue.add(new EmmisionsPIDCommand());
         pidCommandQueue.add(new RPMCommand());
         pidCommandQueue.add(new DistanceMILOnCommand());
@@ -208,6 +278,7 @@ public class ELM327Device implements AbstractDevice {
         pidCommandQueue.add(new CalibrationVehicleNumberCommand());
         pidCommandQueue.add(new OBDStandardCommand());
         pidCommandQueue.add(new FindFuelTypeCommand());
+        start();
 
 
 
@@ -280,7 +351,9 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public synchronized void connectToDevice(BluetoothDevice device) {
+
         Log.d(TAG, "connectToDevice: " + device.getName());
+        this.deviceName = device.getAddress();
         if (manager.getState() == BluetoothCommunicator.CONNECTING){
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
@@ -333,14 +406,15 @@ public class ELM327Device implements AbstractDevice {
     }
 
     public void parseData(ObdCommand obdCommand) {
-        Log.w(TAG, "Got obd Result for command: " + obdCommand.getName() + " : "  + obdCommand.getFormattedResult()) ;
+        if (obdCommand.getName()!=null)
+            Log.w(TAG, "Got obd Result for command: " + obdCommand.getName() + " : "  + obdCommand.getFormattedResult()) ;
         if(obdCommand instanceof VinCommand)
-            manager.onGotVin(obdCommand.getFormattedResult());
+            manager.onGotVin(obdCommand.getFormattedResult(), this.deviceName);
         else if(obdCommand instanceof TroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
             if (dtcPackage== null)
                 dtcPackage = new DtcPackage();
-            dtcPackage.deviceId = "Carista";
+            dtcPackage.deviceId = deviceName;
             dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
             if (dtcPackage.dtcs == null)
                 dtcPackage.dtcs = new HashMap<>();
@@ -350,22 +424,6 @@ public class ELM327Device implements AbstractDevice {
             currentDtcsRequested = false;
             getPendingDtcs();
         }
-
-        else if (obdCommand instanceof RPMCommand){
-            
-            PidPackage pidPackage = new PidPackage();
-            pidPackage.deviceId = "Carista";
-            pidPackage.tripId = "1000000000000";
-            pidPackage.tripMileage = "100.00";
-            pidPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-            pidPackage.timestamp = "timestamp";
-            pidPackage.realTime = true;
-            pidPackage.pids = new HashMap<>();
-            pidPackage.pids.put("210C", obdCommand.getCalculatedResult());
-            manager.gotPidPackage(pidPackage);
-            Log.d(TAG, "gotPidPackage " + pidPackage.toString());
-        }
-
         else if (obdCommand instanceof PendingTroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
             if (dtcPackage== null)
@@ -381,24 +439,83 @@ public class ELM327Device implements AbstractDevice {
         }
         else if (obdCommand instanceof DescribeProtocolCommand){
             Log.d(PIDTAG, "Describe Protocol: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("Protocol",  obdCommand.getFormattedResult());
+            next();
         }
-        else if (obdCommand instanceof DtcNumberCommand){
+        else if (obdCommand instanceof StatusSinceDTCsClearedCommand){
             Log.d(PIDTAG, "DTC number Command: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("DtcCount: ",  Integer.toString(((StatusSinceDTCsClearedCommand) obdCommand).getCodeCount()));
+            pidPackage.pids.put("MIL: ",  Boolean.toString(((StatusSinceDTCsClearedCommand) obdCommand).getMilOn()));
+            pidPackage.pids.put("IgnitionType: ",  ((StatusSinceDTCsClearedCommand) obdCommand).getIgnitionType());
+            next();
+
         }
-        else if(obdCommand instanceof AvailablePidsCommand){
-            Log.d(PIDTAG, "Available PIDS: " + obdCommand.getFormattedResult());
+        else if (obdCommand instanceof EmmisionsPIDCommand){
+            Log.d(PIDTAG, "Emmisions PID: " + obdCommand.getFormattedResult());
+            String pidValue = obdCommand.getFormattedResult().substring(obdCommand.getFormattedResult().length()-8);
+            pidPackage.pids.put("2141",  pidValue);
+            next();
+
+        }
+        else if (obdCommand instanceof RPMCommand){
+            pidPackage.pids.put("210C", obdCommand.getCalculatedResult());
+            Log.d(PIDTAG, "rpm:  " + obdCommand.getFormattedResult());
+            next();
         }
         else if (obdCommand instanceof DistanceMILOnCommand){
             Log.d(PIDTAG, "Distance since MIL: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("DistanceSinceMIL", obdCommand.getFormattedResult());
+            next();
+        }
+        else if (obdCommand instanceof WarmupsSinceCC){
+            Log.d(PIDTAG, "WarmupsSinceCC: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("WarmupsSinceCC", obdCommand.getFormattedResult());
+            next();
         }
         else if (obdCommand instanceof DistanceSinceCCCommand){
             Log.d(PIDTAG, "Distance since CC: " + obdCommand.getFormattedResult());
-
+            pidPackage.pids.put("DistanceSinceCC: ", obdCommand.getFormattedResult());
+            next();
         }
+        else if (obdCommand instanceof TimeSinceMIL){
+            Log.d(PIDTAG, "Time Since MIL: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("Time Since MIL: ", obdCommand.getCalculatedResult());
+            next();
+        }
+        else if (obdCommand instanceof TimeSinceCC){
+            Log.d(PIDTAG, "Time Since CC: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("Time Since CC: ", obdCommand.getCalculatedResult());
+            next();
+        }
+        else if (obdCommand instanceof CalibrationIDCommand){
+            Log.d(PIDTAG, "CAL ID: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("Calibration ID", obdCommand.getFormattedResult());
+            next();
+        }
+        else if (obdCommand instanceof CalibrationVehicleNumberCommand){
+            Log.d(PIDTAG, "CVN: "+ obdCommand.getFormattedResult());
+            pidPackage.pids.put("Calbration Vehicle Number", obdCommand.getFormattedResult());
+            next();
+        }
+        else if (obdCommand instanceof OBDStandardCommand){
+            Log.d(PIDTAG, "OBD Standard: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("OBD Standard: ", obdCommand.getCalculatedResult());
+            next();
+        }
+
         else if (obdCommand instanceof FindFuelTypeCommand){
             Log.d(PIDTAG, "Fuel Type: "  + obdCommand.getFormattedResult());
+            pidPackage.pids.put("Fuel Type: ", obdCommand.getFormattedResult());
+            next();
 
         }
+        else if(obdCommand instanceof AvailablePidsCommand){
+            Log.d(PIDTAG, "Available PIDS: " + obdCommand.getFormattedResult());
+            pidPackage.pids.put(obdCommand.getName(), obdCommand.getFormattedResult());
+            next();
+        }
+
+
 
 
 
@@ -408,7 +525,7 @@ public class ELM327Device implements AbstractDevice {
         if (obdCommand instanceof TroubleCodesCommand){
             if (dtcPackage== null)
                 dtcPackage = new DtcPackage();
-            dtcPackage.deviceId = "Carista";
+            dtcPackage.deviceId = this.deviceName;
             dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
             if (dtcPackage.dtcs == null)
                 dtcPackage.dtcs = new HashMap<>();
@@ -419,19 +536,24 @@ public class ELM327Device implements AbstractDevice {
             if (dtcPackage!=null)
                 manager.gotDtcData(dtcPackage);
         }
+        if (obdCommand instanceof DescribeProtocolCommand ||
+                obdCommand instanceof StatusSinceDTCsClearedCommand||
+                obdCommand instanceof EmmisionsPIDCommand ||
+                obdCommand instanceof RPMCommand||
+                obdCommand instanceof DistanceMILOnCommand ||
+                obdCommand instanceof DistanceSinceCCCommand ||
+                obdCommand instanceof TimeSinceCC ||
+                obdCommand instanceof TimeSinceMIL ||
+                obdCommand instanceof CalibrationVehicleNumberCommand ||
+                obdCommand instanceof CalibrationIDCommand ||
+                obdCommand instanceof OBDStandardCommand ||
+                obdCommand instanceof FindFuelTypeCommand ||
+                obdCommand instanceof HeaderOnCommand ||
+                obdCommand instanceof  HeaderOffCommand||
+                obdCommand instanceof AvailablePidsCommand)
+            next();
 
     }
-
-
-
-
-
-
-
-
-
-
-
 
     private void getProtocol(){
         Log.d(TAG, "getProtocol()");
