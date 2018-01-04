@@ -97,8 +97,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Timer length values
     public static final int DTC_RETRY_LEN = 3; //Seconds
     public static final int DTC_RETRY_COUNT = 4;
-    public static final int PID_RETRY_LEN = 15; //Seconds
-    public static final int PID_RETRY_COUNT = 0;
+    public static final int PID_RETRY_LEN = 5; //Seconds
+    public static final int PID_RETRY_COUNT = 2;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
     private final int VERIFICATION_TIMEOUT = 15; //Seconds
@@ -211,6 +211,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             = new TimeoutTimer(PID_RETRY_LEN,PID_RETRY_COUNT) {
         @Override
         public void onRetry() {
+            deviceManager.requestSnapshot();
             Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
         }
 
@@ -497,8 +498,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcRequested = true;
         requestedDtcs = null;
-        if (dtcTimeoutTimer.isRunning())
-            dtcTimeoutTimer.cancel();
+        dtcTimeoutTimer.cancel();
         dtcTimeoutTimer.startTimer();
         deviceManager.getDtcs();
         return true;
@@ -510,9 +510,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG,"VIN requested", DebugMessage.TYPE_BLUETOOTH);
         vinRequested = true;
 
-        if (getVinTimeoutTimer.isRunning()){
-            getVinTimeoutTimer.cancel();
-        }
+        getVinTimeoutTimer.cancel();
         getVinTimeoutTimer.startTimer();
 
         deviceManager.getVin();
@@ -525,9 +523,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG,"All pid requested", DebugMessage.TYPE_BLUETOOTH);
 
         allPidRequested = true;
-        if (pidTimeoutTimer.isRunning()){
-            pidTimeoutTimer.cancel();
-        }
+        pidTimeoutTimer.cancel();
         pidTimeoutTimer.startTimer();
         deviceManager.requestSnapshot();
         return true;
@@ -539,9 +535,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         rtcTimeRequested = true;
         Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 
-        if (rtcTimeoutTimer.isRunning()){
-            rtcTimeoutTimer.cancel();
-        }
+        rtcTimeoutTimer.cancel();
         rtcTimeoutTimer.startTimer();
         deviceManager.getRtc();
         return true;
