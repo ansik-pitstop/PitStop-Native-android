@@ -88,6 +88,8 @@ public class GlobalApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
 
+        MultiDex.install(this);
+
         if (BuildConfig.DEBUG) {
             try {
                 final ACRAConfiguration config = new ConfigurationBuilder(this)
@@ -108,8 +110,6 @@ public class GlobalApplication extends Application {
 
         Log.d(TAG, "onCreate");
 
-        Logger.initLogger(this);
-
         Stetho.initializeWithDefaults(this);
 
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
@@ -127,7 +127,7 @@ public class GlobalApplication extends Application {
             crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
 
-        MultiDex.install(this);
+        Logger.initLogger(this);
 
         initiateDatabase();
 
