@@ -44,20 +44,10 @@
               <option value="plugin:org.jetbrains.kotlin.android:experimental=true" />
               <option value="plugin:org.jetbrains.kotlin.android:enabled=true" />
               <option value="plugin:org.jetbrains.kotlin.android:defaultCacheImplementation=hashMap" />
-              <option value="plugin:org.jetbrains.kotlin.android:experimental=true" />
-              <option value="plugin:org.jetbrains.kotlin.android:defaultCacheImplementation=hashMap" />
-              <option value="plugin:org.jetbrains.kotlin.android:package=com.pitstop" />
-              <option value="plugin:org.jetbrains.kotlin.android:variant=main;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\library-1.4.aar\8c04c5bad5a09a361873b1eff430d607\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\library-2.1.3.aar\7c41531fd7b29419989ddae0a9f956c7\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\circleimageview-2.1.0.aar\f013d26edb91d2343ecf5f648c4c5566\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\circularimageview-3.0.2.aar\90996b927a33b334f7446ea36d646448\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\zxing-android-embedded-3.3.0.aar\b87f5dd59601ad8f03c37e5d5f743116\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\mixpanel-android-4.8.0.aar\dc9349005502e4e6b4c6c02ef8ab6d7c\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\cardview-v7-26.0.2.aar\c88bac85102c7fec317cd3b8c309e79d\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\support-compat-26.0.2.aar\63281f93bd890c963b480419467496fe\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\support-media-compat-26.0.2.aar\27053cc24c3769d4229c9751db4e7e77\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-26.0.2.aar\23aadd18cb82dcc180463821cbf87960\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\transition-26.0.2.aar\6798c6e27068eece137a35a4413c8e42\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.0.1.aar\3f2b8102c4634dd2f2664f0f741d6da9\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-base-10.0.1.aar\68f3645e8268586fe5f4890e673d6140\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-maps-10.0.1.aar\73e69af91c19a0de803f3474e4d5b483\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\material-calendarview-1.4.3.aar\d5ffc256df61c2ad2d38c8dbc44dc442\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\appcompat-v7-26.0.2.aar\7de43e0c003037134d61b4de78822171\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\design-26.0.2.aar\72b02eb801158a55d632623076343738\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\android-DecoView-charting-v0.9.6.aar\27fdddfa6fdaba425dc64bc4cb95a4c0\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\subsampling-scale-image-view-3.5.0.aar\1199fa4358a6fcef4dc20596909a1733\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\facebook-android-sdk-4.12.1.aar\80b796149f3602caf6afaf294056e652\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\bottom-bar-2.3.1.aar\b915f337d474ba0cc9b1b803bd5d559f\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\ui-4.8.1.aar\b7d208f1e1933c417fc7c5381764854b\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\MaterialShowcaseView-1.2.0.aar\c551082b4adc58234ca8d1f0d770d275\res;C:\Users\Work\StudioProjects\PitStop-Native-android\app\src\main\res;C:\Users\Work\StudioProjects\PitStop-Native-android\app\src\pitstop\res" />
-              <option value="plugin:org.jetbrains.kotlin.android:experimental=true" />
-              <option value="plugin:org.jetbrains.kotlin.android:defaultCacheImplementation=hashMap" />
-              <option value="plugin:org.jetbrains.kotlin.android:package=com.pitstop" />
-              <option value="plugin:org.jetbrains.kotlin.android:variant=main;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\library-1.4.aar\8c04c5bad5a09a361873b1eff430d607\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\library-2.1.3.aar\7c41531fd7b29419989ddae0a9f956c7\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\circleimageview-2.1.0.aar\f013d26edb91d2343ecf5f648c4c5566\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\circularimageview-3.0.2.aar\90996b927a33b334f7446ea36d646448\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\zxing-android-embedded-3.3.0.aar\b87f5dd59601ad8f03c37e5d5f743116\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\mixpanel-android-4.8.0.aar\dc9349005502e4e6b4c6c02ef8ab6d7c\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\cardview-v7-26.0.2.aar\c88bac85102c7fec317cd3b8c309e79d\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\support-compat-26.0.2.aar\63281f93bd890c963b480419467496fe\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\support-media-compat-26.0.2.aar\27053cc24c3769d4229c9751db4e7e77\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-26.0.2.aar\23aadd18cb82dcc180463821cbf87960\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\transition-26.0.2.aar\6798c6e27068eece137a35a4413c8e42\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.0.1.aar\3f2b8102c4634dd2f2664f0f741d6da9\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-base-10.0.1.aar\68f3645e8268586fe5f4890e673d6140\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\play-services-maps-10.0.1.aar\73e69af91c19a0de803f3474e4d5b483\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\material-calendarview-1.4.3.aar\d5ffc256df61c2ad2d38c8dbc44dc442\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\appcompat-v7-26.0.2.aar\7de43e0c003037134d61b4de78822171\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\design-26.0.2.aar\72b02eb801158a55d632623076343738\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\android-DecoView-charting-v0.9.6.aar\27fdddfa6fdaba425dc64bc4cb95a4c0\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\subsampling-scale-image-view-3.5.0.aar\1199fa4358a6fcef4dc20596909a1733\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\facebook-android-sdk-4.12.1.aar\80b796149f3602caf6afaf294056e652\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\bottom-bar-2.3.1.aar\b915f337d474ba0cc9b1b803bd5d559f\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\ui-4.8.1.aar\b7d208f1e1933c417fc7c5381764854b\res;C:\Users\Work\.gradle\caches\transforms-1\files-1.1\MaterialShowcaseView-1.2.0.aar\c551082b4adc58234ca8d1f0d770d275\res;C:\Users\Work\StudioProjects\PitStop-Native-android\app\src\main\res;C:\Users\Work\StudioProjects\PitStop-Native-android\app\src\pitstop\res" />
             </array>
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$APPLICATION_HOME_DIR$/gradle/m2repository/org/jetbrains/kotlin/kotlin-android-extensions/1.1.51/kotlin-android-extensions-1.1.51.jar" />
-              <option value="$APPLICATION_HOME_DIR$/gradle/m2repository/org/jetbrains/kotlin/kotlin-android-extensions/1.1.51/kotlin-android-extensions-1.1.51.jar" />
               <option value="$APPLICATION_HOME_DIR$/gradle/m2repository/org/jetbrains/kotlin/kotlin-android-extensions/1.1.51/kotlin-android-extensions-1.1.51.jar" />
             </array>
           </option>
@@ -191,7 +181,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes-jar" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-runtime-classes" />
@@ -200,7 +189,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/instant-run-support" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/javaPrecompile" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/multi-dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/ndkBuild" />
@@ -258,6 +246,7 @@
     <orderEntry type="library" name="com.android.support:support-v4-26.0.2" level="project" />
     <orderEntry type="library" name="com.google.dagger:dagger:2.9@jar" level="project" />
     <orderEntry type="library" name="com.facebook.stetho:stetho-urlconnection-1.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="com.android.support:multidex-instrumentation-1.0.2" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-core-10.0.1" level="project" />
     <orderEntry type="library" name="com.android.support:animated-vector-drawable-26.0.2" level="project" />
     <orderEntry type="library" name="com.squareup.picasso:picasso:2.5.2@jar" level="project" />
@@ -315,6 +304,5 @@
     <orderEntry type="library" name="com.google.android.gms:play-services-maps-10.0.1" level="project" />
     <orderEntry type="library" name="com.daimajia.numberprogressbar:library-1.4" level="project" />
     <orderEntry type="library" name="com.github.bmarrdev:android-DecoView-charting-v0.9.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="com.android.support:multidex-instrumentation-1.0.2" level="project" />
   </component>
 </module>
