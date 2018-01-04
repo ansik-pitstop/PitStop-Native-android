@@ -21,7 +21,7 @@ public class EmmisionsPIDCommand extends ObdCommand {
 
     @Override
     protected void performCalculations() {
-        PID = rawData.substring(4);
+        PID = rawData;
 
 
 

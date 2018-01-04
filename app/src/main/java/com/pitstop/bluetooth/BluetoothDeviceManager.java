@@ -433,7 +433,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
         else if (strongestRssiDevice.getName().contains(ObdManager.CARISTA_DEVICE)||
                 strongestRssiDevice.getName().contains(ObdManager.VIECAR_DEVICE)||
-                strongestRssiDevice.getName().contains(ObdManager.OBDII_DEVICE_NAME)
+                strongestRssiDevice.getName().contains(ObdManager.OBDII_DEVICE_NAME) ||
+                strongestRssiDevice.getName().contains(ObdManager.OBD_LINK_MX)
                 ){
             Log.d(TAG, "CaristaDevice> RSSI_Threshold, device: " + strongestRssiDevice);
             foundDevices.remove(strongestRssiDevice);
@@ -461,7 +462,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
                 if (device.getName() != null && (device.getName().contains(ObdManager.BT_DEVICE_NAME) ||
                         device.getName().equalsIgnoreCase(ObdManager.CARISTA_DEVICE)
                         ||device.getName().equalsIgnoreCase(ObdManager.VIECAR_DEVICE)
-                        || device.getName().equalsIgnoreCase(ObdManager.OBDII_DEVICE_NAME))
+                        || device.getName().equalsIgnoreCase(ObdManager.OBDII_DEVICE_NAME)
+                        || device.getName().equalsIgnoreCase(ObdManager.OBD_LINK_MX))
                         && !foundDevices.containsKey(device)){
                     foundDevices.put(device,rssi);
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
