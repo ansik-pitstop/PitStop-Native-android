@@ -108,8 +108,6 @@ public class GlobalApplication extends Application {
 
         Log.d(TAG, "onCreate");
 
-        Logger.initLogger(this);
-
         Stetho.initializeWithDefaults(this);
 
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
@@ -126,6 +124,8 @@ public class GlobalApplication extends Application {
             Log.d(TAG,"Beta build.");
             crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
+
+        Logger.initLogger(this);
 
         MultiDex.install(this);
 
