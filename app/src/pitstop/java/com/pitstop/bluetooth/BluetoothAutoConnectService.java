@@ -498,8 +498,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         dtcRequested = true;
         requestedDtcs = null;
-        if (dtcTimeoutTimer.isRunning())
-            dtcTimeoutTimer.cancel();
+        dtcTimeoutTimer.cancel();
         dtcTimeoutTimer.startTimer();
         deviceManager.getDtcs();
         return true;
@@ -511,9 +510,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG,"VIN requested", DebugMessage.TYPE_BLUETOOTH);
         vinRequested = true;
 
-        if (getVinTimeoutTimer.isRunning()){
-            getVinTimeoutTimer.cancel();
-        }
+        getVinTimeoutTimer.cancel();
         getVinTimeoutTimer.startTimer();
 
         deviceManager.getVin();
@@ -526,9 +523,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG,"All pid requested", DebugMessage.TYPE_BLUETOOTH);
 
         allPidRequested = true;
-        if (pidTimeoutTimer.isRunning()){
-            pidTimeoutTimer.cancel();
-        }
+        pidTimeoutTimer.cancel();
         pidTimeoutTimer.startTimer();
         deviceManager.requestSnapshot();
         return true;
@@ -540,9 +535,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         rtcTimeRequested = true;
         Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 
-        if (rtcTimeoutTimer.isRunning()){
-            rtcTimeoutTimer.cancel();
-        }
+        rtcTimeoutTimer.cancel();
         rtcTimeoutTimer.startTimer();
         deviceManager.getRtc();
         return true;
