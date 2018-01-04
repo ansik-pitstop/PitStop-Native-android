@@ -88,6 +88,8 @@ public class GlobalApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
 
+        MultiDex.install(this);
+
         if (BuildConfig.DEBUG) {
             try {
                 final ACRAConfiguration config = new ConfigurationBuilder(this)
@@ -126,8 +128,6 @@ public class GlobalApplication extends Application {
         }
 
         Logger.initLogger(this);
-
-        MultiDex.install(this);
 
         initiateDatabase();
 
