@@ -104,7 +104,7 @@ public class ReportRepository implements Repository {
 
         Log.d(TAG,"createEmissionsReport() body: "+body);
 
-        networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
+        networkHelper.post(String.format("vDistanceSinceCC1/car/%d/report/emissions", carId)
                 , (response, requestError) -> {
 
                     if (requestError == null){
