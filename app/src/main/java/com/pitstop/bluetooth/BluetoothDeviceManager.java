@@ -85,6 +85,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void setBluetoothDataListener(ObdManager.IBluetoothDataListener dataListener) {
+        Logger.getInstance().logV(TAG,"setBluetoothDataListener()"
+                , DebugMessage.TYPE_BLUETOOTH);
         this.dataListener = dataListener;
     }
 
@@ -92,7 +94,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     private boolean ignoreVerification = false;
 
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
-        Log.d(TAG, "startScan() urgent: " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
+        Logger.getInstance().logV(TAG,"startScan() urgent: " + Boolean.toString(urgent)
+                        + " ignoreVerification: " + Boolean.toString(ignoreVerification)
+                , DebugMessage.TYPE_BLUETOOTH);
+
         this.ignoreVerification = ignoreVerification;
         if (!mBluetoothAdapter.isEnabled() && !urgent) {
             Log.i(TAG, "Scan unable to start, bluetooth is disabled and non urgent scan");
@@ -113,6 +118,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public synchronized void onConnectDeviceValid(){
+        Logger.getInstance().logV(TAG,"onConnectDeviceValid()"
+                , DebugMessage.TYPE_BLUETOOTH);
+
         if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
             Log.i(TAG,"Stopping scan");
             mBluetoothAdapter.cancelDiscovery();
@@ -122,6 +130,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     @Override
     public void sendCommandPassive(String payload) {
+        Logger.getInstance().logV(TAG,"sendCommandPassive()"
+                , DebugMessage.TYPE_BLUETOOTH);
+
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
@@ -130,7 +141,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void close() {
-        Log.d(TAG,"close()");
+        Logger.getInstance().logV(TAG,"close()"
+                , DebugMessage.TYPE_BLUETOOTH);
+
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
         if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
@@ -148,9 +161,10 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private void writeToObd(String payload) {
-        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
-                +(communicator == null) + ", Connected ?  "
-                +(btConnectionState == IBluetoothCommunicator.CONNECTED));
+        Logger.getInstance().logV(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
+                        +(communicator == null) + ", Connected ?  "
+                        +(btConnectionState == IBluetoothCommunicator.CONNECTED)
+                , DebugMessage.TYPE_BLUETOOTH);
 
         if (communicator == null
                 || btConnectionState != IBluetoothCommunicator.CONNECTED) {
@@ -190,7 +204,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void connectionStateChange(int state) {
-        Log.d(TAG,"connectionStateChange() state:"+state);
+        Logger.getInstance().logV(TAG,"connectionStateChange() state:"+state
+                , DebugMessage.TYPE_BLUETOOTH);
         btConnectionState = state;
         dataListener.getBluetoothState(state);
 
@@ -198,7 +213,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void closeDeviceConnection(){
-        Log.d(TAG,"closeDeviceConnection()");
+        Logger.getInstance().logV(TAG,"closeDeviceConnection()"
+                , DebugMessage.TYPE_BLUETOOTH);
         if (communicator != null){
             communicator.close();
         }
@@ -210,6 +226,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
      */
     @SuppressLint("NewApi")
     public synchronized void connectToDevice(final BluetoothDevice device) {
+        Logger.getInstance().logV(TAG,"connectToDevice() device: "+device
+                , DebugMessage.TYPE_BLUETOOTH);
+
         if (btConnectionState == BluetoothCommunicator.CONNECTING) {
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
@@ -249,6 +268,9 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     public void bluetoothStateChanged(int state) {
+        Logger.getInstance().logV(TAG,"bluetoothStateChanged() state: "+state
+                , DebugMessage.TYPE_BLUETOOTH);
+
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
             dataListener.getBluetoothState(btConnectionState);
@@ -263,6 +285,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private synchronized boolean connectBluetooth(boolean urgent) {
+        Logger.getInstance().logV(TAG,"connectBluetooth() urgent: "+urgent
+                , DebugMessage.TYPE_BLUETOOTH);
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = communicator == null ? BluetoothCommunicator.DISCONNECTED : communicator.getState();
 
@@ -305,7 +329,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     }
 
     private void connectTo212Device(BluetoothDevice device){
-        Log.d(TAG,"connectTo212Device() device: "+device.getName());
+        Logger.getInstance().logV(TAG,"connectTo212Device() "+device
+                , DebugMessage.TYPE_BLUETOOTH);
         deviceInterface = new Device212B(mContext, dataListener
                 , BluetoothDeviceManager.this, device.getName());
         connectToDevice(device);
@@ -314,7 +339,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
 
     private void connectTo215Device(BluetoothDevice device) {
-        Log.d(TAG,"connectTo215Device() device: "+device.getName());
+        Logger.getInstance().logV(TAG,"connectTo215Device() device: "+device
+                , DebugMessage.TYPE_BLUETOOTH);
         useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
                 , new GetPrevIgnitionTimeUseCase.Callback() {
 
@@ -352,8 +378,8 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     //Returns whether a device qualified for connection
     public synchronized boolean connectToNextDevice(){
-        Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
-
+        Logger.getInstance().logV(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size()
+                , DebugMessage.TYPE_BLUETOOTH);
         short minRssiThreshold;
         short strongestRssi = Short.MIN_VALUE;
         BluetoothDevice strongestRssiDevice = null;
