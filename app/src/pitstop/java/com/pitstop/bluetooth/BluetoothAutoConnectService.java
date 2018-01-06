@@ -102,7 +102,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     public static final int PID_RETRY_COUNT = 0;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
-    private final int VERIFICATION_TIMEOUT = 30; //Seconds // is actually 15 (MAKE SURE YOU CHANGE THIS BACK
+    private final int VERIFICATION_TIMEOUT = 15;
     private final int PERIOD_TRACK_PID_LEN = 60; //Seconds
     private final int PERIOD_RTC_LEN = 60000; //Milliseconds
     private final int PERIOD_VIN_LEN = 10000; //Milliseconds

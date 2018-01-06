@@ -144,6 +144,9 @@ public class ELM327Device implements AbstractDevice {
         // when the pidCommandQueeue is finished executing, it sets up the pidPackage object ,
         // sends it up to the manager to handle it and then creates a new empty pid package;
         pidPackage.deviceId = this.deviceName;
+
+        // not sure for what to put for trip id and mileage since these devices dont really have trips
+        //
         pidPackage.tripId = "1000000000000";
         pidPackage.tripMileage = "100.00";
         pidPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
