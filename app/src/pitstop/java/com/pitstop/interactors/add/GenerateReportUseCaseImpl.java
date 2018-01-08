@@ -71,10 +71,11 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     @Override
     public void run() {
+        Log.d(TAG,"run()");
         userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
             @Override
             public void onSuccess(Settings settings) {
-
+                Log.d(TAG,"getCurrentUserSettings.onSuccess(), settings.hasMainCar()? "+settings.hasMainCar());
                 if (!settings.hasMainCar()){
                     GenerateReportUseCaseImpl
                             .this.onError(RequestError.getUnknownError());

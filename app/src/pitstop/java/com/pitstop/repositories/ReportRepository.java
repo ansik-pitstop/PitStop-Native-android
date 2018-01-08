@@ -282,7 +282,7 @@ public class ReportRepository implements Repository {
                         }
 
                     }else{
-                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError);
                         callback.onError(requestError);
                     }
 
@@ -314,7 +314,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("id",entry.getKey());
                 dtcJson.put("data",entry.getValue());
-                dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime));
+                dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime)+2);
                 pidArr.put(dtcJson);
             }catch(JSONException e){
                 Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
