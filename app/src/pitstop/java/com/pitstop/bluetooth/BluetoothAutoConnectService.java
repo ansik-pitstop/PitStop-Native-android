@@ -791,7 +791,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
-        if (deviceConnState.equals(State.SEARCHING)){
+        if (deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.FOUND_DEVICES)){
             setConnectionState(State.DISCONNECTED);
             notifyDeviceDisconnected();
         }
