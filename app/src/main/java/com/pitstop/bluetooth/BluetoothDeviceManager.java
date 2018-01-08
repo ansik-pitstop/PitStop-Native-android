@@ -1,6 +1,5 @@
 package com.pitstop.bluetooth;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -15,9 +14,7 @@ import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.bleDevice.Device212B;
 import com.castel.obd.bleDevice.Device215B;
 import com.castel.obd.bleDevice.ELM327Device;
-import com.castel.obd.bluetooth.BluetoothClassicComm;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
-import com.castel.obd.bluetooth.BluetoothLeComm;
 import com.castel.obd.bluetooth.IBluetoothCommunicator;
 import com.castel.obd.bluetooth.ObdManager;
 import com.pitstop.application.GlobalApplication;
@@ -32,9 +29,6 @@ import com.pitstop.network.RequestError;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -184,95 +178,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
     }
-
-    /*private void writeToObd(String payload) {
-        Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
-                +(communicator == null) + ", Connected ?  "
-                +(btConnectionState == IBluetoothCommunicator.CONNECTED));
-
-        if (communicator == null
-                || btConnectionState != IBluetoothCommunicator.CONNECTED) {
-            return;
-        }
-
-        if (payload == null || payload.isEmpty()) {
-            return;
-        }
-
-        try { // get instruction string from json payload
-            String temp = new JSONObject(payload).getString("instruction");
-            payload = temp;
-        } catch (JSONException e) {
-        }
-
-        ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
-
-        while (payload.length() > 20) {
-            sendData.add(payload.substring(0, 20));
-            payload = payload.substring(20);
-        }
-        sendData.add(payload);
-
-        for (String data : sendData) {
-            byte[] bytes;
-
-            bytes = deviceInterface.getBytes(data);
-
-
-            if (bytes == null || bytes.length == 0) {
-                return;
-            }
-
-            communicator.writeData(bytes);
-        }
-    }*/
-
-    /**
-     *
-     */
-
-/*    @SuppressLint("NewApi")
-    public synchronized void connectToDevice(final BluetoothDevice device) {
-        if (btConnectionState == BluetoothCommunicator.CONNECTING) {
-            Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
-                    , DebugMessage.TYPE_BLUETOOTH);
-            return;
-        } else if (communicator != null && btConnectionState == BluetoothCommunicator.CONNECTED){
-            communicator.close();
-        }
-
-       *//* switch (deviceInterface.commType()) {
-            case LE:
-
-                // this should not be here, its only here for now becaause manager needs a communicator for now
-                btConnectionState = BluetoothCommunicator.CONNECTING;
-                dataListener.getBluetoothState(btConnectionState);
-                Log.i(TAG, "Connecting to LE device");
-                if (communicator == null || !(communicator instanceof BluetoothLeComm)){
-                    communicator = new BluetoothLeComm(mContext, this);
-                }
-                ((BluetoothLeComm) communicator)
-                        .setReadChar(deviceInterface.getReadChar());
-                ((BluetoothLeComm) communicator)
-                        .setServiceUuid(deviceInterface.getServiceUuid());
-                ((BluetoothLeComm) communicator)
-                        .setWriteChar(deviceInterface.getWriteChar());
-                break;
-            case CLASSIC:
-                btConnectionState = BluetoothCommunicator.CONNECTING;
-                dataListener.getBluetoothState(btConnectionState);
-                Log.i(TAG, "Connecting to Classic device");
-                if (communicator == null){
-                    communicator = new BluetoothClassicComm(mContext, this);
-                }
-                communicator.connectToDevice(device);
-                break;
-        }*//*
-
-        Logger.getInstance().logI(TAG,"Connecting to device: deviceName="+device.getName()
-                , DebugMessage.TYPE_BLUETOOTH);
-
-    }*/
 
     public void bluetoothStateChanged(int state) {
         if (state == BluetoothAdapter.STATE_OFF) {
