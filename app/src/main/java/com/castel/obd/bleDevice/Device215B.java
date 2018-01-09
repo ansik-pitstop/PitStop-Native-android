@@ -539,7 +539,8 @@ public class Device215B implements AbstractDevice {
                         dtcPackage.dtcs = new HashMap<>();
 
                         for(int i = 1 ; i < faultInfo.size() ; i++) {
-                            dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
+                            if (faultInfo.get(i).code != null)
+                                dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
                         }
 
                         try {
@@ -700,7 +701,8 @@ public class Device215B implements AbstractDevice {
                 dtcPackage.dtcs = new HashMap<>();
 
                 for(int i = 0 ; i < faultInfo.size() ; i++) {
-                    dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
+                    if (faultInfo.get(i).code != null)
+                        dtcPackage.dtcs.put(faultInfo.get(i).code,isPending);
                 }
 
                 dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
