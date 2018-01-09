@@ -104,7 +104,7 @@ public class ReportRepository implements Repository {
 
         Log.d(TAG,"createEmissionsReport() body: "+body);
 
-        networkHelper.post(String.format("vDistanceSinceCC1/car/%d/report/emissions", carId)
+        networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
                 , (response, requestError) -> {
 
                     if (requestError == null){
@@ -270,7 +270,7 @@ public class ReportRepository implements Repository {
 
         networkHelper.post(String.format("v1/car/%d/report/vehicle-health", carId)
                 , (response, requestError) -> {
-
+                    Log.d(TAG,"vhr response: "+response);
                     if (requestError == null){
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
                         if (vehicleHealthReport == null){
