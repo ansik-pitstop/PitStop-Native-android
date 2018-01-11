@@ -87,7 +87,7 @@ public class RequestError {
         try{
             return String.format("{ error: %s, message: %s, statusCode: %d }"
                     ,getError(),getMessage(),getStatusCode());
-        }catch(NullPointerException){
+        }catch(NullPointerException e){
             return "null";
         }
 
