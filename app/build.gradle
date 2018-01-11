@@ -75,7 +75,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
-        versionCode 198
+        versionCode 199
         versionName "4.3.5"
         multiDexEnabled = true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
