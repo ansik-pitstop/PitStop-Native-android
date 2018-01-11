@@ -33,7 +33,6 @@ public class NetworkModule {
     }
 
     private OkHttpClient getHttpClientNoAuth(Context context){
-        GlobalApplication application = (GlobalApplication)context.getApplicationContext();
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
