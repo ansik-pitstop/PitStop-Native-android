@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
@@ -31,6 +32,21 @@ public class NetworkModule {
         return new NetworkHelper(context, sharedPreferences);
     }
 
+    private OkHttpClient getHttpClientNoAuth(Context context){
+        GlobalApplication application = (GlobalApplication)context.getApplicationContext();
+        return new OkHttpClient.Builder()
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+
+                    Request.Builder builder = original.newBuilder()
+                            .header("client-id", SecretUtils.getClientId(context))
+                            .header("Content-Type", "application/json");
+
+                    return chain.proceed(builder.build());
+                })
+                .build();
+    }
+
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
         return new OkHttpClient.Builder()
@@ -41,6 +57,16 @@ public class NetworkModule {
                             .header("client-id", SecretUtils.getClientId(context))
                             .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer "+application.getAccessToken());
+
+                    okhttp3.Response response = chain.proceed(original);
+                    if (response.code() == 401){
+                        pitstopAuthApi(context).refreshAccessToken(application.getRefreshToken());
+                        Request.Builder builderNew = original.newBuilder()
+                                .header("client-id", SecretUtils.getClientId(context))
+                                .header("Content-Type", "application/json")
+                                .header("Authorization", "Bearer "+application.getAccessToken());
+                        return chain.proceed(builderNew.build());
+                    }
 
                     return chain.proceed(builder.build());
                 })
@@ -56,5 +82,16 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(PitstopCarApi.class);
+    }
+
+    @Provides
+    PitstopAuthApi pitstopAuthApi(Context context){
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClientNoAuth(context))
+                .build()
+                .create(PitstopAuthApi.class);
     }
 }
