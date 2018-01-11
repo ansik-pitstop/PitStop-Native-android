@@ -64,7 +64,7 @@ public class NetworkModule {
 
                     okhttp3.Response response = chain.proceed(original);
                     if (response.code() == 401){
-                        Log.d(TAG,"Refreshing jwt token");
+                        Log.d(TAG,"Refreshing jwt token received 401 response");
                         Response<PitstopResponse<Token>> tokenResponse = pitstopAuthApi(context)
                                 .refreshAccessToken(application.getRefreshToken()).execute();
                         if (tokenResponse.isSuccessful()){
@@ -79,6 +79,7 @@ public class NetworkModule {
                                     .header("Authorization", "Bearer "+token);
                             return chain.proceed(builderNew.build()); //Ping same endpoint again after token has been refreshed
                         }else{
+                            Log.d(TAG,"Token refresh request was not successful, raw response: "+tokenResponse.raw());
                             return tokenResponse.raw(); //Return unsuccessful token refresh response
                         }
                     }
