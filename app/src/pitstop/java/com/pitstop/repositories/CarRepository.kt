@@ -202,7 +202,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)
 
-        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+        remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnNext({next ->
@@ -221,7 +221,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 .subscribe()
 
         val retRemote = remote.cache().map({pitstopResponse ->
-            val carList = pitstopResponse.body()
+            val carList = pitstopResponse
             if (carList != null){
 
                 //Fix shopId if it's 0
