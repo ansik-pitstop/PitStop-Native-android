@@ -31,20 +31,6 @@ public class NetworkModule {
         return new NetworkHelper(context, sharedPreferences);
     }
 
-    private OkHttpClient getHttpClientNoAuth(Context context){
-        GlobalApplication application = (GlobalApplication)context.getApplicationContext();
-        return new OkHttpClient.Builder()
-                .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    Request.Builder builder = original.newBuilder()
-                            .header("client-id", SecretUtils.getClientId(context))
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", "Bearer "+application);
-
-                    return chain.proceed(builder.build());
-                }).build();
-    }
-
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
         return new OkHttpClient.Builder()
