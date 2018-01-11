@@ -2,14 +2,13 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
-import com.pitstop.retrofit.PitstopResponse;
 import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
@@ -20,6 +19,7 @@ import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -39,6 +39,9 @@ public class NetworkModule {
     }
 
     private OkHttpClient getHttpClientNoAuth(Context context){
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request original = chain.request();
@@ -49,12 +52,14 @@ public class NetworkModule {
 
                     return chain.proceed(builder.build());
                 })
+                .addInterceptor(logging)
                 .build();
     }
 
-    public static boolean dummyJwtRefresh = false;
     private OkHttpClient getHttpClient(Context context){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Log.d(TAG,"Adding interceptor.");
@@ -66,24 +71,18 @@ public class NetworkModule {
                             .header("Authorization", "Bearer "+application.getAccessToken());
 
                     okhttp3.Response response = null;
-                    if (!dummyJwtRefresh) {
-                        response = new okhttp3.Response.Builder().code(401).message("jwt expired").build(); //Todo: remove debug code
-                        Log.d(TAG, "!dummyJwtRefresh, creating dummy response, response.code: "+response.code());
-                        dummyJwtRefresh = true;
-                        new Handler().postDelayed(() -> {
-                            Log.d(TAG, "resetting dummyJwtRefresh to false");
-                            dummyJwtRefresh = false;
-                        }, 5000);
-                    }else{
-                        Log.d(TAG,"creating real response");
-                        response = chain.proceed(original);
-                    }
+                    Log.d(TAG,"creating real response");
+                    response = chain.proceed(original);
+
                     if (response.code() == 401){
                         Log.d(TAG,"Refreshing jwt token received 401 response");
-                        Response<PitstopResponse<Token>> tokenResponse = pitstopAuthApi(context)
-                                .refreshAccessToken(application.getRefreshToken()).execute();
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.addProperty("refreshToken",application.getRefreshToken());
+                        Response<Token> tokenResponse = pitstopAuthApi(context)
+                                .refreshAccessToken(jsonObject).execute();
+                        Log.d(TAG,"tokenResponse: "+tokenResponse);
                         if (tokenResponse.isSuccessful()){
-                            String token = tokenResponse.body().component1().getValue();
+                            String token = tokenResponse.body().getAccessToken();
                             Log.d(TAG,"received new token: "+token);
                             application.setTokens(token,application.getRefreshToken());
 
@@ -94,13 +93,13 @@ public class NetworkModule {
                                     .header("Authorization", "Bearer "+token);
                             return chain.proceed(builderNew.build()); //Ping same endpoint again after token has been refreshed
                         }else{
-                            Log.d(TAG,"Token refresh request was not successful, raw response: "+tokenResponse.raw());
+                            Log.d(TAG,"Token refresh request was not successful, raw response: "+tokenResponse.body());
                             return tokenResponse.raw(); //Return unsuccessful token refresh response //Todo: should log out here
                         }
                     }
 
                     return chain.proceed(builder.build()); //Return successful response & non 401 errors
-                })
+                }).addInterceptor(logging)
                 .build();
     }
 
