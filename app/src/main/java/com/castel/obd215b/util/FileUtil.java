@@ -1,5 +1,9 @@
 package com.castel.obd215b.util;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,10 +11,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 
 public class FileUtil {
 	private static FileUtil instance;

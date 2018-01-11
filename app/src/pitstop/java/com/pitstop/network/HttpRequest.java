@@ -229,9 +229,12 @@ public class HttpRequest {
                     if (response.getStatusCode() == 401
                             && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
                         // Error handling
+                        Logger.getInstance().logD(TAG, "Access token refresh request being sent",DebugMessage.TYPE_NETWORK);
                         NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
                             @Override
                             public void done(String response, RequestError requestError) {
+                                Logger.getInstance().logD(TAG, "Access token refresh response received, response: "
+                                        +response+", request error: "+requestError,DebugMessage.TYPE_NETWORK);
                                 if (requestError == null) {
                                     // try to parse the refresh token, if success then good, otherwise retry
                                     try {

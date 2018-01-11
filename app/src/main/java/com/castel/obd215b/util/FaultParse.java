@@ -1,13 +1,12 @@
 package com.castel.obd215b.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import android.content.Context;
 
 import com.castel.obd215b.info.FaultInfo;
 
-import android.content.Context;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class FaultParse {
 
@@ -56,7 +55,7 @@ public class FaultParse {
 
 			String fileCN = "";
 			String fileEN = "";
-			
+
 			fileCN = "malfunction_all.properties";
 			fileEN = "malfunction_all_en.properties";
 			String explain;
@@ -67,14 +66,14 @@ public class FaultParse {
 					.readProperties(context, fileCN, code).trim();
 			explainEN = FileUtil.getInstance()
 					.readProperties(context, fileEN, code).trim();
-			
+
 			Locale locale = context.getResources().getConfiguration().locale;
 	        String language = locale.getLanguage();
 	        if (language.endsWith("zh"))
 	        	explain = explainCN;
 	        else
 	        	explain = explainEN;
-			
+
 			if (!Utils.isEmpty(explainCN)) {
 				fault.meaning = explain;
 			} else {
@@ -85,7 +84,7 @@ public class FaultParse {
 		}
 		return faultInfos;
 	}
-	
+
 	public static List<FaultInfo> parseCommercial(Context context, String[] faults) {
 		List<FaultInfo> fualtValues = new ArrayList<FaultInfo>();
 		String fileCN = "malfunction_commercial.properties";
@@ -105,7 +104,7 @@ public class FaultParse {
 			}
 			fualtValues.add(fualtValue);
 		}
-			
+
 		return fualtValues;
 	}
 }
