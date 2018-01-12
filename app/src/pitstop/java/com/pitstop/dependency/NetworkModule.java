@@ -110,7 +110,7 @@ public class NetworkModule {
                         Log.d(TAG,"Request failed for reason other than 401, err: "+response.message()+", code: "+response.code());
                     }
 
-                    return chain.proceed(builder.build()); //Return successful response & non 401 errors
+                    return response; //Return successful response & non 401 errors
                 }).addInterceptor(logging)
                 .build();
     }
