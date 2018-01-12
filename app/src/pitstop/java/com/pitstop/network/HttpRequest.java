@@ -193,8 +193,6 @@ public class HttpRequest {
             return response;
         }
 
-        Semaphore semaphore = new Semaphore(1);
-
         @Override
         protected void onPostExecute(Response<String> response) {
             if (response != null) {
@@ -233,51 +231,45 @@ public class HttpRequest {
                     if (response.getStatusCode() == 401
                             && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
                         // Error handling
-                        try{
-                            semaphore.acquire();
-                            Log.d(TAG,"Acquired semaphore, prevToken: "+response.getHeaderField("Authorization")+", currentToken: Bearer "+application.getAccessToken());
-                            //Check if different thread already refreshed the token, if so don't refresh
-                            if (!response.getHeaderField("Authorization").equals("Bearer "+application.getAccessToken())){
-                                Log.d(TAG,"Token has changed, sending request with new token without refresh");
-                                headers.put("Authorization", "Bearer " + application.getAccessToken());
-                                executeAsync();
-                                semaphore.release();
-                            }
-                            //Otherwise refresh token and retry
-                            else{
-                                Log.d(TAG,"Token has not changed.");
-                                Logger.getInstance().logD(TAG, "Access token refresh request being sent",DebugMessage.TYPE_NETWORK);
-                                NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
-                                    @Override
-                                    public void done(String response, RequestError requestError) {
-                                        Logger.getInstance().logD(TAG, "Access token refresh response received, response: "
-                                                +response+", request error: "+requestError,DebugMessage.TYPE_NETWORK);
-                                        if (requestError == null) {
-                                            // try to parse the refresh token, if success then good, otherwise retry
-                                            try {
-                                                String newAccessToken = new JSONObject(response).getString("accessToken");
-                                                application.setTokens(newAccessToken, application.getRefreshToken());
-                                                headers.put("Authorization", "Bearer " + newAccessToken);
-                                                executeAsync();
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                                // show failure
-                                                showNetworkFailure(e.getMessage());
-                                            }
-                                        } else {
+                        //Check if different thread already refreshed the token, if so don't refresh
+                        if (!headers.get("Authorization").equals("Bearer "+application.getAccessToken())){
+                            Log.d(TAG,"Token has changed, sending request with new token without refresh");
+                            headers.put("Authorization", "Bearer " + application.getAccessToken());
+                            executeAsync();
+                        }
+                        //Otherwise refresh token and retry
+                        else{
+                            Log.d(TAG,"Token has not changed.");
+                            Logger.getInstance().logD(TAG, "Access token refresh request being sent",DebugMessage.TYPE_NETWORK);
+                            NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
+                                @Override
+                                public void done(String response, RequestError requestError) {
+                                    Logger.getInstance().logD(TAG, "Access token refresh response received, response: "
+                                            +response+", request error: "+requestError,DebugMessage.TYPE_NETWORK);
+                                    if (requestError == null) {
+                                        // try to parse the refresh token, if success then good, otherwise retry
+                                        try {
+                                            String newAccessToken = new JSONObject(response).getString("accessToken");
+                                            application.setTokens(newAccessToken, application.getRefreshToken());
+                                            headers.put("Authorization", "Bearer " + newAccessToken);
+                                        //    executeAsync();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                             // show failure
-                                            if (requestError.getStatusCode() == 400) {
-                                                logOut();
-                                            } else {
-                                                showNetworkFailure(requestError.getMessage());
-                                            }
+                                            showNetworkFailure(e.getMessage());
                                         }
-                                        semaphore.release();
+                                    } else {
+                                        // show failure
+                                        if (requestError.getStatusCode() == 400) {
+                                            logOut();
+                                        } else {
+                                            showNetworkFailure(requestError.getMessage());
+                                        }
                                     }
-                                });
-                            }
-                        }catch(InterruptedException e){
-                            e.printStackTrace();
+                                    Log.d(TAG,"Releasing semaphore");
+                                    semaphore.release();
+                                }
+                            });
                         }
                     } else {
                         listener.done(null, error);
