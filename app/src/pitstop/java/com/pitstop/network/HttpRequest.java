@@ -26,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.concurrent.Semaphore;
 
 /**
  * Created by Paul Soladoye  on 3/8/2016.
@@ -267,7 +266,6 @@ public class HttpRequest {
                                         }
                                     }
                                     Log.d(TAG,"Releasing semaphore");
-                                    semaphore.release();
                                 }
                             });
                         }
