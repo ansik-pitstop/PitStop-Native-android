@@ -361,8 +361,6 @@ public class ELM327Device implements AbstractDevice {
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
             return;
-        } else if (communicator != null && manager.getState() == BluetoothCommunicator.CONNECTED){
-            communicator.close();
         }
 
         manager.setState(BluetoothCommunicator.CONNECTING);
