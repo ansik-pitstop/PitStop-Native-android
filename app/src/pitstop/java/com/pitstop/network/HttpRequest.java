@@ -12,6 +12,7 @@ import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.goebl.david.WebbException;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
@@ -25,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
 /**
@@ -164,7 +166,6 @@ public class HttpRequest {
                                 request.header(key, headers.get(key));
                             }
                         }
-
                         response = request.connectTimeout(12000).readTimeout(12000).asString();
                         break;
                     }
@@ -186,8 +187,13 @@ public class HttpRequest {
                         break;
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (WebbException e) {
+                Logger.getInstance().logException(TAG,e,DebugMessage.TYPE_NETWORK);
+                if (e.getCause() instanceof SocketTimeoutException){
+                    Logger.getInstance().logE(TAG,"Network request timeout exception"
+                            , DebugMessage.TYPE_NETWORK);
+                    return null;
+                }
             }
             return response;
         }
