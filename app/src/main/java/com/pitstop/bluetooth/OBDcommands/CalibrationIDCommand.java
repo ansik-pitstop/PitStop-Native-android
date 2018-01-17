@@ -1,6 +1,6 @@
 package com.pitstop.bluetooth.OBDcommands;
 
-import com.github.pires.obd.commands.ObdCommand;
+import com.elm.commands.ObdCommand;
 
 /**
  * Created by ishan on 2017-12-20.

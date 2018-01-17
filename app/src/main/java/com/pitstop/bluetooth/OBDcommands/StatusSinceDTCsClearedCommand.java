@@ -1,7 +1,7 @@
 package com.pitstop.bluetooth.OBDcommands;
 
-import com.github.pires.obd.commands.control.DtcNumberCommand;
-import com.github.pires.obd.enums.AvailableCommandNames;
+import com.elm.commands.control.DtcNumberCommand;
+import com.elm.enums.AvailableCommandNames;
 
 /**
  * Created by ishan on 2017-12-20.
@@ -35,7 +35,7 @@ public class StatusSinceDTCsClearedCommand extends DtcNumberCommand {
     /**
      * Copy ctor.
      *
-     * @param other a {@link com.github.pires.obd.commands.control.DtcNumberCommand} object.
+     * @param other a {@link com.elm.commands.control.DtcNumberCommand} object.
      */
     public StatusSinceDTCsClearedCommand(DtcNumberCommand other) {
         super(other);

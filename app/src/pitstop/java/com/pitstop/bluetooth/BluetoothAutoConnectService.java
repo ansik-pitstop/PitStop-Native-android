@@ -684,9 +684,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 ,deviceID,ignoreVerification);
     }
 
-
-
-
     private void notifyGotSupportedPids(String value) {
         Log.d(TAG, "notifyGotSUpportedPIDs()");
         for (Observer o: observerList ){

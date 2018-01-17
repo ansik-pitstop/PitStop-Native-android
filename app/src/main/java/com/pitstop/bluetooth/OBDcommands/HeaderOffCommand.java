@@ -1,6 +1,6 @@
 package com.pitstop.bluetooth.OBDcommands;
 
-import com.github.pires.obd.commands.ObdCommand;
+import com.elm.commands.ObdCommand;
 
 /**
  * Created by ishan on 2017-12-30.
@@ -8,7 +8,7 @@ import com.github.pires.obd.commands.ObdCommand;
 
 public class HeaderOffCommand extends ObdCommand {
     public HeaderOffCommand() {
-        super("AT H0");
+        super("ATH 0");
     }
 
     @Override
@@ -28,6 +28,6 @@ public class HeaderOffCommand extends ObdCommand {
 
     @Override
     public String getName() {
-        return HeaderOnCommand.class.getSimpleName();
+        return HeaderOffCommand.class.getSimpleName();
     }
 }

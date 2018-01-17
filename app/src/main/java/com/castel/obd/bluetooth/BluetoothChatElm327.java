@@ -6,13 +6,9 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
-import com.castel.obd.util.Utils;
-import com.facebook.stetho.inspector.protocol.module.Network;
-import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.exceptions.NoDataException;
-
-import org.json.JSONObject;
+import com.elm.commands.ObdCommand;
+import com.elm.commands.protocol.EchoOffCommand;
+import com.elm.exceptions.NoDataException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -187,6 +183,7 @@ public class BluetoothChatElm327 {
                     responseThread.readCommandResponse(obdCommand);
 
                 } catch (Exception e) {
+                    Log.d(TAG,"exception for command: "+obdCommand.getName());
                     e.printStackTrace();
                     if (e instanceof NoDataException) {
                         // In the ELM protocol, if you ask for a PID which isnt supported or soemthing for whi

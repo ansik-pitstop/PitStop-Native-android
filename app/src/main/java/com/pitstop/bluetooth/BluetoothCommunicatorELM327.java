@@ -3,33 +3,21 @@ package com.pitstop.bluetooth;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import com.castel.obd.bleDevice.ELM327Device;
-import com.castel.obd.bluetooth.BluetoothChat;
 import com.castel.obd.bluetooth.BluetoothChatElm327;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
-import com.castel.obd.data.OBDInfoSP;
-import com.castel.obd.util.LogUtil;
-import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.control.VinCommand;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
-import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
-import com.github.pires.obd.commands.protocol.TimeoutCommand;
-import com.github.pires.obd.enums.ObdProtocols;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.elm.commands.ObdCommand;
+import com.elm.commands.control.VinCommand;
+import com.elm.commands.protocol.EchoOffCommand;
+import com.elm.commands.protocol.LineFeedOffCommand;
+import com.elm.commands.protocol.SelectProtocolCommand;
+import com.elm.commands.protocol.TimeoutCommand;
+import com.elm.enums.ObdProtocols;
 
 import static com.castel.obd.bluetooth.IBluetoothCommunicator.NO_DATA;
 
