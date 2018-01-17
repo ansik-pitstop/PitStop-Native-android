@@ -31,26 +31,26 @@ public interface AbstractDevice {
     String getDeviceName();
 
     // parameters
-    void getVin();
-    void getRtc();
-    void setRtc(long rtcTime);
-    void getPids(String pids);
-    void getSupportedPids();
-    void setPidsToSend(String pids, int timeInterval);
-    void requestSnapshot();
+    boolean getVin();
+    boolean getRtc();
+    boolean setRtc(long rtcTime);
+    boolean getPids(String pids);
+    boolean getSupportedPids();
+    boolean setPidsToSend(String pids, int timeInterval);
+    boolean requestSnapshot();
 
     // monitor
-    void clearDtcs();
-    void getDtcs(); // stored
-    void getPendingDtcs(); // pending
-    void getFreezeFrame(); // FF
+    boolean clearDtcs();
+    boolean getDtcs(); // stored
+    boolean getPendingDtcs(); // pending
+    boolean getFreezeFrame(); // FF
 
-    void clearDeviceMemory();
-    void resetDeviceToDefaults();
-    void resetDevice();
-    void connectToDevice(BluetoothDevice device);
-    void sendPassiveCommand(String payload);
-    void closeConnection();
-    void setCommunicatorState(int state);
+    boolean clearDeviceMemory();
+    boolean resetDeviceToDefaults();
+    boolean resetDevice();
+    boolean connectToDevice(BluetoothDevice device);
+    boolean sendPassiveCommand(String payload);
+    boolean closeConnection();
+    boolean setCommunicatorState(int state);
     int getCommunicatorState();
 }

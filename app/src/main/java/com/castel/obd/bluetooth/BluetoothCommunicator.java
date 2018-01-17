@@ -17,7 +17,7 @@ public interface BluetoothCommunicator {
     int DISCONNECTED = 1;
     int CONNECTING = 2;
 
-    void writeData(byte[] bytes);
+    boolean writeData(byte[] bytes);
 
     void connectToDevice(BluetoothDevice device);
 

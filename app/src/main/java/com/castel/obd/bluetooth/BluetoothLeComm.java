@@ -124,15 +124,16 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     }
 
     @Override
-    public void writeData(byte[] bytes) {
+    public boolean writeData(byte[] bytes) {
         if(!hasDiscoveredServices || serviceUuid == null || writeChar == null || readChar == null) {
-            return;
+            return false;
         }
 
         if (btConnectionState == CONNECTED && mGatt != null) {
             queueCommand(new WriteCommand(bytes, WriteCommand.WRITE_TYPE.DATA
                     , serviceUuid, writeChar, readChar));
         }
+        return true;
     }
 
 

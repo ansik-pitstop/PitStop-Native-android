@@ -174,10 +174,12 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void onConnectionStateChange(int state) {
+        Log.d(TAG,"onConnectionStateChange() state: "+state);
         this.manager.setState(state);
 
         switch(state){
             case BluetoothCommunicator.CONNECTED:
+                Log.d(TAG,"Setting up ELM device");
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
@@ -189,64 +191,66 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public void requestData() {
-
+        Log.d(TAG,"requestData()");
     }
 
     @Override
     public String getDeviceName() {
+        Log.d(TAG,"getDeviceName()");
         return deviceName;
     }
 
 
     @Override
-    public void getVin() {
+    public boolean getVin() {
         Log.d(TAG, "getVin()");
-        if (communicator==null){
-            Log.d(TAG, "communicator is null ");
-            return;
-
-        }
+        if (communicator == null) return false;
         ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand());
+        return true;
     }
 
     @Override
-    public void getRtc() {
+    public boolean getRtc() { //Todo: this method doesn't belong here
+        Log.d(TAG,"getRtc()");
         //ELM devices dont have internal clock or memore so the rtc tome returned should just be current time
         manager.onGotRtc(System.currentTimeMillis() / 1000);
-
+        return true;
     }
 
     @Override
-    public void setRtc(long rtcTime) {
-
+    public boolean setRtc(long rtcTime) { //Todo: this method doesn't belong here
+        Log.d(TAG,"setRtc() rtcTime: "+rtcTime);
+        return true;
     }
 
     @Override
-    public void getPids(String pids) {
-
-
+    public boolean getPids(String pids) {
+        Log.d(TAG,"getPids() pids: "+pids);
+        //IMPLEMENT THIS
+        return false;
     }
 
     @Override
-    public void getSupportedPids() {
-
+    public boolean getSupportedPids() {
+        Log.d(TAG,"getSupportedPids()");
+        //IMPLEMENT THIS
+        return false;
     }
 
     @Override
-    public void setPidsToSend(String pids, int timeInterval) {
-
+    public boolean setPidsToSend(String pids, int timeInterval) {
+        Log.d(TAG,"setPidsToSend() pids: "+pids+", timeInterval: "+timeInterval);
+        //IMPLEMENT THIS
+        return false;
     }
 
     @Override
-    public void requestSnapshot() {
-        // make sure you change this
-        /*Log.d(TAG, "requestSnapshot()");
-        if (communicator==null){
-            Log.d(TAG, "communicator is null ");
-            return;
-
-        }*/
-//        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
+    public boolean requestSnapshot() {
+        Log.d(TAG,"requestSnapshot()");
+        if (communicator == null)
+            return false;
+        //Todo: Remove debug code below
+        //        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
 //        pidCommandQueue.add(new DescribeProtocolCommand());
 //        pidCommandQueue.add(new StatusSinceDTCsClearedCommand());
           pidCommandQueue.add(new HeaderOffCommand());
@@ -263,112 +267,115 @@ public class ELM327Device implements AbstractDevice {
 //        pidCommandQueue.add(new OBDStandardCommand());
 //        pidCommandQueue.add(new FindFuelTypeCommand());
         start();
-
-
-
-
+        return true;
     }
 
     @Override
-    public void clearDtcs() {
-        Log.d(TAG, "getVin()");
+    public boolean clearDtcs() {
+        Log.d(TAG, "clearDtcs()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
-            return;
+            return false;
 
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new ResetTroubleCodesCommand());
-
-
+        return true;
     }
 
     @Override
-    public void getDtcs() {
+    public boolean getDtcs() {
         Log.d(TAG, "getDtc()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
-            return;
+            return false;
 
         }
         currentDtcsRequested = true;
         ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand());
-
-
-
+        return true;
     }
 
     @Override
-    public void getPendingDtcs() {
+    public boolean getPendingDtcs() {
         Log.d(TAG, "getPendingDtc()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
-            return;
-
+            return false;
+        }else if (currentDtcsRequested){
+            return false;
         }
-        if (currentDtcsRequested)return;
+
         ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand());
-
-
-    }
-    int k = 0 ;
-    @Override
-    public void getFreezeFrame() {
-
-
+        return true;
 
     }
 
     @Override
-    public void clearDeviceMemory() {
-
+    public boolean getFreezeFrame() {
+        return false; //Implement this
     }
 
     @Override
-    public void resetDeviceToDefaults() {
-
+    public boolean clearDeviceMemory() {
+        return false; //Todo: this doesn't belong in this class
     }
 
     @Override
-    public void resetDevice() {
-
+    public boolean resetDeviceToDefaults() {
+        //Todo: this doesn't belong in this class
+        return false;
     }
 
     @Override
-    public synchronized void connectToDevice(BluetoothDevice device) {
+    public boolean resetDevice() {
+        //Todo: this doesn't belong in this class
+        return false;
+    }
+
+    @Override
+    public synchronized boolean connectToDevice(BluetoothDevice device) {
 
         Log.d(TAG, "connectToDevice: " + device.getName());
         this.deviceName = device.getAddress();
         if (manager.getState() == BluetoothCommunicator.CONNECTING){
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
-            return;
+            return false;
         }
 
         manager.setState(BluetoothCommunicator.CONNECTING);
         Log.i(TAG, "Connecting to Classic device");
         communicator.connectToDevice(device);
+        return true;
     }
 
     @Override
-    public void sendPassiveCommand(String payload) {
-
+    public boolean sendPassiveCommand(String payload) {
+        return false; //Implement this
     }
 
     @Override
-    public void closeConnection() {
+    public boolean closeConnection() {
+        if (communicator == null) return false;
         communicator.close();
-
+        return true;
     }
 
     @Override
-    public void setCommunicatorState(int state) {
-        if (communicator!=null)
+    public boolean setCommunicatorState(int state) {
+        if (communicator!=null){
             communicator.bluetoothStateChanged(state);
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     @Override
     public int getCommunicatorState() {
-        return communicator.getState();
+        if (communicator == null) return BluetoothCommunicator.DISCONNECTED;
+        else return communicator.getState();
     }
 
     public void parseData(ObdCommand obdCommand) {

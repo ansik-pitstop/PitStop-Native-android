@@ -36,8 +36,9 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
     }
 
     @Override
-    public void writeData(byte[] bytes) {
-
+    public boolean writeData(byte[] bytes) {
+        //Remove this
+        return false;
     }
 
     public void writeData(ObdCommand obdCommand){

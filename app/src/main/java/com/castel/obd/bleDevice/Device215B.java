@@ -26,7 +26,6 @@ import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
-import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
@@ -123,10 +122,10 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void requestSnapshot(){
+    public boolean requestSnapshot(){
         Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"0"));
         String command =  pidPackage("0",0,null,"0");
-        writeToObd(command);
+        return writeToObd(command);
     }
 
     @Override
@@ -135,10 +134,9 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void getVin() {
+    public boolean getVin() {
         Log.d(TAG, "getVin");
-        writeToObd(qiSingle(VIN_PARAM));
-//        return qiSingle(VIN_PARAM);
+        return writeToObd(qiSingle(VIN_PARAM));
     }
 
     public void setDeviceNameAndId(String name, String id){
@@ -154,69 +152,65 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void  getRtc() {
-        writeToObd( qiSingle(RTC_TIME_PARAM));
+    public boolean getRtc() {
+        return writeToObd( qiSingle(RTC_TIME_PARAM));
     }
 
     @Override
-    public void setRtc(long rtcTime) {
+    public boolean setRtc(long rtcTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(rtcTime);
         String dateString = new SimpleDateFormat("yyMMddHHmmss").format(calendar.getTime());
         String command =  siSingle(RTC_TIME_PARAM, dateString);
         Log.d(TAG, "settingRtcTo: " + dateString);
-        writeToObd(command);
-
-
+        return writeToObd(command);
     }
 
     @Override
-    public void getPids(String pids) {
+    public boolean getPids(String pids) {
         int count = pids.split(",").length;
         String command =  pidPackage("0", count, pids, "0");
-        writeToObd(command);
+        return writeToObd(command);
     }
 
 
     @Override
-    public void getSupportedPids() {
+    public boolean getSupportedPids() {
         String command = pidtPackage("0");
-        writeToObd(command);
+        return writeToObd(command);
     }
 
     @Override
-    public void setPidsToSend(String pids, int timeInterval) {
+    public boolean setPidsToSend(String pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend: "+pids  + " time interval : " + Integer.toString(timeInterval));
         String command = siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
                 ,  pids.replace(",", "/") + ","+timeInterval);
-        writeToObd(command);
-
-
+        return writeToObd(command);
     }
 
     @Override
-    public void clearDtcs() {
+    public boolean clearDtcs() {
         String command =  dtcPackage("1", "0");
         Log.d(TAG, "clearing DTC, command:  " +command);
-        writeToObd(command);
-
+        return writeToObd(command);
     }
 
     @Override
-    public void getDtcs() {
+    public boolean getDtcs() {
         String command = dtcPackage("0", "0");
         Log.d(TAG, "getDtc()");
-        writeToObd(command);
+        return writeToObd(command);
     }
 
     @Override
-    public void getPendingDtcs() {
-        writeToObd("");
+    public boolean getPendingDtcs() {
+        return writeToObd("");
     }
 
     @Override
-    public void getFreezeFrame() {
+    public boolean getFreezeFrame() {
         // 215B does not require explicit command to read FF
+        return false;
     }
 
     // read data handler
@@ -371,21 +365,21 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void clearDeviceMemory() {
+    public boolean clearDeviceMemory() {
         String command = ciSingle(Constants.CONTROL_EVENT_ID_CHD);
         Log.d(TAG, "clearing Device Memory, command:  " + command);
-        writeToObd(command);
+        return writeToObd(command);
     }
-    public void resetDeviceToDefaults(){
+    public boolean resetDeviceToDefaults(){
         String command = ciSingle(Constants.CONTROL_EVENT_ID_RTD);
         Log.d(TAG, "resetting to defaults, command:  " +command);
-        writeToObd(command);
+        return writeToObd(command);
     }
 
-    public void resetDevice(){
+    public boolean resetDevice(){
         String command = ciSingle(Constants.CONTROL_EVENT_ID_RESET);
         Log.d(TAG, "resetting Device, command:  " + command);
-        writeToObd(command);
+        return writeToObd(command);
     }
 
     private String ciSingle(String command){
@@ -458,11 +452,11 @@ public class Device215B implements AbstractDevice {
 
 
     @Override
-    public synchronized void connectToDevice(BluetoothDevice device) {
+    public synchronized boolean connectToDevice(BluetoothDevice device) {
         if (manager.getState() == BluetoothCommunicator.CONNECTING){
             Logger.getInstance().logI(TAG,"Connecting to device: Error, already connecting/connected to a device"
                     , DebugMessage.TYPE_BLUETOOTH);
-            return;
+            return false;
         }
         manager.setState(BluetoothCommunicator.CONNECTING);
         dataListener.getBluetoothState(manager.getState());
@@ -475,23 +469,28 @@ public class Device215B implements AbstractDevice {
         ((BluetoothLeComm) communicator)
                 .setWriteChar(getWriteChar());
         communicator.connectToDevice(device);
-
+        return true;
     }
 
     @Override
-    public void sendPassiveCommand(String payload) {
-        writeToObd(payload);
+    public boolean sendPassiveCommand(String payload) {
+        return writeToObd(payload);
     }
 
     @Override
-    public void closeConnection() {
+    public boolean closeConnection() {
+        if (communicator == null) return false;
         communicator.close();
+        return true;
     }
 
     @Override
-    public void setCommunicatorState(int state) {
-        if (communicator!=null)
+    public boolean setCommunicatorState(int state) {
+        if (communicator!=null){
             communicator.bluetoothStateChanged(state);
+            return true;
+        }
+        else return false;
     }
 
     @Override
@@ -503,8 +502,7 @@ public class Device215B implements AbstractDevice {
         }
     }
 
-
-    private void writeToObd(String payload) {
+    private boolean writeToObd(String payload) {
         Log.d(TAG,"writeToObd() payload: "+payload+ ", communicator null ? "
                 +(communicator == null) + ", Connected ?  "
                 +(manager.getState() == IBluetoothCommunicator.CONNECTED));
@@ -512,11 +510,11 @@ public class Device215B implements AbstractDevice {
         if (communicator == null
                 || manager.getState() != IBluetoothCommunicator.CONNECTED) {
             Log.d(TAG, "communicator is null or not connected.");
-            return;
+            return false;
         }
 
         if (payload == null || payload.isEmpty()) {
-            return;
+            return false;
         }
 
         try { // get instruction string from json payload
@@ -540,10 +538,13 @@ public class Device215B implements AbstractDevice {
 
 
             if (bytes == null || bytes.length == 0) {
-                return;
+                return false;
             }
-            communicator.writeData(bytes);
+            if (!communicator.writeData(bytes)){
+                return false;
+            }
         }
+        return true;
     }
 
     @Override

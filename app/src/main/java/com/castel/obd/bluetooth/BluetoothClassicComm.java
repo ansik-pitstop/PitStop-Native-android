@@ -60,14 +60,15 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     }
 
     @Override
-    public void writeData(byte[] bytes) {
+    public boolean writeData(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
-            return;
+            return false;
         }
 
         if (btConnectionState == CONNECTED && null != mBluetoothChat.connectedThread) {
             mBluetoothChat.connectedThread.write(bytes);
         }
+        return true;
     }
 
     @Override
