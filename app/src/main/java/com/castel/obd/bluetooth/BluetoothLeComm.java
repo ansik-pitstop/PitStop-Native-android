@@ -18,7 +18,6 @@ import android.util.Log;
 import com.castel.obd.bleDevice.AbstractDevice;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.io.UnsupportedEncodingException;
@@ -173,7 +172,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 case BluetoothProfile.STATE_CONNECTING:
                     Log.i(TAG, "gattCallback STATE_CONNECTING");
                     btConnectionState = CONNECTING;
-                    device.setManagerState(btConnectionState);
+                    device.onConnectionStateChange(btConnectionState);
                     break;
 
 
@@ -194,7 +193,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     Log.i(TAG, "ACTION_GATT_DISCONNECTED");
                     btConnectionState = DISCONNECTED;
                     mixpanelHelper.trackConnectionStatus(MixpanelHelper.DISCONNECTED);
-                    device.setManagerState(btConnectionState);
+                    device.onConnectionStateChange(btConnectionState);
                     NotificationManager mNotificationManager =
                             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
@@ -220,7 +219,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                 // Setting bluetooth state as connected because, you can't communicate with
                 // device until services have been discovered
                 btConnectionState = CONNECTED;
-                device.setManagerState(btConnectionState);
+                device.onConnectionStateChange(btConnectionState);
 
             } else {
                 Log.i(TAG, "Error onServicesDiscovered received: " + status);

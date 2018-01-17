@@ -451,7 +451,7 @@ public class Device215B implements AbstractDevice {
     }
 
     @Override
-    public void setManagerState(int state) {
+    public void onConnectionStateChange(int state) {
         this.manager.setState(state);
     }
 

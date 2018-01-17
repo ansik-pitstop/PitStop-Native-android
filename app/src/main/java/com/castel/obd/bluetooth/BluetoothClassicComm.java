@@ -11,7 +11,6 @@ import com.castel.obd.bleDevice.AbstractDevice;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     public void close() {
         Log.i(TAG, "Closing connection - BluetoothClassicComm");
         btConnectionState = DISCONNECTED;
-        device.setManagerState(DISCONNECTED);
+        device.onConnectionStateChange(DISCONNECTED);
         mBluetoothChat.closeConnect();
         mHandler.removeCallbacks(runnable);
     }
@@ -106,7 +105,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                     Log.i(TAG, "Saving Mac Address - BluetoothClassicComm");
                     OBDInfoSP.saveMacAddress(mContext, (String) msg.obj);
                     Log.i(TAG, "setting dataListener - getting bluetooth state - BluetoothClassicComm");
-                    device.setManagerState(btConnectionState);
+                    device.onConnectionStateChange(btConnectionState);
 
                     break;
                 }
@@ -120,14 +119,14 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
                     OBDInfoSP.saveMacAddress(mContext, "");
                     Log.i(TAG, "Retry connection");
                     Log.i(TAG, "Sending out bluetooth state on dataListener");
-                    device.setManagerState(btConnectionState);
+                    device.onConnectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION: {
                     btConnectionState = DISCONNECTED;
                     LogUtil.i("Bluetooth state:DISCONNECTED");
                     Log.i(TAG, "Bluetooth connection exception - calling get bluetooth state on dListener");
-                    device.setManagerState(btConnectionState);
+                    device.onConnectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_READ_DATA: {

@@ -173,11 +173,18 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public void setManagerState(int state) {
-        if (state == BluetoothCommunicator.CONNECTED){
-            setProtocolCommandAuto();
-        }
+    public void onConnectionStateChange(int state) {
         this.manager.setState(state);
+
+        switch(state){
+            case BluetoothCommunicator.CONNECTED:
+                ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
+                ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
+                ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand());
+                break;
+        }
     }
 
     @Override
@@ -189,7 +196,6 @@ public class ELM327Device implements AbstractDevice {
     public String getDeviceName() {
         return deviceName;
     }
-
 
 
     @Override
@@ -224,17 +230,11 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public void getSupportedPids() {
 
-
-
     }
 
     @Override
     public void setPidsToSend(String pids, int timeInterval) {
 
-    }
-
-    public void setProtocolCommandAuto(){
-        ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
     }
 
     @Override
@@ -249,10 +249,10 @@ public class ELM327Device implements AbstractDevice {
 //        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
 //        pidCommandQueue.add(new DescribeProtocolCommand());
 //        pidCommandQueue.add(new StatusSinceDTCsClearedCommand());
-        pidCommandQueue.add(new HeaderOffCommand());
+          pidCommandQueue.add(new HeaderOffCommand());
 //        pidCommandQueue.add(new AvailablePidsCommand_01_20(true));
-        pidCommandQueue.add(new EmissionsPIDCommand());
-         pidCommandQueue.add(new RPMCommand(true));
+          pidCommandQueue.add(new EmissionsPIDCommand());
+          pidCommandQueue.add(new RPMCommand(true));
 //        pidCommandQueue.add(new DistanceMILOnCommand());
 //        pidCommandQueue.add(new WarmupsSinceCC());
 //        pidCommandQueue.add(new DistanceSinceCCCommand());
@@ -369,22 +369,6 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public int getCommunicatorState() {
         return communicator.getState();
-    }
-
-
-    private void setUpDevice(){
-        Log.d(TAG, "getVin()");
-        if (communicator==null){
-            Log.d(TAG, "communicator is null ");
-            return;
-
-        }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
-        ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
-        ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
-        ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
-        ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand());
-
     }
 
     public void parseData(ObdCommand obdCommand) {

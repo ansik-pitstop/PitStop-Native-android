@@ -12,12 +12,6 @@ import com.castel.obd.bleDevice.ELM327Device;
 import com.castel.obd.bluetooth.BluetoothChatElm327;
 import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.elm.commands.ObdCommand;
-import com.elm.commands.control.VinCommand;
-import com.elm.commands.protocol.EchoOffCommand;
-import com.elm.commands.protocol.LineFeedOffCommand;
-import com.elm.commands.protocol.SelectProtocolCommand;
-import com.elm.commands.protocol.TimeoutCommand;
-import com.elm.enums.ObdProtocols;
 
 import static com.castel.obd.bluetooth.IBluetoothCommunicator.NO_DATA;
 
@@ -72,7 +66,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
     public void close() {
         Log.d(TAG,"close()");
         btConnectionState = DISCONNECTED;
-        ELM327.setManagerState(btConnectionState);
+        ELM327.onConnectionStateChange(btConnectionState);
         mBluetoothChat.closeConnect();
 
     }
@@ -102,13 +96,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                 case BLUETOOTH_CONNECT_SUCCESS: {
                     Log.d(TAG, "BluetoothConnection success");
                     btConnectionState = CONNECTED;
-                    ELM327.setManagerState(btConnectionState);
-                    // set up the device
-                    writeData(new EchoOffCommand());
-                    writeData(new LineFeedOffCommand());
-                    writeData(new TimeoutCommand(125));
-                    writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
-                    writeData(new VinCommand());
+                    ELM327.onConnectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_CONNECT_FAIL: {
@@ -116,7 +104,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                     if (mBluetoothAdapter.isDiscovering()) {
                         mBluetoothAdapter.cancelDiscovery();
                     }
-                    ELM327.setManagerState(btConnectionState);
+                    ELM327.onConnectionStateChange(btConnectionState);
                     break;
                 }
                 case NO_DATA: {
@@ -131,7 +119,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                 }
                 case BLUETOOTH_CONNECT_EXCEPTION: {
                     btConnectionState = DISCONNECTED;
-                    ELM327.setManagerState(btConnectionState);
+                    ELM327.onConnectionStateChange(btConnectionState);
                     break;
                 }
                 case BLUETOOTH_READ_DATA: {

@@ -1,11 +1,8 @@
 package com.castel.obd.bleDevice;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 
-import com.castel.obd.bluetooth.BluetoothCommunicator;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
-import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 
 import java.util.UUID;
 
@@ -27,7 +24,7 @@ public interface AbstractDevice {
     byte[] getBytes(String payload);
 
     void parseData(byte[] data);
-    void setManagerState(int state);
+    void onConnectionStateChange(int state);
 
     void requestData(); // for 215 to ask for IDR
 
