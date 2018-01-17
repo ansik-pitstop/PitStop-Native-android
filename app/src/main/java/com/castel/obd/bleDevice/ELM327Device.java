@@ -434,7 +434,7 @@ public class ELM327Device implements AbstractDevice {
         }
         else if (obdCommand instanceof EmissionsPIDCommand){
             Log.d(TAG, "Emissions PID: " + obdCommand.getCalculatedResult() +", isHeader: "+obdCommand.isHeaders());
-            pidPackage.pids.put("2141",  pidValue);
+            pidPackage.pids.put("2141",  obdCommand.getCalculatedResult());
             next();
 
         }
