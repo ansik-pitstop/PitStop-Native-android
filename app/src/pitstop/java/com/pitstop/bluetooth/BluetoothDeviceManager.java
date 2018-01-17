@@ -237,8 +237,6 @@ public class BluetoothDeviceManager{
         deviceInterface.connectToDevice(device);
     }
 
-
-
     private void connectTo215Device(BluetoothDevice device) {
         Log.d(TAG,"connectTo215Device() device: "+device.getName());
         useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()

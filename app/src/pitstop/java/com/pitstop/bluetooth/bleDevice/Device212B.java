@@ -222,6 +222,7 @@ public class Device212B implements AbstractDevice {
         if ("0".equals(loginPackageInfo.flag)) {
             dataListener.deviceLogin(loginPackageInfo);
         } else if ("1".equals(loginPackageInfo.flag)) {
+            writeToObd(loginPackageInfo.instruction);
             dataListener.deviceLogin(loginPackageInfo);
         }
     }
