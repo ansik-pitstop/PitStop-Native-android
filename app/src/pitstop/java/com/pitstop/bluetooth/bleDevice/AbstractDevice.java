@@ -2,8 +2,6 @@ package com.pitstop.bluetooth.bleDevice;
 
 import android.bluetooth.BluetoothDevice;
 
-import com.pitstop.bluetooth.BluetoothDeviceManager;
-
 import java.util.UUID;
 
 /**
@@ -12,23 +10,12 @@ import java.util.UUID;
 public interface AbstractDevice {
 
     UUID getServiceUuid();
-
     UUID getReadChar();
-
     UUID getWriteChar();
-    
-
-
-    BluetoothDeviceManager.CommType commType();
-
     byte[] getBytes(String payload);
-
     void parseData(byte[] data);
     void onConnectionStateChange(int state);
-
     void requestData(); // for 215 to ask for IDR
-
-    String getDeviceName();
 
     // parameters
     boolean getVin();
@@ -45,11 +32,7 @@ public interface AbstractDevice {
     boolean getPendingDtcs(); // pending
     boolean getFreezeFrame(); // FF
 
-    boolean clearDeviceMemory();
-    boolean resetDeviceToDefaults();
-    boolean resetDevice();
     boolean connectToDevice(BluetoothDevice device);
-    boolean sendPassiveCommand(String payload);
     boolean closeConnection();
     boolean setCommunicatorState(int state);
     int getCommunicatorState();

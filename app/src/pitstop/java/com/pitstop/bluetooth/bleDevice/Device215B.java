@@ -89,13 +89,6 @@ public class Device215B implements AbstractDevice {
             this.communicator = new BluetoothLeComm(context, this); }
     }
 
-    // functions
-
-    @Override
-    public BluetoothDeviceManager.CommType commType() {
-        return BluetoothDeviceManager.CommType.LE;
-    }
-
     @Override
     public UUID getServiceUuid() {
         return UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"); // 215B
@@ -126,11 +119,6 @@ public class Device215B implements AbstractDevice {
         Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"0"));
         String command =  pidPackage("0",0,null,"0");
         return writeToObd(command);
-    }
-
-    @Override
-    public String getDeviceName() {
-        return deviceName;
     }
 
     @Override
@@ -364,12 +352,12 @@ public class Device215B implements AbstractDevice {
         return msg;
     }
 
-    @Override
     public boolean clearDeviceMemory() {
         String command = ciSingle(Constants.CONTROL_EVENT_ID_CHD);
         Log.d(TAG, "clearing Device Memory, command:  " + command);
         return writeToObd(command);
     }
+
     public boolean resetDeviceToDefaults(){
         String command = ciSingle(Constants.CONTROL_EVENT_ID_RTD);
         Log.d(TAG, "resetting to defaults, command:  " +command);
@@ -470,11 +458,6 @@ public class Device215B implements AbstractDevice {
                 .setWriteChar(getWriteChar());
         communicator.connectToDevice(device);
         return true;
-    }
-
-    @Override
-    public boolean sendPassiveCommand(String payload) {
-        return writeToObd(payload);
     }
 
     @Override

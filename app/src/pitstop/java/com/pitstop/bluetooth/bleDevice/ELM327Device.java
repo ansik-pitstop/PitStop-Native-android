@@ -157,11 +157,6 @@ public class ELM327Device implements AbstractDevice {
 
 
     @Override
-    public BluetoothDeviceManager.CommType commType() {
-        return null;
-    }
-
-    @Override
     public byte[] getBytes(String payload) {
         return payload.getBytes();
     }
@@ -193,13 +188,6 @@ public class ELM327Device implements AbstractDevice {
     public void requestData() {
         Log.d(TAG,"requestData()");
     }
-
-    @Override
-    public String getDeviceName() {
-        Log.d(TAG,"getDeviceName()");
-        return deviceName;
-    }
-
 
     @Override
     public boolean getVin() {
@@ -316,23 +304,6 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public boolean clearDeviceMemory() {
-        return false; //Todo: this doesn't belong in this class
-    }
-
-    @Override
-    public boolean resetDeviceToDefaults() {
-        //Todo: this doesn't belong in this class
-        return false;
-    }
-
-    @Override
-    public boolean resetDevice() {
-        //Todo: this doesn't belong in this class
-        return false;
-    }
-
-    @Override
     public synchronized boolean connectToDevice(BluetoothDevice device) {
 
         Log.d(TAG, "connectToDevice: " + device.getName());
@@ -347,11 +318,6 @@ public class ELM327Device implements AbstractDevice {
         Log.i(TAG, "Connecting to Classic device");
         communicator.connectToDevice(device);
         return true;
-    }
-
-    @Override
-    public boolean sendPassiveCommand(String payload) {
-        return false; //Implement this
     }
 
     @Override

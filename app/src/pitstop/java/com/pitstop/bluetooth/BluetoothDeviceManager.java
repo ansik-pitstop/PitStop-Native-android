@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Created by Ben!
  */
-public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListener {
+public class BluetoothDeviceManager{
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
@@ -144,14 +144,6 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
         }
     }
 
-    @Override
-    public void sendCommandPassive(String payload) {
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return;
-        }
-        deviceInterface.sendPassiveCommand(payload);
-    }
-
     public void close() {
         Log.d(TAG,"close()");
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
@@ -240,8 +232,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
     private void connectTo212Device(BluetoothDevice device){
         Log.d(TAG,"connectTo212Device() device: "+device.getName());
-        deviceInterface = new Device212B(mContext, dataListener
-                , BluetoothDeviceManager.this, device.getName(), this);
+        deviceInterface = new Device212B(mContext, dataListener, device.getName(), this);
 
         deviceInterface.connectToDevice(device);
     }
@@ -453,7 +444,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void clearDeviceMemory(){
         Log.d(TAG, "clearDeviceMemory() ");
         if (isConnectedTo215()){
-            deviceInterface.clearDeviceMemory();
+            ((Device215B)deviceInterface).clearDeviceMemory();
 
         }
     }
@@ -462,7 +453,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
 
         Log.d(TAG, "resetToDefualts() ");
         if (isConnectedTo215()){
-            deviceInterface.resetDeviceToDefaults();
+            ((Device215B)deviceInterface).resetDeviceToDefaults();
         }
 
     }
@@ -470,7 +461,7 @@ public class BluetoothDeviceManager implements ObdManager.IPassiveCommandListene
     public void resetDevice(){
         Log.d(TAG, "resetDevice() ");
         if (isConnectedTo215()){
-            deviceInterface.resetDevice();
+            ((Device215B)deviceInterface).resetDevice();
         }
 
     }

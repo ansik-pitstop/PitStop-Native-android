@@ -53,16 +53,13 @@ public class Device212B implements AbstractDevice {
     private BluetoothCommunicator communicator;
 
     private ObdManager.IBluetoothDataListener dataListener;
-    private ObdManager.IPassiveCommandListener passiveCommandListener;
     private Context context;
     private final String deviceName;
     private BluetoothDeviceManager manager;
 
-    public Device212B(Context context, ObdManager.IBluetoothDataListener dataListener,
-                      ObdManager.IPassiveCommandListener passiveCommandListener, String deviceName, BluetoothDeviceManager manager) {
+    public Device212B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
         this.dataListener = dataListener;
         this.context = context;
-        this.passiveCommandListener = passiveCommandListener;
         this.deviceName = deviceName;
         this.manager = manager;
         if (communicator == null)
@@ -70,11 +67,6 @@ public class Device212B implements AbstractDevice {
     }
 
     // functions
-
-    @Override
-    public BluetoothDeviceManager.CommType commType() {
-        return BluetoothDeviceManager.CommType.CLASSIC;
-    }
 
     @Override
     public UUID getServiceUuid() {
@@ -104,11 +96,6 @@ public class Device212B implements AbstractDevice {
     @Override
     public void requestData() {
 
-    }
-
-    @Override
-    public String getDeviceName() {
-        return deviceName;
     }
 
     @Override
@@ -235,7 +222,6 @@ public class Device212B implements AbstractDevice {
         if ("0".equals(loginPackageInfo.flag)) {
             dataListener.deviceLogin(loginPackageInfo);
         } else if ("1".equals(loginPackageInfo.flag)) {
-            passiveCommandListener.sendCommandPassive(loginPackageInfo.instruction);
             dataListener.deviceLogin(loginPackageInfo);
         }
     }
@@ -474,24 +460,6 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public boolean resetDeviceToDefaults() {
-        //TODO
-        return false;
-    }
-
-    @Override
-    public boolean resetDevice() {
-        //TODO
-        return false;
-    }
-
-    @Override
-    public boolean clearDeviceMemory() {
-        //TODO: add this
-        return false;
-    }
-
-    @Override
     public boolean clearDtcs() {
         return false;
     }
@@ -510,11 +478,6 @@ public class Device212B implements AbstractDevice {
         Log.i(TAG, "Connecting to Classic device");
         communicator.connectToDevice(device);
         return true;
-    }
-
-    @Override
-    public boolean sendPassiveCommand(String payload) {
-        return writeToObd(payload);
     }
 
     @Override
