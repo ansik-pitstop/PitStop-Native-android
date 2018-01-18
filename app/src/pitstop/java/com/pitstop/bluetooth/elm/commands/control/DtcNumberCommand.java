@@ -32,8 +32,8 @@ public class DtcNumberCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public DtcNumberCommand() {
-        super("01 01");
+    public DtcNumberCommand(boolean hasHeader) {
+        super("01 01",hasHeader,4);
     }
 
     /**

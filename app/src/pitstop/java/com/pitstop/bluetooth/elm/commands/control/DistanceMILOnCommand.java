@@ -28,8 +28,8 @@ public class DistanceMILOnCommand extends ObdCommand
     /**
      * Default ctor.
      */
-    public DistanceMILOnCommand() {
-        super("01 21");
+    public DistanceMILOnCommand(boolean hasHeaders) {
+        super("01 21",hasHeaders,2);
     }
 
     /**

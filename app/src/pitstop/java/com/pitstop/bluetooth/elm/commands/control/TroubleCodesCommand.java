@@ -42,8 +42,8 @@ public class TroubleCodesCommand extends ObdCommand {
     /**
      * <p>Constructor for TroubleCodesCommand.</p>
      */
-    public TroubleCodesCommand() {
-        super("03");
+    public TroubleCodesCommand(boolean hasHeaders) {
+        super("03",hasHeaders,4);
         codes = new StringBuilder();
     }
 

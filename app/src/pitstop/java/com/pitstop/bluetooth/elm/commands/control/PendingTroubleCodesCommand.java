@@ -43,8 +43,8 @@ public class PendingTroubleCodesCommand extends ObdCommand {
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
-    public PendingTroubleCodesCommand() {
-        super("07");
+    public PendingTroubleCodesCommand(boolean hasHeaders) {
+        super("07",hasHeaders,4);
         codes = new StringBuilder();
     }
 

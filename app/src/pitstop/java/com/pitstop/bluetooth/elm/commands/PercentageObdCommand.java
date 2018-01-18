@@ -25,8 +25,8 @@ public abstract class PercentageObdCommand extends ObdCommand {
      *
      * @param command a {@link java.lang.String} object.
      */
-    public PercentageObdCommand(String command) {
-        super(command);
+    public PercentageObdCommand(String command, boolean hasHeaders, int byteLen) {
+        super(command,hasHeaders,byteLen);
     }
 
     /**

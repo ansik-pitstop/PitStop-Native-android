@@ -33,8 +33,8 @@ public abstract class PersistentCommand extends ObdCommand {
      *
      * @param command a {@link java.lang.String} object.
      */
-    public PersistentCommand(String command) {
-        super(command);
+    public PersistentCommand(String command,boolean hasHeaders,int byteNum) {
+        super(command,hasHeaders,byteNum);
     }
 
     /**

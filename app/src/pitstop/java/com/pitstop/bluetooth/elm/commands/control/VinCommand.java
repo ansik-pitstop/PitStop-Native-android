@@ -24,8 +24,8 @@ public class VinCommand extends PersistentCommand {
     /**
      * Default ctor.
      */
-    public VinCommand() {
-        super("09 02");
+    public VinCommand(boolean hasHeaders) {
+        super("09 02",hasHeaders,20);
     }
 
     /**

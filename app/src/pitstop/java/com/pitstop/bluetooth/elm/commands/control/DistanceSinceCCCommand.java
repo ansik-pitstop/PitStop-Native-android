@@ -28,8 +28,8 @@ public class DistanceSinceCCCommand extends ObdCommand
     /**
      * Default ctor.
      */
-    public DistanceSinceCCCommand() {
-        super("01 31");
+    public DistanceSinceCCCommand(boolean hasHeaders) {
+        super("01 31",hasHeaders,2);
     }
 
     /**

@@ -22,8 +22,8 @@ public class IgnitionMonitorCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public IgnitionMonitorCommand() {
-        super("AT IGN");
+    public IgnitionMonitorCommand(boolean hasHeader) {
+        super("AT IGN",hasHeader,1);
     }
 
     /**

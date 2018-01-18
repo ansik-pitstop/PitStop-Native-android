@@ -27,8 +27,8 @@ public class ModuleVoltageCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public ModuleVoltageCommand() {
-        super("01 42");
+    public ModuleVoltageCommand(boolean hasHeaders) {
+        super("01 42",hasHeaders,2);
     }
 
     /**

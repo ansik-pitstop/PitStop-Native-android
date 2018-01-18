@@ -24,8 +24,8 @@ public class TimingAdvanceCommand extends PercentageObdCommand {
     /**
      * <p>Constructor for TimingAdvanceCommand.</p>
      */
-    public TimingAdvanceCommand() {
-        super("01 0E");
+    public TimingAdvanceCommand(boolean hasHeaders) {
+        super("01 0E",hasHeaders,1);
     }
 
     /**

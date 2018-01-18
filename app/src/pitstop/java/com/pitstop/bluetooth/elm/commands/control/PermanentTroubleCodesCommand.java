@@ -38,8 +38,8 @@ public class PermanentTroubleCodesCommand extends ObdCommand {
     /**
      * <p>Constructor for PermanentTroubleCodesCommand.</p>
      */
-    public PermanentTroubleCodesCommand() {
-        super("0A");
+    public PermanentTroubleCodesCommand(boolean hasHeaders) {
+        super("0A",hasHeaders,4);
         codes = new StringBuilder();
     }
 

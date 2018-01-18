@@ -33,8 +33,8 @@ public class EquivalentRatioCommand extends PercentageObdCommand {
     /**
      * Default ctor.
      */
-    public EquivalentRatioCommand() {
-        super("01 44");
+    public EquivalentRatioCommand(boolean hasHeaders) {
+        super("01 44",hasHeaders,2);
     }
 
     /**
