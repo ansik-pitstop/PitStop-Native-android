@@ -26,8 +26,8 @@ public class RPMCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public RPMCommand(boolean header) {
-        super("01 0C",header);
+    public RPMCommand(boolean hasHeaders) {
+        super("01 0C",hasHeaders,2);
     }
 
     /**

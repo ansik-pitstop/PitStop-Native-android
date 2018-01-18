@@ -26,8 +26,8 @@ public class RuntimeCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public RuntimeCommand() {
-        super("01 1F");
+    public RuntimeCommand(boolean hasHeaders) {
+        super("01 1F",hasHeaders,2);
     }
 
     /**

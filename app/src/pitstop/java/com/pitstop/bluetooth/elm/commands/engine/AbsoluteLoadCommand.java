@@ -24,8 +24,8 @@ public class AbsoluteLoadCommand extends PercentageObdCommand {
     /**
      * Default ctor.
      */
-    public AbsoluteLoadCommand() {
-        super("01 43");
+    public AbsoluteLoadCommand(boolean hasHeaders) {
+        super("01 43",hasHeaders,2);
     }
 
     /**

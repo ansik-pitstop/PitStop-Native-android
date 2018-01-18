@@ -24,8 +24,8 @@ public class LoadCommand extends PercentageObdCommand {
     /**
      * <p>Constructor for LoadCommand.</p>
      */
-    public LoadCommand() {
-        super("01 04");
+    public LoadCommand(boolean hasHeaders) {
+        super("01 04",hasHeaders,1);
     }
 
     /**

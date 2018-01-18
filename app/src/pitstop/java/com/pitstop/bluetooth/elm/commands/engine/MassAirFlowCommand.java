@@ -26,8 +26,8 @@ public class MassAirFlowCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public MassAirFlowCommand() {
-        super("01 10");
+    public MassAirFlowCommand(boolean hasHeaders) {
+        super("01 10",hasHeaders,2);
     }
 
     /**

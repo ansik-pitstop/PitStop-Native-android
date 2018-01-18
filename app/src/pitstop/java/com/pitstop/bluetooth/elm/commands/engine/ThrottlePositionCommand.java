@@ -24,8 +24,8 @@ public class ThrottlePositionCommand extends PercentageObdCommand {
     /**
      * Default ctor.
      */
-    public ThrottlePositionCommand() {
-        super("01 11");
+    public ThrottlePositionCommand(boolean hasHeaders) {
+        super("01 11",hasHeaders,1);
     }
 
     /**

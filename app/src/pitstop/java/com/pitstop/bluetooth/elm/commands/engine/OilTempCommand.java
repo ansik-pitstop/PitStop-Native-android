@@ -24,8 +24,8 @@ public class OilTempCommand extends TemperatureCommand {
     /**
      * Default ctor.
      */
-    public OilTempCommand() {
-        super("01 5C");
+    public OilTempCommand(boolean hasHeaders) {
+        super("01 5C",hasHeaders,1);
     }
 
     /**

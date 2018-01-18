@@ -29,8 +29,8 @@ public abstract class TemperatureCommand extends ObdCommand implements
      *
      * @param cmd a {@link java.lang.String} object.
      */
-    public TemperatureCommand(String cmd) {
-        super(cmd);
+    public TemperatureCommand(String cmd,boolean hasHeaders,int byteNum) {
+        super(cmd,hasHeaders,byteNum);
     }
 
     /**
