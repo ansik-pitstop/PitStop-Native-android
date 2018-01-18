@@ -55,7 +55,7 @@ public class RPMCommand extends ObdCommand {
     /** {@inheritDoc} */
     @Override
     public String getCalculatedResult() {
-        return String.valueOf(rpm);
+        return rawData.substring(4,8);
     }
 
     /** {@inheritDoc} */

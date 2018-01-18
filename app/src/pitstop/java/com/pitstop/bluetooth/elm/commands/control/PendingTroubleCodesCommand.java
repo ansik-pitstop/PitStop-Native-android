@@ -12,6 +12,8 @@
  */
 package com.pitstop.bluetooth.elm.commands.control;
 
+import android.util.Log;
+
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
 
@@ -27,6 +29,9 @@ import java.io.InputStream;
  *
  */
 public class PendingTroubleCodesCommand extends ObdCommand {
+
+    private final String TAG = getClass().getSimpleName();
+
 
     /** Constant <code>dtcLetters={'P', 'C', 'B', 'U'}</code> */
     protected final static char[] dtcLetters = {'P', 'C', 'B', 'U'};
@@ -83,7 +88,7 @@ public class PendingTroubleCodesCommand extends ObdCommand {
             int ch2 = ((b1 & 0x30) >> 4);
             dtc += dtcLetters[ch1];
             dtc += hexArray[ch2];
-//            dtc += workingData.substring(begin+1, begin + 4);
+            dtc += workingData.substring(begin+1, begin + 4);
             if (dtc.equals("P0000")) {
                 return;
             }
@@ -139,7 +144,7 @@ public class PendingTroubleCodesCommand extends ObdCommand {
         }
 
         rawData = res.toString().trim();
-
+        Log.d(TAG,"rawData: "+rawData);
     }
 
     /** {@inheritDoc} */

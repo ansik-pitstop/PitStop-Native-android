@@ -173,6 +173,7 @@ public class ELM327Device implements AbstractDevice {
         this.manager.setState(state);
 
         switch(state){
+            //Setup device once connected
             case BluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"Setting up ELM device");
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
@@ -244,7 +245,7 @@ public class ELM327Device implements AbstractDevice {
           pidCommandQueue.add(new HeaderOffCommand());
 //        pidCommandQueue.add(new AvailablePidsCommand_01_20(true));
           pidCommandQueue.add(new EmissionsPIDCommand());
-          pidCommandQueue.add(new RPMCommand(true));
+//          pidCommandQueue.add(new RPMCommand(true));
 //        pidCommandQueue.add(new DistanceMILOnCommand());
 //        pidCommandQueue.add(new WarmupsSinceCC());
 //        pidCommandQueue.add(new DistanceSinceCCCommand());
