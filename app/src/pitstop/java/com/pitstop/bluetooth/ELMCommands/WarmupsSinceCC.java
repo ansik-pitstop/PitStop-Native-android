@@ -8,8 +8,8 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 public class WarmupsSinceCC extends ObdCommand {
 
-    public WarmupsSinceCC(){
-        super("01 30");
+    public WarmupsSinceCC(boolean hasHeaders){
+        super("01 30",hasHeaders,1);
     }
 
     @Override

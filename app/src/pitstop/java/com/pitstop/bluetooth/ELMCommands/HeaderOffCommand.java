@@ -8,7 +8,7 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 public class HeaderOffCommand extends ObdCommand {
     public HeaderOffCommand() {
-        super("ATH 0");
+        super("ATH 0",false,1);
     }
 
     @Override

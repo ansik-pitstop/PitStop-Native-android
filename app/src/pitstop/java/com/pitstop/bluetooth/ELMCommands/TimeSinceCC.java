@@ -10,8 +10,8 @@ public class TimeSinceCC extends ObdCommand {
     private int minutes = 0;
 
 
-    public TimeSinceCC(){
-        super("01 4E");
+    public TimeSinceCC(boolean hasHeaders){
+        super("01 4E",hasHeaders,2);
     }
 
     @Override

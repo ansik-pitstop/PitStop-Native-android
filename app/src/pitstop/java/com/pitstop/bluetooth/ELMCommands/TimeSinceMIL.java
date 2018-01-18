@@ -9,8 +9,8 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 public class TimeSinceMIL extends ObdCommand {
     private int minutes = 0;
 
-    public TimeSinceMIL(){
-        super("01 4D");
+    public TimeSinceMIL(boolean hasHeaders){
+        super("01 4D",hasHeaders,2);
     }
 
     @Override

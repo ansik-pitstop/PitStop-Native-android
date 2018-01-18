@@ -8,8 +8,8 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 public class OBDStandardCommand extends ObdCommand {
 
-    public OBDStandardCommand(){
-        super("01 1C");
+    public OBDStandardCommand(boolean hasHeader){
+        super("01 1C",hasHeader,1);
     }
 
     @Override

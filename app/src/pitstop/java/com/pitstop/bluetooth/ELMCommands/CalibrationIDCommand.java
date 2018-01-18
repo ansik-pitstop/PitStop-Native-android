@@ -8,8 +8,8 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 public class CalibrationIDCommand extends ObdCommand {
 
-    public CalibrationIDCommand(){
-        super("09 04");
+    public CalibrationIDCommand(boolean hasHeaders){
+        super("09 04",hasHeaders,16);
     }
 
     @Override

@@ -55,24 +55,17 @@ public abstract class ObdCommand {
     protected boolean useImperialUnits = false;
     protected String rawData = null;
     protected Long responseDelayInMs = null;
+    private int byteLen; //Length of data in the response
+    private int headerLen = 3; //Length of headers in each response, seems to be three by default
     private long start;
     private long end;
-    private boolean headers = false;
+    private boolean hasHeaders = false;
 
-    /**
-     * Default ctor to use
-     *
-     * @param command the command to send
-     */
-    public ObdCommand(String command) {
+    public ObdCommand(String command, boolean hasHeaders, int byteLen){
+        this.byteLen = byteLen;
         this.cmd = command;
         this.buffer = new ArrayList<>();
-    }
-
-    public ObdCommand(String command, boolean headers){
-        this.cmd = command;
-        this.buffer = new ArrayList<>();
-        this.headers = headers;
+        this.hasHeaders = hasHeaders;
     }
 
     /**
@@ -81,8 +74,8 @@ public abstract class ObdCommand {
     private ObdCommand() {
     }
 
-    public boolean isHeaders() {
-        return headers;
+    public boolean isHasHeaders() {
+        return hasHeaders;
     }
 
     /**
@@ -91,7 +84,7 @@ public abstract class ObdCommand {
      * @param other the ObdCommand to copy.
      */
     public ObdCommand(ObdCommand other) {
-        this(other.cmd);
+        this(other.cmd,other.hasHeaders,other.byteLen);
     }
 
     /**
@@ -219,6 +212,7 @@ public abstract class ObdCommand {
      * @throws java.io.IOException if any.
      */
     protected void readRawData(InputStream in) throws IOException {
+        Log.d(TAG,"readRawData() command: "+getName());
         byte b = 0;
         StringBuilder res = new StringBuilder();
 

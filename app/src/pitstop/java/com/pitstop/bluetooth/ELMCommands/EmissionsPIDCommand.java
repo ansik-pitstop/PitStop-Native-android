@@ -11,13 +11,13 @@ public class EmissionsPIDCommand extends ObdCommand {
     public static final String INCOMPLETE = "Incomplete";
     private String PID;
 
-    public EmissionsPIDCommand(){
-        super("01 41");
+    public EmissionsPIDCommand(boolean hasHeaders){
+        super("01 41",hasHeaders,4);
     }
 
     @Override
     protected void performCalculations() {
-        if (isHeaders()){
+        if (isHasHeaders()){
             PID = rawData.substring(7,15); //Header is first 1.5 bytes, then 2 bytes for request code
 
         }else{
