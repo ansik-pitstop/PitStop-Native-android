@@ -23,8 +23,8 @@ public class FuelPressureCommand extends PressureCommand {
     /**
      * <p>Constructor for FuelPressureCommand.</p>
      */
-    public FuelPressureCommand() {
-        super("01 0A");
+    public FuelPressureCommand(boolean hasHeaders) {
+        super("01 0A",hasHeaders,1);
     }
 
     /**

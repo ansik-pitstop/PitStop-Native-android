@@ -23,8 +23,8 @@ public class BarometricPressureCommand extends PressureCommand {
     /**
      * <p>Constructor for BarometricPressureCommand.</p>
      */
-    public BarometricPressureCommand() {
-        super("01 33");
+    public BarometricPressureCommand(boolean hasHeaders) {
+        super("01 33",hasHeaders,1);
     }
 
     /**

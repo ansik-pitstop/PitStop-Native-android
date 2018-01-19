@@ -30,8 +30,8 @@ public abstract class PressureCommand extends ObdCommand implements
      *
      * @param cmd a {@link java.lang.String} object.
      */
-    public PressureCommand(String cmd) {
-        super(cmd);
+    public PressureCommand(String cmd, boolean headers, int byteLen) {
+        super(cmd,headers,byteLen);
     }
 
     /**

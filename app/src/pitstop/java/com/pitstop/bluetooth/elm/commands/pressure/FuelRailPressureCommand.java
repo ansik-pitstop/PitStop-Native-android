@@ -23,8 +23,8 @@ public class FuelRailPressureCommand extends PressureCommand {
     /**
      * <p>Constructor for FuelRailPressureCommand.</p>
      */
-    public FuelRailPressureCommand() {
-        super("01 23");
+    public FuelRailPressureCommand(boolean hasHeaders) {
+        super("01 23",hasHeaders,2);
     }
 
     /**

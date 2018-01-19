@@ -23,8 +23,8 @@ public class IntakeManifoldPressureCommand extends PressureCommand {
     /**
      * Default ctor.
      */
-    public IntakeManifoldPressureCommand() {
-        super("01 0B");
+    public IntakeManifoldPressureCommand(boolean hasHeaders) {
+        super("01 0B",hasHeaders,1);
     }
 
     /**
