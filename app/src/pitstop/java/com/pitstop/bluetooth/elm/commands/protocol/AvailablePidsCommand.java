@@ -34,9 +34,6 @@ public abstract class AvailablePidsCommand extends PersistentCommand {
      *
      * @param other a {@link com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand} object.
      */
-    public AvailablePidsCommand(AvailablePidsCommand other, boolean header) {
-        super(other, header);
-    }
 
     /**
      * Copy ctor.

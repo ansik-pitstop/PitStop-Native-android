@@ -499,7 +499,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand(headersEnabled));
         return true;
     }
 
@@ -576,7 +576,7 @@ public class ELM327Device implements AbstractDevice {
             Log.d(TAG, "communicator is null ");
             return false;
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new FindFuelTypeCommand());
+        ((BluetoothCommunicatorELM327)communicator).writeData(new FindFuelTypeCommand(headersEnabled));
         return true;
     }
 

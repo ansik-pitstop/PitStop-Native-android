@@ -25,8 +25,8 @@ public class SpeedCommand extends ObdCommand implements SystemOfUnits {
     /**
      * Default ctor.
      */
-    public SpeedCommand() {
-        super("01 0D");
+    public SpeedCommand(boolean hasHeaders) {
+        super("01 0D",hasHeaders,1);
     }
 
     /**

@@ -33,7 +33,7 @@ public class AvailablePidsCommand_41_60 extends AvailablePidsCommand {
      * @param other a {@link com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand} object.
      */
     public AvailablePidsCommand_41_60(AvailablePidsCommand_41_60 other, boolean header) {
-        super(other, header);
+        super(other);
     }
 
     /** {@inheritDoc} */
