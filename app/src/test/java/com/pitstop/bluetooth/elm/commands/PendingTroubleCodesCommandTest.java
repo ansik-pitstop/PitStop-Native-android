@@ -24,8 +24,8 @@ public class PendingTroubleCodesCommandTest {
 
     private final String REQUEST_DTC = "47";
 
-    private final String DATA_RESPONSE_PENDING_DTC_ECU8 = "4700";
-    private final String DATA_RESPONSE_AVAILABLE_PID_ECU9 = "4700";
+    private final String DATA_RESPONSE_PENDING_DTC_ECU8 = "";
+    private final String DATA_RESPONSE_AVAILABLE_PID_ECU9 = "";
     private final String DATA_RESPONSE_AVAILABLE_PID_ECUA = "00000000";
 
     @Test
@@ -45,8 +45,6 @@ public class PendingTroubleCodesCommandTest {
         requestCodes.add(REQUEST_DTC);
 
         List<String> data = new ArrayList<>();
-        data.add(DATA_RESPONSE_PENDING_DTC_ECU8);
-        data.add(DATA_RESPONSE_AVAILABLE_PID_ECU9);
 
         //Simulate environment INPUT
         InputStream deviceOuput = new ByteArrayInputStream(INPUT.getBytes(StandardCharsets.UTF_8.name()));

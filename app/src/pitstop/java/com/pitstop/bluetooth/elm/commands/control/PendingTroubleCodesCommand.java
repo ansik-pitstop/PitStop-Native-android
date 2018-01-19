@@ -12,13 +12,13 @@
  */
 package com.pitstop.bluetooth.elm.commands.control;
 
-import android.util.Log;
-
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * It is not needed no know how many DTC are stored.
@@ -39,13 +39,14 @@ public class PendingTroubleCodesCommand extends ObdCommand {
     protected final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     protected StringBuilder codes = null;
-
+    private List<Integer> codeCount;
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
     public PendingTroubleCodesCommand(boolean hasHeaders) {
         super("07",hasHeaders,4);
         codes = new StringBuilder();
+        codeCount = new ArrayList<>();
     }
 
     /**
@@ -144,7 +145,7 @@ public class PendingTroubleCodesCommand extends ObdCommand {
         }
 
         rawData = res.toString().trim();
-        Log.d(TAG,"rawData: "+rawData);
+        System.out.println(TAG+": rawData: "+rawData);
 
         /*
         * Store raw header, data and request code variables
@@ -160,8 +161,9 @@ public class PendingTroubleCodesCommand extends ObdCommand {
                 requestCode.add(rawData.substring(index,index+2));
                 index +=2;
                 int dtcCount = Integer.parseInt(rawData.substring(index,index+2),16);
+                codeCount.add(dtcCount);
                 index+=2;
-                System.out.println(TAG": dtcCount: "+dtcCount);
+                System.out.println(TAG+": dtcCount: "+dtcCount);
                 for (int j=0;j<dtcCount;j++){
                     data.add(rawData.substring(index,index+4));
                     index+=4;
