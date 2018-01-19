@@ -43,16 +43,7 @@ public abstract class PersistentCommand extends ObdCommand {
      * @param other a {@link com.pitstop.bluetooth.elm.commands.ObdCommand} object.
      */
     public PersistentCommand(ObdCommand other) {
-        this(other.cmd);
-    }
-
-    /**
-     * <p>Constructor for PersistentCommand.</p>
-     *
-     * @param other a {@link com.pitstop.bluetooth.elm.commands.ObdCommand} object.
-     */
-    public PersistentCommand(ObdCommand other, boolean header) {
-        this(other.cmd,header);
+        this(other.cmd,other.hasHeaders,other.byteLen);
     }
 
     /**

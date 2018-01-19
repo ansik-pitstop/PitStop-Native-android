@@ -27,8 +27,8 @@ public class FindFuelTypeCommand extends ObdCommand {
     /**
      * Default ctor.
      */
-    public FindFuelTypeCommand() {
-        super("01 51");
+    public FindFuelTypeCommand(boolean hasHeaders) {
+        super("01 51",hasHeaders,1);
     }
 
     /**

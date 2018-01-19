@@ -26,8 +26,8 @@ public class AirFuelRatioCommand extends ObdCommand {
     /**
      * <p>Constructor for AirFuelRatioCommand.</p>
      */
-    public AirFuelRatioCommand() {
-        super("01 44");
+    public AirFuelRatioCommand(boolean hasHeaders) {
+        super("01 44", hasHeaders, 2);
     }
 
     /** {@inheritDoc} */

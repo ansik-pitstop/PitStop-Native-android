@@ -26,8 +26,8 @@ public class ConsumptionRateCommand extends ObdCommand {
     /**
      * <p>Constructor for ConsumptionRateCommand.</p>
      */
-    public ConsumptionRateCommand() {
-        super("01 5E");
+    public ConsumptionRateCommand(boolean hasHeaders) {
+        super("01 5E",hasHeaders,2);
     }
 
     /**

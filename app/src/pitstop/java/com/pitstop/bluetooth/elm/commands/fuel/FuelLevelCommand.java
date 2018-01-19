@@ -24,8 +24,8 @@ public class FuelLevelCommand extends PercentageObdCommand {
     /**
      * <p>Constructor for FuelLevelCommand.</p>
      */
-    public FuelLevelCommand() {
-        super("01 2F");
+    public FuelLevelCommand(boolean hasHeaders) {
+        super("01 2F",hasHeaders,1);
     }
 
     /** {@inheritDoc} */

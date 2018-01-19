@@ -26,13 +26,6 @@ public class StatusSinceDTCsClearedCommand extends DtcNumberCommand {
     }
 
     /**
-     * Default ctor.
-     */
-    public StatusSinceDTCsClearedCommand() {
-        super();
-    }
-
-    /**
      * Copy ctor.
      *
      * @param other a {@link com.pitstop.bluetooth.elm.commands.control.DtcNumberCommand} object.

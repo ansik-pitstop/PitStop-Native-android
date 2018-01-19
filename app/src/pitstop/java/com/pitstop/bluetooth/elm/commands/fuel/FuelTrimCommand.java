@@ -31,16 +31,16 @@ public class FuelTrimCommand extends PercentageObdCommand {
      *
      * @param bank a {@link com.pitstop.bluetooth.elm.enums.FuelTrim} object.
      */
-    public FuelTrimCommand(final FuelTrim bank) {
-        super(bank.buildObdCommand());
+    public FuelTrimCommand(final FuelTrim bank, boolean hasHeaders) {
+        super(bank.buildObdCommand(),hasHeaders,1);
         this.bank = bank;
     }
 
     /**
      * <p>Constructor for FuelTrimCommand.</p>
      */
-    public FuelTrimCommand() {
-        this(FuelTrim.SHORT_TERM_BANK_1);
+    public FuelTrimCommand(boolean hasHeaders) {
+        this(FuelTrim.SHORT_TERM_BANK_1,hasHeaders);
     }
 
     /**

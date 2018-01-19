@@ -26,8 +26,8 @@ public class WidebandAirFuelRatioCommand extends ObdCommand {
     /**
      * <p>Constructor for WidebandAirFuelRatioCommand.</p>
      */
-    public WidebandAirFuelRatioCommand() {
-        super("01 34");
+    public WidebandAirFuelRatioCommand(boolean hasHeaders) {
+        super("01 34",hasHeaders,4);
     }
 
     /** {@inheritDoc} */

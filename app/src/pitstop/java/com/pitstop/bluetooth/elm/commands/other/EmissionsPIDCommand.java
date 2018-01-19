@@ -17,7 +17,7 @@ public class EmissionsPIDCommand extends ObdCommand {
 
     @Override
     protected void performCalculations() {
-        if (isHasHeaders()){
+        if (hasHeaders()){
             PID = rawData.substring(7,15); //Header is first 1.5 bytes, then 2 bytes for request code
 
         }else{

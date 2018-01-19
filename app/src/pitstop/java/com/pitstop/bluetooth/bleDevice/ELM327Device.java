@@ -513,7 +513,7 @@ public class ELM327Device implements AbstractDevice {
         return true;
     }
 
-    private void getAvailablePids1_20(){
+    private boolean getAvailablePids1_20(){
         Log.d(TAG, "availabalePIDS_1-20()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
