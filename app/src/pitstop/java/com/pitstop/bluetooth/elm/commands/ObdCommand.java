@@ -61,10 +61,10 @@ public abstract class ObdCommand {
     private long start;
     private long end;
     protected boolean hasHeaders = false;
+
     private List<String> headers;
     private List<String> data;
     private List<String> requestCode;
-    private List<String> byteChecks;
 
     public ObdCommand(String command, boolean hasHeaders, int byteLen){
         this.byteLen = byteLen;
@@ -74,7 +74,6 @@ public abstract class ObdCommand {
         this.headers = new ArrayList<>();
         this.data = new ArrayList<>();
         this.requestCode = new ArrayList<>();
-        this.byteChecks = new ArrayList<>();
     }
 
     /**
@@ -221,7 +220,7 @@ public abstract class ObdCommand {
      * @throws java.io.IOException if any.
      */
     protected void readRawData(InputStream in) throws IOException {
-        Log.d(TAG,"readRawData() command: "+getName());
+        //Log.d(TAG,"readRawData() command: "+getName());
         byte b = 0;
         StringBuilder res = new StringBuilder();
 
@@ -237,7 +236,7 @@ public abstract class ObdCommand {
             res.append(c);
         }
 
-        Log.d(TAG,getName()+": rawData: "+res);
+        //Log.d(TAG,getName()+": rawData: "+res);
 
         /*
          * Imagine the following response 41 0c 00 0d.
@@ -262,17 +261,21 @@ public abstract class ObdCommand {
         * where each ECU responds with one HEADER, REQUEST_CODE and DATA. We need to store the
         * raw data appropriately for each ECU
          */
-        int singleECUResponseLen = (byteLen*2) + headerLen + cmd.length();
+        String cmdNoSpace = cmd.replace(" ","");
+        int singleECUResponseLen = (byteLen*2) + headerLen + cmdNoSpace.length();
         int numResponses = rawData.length()/singleECUResponseLen;
-        Log.d(TAG,"single ECU response length: "+singleECUResponseLen+", number of responses: "
-                +numResponses+", rawData len: "+rawData.length());
+        System.out.println(TAG+": single ECU response length: "+singleECUResponseLen
+                +", number of responses: " +numResponses+", rawData len: "+rawData.length());
+        if (singleECUResponseLen * numResponses != rawData.length()){
+            throw new IOException();
+        }
 
         for (int i=0;i<numResponses;i++){
             int curIndex = singleECUResponseLen*i;
             headers.add(rawData.substring(curIndex,curIndex+headerLen));
             curIndex+=headerLen;
-            requestCode.add(rawData.substring(curIndex,curIndex+cmd.length()));
-            curIndex += cmd.length();
+            requestCode.add(rawData.substring(curIndex,curIndex+cmdNoSpace.length()));
+            curIndex += cmdNoSpace.length();
             data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
         }
 
@@ -457,4 +460,15 @@ public abstract class ObdCommand {
         return cmd != null ? cmd.hashCode() : 0;
     }
 
+    public List<String> getData() {
+        return data;
+    }
+
+    public List<String> getHeaders() {
+        return headers;
+    }
+
+    public List<String> getRequestCode() {
+        return requestCode;
+    }
 }

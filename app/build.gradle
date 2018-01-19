@@ -78,7 +78,6 @@ android {
         versionCode 194
         versionName "4.3.1"
         multiDexEnabled = true
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
         buildConfigField "String", "BUILD_TYPE_RELEASE", buildTypeRelease
@@ -150,6 +149,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'eu.lp0.slf4j:slf4j-android:1.7.25-0'
     // compile 'com.github.Graylog2:gelfclient:gelfclient-1.4.2.1'
+    testCompile 'junit:junit:4.12'
     compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
     compile 'com.android.support:multidex:1.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
