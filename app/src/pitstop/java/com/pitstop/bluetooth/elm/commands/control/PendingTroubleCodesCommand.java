@@ -161,7 +161,7 @@ public class PendingTroubleCodesCommand extends ObdCommand {
                 index +=2;
                 int dtcCount = Integer.parseInt(rawData.substring(index,index+2),16);
                 index+=2;
-                Log.d(TAG,"dtcCount: "+dtcCount);
+                System.out.println(TAG": dtcCount: "+dtcCount);
                 for (int j=0;j<dtcCount;j++){
                     data.add(rawData.substring(index,index+4));
                     index+=4;
@@ -170,8 +170,8 @@ public class PendingTroubleCodesCommand extends ObdCommand {
         }catch(IndexOutOfBoundsException e){
             e.printStackTrace();
         }
-        Log.d(TAG,String.format("After parsing Pending Trouble Codes, data: %s, header: %s" +
-                ", request code: %s",data.toString(),headers.toString(),requestCode.toString()));
+        System.out.printf(TAG+": After parsing Pending Trouble Codes, data: %s, header: %s" +
+                ", request code: %s",data.toString(),headers.toString(),requestCode.toString());
     }
 
     /** {@inheritDoc} */
