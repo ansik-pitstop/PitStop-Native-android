@@ -26,7 +26,7 @@ public abstract class AvailablePidsCommand extends PersistentCommand {
      * @param command a {@link java.lang.String} object.
      */
     public AvailablePidsCommand(String command, boolean header) {
-        super(command, header);
+        super(command, header,4);
     }
 
     /**

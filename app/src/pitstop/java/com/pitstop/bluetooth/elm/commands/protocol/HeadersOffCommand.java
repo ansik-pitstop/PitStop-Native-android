@@ -21,8 +21,8 @@ public class HeadersOffCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for HeadersOffCommand.</p>
      */
-    public HeadersOffCommand() {
-        super("ATH0");
+    public HeadersOffCommand(boolean hasHeaders) {
+        super("ATH0",hasHeaders,1);
     }
 
     /**

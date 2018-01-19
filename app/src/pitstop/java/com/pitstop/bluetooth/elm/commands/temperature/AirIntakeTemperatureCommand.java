@@ -23,8 +23,8 @@ public class AirIntakeTemperatureCommand extends TemperatureCommand {
     /**
      * <p>Constructor for AirIntakeTemperatureCommand.</p>
      */
-    public AirIntakeTemperatureCommand() {
-        super("01 0F");
+    public AirIntakeTemperatureCommand(boolean hasHeaders) {
+        super("01 0F", hasHeaders,1);
     }
 
     /**

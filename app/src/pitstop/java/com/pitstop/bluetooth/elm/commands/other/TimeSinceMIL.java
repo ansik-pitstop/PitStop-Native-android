@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth.ELMCommands;
+package com.pitstop.bluetooth.elm.commands.other;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
@@ -6,12 +6,11 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
  * Created by ishan on 2017-12-20.
  */
 
-public class TimeSinceCC extends ObdCommand {
+public class TimeSinceMIL extends ObdCommand {
     private int minutes = 0;
 
-
-    public TimeSinceCC(boolean hasHeaders){
-        super("01 4E",hasHeaders,2);
+    public TimeSinceMIL(boolean hasHeaders){
+        super("01 4D",hasHeaders,2);
     }
 
     @Override
@@ -32,6 +31,6 @@ public class TimeSinceCC extends ObdCommand {
 
     @Override
     public String getName() {
-        return "TimeSinceCC";
+        return "TimeSinceMIL";
     }
 }

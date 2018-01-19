@@ -23,8 +23,8 @@ public class EngineCoolantTemperatureCommand extends TemperatureCommand {
     /**
      * <p>Constructor for EngineCoolantTemperatureCommand.</p>
      */
-    public EngineCoolantTemperatureCommand() {
-        super("01 05");
+    public EngineCoolantTemperatureCommand(boolean hasHeaders) {
+        super("01 05",hasHeaders,1);
     }
 
     /**

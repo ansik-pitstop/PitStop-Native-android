@@ -27,8 +27,8 @@ public class SelectProtocolCommand extends ObdProtocolCommand {
      *
      * @param protocol a {@link com.pitstop.bluetooth.elm.enums.ObdProtocols} object.
      */
-    public SelectProtocolCommand(final ObdProtocols protocol) {
-        super("AT SP " + protocol.getValue());
+    public SelectProtocolCommand(final ObdProtocols protocol,boolean hasHeaders) {
+        super("AT SP " + protocol.getValue(),hasHeaders,1);
         this.protocol = protocol;
     }
 

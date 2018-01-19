@@ -22,8 +22,8 @@ public class ObdRawCommand extends ObdProtocolCommand {
      *
      * @param command a {@link java.lang.String} object.
      */
-    public ObdRawCommand(String command) {
-        super(command);
+    public ObdRawCommand(String command,boolean hasHeaders,int byteLen) {
+        super(command,hasHeaders,byteLen);
     }
 
     /** {@inheritDoc} */

@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth.ELMCommands;
+package com.pitstop.bluetooth.elm.commands.other;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
@@ -6,10 +6,10 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
  * Created by ishan on 2017-12-20.
  */
 
-public class CalibrationVehicleNumberCommand extends ObdCommand {
+public class CalibrationIDCommand extends ObdCommand {
 
-    public CalibrationVehicleNumberCommand(boolean hasHeaders){
-        super("09 06",hasHeaders,1);
+    public CalibrationIDCommand(boolean hasHeaders){
+        super("09 04",hasHeaders,16);
     }
 
     @Override
@@ -29,6 +29,6 @@ public class CalibrationVehicleNumberCommand extends ObdCommand {
 
     @Override
     public String getName() {
-        return CalibrationVehicleNumberCommand.class.getSimpleName();
+        return CalibrationIDCommand.class.getSimpleName();
     }
 }

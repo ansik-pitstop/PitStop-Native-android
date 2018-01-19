@@ -33,8 +33,8 @@ public class DescribeProtocolNumberCommand extends ObdCommand {
     /**
      * <p>Constructor for DescribeProtocolNumberCommand.</p>
      */
-    public DescribeProtocolNumberCommand() {
-        super("AT DPN");
+    public DescribeProtocolNumberCommand(boolean hasHeaders) {
+        super("AT DPN",hasHeaders,1);
     }
 
     /**

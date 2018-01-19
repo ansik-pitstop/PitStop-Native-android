@@ -21,8 +21,8 @@ public class EchoOffCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for EchoOffCommand.</p>
      */
-    public EchoOffCommand() {
-        super("AT E0");
+    public EchoOffCommand(boolean hasHeaders) {
+        super("AT E0",hasHeaders,1);
     }
 
     /**

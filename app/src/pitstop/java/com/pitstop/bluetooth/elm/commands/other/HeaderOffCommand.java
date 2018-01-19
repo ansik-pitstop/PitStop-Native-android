@@ -1,15 +1,14 @@
-package com.pitstop.bluetooth.ELMCommands;
+package com.pitstop.bluetooth.elm.commands.other;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 /**
- * Created by ishan on 2017-12-20.
+ * Created by ishan on 2017-12-30.
  */
 
-public class WarmupsSinceCC extends ObdCommand {
-
-    public WarmupsSinceCC(boolean hasHeaders){
-        super("01 30",hasHeaders,1);
+public class HeaderOffCommand extends ObdCommand {
+    public HeaderOffCommand() {
+        super("ATH 0",false,1);
     }
 
     @Override
@@ -17,19 +16,18 @@ public class WarmupsSinceCC extends ObdCommand {
 
     }
 
-
     @Override
     public String getFormattedResult() {
-        return rawData;
+        return "";
     }
 
     @Override
     public String getCalculatedResult() {
-        return rawData;
+        return "";
     }
 
     @Override
     public String getName() {
-        return "WarmupsSinceCC";
+        return HeaderOffCommand.class.getSimpleName();
     }
 }

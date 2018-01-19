@@ -55,11 +55,11 @@ public abstract class ObdCommand {
     protected boolean useImperialUnits = false;
     protected String rawData = null;
     protected Long responseDelayInMs = null;
-    private int byteLen; //Length of data in the response
+    protected int byteLen; //Length of data in the response
     private int headerLen = 3; //Length of headers in each response, seems to be three by default
     private long start;
     private long end;
-    private boolean hasHeaders = false;
+    protected boolean hasHeaders = false;
 
     public ObdCommand(String command, boolean hasHeaders, int byteLen){
         this.byteLen = byteLen;
@@ -74,7 +74,7 @@ public abstract class ObdCommand {
     private ObdCommand() {
     }
 
-    public boolean isHasHeaders() {
+    public boolean hasHeaders() {
         return hasHeaders;
     }
 

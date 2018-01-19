@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth.ELMCommands;
+package com.pitstop.bluetooth.elm.commands.other;
 
 import com.pitstop.bluetooth.elm.commands.control.DtcNumberCommand;
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;

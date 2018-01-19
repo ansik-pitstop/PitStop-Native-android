@@ -30,8 +30,8 @@ public class CloseCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for CloseCommand.</p>
      */
-    public CloseCommand() {
-        super("AT PC");
+    public CloseCommand(boolean hasHeaders) {
+        super("AT PC",hasHeaders,1);
     }
 
     /**

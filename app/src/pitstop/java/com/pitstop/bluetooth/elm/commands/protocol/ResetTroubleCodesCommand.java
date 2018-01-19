@@ -23,8 +23,8 @@ public class ResetTroubleCodesCommand extends ObdCommand {
     /**
      * <p>Constructor for ResetTroubleCodesCommand.</p>
      */
-    public ResetTroubleCodesCommand() {
-        super("04");
+    public ResetTroubleCodesCommand(boolean hasHeaders) {
+        super("04",hasHeaders,1);
     }
 
     /** {@inheritDoc} */

@@ -23,8 +23,8 @@ public class AmbientAirTemperatureCommand extends TemperatureCommand {
     /**
      * <p>Constructor for AmbientAirTemperatureCommand.</p>
      */
-    public AmbientAirTemperatureCommand() {
-        super("01 46");
+    public AmbientAirTemperatureCommand(boolean hasHeaders) {
+        super("01 46",hasHeaders,1);
     }
 
     /**
