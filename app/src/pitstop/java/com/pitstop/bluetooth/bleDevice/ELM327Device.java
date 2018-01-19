@@ -242,7 +242,6 @@ public class ELM327Device implements AbstractDevice {
         if (communicator == null)
             return false;
         setHeaders(false);
-        //Todo: Remove debug code below
         //        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
 //        pidCommandQueue.add(new DescribeProtocolCommand());
 //        pidCommandQueue.add(new StatusSinceDTCsClearedCommand());

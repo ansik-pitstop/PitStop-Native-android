@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -60,12 +61,20 @@ public abstract class ObdCommand {
     private long start;
     private long end;
     protected boolean hasHeaders = false;
+    private List<String> headers;
+    private List<String> data;
+    private List<String> requestCode;
+    private List<String> byteChecks;
 
     public ObdCommand(String command, boolean hasHeaders, int byteLen){
         this.byteLen = byteLen;
         this.cmd = command;
         this.buffer = new ArrayList<>();
         this.hasHeaders = hasHeaders;
+        this.headers = new ArrayList<>();
+        this.data = new ArrayList<>();
+        this.requestCode = new ArrayList<>();
+        this.byteChecks = new ArrayList<>();
     }
 
     /**
@@ -230,23 +239,43 @@ public abstract class ObdCommand {
 
         Log.d(TAG,getName()+": rawData: "+res);
 
-    /*
-     * Imagine the following response 41 0c 00 0d.
-     *
-     * ELM sends strings!! So, ELM puts spaces between each "byte". And pay
-     * attention to the fact that I've put the word byte in quotes, because 41
-     * is actually TWO bytes (two chars) in the socket. So, we must do some more
-     * processing..
-     */
+        /*
+         * Imagine the following response 41 0c 00 0d.
+         *
+         * ELM sends strings!! So, ELM puts spaces between each "byte". And pay
+         * attention to the fact that I've put the word byte in quotes, because 41
+         * is actually TWO bytes (two chars) in the socket. So, we must do some more
+         * processing..
+         */
         rawData = removeAll(SEARCHING_PATTERN, res.toString());
 
-    /*
-     * Data may have echo or informative text like "INIT BUS..." or similar.
-     * The response ends with two carriage return characters. So we need to take
-     * everything from the last carriage return before those two (trimmed above).
-     */
+        /*
+         * Data may have echo or informative text like "INIT BUS..." or similar.
+         * The response ends with two carriage return characters. So we need to take
+         * everything from the last carriage return before those two (trimmed above).
+         */
         //kills multiline.. rawData = rawData.substring(rawData.lastIndexOf(13) + 1);
         rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
+
+        /*
+        * Data is formatted like the following "HEADER REQUEST_CODE DATA HEADER REQUEST_CODE DATA ..."
+        * where each ECU responds with one HEADER, REQUEST_CODE and DATA. We need to store the
+        * raw data appropriately for each ECU
+         */
+        int singleECUResponseLen = (byteLen*2) + headerLen + cmd.length();
+        int numResponses = rawData.length()/singleECUResponseLen;
+        Log.d(TAG,"single ECU response length: "+singleECUResponseLen+", number of responses: "
+                +numResponses+", rawData len: "+rawData.length());
+
+        for (int i=0;i<numResponses;i++){
+            int curIndex = singleECUResponseLen*i;
+            headers.add(rawData.substring(curIndex,curIndex+headerLen));
+            curIndex+=headerLen;
+            requestCode.add(rawData.substring(curIndex,curIndex+cmd.length()));
+            curIndex += cmd.length();
+            data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
+        }
+
     }
 
     void checkForErrors() {
