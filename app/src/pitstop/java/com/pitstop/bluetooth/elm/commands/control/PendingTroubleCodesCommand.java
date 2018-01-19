@@ -145,6 +145,33 @@ public class PendingTroubleCodesCommand extends ObdCommand {
 
         rawData = res.toString().trim();
         Log.d(TAG,"rawData: "+rawData);
+
+        /*
+        * Store raw header, data and request code variables
+        *
+         */
+        int index = 0;
+        try{
+            while (index < rawData.length()){
+                if (hasHeaders()){
+                    headers.add(rawData.substring(index,index+getHeaderLen()));
+                    index += 2;
+                }
+                requestCode.add(rawData.substring(index,index+2));
+                index +=2;
+                int dtcCount = Integer.parseInt(rawData.substring(index,index+2),16);
+                index+=2;
+                Log.d(TAG,"dtcCount: "+dtcCount);
+                for (int j=0;j<dtcCount;j++){
+                    data.add(rawData.substring(index,index+4));
+                    index+=4;
+                }
+            }
+        }catch(IndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
+        Log.d(TAG,String.format("After parsing Pending Trouble Codes, data: %s, header: %s" +
+                ", request code: %s",data.toString(),headers.toString(),requestCode.toString()));
     }
 
     /** {@inheritDoc} */

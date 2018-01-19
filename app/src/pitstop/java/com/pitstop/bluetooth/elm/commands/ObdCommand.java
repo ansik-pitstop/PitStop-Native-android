@@ -64,9 +64,9 @@ public abstract class ObdCommand {
     protected boolean hasHeaders = false;
     protected boolean singleResponse;
 
-    private List<String> headers;
-    private List<String> data;
-    private List<String> requestCode;
+    protected List<String> headers;
+    protected List<String> data;
+    protected List<String> requestCode;
 
     public ObdCommand(String command, boolean hasHeaders, int byteLen){
         this.byteLen = byteLen;
@@ -488,7 +488,7 @@ public abstract class ObdCommand {
         return singleResponse;
     }
 
-    private int getHeaderLen(){
+    protected int getHeaderLen(){
         if (hasHeaders){
             return HEADER_LEN;
         }else{
