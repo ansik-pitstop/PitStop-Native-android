@@ -23,8 +23,8 @@ public abstract class ObdProtocolCommand extends ObdCommand {
      *
      * @param command the command to send
      */
-    public ObdProtocolCommand(String command, boolean hasHeaders, int byteLen) {
-        super(command, hasHeaders, byteLen);
+    public ObdProtocolCommand(String command) {
+        super(command, false, false, 1);
     }
 
     /**
@@ -33,7 +33,7 @@ public abstract class ObdProtocolCommand extends ObdCommand {
      * @param other the ObdCommand to copy.
      */
     public ObdProtocolCommand(ObdProtocolCommand other) {
-        this(other.cmd,other.hasHeaders,other.byteLen);
+        this(other.cmd);
     }
 
     /**

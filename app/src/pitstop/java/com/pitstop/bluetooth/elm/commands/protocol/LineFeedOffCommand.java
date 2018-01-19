@@ -21,8 +21,8 @@ public class LineFeedOffCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for LineFeedOffCommand.</p>
      */
-    public LineFeedOffCommand(boolean hasHeaders) {
-        super("AT L0",hasHeaders,1);
+    public LineFeedOffCommand() {
+        super("AT L0");
     }
 
     /**

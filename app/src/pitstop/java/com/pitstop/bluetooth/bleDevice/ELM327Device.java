@@ -178,12 +178,15 @@ public class ELM327Device implements AbstractDevice {
             //Setup device once connected
             case BluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"Setting up ELM device");
-                ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand(false));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand(false));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125,false));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO,false));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
+                ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
+                ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
                 setHeaders(true); //Headers on by default
                 ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand(false));
+                break;
+            case BluetoothCommunicator.DISCONNECTED:
+                headersEnabled = false;
                 break;
         }
     }
@@ -394,13 +397,13 @@ public class ELM327Device implements AbstractDevice {
         }
         else if (obdCommand instanceof EmissionsPIDCommand){
             Log.d(TAG, "Emissions PID: " + obdCommand.getCalculatedResult() +", isHeader: "+headersEnabled);
-            pidPackage.pids.put("2141",  obdCommand.getCalculatedResult());
+            pidPackage.pids.put("2141",  obdCommand.getData().get(0));
             next();
 
         }
         else if (obdCommand instanceof RPMCommand){
-            pidPackage.pids.put("210C", obdCommand.getCalculatedResult());
-            Log.d(TAG, "rpm:  " + obdCommand.getFormattedResult());
+            pidPackage.pids.put("210C", obdCommand.getData().get(0));
+            Log.d(TAG, "rpm:  " + obdCommand.getData().get(0));
             next();
         }
         else if (obdCommand instanceof DistanceMILOnCommand){

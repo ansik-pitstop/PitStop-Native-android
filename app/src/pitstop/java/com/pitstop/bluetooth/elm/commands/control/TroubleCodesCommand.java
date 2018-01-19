@@ -67,6 +67,7 @@ public class TroubleCodesCommand extends ObdCommand {
     protected void performCalculations() {
         final String result = getResult();
         String workingData;
+        //Todo modify the var below such that it reflects the hasHeaders flag
         int startIndex = 0;//Header size.
 
         String canOneFrame = result.replaceAll("[\r\n]", "");
