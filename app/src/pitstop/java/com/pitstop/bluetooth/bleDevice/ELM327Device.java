@@ -501,7 +501,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand(headersEnabled));
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
         return true;
     }
 

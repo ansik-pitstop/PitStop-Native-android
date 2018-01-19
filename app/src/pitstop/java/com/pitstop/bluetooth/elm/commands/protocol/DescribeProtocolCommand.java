@@ -29,8 +29,8 @@ public class DescribeProtocolCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for DescribeProtocolCommand.</p>
      */
-    public DescribeProtocolCommand(boolean hasHeaders) {
-        super("AT DP",hasHeaders,1);
+    public DescribeProtocolCommand() {
+        super("AT DP");
     }
 
     /** {@inheritDoc} */

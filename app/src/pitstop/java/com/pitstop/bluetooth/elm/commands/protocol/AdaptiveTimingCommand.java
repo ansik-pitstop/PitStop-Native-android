@@ -26,8 +26,8 @@ public class AdaptiveTimingCommand extends ObdProtocolCommand {
      *
      * @param mode a int.
      */
-    public AdaptiveTimingCommand(int mode,boolean hasHeaders) {
-        super("AT AT" + mode,hasHeaders,1);
+    public AdaptiveTimingCommand(int mode) {
+        super("AT AT" + mode);
     }
 
     /**

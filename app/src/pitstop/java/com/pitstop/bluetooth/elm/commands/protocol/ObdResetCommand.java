@@ -22,7 +22,7 @@ public class ObdResetCommand extends ObdProtocolCommand {
      * <p>Constructor for ObdResetCommand.</p>
      */
     public ObdResetCommand(boolean hasHeaders) {
-        super("AT Z",hasHeaders,1);
+        super("AT Z");
     }
 
     /**

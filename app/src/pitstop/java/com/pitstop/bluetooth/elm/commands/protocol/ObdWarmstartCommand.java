@@ -21,8 +21,8 @@ public class ObdWarmstartCommand extends ObdProtocolCommand {
     /**
      * <p>Constructor for ObdWarmstartCommand.</p>
      */
-    public ObdWarmstartCommand(boolean hasHeaders) {
-        super("AT WS",hasHeaders,1);
+    public ObdWarmstartCommand() {
+        super("AT WS");
     }
 
     /**

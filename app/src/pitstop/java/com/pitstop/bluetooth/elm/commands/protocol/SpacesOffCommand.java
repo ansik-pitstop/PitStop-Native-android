@@ -18,8 +18,8 @@ package com.pitstop.bluetooth.elm.commands.protocol;
  */
 public class SpacesOffCommand extends ObdProtocolCommand {
 
-    public SpacesOffCommand(boolean hasHeaders) {
-        super("ATS0",hasHeaders,1);
+    public SpacesOffCommand() {
+        super("ATS0");
     }
 
     /**

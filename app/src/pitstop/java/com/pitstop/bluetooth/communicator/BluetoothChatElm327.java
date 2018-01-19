@@ -133,7 +133,7 @@ public class BluetoothChatElm327 {
         private BluetoothSocket mmSocket;
         private InputStream mmInStream;
         private OutputStream mmOutStream;
-        private ObdCommand obdCommand = new EchoOffCommand(false);
+        private ObdCommand obdCommand = new EchoOffCommand();
         private ReadResponseThread responseThread;
 
         /* The fallback thread is used because of a known android bug where the first socket fails
