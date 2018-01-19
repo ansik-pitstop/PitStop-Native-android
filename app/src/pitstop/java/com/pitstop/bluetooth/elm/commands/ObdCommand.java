@@ -61,7 +61,7 @@ public abstract class ObdCommand {
     private long start;
     private long end;
     protected boolean hasHeaders = false;
-    protected boolean okResponse;
+    protected boolean singleResponse;
 
     private List<String> headers;
     private List<String> data;
@@ -77,9 +77,9 @@ public abstract class ObdCommand {
         this.requestCode = new ArrayList<>();
     }
 
-    public ObdCommand(String command, boolean hasHeaders, boolean okResponse, int byteLen){
+    public ObdCommand(String command, boolean hasHeaders, boolean singleResponse, int byteLen){
         this(command,hasHeaders,byteLen);
-        this.okResponse = okResponse;
+        this.singleResponse = singleResponse;
     }
 
     /**
@@ -269,9 +269,9 @@ public abstract class ObdCommand {
         * where each ECU responds with one HEADER, REQUEST_CODE and DATA. We need to store the
         * raw data appropriately for each ECU
         *
-        * If the response is of type "OK", then we do not want to parse for headers and data
+        * If the response is one which only has a single response then don't perform this parsing
          */
-        if (!okResponse){
+        if (!singleResponse){
             String cmdNoSpace = cmd.replace(" ","");
             int singleECUResponseLen = (byteLen*2) + headerLen + cmdNoSpace.length();
             int numResponses = rawData.length()/singleECUResponseLen;
@@ -483,7 +483,7 @@ public abstract class ObdCommand {
         return requestCode;
     }
 
-    public boolean isOkResponse() {
-        return okResponse;
+    public boolean isSingleResponse() {
+        return singleResponse;
     }
 }
