@@ -24,7 +24,7 @@ public abstract class ObdProtocolCommand extends ObdCommand {
      * @param command the command to send
      */
     public ObdProtocolCommand(String command) {
-        super(command, false, false, 1);
+        super(command, false, true, 1);
     }
 
     /**

@@ -356,7 +356,7 @@ public class ELM327Device implements AbstractDevice {
         if(obdCommand instanceof VinCommand)
             manager.onGotVin(obdCommand.getFormattedResult(), this.deviceName);
         else if(obdCommand instanceof TroubleCodesCommand){
-            String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
+            String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
             if (dtcPackage== null)
                 dtcPackage = new DtcPackage();
             dtcPackage.deviceId = deviceName;
@@ -370,7 +370,7 @@ public class ELM327Device implements AbstractDevice {
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
-            String[] dtcsFromDevice = obdCommand.getFormattedResult().split("\n");
+            String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
             if (dtcPackage== null)
                 dtcPackage = new DtcPackage();
             if (dtcPackage.dtcs == null)

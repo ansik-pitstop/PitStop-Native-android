@@ -51,13 +51,14 @@ public abstract class ObdCommand {
             UnknownErrorException.class,
             UnsupportedCommandException.class
     };
+    private final int HEADER_LEN = 3; //Length of headers in each response, seems to be three by default
+
     protected ArrayList<Integer> buffer = null;
     protected String cmd = null;
     protected boolean useImperialUnits = false;
     protected String rawData = null;
     protected Long responseDelayInMs = null;
     protected int byteLen; //Length of data in the response
-    private int headerLen = 3; //Length of headers in each response, seems to be three by default
     private long start;
     private long end;
     protected boolean hasHeaders = false;
@@ -273,7 +274,7 @@ public abstract class ObdCommand {
          */
         if (!singleResponse){
             String cmdNoSpace = cmd.replace(" ","");
-            int singleECUResponseLen = (byteLen*2) + headerLen + cmdNoSpace.length();
+            int singleECUResponseLen = (byteLen*2) + getHeaderLen() + cmdNoSpace.length();
             int numResponses = rawData.length()/singleECUResponseLen;
             System.out.println(TAG+": single ECU response length: "+singleECUResponseLen
                     +", number of responses: " +numResponses+", rawData len: "+rawData.length());
@@ -283,8 +284,8 @@ public abstract class ObdCommand {
 
             for (int i=0;i<numResponses;i++){
                 int curIndex = singleECUResponseLen*i;
-                headers.add(rawData.substring(curIndex,curIndex+headerLen));
-                curIndex+=headerLen;
+                headers.add(rawData.substring(curIndex,curIndex+getHeaderLen()));
+                curIndex += getHeaderLen();
                 requestCode.add(rawData.substring(curIndex,curIndex+cmdNoSpace.length()));
                 curIndex += cmdNoSpace.length();
                 data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
@@ -485,5 +486,13 @@ public abstract class ObdCommand {
 
     public boolean isSingleResponse() {
         return singleResponse;
+    }
+
+    private int getHeaderLen(){
+        if (hasHeaders){
+            return HEADER_LEN;
+        }else{
+            return 0;
+        }
     }
 }
