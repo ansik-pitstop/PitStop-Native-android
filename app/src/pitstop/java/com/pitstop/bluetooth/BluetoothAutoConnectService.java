@@ -14,17 +14,17 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
@@ -368,7 +368,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         && !deviceConnState.equals(State.VERIFYING)){
                     clearInvalidDeviceData();
                     resetConnectionVars();
-                    if (!deviceManager.isConnectedTo215()) //Sync time for 212 devices
+                    if (deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212) //Sync time for 212 devices
                         deviceManager.setRtc(System.currentTimeMillis());
                     requestVin();                //Get VIN to validate car
                     setConnectionState(State.CONNECTED_UNVERIFIED);
@@ -712,7 +712,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         pidDataHandler.handlePidData(pidPackage);
 
         //212 pid "snapshot" broadcast logic
-        if (pidPackage != null && !deviceManager.isConnectedTo215()){
+        if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
             Log.d(TAG ,"deviceManager is not connected to 215");
             if (pidPackage.pids == null){
                 pidPackage.pids = new HashMap<>();
@@ -1009,12 +1009,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public boolean isConnectedTo215(){
-        Log.d(TAG,"isConnectedTo215()");
-        if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
-            return deviceManager.isConnectedTo215();
-        else
-            return false;
+    public BluetoothDeviceManager.DeviceType getDeviceType(){
+        Log.d(TAG,"getDeviceType");
+        if (deviceManager == null) return null;
+        return deviceManager.getDeviceType();
     }
 
     public void setDeviceNameAndId(String name){
@@ -1352,6 +1350,64 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             pidTrackTimeoutTimer.start();
         }
     }
+
+    @Override
+    public boolean requestDescribeProtocol() {
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceManager != null
+                && getDeviceType() == BluetoothDeviceManager.DeviceType.ELM327){
+            deviceManager.requestDescribeProtocol();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean request2141PID() {
+        Log.d(TAG,"request2141PID");
+        if (deviceManager != null){
+            deviceManager.request2141PID();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestStoredDTC() {
+        Log.d(TAG,"requestStoredDTC");
+        if (deviceManager != null){
+            deviceManager.requestStoredDTC();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestPendingDTC() {
+        Log.d(TAG,"requestPendingDTC");
+        if (deviceManager != null){
+            deviceManager.requestPendingDTC();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestSelectProtocol(ObdProtocols p) {
+        Log.d(TAG,"requestSelectProtocol() protocol: "+p);
+        if (deviceManager != null
+                && getDeviceType() == BluetoothDeviceManager.DeviceType.ELM327){
+            deviceManager.requestSelectProtocol(p);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 
     private void setConnectionState(String deviceConnState){
         Logger.getInstance().logI(TAG,"Connection status change: "+deviceConnState, DebugMessage.TYPE_BLUETOOTH);

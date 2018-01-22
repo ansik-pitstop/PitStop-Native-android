@@ -227,7 +227,7 @@ public abstract class ObdCommand {
      * @throws java.io.IOException if any.
      */
     protected void readRawData(InputStream in) throws IOException {
-        //Log.d(TAG,"readRawData() command: "+getName());
+        Log.d(TAG,"readRawData() command: "+getName());
         byte b = 0;
         StringBuilder res = new StringBuilder();
 

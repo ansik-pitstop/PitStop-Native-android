@@ -246,7 +246,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
         setHeaders(false);
         //        ((BluetoothCommunicatorELM327)communicator).writeData(new RPMCommand());
-//        pidCommandQueue.add(new DescribeProtocolCommand());
+          pidCommandQueue.add(new DescribeProtocolCommand());
 //        pidCommandQueue.add(new StatusSinceDTCsClearedCommand());
 //        pidCommandQueue.add(new AvailablePidsCommand_01_20(true));
           pidCommandQueue.add(new EmissionsPIDCommand(headersEnabled));
@@ -284,6 +284,8 @@ public class ELM327Device implements AbstractDevice {
             return false;
 
         }
+
+        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
         setHeaders(false);
         currentDtcsRequested = true;
         ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(headersEnabled));
@@ -494,14 +496,58 @@ public class ELM327Device implements AbstractDevice {
 
     }
 
-    private boolean getProtocol(){
-        Log.d(TAG, "getProtocol()");
+    public boolean requestDescribeProtocol(){
+        Log.d(TAG, "requestDescribeProtocol()");
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return false;
 
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
+        return true;
+    }
+
+    public boolean request2141PID(){
+        Log.d(TAG, "request2141PID()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return false;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new EmissionsPIDCommand(headersEnabled));
+        return true;
+    }
+
+    public boolean requestPendingTroubleCodes(){
+        Log.d(TAG, "requestPendingTroubleCodes()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return false;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(headersEnabled));
+        return true;
+    }
+
+    public boolean requestStoredTroubleCodes(){
+        Log.d(TAG, "requestStoredTroubleCodes()");
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return false;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(headersEnabled));
+        return true;
+    }
+
+    public boolean requestSelectProtocol(ObdProtocols p){
+        Log.d(TAG, "requestSelectProtocol() protocol: "+p);
+        if (communicator==null){
+            Log.d(TAG, "communicator is null ");
+            return false;
+
+        }
+        ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(p));
         return true;
     }
 

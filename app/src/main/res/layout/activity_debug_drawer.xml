@@ -40,6 +40,36 @@
                 />
 
             <Button
+                android:id="@+id/describeProtocol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Describe Protocol(ELM ONLY)" />
+
+            <Button
+                android:id="@+id/request2141PID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Request 2141 PID" />
+
+            <Button
+                android:id="@+id/requestStoredDTC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Request Stored DTC" />
+
+            <Button
+                android:id="@+id/requestPendingDTC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Request Pending DTC" />
+
+            <Button
+                android:id="@+id/selectELMProtocol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set ELM Protocol" />
+
+            <Button
                 android:id="@+id/debugGetSupportedPids"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

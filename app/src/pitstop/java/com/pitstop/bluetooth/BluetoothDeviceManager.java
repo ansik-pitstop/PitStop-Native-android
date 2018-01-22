@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.bleDevice.AbstractDevice;
 import com.pitstop.bluetooth.bleDevice.Device212B;
 import com.pitstop.bluetooth.bleDevice.Device215B;
@@ -17,9 +18,9 @@ import com.pitstop.bluetooth.bleDevice.ELM327Device;
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -85,6 +86,10 @@ public class BluetoothDeviceManager{
 
     public enum CommType {
         CLASSIC, LE
+    }
+
+    public enum DeviceType {
+        ELM327, OBD215, OBD212
     }
 
     public BluetoothDeviceManager(Context context) {
@@ -423,7 +428,7 @@ public class BluetoothDeviceManager{
     public void setDeviceNameAndId(String id){
         Log.d(TAG,"setDeviceNameAndId() id: "+id);
         //Device name should never be set for 212
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B){
             Device215B device215B = (Device215B)deviceInterface;
             device215B.setDeviceNameAndId(ObdManager.BT_DEVICE_NAME_215 + " " + id,id);
         }
@@ -431,7 +436,7 @@ public class BluetoothDeviceManager{
 
     public void setDeviceId(String id){
         Log.d(TAG,"setDeviceId() id: "+id);
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B){
             Device215B device215B = (Device215B)deviceInterface;
             device215B.setDeviceId(id);
         }
@@ -441,7 +446,7 @@ public class BluetoothDeviceManager{
 
     public void clearDeviceMemory(){
         Log.d(TAG, "clearDeviceMemory() ");
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B){
             ((Device215B)deviceInterface).clearDeviceMemory();
 
         }
@@ -450,7 +455,7 @@ public class BluetoothDeviceManager{
     public void resetDeviceToDefaults(){
 
         Log.d(TAG, "resetToDefualts() ");
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B){
             ((Device215B)deviceInterface).resetDeviceToDefaults();
         }
 
@@ -458,7 +463,7 @@ public class BluetoothDeviceManager{
 
     public void resetDevice(){
         Log.d(TAG, "resetDevice() ");
-        if (isConnectedTo215()){
+        if (deviceInterface instanceof Device215B){
             ((Device215B)deviceInterface).resetDevice();
         }
 
@@ -542,12 +547,70 @@ public class BluetoothDeviceManager{
         }
     }
 
-    public boolean isConnectedTo215(){
+    public DeviceType getDeviceType(){
         Log.d(TAG,"isConnectedTo215()");
         if (deviceInterface != null)
-            return deviceInterface instanceof Device215B;
+            if (deviceInterface instanceof Device215B){
+                return DeviceType.OBD215;
+            }else if (deviceInterface instanceof Device212B){
+                return DeviceType.OBD212;
+            }else if (deviceInterface instanceof ELM327Device){
+                return DeviceType.ELM327;
+            }else{
+                return null;
+            }
         else
+            return null;
+    }
+
+    public boolean requestDescribeProtocol(){
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceInterface != null && deviceInterface instanceof ELM327Device){
+            ((ELM327Device)deviceInterface).requestDescribeProtocol();
+            return true;
+        }else{
             return false;
+        }
+    }
+
+    public boolean request2141PID(){
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceInterface != null && deviceInterface instanceof ELM327Device){
+            ((ELM327Device)deviceInterface).request2141PID();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean requestStoredDTC(){
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceInterface != null && deviceInterface instanceof ELM327Device){
+            ((ELM327Device)deviceInterface).requestStoredTroubleCodes();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean requestPendingDTC(){
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceInterface != null && deviceInterface instanceof ELM327Device){
+            ((ELM327Device)deviceInterface).requestPendingTroubleCodes();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean requestSelectProtocol(ObdProtocols p){
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceInterface != null && deviceInterface instanceof ELM327Device){
+            ((ELM327Device)deviceInterface).requestSelectProtocol(p);
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public int getConnectionState(){

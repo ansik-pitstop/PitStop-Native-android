@@ -33,7 +33,7 @@ public class PendingTroubleCodesCommandTest {
         System.out.println("\nRunning test readRawData");
 
         //Dummy input
-        String INPUT = "47 00 47 00";
+        String INPUT = "00E0:4306010002001:030043008200C12:0000000000000043010101";
 
         //Expected output
         List<String> headers = new ArrayList<>();

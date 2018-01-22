@@ -78,7 +78,7 @@ public abstract class CodesCommand extends ObdCommand {
             while (index < rawData.length()){
                 if (hasHeaders()){
                     headers.add(rawData.substring(index,index+getHeaderLen()));
-                    index += 2;
+                    index += getHeaderLen();
                 }
                 requestCode.add(rawData.substring(index,index+2));
                 index +=2;
@@ -110,7 +110,7 @@ public abstract class CodesCommand extends ObdCommand {
 
     private void parseOtherProtocol(String rawData){
         Log.d(TAG,"praseOtherProtocol() rawData: "+rawData);
-        String workingData = rawData.replaceAll("^47|[\r\n]47|[\r\n]", "");
+        String workingData = rawData.replaceAll("^47|^43|[\r\n]47|[\r\n]43|[\r\n]", "");
         int startIndex = 0;
 
         for (int begin = startIndex; begin < workingData.length(); begin += 4) {
@@ -174,7 +174,7 @@ public abstract class CodesCommand extends ObdCommand {
         Log.d(TAG,"readRawData(): rawData: "+rawData+", length: "+rawData.length()+", headerLen: "
                 +getHeaderLen());
         String workingData = rawData;
-        if ((workingData.length()-getHeaderLen()) <= 16 && (workingData.length()-getHeaderLen()) % 4 == 0) {//CAN(ISO-15765) protocol one frame.
+        if ((workingData.length()-getHeaderLen()) <= 16 && workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
             parseISO15765_CAN_ONE(workingData);
         } else if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
             parseISO15765_CAN_OTHER(workingData);
