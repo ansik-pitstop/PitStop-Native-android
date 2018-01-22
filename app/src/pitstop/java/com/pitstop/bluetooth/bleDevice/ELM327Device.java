@@ -62,7 +62,6 @@ public class ELM327Device implements AbstractDevice {
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
     private boolean currentDtcsRequested;
-    private DtcPackage dtcPackage;
     private PidPackage pidPackage = new PidPackage();
     private String deviceName ="";
     private boolean headersEnabled = false;
@@ -361,30 +360,23 @@ public class ELM327Device implements AbstractDevice {
             manager.onGotVin(obdCommand.getFormattedResult(), this.deviceName);
         else if(obdCommand instanceof TroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
-            if (dtcPackage== null)
-                dtcPackage = new DtcPackage();
-            dtcPackage.deviceId = deviceName;
-            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-            if (dtcPackage.dtcs == null)
-                dtcPackage.dtcs = new HashMap<>();
+            DtcPackage dtcPackage = new DtcPackage(deviceName
+                    ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>());
             for (String DtcsFromDevice : dtcsFromDevice) {
                 dtcPackage.dtcs.put(DtcsFromDevice, false);
             }
+            manager.gotDtcData(dtcPackage);
             currentDtcsRequested = false;
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
             String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
-            if (dtcPackage== null)
-                dtcPackage = new DtcPackage();
-            if (dtcPackage.dtcs == null)
-                dtcPackage.dtcs = new HashMap<>();
-            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
+            DtcPackage dtcPackage = new DtcPackage(deviceName
+                    ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>());
             for (String DtcsFromDevice : dtcsFromDevice) {
                 dtcPackage.dtcs.put(DtcsFromDevice, true);
             }
             manager.gotDtcData(dtcPackage);
-            dtcPackage = null;
         }
         else if (obdCommand instanceof DescribeProtocolCommand){
             Log.d(TAG, "Describe Protocol: " + obdCommand.getFormattedResult());
@@ -465,18 +457,14 @@ public class ELM327Device implements AbstractDevice {
 
     public void noData(ObdCommand obdCommand) {
         if (obdCommand instanceof TroubleCodesCommand){
-            if (dtcPackage== null)
-                dtcPackage = new DtcPackage();
-            dtcPackage.deviceId = this.deviceName;
-            dtcPackage.rtcTime = String.valueOf(System.currentTimeMillis() / 1000);
-            if (dtcPackage.dtcs == null)
-                dtcPackage.dtcs = new HashMap<>();
-            currentDtcsRequested = false;
+            //We need to do this otherwise timeout will occur and error will be prompted to the user
+            manager.gotDtcData(new DtcPackage(deviceName
+                    ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
-            if (dtcPackage!=null)
-                manager.gotDtcData(dtcPackage);
+            manager.gotDtcData(new DtcPackage(deviceName
+                    ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
         }
         if (obdCommand instanceof DescribeProtocolCommand ||
                 obdCommand instanceof StatusSinceDTCsClearedCommand||

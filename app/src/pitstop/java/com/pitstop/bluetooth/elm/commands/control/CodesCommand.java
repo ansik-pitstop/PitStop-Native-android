@@ -54,6 +54,10 @@ public abstract class CodesCommand extends ObdCommand {
     @Override
     protected void performCalculations() {
 
+        /*
+        * Store raw header, data and request code variables
+        *
+         */
         String workingData = rawData;
         if (workingData.length() <= 16 && workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
             parseISO15765_CAN_ONE(workingData);
@@ -175,11 +179,6 @@ public abstract class CodesCommand extends ObdCommand {
                 res.append(c);
             }
         }
-
-        /*
-        * Store raw header, data and request code variables
-        *
-         */
 
         rawData = res.toString().trim();
         Log.d(TAG,"readRawData(): rawData: "+rawData+", length: "+rawData.length()+", headerLen: "
