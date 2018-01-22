@@ -3,7 +3,6 @@ package com.pitstop.bluetooth.elm.commands.control;
 import android.util.Log;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
-import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -192,11 +191,4 @@ public abstract class CodesCommand extends ObdCommand {
     public String getFormattedResult() {
         return codes.toString();
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getName() {
-        return AvailableCommandNames.PENDING_TROUBLE_CODES.getValue();
-    }
-
 }

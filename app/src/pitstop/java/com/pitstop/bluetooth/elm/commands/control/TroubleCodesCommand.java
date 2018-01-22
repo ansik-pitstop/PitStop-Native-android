@@ -12,6 +12,8 @@
  */
 package com.pitstop.bluetooth.elm.commands.control;
 
+import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
+
 /**
  * It is not needed no know how many DTC are stored.
  * Because when no DTC are stored response will be NO DATA
@@ -40,4 +42,9 @@ public class TroubleCodesCommand extends CodesCommand {
         super(other);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String getName() {
+        return AvailableCommandNames.PENDING_TROUBLE_CODES.getValue();
+    }
 }
