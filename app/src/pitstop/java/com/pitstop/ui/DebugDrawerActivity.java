@@ -220,7 +220,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                         else editText.setText("Wrote successfully");
                     }
                 }catch(NumberFormatException e){
-                    editText.setText("Invalid input, only integers between 1-12 accepted");
+                    editText.setText("Invalid input, only integers between 0-13 accepted");
                     e.printStackTrace();
                 }
 
