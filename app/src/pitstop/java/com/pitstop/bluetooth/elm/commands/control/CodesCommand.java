@@ -55,6 +55,18 @@ public abstract class CodesCommand extends ObdCommand {
     @Override
     protected void performCalculations() {
 
+        String workingData = rawData;
+        if (workingData.length() <= 16 && workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
+            parseISO15765_CAN_ONE(workingData);
+        } else if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
+            parseISO15765_CAN_OTHER(workingData);
+        } else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
+            parseOtherProtocol(workingData);
+        }
+
+        System.out.printf(TAG+": After parsing Pending Trouble Codes, data: %s, header: %s" +
+                ", request code: %s",data.toString(),headers.toString(),requestCode.toString());
+
         for (String d: data){
             String dtc = "";
             byte b1 = hexStringToByteArray(d.charAt(0));
@@ -173,17 +185,6 @@ public abstract class CodesCommand extends ObdCommand {
         rawData = res.toString().trim();
         Log.d(TAG,"readRawData(): rawData: "+rawData+", length: "+rawData.length()+", headerLen: "
                 +getHeaderLen());
-        String workingData = rawData;
-        if ((workingData.length()-getHeaderLen()) <= 16 && workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
-            parseISO15765_CAN_ONE(workingData);
-        } else if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
-            parseISO15765_CAN_OTHER(workingData);
-        } else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
-            parseOtherProtocol(workingData);
-        }
-
-        System.out.printf(TAG+": After parsing Pending Trouble Codes, data: %s, header: %s" +
-                ", request code: %s",data.toString(),headers.toString(),requestCode.toString());
     }
 
     /** {@inheritDoc} */
