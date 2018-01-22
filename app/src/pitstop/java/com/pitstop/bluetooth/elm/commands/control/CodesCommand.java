@@ -113,6 +113,9 @@ public abstract class CodesCommand extends ObdCommand {
         String workingData = rawData.replaceAll("^47|[\r\n]47|[\r\n]", "");
         int startIndex = 0;
 
+        for (int begin = startIndex; begin < workingData.length(); begin += 4) {
+            data.add(workingData.substring(begin,begin+4));
+        }
 
     }
 
