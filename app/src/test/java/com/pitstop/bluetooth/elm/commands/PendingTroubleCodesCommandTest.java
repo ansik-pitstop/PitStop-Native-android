@@ -52,7 +52,6 @@ public class PendingTroubleCodesCommandTest {
 
         obdCommand.readRawData(deviceOuput);
 
-
         System.out.println("EXPECTED- headers: "+headers+", data: "+data+", requestCode: "+requestCodes);
         System.out.println("RESULT- headers: "+obdCommand.getHeaders()+", data: "+obdCommand.getData()
                 +", requestCode: "+obdCommand.getRequestCode());
