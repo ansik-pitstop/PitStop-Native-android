@@ -211,10 +211,10 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             if (bluetoothWriter != null){
                 try{
                     int editTextValue = Integer.valueOf(editText.getText().toString());
-                    if (editTextValue < 1 || editTextValue > 12){
-                        editText.setText("Invalid input, only integers between 1-12 accepted");
+                    if (editTextValue < 0 || editTextValue > 13){
+                        editText.setText("Invalid input, only integers between 0-13 accepted");
                     }else{
-                        boolean succeeded = bluetoothWriter.requestSelectProtocol(ObdProtocols.valueOf(Integer.toHexString(editTextValue)));
+                        boolean succeeded = bluetoothWriter.requestSelectProtocol(ObdProtocols.values()[editTextValue]);
                         if (!succeeded)
                             editText.setText("Failed to write");
                         else editText.setText("Wrote successfully");
