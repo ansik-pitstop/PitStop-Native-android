@@ -199,12 +199,12 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
         ViewUtils.findView(mDrawerLayout, R.id.requestPendingDTC).setOnClickListener(view -> {
             if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.request2141PID();
+                bluetoothConnectionObservable.requestPendingDTC();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.requestStoredDTC).setOnClickListener(view -> {
             if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.request2141PID();
+                bluetoothConnectionObservable.requestStoredDTC();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.selectELMProtocol).setOnClickListener(view -> {

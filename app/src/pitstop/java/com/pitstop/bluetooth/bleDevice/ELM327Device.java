@@ -177,11 +177,12 @@ public class ELM327Device implements AbstractDevice {
         switch(state){
             //Setup device once connected
             case BluetoothCommunicator.CONNECTED:
+
                 Log.d(TAG,"Setting up ELM device");
+                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
                 setHeaders(false); //Headers on by default
                 ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand(false));
                 break;
