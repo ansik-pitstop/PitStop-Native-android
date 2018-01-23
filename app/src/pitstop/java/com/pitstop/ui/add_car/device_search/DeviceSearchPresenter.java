@@ -440,7 +440,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         else if (connectingToDevice){
             connectionTimer.cancel();
-            bluetoothConnectionObservable.disconnect();
             connectingToDevice = false;
             view.hideLoading("");
         }

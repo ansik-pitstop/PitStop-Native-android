@@ -192,11 +192,8 @@ public class BluetoothDeviceManager{
 
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
-        if (deviceInterface == null)
-            btConnectionState = BluetoothCommunicator.DISCONNECTED;
-        else {
-            btConnectionState = deviceInterface.getCommunicatorState();
-        }
+        btConnectionState = deviceInterface == null ? BluetoothCommunicator.DISCONNECTED : deviceInterface.getCommunicatorState();
+
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected");
             return false;

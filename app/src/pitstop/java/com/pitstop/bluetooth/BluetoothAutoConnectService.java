@@ -98,11 +98,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Timer length values
     public static final int DTC_RETRY_LEN = 3; //Seconds
     public static final int DTC_RETRY_COUNT = 4;
-    public static final int PID_RETRY_LEN = 20;
-    public static final int PID_RETRY_COUNT = 0;
+    public static final int PID_RETRY_LEN = 5; //Seconds
+    public static final int PID_RETRY_COUNT = 2;
     private final int RTC_RETRY_LEN = 5; //Seconds
     private final int RTC_RETRY_COUNT = 0;
-    private final int VERIFICATION_TIMEOUT = 15;
+    private final int VERIFICATION_TIMEOUT = 15; //Seconds
     private final int PERIOD_TRACK_PID_LEN = 60; //Seconds
     private final int PERIOD_RTC_LEN = 60000; //Milliseconds
     private final int PERIOD_VIN_LEN = 10000; //Milliseconds
@@ -547,7 +547,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.ignoreVerification = ignoreVerification;
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
-                && !deviceConnState.equals(State.SEARCHING)&& !deviceConnState.equals(State.FOUND_DEVICES)){
+                && !deviceConnState.equals(State.SEARCHING)){
             Log.d(TAG, "device state is not searching or disconnected");
             Log.d(TAG, "state is : " + deviceConnState);
             return;
@@ -567,8 +567,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void setCtrlResponse(ResponsePackageInfo responsePackageInfo) {
-
-
     }
 
     /**
@@ -697,7 +695,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void idrPidData(PidPackage pidPackage) {
-        Logger.getInstance().logD(TAG, "IDR pid data received: " + pidPackage.toString()
+        Logger.getInstance().logD(TAG, "IDR pid data received: " + (pidPackage == null ? "null" : pidPackage.toString())
                 , DebugMessage.TYPE_BLUETOOTH);
 
         deviceManager.requestData();

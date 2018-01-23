@@ -87,7 +87,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
@@ -166,8 +166,8 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
 
         val remote: Observable<RepositoryResponse<List<Car>>> = carApi.getUserCars(userId).map{ carListResponse ->
-            if (carListResponse.body() == null || ( (carListResponse.body() as JsonElement).isJsonObject
-                    && (carListResponse.body() as JsonObject).size() == 0) ){
+            if (!carListResponse.isSuccessful || (carListResponse.body() == null || ( (carListResponse.body() as JsonElement).isJsonObject
+                    && (carListResponse.body() as JsonObject).size() == 0) )){
                 return@map RepositoryResponse(emptyList<Car>(),false)
             }else{
                 val gson = Gson()
@@ -202,7 +202,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)
 
-        remote.map{ carListResponse -> RepositoryResponse(carListResponse.body(),false) }
+        remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnNext({next ->
@@ -221,7 +221,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
                 .subscribe()
 
         val retRemote = remote.cache().map({pitstopResponse ->
-            val carList = pitstopResponse.body()
+            val carList = pitstopResponse
             if (carList != null){
 
                 //Fix shopId if it's 0

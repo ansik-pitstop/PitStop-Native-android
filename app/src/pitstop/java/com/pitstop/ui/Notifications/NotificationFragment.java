@@ -42,7 +42,6 @@ public class NotificationFragment extends Fragment implements NotificationView{
 
     private final String TAG = getClass().getSimpleName();
 
-
     @BindView(R.id.unknown_error_view)
     protected View unknownErrorView;
 

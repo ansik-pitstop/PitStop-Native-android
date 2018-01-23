@@ -271,7 +271,7 @@ public class ReportRepository implements Repository {
 
         networkHelper.post(String.format("v1/car/%d/report/vehicle-health", carId)
                 , (response, requestError) -> {
-
+                    Log.d(TAG,"vhr response: "+response);
                     if (requestError == null){
                         Log.d(TAG, "VHR RESPONSE: " + response);
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
@@ -284,7 +284,7 @@ public class ReportRepository implements Repository {
                         }
 
                     }else{
-                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError);
                         callback.onError(requestError);
                     }
 
@@ -346,7 +346,7 @@ public class ReportRepository implements Repository {
 
     private VehicleHealthReport vhrContentToJson(JSONObject vhrResponse){
         try{
-            int id = vhrResponse.getInt("_id");
+            int id = vhrResponse.getInt("id");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .parse(vhrResponse.getString("createdAt"));
             JSONObject healthReportContentJson = vhrResponse.getJSONObject("content");
