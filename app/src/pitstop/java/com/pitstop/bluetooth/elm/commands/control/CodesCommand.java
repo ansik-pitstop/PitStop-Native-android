@@ -59,11 +59,11 @@ public abstract class CodesCommand extends ObdCommand {
     @Override
     protected void performCalculations() {
 
+        Log.d(TAG,"performCalculations() obdProtocol: "+obdProtocols);
         /*
         * Store raw header, data and request code variables
         *
          */
-
         boolean ISO_15765 = obdProtocols == ObdProtocols.ISO_15765_4_CAN
                 || obdProtocols == ObdProtocols.ISO_15765_4_CAN_B
                 || obdProtocols == ObdProtocols.ISO_15765_4_CAN_C

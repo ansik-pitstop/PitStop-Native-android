@@ -179,7 +179,7 @@ public class ELM327Device implements AbstractDevice {
             case BluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"Setting up ELM device");
                 ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
+                ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand()); //On the receival of this command the protocol will be set
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
@@ -489,7 +489,6 @@ public class ELM327Device implements AbstractDevice {
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return false;
-
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new EmissionsPIDCommand(headersEnabled));
         return true;
@@ -500,7 +499,9 @@ public class ELM327Device implements AbstractDevice {
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return false;
-
+        }else if (obdProtocol == null){
+            Log.d(TAG,"obd protocol null cannot process pending trouble codes request");
+            return false;
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
@@ -511,7 +512,9 @@ public class ELM327Device implements AbstractDevice {
         if (communicator==null){
             Log.d(TAG, "communicator is null ");
             return false;
-
+        }else if (obdProtocol == null){
+            Log.d(TAG,"obd protocol is null");
+            return false;
         }
         ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
