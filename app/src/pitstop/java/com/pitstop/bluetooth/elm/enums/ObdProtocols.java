@@ -81,7 +81,9 @@ public enum ObdProtocols {
     /**
      * 11 bit ID (user adjustable), 50 kbaud (user adjustable)
      */
-    USER2_CAN('C');
+    USER2_CAN('C'),
+
+    UNKNOWN('D');
 
     private final char value;
 

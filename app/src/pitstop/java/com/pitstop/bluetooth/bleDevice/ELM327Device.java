@@ -66,6 +66,7 @@ public class ELM327Device implements AbstractDevice {
     private String deviceName ="";
     private boolean headersEnabled = false;
     private Queue<ObdCommand> pidCommandQueue = new LinkedList<>();
+    private ObdProtocols obdProtocol = null;
 
     public ELM327Device(Context mContext, BluetoothDeviceManager manager){
         this.manager  = manager;
@@ -176,7 +177,6 @@ public class ELM327Device implements AbstractDevice {
         switch(state){
             //Setup device once connected
             case BluetoothCommunicator.CONNECTED:
-
                 Log.d(TAG,"Setting up ELM device");
                 ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
@@ -186,6 +186,7 @@ public class ELM327Device implements AbstractDevice {
                 ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand(false));
                 break;
             case BluetoothCommunicator.DISCONNECTED:
+                obdProtocol = null;
                 headersEnabled = false;
                 break;
         }
@@ -380,14 +381,11 @@ public class ELM327Device implements AbstractDevice {
         }
         else if (obdCommand instanceof DescribeProtocolCommand){
             Log.d(TAG, "Describe Protocol: " + obdCommand.getFormattedResult());
-            //pidPackage.pids.put("Protocol",  obdCommand.getFormattedResult());
+            setObdProtocol(obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof StatusSinceDTCsClearedCommand){
             Log.d(TAG, "DTC number Command: " + obdCommand.getFormattedResult());
-//            pidPackage.pids.put("DtcCount: ",  Integer.toString(((StatusSinceDTCsClearedCommand) obdCommand).getCodeCount()));
-//            pidPackage.pids.put("MIL: ",  Boolean.toString(((StatusSinceDTCsClearedCommand) obdCommand).getMilOn()));
-//            pidPackage.pids.put("IgnitionType: ",  ((StatusSinceDTCsClearedCommand) obdCommand).getIgnitionType());
             next();
 
         }
@@ -403,54 +401,44 @@ public class ELM327Device implements AbstractDevice {
         }
         else if (obdCommand instanceof DistanceMILOnCommand){
             Log.d(TAG, "Distance since MIL: " + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("DistanceSinceMIL", obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof WarmupsSinceCC){
             Log.d(TAG, "WarmupsSinceCC: " + obdCommand.getFormattedResult());
-            //pidPackage.pids.put("WarmupsSinceCC", obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof DistanceSinceCCCommand){
             Log.d(TAG, "Distance since CC: " + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("DistanceSinceCC: ", obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof TimeSinceMIL){
             Log.d(TAG, "Time Since MIL: " + obdCommand.getFormattedResult());
-            //pidPackage.pids.put("Time Since MIL: ", obdCommand.getCalculatedResult());
             next();
         }
         else if (obdCommand instanceof TimeSinceCC){
             Log.d(TAG, "Time Since CC: " + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("Time Since CC: ", obdCommand.getCalculatedResult());
             next();
         }
         else if (obdCommand instanceof CalibrationIDCommand){
             Log.d(TAG, "CAL ID: " + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("Calibration ID", obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof CalibrationVehicleNumberCommand){
             Log.d(TAG, "CVN: "+ obdCommand.getFormattedResult());
-         //   pidPackage.pids.put("Calbration Vehicle Number", obdCommand.getFormattedResult());
             next();
         }
         else if (obdCommand instanceof OBDStandardCommand){
             Log.d(TAG, "OBD Standard: " + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("OBD Standard: ", obdCommand.getCalculatedResult());
             next();
         }
 
         else if (obdCommand instanceof FindFuelTypeCommand){
             Log.d(TAG, "Fuel Type: "  + obdCommand.getFormattedResult());
-           // pidPackage.pids.put("Fuel Type: ", obdCommand.getFormattedResult());
             next();
 
         }
         else if(obdCommand instanceof AvailablePidsCommand){
             Log.d(TAG, "Available PIDS: {formatted: " + obdCommand.getFormattedResult() +", calculated: "+obdCommand.getCalculatedResult()+" }");
-           // pidPackage.pids.put(obdCommand.getName(), obdCommand.getFormattedResult());
             next();
         }
     }
@@ -630,5 +618,49 @@ public class ELM327Device implements AbstractDevice {
         }
         headersEnabled = enabled;
         return true;
+    }
+
+    private void setObdProtocol(String protocolDescription){
+        Log.d(TAG,"setObdProtocol() protocolDescription: "+protocolDescription);
+
+        if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_PMW)){
+            obdProtocol = ObdProtocols.SAE_J1850_PWM;
+        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_VPW)){
+            obdProtocol = ObdProtocols.SAE_J1850_VPW;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_9141_2)){
+            obdProtocol = ObdProtocols.ISO_9141_2;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW)){
+            obdProtocol = ObdProtocols.ISO_14230_4_KWP;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW_FAST)){
+            obdProtocol = ObdProtocols.ISO_14230_4_KWP_FAST;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN)){
+            obdProtocol = ObdProtocols.ISO_15765_4_CAN;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_B)){
+            obdProtocol = ObdProtocols.ISO_15765_4_CAN_B;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_C)){
+            obdProtocol = ObdProtocols.ISO_15765_4_CAN_C;
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_D)){
+            obdProtocol = ObdProtocols.ISO_15765_4_CAN_D;
+        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1939_CAN)){
+            obdProtocol = ObdProtocols.SAE_J1939_CAN;
+        }else{
+            obdProtocol = ObdProtocols.UNKNOWN;
+        }
+
+        Log.d(TAG,"Protocol set to: "+obdProtocol);
+    }
+
+    public interface ObdProtocolNames{
+        String UNKNOWN = "Unknown";
+        String SAE_J1850_PMW = "SAE J1850 PWM";
+        String SAE_J1850_VPW = "SAE J1850 VPW";
+        String ISO_9141_2 = "ISO 9141-2";
+        String ISO_14230_4_KPW = "ISO 14230-4 (KWP 5BAUD)";
+        String ISO_14230_4_KPW_FAST = "ISO 14230-4 (KWP FAST)";
+        String ISO_15765_4_CAN = "ISO 15765-4 (CAN 11/500)";
+        String ISO_15765_4_CAN_B = "ISO 15765-4 (CAN 29/500)";
+        String ISO_15765_4_CAN_C = "ISO 15765-4 (CAN 11/250)";
+        String ISO_15765_4_CAN_D = "ISO 15765-4 (CAN 29/250)";
+        String SAE_J1939_CAN = "SAE J1939 (CAN 29/250)";
     }
 }

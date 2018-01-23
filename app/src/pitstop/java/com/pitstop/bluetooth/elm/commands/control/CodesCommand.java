@@ -3,7 +3,6 @@ package com.pitstop.bluetooth.elm.commands.control;
 import android.util.Log;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
-import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,15 +25,13 @@ public abstract class CodesCommand extends ObdCommand {
 
     protected StringBuilder codes = null;
     protected List<Integer> codeCount;
-    protected ObdProtocols obdProtocol;
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
-    public CodesCommand(String command, ObdProtocols obdProtocol, boolean hasHeaders) {
+    public CodesCommand(String command, boolean hasHeaders) {
         super(command,hasHeaders,4);
         codes = new StringBuilder();
         codeCount = new ArrayList<>();
-        this.obdProtocol = obdProtocol;
     }
 
     /**
@@ -63,10 +60,10 @@ public abstract class CodesCommand extends ObdCommand {
          */
         String workingData = rawData.trim();
         if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
-            parseISO15765_CAN_OTHER(workingData);
+            parseISO15765_CAN_OTHER(workingData);  //This is used when the number of dtcs is high
         }else if (workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
             try{
-                parseISO15765_CAN_ONE(workingData);
+                parseISO15765_CAN_ONE(workingData); //This is used when the number of dtcs is low
             }catch(Exception e){
                 e.printStackTrace();
                 parseOtherProtocol(workingData);

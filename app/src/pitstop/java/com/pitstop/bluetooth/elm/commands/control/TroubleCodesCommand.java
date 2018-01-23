@@ -13,7 +13,6 @@
 package com.pitstop.bluetooth.elm.commands.control;
 
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
-import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 
 /**
  * It is not needed no know how many DTC are stored.
@@ -30,8 +29,8 @@ public class TroubleCodesCommand extends CodesCommand {
     /**
      * <p>Constructor for TroubleCodesCommand.</p>
      */
-    public TroubleCodesCommand(ObdProtocols obdProtocol, boolean hasHeaders) {
-        super("03",obdProtocol,hasHeaders);
+    public TroubleCodesCommand(boolean hasHeaders) {
+        super("03",hasHeaders);
     }
 
     /**
@@ -46,6 +45,6 @@ public class TroubleCodesCommand extends CodesCommand {
     /** {@inheritDoc} */
     @Override
     public String getName() {
-        return AvailableCommandNames.PENDING_TROUBLE_CODES.getValue();
+        return AvailableCommandNames.TROUBLE_CODES.getValue();
     }
 }
