@@ -129,8 +129,8 @@ public abstract class CodesCommand extends ObdCommand {
     }
 
     private void parseISO15765_CAN_OTHER(String rawData){
-        Log.d(TAG,"praseISO15765_CAN_OTHER() rawData: "+rawData);
-        String workingData = rawData.replaceAll(".:", "");  //xxx47yy{codes}
+        String workingData = rawData.replace(":", "");  //xxx47yy{codes}
+        Log.d(TAG,"praseISO15765_CAN_OTHER() workingData: "+workingData);
 
         for (int begin = 0; begin < workingData.length(); begin += 4) {
             data.add(workingData.substring(begin,begin+4));
