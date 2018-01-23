@@ -3,6 +3,7 @@ package com.pitstop.bluetooth.elm.commands.control;
 import android.util.Log;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +26,15 @@ public abstract class CodesCommand extends ObdCommand {
 
     protected StringBuilder codes = null;
     protected List<Integer> codeCount;
+    protected ObdProtocols obdProtocol;
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
-    public CodesCommand(String command,boolean hasHeaders) {
+    public CodesCommand(String command, ObdProtocols obdProtocol, boolean hasHeaders) {
         super(command,hasHeaders,4);
         codes = new StringBuilder();
         codeCount = new ArrayList<>();
+        this.obdProtocol = obdProtocol;
     }
 
     /**
