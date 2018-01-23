@@ -218,6 +218,30 @@ public abstract class ObdCommand {
         Log.d(TAG,getName()+": buffer after filling: "+buffer.toString());
     }
 
+    protected String removeUnwantedPatterns(String rawData){
+
+        String res = rawData;
+        /*
+         * Imagine the following response 41 0c 00 0d.
+         *
+         * ELM sends strings!! So, ELM puts spaces between each "byte". And pay
+         * attention to the fact that I've put the word byte in quotes, because 41
+         * is actually TWO bytes (two chars) in the socket. So, we must do some more
+         * processing..
+         */
+        res = removeAll(SEARCHING_PATTERN, res);
+
+        /*
+         * Data may have echo or informative text like "INIT BUS..." or similar.
+         * The response ends with two carriage return characters. So we need to take
+         * everything from the last carriage return before those two (trimmed above).
+         */
+        //kills multiline.. rawData = rawData.substring(rawData.lastIndexOf(13) + 1);
+        res = removeAll(WHITESPACE_PATTERN, res);//removes all [ \t\n\x0B\f\r]
+
+        return res;
+    }
+
     /**
      * <p>
      * readRawData.</p>
@@ -242,27 +266,8 @@ public abstract class ObdCommand {
             res.append(c);
         }
 
-        System.out.println(TAG+":"+ getName() +": rawData: "+res);
-
-        /*
-         * Imagine the following response 41 0c 00 0d.
-         *
-         * ELM sends strings!! So, ELM puts spaces between each "byte". And pay
-         * attention to the fact that I've put the word byte in quotes, because 41
-         * is actually TWO bytes (two chars) in the socket. So, we must do some more
-         * processing..
-         */
-        rawData = removeAll(SEARCHING_PATTERN, res.toString());
-
-        /*
-         * Data may have echo or informative text like "INIT BUS..." or similar.
-         * The response ends with two carriage return characters. So we need to take
-         * everything from the last carriage return before those two (trimmed above).
-         */
-        //kills multiline.. rawData = rawData.substring(rawData.lastIndexOf(13) + 1);
-        rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
-
-        System.out.println(TAG+":"+ getName() +": rawData: "+res);
+        rawData = removeUnwantedPatterns(res.toString().trim());
+        System.out.println(TAG+":"+ getName() +": rawData: "+rawData);
 
         /*
         * Data is formatted like the following "HEADER REQUEST_CODE DATA HEADER REQUEST_CODE DATA ..."

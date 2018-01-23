@@ -130,10 +130,9 @@ public abstract class CodesCommand extends ObdCommand {
 
     private void parseISO15765_CAN_OTHER(String rawData){
         Log.d(TAG,"praseISO15765_CAN_OTHER() rawData: "+rawData);
-        String workingData = rawData.replaceAll("[\r\n].:", "");  //xxx47yy{codes}
-        int startIndex = 7;//Header is xxx47yy, xxx is bytes of information to follow, yy showing the number of data items.
+        String workingData = rawData.replaceAll(".:", "");  //xxx47yy{codes}
 
-        for (int begin = startIndex; begin < workingData.length(); begin += 4) {
+        for (int begin = 0; begin < workingData.length(); begin += 4) {
             data.add(workingData.substring(begin,begin+4));
         }
     }
@@ -141,9 +140,8 @@ public abstract class CodesCommand extends ObdCommand {
     private void parseOtherProtocol(String rawData){
         Log.d(TAG,"praseOtherProtocol() rawData: "+rawData);
         String workingData = rawData.replaceAll("^47|^43|[\r\n]47|[\r\n]43|[\r\n]", "");
-        int startIndex = 0;
 
-        for (int begin = startIndex; begin < workingData.length(); begin += 4) {
+        for (int begin = 0; begin < workingData.length(); begin += 4) {
             data.add(workingData.substring(begin,begin+4));
         }
 
@@ -194,8 +192,7 @@ public abstract class CodesCommand extends ObdCommand {
                 res.append(c);
             }
         }
-
-        rawData = res.toString().trim();
+        rawData = removeUnwantedPatterns(res.toString().trim());
         Log.d(TAG,"readRawData(): rawData: "+rawData+", length: "+rawData.length()+", headerLen: "
                 +getHeaderLen());
     }
