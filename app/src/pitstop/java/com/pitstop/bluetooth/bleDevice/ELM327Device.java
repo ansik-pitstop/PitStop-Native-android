@@ -625,28 +625,28 @@ public class ELM327Device implements AbstractDevice {
     private void setObdProtocol(String protocolDescription){
         Log.d(TAG,"setObdProtocol() protocolDescription: "+protocolDescription);
         if (protocolDescription == null) return;
-        if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_PMW)){
+        if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_PMW.replace(" ",""))){
             obdProtocol = ObdProtocols.SAE_J1850_PWM;
-        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_VPW)){
+        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_VPW.replace(" ",""))){
             obdProtocol = ObdProtocols.SAE_J1850_VPW;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_9141_2)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_9141_2.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_9141_2;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_14230_4_KWP;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW_FAST)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_14230_4_KPW_FAST.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_14230_4_KWP_FAST;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_15765_4_CAN;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_B)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_B.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_15765_4_CAN_B;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_C)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_C.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_15765_4_CAN_C;
-        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_D)){
+        }else if (protocolDescription.contains(ObdProtocolNames.ISO_15765_4_CAN_D.replace(" ",""))){
             obdProtocol = ObdProtocols.ISO_15765_4_CAN_D;
-        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1939_CAN)){
+        }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1939_CAN.replace(" ",""))){
             obdProtocol = ObdProtocols.SAE_J1939_CAN;
         }else{
-            obdProtocol = ObdProtocols.UNKNOWN;
+            obdProtocol = ObdProtocols.ISO_15765_4_CAN;
         }
 
         Log.d(TAG,"Protocol set to: "+obdProtocol);
