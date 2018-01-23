@@ -179,6 +179,7 @@ public class ELM327Device implements AbstractDevice {
             case BluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"Setting up ELM device");
                 ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
@@ -280,16 +281,15 @@ public class ELM327Device implements AbstractDevice {
     @Override
     public boolean getDtcs() {
         Log.d(TAG, "getDtc()");
-        if (communicator==null){
+        if (communicator==null || obdProtocol == null){
             Log.d(TAG, "communicator is null ");
             return false;
 
         }
 
-        ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand());
         setHeaders(false);
         currentDtcsRequested = true;
-        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(headersEnabled));
+        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
     }
 
@@ -303,7 +303,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
         }
 
-        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(headersEnabled));
+        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
 
     }
@@ -502,7 +502,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(headersEnabled));
+        ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
     }
 
@@ -513,7 +513,7 @@ public class ELM327Device implements AbstractDevice {
             return false;
 
         }
-        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(headersEnabled));
+        ((BluetoothCommunicatorELM327)communicator).writeData(new TroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
     }
 

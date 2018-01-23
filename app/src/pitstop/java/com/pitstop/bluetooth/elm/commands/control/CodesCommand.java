@@ -3,6 +3,7 @@ package com.pitstop.bluetooth.elm.commands.control;
 import android.util.Log;
 
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +26,17 @@ public abstract class CodesCommand extends ObdCommand {
 
     protected StringBuilder codes = null;
     protected List<Integer> codeCount;
+    protected ObdProtocols obdProtocols;
+
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
-    public CodesCommand(String command, boolean hasHeaders) {
+    public CodesCommand(String command, ObdProtocols protocol, boolean hasHeaders) throws IllegalArgumentException{
         super(command,hasHeaders,4);
         codes = new StringBuilder();
         codeCount = new ArrayList<>();
+        obdProtocols = protocol;
+        if (protocol == null) throw new IllegalArgumentException();
     }
 
     /**
@@ -58,10 +63,15 @@ public abstract class CodesCommand extends ObdCommand {
         * Store raw header, data and request code variables
         *
          */
+
+        boolean ISO_15765 = obdProtocols == ObdProtocols.ISO_15765_4_CAN
+                || obdProtocols == ObdProtocols.ISO_15765_4_CAN_B
+                || obdProtocols == ObdProtocols.ISO_15765_4_CAN_C
+                || obdProtocols == ObdProtocols.ISO_15765_4_CAN_D;
         String workingData = rawData.trim();
-        if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
+        if (ISO_15765 && workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
             parseISO15765_CAN_OTHER(workingData);  //This is used when the number of dtcs is high
-        }else if (workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
+        }else if (ISO_15765) {//CAN(ISO-15765) protocol one frame.
             try{
                 parseISO15765_CAN_ONE(workingData); //This is used when the number of dtcs is low
             }catch(Exception e){
