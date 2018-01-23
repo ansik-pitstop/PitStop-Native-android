@@ -58,11 +58,16 @@ public abstract class CodesCommand extends ObdCommand {
         * Store raw header, data and request code variables
         *
          */
-        String workingData = rawData;
-        if (workingData.length() <= 16 && workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
-            parseISO15765_CAN_ONE(workingData);
-        } else if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
+        String workingData = rawData.trim();
+        if (workingData.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
             parseISO15765_CAN_OTHER(workingData);
+        }else if (workingData.length() % 4 == 0) {//CAN(ISO-15765) protocol one frame.
+            try{
+                parseISO15765_CAN_ONE(workingData);
+            }catch(Exception e){
+                e.printStackTrace();
+                parseOtherProtocol(workingData);
+            }
         } else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
             parseOtherProtocol(workingData);
         }
