@@ -4,7 +4,11 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.util.Log;
 
+import com.pitstop.bluetooth.BluetoothCommunicatorELM327;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
+import com.pitstop.bluetooth.dataPackages.DtcPackage;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
 import com.pitstop.bluetooth.elm.commands.control.DistanceMILOnCommand;
 import com.pitstop.bluetooth.elm.commands.control.DistanceSinceCCCommand;
@@ -15,6 +19,16 @@ import com.pitstop.bluetooth.elm.commands.control.TroubleCodesCommand;
 import com.pitstop.bluetooth.elm.commands.control.VinCommand;
 import com.pitstop.bluetooth.elm.commands.engine.RPMCommand;
 import com.pitstop.bluetooth.elm.commands.fuel.FindFuelTypeCommand;
+import com.pitstop.bluetooth.elm.commands.other.CalibrationIDCommand;
+import com.pitstop.bluetooth.elm.commands.other.CalibrationVehicleNumberCommand;
+import com.pitstop.bluetooth.elm.commands.other.EmissionsPIDCommand;
+import com.pitstop.bluetooth.elm.commands.other.HeaderOffCommand;
+import com.pitstop.bluetooth.elm.commands.other.HeaderOnCommand;
+import com.pitstop.bluetooth.elm.commands.other.OBDStandardCommand;
+import com.pitstop.bluetooth.elm.commands.other.StatusSinceDTCsClearedCommand;
+import com.pitstop.bluetooth.elm.commands.other.TimeSinceCC;
+import com.pitstop.bluetooth.elm.commands.other.TimeSinceMIL;
+import com.pitstop.bluetooth.elm.commands.other.WarmupsSinceCC;
 import com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand;
 import com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand_01_20;
 import com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand_21_40;
@@ -26,20 +40,6 @@ import com.pitstop.bluetooth.elm.commands.protocol.ResetTroubleCodesCommand;
 import com.pitstop.bluetooth.elm.commands.protocol.SelectProtocolCommand;
 import com.pitstop.bluetooth.elm.commands.protocol.TimeoutCommand;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
-import com.pitstop.bluetooth.BluetoothCommunicatorELM327;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
-import com.pitstop.bluetooth.elm.commands.other.CalibrationIDCommand;
-import com.pitstop.bluetooth.elm.commands.other.CalibrationVehicleNumberCommand;
-import com.pitstop.bluetooth.elm.commands.other.EmissionsPIDCommand;
-import com.pitstop.bluetooth.elm.commands.other.HeaderOffCommand;
-import com.pitstop.bluetooth.elm.commands.other.HeaderOnCommand;
-import com.pitstop.bluetooth.elm.commands.other.OBDStandardCommand;
-import com.pitstop.bluetooth.elm.commands.other.StatusSinceDTCsClearedCommand;
-import com.pitstop.bluetooth.elm.commands.other.TimeSinceCC;
-import com.pitstop.bluetooth.elm.commands.other.TimeSinceMIL;
-import com.pitstop.bluetooth.elm.commands.other.WarmupsSinceCC;
-import com.pitstop.bluetooth.dataPackages.DtcPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.TimeoutTimer;
@@ -178,13 +178,12 @@ public class ELM327Device implements AbstractDevice {
             //Setup device once connected
             case BluetoothCommunicator.CONNECTED:
                 Log.d(TAG,"Setting up ELM device");
-                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
-                ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand()); //On the receival of this command the protocol will be set
                 ((BluetoothCommunicatorELM327)communicator).writeData(new EchoOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new LineFeedOffCommand());
                 ((BluetoothCommunicatorELM327)communicator).writeData(new TimeoutCommand(125));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new SelectProtocolCommand(ObdProtocols.AUTO));
+                ((BluetoothCommunicatorELM327)communicator).writeData(new DescribeProtocolCommand()); //On the receival of this command the protocol will be set
                 setHeaders(false); //Headers on by default
-                ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand(false));
                 break;
             case BluetoothCommunicator.DISCONNECTED:
                 obdProtocol = null;
@@ -625,7 +624,7 @@ public class ELM327Device implements AbstractDevice {
 
     private void setObdProtocol(String protocolDescription){
         Log.d(TAG,"setObdProtocol() protocolDescription: "+protocolDescription);
-
+        if (protocolDescription == null) return;
         if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_PMW)){
             obdProtocol = ObdProtocols.SAE_J1850_PWM;
         }else if (protocolDescription.contains(ObdProtocolNames.SAE_J1850_VPW)){
