@@ -103,7 +103,7 @@ public abstract class CodesCommand extends ObdCommand {
 
     private boolean parseISO15765_CAN_ONE(String rawData){
         Log.d(TAG,"praseISO15765_CAN_ONE() rawData: "+rawData);
-        int index = 0;
+        int index = 7; //First 8 characters (4 bytes) are header
         try{
             while (index < rawData.length()){
                 if (hasHeaders()){
