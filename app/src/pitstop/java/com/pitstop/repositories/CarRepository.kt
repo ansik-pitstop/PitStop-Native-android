@@ -87,7 +87,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
