@@ -258,7 +258,7 @@ public class HttpRequest {
                                             String newAccessToken = new JSONObject(response).getString("accessToken");
                                             application.setTokens(newAccessToken, application.getRefreshToken());
                                             headers.put("Authorization", "Bearer " + newAccessToken);
-                                        //    executeAsync();
+                                            executeAsync();
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                             // show failure
