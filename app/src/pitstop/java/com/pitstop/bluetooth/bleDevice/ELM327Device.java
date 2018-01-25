@@ -10,6 +10,7 @@ import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.commands.ObdCommand;
+import com.pitstop.bluetooth.elm.commands.control.CodesCommand;
 import com.pitstop.bluetooth.elm.commands.control.DistanceMILOnCommand;
 import com.pitstop.bluetooth.elm.commands.control.DistanceSinceCCCommand;
 import com.pitstop.bluetooth.elm.commands.control.DtcNumberCommand;
@@ -359,22 +360,22 @@ public class ELM327Device implements AbstractDevice {
         if(obdCommand instanceof VinCommand)
             manager.onGotVin(obdCommand.getFormattedResult(), this.deviceName);
         else if(obdCommand instanceof TroubleCodesCommand){
-            String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
+            CodesCommand codesCommand = (CodesCommand)obdCommand;
             DtcPackage dtcPackage = new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>());
-            for (String DtcsFromDevice : dtcsFromDevice) {
-                dtcPackage.dtcs.put(DtcsFromDevice, false);
+            for (String dtc : codesCommand.getCodes()) {
+                dtcPackage.dtcs.put(dtc, false);
             }
             manager.gotDtcData(dtcPackage);
             currentDtcsRequested = false;
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
-            String[] dtcsFromDevice = obdCommand.getCalculatedResult().split("\n");
+            CodesCommand codesCommand = (CodesCommand)obdCommand;
             DtcPackage dtcPackage = new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>());
-            for (String DtcsFromDevice : dtcsFromDevice) {
-                dtcPackage.dtcs.put(DtcsFromDevice, true);
+            for (String dtc: codesCommand.getCodes()) {
+                dtcPackage.dtcs.put(dtc, true);
             }
             manager.gotDtcData(dtcPackage);
         }

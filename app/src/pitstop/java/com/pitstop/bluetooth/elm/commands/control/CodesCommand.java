@@ -24,18 +24,18 @@ public abstract class CodesCommand extends ObdCommand {
     /** Constant <code>hexArray="0123456789ABCDEF".toCharArray()</code> */
     protected final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-    protected StringBuilder codes = null;
     protected List<Integer> codeCount;
     protected ObdProtocols obdProtocols;
+    protected List<String> codes;
 
     /**
      * <p>Constructor for PendingTroubleCodesCommand.</p>
      */
     public CodesCommand(String command, ObdProtocols protocol, boolean hasHeaders) throws IllegalArgumentException{
         super(command,hasHeaders,4);
-        codes = new StringBuilder();
         codeCount = new ArrayList<>();
         obdProtocols = protocol;
+        codes = new ArrayList<>();
         if (protocol == null) throw new IllegalArgumentException();
     }
 
@@ -46,7 +46,6 @@ public abstract class CodesCommand extends ObdCommand {
      */
     public CodesCommand(CodesCommand other) {
         super(other);
-        codes = new StringBuilder();
         codeCount = new ArrayList<>();
     }
 
@@ -93,11 +92,10 @@ public abstract class CodesCommand extends ObdCommand {
             dtc += dtcLetters[ch1];
             dtc += hexArray[ch2];
             dtc += d.substring(1,4);
-            if (dtc.equals("P0000")) {
+            if (dtc.equals("P0000") || dtc.length() < 5) {
                 return;
             }
-            codes.append(dtc);
-            codes.append('\n');
+            codes.add(dtc);
         }
     }
 
@@ -203,4 +201,9 @@ public abstract class CodesCommand extends ObdCommand {
     public String getFormattedResult() {
         return codes.toString();
     }
+
+    public List<String> getCodes(){
+        return codes;
+    }
+
 }
