@@ -45,13 +45,16 @@ public class VinCommand extends PersistentCommand {
         final String result = getResult();
         String workingData;
         if (result.contains(":")) {//CAN(ISO-15765) protocol.
-            workingData = result.replaceAll(".:", "").substring(9);//9 is xxx490201, xxx is bytes of information to follow.
+            workingData = result.replaceAll(".:", "");//9 is xxx490201, xxx is bytes of information to follow.
+            int startOfVinIndex = workingData.indexOf("490201") + 6;
+            workingData = workingData.substring(startOfVinIndex);
             Matcher m = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(convertHexToString(workingData));
             if(m.find()) workingData = result.replaceAll("0:49", "").replaceAll(".:", "");
         } else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
             workingData = result.replaceAll("49020.", "");
         }
         vin = convertHexToString(workingData).replaceAll("[\u0000-\u001f]", "");
+        data.add(vin);
     }
 
     /**

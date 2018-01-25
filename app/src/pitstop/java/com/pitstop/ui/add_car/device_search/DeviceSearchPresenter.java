@@ -103,7 +103,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     @Override
     public void onConnectingToDevice() {
         Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice));
-        view.connectingToDevice();
+        //Return if found devices hasn't been called before this, and prompt isn't visible
+        //The connectingToDevice flag is set once onFoundDevices() has been called
+        if (connectingToDevice) {
+            view.connectingToDevice();
+        }
     }
 
     private final int FIND_DEVICE_RETRY_TIME = 12;

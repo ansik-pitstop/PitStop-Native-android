@@ -1,5 +1,6 @@
 package com.pitstop.bluetooth.elm.commands;
 
+import com.pitstop.bluetooth.elm.commands.control.VinCommand;
 import com.pitstop.bluetooth.elm.commands.protocol.AvailablePidsCommand_01_20;
 
 import org.junit.Test;
@@ -62,6 +63,26 @@ public class ObdCommandTest {
         assertTrue(headers.equals(obdCommand.getHeaders())
                 && requestCodes.equals(obdCommand.getRequestCode())
                 && data.equals(obdCommand.getData()));
+    }
+
+    @Test
+    public void run_VinCommand() throws Exception {
+        System.out.println("\nRunning test run_VinCommand()");
+
+        String INPUT_1 = "0140:4902014A41331:325532465534412:55363038363032";
+        String INPUT_2 = "09020140:4902014A41331:325532465534412:55363038363032";
+        String EXPECTED_VIN = "JA32U2FU4AU608602";
+
+        InputStream deviceOutput = new ByteArrayInputStream(INPUT_2.getBytes(StandardCharsets.UTF_8.name()));
+        VinCommand obdCommand = new VinCommand(false);
+        obdCommand.readResult(deviceOutput);
+
+        System.out.println("EXPECTED- data: "+EXPECTED_VIN);
+        System.out.println("RESULT-, data: "+obdCommand.getCalculatedResult());
+
+        assertTrue(EXPECTED_VIN.equals(obdCommand.getCalculatedResult()));
+
+
     }
 
 }

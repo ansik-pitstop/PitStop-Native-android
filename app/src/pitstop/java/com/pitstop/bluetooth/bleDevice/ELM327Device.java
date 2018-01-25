@@ -358,7 +358,7 @@ public class ELM327Device implements AbstractDevice {
         if (obdCommand.getName()!=null)
             Log.w(TAG, "Got obd Result for command: " + obdCommand.getName() + " : "  + obdCommand.getFormattedResult()) ;
         if(obdCommand instanceof VinCommand)
-            manager.onGotVin(obdCommand.getFormattedResult(), this.deviceName);
+            manager.onGotVin(obdCommand.getCalculatedResult(), this.deviceName);
         else if(obdCommand instanceof TroubleCodesCommand){
             CodesCommand codesCommand = (CodesCommand)obdCommand;
             DtcPackage dtcPackage = new DtcPackage(deviceName
