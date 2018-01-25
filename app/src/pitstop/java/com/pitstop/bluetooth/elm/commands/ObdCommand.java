@@ -23,6 +23,8 @@ import com.pitstop.bluetooth.elm.exceptions.StoppedException;
 import com.pitstop.bluetooth.elm.exceptions.UnableToConnectException;
 import com.pitstop.bluetooth.elm.exceptions.UnknownErrorException;
 import com.pitstop.bluetooth.elm.exceptions.UnsupportedCommandException;
+import com.pitstop.models.DebugMessage;
+import com.pitstop.utils.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -138,6 +140,7 @@ public abstract class ObdCommand {
         // Carriage return
         out.write((cmd + "\r").getBytes());
         out.flush();
+        Logger.getInstance().logI(TAG,String.format("Command %s sent",getName()), DebugMessage.TYPE_BLUETOOTH);
         if (responseDelayInMs != null && responseDelayInMs > 0) {
             Thread.sleep(responseDelayInMs);
         }
@@ -172,6 +175,8 @@ public abstract class ObdCommand {
         checkForErrors();
         fillBuffer();
         performCalculations();
+        Logger.getInstance().logI(TAG,String.format("Command %s calculations performed result: %s"
+                ,getName(),getCalculatedResult()), DebugMessage.TYPE_BLUETOOTH);
     }
 
     /**
@@ -268,6 +273,8 @@ public abstract class ObdCommand {
 
         rawData = removeUnwantedPatterns(res.toString().trim());
         System.out.println(TAG+":"+ getName() +": rawData: "+rawData);
+        Logger.getInstance().logI(TAG,String.format("Command %s response read raw data %s",getName(),rawData)
+                , DebugMessage.TYPE_BLUETOOTH);
 
         /*
         * Data is formatted like the following "HEADER REQUEST_CODE DATA HEADER REQUEST_CODE DATA ..."
@@ -311,6 +318,8 @@ public abstract class ObdCommand {
             }
 
             if (messageError.isError(rawData)) {
+                Logger.getInstance().logE(TAG,String.format("Command %s response exception"
+                        ,getName(),messageError.getMessage()), DebugMessage.TYPE_BLUETOOTH);
                 throw messageError;
             }
         }
