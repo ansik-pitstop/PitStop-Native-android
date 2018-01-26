@@ -108,7 +108,7 @@ public class BluetoothChatElm327 {
                                 mmDevice.getAddress()));
                     } catch (Exception e2) {
                         e2.printStackTrace();
-                        mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
+                        mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_FAIL);
                         Log.i(TAG, "fallback connection didnt work, failed to connect");
                     }
                 }

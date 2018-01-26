@@ -213,6 +213,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         @Override
         public void onRetry() {
             Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
+            requestAllPid();
         }
 
         @Override
