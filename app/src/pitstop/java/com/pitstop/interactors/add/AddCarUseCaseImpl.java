@@ -230,10 +230,10 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                         eventType, eventSource));
 
                                 //Car has shop if id is 0, 1 on staging, or 19 on production
-                                boolean carHasShop = car.getShopId() != 0 && (car.getShopId() != 1
+                                boolean carHasShop = car.getShopId() != 0 && ((car.getShopId() != 1
                                         && !BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE))
                                         || (car.getShopId() != 19
-                                        && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE));
+                                        && BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)));
 
                                 if (!carHasShop) {
                                     AddCarUseCaseImpl.this.onCarAdded(car);

@@ -12,8 +12,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
@@ -28,7 +28,9 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
 
-public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+public
+
+class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
 
@@ -69,6 +71,11 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_receive_debug, menu);
         return true;
+    }
+
+    @Override
+    public void setDeviceName(String deviceName) {
+
     }
 
     @Override
@@ -181,6 +188,12 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
                 ((TextView) findViewById(R.id.debug_log)).setText(pidList.toString());
             }
         });
+    }
+
+
+    @Override
+    public void onGotRtc(long l) {
+
     }
 
     @Override
@@ -301,7 +314,7 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     }
 
     @Override
-    public void handleVinData(String vin) {
+    public void handleVinData(String vin, String deviceName) {
 
     }
 

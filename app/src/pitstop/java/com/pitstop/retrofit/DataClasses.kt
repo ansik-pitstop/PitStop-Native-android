@@ -8,7 +8,7 @@ import com.pitstop.models.Car
 
 data class PitstopResponse<T>(val response: T)
 
-data class Token(val value: String)
+data class Token(val accessToken: String)
 
 data class CarList(val data: List<Car>, val emptyData: Object)
 //

@@ -14,17 +14,17 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.castel.obd.bluetooth.BluetoothCommunicator;
-import com.castel.obd.bluetooth.IBluetoothCommunicator;
-import com.castel.obd.bluetooth.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
 import com.pitstop.bluetooth.handler.DtcDataHandler;
@@ -90,6 +90,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private boolean overWriteInterval = false;
     private int debugDrawerInterval = 4;
+    private String ElmMacAddress ="";
 
     public static final int notifID = 1360119;
     private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
@@ -211,8 +212,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             = new TimeoutTimer(PID_RETRY_LEN,PID_RETRY_COUNT) {
         @Override
         public void onRetry() {
-            deviceManager.requestSnapshot();
             Log.d(TAG,"pidTimeoutTimer.onRetry() allPidRequested? "+allPidRequested);
+            requestAllPid();
         }
 
         @Override
@@ -368,7 +369,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         && !deviceConnState.equals(State.VERIFYING)){
                     clearInvalidDeviceData();
                     resetConnectionVars();
-                    if (!deviceManager.isConnectedTo215()) //Sync time for 212 devices
+                    if (deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212) //Sync time for 212 devices
                         deviceManager.setRtc(System.currentTimeMillis());
                     requestVin();                //Get VIN to validate car
                     setConnectionState(State.CONNECTED_UNVERIFIED);
@@ -381,9 +382,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 break;
             case IBluetoothCommunicator.DISCONNECTED:
                 Log.d(TAG,"getBluetoothState() state: disconnected");
-
                 //Only notify that device disonnected if a verified connection was established previously
-                if (deviceIsVerified || !deviceManager.moreDevicesLeft()){
+                if ((deviceIsVerified && !ignoreVerification) || !deviceManager.moreDevicesLeft()){
                     setConnectionState(State.DISCONNECTED);
                     notifyDeviceDisconnected();
                     resetConnectionVars();
@@ -395,7 +395,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void notifyFoundDevices() {
-        Log.d(TAG, "notifyDeviceConnecting()");
+        Log.d(TAG, "notifyFoundDevices()");
         Logger.getInstance().logI(TAG,"Devices Found", DebugMessage.TYPE_BLUETOOTH);
         for (Observer o: observerList ){
             if (o instanceof BluetoothConnectionObserver){
@@ -548,7 +548,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         this.ignoreVerification = ignoreVerification;
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
         if (!deviceConnState.equals(State.DISCONNECTED)
-                && !deviceConnState.equals(State.SEARCHING)&& !deviceConnState.equals(State.FOUND_DEVICES)){
+                && !deviceConnState.equals(State.SEARCHING)){
             Log.d(TAG, "device state is not searching or disconnected");
             Log.d(TAG, "state is : " + deviceConnState);
             return;
@@ -676,14 +676,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             }
         }
     }
-    public void handleVinData(String Vin){
+    public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
         vinDataHandler.handleVinData(Vin
-                ,currentDeviceId,ignoreVerification);
+                ,deviceID,ignoreVerification);
     }
-
-
 
     private void notifyGotSupportedPids(String value) {
         Log.d(TAG, "notifyGotSUpportedPIDs()");
@@ -698,7 +696,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public void idrPidData(PidPackage pidPackage) {
-        Logger.getInstance().logD(TAG, "IDR pid data received: " + pidPackage.toString()
+        Logger.getInstance().logD(TAG, "IDR pid data received: " + (pidPackage == null ? "null" : pidPackage.toString())
                 , DebugMessage.TYPE_BLUETOOTH);
 
         deviceManager.requestData();
@@ -706,13 +704,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         //Set device id if its found in pid package
         if (pidPackage != null && pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
+            Log.d(TAG, "setting current device ID to " + pidPackage.deviceId);
             currentDeviceId = pidPackage.deviceId;
         }
         pidPackage.deviceId = currentDeviceId;
         pidDataHandler.handlePidData(pidPackage);
 
         //212 pid "snapshot" broadcast logic
-        if (pidPackage != null && !deviceManager.isConnectedTo215()){
+        if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
+            Log.d(TAG ,"deviceManager is not connected to 215");
             if (pidPackage.pids == null){
                 pidPackage.pids = new HashMap<>();
                 notifyGotAllPid(pidPackage);
@@ -725,9 +725,12 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     @Override
     public void pidData(PidPackage pidPackage) {
         if (pidPackage == null)return;
+
+        pidTimeoutTimer.cancel();
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
+        pidDataHandler.handlePidData(pidPackage);
     }
 
     @Override
@@ -744,6 +747,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         dtcDataHandler.handleDtcData(dtcPackage);
         Log.d(TAG,"requestedDtcs before appending: "+requestedDtcs);
         if (dtcRequested){
+            Log.d(TAG, "setting received DTCs to true");
             appendDtc(dtcPackage);
             receivedDtcResponse = true;
         }
@@ -775,6 +779,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
+    public void setDeviceName(String deviceName) {
+        Log.d(TAG, "setDeviceName: " +deviceName);
+        this.ElmMacAddress =deviceName;
+        currentDeviceId = deviceName;
+    }
+
+    @Override
     public void ffData(FreezeFramePackage ffPackage) {
         Log.d(TAG,"ffData()");
         //Set device id if its found in freeze frame package
@@ -791,7 +802,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
-        if (deviceConnState.equals(State.SEARCHING)){
+        if (deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.FOUND_DEVICES)){
             setConnectionState(State.DISCONNECTED);
             notifyDeviceDisconnected();
         }
@@ -997,12 +1008,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     @Override
-    public boolean isConnectedTo215(){
-        Log.d(TAG,"isConnectedTo215()");
-        if (deviceManager.getConnectionState() == BluetoothCommunicator.CONNECTED)
-            return deviceManager.isConnectedTo215();
-        else
-            return false;
+    public BluetoothDeviceManager.DeviceType getDeviceType(){
+        Log.d(TAG,"getDeviceType");
+        if (deviceManager == null) return null;
+        return deviceManager.getDeviceType();
     }
 
     public void setDeviceNameAndId(String name){
@@ -1034,10 +1043,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.d(TAG,"notifyDeviceReady() vin: "+vin+", scannerId:"+scannerId
                 +", scannerName: "+scannerName);
         // this is for carista testing make sure to remove this
-
-
         if (scannerName == null || scannerId == null){
-            String temp = "Carista";
+            String temp = ElmMacAddress;
             for (Observer observer: observerList){
                 if (observer instanceof BluetoothConnectionObserver){
                     mainHandler.post(() -> ((BluetoothConnectionObserver)observer)
@@ -1127,6 +1134,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    @Override
+    public void onGotRtc(long l) {
+        notifyRtc(l);
+    }
+
     private void notifyRtc(Long rtc) {
         Log.d(TAG,"notifyRtc() rtc: "+rtc);
         if (!rtcTimeRequested) return;
@@ -1157,11 +1169,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void notifyGotAllPid(PidPackage pidPackage){
         Log.d(TAG,"notifyGotAllPid() pidPackage: "+pidPackage);
-        if (!allPidRequested) return;
+        /*if (!allPidRequested){{
+            Log.d(TAG, "allPidRequested is false so im not gonna notify got all pid");
+            return;
+        }}*/
         allPidRequested = false;
-
         pidTimeoutTimer.cancel();
         for (Observer observer: observerList){
+            Log.d(TAG, "notifying that pids were received");
             if (observer instanceof BluetoothPidObserver){
                 mainHandler.post(()
                         -> ((BluetoothPidObserver)observer).onGotAllPid(pidPackage));
@@ -1335,9 +1350,72 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
     }
 
+    @Override
+    public boolean requestDescribeProtocol() {
+        Log.d(TAG,"requestDescribeProtocol");
+        if (deviceManager != null
+                && getDeviceType() == BluetoothDeviceManager.DeviceType.ELM327){
+            deviceManager.requestDescribeProtocol();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean request2141PID() {
+        Log.d(TAG,"request2141PID");
+        if (deviceManager != null){
+            deviceManager.request2141PID();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestStoredDTC() {
+        Log.d(TAG,"requestStoredDTC");
+        if (deviceManager != null){
+            deviceManager.requestStoredDTC();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestPendingDTC() {
+        Log.d(TAG,"requestPendingDTC");
+        if (deviceManager != null){
+            deviceManager.requestPendingDTC();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestSelectProtocol(ObdProtocols p) {
+        Log.d(TAG,"requestSelectProtocol() protocol: "+p);
+        if (deviceManager != null
+                && getDeviceType() == BluetoothDeviceManager.DeviceType.ELM327){
+            deviceManager.requestSelectProtocol(p);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
     private void setConnectionState(String deviceConnState){
         Logger.getInstance().logI(TAG,"Connection status change: "+deviceConnState, DebugMessage.TYPE_BLUETOOTH);
         this.deviceConnState = deviceConnState;
     }
 
+    @Override
+    public void disconnect() {
+        deviceManager.setState(IBluetoothCommunicator.DISCONNECTED);
+
+    }
 }

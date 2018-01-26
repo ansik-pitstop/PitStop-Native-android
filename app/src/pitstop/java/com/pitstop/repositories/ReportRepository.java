@@ -104,6 +104,7 @@ public class ReportRepository implements Repository {
 
         Log.d(TAG,"createEmissionsReport() body: "+body);
 
+
         networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
                 , (response, requestError) -> {
 
@@ -270,8 +271,9 @@ public class ReportRepository implements Repository {
 
         networkHelper.post(String.format("v1/car/%d/report/vehicle-health", carId)
                 , (response, requestError) -> {
-
+                    Log.d(TAG,"vhr response: "+response);
                     if (requestError == null){
+                        Log.d(TAG, "VHR RESPONSE: " + response);
                         VehicleHealthReport vehicleHealthReport = jsonToVehicleHealthReport(response);
                         if (vehicleHealthReport == null){
                             Log.d(TAG,"Error parsing response.");
@@ -282,7 +284,7 @@ public class ReportRepository implements Repository {
                         }
 
                     }else{
-                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError.getMessage());
+                        Log.d(TAG,"networkHelper.post() ERROR response: "+requestError);
                         callback.onError(requestError);
                     }
 

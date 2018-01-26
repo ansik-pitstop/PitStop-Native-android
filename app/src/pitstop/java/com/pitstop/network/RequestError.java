@@ -84,8 +84,13 @@ public class RequestError {
 
     @Override
     public String toString(){
-        return String.format("{ error: %s, message: %s, statusCode: %d }"
-                ,getError(),getMessage(),getStatusCode());
+        try{
+            return String.format("{ error: %s, message: %s, statusCode: %d }"
+                    ,getError(),getMessage(),getStatusCode());
+        }catch(NullPointerException e){
+            return "null";
+        }
+
     }
 
 }

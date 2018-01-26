@@ -1,5 +1,7 @@
 package com.pitstop.bluetooth.handler;
 
+import com.pitstop.bluetooth.BluetoothDeviceManager;
+
 /**
  * Created by Karol Zdebel on 8/16/2017.
  */
@@ -11,7 +13,8 @@ public interface BluetoothDataHandlerManager{
 
     //Methods below are invoked by Trip data handler
     long getRtcTime();
-    boolean isConnectedTo215();
+
+    BluetoothDeviceManager.DeviceType getDeviceType();
 
     //Methods below are invoked by PID data handler
     void setPidsToBeSent(String pids, int timeInterval);
