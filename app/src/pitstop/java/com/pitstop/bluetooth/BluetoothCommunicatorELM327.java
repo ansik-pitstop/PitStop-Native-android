@@ -72,6 +72,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                         break;
                     }
                     case BLUETOOTH_CONNECT_EXCEPTION: {
+                        Log.d(TAG,"BLUETOOTH_CONNECT_EXCEPTION");
                         btConnectionState = DISCONNECTED;
                         ELM327.onConnectionStateChange(btConnectionState);
                         break;

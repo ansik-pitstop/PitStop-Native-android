@@ -188,19 +188,19 @@ public class BluetoothChatElm327 {
                     mHandler.sendMessage(mHandler.obtainMessage(
                             IBluetoothCommunicator.BLUETOOTH_READ_DATA, obdCommand));
                 } catch (Exception e) {
-                    Log.d(TAG,"exception for command: "+obdCommand.getName());
+                    Log.d(TAG,"exception e:"+e.getMessage()+" for command: "+obdCommand.getName());
                     e.printStackTrace();
-                    if (e instanceof NoDataException) {
+                    if (e instanceof  IOException){
+                        Log.d(TAG,"sending BLUETOOTH_CONNECT_EXCEPTION");
+                        mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
+                        closeConnect();
+                    } else if (e instanceof NoDataException) {
                         // In the ELM protocol, if you ask for a PID which isnt supported or soemthing for whi
                         // which the car ECU doesnt have data for, the device sends back "NODATA",
                         // in this case a NoDataException is thrown.
                         Log.d(TAG, "no data Exception");
                         mHandler.sendMessage(mHandler.obtainMessage(
                                 IBluetoothCommunicator.NO_DATA, obdCommand));
-                    }else{
-                        Log.d(TAG,"sending BLUETOOTH_CONNECT_EXCEPTION");
-                        mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
-                        closeConnect();
                     }
                 }
             }
