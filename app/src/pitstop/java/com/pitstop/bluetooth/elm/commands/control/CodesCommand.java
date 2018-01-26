@@ -127,7 +127,7 @@ public abstract class CodesCommand extends ObdCommand {
     }
 
     private void parseISO15765_CAN_OTHER(String rawData){
-        String workingData = rawData.replace(".:", "");  //xxx47yy{codes}
+        String workingData = rawData.replaceAll(".:", "");  //xxx47yy{codes}
         Log.d(TAG,"praseISO15765_CAN_OTHER() workingData: "+workingData);
         System.out.println("workingData: "+workingData);
         //Start at the 9th character, because the first 8 are the header
