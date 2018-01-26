@@ -9,7 +9,7 @@ import com.pitstop.bluetooth.elm.commands.ObdCommand;
 public class HeaderOnCommand extends ObdCommand {
 
     public HeaderOnCommand() {
-        super("ATH 1",false,1);
+        super("ATH 1",false,true,1);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
         Handler mHandler = new Handler(handlerThread.getLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                Log.v(TAG, "BluetoothClassicComm message handler");
+                Log.v(TAG, "BluetoothCommunicatorELM327 message handler, got message: "+msg.toString());
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case CANCEL_DISCOVERY: {
@@ -53,6 +53,7 @@ public class BluetoothCommunicatorELM327 implements BluetoothCommunicator {
                         break;
                     }
                     case BLUETOOTH_CONNECT_FAIL: {
+                        Log.d(TAG,"BLUETOOTH_CONNECT_FAIL");
                         btConnectionState = DISCONNECTED;
                         if (mBluetoothAdapter.isDiscovering()) {
                             mBluetoothAdapter.cancelDiscovery();

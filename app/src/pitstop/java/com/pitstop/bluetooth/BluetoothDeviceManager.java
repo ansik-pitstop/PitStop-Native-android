@@ -57,7 +57,7 @@ public class BluetoothDeviceManager{
     private boolean discoveryWasStarted = false;
 
     public void setState(int state) {
-
+        Log.d(TAG,"setState() state: "+state);
         this.btConnectionState = state;
         dataListener.getBluetoothState(state);
 

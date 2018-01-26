@@ -198,8 +198,9 @@ public class BluetoothChatElm327 {
                         mHandler.sendMessage(mHandler.obtainMessage(
                                 IBluetoothCommunicator.NO_DATA, obdCommand));
                     }else{
+                        Log.d(TAG,"sending BLUETOOTH_CONNECT_EXCEPTION");
+                        mHandler.sendEmptyMessage(IBluetoothCommunicator.BLUETOOTH_CONNECT_EXCEPTION);
                         closeConnect();
-                        mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
                     }
                 }
             }
