@@ -24,7 +24,7 @@ public class PendingTroubleCodesCommandTest {
 
         //Dummy input
         String REQUEST_DTC = "47";
-        String INPUT = "00E0:4306010002001030043008200C12:004301010100";
+        String INPUT = "00C0:4305000100021:00030004400100";
 
         //Expected output
         List<String> headers = new ArrayList<>();
@@ -32,6 +32,11 @@ public class PendingTroubleCodesCommandTest {
         List<String> requestCodes = new ArrayList<>();
 
         List<String> codes = new ArrayList<>();
+        codes.add("P0001");
+        codes.add("P0002");
+        codes.add("P0003");
+        codes.add("P0004");
+        codes.add("C0001");
 
         //Simulate environment INPUT
         InputStream deviceOuput = new ByteArrayInputStream(INPUT.getBytes(StandardCharsets.UTF_8.name()));
@@ -40,12 +45,12 @@ public class PendingTroubleCodesCommandTest {
         obdCommand.readResult(deviceOuput);
 
         System.out.println("EXPECTED- headers: "+headers+", codes: "+codes+", requestCode: "+requestCodes);
-        System.out.println("RESULT- headers: "+obdCommand.getHeaders()+", data: "+obdCommand.getCodes()
+        System.out.println("RESULT- headers: "+obdCommand.getHeaders()+", codes: "+obdCommand.getCodes()
                 +", requestCode: "+obdCommand.getRequestCode());
 
         assertTrue(headers.equals(obdCommand.getHeaders())
                 && requestCodes.equals(obdCommand.getRequestCode())
-                && codes.equals(obdCommand.getData()));
+                && codes.equals(obdCommand.getCodes()));
     }
 
     @Test
@@ -70,11 +75,11 @@ public class PendingTroubleCodesCommandTest {
         obdCommand.readResult(deviceOuput);
 
         System.out.println("EXPECTED- headers: "+headers+", codes: "+codes+", requestCode: "+requestCodes);
-        System.out.println("RESULT- headers: "+obdCommand.getHeaders()+", data: "+obdCommand.getCodes()
+        System.out.println("RESULT- headers: "+obdCommand.getHeaders()+", codes: "+obdCommand.getCodes()
                 +", requestCode: "+obdCommand.getRequestCode());
 
         assertTrue(headers.equals(obdCommand.getHeaders())
                 && requestCodes.equals(obdCommand.getRequestCode())
-                && codes.equals(obdCommand.getData()));
+                && codes.equals(obdCommand.getCodes()));
     }
 }

@@ -130,8 +130,9 @@ public abstract class CodesCommand extends ObdCommand {
         String workingData = rawData.replaceAll(".:", "");  //xxx47yy{codes}
         Log.d(TAG,"praseISO15765_CAN_OTHER() workingData: "+workingData);
         System.out.println("workingData: "+workingData);
-        //Start at the 9th character, because the first 8 are the header
+        //Start after the 8th character, prior to it being removed
         for (int begin = 7; begin < workingData.length(); begin += 4) {
+            if (begin+4 > workingData.length()) break; // Sometimes there's 0's appended to the end of the response
             data.add(workingData.substring(begin,begin+4));
         }
     }
