@@ -79,6 +79,7 @@ public class NetworkModule {
                                     .header("Content-Type", "application/json")
                                     .header("Authorization", "Bearer "+application.getAccessToken());
                         return chain.proceed(builderNew.build());
+                        //Logic below is useful once the retrofit librry is used to handle all networking requests
 //                        JsonObject jsonObject = new JsonObject();
 //                        jsonObject.addProperty("refreshToken",application.getRefreshToken());
 //                        Response<Token> tokenResponse = pitstopAuthApi(context)
