@@ -394,7 +394,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     }
 
     private void notifyFoundDevices() {
-        Log.d(TAG, "notifyDeviceConnecting()");
+        Log.d(TAG, "notifyFoundDevices()");
         Logger.getInstance().logI(TAG,"Devices Found", DebugMessage.TYPE_BLUETOOTH);
         for (Observer o: observerList ){
             if (o instanceof BluetoothConnectionObserver){
