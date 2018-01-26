@@ -124,6 +124,7 @@ public class VHRMacroUseCase {
             });
         }
         else if(current instanceof GetPIDUseCaseImpl){
+            Log.d(TAG, "current is instance of GETPIDUSECASEIMPL");
             callback.onStartPID();
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
@@ -279,6 +280,9 @@ public class VHRMacroUseCase {
                     break;
 
                 case TYPE_GET_PID:
+
+
+
                     if (retrievedPid == null){
                         Logger.getInstance().logE(TAG,"Macro use case: error retrieving pids!"
                                 , DebugMessage.TYPE_USE_CASE);

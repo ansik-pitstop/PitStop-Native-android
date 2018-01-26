@@ -355,6 +355,7 @@
                             android:id="@+id/trips_icon"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
+                            android:layout_marginRight="10dp"
                             android:src="@drawable/route_2"
                             android:layout_centerVertical="true"/>
 
@@ -362,7 +363,6 @@
                             style="@style/vehicle_specs_text"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="15dp"
                             android:layout_alignParentTop="true"
                             android:layout_gravity="center"
                             android:layout_toEndOf="@+id/trips_icon"

@@ -173,8 +173,13 @@ public class PIDParser {
         if (DecimalPidPackage.pids != null) {
             for (String s : pidTypes) {
                 if (original.pids.containsKey(s)) {
-                    String decimalValue = Integer.toString(Integer.parseInt(original.pids.get(s), 16));
-                    DecimalhashMap.put(s,decimalValue );
+                    try {
+                        String decimalValue = Integer.toString(Integer.parseInt(original.pids.get(s), 16));
+                        DecimalhashMap.put(s, decimalValue);
+                    }
+                    catch (NumberFormatException e){
+                        e.printStackTrace();
+                    }
                 }
 
             }

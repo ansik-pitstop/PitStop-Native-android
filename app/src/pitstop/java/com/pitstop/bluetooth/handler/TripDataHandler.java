@@ -11,6 +11,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.dependency.ContextModule;
@@ -95,7 +96,7 @@ public class TripDataHandler{
         long terminalRtcTime
                 = bluetoothDataHandlerManager.getRtcTime();
         boolean isConnected215
-                = bluetoothDataHandlerManager.isConnectedTo215();
+                = bluetoothDataHandlerManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD215;
 
         //Not handling trip updates anymore since live mileage has been removed
         if (tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE)){

@@ -1,8 +1,9 @@
 package com.pitstop.retrofit
 
+import com.google.gson.JsonObject
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.Query
 
 /**
  * Created by Karol Zdebel on 10/26/2017.
@@ -10,6 +11,7 @@ import retrofit2.http.Query
 interface PitstopAuthApi {
 
     @POST("login/refresh")
-    fun refreshAccessToken(@Query("refreshToken") refreshToken: String): Call<PitstopResponse<Token>>
+    fun refreshAccessToken(@Body refreshToken: JsonObject): Call<Token>
+
 
 }

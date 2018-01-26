@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.castel.obd.util.Utils;
 import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.goebl.david.WebbException;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
@@ -24,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 
 /**
@@ -185,8 +188,13 @@ public class HttpRequest {
                         break;
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (WebbException e) {
+                Logger.getInstance().logException(TAG,e,DebugMessage.TYPE_NETWORK);
+                if (e.getCause() instanceof SocketTimeoutException){
+                    Logger.getInstance().logE(TAG,"Network request timeout exception"
+                            , DebugMessage.TYPE_NETWORK);
+                    return null;
+                }
             }
             return response;
         }
@@ -229,31 +237,45 @@ public class HttpRequest {
                     if (response.getStatusCode() == 401
                             && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
                         // Error handling
-                        NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
-                            @Override
-                            public void done(String response, RequestError requestError) {
-                                if (requestError == null) {
-                                    // try to parse the refresh token, if success then good, otherwise retry
-                                    try {
-                                        String newAccessToken = new JSONObject(response).getString("accessToken");
-                                        application.setTokens(newAccessToken, application.getRefreshToken());
-                                        headers.put("Authorization", "Bearer " + newAccessToken);
-                                        executeAsync();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        // show failure
-                                        showNetworkFailure(e.getMessage());
-                                    }
-                                } else {
-                                    // show failure
-                                    if (requestError.getStatusCode() == 400) {
-                                        logOut();
+                        //Check if different thread already refreshed the token, if so don't refresh
+                        if (!headers.get("Authorization").equals("Bearer "+application.getAccessToken())){
+                            Log.d(TAG,"Token has changed, sending request with new token without refresh");
+                            headers.put("Authorization", "Bearer " + application.getAccessToken());
+                            executeAsync();
+                        }
+                        //Otherwise refresh token and retry
+                        else{
+                            Log.d(TAG,"Token has not changed.");
+                            Logger.getInstance().logD(TAG, "Access token refresh request being sent",DebugMessage.TYPE_NETWORK);
+                            NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
+                                @Override
+                                public void done(String response, RequestError requestError) {
+                                    Logger.getInstance().logD(TAG, "Access token refresh response received, response: "
+                                            +response+", request error: "+requestError,DebugMessage.TYPE_NETWORK);
+                                    if (requestError == null) {
+                                        // try to parse the refresh token, if success then good, otherwise retry
+                                        try {
+                                            String newAccessToken = new JSONObject(response).getString("accessToken");
+                                            application.setTokens(newAccessToken, application.getRefreshToken());
+                                            headers.put("Authorization", "Bearer " + newAccessToken);
+                                            executeAsync();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            // show failure
+                                            showNetworkFailure(e.getMessage());
+                                        }
                                     } else {
-                                        showNetworkFailure(requestError.getMessage());
+                                        // show failure
+                                        if (requestError.getStatusCode() == 400) {
+                                            logOut();
+                                        } else {
+                                            showNetworkFailure(requestError.getMessage());
+                                        }
                                     }
+                                    Log.d(TAG,"Releasing semaphore");
                                 }
-                            }
-                        });
+                            });
+                        }
                     } else {
                         listener.done(null, error);
                     }

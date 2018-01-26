@@ -90,7 +90,6 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                                     reportRepository.createEmissionsReport(settings.getCarId()
                                             ,vhr.getId(), false, dtc, pid
                                             , new Repository.Callback<EmissionsReport>() {
-
                                                 @Override
                                                 public void onSuccess(EmissionsReport et) {
                                                     Log.d(TAG,"onSuccess() vhr report: "+vhr

@@ -25,6 +25,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothWriter;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
@@ -166,40 +167,66 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         });
 
         Button resetDTC = ViewUtils.findView(mDrawerLayout, R.id.debugClearDTC);
-        resetDTC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showConfirmResetDTCDialog();
-
-            }
-        });
+        resetDTC.setOnClickListener(view -> showConfirmResetDTCDialog());
         Button resetMemory = ViewUtils.findView(mDrawerLayout, R.id.debugClearDeviceMemory);
-        resetMemory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showConfirmResetMemoryDialog();
-            }
-        });
+
+        resetMemory.setOnClickListener(view -> showConfirmResetMemoryDialog());
         View vinButton = findViewById(R.id.debugRandomVin);
         vinButton.setOnClickListener(v -> mNetworkHelper.getRandomVin(
-                (response, requestError) -> {
-                    editText.setText(requestError == null ? response : "error: " + requestError.getMessage());
-                })
+                (response, requestError) -> editText.setText(requestError == null ? response : "error: " + requestError.getMessage()))
         );
 
         Button setChunkSizeButton = ViewUtils.findView(mDrawerLayout, R.id.debugSetNetworkChunkSize);
-        setChunkSizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    int k = Integer.valueOf(editText.getText().toString());
-                    setChunkSize(k);
-                }
-                catch(NumberFormatException e){
-                    editText.setText("Make sure you input an integer.");
-                }
+        setChunkSizeButton.setOnClickListener(view -> {
+            try {
+                int k = Integer.valueOf(editText.getText().toString());
+                setChunkSize(k);
+            }
+            catch(NumberFormatException e){
+                editText.setText("Make sure you input an integer.");
             }
         });
+
+        ViewUtils.findView(mDrawerLayout, R.id.describeProtocol).setOnClickListener(view -> {
+            if (bluetoothConnectionObservable != null)
+                bluetoothConnectionObservable.requestDescribeProtocol();
+        });
+
+        ViewUtils.findView(mDrawerLayout, R.id.request2141PID).setOnClickListener(view -> {
+            if (bluetoothConnectionObservable != null)
+                bluetoothConnectionObservable.request2141PID();
+        });
+
+        ViewUtils.findView(mDrawerLayout, R.id.requestPendingDTC).setOnClickListener(view -> {
+            if (bluetoothConnectionObservable != null)
+                bluetoothConnectionObservable.requestPendingDTC();
+        });
+
+        ViewUtils.findView(mDrawerLayout, R.id.requestStoredDTC).setOnClickListener(view -> {
+            if (bluetoothConnectionObservable != null)
+                bluetoothConnectionObservable.requestStoredDTC();
+        });
+
+        ViewUtils.findView(mDrawerLayout, R.id.selectELMProtocol).setOnClickListener(view -> {
+            if (bluetoothWriter != null){
+                try{
+                    int editTextValue = Integer.valueOf(editText.getText().toString());
+                    if (editTextValue < 0 || editTextValue > 13){
+                        editText.setText("Invalid input, only integers between 0-13 accepted");
+                    }else{
+                        boolean succeeded = bluetoothWriter.requestSelectProtocol(ObdProtocols.values()[editTextValue]);
+                        if (!succeeded)
+                            editText.setText("Failed to write");
+                        else editText.setText("Wrote successfully");
+                    }
+                }catch(NumberFormatException e){
+                    editText.setText("Invalid input, only integers between 0-13 accepted");
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
         setupLogging();
     }
 
@@ -302,6 +329,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         }
         if (mQueryOtherObservable != null) {
             mQueryOtherObservable.unsubscribeOn(AndroidSchedulers.mainThread());
+        }
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
         }
     }
 

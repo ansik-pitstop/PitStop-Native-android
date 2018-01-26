@@ -5,7 +5,6 @@ import android.util.Log;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
-import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
@@ -38,9 +37,6 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
     private MixpanelHelper mixpanelHelper;
 
     private boolean updating = false;
-    public final EventType[] ignoredEvents = {
-            new EventTypeImpl(EventType.EVENT_SCANNER)
-    };
 
     public NotificationsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper){
         this.useCaseComponent = useCaseComponent;
@@ -50,7 +46,7 @@ public class NotificationsPresenter extends TabPresenter <NotificationView>{
     @Override
     public EventType[] getIgnoredEventTypes() {
         Log.d(TAG,"getIgnoredEventTypes()");
-        return ignoredEvents;
+        return new EventType[0];
     }
 
     @Override

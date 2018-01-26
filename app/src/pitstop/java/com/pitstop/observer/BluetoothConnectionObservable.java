@@ -19,6 +19,8 @@ public interface BluetoothConnectionObservable extends Subject{
             * BluetoothAutoConnectService.DTC_RETRY_LEN
             + BluetoothAutoConnectService.DTC_RETRY_LEN;
 
+    void disconnect();
+
     interface State{
         String DISCONNECTED = "disconnected"; //No bluetooth activity
         String SEARCHING = "state_searching"; //Searching for bluetooth device
@@ -42,6 +44,16 @@ public interface BluetoothConnectionObservable extends Subject{
 
     //Invoked when an observer wants to retrieve the device rtc time
     boolean requestDeviceTime();
+
+    //Describe protocol, only works for ELM327 devices
+    boolean requestDescribeProtocol();
+
+    //Get 2141 Emissions PID
+    boolean request2141PID();
+
+    boolean requestStoredDTC();
+
+    boolean requestPendingDTC();
 
     void getSupportedPids();
 

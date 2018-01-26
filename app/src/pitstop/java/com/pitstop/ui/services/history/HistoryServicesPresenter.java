@@ -25,8 +25,7 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
     public final EventSource EVENT_SOURCE
             = new EventSourceImpl(EventSource.SOURCE_SERVICES_HISTORY);
     public final EventType[] ignoredEvents = {
-            new EventTypeImpl(EventType.EVENT_MILEAGE),
-            new EventTypeImpl(EventType.EVENT_SCANNER)
+            new EventTypeImpl(EventType.EVENT_MILEAGE)
     };
 
     private MixpanelHelper mixpanelHelper;
