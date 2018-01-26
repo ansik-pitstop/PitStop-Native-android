@@ -140,7 +140,8 @@ public abstract class ObdCommand {
         // Carriage return
         out.write((cmd + "\r").getBytes());
         out.flush();
-        Logger.getInstance().logI(TAG,String.format("Command %s sent",getName()), DebugMessage.TYPE_BLUETOOTH);
+        if (Logger.getInstance() != null)
+            Logger.getInstance().logI(TAG,String.format("Command %s sent",getName()), DebugMessage.TYPE_BLUETOOTH);
         if (responseDelayInMs != null && responseDelayInMs > 0) {
             Thread.sleep(responseDelayInMs);
         }
@@ -175,7 +176,8 @@ public abstract class ObdCommand {
         checkForErrors();
         fillBuffer();
         performCalculations();
-        Logger.getInstance().logI(TAG,String.format("Command %s calculations performed result: %s"
+        if (Logger.getInstance() != null)
+            Logger.getInstance().logI(TAG,String.format("Command %s calculations performed result: %s"
                 ,getName(),getCalculatedResult()), DebugMessage.TYPE_BLUETOOTH);
     }
 
@@ -273,7 +275,8 @@ public abstract class ObdCommand {
 
         rawData = removeUnwantedPatterns(res.toString().trim());
         System.out.println(TAG+":"+ getName() +": rawData: "+rawData);
-        Logger.getInstance().logI(TAG,String.format("Command %s response read raw data %s",getName(),rawData)
+        if (Logger.getInstance() != null)
+            Logger.getInstance().logI(TAG,String.format("Command %s response read raw data %s",getName(),rawData)
                 , DebugMessage.TYPE_BLUETOOTH);
 
         /*
@@ -295,8 +298,10 @@ public abstract class ObdCommand {
 
             for (int i=0;i<numResponses;i++){
                 int curIndex = singleECUResponseLen*i;
-                headers.add(rawData.substring(curIndex,curIndex+getHeaderLen()));
-                curIndex += getHeaderLen();
+                if (hasHeaders){
+                    headers.add(rawData.substring(curIndex,curIndex+getHeaderLen()));
+                    curIndex += getHeaderLen();
+                }
                 requestCode.add(rawData.substring(curIndex,curIndex+cmdNoSpace.length()));
                 curIndex += cmdNoSpace.length();
                 data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
@@ -318,7 +323,8 @@ public abstract class ObdCommand {
             }
 
             if (messageError.isError(rawData)) {
-                Logger.getInstance().logE(TAG,String.format("Command %s response exception"
+                if (Logger.getInstance() != null)
+                    Logger.getInstance().logE(TAG,String.format("Command %s response exception"
                         ,getName(),messageError.getMessage()), DebugMessage.TYPE_BLUETOOTH);
                 throw messageError;
             }

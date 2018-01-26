@@ -197,12 +197,10 @@ public class BluetoothChatElm327 {
                         Log.d(TAG, "no data Exception");
                         mHandler.sendMessage(mHandler.obtainMessage(
                                 IBluetoothCommunicator.NO_DATA, obdCommand));
-                    }
-                    if (!isConnected()) {
+                    }else{
+                        closeConnect();
                         mHandler.sendEmptyMessage(IBluetoothCommunicator.DISCONNECTED);
-                        return;
                     }
-
                 }
             }
         }

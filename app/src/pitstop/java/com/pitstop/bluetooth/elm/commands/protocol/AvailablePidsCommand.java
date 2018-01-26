@@ -12,13 +12,13 @@
  */
 package com.pitstop.bluetooth.elm.commands.protocol;
 
-import com.pitstop.bluetooth.elm.commands.PersistentCommand;
+import com.pitstop.bluetooth.elm.commands.ObdCommand;
 
 /**
  * Retrieve available PIDs ranging from 21 to 40.
  *
  */
-public abstract class AvailablePidsCommand extends PersistentCommand {
+public abstract class AvailablePidsCommand extends ObdCommand {
 
     /**
      * Default ctor.
