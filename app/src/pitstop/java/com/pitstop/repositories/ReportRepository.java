@@ -24,7 +24,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -133,9 +134,10 @@ public class ReportRepository implements Repository {
             int id = response.getInt("id");
             JSONObject content = response.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
-            Map<String,String> sensorMap = new HashMap<>();
-            while (data.keys().hasNext()){
-                String key = (String)data.keys().next();
+            LinkedHashMap<String,String> sensorMap = new LinkedHashMap<>();
+            Iterator keyIterator = data.keys();
+            while (keyIterator.hasNext()){
+                String key = (String)keyIterator.next();
                 sensorMap.put(key,data.getString(key));
             }
             boolean pass = content.getBoolean("pass");
@@ -164,12 +166,16 @@ public class ReportRepository implements Repository {
                     int id = currentJson.getInt("id");
                     JSONObject content = currentJson.getJSONObject("content");
                     JSONObject data = content.getJSONObject("data");
-                    Map<String,String> sensorMap = new HashMap<>();
-                    while (data.keys().hasNext()){
-                        String key = (String)data.keys().next();
+                    LinkedHashMap<String,String> sensorMap = new LinkedHashMap<>();
+                    Iterator keyIterator = data.keys();
+                    while (keyIterator.hasNext()){
+                        String key = (String)keyIterator.next();
                         sensorMap.put(key,data.getString(key));
                     }
-                    boolean pass = content.getBoolean("pass");
+                    boolean pass = false;
+                    if (content.has("pass")){
+                        pass = content.getBoolean("pass");
+                    }
                     String reason = "";
                     if (content.has("reason"))
                         reason = content.getString("reason");
@@ -179,8 +185,9 @@ public class ReportRepository implements Repository {
 
                 }catch(JSONException | ParseException e){
                     Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
-                    return null;
+                    break;
                 }
+
                 if (et != null){
                     JSONObject meta = null;
                     if (!response.getJSONObject(i).isNull("meta"))

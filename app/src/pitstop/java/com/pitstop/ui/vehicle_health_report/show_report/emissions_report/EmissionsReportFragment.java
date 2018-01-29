@@ -54,7 +54,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private SensorDataAdapter sensorDataAdapter;
     private EmissionsReportPresenter presenter;
 
-    private int emissionsSharedContentHeight = -1;
+    private int sensorContentHeight = -1;
     private int emissionsReadyStepsContentHeight = -1;
     private boolean dropDownInProgress;
     private boolean emissionsNotReadyStepsToggled = false;
@@ -84,6 +84,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         setViewHeightListeners();
     }
@@ -179,7 +180,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @Override
     public void toggleEmissionsResults() {
         Log.d(TAG,"toggleEmissionsResults() ");
-        Log.d(TAG,"height: "+emissionsSharedContentHeight);
+        Log.d(TAG,"height: "+ sensorContentHeight);
         if (!emissionsResultsToggled)
             ViewAnimator.animate(resultRightChevron)
                     .onStart(() -> {
@@ -189,14 +190,14 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                             ((ShowReportActivity)getActivity()).scrollToBottom();
                     }).rotation(0,90)
                     .andAnimate(emissionsContentHolder)
-                    .height(0,emissionsSharedContentHeight)
+                    .height(0, sensorContentHeight)
                     .duration(200)
                     .start();
         else
             ViewAnimator.animate(resultRightChevron)
                     .rotation(90,0)
                     .andAnimate(emissionsContentHolder)
-                    .height(emissionsSharedContentHeight,0)
+                    .height(sensorContentHeight,0)
                     .duration(200)
                     .start();
 
@@ -204,11 +205,11 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     }
 
     private boolean heightsLoaded(){
-        return emissionsSharedContentHeight != -1 && emissionsReadyStepsContentHeight != -1;
+        return sensorContentHeight != -1 && emissionsReadyStepsContentHeight != -1;
     }
 
     private void setViewHeightListeners(){
-        emissionsSharedContentHeight = -1;
+        sensorContentHeight = -1;
         emissionsReadyStepsContentHeight = -1;
         readySteps.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener(){
@@ -228,7 +229,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     @Override
                     public void onGlobalLayout() {
                         Log.d(TAG,"sharedEmissionsContent.onGlobalLayout() height: "+sensorContent.getHeight());
-                        emissionsSharedContentHeight = sensorContent.getHeight();
+                        sensorContentHeight = sensorContent.getHeight();
                         if (heightsLoaded())
                             presenter.onHeightsLoaded();
                         sensorContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
