@@ -7,10 +7,8 @@ import com.google.gson.reflect.TypeToken;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.EngineIssue;
-import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
@@ -26,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -104,20 +103,12 @@ public class ReportRepository implements Repository {
 
         Log.d(TAG,"createEmissionsReport() body: "+body);
 
-
         networkHelper.post(String.format("v1/car/%d/report/emissions", carId)
                 , (response, requestError) -> {
 
                     if (requestError == null){
                         Log.d(TAG,"networkHelper.post() SUCCESS response: "+response);
                         EmissionsReport emissionsReport = jsonToEmissionsReport(response);
-                        if (emissionsReport instanceof PetrolEmissionsReport){
-                            PetrolEmissionsReport per = (PetrolEmissionsReport)emissionsReport;
-                            Log.d(TAG,"Got petrol emissions report: " + per);
-                        }else{
-                            DieselEmissionsReport der = (DieselEmissionsReport)emissionsReport;
-                            Log.d(TAG,"Got diesel emissions report: " + der);
-                        }
 
                         if (emissionsReport == null){
                             Log.d(TAG,"Error parsing response.");
@@ -139,89 +130,27 @@ public class ReportRepository implements Repository {
     private EmissionsReport jsonToEmissionsReport(String stringResponse){
         try{
             JSONObject response = new JSONObject(stringResponse).getJSONObject("response");
-            if (isPetrolResponse(response))
-                return etPetrolToJson(response);
-            else
-                return etDieselToJson(response);
-        }catch(JSONException e){
-            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
-            return null;
-        }
-    }
-
-    private boolean isPetrolResponse(JSONObject jsonResponse){
-        try{
-            return jsonResponse.getJSONObject("content").has("NMHC Catalyst");
-        }catch (JSONException e){
-            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
-            return false;
-        }
-    }
-
-    private EmissionsReport etPetrolToJson(JSONObject jsonResponse){
-        try{
-            int id = jsonResponse.getInt("id");
-            JSONObject content = jsonResponse.getJSONObject("content");
+            int id = response.getInt("id");
+            JSONObject content = response.getJSONObject("content");
             JSONObject data = content.getJSONObject("data");
-            String misfire = data.getString("Misfire");
-            String ignition = data.getString("Ignition");
-            String components = data.getString("Components");
-            String fuelSystem = data.getString("Fuel System");
-            String NMHCCatalyst = data.getString("NMHC Catalyst");
-            String boostPressure = data.getString("Boost Pressure");
-            String reserved1 = data.getString("Reserved1");
-            String reserved2 = data.getString("Reserved2");
-            String EGRVVTSystem = data.getString("EGR/VVT System");
-            String exhaustSensor = data.getString("Exhaust Sensor");
-            String NOxSCRMonitor = data.getString("NOx/SCR Monitor");
-            String PMFilterMonitoring= data.getString("PM Filter Monitoring");
+            Map<String,String> sensorMap = new HashMap<>();
+            while (data.keys().hasNext()){
+                String key = data.keys().next();
+                sensorMap.put(key,data.getString(key));
+            }
             boolean pass = content.getBoolean("pass");
             String reason = "";
             if (content.has("reason"))
                 reason = content.getString("reason");
             Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                    .parse(jsonResponse.getString("createdAt"));
-            return new PetrolEmissionsReport(id,misfire,ignition,fuelSystem,createdAt,pass,reason
-                    ,NMHCCatalyst,components,EGRVVTSystem, NOxSCRMonitor, boostPressure, reserved1
-                    , reserved2, exhaustSensor, PMFilterMonitoring);
+                    .parse(response.getString("createdAt"));
+            return new EmissionsReport(id , createdAt, pass, reason, sensorMap);
+
+
         }catch(JSONException | ParseException e){
             Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             return null;
         }
-
-    }
-
-    private EmissionsReport etDieselToJson(JSONObject jsonResponse){
-        try{
-            int id = jsonResponse.getInt("id");
-            JSONObject content = jsonResponse.getJSONObject("content");
-            JSONObject data = content.getJSONObject("data");
-            String misfire = data.getString("Misfire");
-            String ignition = data.getString("Ignition");
-            String components = data.getString("Components");
-            String fuelSystem = data.getString("Fuel System");
-            String heatedCatalyst = data.getString("Heated Catalyst");
-            String catalyst = data.getString("Catalyst");
-            String evap = data.getString("Evap");
-            String secondaryAir = data.getString("Secondary Air");
-            String ACRefrigerant = data.getString("A/C Refrigerant");
-            String O2Sensor = data.getString("O2 Sensor");
-            String O2SensorHeater = data.getString("O2 Sensor Heater");
-            String EGR = data.getString("EGR");
-            boolean pass = content.getBoolean("pass");
-            String reason = "";
-            if (content.has("reason"))
-                reason = content.getString("reason");
-            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
-                    .parse(jsonResponse.getString("createdAt"));
-            return new DieselEmissionsReport(id, misfire, ignition, components, fuelSystem
-                    , createdAt, pass, reason, heatedCatalyst, catalyst, evap, secondaryAir, ACRefrigerant
-                    , O2Sensor, O2SensorHeater, EGR);
-        }catch(JSONException | ParseException e){
-            Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
-            return null;
-        }
-
     }
 
     private List<EmissionsReport> jsonToEmissionsReportList(String stringResponse){
@@ -230,12 +159,27 @@ public class ReportRepository implements Repository {
             JSONArray response = new JSONObject(stringResponse).getJSONArray("response");
             for (int i=0;i<response.length();i++){
                 EmissionsReport et;
-                if (isPetrolResponse(response.getJSONObject(i))){
-                    et = etPetrolToJson(response.getJSONObject(i));
-                    Log.d(TAG,"Generated petrol report: "+et);
-                }else{
-                    et = etDieselToJson(response.getJSONObject(i));
-                    Log.d(TAG,"Generated diesel report: "+et);
+                try{
+                    JSONObject currentJson = response.getJSONObject(i);
+                    int id = currentJson.getInt("id");
+                    JSONObject content = currentJson.getJSONObject("content");
+                    JSONObject data = content.getJSONObject("data");
+                    Map<String,String> sensorMap = new HashMap<>();
+                    while (data.keys().hasNext()){
+                        String key = data.keys().next();
+                        sensorMap.put(key,data.getString(key));
+                    }
+                    boolean pass = content.getBoolean("pass");
+                    String reason = "";
+                    if (content.has("reason"))
+                        reason = content.getString("reason");
+                    Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+                            .parse(currentJson.getString("createdAt"));
+                    et = new EmissionsReport(id , createdAt, pass, reason, sensorMap);
+
+                }catch(JSONException | ParseException e){
+                    Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
+                    return null;
                 }
                 if (et != null){
                     JSONObject meta = null;
