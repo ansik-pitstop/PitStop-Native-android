@@ -188,14 +188,12 @@ public class ReportRepository implements Repository {
                     break;
                 }
 
-                if (et != null){
-                    JSONObject meta = null;
-                    if (!response.getJSONObject(i).isNull("meta"))
-                        meta = response.getJSONObject(i).getJSONObject("meta");
-                        if (meta != null && meta.has("vhrId"))
-                            et.setVhrId(meta.getInt("vhrId"));
-                    emissionsReportList.add(et);
-                }
+                JSONObject meta = null;
+                if (!response.getJSONObject(i).isNull("meta"))
+                    meta = response.getJSONObject(i).getJSONObject("meta");
+                    if (meta != null && meta.has("vhrId"))
+                        et.setVhrId(meta.getInt("vhrId"));
+                emissionsReportList.add(et);
             }
             return emissionsReportList;
         }catch(JSONException e){
