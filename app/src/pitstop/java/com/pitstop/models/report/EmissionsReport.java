@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class EmissionsReport implements Parcelable{
 
     private int id;
     private int vhrId = -1;
-    private Map<String,String> sensors;
+    private LinkedHashMap<String,String> sensors;
     private Date createdAt;
     private boolean pass;
     private String reason;
@@ -27,7 +27,7 @@ public class EmissionsReport implements Parcelable{
         this.createdAt = createdAt;
         this.pass = pass;
         this.reason = reason;
-        this.sensors = new HashMap<>();
+        this.sensors = new LinkedHashMap<>();
     }
 
     public EmissionsReport(int id, int vhrId, Date createdAt, boolean pass, String reason) {
@@ -36,10 +36,10 @@ public class EmissionsReport implements Parcelable{
         this.createdAt = createdAt;
         this.pass = pass;
         this.reason = reason;
-        this.sensors = new HashMap<>();
+        this.sensors = new LinkedHashMap<>();
     }
 
-    public EmissionsReport(int id, Date createdAt, boolean pass, String reason, Map<String,String> sensors) {
+    public EmissionsReport(int id, Date createdAt, boolean pass, String reason, LinkedHashMap<String,String> sensors) {
         this.id = id;
         this.createdAt = createdAt;
         this.pass = pass;
@@ -47,7 +47,7 @@ public class EmissionsReport implements Parcelable{
         this.sensors = sensors;
     }
 
-    public EmissionsReport(int id, int vhrId, Date createdAt, boolean pass, String reason, Map<String,String> sensors) {
+    public EmissionsReport(int id, int vhrId, Date createdAt, boolean pass, String reason, LinkedHashMap<String,String> sensors) {
         this.id = id;
         this.vhrId = vhrId;
         this.createdAt = createdAt;

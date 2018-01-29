@@ -145,6 +145,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
         pass.setText(emissionsReport.isPass() ? "Pass" : emissionsReport.getReason().isEmpty() ? "Fail" : emissionsReport.getReason());
         //Todo: generate dynamically
+        
 //        heatedCatalyst.setText(dieselEmissionsReport.getHeatedCatalyst());
 //        catalyst.setText(dieselEmissionsReport.getCatalyst());
 //        evap.setText(dieselEmissionsReport.getEvap());
