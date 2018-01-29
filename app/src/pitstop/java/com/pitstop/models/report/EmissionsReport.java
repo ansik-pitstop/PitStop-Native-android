@@ -63,6 +63,7 @@ public class EmissionsReport implements Parcelable{
         reason = in.readString();
         List<String> sensorValues = new ArrayList<>();
         List<String> sensorKeys = new ArrayList<>();
+        sensors = new LinkedHashMap<>();
         in.readStringList(sensorValues);
         in.readStringList(sensorKeys);
         for (int i=0;i<sensorValues.size();i++){
