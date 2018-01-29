@@ -6,6 +6,8 @@ import android.view.View;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.LinkedHashMap;
+
 /**
  * Created by Matt on 2017-08-17.
  */
@@ -35,8 +37,8 @@ public class EmissionsReportPresenter {
         view.toggleCellDetails(cell);
     }
 
-    public void loadEmissionsTest(){
-        Log.d(TAG,"loadEmissionsTest()");
+    void onHeightsLoaded(){
+        Log.d(TAG,"onHeightsLoaded()");
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
@@ -48,11 +50,6 @@ public class EmissionsReportPresenter {
         }
     }
 
-    void onHeightsLoaded(){
-        Log.d(TAG,"onHeightsLoaded()");
-        loadEmissionsTest();
-    }
-
     public void onEmissionResultHolderClicked() {
         Log.d(TAG,"onEmissionResultHolderClicked()");
         if (view != null && view.getEmissionsReport() != null)
@@ -60,5 +57,12 @@ public class EmissionsReportPresenter {
                 view.toggleEmissionsResults();
             else
                 view.toggleEmissionsNotReadySteps();
+    }
+
+    LinkedHashMap<String,String> getSensors(){
+        if (view != null && view.getEmissionsReport() != null){
+            return view.getEmissionsReport().getSensors();
+        }
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     View readySteps;
 
     @BindView(R.id.sensor_content)
-    View sensorContent;
+    RecyclerView sensorContent;
 
     @BindView (R.id.emissions_content)
     View emissionsContentHolder;
@@ -50,6 +51,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView (R.id.unavailable_emissions_content)
     View unavailableEmissionsContent;
 
+    private SensorDataAdapter sensorDataAdapter;
     private EmissionsReportPresenter presenter;
 
     private int emissionsSharedContentHeight = -1;
@@ -91,7 +93,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
-
     }
 
     @Override
@@ -144,16 +145,9 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"displayEmissionsReport() Emissions Report: "+emissionsReport);
 
         pass.setText(emissionsReport.isPass() ? "Pass" : emissionsReport.getReason().isEmpty() ? "Fail" : emissionsReport.getReason());
-        //Todo: generate dynamically
-        
-//        heatedCatalyst.setText(dieselEmissionsReport.getHeatedCatalyst());
-//        catalyst.setText(dieselEmissionsReport.getCatalyst());
-//        evap.setText(dieselEmissionsReport.getEvap());
-//        secondaryAirFilter.setText(dieselEmissionsReport.getSecondaryAir());
-//        ACRefrigerant.setText(dieselEmissionsReport.getACRefrigirator());
-//        O2Sensor.setText(dieselEmissionsReport.getO2Sensor());
-//        O2SensorHeater.setText(dieselEmissionsReport.getO2SensorHeater());
-//        EGR.setText(dieselEmissionsReport.getEGR());
+        sensorDataAdapter = new SensorDataAdapter(presenter.getSensors());
+        sensorContent.setAdapter(sensorDataAdapter);
+        sensorDataAdapter.notifyDataSetChanged();
     }
 
     @Override

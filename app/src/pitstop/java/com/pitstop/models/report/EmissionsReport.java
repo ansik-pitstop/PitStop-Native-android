@@ -148,6 +148,10 @@ public class EmissionsReport implements Parcelable{
         sensors.put(key,value);
     }
 
+    public LinkedHashMap<String,String> getSensors(){
+        return sensors;
+    }
+
     @Override
     public String toString(){
         try{
