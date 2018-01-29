@@ -58,11 +58,13 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
+
     private void onNoCarSet(boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: no car set! local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
+
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
