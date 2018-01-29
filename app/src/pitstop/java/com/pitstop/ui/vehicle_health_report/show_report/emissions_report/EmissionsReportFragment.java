@@ -38,9 +38,8 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     @BindView(R.id.view_ready_steps)
     View readySteps;
 
-    //Holders
-    @BindView (R.id.emissions_shared_content)
-    View sharedEmissionsContent;
+    @BindView(R.id.sensor_content)
+    View sensorContent;
 
     @BindView (R.id.emissions_content)
     View emissionsContentHolder;
@@ -190,7 +189,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
             ViewAnimator.animate(resultRightChevron)
                     .onStart(() -> {
                         emissionsContentHolder.setVisibility(View.VISIBLE);
-                        sharedEmissionsContent.setVisibility(View.VISIBLE);
                     }).onStop(() -> {
                         if (getActivity() != null)
                             ((ShowReportActivity)getActivity()).scrollToBottom();
@@ -230,16 +228,16 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     }
                 }
         );
-        sharedEmissionsContent.getViewTreeObserver().addOnGlobalLayoutListener(
+        sensorContent.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener(){
                     @Override
                     public void onGlobalLayout() {
-                        Log.d(TAG,"sharedEmissionsContent.onGlobalLayout() height: "+sharedEmissionsContent.getHeight());
-                        emissionsSharedContentHeight = sharedEmissionsContent.getHeight();
+                        Log.d(TAG,"sharedEmissionsContent.onGlobalLayout() height: "+sensorContent.getHeight());
+                        emissionsSharedContentHeight = sensorContent.getHeight();
                         if (heightsLoaded())
                             presenter.onHeightsLoaded();
-                        sharedEmissionsContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                        sharedEmissionsContent.setVisibility( View.GONE );
+                        sensorContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                        sensorContent.setVisibility( View.GONE );
                     }
                 }
         );
