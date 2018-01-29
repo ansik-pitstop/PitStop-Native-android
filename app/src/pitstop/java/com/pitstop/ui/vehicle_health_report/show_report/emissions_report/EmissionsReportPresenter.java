@@ -3,9 +3,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.util.Log;
 import android.view.View;
 
-import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
-import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.utils.MixpanelHelper;
 
 /**
@@ -42,13 +40,7 @@ public class EmissionsReportPresenter {
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
-                if (er instanceof PetrolEmissionsReport){
-                    PetrolEmissionsReport petrolEmissionsReport = (PetrolEmissionsReport)er;
-                    view.displayPetrolEmissionsReport(petrolEmissionsReport);
-                }else if (er instanceof DieselEmissionsReport){
-                    DieselEmissionsReport dieselEmissionsReport = (DieselEmissionsReport)er;
-                    view.displayDieselEmissionsReport(dieselEmissionsReport);
-                }
+                view.displayEmissionsReport(er);
             }else{
                 view.displayEmissionsUnavailable();
             }
@@ -65,7 +57,7 @@ public class EmissionsReportPresenter {
         Log.d(TAG,"onEmissionResultHolderClicked()");
         if (view != null && view.getEmissionsReport() != null)
             if (!view.getEmissionsReport().getReason().equalsIgnoreCase("not ready"))
-                view.toggleEmissionsResults(view.getEmissionsReport() instanceof PetrolEmissionsReport);
+                view.toggleEmissionsResults();
             else
                 view.toggleEmissionsNotReadySteps();
     }

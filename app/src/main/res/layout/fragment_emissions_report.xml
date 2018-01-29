@@ -59,17 +59,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <include
-            android:id="@+id/emissions_shared_content"
-            layout="@layout/layout_shared_emissions_content"/>
+        <RelativeLayout
+            android:id="@+id/sensor_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <include
-            android:id="@+id/petrol_emissions_content"
-            layout="@layout/layout_petrol_emissions_content"/>
-
-        <include
-            android:id="@+id/diesel_emissions_content"
-            layout="@layout/layout_diesel_emissions_content"/>
+        </RelativeLayout>
 
         <include
             android:id="@+id/view_ready_steps"

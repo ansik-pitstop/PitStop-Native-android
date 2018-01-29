@@ -135,7 +135,7 @@ public class ReportRepository implements Repository {
             JSONObject data = content.getJSONObject("data");
             Map<String,String> sensorMap = new HashMap<>();
             while (data.keys().hasNext()){
-                String key = data.keys().next();
+                String key = (String)data.keys().next();
                 sensorMap.put(key,data.getString(key));
             }
             boolean pass = content.getBoolean("pass");
@@ -166,7 +166,7 @@ public class ReportRepository implements Repository {
                     JSONObject data = content.getJSONObject("data");
                     Map<String,String> sensorMap = new HashMap<>();
                     while (data.keys().hasNext()){
-                        String key = data.keys().next();
+                        String key = (String)data.keys().next();
                         sensorMap.put(key,data.getString(key));
                     }
                     boolean pass = content.getBoolean("pass");
