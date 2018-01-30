@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.DebugMessage;
@@ -260,12 +261,17 @@ public class ReportRepository implements Repository {
 
     private JSONArray pidPackageToJSON(PidPackage pidPackage){
         JSONArray pidArr = new JSONArray();
-        for (Map.Entry<String,String> entry: pidPackage.pids.entrySet()){
+        for (Map.Entry<String,String> entry: pidPackage.getPids().entrySet()){
             JSONObject dtcJson = new JSONObject();
             try{
                 dtcJson.put("id",entry.getKey());
                 dtcJson.put("data",entry.getValue());
-                dtcJson.put("rtcTime",Long.valueOf(pidPackage.rtcTime));
+                String rtcTime = "";
+                if (pidPackage instanceof CastelPidPackage){
+                    CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
+                    rtcTime = castelPidPackage.getRtcTime();
+                }
+                dtcJson.put("rtcTime",Long.valueOf(rtcTime));
                 pidArr.put(dtcJson);
             }catch(JSONException e){
                 Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);

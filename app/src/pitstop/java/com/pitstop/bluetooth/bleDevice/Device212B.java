@@ -5,10 +5,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.pitstop.bluetooth.communicator.BluetoothClassicComm;
-import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.ObdManager;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.info.BasePackageInfo;
 import com.castel.obd.info.DataPackageInfo;
@@ -20,10 +16,14 @@ import com.castel.obd.util.JsonUtil;
 import com.castel.obd.util.ObdDataUtil;
 import com.castel.obd.util.Utils;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.communicator.BluetoothClassicComm;
+import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
@@ -375,14 +375,8 @@ public class Device212B implements AbstractDevice {
             if(dataPackageInfo.result == 4 && tripFlag.equals("1")
                     && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
                 Log.d(TAG, "Result 4 PIDs");
-                PidPackage templatePidPackage = new PidPackage();
-
-                templatePidPackage.deviceId = dataPackageInfo.deviceId;
-                templatePidPackage.tripMileage = dataPackageInfo.tripMileage;
-                templatePidPackage.tripId = dataPackageInfo.tripId;
-                templatePidPackage.rtcTime = dataPackageInfo.rtcTime;
-                templatePidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-                templatePidPackage.realTime = false;
+                OBD212PidPackage templatePidPackage = new OBD212PidPackage(dataPackageInfo.deviceId,dataPackageInfo.rtcTime
+                        ,false,dataPackageInfo.tripId,dataPackageInfo.tripMileage);
 
                 // pid map for aggregated pid
                 HashMap<String, String[]> aggregatePidMap = new HashMap<>();
@@ -412,9 +406,8 @@ public class Device212B implements AbstractDevice {
                 }
 
                 for (int i = 0; i < pidMapList.size(); i++) {
-                    PidPackage pidPackage = new PidPackage(templatePidPackage);
-                    pidPackage.rtcTime = String.valueOf(Long.parseLong(pidPackage.rtcTime) - 2 * (numberOfDataPoints - i - 1));
-                    pidPackage.pids = pidMapList.get(i);
+                    OBD212PidPackage pidPackage = new OBD212PidPackage(templatePidPackage);
+                    pidPackage.setPids(pidMapList.get(i));
                     dataListener.idrPidData(pidPackage);
                 }
             }

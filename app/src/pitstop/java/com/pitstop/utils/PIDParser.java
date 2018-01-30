@@ -2,6 +2,9 @@ package com.pitstop.utils;
 
 import android.util.Log;
 
+import com.pitstop.bluetooth.dataPackages.ELM327PidPackage;
+import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
+import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 
 import java.text.DecimalFormat;
@@ -168,24 +171,27 @@ public class PIDParser {
         if (original == null){
             return null;
         }
-        HashMap<String, String> DecimalhashMap = new HashMap<String, String>();
-        PidPackage DecimalPidPackage = new PidPackage(original);
-        if (DecimalPidPackage.pids != null) {
-            for (String s : pidTypes) {
-                if (original.pids.containsKey(s)) {
-                    try {
-                        String decimalValue = Integer.toString(Integer.parseInt(original.pids.get(s), 16));
-                        DecimalhashMap.put(s, decimalValue);
-                    }
-                    catch (NumberFormatException e){
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-
+        PidPackage decimalPidPackage = null;
+        if (original instanceof ELM327PidPackage){
+            decimalPidPackage = new ELM327PidPackage((ELM327PidPackage)original);
+        }else if (original instanceof OBD215PidPackage){
+            decimalPidPackage = new OBD215PidPackage((OBD215PidPackage)original);
+        }else if (original instanceof OBD212PidPackage){
+            decimalPidPackage = new OBD212PidPackage((OBD212PidPackage)original);
+        }else{
+            return null;
         }
-        DecimalPidPackage.setPids(DecimalhashMap);
-        return DecimalPidPackage;
+        for (String s : pidTypes) {
+            if (original.getPids().containsKey(s)) {
+                try {
+                    String decimalValue = Integer.toString(Integer.parseInt(original.getPids().get(s), 16));
+                    decimalPidPackage.addPid(s, decimalValue);
+                }
+                catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return decimalPidPackage;
     }
 }
