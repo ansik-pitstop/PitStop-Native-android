@@ -3,10 +3,10 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.util.Log;
 import android.view.View;
 
-import com.pitstop.models.report.DieselEmissionsReport;
 import com.pitstop.models.report.EmissionsReport;
-import com.pitstop.models.report.PetrolEmissionsReport;
 import com.pitstop.utils.MixpanelHelper;
+
+import java.util.LinkedHashMap;
 
 /**
  * Created by Matt on 2017-08-17.
@@ -37,18 +37,12 @@ public class EmissionsReportPresenter {
         view.toggleCellDetails(cell);
     }
 
-    public void loadEmissionsTest(){
-        Log.d(TAG,"loadEmissionsTest()");
+    void loadEmissionsReport(){
+        Log.d(TAG,"loadEmissionsReport()");
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
-                if (er instanceof PetrolEmissionsReport){
-                    PetrolEmissionsReport petrolEmissionsReport = (PetrolEmissionsReport)er;
-                    view.displayPetrolEmissionsReport(petrolEmissionsReport);
-                }else if (er instanceof DieselEmissionsReport){
-                    DieselEmissionsReport dieselEmissionsReport = (DieselEmissionsReport)er;
-                    view.displayDieselEmissionsReport(dieselEmissionsReport);
-                }
+                view.displayEmissionsReport(er);
             }else{
                 view.displayEmissionsUnavailable();
             }
@@ -56,17 +50,19 @@ public class EmissionsReportPresenter {
         }
     }
 
-    void onHeightsLoaded(){
-        Log.d(TAG,"onHeightsLoaded()");
-        loadEmissionsTest();
-    }
-
     public void onEmissionResultHolderClicked() {
         Log.d(TAG,"onEmissionResultHolderClicked()");
         if (view != null && view.getEmissionsReport() != null)
             if (!view.getEmissionsReport().getReason().equalsIgnoreCase("not ready"))
-                view.toggleEmissionsResults(view.getEmissionsReport() instanceof PetrolEmissionsReport);
+                view.toggleEmissionsResults();
             else
                 view.toggleEmissionsNotReadySteps();
+    }
+
+    LinkedHashMap<String,String> getSensors(){
+        if (view != null && view.getEmissionsReport() != null){
+            return view.getEmissionsReport().getSensors();
+        }
+        return null;
     }
 }
