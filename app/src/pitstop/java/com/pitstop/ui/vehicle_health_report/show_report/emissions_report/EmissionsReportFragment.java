@@ -77,7 +77,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         presenter = new EmissionsReportPresenter(mixpanelHelper);
 
         emissionsNotReadyStepsToggled = false;
-        emissionsResultsToggled = false;
+        emissionsResultsToggled = true;
         dropDownInProgress = false;
 
         return view;
