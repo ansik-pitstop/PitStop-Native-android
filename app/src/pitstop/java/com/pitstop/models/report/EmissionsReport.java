@@ -3,61 +3,85 @@ package com.pitstop.models.report;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Karol Zdebel on 9/28/2017.
  */
 
-public abstract class EmissionsReport implements Parcelable{
+public class EmissionsReport implements Parcelable{
 
     private int id;
     private int vhrId = -1;
-    private String misfire;
-    private String ignition;
-    private String components;
-    private String fuelSystem;
+    private LinkedHashMap<String,String> sensors;
     private Date createdAt;
     private boolean pass;
     private String reason;
 
-    public EmissionsReport(int id, String misfire, String ignition, String components
-            , String fuelSystem, Date createdAt, boolean pass, String reason) {
-
+    public EmissionsReport(int id, Date createdAt, boolean pass, String reason) {
         this.id = id;
-        this.misfire = misfire;
-        this.ignition = ignition;
-        this.components = components;
-        this.fuelSystem = fuelSystem;
         this.createdAt = createdAt;
         this.pass = pass;
         this.reason = reason;
+        this.sensors = new LinkedHashMap<>();
     }
 
-    public EmissionsReport(int id, int vhrId, String misfire, String ignition, String components
-            , String fuelSystem, Date createdAt, boolean pass, String reason) {
-
+    public EmissionsReport(int id, int vhrId, Date createdAt, boolean pass, String reason) {
         this.id = id;
         this.vhrId = vhrId;
-        this.misfire = misfire;
-        this.ignition = ignition;
-        this.components = components;
-        this.fuelSystem = fuelSystem;
         this.createdAt = createdAt;
         this.pass = pass;
         this.reason = reason;
+        this.sensors = new LinkedHashMap<>();
+    }
+
+    public EmissionsReport(int id, Date createdAt, boolean pass, String reason, LinkedHashMap<String,String> sensors) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.pass = pass;
+        this.reason = reason;
+        this.sensors = sensors;
+    }
+
+    public EmissionsReport(int id, int vhrId, Date createdAt, boolean pass, String reason, LinkedHashMap<String,String> sensors) {
+        this.id = id;
+        this.vhrId = vhrId;
+        this.createdAt = createdAt;
+        this.pass = pass;
+        this.reason = reason;
+        this.sensors = sensors;
     }
 
     protected EmissionsReport(Parcel in) {
         id = in.readInt();
-        misfire = in.readString();
-        ignition = in.readString();
-        components = in.readString();
-        fuelSystem = in.readString();
         createdAt = (Date)in.readSerializable();
         pass = in.readByte() != 0;
         reason = in.readString();
+        List<String> sensorValues = new ArrayList<>();
+        List<String> sensorKeys = new ArrayList<>();
+        sensors = new LinkedHashMap<>();
+        in.readStringList(sensorValues);
+        in.readStringList(sensorKeys);
+        for (int i=0;i<sensorValues.size();i++){
+            sensors.put(sensorKeys.get(i),sensorValues.get(i));
+        }
     }
+
+    public static final Creator<EmissionsReport> CREATOR = new Creator<EmissionsReport>() {
+        @Override
+        public EmissionsReport createFromParcel(Parcel in) {
+            return new EmissionsReport(in);
+        }
+
+        @Override
+        public EmissionsReport[] newArray(int size) {
+            return new EmissionsReport[size];
+        }
+    };
 
     @Override
     public int describeContents() {
@@ -68,13 +92,17 @@ public abstract class EmissionsReport implements Parcelable{
     public void writeToParcel(Parcel parcel, int i) {
 
         parcel.writeInt(id);
-        parcel.writeString(misfire);
-        parcel.writeString(ignition);
-        parcel.writeString(components);
-        parcel.writeString(fuelSystem);
         parcel.writeSerializable(createdAt);
         parcel.writeByte((byte) (pass ? 1 : 0));
         parcel.writeString(reason);
+        List<String> sensorValues = new ArrayList<>();
+        List<String> sensorKeys = new ArrayList<>();
+        for (Map.Entry<String,String> e: sensors.entrySet()){
+            sensorValues.add(e.getValue());
+            sensorKeys.add(e.getKey());
+        }
+        parcel.writeStringList(sensorValues);
+        parcel.writeStringList(sensorKeys);
     }
 
     public Date getCreatedAt() {
@@ -91,38 +119,6 @@ public abstract class EmissionsReport implements Parcelable{
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getMisfire() {
-        return misfire;
-    }
-
-    public void setMisfire(String misfire) {
-        this.misfire = misfire;
-    }
-
-    public String getIgnition() {
-        return ignition;
-    }
-
-    public void setIgnition(String ignition) {
-        this.ignition = ignition;
-    }
-
-    public String getComponents() {
-        return components;
-    }
-
-    public void setComponents(String components) {
-        this.components = components;
-    }
-
-    public String getFuelSystem() {
-        return fuelSystem;
-    }
-
-    public void setFuelSystem(String fuelSystem) {
-        this.fuelSystem = fuelSystem;
     }
 
     public boolean isPass() {
@@ -149,12 +145,18 @@ public abstract class EmissionsReport implements Parcelable{
         this.reason = reason;
     }
 
+    public void addSensor(String key, String value){
+        sensors.put(key,value);
+    }
+
+    public LinkedHashMap<String,String> getSensors(){
+        return sensors;
+    }
+
     @Override
     public String toString(){
         try{
-            return String.format("id:%d, vhrId:%d, misfire:%s, ignition:%s, components:%s" +
-                            ", fuel system:%s , createdAt:%s, pass:%b, reason:%s",getId(), getVhrId(), getMisfire()
-                    , getIgnition(), getComponents(), getFuelSystem(), getCreatedAt().toString()
+            return String.format("id:%d, vhrId:%d, sensors: %s, createdAt:%s, pass:%b, reason:%s",getId(), getVhrId(), sensors.toString(), getCreatedAt().toString()
                     , isPass(), getReason());
         }catch(NullPointerException e){
             e.printStackTrace();
