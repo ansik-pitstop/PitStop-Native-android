@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,7 +59,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private int emissionsReadyStepsContentHeight = -1;
     private boolean dropDownInProgress;
     private boolean emissionsNotReadyStepsToggled = false;
-    private boolean emissionsResultsToggled = false;
+    private boolean emissionsResultsToggled = true;
 
     @OnClick(R.id.emission_result_holder)
     public void onEmissionResultHolderClicked(){
@@ -94,6 +95,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.loadEmissionsReport();
     }
 
     @Override
@@ -145,10 +147,16 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void displayEmissionsReport(EmissionsReport emissionsReport) {
         Log.d(TAG,"displayEmissionsReport() Emissions Report: "+emissionsReport);
 
+        resultRightChevron.setRotation(90);
         pass.setText(emissionsReport.isPass() ? "Pass" : emissionsReport.getReason().isEmpty() ? "Fail" : emissionsReport.getReason());
-        sensorDataAdapter = new SensorDataAdapter(presenter.getSensors());
-        sensorContent.setAdapter(sensorDataAdapter);
+
+        if (sensorDataAdapter == null){
+            sensorDataAdapter = new SensorDataAdapter(emissionsReport.getSensors());
+            sensorContent.setAdapter(sensorDataAdapter);
+            sensorContent.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
         sensorDataAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -179,28 +187,28 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
 
     @Override
     public void toggleEmissionsResults() {
-        Log.d(TAG,"toggleEmissionsResults() ");
+        Log.d(TAG,"toggleEmissionsResults() toggled? "+emissionsResultsToggled);
         Log.d(TAG,"height: "+ sensorContentHeight);
-        if (!emissionsResultsToggled)
+        if (!emissionsResultsToggled) {
             ViewAnimator.animate(resultRightChevron)
                     .onStart(() -> {
                         emissionsContentHolder.setVisibility(View.VISIBLE);
                     }).onStop(() -> {
-                        if (getActivity() != null)
-                            ((ShowReportActivity)getActivity()).scrollToBottom();
-                    }).rotation(0,90)
+                if (getActivity() != null)
+                    ((ShowReportActivity) getActivity()).scrollToBottom();
+            }).rotation(0, 90)
                     .andAnimate(emissionsContentHolder)
                     .height(0, sensorContentHeight)
                     .duration(200)
                     .start();
-        else
+        }else{
             ViewAnimator.animate(resultRightChevron)
-                    .rotation(90,0)
+                    .rotation(90, 0)
                     .andAnimate(emissionsContentHolder)
-                    .height(sensorContentHeight,0)
+                    .height(sensorContentHeight, 0)
                     .duration(200)
                     .start();
-
+        }
         emissionsResultsToggled = !emissionsResultsToggled;
     }
 
@@ -217,23 +225,16 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     public void onGlobalLayout() {
                         Log.d(TAG,"readySteps.onGlobalLayout() height: "+readySteps.getHeight());
                         emissionsReadyStepsContentHeight = readySteps.getHeight();
-                        if (heightsLoaded())
-                            presenter.onHeightsLoaded();
                         readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                         readySteps.setVisibility( View.GONE );
                     }
                 }
         );
         sensorContent.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener(){
-                    @Override
-                    public void onGlobalLayout() {
-                        Log.d(TAG,"sharedEmissionsContent.onGlobalLayout() height: "+sensorContent.getHeight());
+                () -> {
+                    Log.d(TAG,"sensorContent.onGlobalLayout() height: "+sensorContent.getHeight());
+                    if (sensorContent.getHeight() > sensorContentHeight){
                         sensorContentHeight = sensorContent.getHeight();
-                        if (heightsLoaded())
-                            presenter.onHeightsLoaded();
-                        sensorContent.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                        sensorContent.setVisibility( View.GONE );
                     }
                 }
         );

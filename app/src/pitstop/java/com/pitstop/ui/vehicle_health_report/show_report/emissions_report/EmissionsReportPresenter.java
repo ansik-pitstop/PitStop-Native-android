@@ -37,8 +37,8 @@ public class EmissionsReportPresenter {
         view.toggleCellDetails(cell);
     }
 
-    void onHeightsLoaded(){
-        Log.d(TAG,"onHeightsLoaded()");
+    void loadEmissionsReport(){
+        Log.d(TAG,"loadEmissionsReport()");
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
