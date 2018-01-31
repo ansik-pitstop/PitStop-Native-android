@@ -266,7 +266,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("id",entry.getKey());
                 dtcJson.put("data",entry.getValue());
-                String rtcTime = "";
+                String rtcTime = "0";
                 if (pidPackage instanceof CastelPidPackage){
                     CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
                     rtcTime = castelPidPackage.getRtcTime();
