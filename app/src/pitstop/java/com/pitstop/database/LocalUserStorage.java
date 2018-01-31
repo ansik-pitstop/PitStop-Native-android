@@ -57,7 +57,10 @@ public class LocalUserStorage {
     }
 
     public User getUser() {
-        Log.d(TAG,"getUser() stack: "+Thread.currentThread().getStackTrace().toString());
+        for (StackTraceElement e: Thread.currentThread().getStackTrace()){
+            Log.d(TAG,e.toString());
+        }
+        Log.d(TAG,"\n\n");
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor c = db.query(TABLES.USER.TABLE_NAME,null,

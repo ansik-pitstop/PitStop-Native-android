@@ -41,7 +41,7 @@ public class EmissionsReportPresenter {
         Log.d(TAG,"loadEmissionsReport()");
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
-            if (er != null){
+            if (er != null && !er.getReason().equalsIgnoreCase("Not Ready")){
                 view.displayEmissionsReport(er);
             }else{
                 view.displayEmissionsUnavailable();
