@@ -141,6 +141,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         Log.d(TAG,"displayEmissionsUnavailable()");
         unavailableEmissionsContent.setVisibility(View.VISIBLE);
         resultRightChevron.setVisibility(View.INVISIBLE);
+        pass.setText(R.string.unavailable);
     }
 
     @Override

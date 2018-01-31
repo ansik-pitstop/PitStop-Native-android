@@ -24,7 +24,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:maxWidth="150dp"
-                android:text="Engine code is present"
+                android:text="@string/unavailable"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@color/red" />
 
