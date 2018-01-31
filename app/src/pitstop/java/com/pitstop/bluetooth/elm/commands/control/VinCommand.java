@@ -14,6 +14,7 @@ package com.pitstop.bluetooth.elm.commands.control;
 
 import com.pitstop.bluetooth.elm.commands.PersistentCommand;
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

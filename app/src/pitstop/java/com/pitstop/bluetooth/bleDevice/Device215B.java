@@ -841,10 +841,4 @@ public class Device215B implements AbstractDevice {
             }
         }
     }
-
-
-
-
-
-
 }

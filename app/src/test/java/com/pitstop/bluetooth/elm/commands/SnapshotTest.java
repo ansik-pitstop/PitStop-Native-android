@@ -37,7 +37,7 @@ public class SnapshotTest {
         final String distanceSinceCC = "21 31 CC CC";
         final String timeSinceCC = "21 4E DD DD";
         final String timeSinceMIL = "21 4D EE EE";
-        final String calibrationID = "29 04 01 23 45 67 89 AB CD EF 01 23 45 67 89 AB CD EF";
+        final String calibrationID = "0130:4904014A4D421:2A3336373631352:30350000000000";
         final String calibrationVehicleNumber = "29 06 FF";
         final String findFuelType = "21 51 01";
         final String obdStandard = "21 1C 02";
@@ -53,7 +53,7 @@ public class SnapshotTest {
         deviceOutputQueue.add(findFuelType);
         deviceOutputQueue.add(obdStandard);
 
-
+//0130:4904014A4D421:2A3336373631352:30350000000000
         //Expected Output
         final String outEmissionsPid = "00001111";
         final String outDistanceMILOn = "AAAA";
@@ -61,7 +61,7 @@ public class SnapshotTest {
         final String outDistanceSinceCC = "CCCC";
         final String outTimeSinceCC = "DDDD";
         final String outTimeSinceMIL = "EEEE";
-        final String outCalibrationID = "0123456789ABCDEF0123456789ABCDEF";
+        final String outCalibrationID = "JMB*36761505";
         final String outCalibrationVehicleNumber = "FF";
         final String outFindFuelType = "01";
         final String outObdStandard = "02";

@@ -12,10 +12,10 @@ public class CalibrationVehicleNumberCommand extends ObdCommand {
         super("09 06",hasHeaders,1);
     }
 
-    @Override
-    protected void performCalculations() {
-
-    }
+//    @Override
+//    protected void performCalculations() {
+//
+//    }
 
     @Override
     public String getFormattedResult() {

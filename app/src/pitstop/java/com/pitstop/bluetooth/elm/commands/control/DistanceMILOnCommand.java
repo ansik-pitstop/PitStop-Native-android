@@ -42,12 +42,12 @@ public class DistanceMILOnCommand extends ObdCommand
         super(other);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void performCalculations() {
-        // ignore first two bytes [01 31] of the response
-        km = buffer.get(2) * 256 + buffer.get(3);
-    }
+//    /** {@inheritDoc} */
+//    @Override
+//    protected void performCalculations() {
+//        // ignore first two bytes [01 31] of the response
+//        km = buffer.get(2) * 256 + buffer.get(3);
+//    }
 
     /**
      * <p>getFormattedResult.</p>
