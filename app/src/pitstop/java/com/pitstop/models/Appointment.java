@@ -54,7 +54,6 @@ public class Appointment {
         this.date = date;
     }
 
-
     public void setShopId(int shopId) { this.shopId = shopId;}
 
     public void setId(int id){ this.id = id;}

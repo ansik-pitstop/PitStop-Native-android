@@ -8,6 +8,7 @@ import android.util.Log;
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.services.MainServicesFragment;
+import com.pitstop.ui.services.MainServicesView;
 import com.pitstop.utils.MixpanelHelper;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
@@ -163,7 +164,8 @@ public class TabFragmentManager implements BadgeDisplayer{
         setCurrentServices();
     }
     public void setCurrentServices(){
-        ((MainServicesFragment) tabViewPagerAdapter.getItem(TAB_SERVICES)).setCurrent();
+        ((MainServicesFragment) tabViewPagerAdapter.getItem(TAB_SERVICES))
+                .selectTab(MainServicesView.ServiceTab.CURRENT);
     }
 
     public void openScanTab() {
