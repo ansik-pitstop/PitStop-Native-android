@@ -58,7 +58,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private int sensorContentHeight = -1;
     private int emissionsReadyStepsContentHeight = -1;
     private boolean dropDownInProgress;
-    private boolean emissionsNotReadyStepsToggled = false;
+    private boolean emissionsNotReadyStepsToggled = true;
     private boolean emissionsResultsToggled = true;
 
     @OnClick(R.id.emission_result_holder)
@@ -163,7 +163,6 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void displayEmissionsNotReady() {
         Log.d(TAG,"displayEmissionsNotReady()");
         sensorContent.setVisibility(View.GONE);
-        toggleEmissionsNotReadySteps();
         pass.setText("Not Ready");
     }
 
@@ -232,9 +231,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     @Override
                     public void onGlobalLayout() {
                         Log.d(TAG,"readySteps.onGlobalLayout() height: "+readySteps.getHeight());
-                        emissionsReadyStepsContentHeight = readySteps.getHeight();
-                        readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                        readySteps.setVisibility( View.GONE );
+                        if (readySteps.getHeight() > emissionsReadyStepsContentHeight){
+                            emissionsReadyStepsContentHeight = readySteps.getHeight();
+                            readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                            readySteps.setVisibility( View.GONE );                        }
                     }
                 }
         );
