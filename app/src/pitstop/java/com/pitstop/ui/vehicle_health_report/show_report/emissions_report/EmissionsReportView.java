@@ -14,6 +14,7 @@ public interface EmissionsReportView {
     EmissionsReport getEmissionsReport();
     void displayEmissionsUnavailable();
     void displayEmissionsReport(EmissionsReport emissionsReport);
+    void displayEmissionsNotReady();
     void toggleEmissionsNotReadySteps();
     void toggleEmissionsResults();
 }

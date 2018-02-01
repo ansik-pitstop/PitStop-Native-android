@@ -160,6 +160,14 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     }
 
     @Override
+    public void displayEmissionsNotReady() {
+        Log.d(TAG,"displayEmissionsNotReady()");
+        sensorContent.setVisibility(View.GONE);
+        toggleEmissionsNotReadySteps();
+        pass.setText("Not Ready");
+    }
+
+    @Override
     public void toggleEmissionsNotReadySteps() {
         Log.d(TAG,"toggleEmissionsNotReadySteps() height: "+emissionsReadyStepsContentHeight);
         if (!emissionsNotReadyStepsToggled)
