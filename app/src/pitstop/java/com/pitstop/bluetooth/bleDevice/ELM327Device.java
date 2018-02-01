@@ -444,26 +444,10 @@ public class ELM327Device implements AbstractDevice {
             manager.gotDtcData(new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
         }
-        if (obdCommand instanceof DescribeProtocolCommand ||
-                obdCommand instanceof StatusSinceDTCsClearedCommand||
-                obdCommand instanceof EmissionsPIDCommand ||
-                obdCommand instanceof RPMCommand||
-                obdCommand instanceof DistanceMILOnCommand ||
-                obdCommand instanceof DistanceSinceCCCommand ||
-                obdCommand instanceof TimeSinceCC ||
-                obdCommand instanceof TimeSinceMIL ||
-                obdCommand instanceof CalibrationVehicleNumberCommand ||
-                obdCommand instanceof CalibrationIDCommand ||
-                obdCommand instanceof OBDStandardCommand ||
-                obdCommand instanceof FindFuelTypeCommand ||
-                obdCommand instanceof HeaderOnCommand ||
-                obdCommand instanceof HeaderOffCommand||
-                obdCommand instanceof WarmupsSinceCC ||
-                obdCommand instanceof AvailablePidsCommand)
-            if (snapshotRequest){
-                individualPidTimeoutTimer.cancel();
-                next();
-            }
+        if (snapshotRequest){
+            individualPidTimeoutTimer.cancel();
+            next();
+        }
     }
 
     public boolean requestDescribeProtocol(){
