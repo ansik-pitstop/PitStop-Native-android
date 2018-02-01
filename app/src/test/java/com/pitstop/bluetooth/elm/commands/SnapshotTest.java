@@ -117,6 +117,7 @@ public class SnapshotTest {
 
     }
 
+    //Make sure that NODATA exception is thrown
     @Test
     public void testSnapshot_NODATA(){
 
