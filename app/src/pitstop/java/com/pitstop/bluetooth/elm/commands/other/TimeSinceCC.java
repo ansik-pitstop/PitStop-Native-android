@@ -13,12 +13,12 @@ public class TimeSinceCC extends ObdCommand {
     public TimeSinceCC(boolean hasHeaders){
         super("01 4E",hasHeaders,2);
     }
-
-    @Override
-    protected void performCalculations() {
-        minutes  = buffer.get(2) * 256 + buffer.get(3);
-
-    }
+//
+//    @Override
+//    protected void performCalculations() {
+//        minutes  = buffer.get(2) * 256 + buffer.get(3);
+//
+//    }
 
     @Override
     public String getFormattedResult() {

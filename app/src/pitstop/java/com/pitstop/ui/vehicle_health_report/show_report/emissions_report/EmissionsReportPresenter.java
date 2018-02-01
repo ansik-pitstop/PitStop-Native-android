@@ -42,7 +42,11 @@ public class EmissionsReportPresenter {
         if (view != null){
             EmissionsReport er = view.getEmissionsReport();
             if (er != null){
-                view.displayEmissionsReport(er);
+                if (er.getReason().equalsIgnoreCase("not ready")){
+                    view.displayEmissionsNotReady();
+                }else{
+                    view.displayEmissionsReport(er);
+                }
             }else{
                 view.displayEmissionsUnavailable();
             }

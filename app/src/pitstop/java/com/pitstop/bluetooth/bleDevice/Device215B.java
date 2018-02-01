@@ -5,10 +5,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.castel.obd.OBD;
-import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.BluetoothLeComm;
-import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.ObdManager;
 import com.castel.obd215b.info.DTCInfo;
 import com.castel.obd215b.info.FaultInfo;
 import com.castel.obd215b.info.IDRInfo;
@@ -20,11 +16,15 @@ import com.castel.obd215b.util.DateUtil;
 import com.castel.obd215b.util.FaultParse;
 import com.castel.obd215b.util.Utils;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
+import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.BluetoothLeComm;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
+import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
@@ -641,23 +641,15 @@ public class Device215B implements AbstractDevice {
                 }
 
                 if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {
-                    PidPackage pidPackage = new PidPackage();
+                    String rtcTime = "";
                     try {
-                        pidPackage.rtcTime = String.valueOf(parseRtcTime(idrInfo.ignitionTime)
+                        rtcTime = String.valueOf(parseRtcTime(idrInfo.ignitionTime)
                                 + Long.parseLong(idrInfo.runTime));
                     } catch (ParseException e) {
                         e.printStackTrace();
-                        pidPackage.rtcTime = "0";
                     }
-                    pidPackage.pids = parsePids(idrInfo.pid);
-                    pidPackage.tripMileage = String.valueOf(Double.parseDouble(idrInfo.mileage) / 1000);
-                    pidPackage.deviceId = idrInfo.terminalSN;
-                    pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-                    pidPackage.realTime = true;
-                    if (idrInfo.ignitionTime != null)
-                        pidPackage.tripId = idrInfo.ignitionTime;
-                    else pidPackage.tripId = "";
-
+                    OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
+                            , idrInfo.mileage, idrInfo.ignitionTime == null? "" : idrInfo.ignitionTime);
                     dataListener.idrPidData(pidPackage);
                 }
                 else{
@@ -803,20 +795,11 @@ public class Device215B implements AbstractDevice {
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 // PIDs are never explicitly requested except in debug activity
                 PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
-                PidPackage pidPackage = new PidPackage();
-                HashMap<String, String> pidMap = new HashMap<>();
+                OBD215PidPackage pidPackage = new OBD215PidPackage("0","0","0","0");
 
                 for(int i = 0 ; i < pidInfo.pids.size() ; i++) {
-                    pidMap.put(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
+                    pidPackage.addPid(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
                 }
-
-                pidPackage.pids = pidMap;
-                pidPackage.realTime = false;
-                pidPackage.tripId = "0";
-                pidPackage.rtcTime = "0";
-                pidPackage.deviceId = pidInfo.terminalId;
-                pidPackage.tripMileage = "0";
-                pidPackage.timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 
                 dataListener.pidData(pidPackage);
             } else if (Constants.INSTRUCTION_DTC
@@ -858,10 +841,4 @@ public class Device215B implements AbstractDevice {
             }
         }
     }
-
-
-
-
-
-
 }

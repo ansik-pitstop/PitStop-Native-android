@@ -166,15 +166,11 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
 
     @Override
     public void idrPidData(PidPackage pidPackage) {
-        if(pidPackage.pids == null) {
-            return;
-        }
-
         final StringBuilder pidList = new StringBuilder();
 
         pidList.append("PIDS:\n");
 
-        for(Map.Entry<String, String> pid : pidPackage.pids.entrySet()) {
+        for(Map.Entry<String, String> pid : pidPackage.getPids().entrySet()) {
             pidList.append(pid.getKey());
             pidList.append(": ");
             pidList.append(pid.getValue());

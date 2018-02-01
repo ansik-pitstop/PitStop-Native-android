@@ -92,12 +92,11 @@ public class PidDataHandler {
             return;
         }
 
-        String deviceId = pidPackage.deviceId;
+        String deviceId = pidPackage.getDeviceId();
         Log.d(TAG,"handlePidData() deviceId:"+deviceId+", pidPackage: "+pidPackage);
         // logging the pid based on receiving data from device
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
             Logger.getInstance().logV(TAG, "Received idr pid data: "+ PIDParser.pidPackageToDecimalValue(pidPackage)
-                            + " real time?  " + pidPackage.realTime
                     , DebugMessage.TYPE_BLUETOOTH);
             visualizePidReceived(pidPackage,getApplicationContext());
         }
@@ -113,8 +112,7 @@ public class PidDataHandler {
                 @Override
                 public void onDataSent(int size) {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
-                        Log.d(TAG, p.timestamp + "Data sent to Server");
-                        visualizePidDataSent(true, context, p.timestamp);
+                        visualizePidDataSent(true, context);
                         pidsSavedToServer += size;
                     }
                     else {
@@ -127,7 +125,7 @@ public class PidDataHandler {
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
                     if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
-                        visualizePidDataSent(false,context, p.timestamp);
+                        visualizePidDataSent(false,context);
                     }
                     if (error.getMessage().contains("not found")){
                         //Let trip handler know to get his shit together
@@ -236,20 +234,18 @@ public class PidDataHandler {
         }
     }
 
-    public static void visualizePidDataSent(boolean success, Context context, String timeStampFirst){
+    public static void visualizePidDataSent(boolean success, Context context){
         Log.d(TAG,"visualizePidDataSent() success ? "+success);
         if (pidDataSentVisible) return;
-        if (success&& timeStampFirst!= null) {
+        if (success) {
             Toast.makeText(context, "Pid values sent to server successfully", Toast.LENGTH_SHORT)
                     .show();
-            Logger.getInstance().logD(TAG,"Pid values: " +timeStampFirst + " sent to server sucessfully"
-                    , DebugMessage.TYPE_NETWORK);
+            Logger.getInstance().logD(TAG,"Pid values sent to server sucessfully", DebugMessage.TYPE_NETWORK);
         }
-        else if (timeStampFirst!= null) {
+        else{
             Toast.makeText(context, "Pid values failed to send to server: ", Toast.LENGTH_SHORT)
                     .show();
-            Logger.getInstance().logE(TAG, "Pid values failed to send to server, first timestamp of PIDs: " + timeStampFirst
-                    , DebugMessage.TYPE_NETWORK);
+            Logger.getInstance().logE(TAG, "Pid values failed to send to server", DebugMessage.TYPE_NETWORK);
 
         }
         pidDataSentVisible = true;

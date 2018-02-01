@@ -43,6 +43,7 @@ public class Logger {
     private LocalDebugMessageStorage localDebugMessageStorage;
     private GelfConfiguration gelfConfiguration = null;
     private Handler handler;
+    private int userId = -1;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -96,7 +97,7 @@ public class Logger {
 
         handler.post(() -> {
             InetSocketAddress inetSocketAddress
-                    = new InetSocketAddress("graylog.backend-service.getpitstop.io",12900);
+                    = new InetSocketAddress("52.89.249.17",12900);
             gelfConfiguration = new GelfConfiguration(inetSocketAddress)
                     .transport(GelfTransports.TCP)
                     .tcpKeepAlive(false)
@@ -216,8 +217,7 @@ public class Logger {
 
         }
 
-        int userId = 0;
-        if (localUserStorage.getUser() != null)
+        if (userId <= 0 && localUserStorage.getUser() != null)
             userId = localUserStorage.getUser().getId();
 
         String build = "";

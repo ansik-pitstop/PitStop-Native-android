@@ -14,8 +14,6 @@ package com.pitstop.bluetooth.elm.commands.control;
 
 import com.pitstop.bluetooth.elm.commands.PersistentCommand;
 import com.pitstop.bluetooth.elm.enums.AvailableCommandNames;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class VinCommand extends PersistentCommand {
 
@@ -48,8 +46,13 @@ public class VinCommand extends PersistentCommand {
             workingData = result.replaceAll(".:", "");//9 is xxx490201, xxx is bytes of information to follow.
             int startOfVinIndex = workingData.indexOf("490201") + 6;
             workingData = workingData.substring(startOfVinIndex);
-            Matcher m = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(convertHexToString(workingData));
-            if(m.find()) workingData = result.replaceAll("0:49", "").replaceAll(".:", "");
+            int nextECUVinIndex = workingData.indexOf("490201");
+            if (nextECUVinIndex != -1){
+                workingData = workingData.substring(0,nextECUVinIndex);
+            }
+            System.out.println("Working data after substring: "+workingData);
+//            Matcher m = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(convertHexToString(workingData));
+//            if(m.find()) workingData = result.replaceAll("0:49", "").replaceAll(".:", "");
         } else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
             workingData = result.replaceAll("49020.", "");
         }

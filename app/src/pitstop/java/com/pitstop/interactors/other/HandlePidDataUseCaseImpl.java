@@ -3,6 +3,7 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.models.DebugMessage;
@@ -107,14 +108,13 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         if (Device215TripRepository.getLocalLatestTripId() == -1){
             Log.d(TAG,"Repository latest trip id is -1, getting latest trip id from server.");
-            tripRepository.retrieveLatestTrip(pidPackage.deviceId, new Repository.Callback<Trip215>() {
+            tripRepository.retrieveLatestTrip(pidPackage.getDeviceId(), new Repository.Callback<Trip215>() {
                 @Override
                 public void onSuccess(Trip215 data) {
                     if (data == null){
                         createTripUsingPid();
                         return;
                     }
-                    Log.d(TAG,"Got latest trip id from server, id: "+pidPackage.tripId);
                     insertPidData(data.getTripId());
                 }
 
@@ -194,29 +194,37 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     }
 
     private Trip215 pidPackageToTrip215Start(PidPackage pidPackage){
-        long tripIdRaw;
-        try{
-             tripIdRaw = Long.valueOf(pidPackage.tripId);
-        }catch(NumberFormatException e){
-            e.printStackTrace();
-            tripIdRaw = -1;
-        }
-        double mileage;
-        try{
-            mileage = Double.valueOf(pidPackage.tripMileage);
-        }catch (NumberFormatException e){
-            e.printStackTrace();
-            mileage = 0;
-        }
-        long rtcTime;
-        try{
-            rtcTime = Long.valueOf(pidPackage.rtcTime);
-        }catch (NumberFormatException e){
-            e.printStackTrace();
-            rtcTime = 0;
+        String tripId = "";
+        String tripMileage = "";
+        long tripIdRaw = 0;
+        double mileage = 0;
+        long rtcTime = 0;
+
+        if (pidPackage instanceof CastelPidPackage){
+            CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
+            tripId = castelPidPackage.getTripId();
+            tripMileage = castelPidPackage.getMileage();
+            try{
+                tripIdRaw = Long.valueOf(((CastelPidPackage) pidPackage).getTripId());
+            }catch(NumberFormatException e){
+                e.printStackTrace();
+                tripIdRaw = -1;
+            }
+            try{
+                mileage = Double.valueOf(((CastelPidPackage) pidPackage).getMileage());
+            }catch (NumberFormatException e){
+                e.printStackTrace();
+                mileage = 0;
+            }
+            try{
+                rtcTime = Long.valueOf(castelPidPackage.getRtcTime());
+            }catch (NumberFormatException e){
+                e.printStackTrace();
+                rtcTime = 0;
+            }
         }
 
-        return new Trip215(Trip215.TRIP_START,tripIdRaw,mileage,rtcTime,pidPackage.deviceId);
+        return new Trip215(Trip215.TRIP_START,tripIdRaw,mileage,rtcTime,pidPackage.getDeviceId());
     }
 
     private Pid getPidDataObject(PidPackage pidPackage){
@@ -224,22 +232,32 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         Pid pidDataObject = new Pid();
         JSONArray pids = new JSONArray();
 
+        String mileage = "0";
+        String tripId = "0";
+        String rtcTime = "0";
+        if (pidPackage instanceof CastelPidPackage){
+            CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
+            mileage = castelPidPackage.getMileage();
+            tripId = castelPidPackage.getTripId();
+            rtcTime = castelPidPackage.getRtcTime();
+        }
+
         pidDataObject.setCalculatedMileage(0);
         try{
-            pidDataObject.setMileage(Double.parseDouble(pidPackage.tripMileage));
+            pidDataObject.setMileage(Double.parseDouble(mileage));
         }catch(NumberFormatException e){
             pidDataObject.setMileage(0);
         }
 
         pidDataObject.setDataNumber("");
-        pidDataObject.setTripIdRaw(Long.parseLong(pidPackage.tripId));
+        pidDataObject.setTripIdRaw(Long.parseLong(tripId));
         pidDataObject.setTripId(-1);
-        pidDataObject.setRtcTime(pidPackage.rtcTime);
-        pidDataObject.setDeviceId(pidPackage.deviceId);
+        pidDataObject.setRtcTime(rtcTime);
+        pidDataObject.setDeviceId(pidPackage.getDeviceId());
         pidDataObject.setTimeStamp(String.valueOf(System.currentTimeMillis() / 1000));
 
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, String> pidEntry : pidPackage.pids.entrySet()) {
+        for(Map.Entry<String, String> pidEntry : pidPackage.getPids().entrySet()) {
             sb.append(pidEntry.getKey());
             sb.append(": ");
             sb.append(pidEntry.getValue());
