@@ -83,6 +83,8 @@ public class MyAppointmentActivity extends AppCompatActivity {
              GrabLocal grabLocal = new GrabLocal();
              grabLocal.execute();
         }
+
+        //TODO: refactor
         networkHelper.getAppointments(dashboardCar.getId(),  new RequestCallback() {
             @Override
             public void done(String response, RequestError requestError) {
