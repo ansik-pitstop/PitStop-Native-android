@@ -86,7 +86,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
                             @Override
                             public void onSuccess(VehicleHealthReport vhr) {
                                 Log.d(TAG,"vhr generated: "+vhr);
-                                if (pid.pids.containsKey("2141")){
+                                if (pid.getPids().containsKey("2141")){
                                     reportRepository.createEmissionsReport(settings.getCarId()
                                             ,vhr.getId(), false, dtc, pid
                                             , new Repository.Callback<EmissionsReport>() {

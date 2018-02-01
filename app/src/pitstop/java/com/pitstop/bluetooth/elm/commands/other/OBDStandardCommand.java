@@ -13,11 +13,6 @@ public class OBDStandardCommand extends ObdCommand {
     }
 
     @Override
-    protected void performCalculations() {
-
-    }
-
-    @Override
     public String getFormattedResult() {
         return rawData;
     }

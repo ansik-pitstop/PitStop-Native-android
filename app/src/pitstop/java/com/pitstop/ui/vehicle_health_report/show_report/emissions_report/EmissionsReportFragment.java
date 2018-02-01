@@ -58,7 +58,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     private int sensorContentHeight = -1;
     private int emissionsReadyStepsContentHeight = -1;
     private boolean dropDownInProgress;
-    private boolean emissionsNotReadyStepsToggled = false;
+    private boolean emissionsNotReadyStepsToggled = true;
     private boolean emissionsResultsToggled = true;
 
     @OnClick(R.id.emission_result_holder)
@@ -140,7 +140,7 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
     public void displayEmissionsUnavailable() {
         Log.d(TAG,"displayEmissionsUnavailable()");
         unavailableEmissionsContent.setVisibility(View.VISIBLE);
-        resultRightChevron.setVisibility(View.INVISIBLE);
+        pass.setText(R.string.unavailable);
     }
 
     @Override
@@ -157,6 +157,13 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
         }
         sensorDataAdapter.notifyDataSetChanged();
 
+    }
+
+    @Override
+    public void displayEmissionsNotReady() {
+        Log.d(TAG,"displayEmissionsNotReady()");
+        sensorContent.setVisibility(View.GONE);
+        pass.setText("Not Ready");
     }
 
     @Override
@@ -224,9 +231,10 @@ public class EmissionsReportFragment extends Fragment implements EmissionsReport
                     @Override
                     public void onGlobalLayout() {
                         Log.d(TAG,"readySteps.onGlobalLayout() height: "+readySteps.getHeight());
-                        emissionsReadyStepsContentHeight = readySteps.getHeight();
-                        readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                        readySteps.setVisibility( View.GONE );
+                        if (readySteps.getHeight() > emissionsReadyStepsContentHeight){
+                            emissionsReadyStepsContentHeight = readySteps.getHeight();
+                            readySteps.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                            readySteps.setVisibility( View.GONE );                        }
                     }
                 }
         );

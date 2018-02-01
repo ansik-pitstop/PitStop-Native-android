@@ -15,15 +15,15 @@ public class EmissionsPIDCommand extends ObdCommand {
         super("01 41",hasHeaders,4);
     }
 
-    @Override
-    protected void performCalculations() {
-        if (hasHeaders()){
-            PID = rawData.substring(7,15); //Header is first 1.5 bytes, then 2 bytes for request code
-
-        }else{
-            PID = rawData.substring(4,12); //2 bytes for request code
-        }
-    }
+//    @Override
+//    protected void performCalculations() {
+//        if (hasHeaders()){
+//            PID = rawData.substring(7,15); //Header is first 1.5 bytes, then 2 bytes for request code
+//
+//        }else{
+//            PID = rawData.substring(4,12); //2 bytes for request code
+//        }
+//    }
 
     @Override
     public String getFormattedResult() {

@@ -62,8 +62,8 @@ public class EmissionsMacroUseCase {
             ((GetPIDUseCaseImpl) current).execute(bluetooth, new GetPIDUseCase.Callback() {
                 @Override
                 public void onGotPIDs(PidPackage pid) {
-                    if(pid.pids.containsKey("2141")){
-                        pid2141 = pid.pids.get("2141");
+                    if(pid.getPids().containsKey("2141")){
+                        pid2141 = pid.getPids().get("2141");
                         callback.onGotPID();
                         next();
                     }else{

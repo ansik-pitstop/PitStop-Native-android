@@ -13,11 +13,11 @@ public class TimeSinceMIL extends ObdCommand {
         super("01 4D",hasHeaders,2);
     }
 
-    @Override
-    protected void performCalculations() {
-        minutes  = buffer.get(2) * 256 + buffer.get(3);
-
-    }
+//    @Override
+//    protected void performCalculations() {
+//        minutes  = buffer.get(2) * 256 + buffer.get(3);
+//
+//    }
 
     @Override
     public String getFormattedResult() {

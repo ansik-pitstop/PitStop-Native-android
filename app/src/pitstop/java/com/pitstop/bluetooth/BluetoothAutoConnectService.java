@@ -19,6 +19,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
+import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
@@ -703,18 +704,18 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         trackIdrPidData(pidPackage);
 
         //Set device id if its found in pid package
-        if (pidPackage != null && pidPackage.deviceId != null && !pidPackage.deviceId.isEmpty()){
-            Log.d(TAG, "setting current device ID to " + pidPackage.deviceId);
-            currentDeviceId = pidPackage.deviceId;
+        if (pidPackage != null && pidPackage.getDeviceId() != null && !pidPackage.getDeviceId().isEmpty()){
+            Log.d(TAG, "setting current device ID to " + pidPackage.getDeviceId());
+            currentDeviceId = pidPackage.getDeviceId();
         }
-        pidPackage.deviceId = currentDeviceId;
+        pidPackage.setDeviceId(currentDeviceId);
         pidDataHandler.handlePidData(pidPackage);
 
         //212 pid "snapshot" broadcast logic
         if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
             Log.d(TAG ,"deviceManager is not connected to 215");
-            if (pidPackage.pids == null){
-                pidPackage.pids = new HashMap<>();
+            if (pidPackage.getPids() == null){
+                pidPackage.setPids(new HashMap<>());
                 notifyGotAllPid(pidPackage);
             }else{
                 notifyGotAllPid(pidPackage);
@@ -1333,14 +1334,14 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     properties.put("pids","null");
                 }
                 else{
-                    if (pidPackage.deviceId == null) pidPackage.deviceId = "";
-                    if (pidPackage.pids == null) pidPackage.pids = new HashMap<>();
-                    if (pidPackage.tripId == null) pidPackage.tripId = "";
-                    if (pidPackage.rtcTime == null) pidPackage.rtcTime = "";
-                    properties.put("deviceId",pidPackage.deviceId);
-                    properties.put("pids",pidPackage.pids.toString());
-                    properties.put("tripId",pidPackage.tripId);
-                    properties.put("rtcTime",pidPackage.rtcTime);
+                    properties.put("deviceId",pidPackage.getDeviceId());
+                    properties.put("pids",pidPackage.getPids().toString());
+                    if (pidPackage instanceof CastelPidPackage){
+                        CastelPidPackage castelPidPackage = (CastelPidPackage) pidPackage;
+                        properties.put("tripId",castelPidPackage.getTripId());
+                        properties.put("rtcTime",castelPidPackage.getRtcTime());
+                    }
+
                 }
                 mixpanelHelper.trackCustom(MixpanelHelper.BT_PID_GOT,properties);
             }catch(JSONException e){

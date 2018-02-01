@@ -185,7 +185,36 @@ public abstract class ObdCommand {
      * This method exists so that for each command, there must be a method that is
      * called only once to perform calculations.
      */
-    protected abstract void performCalculations();
+    protected void performCalculations() throws IOException{
+        /*
+        * Data is formatted like the following "HEADER REQUEST_CODE DATA HEADER REQUEST_CODE DATA ..."
+        * where each ECU responds with one HEADER, REQUEST_CODE and DATA. We need to store the
+        * raw data appropriately for each ECU
+        *
+        * If the response is one which only has a single response then don't perform this parsing
+         */
+        if (!singleResponse){
+            String cmdNoSpace = cmd.replace(" ","");
+            int singleECUResponseLen = (byteLen*2) + getHeaderLen() + cmdNoSpace.length();
+            int numResponses = rawData.length()/singleECUResponseLen;
+            System.out.println(TAG+" ,name: "+getName()+" single ECU response length: "+singleECUResponseLen
+                    +", number of responses: " +numResponses+", rawData len: "+rawData.length());
+            if (singleECUResponseLen * numResponses != rawData.length()){
+                throw new IOException();
+            }
+
+            for (int i=0;i<numResponses;i++){
+                int curIndex = singleECUResponseLen*i;
+                if (hasHeaders){
+                    headers.add(rawData.substring(curIndex,curIndex+getHeaderLen()));
+                    curIndex += getHeaderLen();
+                }
+                requestCode.add(rawData.substring(curIndex,curIndex+cmdNoSpace.length()));
+                curIndex += cmdNoSpace.length();
+                data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
+            }
+        }
+    }
 
     private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
     private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
@@ -278,35 +307,6 @@ public abstract class ObdCommand {
         if (Logger.getInstance() != null)
             Logger.getInstance().logI(TAG,String.format("Command %s response read raw data %s",getName(),rawData)
                 , DebugMessage.TYPE_BLUETOOTH);
-
-        /*
-        * Data is formatted like the following "HEADER REQUEST_CODE DATA HEADER REQUEST_CODE DATA ..."
-        * where each ECU responds with one HEADER, REQUEST_CODE and DATA. We need to store the
-        * raw data appropriately for each ECU
-        *
-        * If the response is one which only has a single response then don't perform this parsing
-         */
-        if (!singleResponse){
-            String cmdNoSpace = cmd.replace(" ","");
-            int singleECUResponseLen = (byteLen*2) + getHeaderLen() + cmdNoSpace.length();
-            int numResponses = rawData.length()/singleECUResponseLen;
-            System.out.println(TAG+": single ECU response length: "+singleECUResponseLen
-                    +", number of responses: " +numResponses+", rawData len: "+rawData.length());
-            if (singleECUResponseLen * numResponses != rawData.length()){
-                throw new IOException();
-            }
-
-            for (int i=0;i<numResponses;i++){
-                int curIndex = singleECUResponseLen*i;
-                if (hasHeaders){
-                    headers.add(rawData.substring(curIndex,curIndex+getHeaderLen()));
-                    curIndex += getHeaderLen();
-                }
-                requestCode.add(rawData.substring(curIndex,curIndex+cmdNoSpace.length()));
-                curIndex += cmdNoSpace.length();
-                data.add(rawData.substring(curIndex,curIndex+(byteLen*2)));
-            }
-        }
     }
 
     void checkForErrors() {
