@@ -87,7 +87,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
@@ -95,7 +95,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             body.put("vin", vin)
             body.put("baseMileage", baseMileage)
             body.put("userId", userId)
-            body.put("scannerId", scannerId)
+            body.put("scannerId", scannerId ?: "")
         } catch (e: JSONException) {
             Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
         }
