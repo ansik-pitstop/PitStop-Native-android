@@ -13,5 +13,8 @@ interface PitstopAuthApi {
     @POST("login/refresh")
     fun refreshAccessToken(@Body refreshToken: JsonObject): Call<Token>
 
+    @POST("login")
+    fun login(@Body login: JsonObject): Call<JsonObject>
+
 
 }

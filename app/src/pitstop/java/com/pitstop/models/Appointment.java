@@ -15,7 +15,7 @@ public class Appointment {
     @SerializedName("date")
     @Expose
     private String date;
-    @SerializedName("state")
+    @SerializedName("state") //tentative or requested
     @Expose
     private String state;
     @SerializedName("shopId")
