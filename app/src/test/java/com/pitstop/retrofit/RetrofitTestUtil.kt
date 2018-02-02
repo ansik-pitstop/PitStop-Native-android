@@ -53,7 +53,6 @@ object RetrofitTestUtil {
                             .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer " + getAccessToken())
 
-                    var response: okhttp3.Response? = null
                     chain.proceed(builder.build())
                 }.build()
     }

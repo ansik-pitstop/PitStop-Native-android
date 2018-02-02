@@ -58,4 +58,17 @@ public class Appointment {
 
     public void setId(int id){ this.id = id;}
 
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof Appointment){
+            Appointment otherApp = (Appointment)o;
+            return otherApp.getComments().equals(comments)
+                    && otherApp.getDate().equals(date)
+                    && otherApp.getState().equals(state)
+                    && otherApp.getShopId() == shopId;
+        }else{
+            return false;
+        }
+    }
+
 }
