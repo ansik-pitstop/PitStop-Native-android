@@ -16,7 +16,7 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
         return Observable.just(Appointment())
     }
 
-    fun requestAppointment(userId: Int, carId: Int, appointment: Appointment): Observable<Appointment>{
+    fun requestAppointment(userId: Int, carId: Int, appointment: Appointment): Observable<Boolean>{
         val body: JsonObject = JsonObject()
         val options: JsonObject = JsonObject()
         options.addProperty("state",appointment.state)
@@ -26,7 +26,7 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
         body.addProperty("carId",carId)
         body.addProperty("shopId",appointment.shopId)
         body.addProperty("comments",appointment.comments)
-        return appointmentApi.requestService(body)
+        return appointmentApi.requestService(body).map { next -> next.isSuccessful }
     }
 
     fun getAllAppointments(carId: Int): Observable<List<Appointment>>{

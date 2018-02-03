@@ -59,6 +59,16 @@ public class Appointment {
     public void setId(int id){ this.id = id;}
 
     @Override
+    public String toString(){
+        try{
+            return String.format("comments: %s, date: %s, state: %s, shopId: %d, id: %d"
+                    , comments, date, state, shopId, id);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
+
+    @Override
     public boolean equals(Object o){
         if (o instanceof Appointment){
             Appointment otherApp = (Appointment)o;
