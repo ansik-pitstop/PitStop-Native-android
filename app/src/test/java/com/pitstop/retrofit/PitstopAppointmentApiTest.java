@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -39,13 +40,13 @@ public class PitstopAppointmentApiTest {
                 .subscribe();
 
         try{
-            assertTrue(future.get());
-        }catch(InterruptedException | ExecutionException e){
+            assertTrue(future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS));
+        }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
     }
 
-    //Todo: Appointments need to be removed
+    //Compares appointments by comment which has a random value that is generated in privat method
     @Test
     public void getAllAppointmentsTest(){
         System.out.println("running getAllAppointmentsTest");
@@ -65,14 +66,17 @@ public class PitstopAppointmentApiTest {
                     .doOnNext( next -> System.out.println("request service success: "+next.isSuccessful()))
                     .subscribe();
         }
-
+        System.out.println("Requested appointments: "+appointmentsIn);
         getAllAppointments(carIdIn).doOnNext(next -> {
             future.complete(next);
         }).doOnError(err -> System.out.println("error: "+err) )
         .subscribe();
+
         try{
-            for (Appointment a: future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS)){
-                assertTrue(appointmentsIn.contains(a));
+            List<Appointment> futureApps
+                    = future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS);
+            for (Appointment a: appointmentsIn){
+                assertTrue(futureApps.contains(a));
             }
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
@@ -84,8 +88,8 @@ public class PitstopAppointmentApiTest {
         String state = "tentative";
         double randTime = 1522857600+(Math.random()*9857600);
         Date date = new Date((int)randTime);
-        String comments = "john";
-        int shopId = 3;
+        String comments = "john"+randTime;
+        int shopId = 2;
         return new Appointment(shopId,state,date,comments);
     }
 
@@ -105,9 +109,11 @@ public class PitstopAppointmentApiTest {
         body.addProperty("userId",userId);
         body.addProperty("carId",carId);
         body.addProperty("shopId",app.getShopId());
+        body.addProperty("comments",app.getComments());
         JsonObject options = new JsonObject();
         options.addProperty("state",app.getState());
-        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(app.getDate());
+        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+                .format(app.getDate());
         options.addProperty("appointmentDate",stringDate);
         body.add("options",options);
         return RetrofitTestUtil.Companion.getAppointmentApi().requestService(body);

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-05.
@@ -126,7 +127,7 @@ public class LocalAppointmentStorage {
         Appointment appointment = new Appointment();
         appointment.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         appointment.setComments(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_COMMENT)));
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
         try{
             appointment.setDate(simpleDateFormat.parse(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE))));
         }catch(ParseException e){
@@ -144,7 +145,7 @@ public class LocalAppointmentStorage {
         values.put(TABLES.COMMON.KEY_OBJECT_ID, appointment.getId());
 
         values.put(TABLES.APPOINTMENT.KEY_COMMENT, appointment.getComments());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
         values.put(TABLES.APPOINTMENT.KEY_DATE, simpleDateFormat.format(appointment.getDate()));
         values.put(TABLES.APPOINTMENT.KEY_STATE, appointment.getState());
         values.put(TABLES.APPOINTMENT.KEY_SHOP_ID, appointment.getShopId());

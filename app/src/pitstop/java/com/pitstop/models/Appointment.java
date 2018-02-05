@@ -63,7 +63,7 @@ public class Appointment {
     @Override
     public String toString(){
         try{
-            return String.format("comments: %s, date: %s, state: %s, shopId: %d, id: %d"
+            return String.format("{ comments: %s, date: %s, state: %s, shopId: %d, id: %d }"
                     , comments, date, state, shopId, id);
         }catch(NullPointerException e){
             return "null";
@@ -74,9 +74,13 @@ public class Appointment {
     public boolean equals(Object o){
         if (o instanceof Appointment){
             Appointment otherApp = (Appointment)o;
-            return otherApp.getComments().equals(comments)
-                    && otherApp.getDate().equals(date)
-                    && otherApp.getState().equals(state)
+            String otherAppComments = "";
+            String thisComments = "";
+            if (otherApp.comments != null) otherAppComments = otherApp.comments;
+            if (comments != null) thisComments = comments;
+            return otherAppComments.equalsIgnoreCase(thisComments)
+                    && otherApp.getDate().toString().equals(date.toString())
+                    && otherApp.getState().equalsIgnoreCase(state)
                     && otherApp.getShopId() == shopId;
         }else{
             return false;

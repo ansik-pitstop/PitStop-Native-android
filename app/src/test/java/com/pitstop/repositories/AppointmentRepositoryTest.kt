@@ -25,12 +25,12 @@ class AppointmentRepositoryTest {
     fun getAllAppointments() {
     }
 
-    fun generateAppointment(): Appointment{
+    fun generateAppointment(): Appointment?{
         val state = "tentative"
         val date = "2016-12-01 14:00:00"
         val comments = "john"
         val shopId = 3
-        return Appointment(shopId,state,date,comments)
+        return null
     }
 
 
