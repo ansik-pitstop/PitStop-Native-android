@@ -29,8 +29,8 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
         val body = JsonObject()
         body.addProperty("userId", userId)
         body.addProperty("carId", carId)
-        body.addProperty("shopId", appointment.getShopId())
-        body.addProperty("comments", appointment.getComments())
+        body.addProperty("shopId", appointment.shopId)
+        body.addProperty("comments", appointment.comments)
         val options = JsonObject()
         options.addProperty("state", appointment.getState())
         val stringDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
@@ -44,6 +44,7 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
         Log.d(tag,String.format("getAllAppointments() carId: %d",carId))
         return appointmentApi.getAppointments(carId).map({ result ->
             println("result: " + result)
+            localAppointmentStorage.deleteAndStoreAppointments(result.results)
             result.results
         })
     }
