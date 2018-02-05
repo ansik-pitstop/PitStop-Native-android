@@ -38,6 +38,8 @@ import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCaseImpl;
 import com.pitstop.interactors.get.GetAlarmsUseCase;
 import com.pitstop.interactors.get.GetAlarmsUseCaseImpl;
+import com.pitstop.interactors.get.GetAllAppointmentsUseCase;
+import com.pitstop.interactors.get.GetAllAppointmentsUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
@@ -136,6 +138,7 @@ import com.pitstop.interactors.update.UpdateUserNameUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCaseImpl;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCase;
 import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
+import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Device215TripRepository;
@@ -661,6 +664,14 @@ public class UseCaseModule {
                                            @Named("mainHandler")Handler mainHandler, ScannerRepository scannerRepository){
 
         return new AddScannerUseCaseImpl(useCaseHandler, mainHandler, scannerRepository);
+    }
+
+    @Provides
+    GetAllAppointmentsUseCase getAllAppointmentsUseCase(AppointmentRepository appointmentRepository
+            , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new GetAllAppointmentsUseCaseImpl(appointmentRepository, userRepository, useCaseHandler, mainHandler);
     }
 }
 
