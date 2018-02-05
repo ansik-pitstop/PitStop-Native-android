@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import io.reactivex.Observable;
 import retrofit2.Response;
@@ -59,7 +60,6 @@ public class PitstopAppointmentApiTest {
         List<Appointment> appointmentsIn = new ArrayList<>();
         for (int i=0;i<numOfAppointmentsToTest;i++){
             Appointment generatedAppointment = generateAppointment();
-            System.out.println("generated appointment: "+generatedAppointment);
             appointmentsIn.add(generatedAppointment);
             requestService(generatedAppointment,userIn,carIdIn)
                     .doOnNext( next -> System.out.println("request service success: "+next.isSuccessful()))
@@ -67,15 +67,14 @@ public class PitstopAppointmentApiTest {
         }
 
         getAllAppointments(carIdIn).doOnNext(next -> {
-            System.out.println("All appointments: "+appointmentsIn);
             future.complete(next);
-        }).subscribe();
+        }).doOnError(err -> System.out.println("error: "+err) )
+        .subscribe();
         try{
-            for (Appointment a: future.get()){
-                appointmentsIn.contains(a);
+            for (Appointment a: future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS)){
+                assertTrue(appointmentsIn.contains(a));
             }
-            //assertEquals(future.get(),appointmentsIn);
-        }catch(InterruptedException | ExecutionException e){
+        }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
 
@@ -85,14 +84,20 @@ public class PitstopAppointmentApiTest {
         String state = "tentative";
         double randTime = 1522857600+(Math.random()*9857600);
         Date date = new Date((int)randTime);
-        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
         String comments = "john";
         int shopId = 3;
-        return new Appointment(shopId,state,stringDate,comments);
+        return new Appointment(shopId,state,date,comments);
     }
 
     private Observable<List<Appointment>> getAllAppointments(int carId){
-        return RetrofitTestUtil.Companion.getAppointmentApi().getAppointments(carId);
+        return RetrofitTestUtil.Companion.getAppointmentApi()
+                .getAppointments(carId).map(result -> {
+                    System.out.println("result: "+result);
+                    return result.getResults();
+                }).onErrorReturn(err -> {
+                    System.out.println("err: "+err);
+                    return new ArrayList<>();
+                });
     }
 
     private Observable<Response<JsonObject>> requestService(Appointment app, int userId, int carId){
@@ -102,7 +107,8 @@ public class PitstopAppointmentApiTest {
         body.addProperty("shopId",app.getShopId());
         JsonObject options = new JsonObject();
         options.addProperty("state",app.getState());
-        options.addProperty("appointmentDate",app.getDate());
+        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(app.getDate());
+        options.addProperty("appointmentDate",stringDate);
         body.add("options",options);
         return RetrofitTestUtil.Companion.getAppointmentApi().requestService(body);
     }

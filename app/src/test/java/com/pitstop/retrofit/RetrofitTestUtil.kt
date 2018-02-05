@@ -30,7 +30,6 @@ class RetrofitTestUtil {
                     .client(getNoAuthHttpClient())
                     .build()
                     .create(PitstopAuthApi::class.java)
-            //Todo get access token below using no auth api
             val jsonObject = JsonObject()
             jsonObject.addProperty("username",username)
             jsonObject.addProperty("password",password)
@@ -49,10 +48,12 @@ class RetrofitTestUtil {
                     .addInterceptor { chain ->
                         val original = chain.request()
 
+                        val accessToken = getAccessToken()
+                        System.out.println("access token: "+accessToken)
                         val builder = original.newBuilder()
                                 .header("client-id", getClientId())
                                 .header("Content-Type", "application/json")
-                                .header("Authorization", "Bearer " + getAccessToken())
+                                .header("Authorization", "Bearer " + accessToken)
 
                         chain.proceed(builder.build())
                     }.build()

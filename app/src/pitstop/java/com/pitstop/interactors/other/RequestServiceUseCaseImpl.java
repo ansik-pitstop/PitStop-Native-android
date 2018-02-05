@@ -15,6 +15,8 @@ import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
+import java.text.SimpleDateFormat;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -79,8 +81,10 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                     return;
                                 }
                                 Car car = response.getData();
+
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                 Appointment appointment = new Appointment(car.getShopId()
-                                        , state, timeStamp, comments);
+                                        , state, simpleDateFormat.parse(timeStamp), comments);
                                 carIssueRepository.requestService(user.getId(), car.getId(), appointment
                                         , new Repository.Callback<Object>() {
 

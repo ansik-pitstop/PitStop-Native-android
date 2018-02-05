@@ -7,7 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.pitstop.models.Appointment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -123,7 +126,12 @@ public class LocalAppointmentStorage {
         Appointment appointment = new Appointment();
         appointment.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         appointment.setComments(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_COMMENT)));
-        appointment.setDate(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE)));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try{
+            appointment.setDate(simpleDateFormat.parse(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE))));
+        }catch(ParseException e){
+            appointment.setDate(new Date());
+        }
         appointment.setState(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_STATE)));
         appointment.setShopId(c.getInt(c.getColumnIndex(TABLES.APPOINTMENT.KEY_SHOP_ID)));
 
@@ -136,7 +144,8 @@ public class LocalAppointmentStorage {
         values.put(TABLES.COMMON.KEY_OBJECT_ID, appointment.getId());
 
         values.put(TABLES.APPOINTMENT.KEY_COMMENT, appointment.getComments());
-        values.put(TABLES.APPOINTMENT.KEY_DATE, appointment.getDate());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        values.put(TABLES.APPOINTMENT.KEY_DATE, simpleDateFormat.format(appointment.getDate()));
         values.put(TABLES.APPOINTMENT.KEY_STATE, appointment.getState());
         values.put(TABLES.APPOINTMENT.KEY_SHOP_ID, appointment.getShopId());
 

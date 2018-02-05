@@ -3,6 +3,8 @@ package com.pitstop.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
+
 
 /**
  * Created by Matthew on 2017-05-03.
@@ -12,9 +14,9 @@ public class Appointment {
     @SerializedName("comments")
     @Expose
     private String comments;
-    @SerializedName("date")
+    @SerializedName("appointmentDate")
     @Expose
-    private String date;
+    private Date date;
     @SerializedName("state") //tentative or requested
     @Expose
     private String state;
@@ -29,7 +31,7 @@ public class Appointment {
 
     }
 
-    public Appointment(int shopId, String state, String date, String comments){
+    public Appointment(int shopId, String state, Date date, String comments){
         this.shopId = shopId;
         this.state = state;
         this.date = date;
@@ -38,7 +40,7 @@ public class Appointment {
 
     public String getComments(){ return comments;}
 
-    public String getDate() { return date;}
+    public Date getDate() { return date;}
 
     public String getState() { return state;}
 
@@ -50,7 +52,7 @@ public class Appointment {
 
     public void setState(String state) {this.state = state;}
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

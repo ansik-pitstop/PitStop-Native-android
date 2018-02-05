@@ -18,6 +18,6 @@ interface PitstopAppointmentApi {
     fun requestService(@Body body: JsonObject): Observable<Response<JsonObject>>
 
     @GET("car/{carId}/appointments")
-    fun getAppointments(@Path("carId") id: Int): Observable<List<Appointment>>
+    fun getAppointments(@Path("carId") id: Int): Observable<PitstopResult<List<Appointment>>>
 
 }

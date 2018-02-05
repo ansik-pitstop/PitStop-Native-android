@@ -52,7 +52,10 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
 
         } else {
             Appointment currentApp = mAppts.get(position);
-            holder.date.setText(dateFormat(currentApp.getDate()));
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            holder.date.setText(dateFormat(simpleDateFormat.format(currentApp.getDate())));
+
             if(currentApp.getComments().equals("")) {
                 if(currentApp.getState().equals("tentative")){
                     holder.details.setText(R.string.no_salesperson);

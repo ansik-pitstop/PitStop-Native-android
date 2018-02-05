@@ -29,7 +29,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -106,7 +109,13 @@ public class MyAppointmentActivity extends AppCompatActivity {
                         for(int i=0; i<responseArray.length(); i++){
                             JSONObject jAppoiontment = responseArray.getJSONObject(i);
                             Appointment addAppt = new Appointment();
-                            addAppt.setDate(jAppoiontment.getString("appointmentDate"));
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            try{
+                                addAppt.setDate(simpleDateFormat.parse(jAppoiontment.getString("appointmentDate")));
+                            }catch(ParseException e){
+                                addAppt.setDate(new Date());
+                                e.printStackTrace();
+                            }
                             addAppt.setComments(jAppoiontment.getString("comments"));
                             addAppt.setState(jAppoiontment.getString("state"));
                             mAppts.add(addAppt);
