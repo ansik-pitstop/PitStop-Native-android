@@ -20,4 +20,7 @@ interface PitstopAppointmentApi {
     @GET("car/{carId}/appointments")
     fun getAppointments(@Path("carId") id: Int): Observable<PitstopResult<List<Appointment>>>
 
+    @GET("v1/car/{carId}/next-service-date")
+    fun getPredictedService(@Path("carId")id: Int): Observable<PitstopResponse<PredictedService>>
+
 }

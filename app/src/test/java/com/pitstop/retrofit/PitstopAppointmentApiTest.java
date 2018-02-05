@@ -17,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 import io.reactivex.Observable;
 import retrofit2.Response;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -46,7 +47,6 @@ public class PitstopAppointmentApiTest {
         }
     }
 
-    //Compares appointments by comment which has a random value that is generated in privat method
     @Test
     public void getAllAppointmentsTest(){
         System.out.println("running getAllAppointmentsTest");
@@ -84,6 +84,30 @@ public class PitstopAppointmentApiTest {
 
     }
 
+    @Test
+    public void getPredictedServiceTest(){
+        System.out.println("running getPredictedServiceTest()");
+
+        //Input
+        CompletableFuture<PredictedService> future = new CompletableFuture<>();
+        int carIdIn = 5622;
+
+        getPredictedService(carIdIn)
+                .doOnNext(next ->{
+                    System.out.println("predicted service date response: "+next);
+                    future.complete(next);
+                })
+                .subscribe();
+
+        try{
+            assertNotNull(future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS));
+        }catch(TimeoutException | InterruptedException | ExecutionException e){
+            e.printStackTrace();
+        }
+    }
+
+    //Generates appointment with random date (usually in the 1970s)
+    //Warning: shopId is usually by default set to the cars shop on the backend or seems to be the case
     private Appointment generateAppointment(){
         String state = "tentative";
         double randTime = 1522857600+(Math.random()*9857600);
@@ -117,5 +141,11 @@ public class PitstopAppointmentApiTest {
         options.addProperty("appointmentDate",stringDate);
         body.add("options",options);
         return RetrofitTestUtil.Companion.getAppointmentApi().requestService(body);
+    }
+
+    private Observable<PredictedService> getPredictedService(int carId){
+        return RetrofitTestUtil.Companion.getAppointmentApi()
+                .getPredictedService(carId)
+                .map(result -> result.getResponse());
     }
 }
