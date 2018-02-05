@@ -122,7 +122,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
                         }
                         setupList();
                         localAppointmentStorage.deleteAllAppointments();
-                        localAppointmentStorage.storeAppointments(mAppts);
+                        localAppointmentStorage.deleteAndStoreAppointments(mAppts);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

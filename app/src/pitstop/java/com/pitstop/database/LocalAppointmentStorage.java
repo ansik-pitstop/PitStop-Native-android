@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Appointment;
 
@@ -19,6 +20,9 @@ import java.util.Locale;
  */
 
 public class LocalAppointmentStorage {
+
+    private final String TAG = LocalAppointmentStorage.class.getSimpleName();
+
     // APPOINTMENT table create statement
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.APPOINTMENT.TABLE_NAME + "("
@@ -41,19 +45,21 @@ public class LocalAppointmentStorage {
      */
     public void storeAppointmentData(Appointment appointment) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         ContentValues values = appointmentObjectToContentValues(appointment);
-
         long result = db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, values);
-
-
-
     }
 
-    public void storeAppointments(List<Appointment> appointmentList) {
-        for(Appointment appointment : appointmentList) {
-            storeAppointmentData(appointment);
+    public void deleteAndStoreAppointments(List<Appointment> appointments){
+        Log.d(TAG,"deleteAndStoreAppointments() appointments: "+appointments);
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.beginTransaction();
+        db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
+        for (Appointment a: appointments){
+            ContentValues v = appointmentObjectToContentValues(a);
+            db.insert(TABLES.CAR.TABLE_NAME, null, v);
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
     }
 
     /**

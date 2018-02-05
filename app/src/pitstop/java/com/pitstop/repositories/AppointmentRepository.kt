@@ -19,7 +19,6 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
     private val tag = javaClass.simpleName
 
     fun getAppointment(id: Int): Observable<Appointment> {
-        //Todo: IMPLEMENT
         Log.d(tag,String.format("getAppointment() id: %d",id))
         return Observable.just(Appointment())
     }
