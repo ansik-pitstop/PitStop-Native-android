@@ -18,10 +18,10 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
 
     private val tag = javaClass.simpleName
 
-    fun getAppointment(id: Int): Observable<Appointment> {
-        Log.d(tag,String.format("getAppointment() id: %d",id))
-        return Observable.just(Appointment())
-    }
+//    fun getAppointment(id: Int): Observable<Appointment> {
+//        Log.d(tag,String.format("getAppointment() id: %d",id))
+//        return Observable.just(Appointment())
+//    }
 
     fun requestAppointment(userId: Int, carId: Int, appointment: Appointment): Observable<Boolean>{
         Log.d(tag,String.format("requestAppointment() userId: %d, carID: %d, appointment: %s"
