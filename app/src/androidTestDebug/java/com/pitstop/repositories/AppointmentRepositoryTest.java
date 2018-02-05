@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.models.Appointment;
@@ -30,11 +31,12 @@ import static junit.framework.Assert.assertTrue;
 @LargeTest
 public class AppointmentRepositoryTest {
 
+    private final String TAG = AppointmentRepositoryTest.class.getSimpleName();
     private AppointmentRepository appointmentRepository;
 
     @Before
     public void setup(){
-        System.out.println("running setup()");
+        Log.i(TAG,"running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopAppointmentApi api = RetrofitTestUtil.Companion.getAppointmentApi();
         LocalAppointmentStorage local = new LocalAppointmentStorage(context);
@@ -42,20 +44,20 @@ public class AppointmentRepositoryTest {
     }
 
     @Test
-    public void getAppointmentTest(){
-        System.out.println("running getAppointmentTest()");
+    public void testGetAppointment() {
+        Log.i(TAG,"running testGetAppointment()");
     }
 
     @Test
-    public void getAllAppointmentsTest(){
-        System.out.println("running getAllAppointmentsTet()");
+    public void testGetAllAppointments(){
+        Log.i(TAG,"running testGetAllAppointments()");
 
         //Input
         CompletableFuture<List<Appointment>> future = new CompletableFuture<>();
         int carId = 5622;
         appointmentRepository.getAllAppointments(carId)
                 .doOnNext(next -> {
-                    System.out.println("Got appointments: "+next);
+                    Log.i(TAG,"Got appointments: "+next);
                     future.complete(next);
                 })
                 .subscribe();
@@ -69,14 +71,18 @@ public class AppointmentRepositoryTest {
     }
 
     @Test
-    public void getPredictedServiceTest(){
-        System.out.println("running getPredictedServiceTest()");
+    public void testGetPredictedService(){
+        Log.i(TAG,"running testGetPredictedService()");
+
 
         //Input
         int carId = 5622;
         CompletableFuture<PredictedService> future = new CompletableFuture<>();
         appointmentRepository.getPredictedService(carId)
-                .doOnNext(next -> future.complete(next))
+                .doOnNext(next -> {
+                    Log.i(TAG,"Got predicted service date: "+next);
+                    future.complete(next);
+                })
                 .subscribe();
 
         try{
@@ -88,8 +94,8 @@ public class AppointmentRepositoryTest {
     }
 
     @Test
-    public void requestAppointmentTest(){
-        System.out.println("running requestAppointmentTest");
+    public void testRequestAppointment(){
+        Log.i(TAG,"running testRequestAppointment()");
 
         //Input
         int carId = 5622;
@@ -97,7 +103,10 @@ public class AppointmentRepositoryTest {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         Appointment app = generateAppointment();
         appointmentRepository.requestAppointment(userId,carId,app)
-                .doOnNext(next -> future.complete(next))
+                .doOnNext(next -> {
+                    Log.i(TAG,"Request service success? "+next);
+                    future.complete(next);
+                })
                 .subscribe();
 
         try{
