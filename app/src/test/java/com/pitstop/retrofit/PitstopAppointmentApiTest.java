@@ -74,7 +74,7 @@ public class PitstopAppointmentApiTest {
 
         try{
             List<Appointment> futureApps
-                    = future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    = future.get(2000, java.util.concurrent.TimeUnit.MILLISECONDS);
             for (Appointment a: appointmentsIn){
                 assertTrue(futureApps.contains(a));
             }
@@ -100,7 +100,7 @@ public class PitstopAppointmentApiTest {
                 .subscribe();
 
         try{
-            assertNotNull(future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS));
+            assertNotNull(future.get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
         }catch(TimeoutException | InterruptedException | ExecutionException e){
             e.printStackTrace();
         }
