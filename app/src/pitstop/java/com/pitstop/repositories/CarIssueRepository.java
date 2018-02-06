@@ -20,8 +20,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -336,11 +338,14 @@ public class CarIssueRepository implements Repository{
             body.put("shopId", appointment.getShopId());
             body.put("comments", appointment.getComments());
             options.put("state", appointment.getState());
-            options.put("appointmentDate", appointment.getDate());
+            String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+                    .format(appointment.getDate());
+            options.put("appointmentDate", stringDate);
             body.put("options", options);
         } catch (JSONException e) {
             Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
             e.printStackTrace();
+            callback.onError(RequestError.getUnknownError());
         }
         networkHelper.post(END_POINT_REQUEST_SERVICE, getRequestServiceCallback(callback), body);
 

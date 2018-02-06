@@ -98,7 +98,8 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                                 RequestServiceUseCaseImpl.this.onError(error);
                                             }
                                         });
-                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false)).subscribe();
+                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
+                            .subscribe();
                     }
 
                     @Override
