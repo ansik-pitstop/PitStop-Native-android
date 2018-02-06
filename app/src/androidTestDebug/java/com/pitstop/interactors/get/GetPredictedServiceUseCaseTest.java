@@ -10,6 +10,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.PredictedService;
+import com.pitstop.utils.NetworkHelper;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -32,34 +33,45 @@ public class GetPredictedServiceUseCaseTest {
 
     private final String TAG = GetPredictedServiceUseCaseTest.class.getSimpleName();
     private UseCaseComponent useCaseComponent;
+    private boolean connected = true;
 
     @Before
     public void setup(){
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(InstrumentationRegistry.getTargetContext()))
                 .build();
+        connected = NetworkHelper.isConnected(InstrumentationRegistry.getTargetContext());
+
     }
 
+    //So far only works for cars which have a predicted service date available
     @Test
     public void testPredictedServiceUseCase(){
-        CompletableFuture<PredictedService> future = new CompletableFuture<>();
+        CompletableFuture<PredictedService> successFuture = new CompletableFuture<>();
+        CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
         Log.i(TAG,"running testPredictedServiceUseCase()");
         useCaseComponent.getPredictedServiceDateUseCase().execute(new GetPredictedServiceUseCase.Callback() {
             @Override
             public void onGotPredictedService(@NotNull PredictedService predictedService) {
                 Log.i(TAG,"onGotPredictedService() predictedService: "+predictedService);
-                future.complete(predictedService);
+                successFuture.complete(predictedService);
+                errorFuture.complete(null);
             }
 
             @Override
             public void onError(@NotNull RequestError error) {
                 Log.i(TAG,"onError() error: "+error);
-                future.complete(null);
+                successFuture.complete(null);
+                errorFuture.complete(null);
             }
         });
 
         try{
-            Assert.assertNotNull(future.get(5000, TimeUnit.MILLISECONDS));
+            if (connected)
+                Assert.assertNotNull(successFuture.get(5000, TimeUnit.MILLISECONDS));
+            else
+                Assert.assertTrue(errorFuture.get(5000, TimeUnit.MILLISECONDS)
+                        .getError().equals(RequestError.ERR_OFFLINE));
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
