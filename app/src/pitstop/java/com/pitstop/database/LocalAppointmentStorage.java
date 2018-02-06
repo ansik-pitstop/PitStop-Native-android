@@ -56,7 +56,7 @@ public class LocalAppointmentStorage {
         db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
         for (Appointment a: appointments){
             ContentValues v = appointmentObjectToContentValues(a);
-            db.insert(TABLES.CAR.TABLE_NAME, null, v);
+            db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, v);
         }
         db.setTransactionSuccessful();
         db.endTransaction();
