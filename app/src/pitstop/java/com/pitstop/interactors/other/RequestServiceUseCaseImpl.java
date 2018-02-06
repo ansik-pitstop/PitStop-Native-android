@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
@@ -14,6 +15,8 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
+
+import java.util.Date;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -33,7 +36,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private Handler mainHandler;
 
     private String state;
-    private String timeStamp;
+    private Date date;
     private String comments;
     private Callback callback;
 
@@ -62,25 +65,37 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
 
     @Override
     public void run() {
+        Log.d(TAG,"run()");
         userRepository.getCurrentUser(new UserRepository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
+                Log.d(TAG,"got user: "+user);
                 userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
                     @Override
                     public void onSuccess(Settings data) {
+                        Log.d(TAG,"got user settings: "+data);
                         carRepository.get(data.getCarId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .doOnError(err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err)))
                             .doOnNext(response -> {
-                                if (response.isLocal()) return;
+                                Log.d(TAG,"got car: "+response);
+                                if (response.isLocal()){
+                                    Log.d(TAG,"local data, returning");
+                                    return;
+                                }
+                                Log.d(TAG,"remote data, proceeding");
                                 if (response.getData() == null){
+                                    Log.d(TAG,"data null, returning");
                                     callback.onError(RequestError.getUnknownError());
                                     return;
                                 }
+                                Log.d(TAG,"data is fine, proceeding");
                                 Car car = response.getData();
+
                                 Appointment appointment = new Appointment(car.getShopId()
-                                        , state, timeStamp, comments);
+                                        , state, date, comments);
+                                Log.d(TAG,"requestingService");
                                 carIssueRepository.requestService(user.getId(), car.getId(), appointment
                                         , new Repository.Callback<Object>() {
 
@@ -94,7 +109,8 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                                 RequestServiceUseCaseImpl.this.onError(error);
                                             }
                                         });
-                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false)).subscribe();
+                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
+                            .subscribe();
                     }
 
                     @Override
@@ -111,12 +127,12 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     }
 
     @Override
-    public void execute(String state, String timeStamp, String comments, Callback callback) {
+    public void execute(String state, Date date, String comments, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: state"+state
-                        +", timeStamp: "+timeStamp+", comments: "+comments
+                        +", date: "+date+", comments: "+comments
                 , DebugMessage.TYPE_USE_CASE);
         this.state = state;
-        this.timeStamp = timeStamp;
+        this.date = date;
         this.comments = comments;
         this.callback = callback;
         useCaseHandler.post(this);

@@ -145,7 +145,7 @@ public class ReportRepository implements Repository {
             String reason = "";
             if (content.has("reason"))
                 reason = content.getString("reason");
-            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CANADA)
+            Date createdAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)
                     .parse(response.getString("createdAt"));
             return new EmissionsReport(id , createdAt, pass, reason, sensorMap);
 

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -16,18 +17,18 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetAllAppointmentsUseCase;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
-import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,8 @@ import java.util.List;
 
 public class MyAppointmentActivity extends AppCompatActivity {
 
+    private final String TAG = MyAppointmentActivity.class.getSimpleName();
+
     private RecyclerView mApptsList;
     private AppointmentsAdapter mAppointmentAdapter;
 
@@ -51,9 +54,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
     private Car dashboardCar;
     private List<Appointment> mAppts;
     private ProgressBar mLoadingSpinner;
-
-
-
+    private UseCaseComponent useCaseComponent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,6 +66,8 @@ public class MyAppointmentActivity extends AppCompatActivity {
                 .contextModule(new ContextModule(this))
                 .build();
 
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this)).build();
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = tempNetworkComponent.networkHelper();
@@ -83,46 +86,26 @@ public class MyAppointmentActivity extends AppCompatActivity {
              GrabLocal grabLocal = new GrabLocal();
              grabLocal.execute();
         }
-
-        //TODO: refactor
-        networkHelper.getAppointments(dashboardCar.getId(),  new RequestCallback() {
+        useCaseComponent.getAllAppointmentsUseCase().execute(new GetAllAppointmentsUseCase.Callback() {
             @Override
-            public void done(String response, RequestError requestError) {
-                //Load locally
-                if (requestError != null && requestError.getError().equals(RequestError.ERR_OFFLINE)){
-                    mAppts = localAppointmentStorage.getAllAppointments();
-                    setupList();
+            public void onGotAppointments(@NotNull List<? extends Appointment> appointments) {
+                Log.d(TAG,"onGotAppointments() appointments: "+appointments);
+                mAppts.clear();
+                mAppts.addAll(appointments);
+                setupList();
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"onError() error: "+error);
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
                     Toast.makeText(MyAppointmentActivity.this
-                            ,"Please connect to the internet to sync your appointments."
+                            ,"Please connect to the internet to load appointments."
                             ,Toast.LENGTH_SHORT).show();
-                }
-                //Load from remote server
-                else if (requestError == null){
-                    JSONObject jObject  = null;
-                    try {
-                        mAppts.clear();
-                        jObject = new JSONObject(response);
-                        JSONArray responseArray = jObject.getJSONArray("results");
-                        for(int i=0; i<responseArray.length(); i++){
-                            JSONObject jAppoiontment = responseArray.getJSONObject(i);
-                            Appointment addAppt = new Appointment();
-                            addAppt.setDate(jAppoiontment.getString("appointmentDate"));
-                            addAppt.setComments(jAppoiontment.getString("comments"));
-                            addAppt.setState(jAppoiontment.getString("state"));
-                            mAppts.add(addAppt);
-                        }
-                        setupList();
-                        localAppointmentStorage.deleteAllAppointments();
-                        localAppointmentStorage.storeAppointments(mAppts);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
                 }else{
                     Toast.makeText(MyAppointmentActivity.this
                             ,"An error occurred."
                             ,Toast.LENGTH_SHORT).show();
-                    finish();
-
                 }
 
             }
