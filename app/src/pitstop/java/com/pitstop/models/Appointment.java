@@ -38,7 +38,10 @@ public class Appointment {
         this.comments = comments;
     }
 
-    public String getComments(){ return comments;}
+    public String getComments(){
+        if (comments == null) return "";
+        else return comments;
+    }
 
     public Date getDate() { return date;}
 

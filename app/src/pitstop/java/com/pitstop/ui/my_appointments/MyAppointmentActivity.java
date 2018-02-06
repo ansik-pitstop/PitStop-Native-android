@@ -98,9 +98,16 @@ public class MyAppointmentActivity extends AppCompatActivity {
             @Override
             public void onError(@NotNull RequestError error) {
                 Log.d(TAG,"onError() error: "+error);
-                Toast.makeText(MyAppointmentActivity.this
-                        ,"An error occurred."
-                        ,Toast.LENGTH_SHORT).show();
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    Toast.makeText(MyAppointmentActivity.this
+                            ,"Please connect to the internet to load appointments."
+                            ,Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(MyAppointmentActivity.this
+                            ,"An error occurred."
+                            ,Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
