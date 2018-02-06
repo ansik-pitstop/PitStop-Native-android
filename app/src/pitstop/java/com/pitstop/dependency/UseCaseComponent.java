@@ -36,6 +36,7 @@ import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
+import com.pitstop.interactors.get.GetPredictedServiceUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
@@ -210,5 +211,7 @@ public interface UseCaseComponent {
     AddScannerUseCase getAddScannerUseCase();
 
     GetAllAppointmentsUseCase getAllAppointmentsUseCase();
+
+    GetPredictedServiceUseCase getPredictedServiceDateUseCase();
 
 }
