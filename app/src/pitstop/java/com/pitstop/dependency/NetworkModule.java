@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.Token;
@@ -110,6 +111,18 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(PitstopCarApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public PitstopAppointmentApi pitstopAppointmentApi(Context context){
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient(context))
+                .build()
+                .create(PitstopAppointmentApi.class);
     }
 
     @Provides

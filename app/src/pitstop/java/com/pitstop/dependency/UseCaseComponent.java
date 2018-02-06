@@ -15,6 +15,7 @@ import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetAlarmsUseCase;
+import com.pitstop.interactors.get.GetAllAppointmentsUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
@@ -207,5 +208,7 @@ public interface UseCaseComponent {
     GetFuelConsumedAndPriceUseCase getGetFuelConsumedAndPriceUseCase();
 
     AddScannerUseCase getAddScannerUseCase();
+
+    GetAllAppointmentsUseCase getAllAppointmentsUseCase();
 
 }

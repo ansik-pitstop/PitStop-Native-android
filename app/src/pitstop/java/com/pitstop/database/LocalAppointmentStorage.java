@@ -4,17 +4,25 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.pitstop.models.Appointment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-05.
  */
 
 public class LocalAppointmentStorage {
+
+    private final String TAG = LocalAppointmentStorage.class.getSimpleName();
+
     // APPOINTMENT table create statement
     public static final String CREATE_TABLE_APPOINTMENT = "CREATE TABLE IF NOT EXISTS "
             + TABLES.APPOINTMENT.TABLE_NAME + "("
@@ -37,19 +45,21 @@ public class LocalAppointmentStorage {
      */
     public void storeAppointmentData(Appointment appointment) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-
         ContentValues values = appointmentObjectToContentValues(appointment);
-
         long result = db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, values);
-
-
-
     }
 
-    public void storeAppointments(List<Appointment> appointmentList) {
-        for(Appointment appointment : appointmentList) {
-            storeAppointmentData(appointment);
+    public void deleteAndStoreAppointments(List<Appointment> appointments){
+        Log.d(TAG,"deleteAndStoreAppointments() appointments: "+appointments);
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.beginTransaction();
+        db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
+        for (Appointment a: appointments){
+            ContentValues v = appointmentObjectToContentValues(a);
+            db.insert(TABLES.CAR.TABLE_NAME, null, v);
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
     }
 
     /**
@@ -123,7 +133,12 @@ public class LocalAppointmentStorage {
         Appointment appointment = new Appointment();
         appointment.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         appointment.setComments(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_COMMENT)));
-        appointment.setDate(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE)));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        try{
+            appointment.setDate(simpleDateFormat.parse(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE))));
+        }catch(ParseException e){
+            appointment.setDate(new Date());
+        }
         appointment.setState(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_STATE)));
         appointment.setShopId(c.getInt(c.getColumnIndex(TABLES.APPOINTMENT.KEY_SHOP_ID)));
 
@@ -136,7 +151,8 @@ public class LocalAppointmentStorage {
         values.put(TABLES.COMMON.KEY_OBJECT_ID, appointment.getId());
 
         values.put(TABLES.APPOINTMENT.KEY_COMMENT, appointment.getComments());
-        values.put(TABLES.APPOINTMENT.KEY_DATE, appointment.getDate());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        values.put(TABLES.APPOINTMENT.KEY_DATE, simpleDateFormat.format(appointment.getDate()));
         values.put(TABLES.APPOINTMENT.KEY_STATE, appointment.getState());
         values.put(TABLES.APPOINTMENT.KEY_SHOP_ID, appointment.getShopId());
 

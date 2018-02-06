@@ -136,7 +136,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
                 .contextModule(new ContextModule(application))
                 .build();
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
-            presenter.dateSelected(date.getYear(), date.getMonth() + 1, date.getDay(), calendarView);//month is 0 based
+            presenter.dateSelected(date.getDate(), date.getYear(), date.getMonth() + 1, date.getDay(), calendarView);//month is 0 based
         });
 
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);

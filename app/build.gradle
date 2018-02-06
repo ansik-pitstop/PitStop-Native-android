@@ -91,6 +91,7 @@ android {
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86"
         }
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug { // for development, dev backend, no mixpanel
@@ -154,6 +155,10 @@ dependencies {
     compile 'eu.lp0.slf4j:slf4j-android:1.7.25-0'
     // compile 'com.github.Graylog2:gelfclient:gelfclient-1.4.2.1'
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.7.22'
+    androidTestCompile 'com.android.support:support-annotations:26.0.2'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+    androidTestCompile 'com.android.support.test:rules:1.0.1'
     compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
     compile 'com.android.support:multidex:1.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
