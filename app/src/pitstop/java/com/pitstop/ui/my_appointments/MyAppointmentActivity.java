@@ -92,6 +92,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
                 Log.d(TAG,"onGotAppointments() appointments: "+appointments);
                 mAppts.clear();
                 mAppts.addAll(appointments);
+                setupList();
             }
 
             @Override

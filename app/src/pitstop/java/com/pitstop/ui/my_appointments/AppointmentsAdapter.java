@@ -11,11 +11,9 @@ import android.widget.TextView;
 import com.pitstop.R;
 import com.pitstop.models.Appointment;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-05-02.
@@ -53,8 +51,8 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
         } else {
             Appointment currentApp = mAppts.get(position);
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            holder.date.setText(dateFormat(simpleDateFormat.format(currentApp.getDate())));
+            SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa", Locale.CANADA);
+            holder.date.setText(newFormat.format(currentApp.getDate()));
 
             if(currentApp.getComments().equals("")) {
                 if(currentApp.getState().equals("tentative")){
@@ -86,21 +84,6 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
     public int getItemCount() {
         if (mAppts.isEmpty()) return 1;
         return mAppts.size();
-    }
-
-    private String dateFormat(String date){
-        date = date.substring(0,22) + date.substring(23);// remove the ":" in the timezone that the backend gives
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ");
-        SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa");
-        newFormat.setTimeZone(TimeZone.getTimeZone("America/Toronto"));
-        try {
-            Date formDate = sdf.parse(date);
-            String newDate = newFormat.format(formDate);
-            return newDate;
-        }catch (ParseException e){
-            e.printStackTrace();
-        }
-        return date;
     }
 
     public class MyAppointmentsViewHolder extends RecyclerView.ViewHolder{
