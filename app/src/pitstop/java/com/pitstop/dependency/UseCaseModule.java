@@ -80,6 +80,8 @@ import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCaseImpl;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
+import com.pitstop.interactors.get.GetPredictedServiceUseCase;
+import com.pitstop.interactors.get.GetPredictedServiceUseCaseImpl;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCaseImpl;
 import com.pitstop.interactors.get.GetReportUseCaseImpl;
@@ -668,10 +670,18 @@ public class UseCaseModule {
 
     @Provides
     GetAllAppointmentsUseCase getAllAppointmentsUseCase(AppointmentRepository appointmentRepository
-            , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler")Handler mainHandler){
+                    , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
+                    , @Named("mainHandler")Handler mainHandler){
 
         return new GetAllAppointmentsUseCaseImpl(appointmentRepository, userRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetPredictedServiceUseCase getPredictedServiceUseCase(UserRepository userRepository
+            , AppointmentRepository appointmentRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new GetPredictedServiceUseCaseImpl(userRepository, appointmentRepository, useCaseHandler, mainHandler);
     }
 }
 

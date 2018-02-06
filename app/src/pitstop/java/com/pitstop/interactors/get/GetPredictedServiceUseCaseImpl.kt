@@ -52,6 +52,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
         Log.d(tag,"run()")
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {
+                Log.d(tag,"Got settings: "+data);
                 if (data == null) this@GetPredictedServiceUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
 
                 appointmentRepository.getPredictedService(data!!.carId)
@@ -65,6 +66,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
             }
 
             override fun onError(error: RequestError?) {
+                Log.d(tag,"Error getting settings err: "+error)
                 this@GetPredictedServiceUseCaseImpl.onError(error)
             }
 
