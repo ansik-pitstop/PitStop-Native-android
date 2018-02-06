@@ -329,7 +329,7 @@ public class CarIssueRepository implements Repository{
 
     public void requestService(int userId, int carId, Appointment appointment
             , Callback<Object> callback ){
-
+        Log.d(TAG,"requestService() userId "+userId+", carId: "+carId+", appointment: "+appointment);
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
         try {
@@ -358,6 +358,7 @@ public class CarIssueRepository implements Repository{
             } catch (JSONException e) {
                 Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
                 e.printStackTrace();
+                callback.onError(RequestError.getUnknownError());
             }
             networkHelper.put("car", (response, requestError) -> {
             }, updateSalesman);
@@ -368,7 +369,6 @@ public class CarIssueRepository implements Repository{
         return (response, requestError) -> {
             if (requestError == null){
                 callback.onSuccess(response);
-                return;
             }
             else{
                 callback.onError(requestError);

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Matthew on 2017-07-11.
@@ -49,7 +50,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     private boolean timeSelected;
     private String date;
     private String time;
-    private String state;
+    private String dateFormat;
 
     private Dealership dealership;
 
@@ -145,12 +146,12 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.toggleCalender();
     }
 
-    public void dateSelected(int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
-        Log.d(TAG,"dateSelected() year: "+year+", month: "+month+", dayOfMonth: "+dayOfMonth);
+    public void dateSelected(Date dateArg, int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
+        if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
-        if(view == null || callback == null || dealership == null){return;}
-
+        Log.d(TAG,"dateArg: "+dateArg);
         String date = year+"/"+month+"/"+dayOfMonth;
+        this.dateFormat = date;
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy/MM/dd");
         SimpleDateFormat newFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
         SimpleDateFormat dayInWeek = new SimpleDateFormat("E");
@@ -248,10 +249,18 @@ public class ServiceFormPresenter implements PresenterCallback{
             view.showReminder(((Fragment)view).getString(R.string.choose_time));
             return;
         }
-        String outDate = date+" "+time;
+        String outDate = dateFormat+" "+time.replace(".","");
+        Log.d(TAG,"outDate: "+outDate);
+        Date realDate;
+        try{
+            realDate = new SimpleDateFormat("yyyy/MM/dd hh:mm aa", Locale.CANADA).parse(outDate);
+        }catch(ParseException e){
+            e.printStackTrace();
+            return;
+        }
         view.disableButton(true);
         view.showLoading(true);
-        component.getRequestServiceUseCase().execute(callback.checkTentative(), timeStamp(outDate)
+        component.getRequestServiceUseCase().execute(callback.checkTentative(), realDate
                 , view.getComments(), new RequestServiceUseCase.Callback() {
                     @Override
                     public void onServicesRequested() {
@@ -327,19 +336,5 @@ public class ServiceFormPresenter implements PresenterCallback{
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("IssueMenuButton","RequestServiceForm");
         view.toggleServiceList();
-    }
-
-
-    String timeStamp(String inTime){
-        Log.d(TAG,"timeStamp() inTime(): "+inTime);
-        SimpleDateFormat inFormat = new SimpleDateFormat("EEEE dd MMM yyyy hh:mm aa");
-        SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        try{
-            Date date = inFormat.parse(inTime);
-            String out = outFormat.format(date);
-            return out;
-        }catch (ParseException e){
-            return "0";
-        }
     }
 }

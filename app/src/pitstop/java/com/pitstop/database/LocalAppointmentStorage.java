@@ -133,7 +133,7 @@ public class LocalAppointmentStorage {
         Appointment appointment = new Appointment();
         appointment.setId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)));
         appointment.setComments(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_COMMENT)));
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         try{
             appointment.setDate(simpleDateFormat.parse(c.getString(c.getColumnIndex(TABLES.APPOINTMENT.KEY_DATE))));
         }catch(ParseException e){
@@ -151,7 +151,7 @@ public class LocalAppointmentStorage {
         values.put(TABLES.COMMON.KEY_OBJECT_ID, appointment.getId());
 
         values.put(TABLES.APPOINTMENT.KEY_COMMENT, appointment.getComments());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         values.put(TABLES.APPOINTMENT.KEY_DATE, simpleDateFormat.format(appointment.getDate()));
         values.put(TABLES.APPOINTMENT.KEY_STATE, appointment.getState());
         values.put(TABLES.APPOINTMENT.KEY_SHOP_ID, appointment.getShopId());

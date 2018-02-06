@@ -33,7 +33,7 @@ class AppointmentRepository(private val localAppointmentStorage: LocalAppointmen
         body.addProperty("comments", appointment.comments)
         val options = JsonObject()
         options.addProperty("state", appointment.getState())
-        val stringDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+        val stringDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                 .format(appointment.getDate())
         options.addProperty("appointmentDate", stringDate)
         body.add("options", options)

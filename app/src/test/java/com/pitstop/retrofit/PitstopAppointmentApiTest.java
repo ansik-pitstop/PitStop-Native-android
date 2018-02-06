@@ -136,7 +136,7 @@ public class PitstopAppointmentApiTest {
         body.addProperty("comments",app.getComments());
         JsonObject options = new JsonObject();
         options.addProperty("state",app.getState());
-        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA)
+        String stringDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                 .format(app.getDate());
         options.addProperty("appointmentDate",stringDate);
         body.add("options",options);
