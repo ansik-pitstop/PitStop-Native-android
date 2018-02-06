@@ -61,6 +61,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
                         .subscribe({response ->
                             this@GetPredictedServiceUseCaseImpl.onGotPredictedService(response)
                         },{error ->
+                            Log.e(tag,"Error: "+error);
                             this@GetPredictedServiceUseCaseImpl.onError(RequestError(error))
                         })
             }

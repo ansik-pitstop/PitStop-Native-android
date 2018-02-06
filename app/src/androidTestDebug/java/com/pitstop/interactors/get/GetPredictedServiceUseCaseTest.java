@@ -3,6 +3,7 @@ package com.pitstop.interactors.get;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -29,36 +30,36 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 public class GetPredictedServiceUseCaseTest {
 
+    private final String TAG = GetPredictedServiceUseCaseTest.class.getSimpleName();
     private UseCaseComponent useCaseComponent;
 
     @Before
     public void setup(){
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(InstrumentationRegistry.getContext()))
+                .contextModule(new ContextModule(InstrumentationRegistry.getTargetContext()))
                 .build();
     }
 
     @Test
     public void testPredictedServiceUseCase(){
-
         CompletableFuture<PredictedService> future = new CompletableFuture<>();
-        System.out.println("running testPredictedServiceUseCase()");
+        Log.i(TAG,"running testPredictedServiceUseCase()");
         useCaseComponent.getPredictedServiceDateUseCase().execute(new GetPredictedServiceUseCase.Callback() {
             @Override
             public void onGotPredictedService(@NotNull PredictedService predictedService) {
-                System.out.println("onGotPredictedService() predictedService: "+predictedService);
+                Log.i(TAG,"onGotPredictedService() predictedService: "+predictedService);
                 future.complete(predictedService);
             }
 
             @Override
             public void onError(@NotNull RequestError error) {
-                System.out.println("onError() error: "+error);
+                Log.i(TAG,"onError() error: "+error);
                 future.complete(null);
             }
         });
 
         try{
-            Assert.assertNotNull(future.get(2000, TimeUnit.MILLISECONDS));
+            Assert.assertNotNull(future.get(5000, TimeUnit.MILLISECONDS));
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
