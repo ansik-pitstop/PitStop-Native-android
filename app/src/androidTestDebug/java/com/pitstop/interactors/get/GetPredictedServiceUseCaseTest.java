@@ -49,7 +49,7 @@ public class GetPredictedServiceUseCaseTest {
     public void testPredictedServiceUseCase(){
         CompletableFuture<PredictedService> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
-        Log.i(TAG,"running testPredictedServiceUseCase()");
+        Log.i(TAG,"running testPredictedServiceUseCase() connected? "+connected);
         useCaseComponent.getPredictedServiceDateUseCase().execute(new GetPredictedServiceUseCase.Callback() {
             @Override
             public void onGotPredictedService(@NotNull PredictedService predictedService) {
@@ -62,7 +62,7 @@ public class GetPredictedServiceUseCaseTest {
             public void onError(@NotNull RequestError error) {
                 Log.i(TAG,"onError() error: "+error);
                 successFuture.complete(null);
-                errorFuture.complete(null);
+                errorFuture.complete(error);
             }
         });
 
