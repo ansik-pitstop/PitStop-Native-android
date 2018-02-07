@@ -11,11 +11,12 @@ import com.pitstop.R
 import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
-import com.pitstop.models.Appointment
-import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
+import kotlinx.android.synthetic.main.layout_services_appointment_booked.view.*
 import kotlinx.android.synthetic.main.layout_services_predicted_service.*
+import kotlinx.android.synthetic.main.layout_services_predicted_service.view.*
 import kotlinx.android.synthetic.main.layout_services_update_mileage.*
+import kotlinx.android.synthetic.pitstop.fragment_services.*
 
 class MainServicesFragment : Fragment(), MainServicesView {
     private val TAG = MainServicesFragment::class.java.simpleName
@@ -94,10 +95,10 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayMileageUpdateNeeded() {
         Log.d(TAG,"displayMileageUpdateNeeded()")
-    }
+        layout_appointment_booked.visibility = View.GONE
+        layout_predicted_service.visibility = View.GONE
+        layout_update_mileage.visibility = View.VISIBLE
 
-    override fun onUpdateMileageClicked() {
-        Log.d(TAG,"onUpdateMileageClicked()")
     }
 
     override fun displayMileageInputDialog() {
@@ -108,16 +109,20 @@ class MainServicesFragment : Fragment(), MainServicesView {
         Log.d(TAG,"onMileageInput()")
     }
 
-    override fun displayAppointmentBooked(appointment: Appointment) {
-        Log.d(TAG,"displayAppointmentBooked() appointment: "+appointment);
+    override fun displayAppointmentBooked(date: String) {
+        Log.d(TAG,"displayAppointmentBooked() date: "+date);
+        layout_appointment_booked.visibility = View.VISIBLE
+        layout_predicted_service.visibility = View.GONE
+        layout_update_mileage.visibility = View.GONE
+        layout_appointment_booked.date.text = date
     }
 
-    override fun displayPredictedService(predictedService: PredictedService) {
-        Log.d(TAG,"displayPredictedService() predictedService: "+predictedService);
-    }
-
-    override fun onRequestAppointmentClicked() {
-        Log.d(TAG,"onRequestAppointmentClicked()")
+    override fun displayPredictedService(from: String, to: String) {
+        Log.d(TAG,"displayPredictedService() from: $from ,to: $to");
+        layout_appointment_booked.visibility = View.GONE
+        layout_predicted_service.visibility = View.VISIBLE
+        layout_update_mileage.visibility = View.GONE
+        layout_predicted_service.dateRange.text = "$from - $to"
     }
 
     override fun beginRequestService() {

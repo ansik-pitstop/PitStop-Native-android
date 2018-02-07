@@ -37,12 +37,13 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
         usecaseComponent.appointmentStateUseCase.execute(object: GetAppointmentStateUseCase.Callback{
             override fun onPredictedServiceState(predictedService: PredictedService) {
                 Log.d(tag,"appointment state onPredictedServiceState() predictedService: "+predictedService);
-                if (view != null) view!!.displayPredictedService(predictedService)
+                if (view != null) view!!.displayPredictedService(
+                        predictedService.predictedDate.toString(),predictedService.predictedDate.toString())
             }
 
             override fun onAppointmentBookedState(appointment: Appointment) {
                 Log.d(tag,"appointment state onAppointmentBookedState() appointment: "+appointment);
-                if (view != null) view!!.displayAppointmentBooked(appointment)
+                if (view != null) view!!.displayAppointmentBooked(appointment.date.toString())
             }
 
             override fun onMileageUpdateNeededState() {

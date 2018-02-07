@@ -1,8 +1,5 @@
 package com.pitstop.ui.services
 
-import com.pitstop.models.Appointment
-import com.pitstop.retrofit.PredictedService
-
 /**
  * Created by Karol Zdebel on 2/1/2018.
  */
@@ -17,8 +14,6 @@ interface MainServicesView {
 
     //Display layout #1
     fun displayMileageUpdateNeeded()
-    //Called when button ?Update Mileage? is pressed
-    fun onUpdateMileageClicked()
     //Displays dialog which allows the input of mileage
     fun displayMileageInputDialog()
     //Called after a mileage has been entered by the user
@@ -28,12 +23,10 @@ interface MainServicesView {
 
 
     //Display booked appointment
-    fun displayAppointmentBooked(appointment: Appointment)
+    fun displayAppointmentBooked(date: String)
 
     //Display predicted service
-    fun displayPredictedService(predictedAppointment: PredictedService)
-    //Invoked when button ?Request An Appointment? is clicked
-    fun onRequestAppointmentClicked()
+    fun displayPredictedService(from: String, to: String)
     //Go to RequestServiceActivity
     fun beginRequestService()
 
