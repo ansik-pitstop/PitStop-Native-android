@@ -598,4 +598,5 @@
     <string name="alarms_enabled_caption">Alarms generated while driving are being read and displayed below only for your viewing. Connecting to your Pitstop device will ensure that alarms from previous trips are loaded.</string>
     <string name="alarms_disabled_caption">Enabling driver alerts tracks important data directly from your Pitstop device, this will give you feedback on how your driving affects your car. The data collected is in safe hands and is used to help improve our predictive maintenance and alerts.</string>
     <string name="unavailable">Unavailable</string>
+    <string name="service_mileage_update_message">Update your mileage to see your predicted service date</string>
 </resources>
