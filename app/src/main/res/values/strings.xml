@@ -600,4 +600,5 @@
     <string name="unavailable">Unavailable</string>
     <string name="service_mileage_update_message">Update your mileage to see your predicted service date</string>
     <string name="service_appointment_booked_message">You have an appointment with %s on</string>
+    <string name="service_predicted_service_message">Your predicted service date is between</string>
 </resources>
