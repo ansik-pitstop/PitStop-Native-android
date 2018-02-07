@@ -8,15 +8,27 @@
     android:orientation="vertical"
     tools:context="com.pitstop.ui.services.MainServicesFragment">
 
-    <!--    <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:layout_alignParentTop="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            />-->
+    <FrameLayout
+        android:id="@+id/appointment_info_holder"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/layout_appointment_booked"
+            android:visibility="visible"
+            layout="@layout/layout_services_appointment_booked"/>
+        <include
+            android:id="@+id/layout_predicted_service"
+            android:visibility="gone"
+            layout="@layout/layout_services_predicted_service"/>
+        <include
+            android:id="@+id/layout_update_mileage"
+            android:visibility="gone"
+            layout="@layout/layout_services_update_mileage"/>
+
+    </FrameLayout>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_layout"
