@@ -11,6 +11,8 @@ import com.pitstop.R
 import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.models.Appointment
+import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
 
 class MainServicesFragment : Fragment(), MainServicesView {
@@ -81,5 +83,41 @@ class MainServicesFragment : Fragment(), MainServicesView {
             return
         }
         tabLayout!!.getTabAt(tab.tabNum)!!.select()
+    }
+
+    override fun displayMileageUpdateNeeded() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onUpdateMileageClicked() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun displayMileageInputDialog() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onMileageInput() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun displayAppointmentBooked(appointment: Appointment) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun displayPredictedService(predictedAppointment: PredictedService) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onRequestAppointmentClicked() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun beginRequestService() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun displayErrorMessage(message: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
