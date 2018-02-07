@@ -16,7 +16,6 @@ import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
 
 class MainServicesFragment : Fragment(), MainServicesView {
-
     private val TAG = MainServicesFragment::class.java.simpleName
 
     private var servicesPager: SubServiceViewPager? = null
@@ -24,7 +23,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
     private var presenter: MainServicesPresenter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
+        Log.d(TAG,"onCreateView()")
         val rootview = inflater!!.inflate(R.layout.fragment_services, null)
         servicesPager = activity.findViewById(R.id.services_viewpager)
 
@@ -42,12 +41,14 @@ class MainServicesFragment : Fragment(), MainServicesView {
     }
 
     override fun onDestroyView() {
+        Log.d(TAG,"onDestroyView()")
         super.onDestroyView()
         if (presenter != null)
             presenter!!.unsubscribe()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        Log.d(TAG,"onActivityCreated()")
         super.onActivityCreated(savedInstanceState)
         servicesPager = activity.findViewById<View>(R.id.services_viewpager) as SubServiceViewPager
         servicesPager!!.offscreenPageLimit = 2
@@ -86,38 +87,42 @@ class MainServicesFragment : Fragment(), MainServicesView {
     }
 
     override fun displayMileageUpdateNeeded() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"displayMileageUpdateNeeded()")
     }
 
     override fun onUpdateMileageClicked() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"onUpdateMileageClicked()")
     }
 
     override fun displayMileageInputDialog() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"displaMileageInputDialog")
     }
 
     override fun onMileageInput() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"onMileageInput()")
     }
 
     override fun displayAppointmentBooked(appointment: Appointment) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"displayAppointmentBooked() appointment: "+appointment);
     }
 
-    override fun displayPredictedService(predictedAppointment: PredictedService) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun displayPredictedService(predictedService: PredictedService) {
+        Log.d(TAG,"displayPredictedService() predictedService: "+predictedService);
     }
 
     override fun onRequestAppointmentClicked() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"onRequestAppointmentClicked()")
     }
 
     override fun beginRequestService() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"beginRequestService()")
     }
 
     override fun displayErrorMessage(message: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d(TAG,"displayErrorMessage()")
+    }
+
+    override fun displayWaitingForPredictedService() {
+        Log.d(TAG,"displayWaitingForPredictedServices()")
     }
 }
