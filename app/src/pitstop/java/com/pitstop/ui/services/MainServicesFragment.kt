@@ -1,5 +1,6 @@
 package com.pitstop.ui.services
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -11,10 +12,11 @@ import com.pitstop.R
 import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.ui.main_activity.MainActivity
+import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.utils.MixpanelHelper
-import kotlinx.android.synthetic.main.layout_services_appointment_booked.view.*
+import kotlinx.android.synthetic.main.layout_services_appointment_booked.*
 import kotlinx.android.synthetic.main.layout_services_predicted_service.*
-import kotlinx.android.synthetic.main.layout_services_predicted_service.view.*
 import kotlinx.android.synthetic.main.layout_services_update_mileage.*
 import kotlinx.android.synthetic.pitstop.fragment_services.*
 
@@ -38,13 +40,16 @@ class MainServicesFragment : Fragment(), MainServicesView {
                     , MixpanelHelper(context.applicationContext as GlobalApplication))
 
         }
-        presenter!!.subscribe(this)
 
+        return rootview
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        presenter!!.subscribe(this)
         update_mileage_button.setOnClickListener({presenter!!.onMileageUpdateClicked()})
         request_appointment_button.setOnClickListener({presenter!!.onRequestAppointmentClicked()})
 
-
-        return rootview
     }
 
     override fun onDestroyView() {
@@ -109,12 +114,12 @@ class MainServicesFragment : Fragment(), MainServicesView {
         Log.d(TAG,"onMileageInput()")
     }
 
-    override fun displayAppointmentBooked(date: String) {
-        Log.d(TAG,"displayAppointmentBooked() date: "+date);
+    override fun displayAppointmentBooked(d: String) {
+        Log.d(TAG,"displayAppointmentBooked() date: "+d);
         layout_appointment_booked.visibility = View.VISIBLE
         layout_predicted_service.visibility = View.GONE
         layout_update_mileage.visibility = View.GONE
-        layout_appointment_booked.date.text = date
+        date.text = d
     }
 
     override fun displayPredictedService(from: String, to: String) {
@@ -122,11 +127,15 @@ class MainServicesFragment : Fragment(), MainServicesView {
         layout_appointment_booked.visibility = View.GONE
         layout_predicted_service.visibility = View.VISIBLE
         layout_update_mileage.visibility = View.GONE
-        layout_predicted_service.dateRange.text = "$from - $to"
+        dateRange.text = "$from - $to"
     }
 
     override fun beginRequestService() {
         Log.d(TAG,"beginRequestService()")
+        val intent = Intent(context, RequestServiceActivity::class.java)
+        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false)
+        startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE)
+
     }
 
     override fun displayErrorMessage(message: String) {
