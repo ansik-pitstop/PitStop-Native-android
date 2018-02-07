@@ -17,7 +17,7 @@
 
         <include
             android:id="@+id/layout_appointment_booked"
-            android:visibility="visible"
+            android:visibility="gone"
             layout="@layout/layout_services_appointment_booked"/>
         <include
             android:id="@+id/layout_predicted_service"
@@ -25,7 +25,7 @@
             layout="@layout/layout_services_predicted_service"/>
         <include
             android:id="@+id/layout_update_mileage"
-            android:visibility="gone"
+            android:visibility="visible"
             layout="@layout/layout_services_update_mileage"/>
 
     </FrameLayout>

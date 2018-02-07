@@ -14,6 +14,8 @@ import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.models.Appointment
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
+import kotlinx.android.synthetic.main.layout_services_predicted_service.*
+import kotlinx.android.synthetic.main.layout_services_update_mileage.*
 
 class MainServicesFragment : Fragment(), MainServicesView {
     private val TAG = MainServicesFragment::class.java.simpleName
@@ -36,6 +38,10 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
         }
         presenter!!.subscribe(this)
+
+        update_mileage_button.setOnClickListener({presenter!!.onMileageUpdateClicked()})
+        request_appointment_button.setOnClickListener({presenter!!.onRequestAppointmentClicked()})
+
 
         return rootview
     }
