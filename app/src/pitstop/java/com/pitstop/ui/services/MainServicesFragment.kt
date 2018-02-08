@@ -73,6 +73,11 @@ class MainServicesFragment : Fragment(), MainServicesView {
         return rootview
     }
 
+    fun onServiceRequested(){
+        Log.d(tag,"onServiceRequested()")
+        if (presenter != null) presenter!!.onServiceRequested()
+    }
+
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter!!.subscribe(this)

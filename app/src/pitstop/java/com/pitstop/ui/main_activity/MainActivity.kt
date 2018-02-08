@@ -50,13 +50,17 @@ import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
+import com.pitstop.ui.Notifications.NotificationFragment
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
+import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
+import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MigrationService
@@ -105,6 +109,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var findDirectionsIcon: ImageView? = null;
     private var addCarDialog: AlertDialog? = null;
     private var addDealershipDialog: AlertDialog? = null;
+
+    private lateinit var mainServicesFragment: MainServicesFragment
+    private lateinit var startReportFragment: StartReportFragment
+    private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
+    private lateinit var notificationFragment: NotificationFragment
 
 
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
@@ -248,7 +257,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         logAuthInfo()
         updateScannerLocalStore()
-        tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
+
+        mainServicesFragment = MainServicesFragment()
+        startReportFragment = StartReportFragment()
+        vehicleSpecsFragment = VehicleSpecsFragment()
+        notificationFragment = NotificationFragment()
+
+        tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
+                , vehicleSpecsFragment, notificationFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
@@ -454,7 +470,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             } else {
                 mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")
             }
-        } else {
+        } else if (requestCode == RC_REQUEST_SERVICE
+                && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
+            mainServicesFragment.onServiceRequested();
+        }else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
     }
@@ -836,6 +855,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         val intent = Intent(this, RequestServiceActivity::class.java)
         intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
         isFirstAppointment = false
+        //Result is captured by certain fragments such as service fragment which displays booked appointment
         startActivityForResult(intent,RC_REQUEST_SERVICE)
         hideLoading()
     }
