@@ -100,14 +100,17 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             presenter = new UpcomingServicesPresenter(useCaseComponent,mixPanelHelper);
         }
 
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-
         timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages, this);
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         timelineRecyclerView.setNestedScrollingEnabled(true);
         timelineRecyclerView.setAdapter(timelineAdapter);
 
         return view;
+    }
+
+    public void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        if (presenter != null) presenter.onRefresh();
     }
 
     @Override

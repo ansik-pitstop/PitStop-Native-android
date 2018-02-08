@@ -7,40 +7,46 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/appointment_info_holder"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <include
-            android:visibility="gone"
-            layout="@layout/layout_services_appointment_booked"/>
-        <include
-            android:visibility="gone"
-            layout="@layout/layout_services_predicted_service"/>
-        <include
-            android:visibility="gone"
-            layout="@layout/layout_services_update_mileage"/>
-        <include
-            android:visibility="gone"
-            layout="@layout/layout_services_waiting_predicted_service"/>
+        <FrameLayout
+            android:id="@+id/appointment_info_holder"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </FrameLayout>
+            <include
+                android:visibility="gone"
+                layout="@layout/layout_services_appointment_booked"/>
+            <include
+                android:visibility="gone"
+                layout="@layout/layout_services_predicted_service"/>
+            <include
+                android:visibility="gone"
+                layout="@layout/layout_services_update_mileage"/>
+            <include
+                android:visibility="gone"
+                layout="@layout/layout_services_waiting_predicted_service"/>
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below ="@+id/toolbar"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+        </FrameLayout>
 
-    <com.pitstop.ui.services.SubServiceViewPager
-        android:id="@+id/services_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below ="@+id/toolbar"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
+        <com.pitstop.ui.services.SubServiceViewPager
+            android:id="@+id/services_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

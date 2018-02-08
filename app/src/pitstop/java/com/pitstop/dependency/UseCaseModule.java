@@ -688,10 +688,11 @@ public class UseCaseModule {
 
     @Provides
     GetAppointmentStateUseCase getAppointmentStateUseCase(UserRepository userRepository
-            , AppointmentRepository appointmentRepository, @Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler")Handler mainHandler){
+            , AppointmentRepository appointmentRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new GetAppointmentStateUseCaseImpl(userRepository, appointmentRepository, useCaseHandler, mainHandler);
+        return new GetAppointmentStateUseCaseImpl(userRepository, appointmentRepository
+                , shopRepository, useCaseHandler, mainHandler);
     }
 }
 

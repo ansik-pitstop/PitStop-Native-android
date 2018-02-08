@@ -16,14 +16,12 @@ interface MainServicesView {
     fun displayMileageUpdateNeeded()
     //Displays dialog which allows the input of mileage
     fun displayMileageInputDialog()
-    //Called after a mileage has been entered by the user
-    fun onMileageInput()
     //Called when predicted service date is loading on backend
     fun displayWaitingForPredictedService()
 
 
     //Display booked appointment
-    fun displayAppointmentBooked(date: String)
+    fun displayAppointmentBooked(date: String, who: String)
 
     //Display predicted service
     fun displayPredictedService(from: String, to: String)

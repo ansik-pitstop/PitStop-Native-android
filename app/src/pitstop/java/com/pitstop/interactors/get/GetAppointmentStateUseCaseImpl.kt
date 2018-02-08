@@ -3,11 +3,13 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.Appointment
+import com.pitstop.models.Dealership
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.AppointmentRepository
 import com.pitstop.repositories.Repository
+import com.pitstop.repositories.ShopRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
@@ -20,6 +22,7 @@ import java.util.*
  */
 class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                                      , private val appointmentRepository: AppointmentRepository
+                                     , private val shopRepository: ShopRepository
                                      , private val usecaseHandler: Handler
                                      , private val mainHandler: Handler)
                                      : GetAppointmentStateUseCase {
@@ -53,7 +56,21 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                             val leastRecentAppointment = getLeastRecentAppointment(response)
                             Log.d(tag,"leastRecentAppointment: "+leastRecentAppointment)
                             if (leastRecentAppointment != null){
-                                this@GetAppointmentStateUseCaseImpl.onAppointmentBookedState(leastRecentAppointment)
+                                shopRepository.getAllShops(object: Repository.Callback<List<Dealership>>{
+                                    override fun onSuccess(dealershipList: List<Dealership>) {
+                                        val dealer = dealershipList.find { it.id == leastRecentAppointment.shopId }
+                                        if (dealer != null){
+                                            this@GetAppointmentStateUseCaseImpl.onAppointmentBookedState(leastRecentAppointment,dealer)
+                                        }else{
+                                            Log.d(tag,"Couldn't find dealership matching appointment")
+                                            this@GetAppointmentStateUseCaseImpl.onError(RequestError.getUnknownError())
+                                        }
+                                    }
+
+                                    override fun onError(error: RequestError?) {
+                                        this@GetAppointmentStateUseCaseImpl.onError(error)
+                                    }
+                                })
                             }else{
                                 //Get predicted service
                                 appointmentRepository.getPredictedService(data.carId)
@@ -106,10 +123,10 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
         mainHandler.post({callback!!.onMileageUpdateNeededState()})
     }
 
-    private fun onAppointmentBookedState(appointment: Appointment){
+    private fun onAppointmentBookedState(appointment: Appointment, dealership: Dealership){
         Logger.getInstance()!!.logI(tag, "Use case finished: onAppointmentBookedState: "
-                +appointment, DebugMessage.TYPE_USE_CASE)
-        mainHandler.post({callback!!.onAppointmentBookedState(appointment)})
+                +appointment+", dealership: "+dealership, DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({callback!!.onAppointmentBookedState(appointment, dealership)})
     }
 
     private fun onPredictedServiceState(predictedService: PredictedService){

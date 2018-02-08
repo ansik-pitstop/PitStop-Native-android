@@ -17,6 +17,9 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
+import com.pitstop.ui.services.current.CurrentServicesFragment
+import com.pitstop.ui.services.history.HistoryServicesFragment
+import com.pitstop.ui.services.upcoming.UpcomingServicesFragment
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
 import kotlinx.android.synthetic.main.fragment_services.*
@@ -31,6 +34,10 @@ class MainServicesFragment : Fragment(), MainServicesView {
     private var servicesPager: SubServiceViewPager? = null
     private var tabLayout: TabLayout? = null
     private var presenter: MainServicesPresenter? = null
+
+    private val currentServicesFragment = CurrentServicesFragment()
+    private val upcomingServicesFragment = UpcomingServicesFragment()
+    private val historyServicesFragment = HistoryServicesFragment()
 
     private lateinit var mileageUpdateDialog: AlertDialog
 
@@ -53,6 +60,14 @@ class MainServicesFragment : Fragment(), MainServicesView {
                 }
                 .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
                 .create()
+
+        //Refresh all tabs including the appointment status
+        swipe_refresh.setOnRefreshListener {
+            currentServicesFragment.onRefresh()
+            historyServicesFragment.onRefresh()
+            upcomingServicesFragment.onRefresh()
+            presenter!!.onRefresh()
+        }
 
         if (presenter == null){
             val usecaseComponent = DaggerUseCaseComponent.builder()
@@ -108,7 +123,10 @@ class MainServicesFragment : Fragment(), MainServicesView {
             }
         })
 
-        servicesPager!!.adapter = ServicesAdapter(childFragmentManager)
+        servicesPager!!.adapter = ServicesAdapter(childFragmentManager
+                , currentServicesFragment = currentServicesFragment
+                , upcomingServicesFragment = upcomingServicesFragment
+                , historyServicesFragment = historyServicesFragment)
         tabLayout!!.getTabAt(1)!!.select()
 
     }
@@ -135,11 +153,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
         mileageUpdateDialog.show()
     }
 
-    override fun onMileageInput() {
-        Log.d(TAG,"onMileageInput()")
-    }
-
-    override fun displayAppointmentBooked(d: String) {
+    override fun displayAppointmentBooked(d: String,who: String) {
         Log.d(TAG,"displayAppointmentBooked() date: "+d);
         appointment_info_holder.visibility = View.VISIBLE
         layout_waiting_predicted_service.visibility = View.GONE
@@ -147,6 +161,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
         layout_predicted_service.visibility = View.GONE
         layout_update_mileage.visibility = View.GONE
         date.text = d
+        booked_message.text = String.format(getText(R.string.service_appointment_booked_message).toString(),who)
     }
 
     override fun displayPredictedService(from: String, to: String) {
@@ -173,7 +188,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayErrorMessage(code: Int) {
         Log.d(TAG,"displayErrorMessage() code: $code, string: ${getText(code)}")
-        Toast.makeText(context,getText(code),Toast.LENGTH_LONG).show()
+        Toast.makeText(context,getText(code).toString(),Toast.LENGTH_LONG).show()
     }
 
     override fun displayWaitingForPredictedService() {

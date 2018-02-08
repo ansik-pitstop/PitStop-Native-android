@@ -3,10 +3,12 @@ package com.pitstop.ui.services
 import android.os.Handler
 import android.util.Log
 import com.pitstop.R
+import com.pitstop.R.id.mileage
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetAppointmentStateUseCase
 import com.pitstop.interactors.update.UpdateCarMileageUseCase
 import com.pitstop.models.Appointment
+import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
@@ -52,9 +54,12 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
                 }
             }
 
-            override fun onAppointmentBookedState(appointment: Appointment) {
-                Log.d(tag,"appointment state onAppointmentBookedState() appointment: "+appointment);
-                if (view != null) view!!.displayAppointmentBooked(appointment.date.toString())
+            override fun onAppointmentBookedState(appointment: Appointment, dealership: Dealership) {
+                Log.d(tag,"appointment state onAppointmentBookedState() appointment: " +
+                        "$appointment dealership: $dealership");
+                val format = SimpleDateFormat("EEE MMM dd hh:mm a z yyyy",Locale.CANADA)
+                if (view != null) view!!.displayAppointmentBooked(format.format(appointment.date)
+                        , dealership.name)
             }
 
             override fun onMileageUpdateNeededState() {
@@ -76,10 +81,10 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
     }
 
     //Launch update mileage use case
-    fun onMileageUpdateInput(mileage: String){
-        Log.d(tag,"onMileageUpdateInput() mileage: "+mileage)
+    fun onMileageUpdateInput(input: String){
+        Log.d(tag,"onMileageUpdateInput() input: "+mileage)
         if(view == null) return
-        val mileage = mileage.toIntOrNull()
+        val mileage = input.toIntOrNull()
         if (mileage == null || mileage < 0 || mileage > 3000000){
             view!!.displayErrorMessage(R.string.invalid_mileage_alert_message)
         }else{
@@ -104,6 +109,11 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
 
             })
         }
+    }
+
+    fun onRefresh(){
+        Log.d(tag,"onRefresh")
+        loadView()
     }
 
     //Invoke beginRequestService() on view

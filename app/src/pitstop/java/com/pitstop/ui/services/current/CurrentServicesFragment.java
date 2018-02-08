@@ -141,9 +141,13 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         recallsRecyclerView.setNestedScrollingEnabled(false);
         storedEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
 
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-
         return view;
+    }
+
+    public void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        if (presenter != null)
+            presenter.onRefresh();
     }
 
     @Override

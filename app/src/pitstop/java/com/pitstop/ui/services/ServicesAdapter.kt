@@ -8,7 +8,9 @@ import com.pitstop.ui.services.history.HistoryServicesFragment
 import com.pitstop.ui.services.upcoming.UpcomingServicesFragment
 
 //Return data associated with fragment of the provided tab
-class ServicesAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+class ServicesAdapter(fm: FragmentManager, private val upcomingServicesFragment: UpcomingServicesFragment
+                      , private val currentServicesFragment: CurrentServicesFragment
+                      , private val historyServicesFragment: HistoryServicesFragment) : FragmentPagerAdapter(fm) {
 
     private val FRAGMENT_UPCOMING = 0
     private val FRAGMENT_CURRENT = 1
@@ -19,9 +21,9 @@ class ServicesAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         //Return respective fragment and set the variable inside outer class for later callback reference
         when (position) {
-            FRAGMENT_UPCOMING -> return UpcomingServicesFragment()
-            FRAGMENT_CURRENT -> return CurrentServicesFragment()
-            FRAGMENT_HISTORY -> return HistoryServicesFragment()
+            FRAGMENT_UPCOMING -> upcomingServicesFragment
+            FRAGMENT_CURRENT -> currentServicesFragment
+            FRAGMENT_HISTORY -> historyServicesFragment
         }
         return null
     }
