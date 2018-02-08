@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -16,6 +17,8 @@ import com.pitstop.utils.MixpanelHelper;
  */
 
 public class RequestServiceActivity extends AppCompatActivity implements RequestServiceView,RequestServiceCallback {
+
+    private final String TAG = RequestServiceActivity.class.getSimpleName();
 
     public interface activityResult{
         int RESULT_SUCCESS = 1;
@@ -65,14 +68,15 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         presenter.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
     public void finishActivity(boolean success) {
+        Log.d(TAG,"finishActivity() success? "+success);
         setResult(success? activityResult.RESULT_SUCCESS: activityResult.RESULT_FAILURE);
-        super.finish();
+        finish();
     }
 
     @Override

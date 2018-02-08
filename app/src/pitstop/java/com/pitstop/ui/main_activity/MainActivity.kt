@@ -8,16 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -43,7 +39,6 @@ import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
-import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.models.Car
@@ -652,7 +647,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         val thisInstance = this
         val intent = Intent(thisInstance, RequestServiceActivity::class.java)
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, isFirstAppointment)
         isFirstAppointment = false
         startActivity(intent)
 
@@ -839,9 +834,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun openRequestService(tentative: Boolean) {
         val intent = Intent(this, RequestServiceActivity::class.java)
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, tentative)
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
         isFirstAppointment = false
-        startActivity(intent)
+        startActivityForResult(intent,RC_REQUEST_SERVICE)
         hideLoading()
     }
 

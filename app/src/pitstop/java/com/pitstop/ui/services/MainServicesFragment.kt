@@ -188,11 +188,12 @@ class MainServicesFragment : Fragment(), MainServicesView {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
+        Log.d(TAG,"onActivityResult() requestCode: "+requestCode)
         if (presenter != null && requestCode == MainActivity.RC_REQUEST_SERVICE
                 && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
             presenter!!.onServiceRequested();
+        }else{
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
