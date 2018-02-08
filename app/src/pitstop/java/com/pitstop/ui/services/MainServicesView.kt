@@ -31,6 +31,8 @@ interface MainServicesView {
     fun beginRequestService()
 
     //Displays error message in dialog
-    fun displayErrorMessage(message: String)
-
+    fun displayErrorMessage(stringCode: Int)
+    fun displayErrorMessage(error: String)
+    //Displays nothing
+    fun displayNoState()
 }

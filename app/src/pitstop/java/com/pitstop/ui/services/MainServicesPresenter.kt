@@ -2,6 +2,7 @@ package com.pitstop.ui.services
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetAppointmentStateUseCase
 import com.pitstop.interactors.update.UpdateCarMileageUseCase
@@ -9,6 +10,9 @@ import com.pitstop.models.Appointment
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.MixpanelHelper
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Karol Zdebel on 2/1/2018.
@@ -37,8 +41,15 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
         usecaseComponent.appointmentStateUseCase.execute(object: GetAppointmentStateUseCase.Callback{
             override fun onPredictedServiceState(predictedService: PredictedService) {
                 Log.d(tag,"appointment state onPredictedServiceState() predictedService: "+predictedService);
-                if (view != null) view!!.displayPredictedService(
-                        predictedService.predictedDate.toString(),predictedService.predictedDate.toString())
+                if (view != null){
+                    val halfInterval: Long = predictedService.confidenceInterval/2L
+                    val timeDiff = halfInterval * TimeUnit.DAYS.toMillis(halfInterval) //interval * milliseconds in day
+                    val from = Date(predictedService.predictedDate.time-timeDiff)
+                    val to = Date(predictedService.predictedDate.time+timeDiff)
+                    Log.d(tag,"from: $from, to: $to")
+                    val format = SimpleDateFormat("EEE MMM dd yyyy", Locale.CANADA)
+                    view!!.displayPredictedService(format.format(from),format.format(to))
+                }
             }
 
             override fun onAppointmentBookedState(appointment: Appointment) {
@@ -65,28 +76,34 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
     }
 
     //Launch update mileage use case
-    fun onMileageUpdateInput(mileage: Double){
+    fun onMileageUpdateInput(mileage: String){
         Log.d(tag,"onMileageUpdateInput() mileage: "+mileage)
-        usecaseComponent.updateCarMileageUseCase().execute(mileage, object: UpdateCarMileageUseCase.Callback{
-            override fun onMileageUpdated() {
-                Log.d(tag,"update mileage onMileageUpdated()")
-                if (view != null){
-                    Handler().postDelayed({loadView()},5000)
-                    view!!.displayWaitingForPredictedService()
+        if(view == null) return
+        val mileage = mileage.toIntOrNull()
+        if (mileage == null || mileage < 0 || mileage > 3000000){
+            view!!.displayErrorMessage(R.string.invalid_mileage_alert_message)
+        }else{
+            usecaseComponent.updateCarMileageUseCase().execute(Integer.valueOf(mileage).toDouble(), object: UpdateCarMileageUseCase.Callback{
+                override fun onMileageUpdated() {
+                    Log.d(tag,"update mileage onMileageUpdated()")
+                    if (view != null){
+                        Handler().postDelayed({loadView()},5000)
+                        view!!.displayWaitingForPredictedService()
+                    }
                 }
-            }
 
-            override fun onNoCarAdded() {
-                Log.d(tag,"update mileage onNoCarAdded()")
-                if (view != null) view!!.displayErrorMessage("Please add a car")
-            }
+                override fun onNoCarAdded() {
+                    Log.d(tag,"update mileage onNoCarAdded()")
+                    if (view != null) view!!.displayErrorMessage("Please add a car")
+                }
 
-            override fun onError(error: RequestError?) {
-                Log.d(tag, "update mileage onError() err: "+error)
-                if (view != null) view!!.displayErrorMessage(error!!.message)
-            }
+                override fun onError(error: RequestError?) {
+                    Log.d(tag, "update mileage onError() err: "+error)
+                    if (view != null) view!!.displayErrorMessage(error!!.message)
+                }
 
-        })
+            })
+        }
     }
 
     //Invoke beginRequestService() on view

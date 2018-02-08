@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_predicted_service"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -15,6 +16,8 @@
 
     <TextView
         android:id="@+id/dateRange"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:layout_marginTop="5dp"
         android:textStyle="bold"
         android:layout_gravity="center"

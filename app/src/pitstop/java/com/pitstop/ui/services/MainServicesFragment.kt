@@ -3,22 +3,27 @@ package com.pitstop.ui.services
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
+import android.support.design.widget.TextInputEditText
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.pitstop.R
 import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
+import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
+import kotlinx.android.synthetic.main.fragment_services.*
 import kotlinx.android.synthetic.main.layout_services_appointment_booked.*
 import kotlinx.android.synthetic.main.layout_services_predicted_service.*
 import kotlinx.android.synthetic.main.layout_services_update_mileage.*
-import kotlinx.android.synthetic.pitstop.fragment_services.*
+import kotlinx.android.synthetic.main.layout_services_waiting_predicted_service.*
 
 class MainServicesFragment : Fragment(), MainServicesView {
     private val TAG = MainServicesFragment::class.java.simpleName
@@ -27,10 +32,27 @@ class MainServicesFragment : Fragment(), MainServicesView {
     private var tabLayout: TabLayout? = null
     private var presenter: MainServicesPresenter? = null
 
+    private lateinit var mileageUpdateDialog: AlertDialog
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d(TAG,"onCreateView()")
         val rootview = inflater!!.inflate(R.layout.fragment_services, null)
         servicesPager = activity.findViewById(R.id.services_viewpager)
+
+        val dialogLayout = LayoutInflater.from(
+                activity).inflate(R.layout.dialog_input_mileage, null)
+        val textInputEditText = dialogLayout
+                .findViewById<View>(R.id.mileage_input) as TextInputEditText
+        mileageUpdateDialog = AnimatedDialogBuilder(activity)
+                .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                .setTitle("Update Mileage")
+                .setView(dialogLayout)
+                .setPositiveButton("Confirm") { dialog, which ->
+                    presenter!!.onMileageUpdateInput(
+                            textInputEditText.text.toString())
+                }
+                .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+                .create()
 
         if (presenter == null){
             val usecaseComponent = DaggerUseCaseComponent.builder()
@@ -47,6 +69,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter!!.subscribe(this)
+        presenter!!.loadView()
         update_mileage_button.setOnClickListener({presenter!!.onMileageUpdateClicked()})
         request_appointment_button.setOnClickListener({presenter!!.onRequestAppointmentClicked()})
 
@@ -100,14 +123,16 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayMileageUpdateNeeded() {
         Log.d(TAG,"displayMileageUpdateNeeded()")
+        appointment_info_holder.visibility = View.VISIBLE
+        layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.GONE
         layout_predicted_service.visibility = View.GONE
         layout_update_mileage.visibility = View.VISIBLE
-
     }
 
     override fun displayMileageInputDialog() {
         Log.d(TAG,"displaMileageInputDialog")
+        mileageUpdateDialog.show()
     }
 
     override fun onMileageInput() {
@@ -116,6 +141,8 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayAppointmentBooked(d: String) {
         Log.d(TAG,"displayAppointmentBooked() date: "+d);
+        appointment_info_holder.visibility = View.VISIBLE
+        layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.VISIBLE
         layout_predicted_service.visibility = View.GONE
         layout_update_mileage.visibility = View.GONE
@@ -123,7 +150,9 @@ class MainServicesFragment : Fragment(), MainServicesView {
     }
 
     override fun displayPredictedService(from: String, to: String) {
-        Log.d(TAG,"displayPredictedService() from: $from ,to: $to");
+        Log.d(TAG,"displayPredictedService() from: $from ,to: $to")
+        appointment_info_holder.visibility = View.VISIBLE
+        layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.GONE
         layout_predicted_service.visibility = View.VISIBLE
         layout_update_mileage.visibility = View.GONE
@@ -135,14 +164,29 @@ class MainServicesFragment : Fragment(), MainServicesView {
         val intent = Intent(context, RequestServiceActivity::class.java)
         intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false)
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE)
-
     }
 
     override fun displayErrorMessage(message: String) {
-        Log.d(TAG,"displayErrorMessage()")
+        Log.d(TAG,"displayErrorMessage() message: "+message)
+        Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+    }
+
+    override fun displayErrorMessage(code: Int) {
+        Log.d(TAG,"displayErrorMessage() code: $code, string: ${getText(code)}")
+        Toast.makeText(context,getText(code),Toast.LENGTH_LONG).show()
     }
 
     override fun displayWaitingForPredictedService() {
         Log.d(TAG,"displayWaitingForPredictedServices()")
+        appointment_info_holder.visibility = View.VISIBLE
+        layout_waiting_predicted_service.visibility = View.VISIBLE
+        layout_appointment_booked.visibility = View.GONE
+        layout_predicted_service.visibility = View.GONE
+        layout_update_mileage.visibility = View.GONE
+    }
+
+    override fun displayNoState() {
+        Log.d(TAG,"displayNoState()")
+        appointment_info_holder.visibility = View.GONE
     }
 }

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_services"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_services"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.pitstop.ui.services.MainServicesFragment">
+    android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/appointment_info_holder"
@@ -16,17 +15,17 @@
         android:layout_height="wrap_content">
 
         <include
-            android:id="@+id/layout_appointment_booked"
             android:visibility="gone"
             layout="@layout/layout_services_appointment_booked"/>
         <include
-            android:id="@+id/layout_predicted_service"
             android:visibility="gone"
             layout="@layout/layout_services_predicted_service"/>
         <include
-            android:id="@+id/layout_update_mileage"
-            android:visibility="visible"
+            android:visibility="gone"
             layout="@layout/layout_services_update_mileage"/>
+        <include
+            android:visibility="gone"
+            layout="@layout/layout_services_waiting_predicted_service"/>
 
     </FrameLayout>
 
