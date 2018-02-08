@@ -2,6 +2,10 @@ package com.pitstop.ui.services
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.EventBus.EventSource
+import com.pitstop.EventBus.EventSourceImpl
+import com.pitstop.EventBus.EventType
+import com.pitstop.EventBus.EventTypeImpl
 import com.pitstop.R
 import com.pitstop.R.id.mileage
 import com.pitstop.dependency.UseCaseComponent
@@ -11,6 +15,7 @@ import com.pitstop.models.Appointment
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PredictedService
+import com.pitstop.ui.mainFragments.TabPresenter
 import com.pitstop.utils.MixpanelHelper
 import java.text.SimpleDateFormat
 import java.util.*
@@ -20,20 +25,13 @@ import java.util.concurrent.TimeUnit
  * Created by Karol Zdebel on 2/1/2018.
  */
 public class MainServicesPresenter(private val usecaseComponent: UseCaseComponent
-                                   , private val mixpanelHelper: MixpanelHelper){
+                                   , private val mixpanelHelper: MixpanelHelper): TabPresenter<MainServicesView>() {
 
     private val tag = javaClass.simpleName
-    private var view: MainServicesView? = null
-
-    fun subscribe(view :MainServicesView){
-        Log.d(tag,"subscribe()")
-        this.view = view
-    }
-
-    fun unsubscribe(){
-        Log.d(tag,"unsubscribe()")
-        this.view = null
-    }
+    val ignoredEvents = arrayOf<EventType>(EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)
+            , EventTypeImpl(EventType.EVENT_DTC_NEW), EventTypeImpl(EventType.EVENT_MILEAGE)
+            , EventTypeImpl(EventType.EVENT_SCANNER), EventTypeImpl(EventType.EVENT_SERVICES_NEW))
+    val EVENT_SOURCE: EventSource = EventSourceImpl(EventSource.SOURCE_MAIN_SERIVCES)
 
     //Find out which view (#1, #2, or #3) is appropriate to display and command the view to do so
     //Should be called when the view is created, typically after the subscribe() call is made
@@ -122,5 +120,15 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
         if (view != null) view!!.beginRequestService()
     }
 
+    fun onServiceRequested(){
+        Log.d(tag,"onServiceRequested()")
+        loadView()
+    }
+
+    override fun getIgnoredEventTypes(): Array<EventType> = ignoredEvents
+
+    override fun onAppStateChanged() = loadView()
+
+    override fun getSourceType() = EVENT_SOURCE
 
 }

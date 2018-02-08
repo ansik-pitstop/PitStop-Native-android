@@ -35,9 +35,9 @@ class MainServicesFragment : Fragment(), MainServicesView {
     private var tabLayout: TabLayout? = null
     private var presenter: MainServicesPresenter? = null
 
-    private val currentServicesFragment = CurrentServicesFragment()
-    private val upcomingServicesFragment = UpcomingServicesFragment()
-    private val historyServicesFragment = HistoryServicesFragment()
+    private lateinit var currentServicesFragment: CurrentServicesFragment
+    private lateinit var upcomingServicesFragment: UpcomingServicesFragment
+    private lateinit var historyServicesFragment: HistoryServicesFragment
 
     private lateinit var mileageUpdateDialog: AlertDialog
 
@@ -61,14 +61,6 @@ class MainServicesFragment : Fragment(), MainServicesView {
                 .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
                 .create()
 
-        //Refresh all tabs including the appointment status
-        swipe_refresh.setOnRefreshListener {
-            currentServicesFragment.onRefresh()
-            historyServicesFragment.onRefresh()
-            upcomingServicesFragment.onRefresh()
-            presenter!!.onRefresh()
-        }
-
         if (presenter == null){
             val usecaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(ContextModule(context.applicationContext))
@@ -87,7 +79,6 @@ class MainServicesFragment : Fragment(), MainServicesView {
         presenter!!.loadView()
         update_mileage_button.setOnClickListener({presenter!!.onMileageUpdateClicked()})
         request_appointment_button.setOnClickListener({presenter!!.onRequestAppointmentClicked()})
-
     }
 
     override fun onDestroyView() {
@@ -123,16 +114,31 @@ class MainServicesFragment : Fragment(), MainServicesView {
             }
         })
 
+        currentServicesFragment = CurrentServicesFragment()
+        upcomingServicesFragment = UpcomingServicesFragment()
+        historyServicesFragment = HistoryServicesFragment()
+
+        //Pass reference to swipe refresh layout so other fragments can hide loading and check status
+        currentServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+        historyServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+        upcomingServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+
+        //Refresh all tabs including the appointment status
+        swipe_refresh.setOnRefreshListener {
+            currentServicesFragment.onRefresh()
+            historyServicesFragment.onRefresh()
+            upcomingServicesFragment.onRefresh()
+            presenter!!.onRefresh()
+        }
+
         servicesPager!!.adapter = ServicesAdapter(childFragmentManager
-                , currentServicesFragment = currentServicesFragment
-                , upcomingServicesFragment = upcomingServicesFragment
-                , historyServicesFragment = historyServicesFragment)
+                , upcomingServicesFragment, currentServicesFragment,historyServicesFragment)
         tabLayout!!.getTabAt(1)!!.select()
 
     }
 
     override fun selectTab(tab: MainServicesView.ServiceTab) {
-        Log.d(TAG,"selectTab() tabNum: "+tab.tabNum);
+        Log.d(TAG,"selectTab() tabNum: "+tab.tabNum)
         if (servicesPager == null) {
             return
         }
@@ -177,8 +183,17 @@ class MainServicesFragment : Fragment(), MainServicesView {
     override fun beginRequestService() {
         Log.d(TAG,"beginRequestService()")
         val intent = Intent(context, RequestServiceActivity::class.java)
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false)
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, false)
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (presenter != null && requestCode == MainActivity.RC_REQUEST_SERVICE
+                && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
+            presenter!!.onServiceRequested();
+        }
     }
 
     override fun displayErrorMessage(message: String) {

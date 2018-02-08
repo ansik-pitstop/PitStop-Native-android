@@ -21,9 +21,9 @@ class ServicesAdapter(fm: FragmentManager, private val upcomingServicesFragment:
 
         //Return respective fragment and set the variable inside outer class for later callback reference
         when (position) {
-            FRAGMENT_UPCOMING -> upcomingServicesFragment
-            FRAGMENT_CURRENT -> currentServicesFragment
-            FRAGMENT_HISTORY -> historyServicesFragment
+            FRAGMENT_UPCOMING -> return upcomingServicesFragment
+            FRAGMENT_CURRENT -> return currentServicesFragment
+            FRAGMENT_HISTORY -> return historyServicesFragment
         }
         return null
     }

@@ -196,7 +196,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private void startRequestServiceActivity() {
         final Intent intent = new Intent(this, RequestServiceActivity.class);
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, false);
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, false);
         intent.putExtra(MainActivity.CAR_ISSUE_EXTRA,allIssues.get(positionClicked));
         startActivityForResult(intent, MainActivity.RC_REQUEST_SERVICE);
     }

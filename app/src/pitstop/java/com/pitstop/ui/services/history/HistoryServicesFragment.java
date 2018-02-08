@@ -49,9 +49,6 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @BindView(R.id.issue_expandable_list)
     protected ExpandableListView issueGroup;
 
-    @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
-
     @BindView(R.id.offline_view)
     View offlineView;
 
@@ -70,6 +67,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     private HistoryServicesPresenter presenter;
     private boolean hasBeenPopulated = false;
+    private SwipeRefreshLayout parentSwipeRefreshLayout;
 
     @Nullable
     @Override
@@ -117,6 +115,10 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         return view;
     }
 
+    public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
+        Log.d(TAG,"setParentSwipeRefreshLayout()");
+        this.parentSwipeRefreshLayout = swipeRefreshLayout;
+    }
 
     public void onRefresh(){
         Log.d(TAG,"onRefresh()");
@@ -158,34 +160,34 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
             regView.setVisibility(View.GONE);
             loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
+            parentSwipeRefreshLayout.setEnabled(false);
         }
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
-            swipeRefreshLayout.setEnabled(true);
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()){
+            parentSwipeRefreshLayout.setEnabled(true);
             regView.setVisibility(View.VISIBLE);
             loadingView.setVisibility(View.GONE);
-        }else{
-            swipeRefreshLayout.setRefreshing(false);
+        }else if (parentSwipeRefreshLayout != null){
+            parentSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
     @Override
     public void hideRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
+        if (parentSwipeRefreshLayout != null) parentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return parentSwipeRefreshLayout == null ? null : parentSwipeRefreshLayout.isRefreshing();
     }
 
     @Override

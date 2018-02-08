@@ -66,11 +66,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.offline_view)
     View offlineView;
 
-    @BindView(R.id.activity_timeline)
-    SwipeRefreshLayout swipeRefreshLayout;
-
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
+
+    private SwipeRefreshLayout parentSwipeRefreshLayout;
 
     private TimelineAdapter timelineAdapter;
 
@@ -106,6 +105,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setAdapter(timelineAdapter);
 
         return view;
+    }
+
+    public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
+        Log.d(TAG,"setParentSwipeRefreshLayout()");
+        this.parentSwipeRefreshLayout = swipeRefreshLayout;
     }
 
     public void onRefresh(){
@@ -149,7 +153,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
             params.gravity = Gravity.CENTER_VERTICAL;
@@ -162,37 +166,37 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             loadingView.setVisibility(View.VISIBLE);
             relativeLayout.bringToFront();
             loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
+            parentSwipeRefreshLayout.setEnabled(false);
         }
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()){
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
             params.gravity = Gravity.CENTER_VERTICAL;
             relativeLayout.setLayoutParams(params);
-            swipeRefreshLayout.setEnabled(true);
+            parentSwipeRefreshLayout.setEnabled(true);
             noCarView.setVisibility(View.GONE);
             noServicesView.setVisibility(View.GONE);
             loadingView.setVisibility(View.GONE);
             relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
-        }else{
-            swipeRefreshLayout.setRefreshing(false);
+        }else if (parentSwipeRefreshLayout != null){
+            parentSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
     @Override
     public void hideRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
+        if (parentSwipeRefreshLayout != null) parentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return parentSwipeRefreshLayout == null? null: parentSwipeRefreshLayout.isRefreshing();
     }
 
     @Override

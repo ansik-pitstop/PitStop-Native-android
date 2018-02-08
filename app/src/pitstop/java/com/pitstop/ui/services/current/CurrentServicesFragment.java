@@ -84,9 +84,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.routine_serivces_holder)
     LinearLayout routineServicesHolder;
 
-    @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
-
     @BindView(R.id.offline_view)
     View offlineView;
 
@@ -119,6 +116,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private boolean hasBeenPopulated = false;
+    private SwipeRefreshLayout parentSwipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -142,6 +140,11 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         storedEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
 
         return view;
+    }
+
+    public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
+        Log.d(TAG,"setParentSwipeRefreshLayout()");
+        this.parentSwipeRefreshLayout = swipeRefreshLayout;
     }
 
     public void onRefresh(){
@@ -382,32 +385,32 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
+            parentSwipeRefreshLayout.setEnabled(false);
         }
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
-            swipeRefreshLayout.setEnabled(true);
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()){
+            parentSwipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
-        }else{
-            swipeRefreshLayout.setRefreshing(false);
+        }else if (parentSwipeRefreshLayout != null){
+            parentSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
     @Override
     public void hideRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
+        if (parentSwipeRefreshLayout != null) parentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return parentSwipeRefreshLayout == null? null: parentSwipeRefreshLayout.isRefreshing();
     }
 
 

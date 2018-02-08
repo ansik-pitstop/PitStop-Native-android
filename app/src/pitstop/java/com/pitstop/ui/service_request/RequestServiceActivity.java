@@ -17,11 +17,13 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class RequestServiceActivity extends AppCompatActivity implements RequestServiceView,RequestServiceCallback {
 
-
-    public static final String EXTRA_FIRST_BOOKING = "is_first_booking";
-    public static final String STATE_TENTATIVE = "tentative";
-    public static final String STATE_REQUESTED = "requested";
-
+    public interface activityResult{
+        int RESULT_SUCCESS = 1;
+        int RESULT_FAILURE = 0;
+        String EXTRA_FIRST_BOOKING = "is_first_booking";
+        String STATE_TENTATIVE = "tentative";
+        String STATE_REQUESTED = "requested";
+    }
 
     private ServiceFormFragment serviceFormFragment;
 
@@ -35,7 +37,7 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_service);
-        isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
+        isFirstBooking = getIntent().getExtras().getBoolean(activityResult.EXTRA_FIRST_BOOKING);
 
         fragmentManager = getSupportFragmentManager();
         MixpanelHelper mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
@@ -68,16 +70,17 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
     }
 
     @Override
-    public void finishActivity() {
+    public void finishActivity(boolean success) {
+        setResult(success? activityResult.RESULT_SUCCESS: activityResult.RESULT_FAILURE);
         super.finish();
     }
 
     @Override
     public String checkTentative() {
         if(isFirstBooking){
-            return STATE_TENTATIVE;
+            return activityResult.STATE_TENTATIVE;
         }else{
-            return STATE_REQUESTED;
+            return activityResult.STATE_REQUESTED;
         }
     }
 }

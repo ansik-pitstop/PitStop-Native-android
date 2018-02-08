@@ -25,7 +25,7 @@ public class EventSourceImpl implements EventSource {
                 && !eventSource.equals(EventSource.SOURCE_MY_GARAGE)
                 && !eventSource.equals(EventSource.SOURCE_DRAWER)
                 && !eventSource.equals(EventSource.SOURCE_MY_CAR)
-        ){
+                && !eventSource.equals(EventSource.SOURCE_MAIN_SERIVCES)) {
 
             throw new IllegalArgumentException();
         }
