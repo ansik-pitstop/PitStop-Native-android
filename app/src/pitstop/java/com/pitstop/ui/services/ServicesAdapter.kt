@@ -12,10 +12,12 @@ class ServicesAdapter(fm: FragmentManager, private val upcomingServicesFragment:
                       , private val currentServicesFragment: CurrentServicesFragment
                       , private val historyServicesFragment: HistoryServicesFragment) : FragmentPagerAdapter(fm) {
 
-    private val FRAGMENT_UPCOMING = 0
-    private val FRAGMENT_CURRENT = 1
-    private val FRAGMENT_HISTORY = 2
-    private val FRAGMENT_COUNT = 3
+    companion object {
+        val FRAGMENT_UPCOMING = 0
+        val FRAGMENT_CURRENT = 1
+        val FRAGMENT_HISTORY = 2
+        val FRAGMENT_COUNT = 3
+    }
 
     override fun getItem(position: Int): Fragment? {
 

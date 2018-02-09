@@ -149,9 +149,11 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
 
         //Refresh all tabs including the appointment status
         swipe_refresh.setOnRefreshListener {
-            currentServicesFragment.onRefresh()
-            historyServicesFragment.onRefresh()
-            upcomingServicesFragment.onRefresh()
+            when(tabLayout!!.selectedTabPosition){
+                ServicesAdapter.Companion.FRAGMENT_CURRENT -> currentServicesFragment.onRefresh()
+                ServicesAdapter.Companion.FRAGMENT_UPCOMING -> upcomingServicesFragment.onRefresh()
+                ServicesAdapter.Companion.FRAGMENT_HISTORY -> historyServicesFragment.onRefresh()
+            }
             presenter!!.onRefresh()
         }
 
