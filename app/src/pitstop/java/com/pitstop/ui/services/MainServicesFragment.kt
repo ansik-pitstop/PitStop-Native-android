@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.layout_services_predicted_service.*
 import kotlinx.android.synthetic.main.layout_services_update_mileage.*
 import kotlinx.android.synthetic.main.layout_services_waiting_predicted_service.*
 
-class MainServicesFragment : Fragment(), MainServicesView {
+class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer {
     private val TAG = MainServicesFragment::class.java.simpleName
 
     private var servicesPager: SubServiceViewPager? = null
@@ -74,6 +74,19 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
         return rootview
     }
+
+    //For reference by child fragments
+    override fun displayServiceErrorDialog(message: String){
+        Log.d(tag,"displayServiceErrorDialog() message: "+message)
+        Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+    }
+
+    //For reference by child fragments
+    override fun displayServiceErrorDialog(code: Int){
+        Log.d(tag,"displayServiceErrorDialog() code: "+code)
+        Toast.makeText(context,getText(code),Toast.LENGTH_LONG).show()
+    }
+
 
     fun onServiceRequested(){
         Log.d(tag,"onServiceRequested()")
@@ -128,8 +141,11 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
         //Pass reference to swipe refresh layout so other fragments can hide loading and check status
         currentServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+        currentServicesFragment.setErrorMessageDisplayer(this)
         historyServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+        historyServicesFragment.setErrorMessageDisplayer(this)
         upcomingServicesFragment.setParentSwipeRefreshLayout(swipe_refresh)
+        upcomingServicesFragment.setErrorMessageDisplayer(this)
 
         //Refresh all tabs including the appointment status
         swipe_refresh.setOnRefreshListener {

@@ -26,6 +26,7 @@ import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.services.ServiceErrorDisplayer;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private List<Integer> listOfMileages =  new ArrayList<>();
     private boolean hasBeenPopulated = false;
     private boolean isRefreshing = false;
+    private ServiceErrorDisplayer serviceErrorDisplayer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,6 +112,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
         Log.d(TAG,"setParentSwipeRefreshLayout()");
         this.parentSwipeRefreshLayout = swipeRefreshLayout;
+    }
+
+    public void setErrorMessageDisplayer(ServiceErrorDisplayer serviceErrorDisplayer){
+        Log.d(TAG,"setErrorMessageDisplayer()");
+        this.serviceErrorDisplayer = serviceErrorDisplayer;
     }
 
     public void onRefresh(){
@@ -202,37 +209,44 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG,"displayOfflineErrorDialog()");
-        if (offlineAlertDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.offline_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.offline_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            offlineAlertDialog = alertDialogBuilder.create();
-        }
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.offline_error);
 
-        offlineAlertDialog.show();
+//        if (offlineAlertDialog == null){
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//            alertDialogBuilder.setTitle(R.string.offline_error_title);
+//            alertDialogBuilder
+//                    .setMessage(R.string.offline_error)
+//                    .setCancelable(true)
+//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+//                        dialog.dismiss();
+//                    });
+//            offlineAlertDialog = alertDialogBuilder.create();
+//        }
+//
+//        offlineAlertDialog.show();
+
     }
 
     @Override
     public void displayUnknownErrorDialog() {
         Log.d(TAG,"displayUnknownErrorDialog()");
-        if (unknownErrorDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.unknown_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.unknown_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            unknownErrorDialog = alertDialogBuilder.create();
-        }
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.unknown_error);
 
-        unknownErrorDialog.show();
+//        if (unknownErrorDialog == null){
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+//            alertDialogBuilder
+//                    .setMessage(R.string.unknown_error)
+//                    .setCancelable(true)
+//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+//                        dialog.dismiss();
+//                    });
+//            unknownErrorDialog = alertDialogBuilder.create();
+//        }
+//
+//        unknownErrorDialog.show();
     }
 
     @Override
