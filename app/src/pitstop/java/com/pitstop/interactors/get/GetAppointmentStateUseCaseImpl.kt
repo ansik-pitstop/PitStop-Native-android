@@ -80,8 +80,10 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                                             Log.d(tag,"Got predicted service: "+response)
                                             this@GetAppointmentStateUseCaseImpl.onPredictedServiceState(response)
                                         },{error ->
-                                            Log.d(tag,"error getting predicted service, err: "+error)
-                                            if (error.message != null && error!!.message!!.contains("Not enough")){
+                                            Log.d(tag,"error getting predicted service" +
+                                                    ", err.localizedMessage: ${error.localizedMessage}" +
+                                                    ", error.message: ${error.message.toString()}")
+                                            if (error.message != null && error.message!!.contains("HTTP 400")){
                                                 Log.d(tag,"Contains not enough")
                                                 this@GetAppointmentStateUseCaseImpl.onMileageUpdateNeededState()
                                             }else{

@@ -29,8 +29,8 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
 
     private val tag = javaClass.simpleName
     val ignoredEvents = arrayOf<EventType>(EventTypeImpl(EventType.EVENT_SERVICES_HISTORY)
-            , EventTypeImpl(EventType.EVENT_DTC_NEW), EventTypeImpl(EventType.EVENT_MILEAGE)
-            , EventTypeImpl(EventType.EVENT_SCANNER), EventTypeImpl(EventType.EVENT_SERVICES_NEW))
+            , EventTypeImpl(EventType.EVENT_DTC_NEW), EventTypeImpl(EventType.EVENT_SCANNER)
+            , EventTypeImpl(EventType.EVENT_SERVICES_NEW))
     val EVENT_SOURCE: EventSource = EventSourceImpl(EventSource.SOURCE_MAIN_SERIVCES)
 
     //Find out which view (#1, #2, or #3) is appropriate to display and command the view to do so
