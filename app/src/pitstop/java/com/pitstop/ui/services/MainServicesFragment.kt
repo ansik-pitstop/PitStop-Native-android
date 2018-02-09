@@ -226,21 +226,19 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
         }
     }
 
+    //Don't display error here because its unintuitive whether it came from the subtab or main service
     override fun displayErrorMessage(message: String) {
         Log.d(TAG,"displayErrorMessage() message: "+message)
         if (!hasBeenPopulated){
             displayNoState()
-        }else{
-            Toast.makeText(context,message,Toast.LENGTH_LONG).show()
         }
     }
 
+    //Don't display error here because its unintuitive whether it came from the subtab or main service
     override fun displayErrorMessage(code: Int) {
         Log.d(TAG,"displayErrorMessage() code: $code, string: ${getText(code)}")
         if (!hasBeenPopulated){
             displayNoState()
-        }else{
-            Toast.makeText(context,getText(code).toString(),Toast.LENGTH_LONG).show()
         }
     }
 
