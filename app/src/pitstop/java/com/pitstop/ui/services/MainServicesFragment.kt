@@ -40,9 +40,11 @@ class MainServicesFragment : Fragment(), MainServicesView {
     private lateinit var historyServicesFragment: HistoryServicesFragment
 
     private lateinit var mileageUpdateDialog: AlertDialog
+    private var hasBeenPopulated = false
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d(TAG,"onCreateView()")
+        hasBeenPopulated = false
         val rootview = inflater!!.inflate(R.layout.fragment_services, null)
         servicesPager = activity.findViewById(R.id.services_viewpager)
 
@@ -91,6 +93,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
         super.onDestroyView()
         if (presenter != null)
             presenter!!.unsubscribe()
+        hasBeenPopulated = false
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -152,6 +155,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayMileageUpdateNeeded() {
         Log.d(TAG,"displayMileageUpdateNeeded()")
+        hasBeenPopulated = true
         appointment_info_holder.visibility = View.VISIBLE
         layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.GONE
@@ -166,6 +170,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayAppointmentBooked(d: String,who: String) {
         Log.d(TAG,"displayAppointmentBooked() date: "+d);
+        hasBeenPopulated = true
         appointment_info_holder.visibility = View.VISIBLE
         layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.VISIBLE
@@ -177,6 +182,7 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayPredictedService(from: String, to: String) {
         Log.d(TAG,"displayPredictedService() from: $from ,to: $to")
+        hasBeenPopulated = true
         appointment_info_holder.visibility = View.VISIBLE
         layout_waiting_predicted_service.visibility = View.GONE
         layout_appointment_booked.visibility = View.GONE
@@ -204,12 +210,20 @@ class MainServicesFragment : Fragment(), MainServicesView {
 
     override fun displayErrorMessage(message: String) {
         Log.d(TAG,"displayErrorMessage() message: "+message)
-        Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+        if (!hasBeenPopulated){
+            displayNoState()
+        }else{
+            Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun displayErrorMessage(code: Int) {
         Log.d(TAG,"displayErrorMessage() code: $code, string: ${getText(code)}")
-        Toast.makeText(context,getText(code).toString(),Toast.LENGTH_LONG).show()
+        if (!hasBeenPopulated){
+            displayNoState()
+        }else{
+            Toast.makeText(context,getText(code).toString(),Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun displayWaitingForPredictedService() {
