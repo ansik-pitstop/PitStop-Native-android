@@ -202,19 +202,6 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"displayOfflineErrorDialog()");
         if (serviceErrorDisplayer != null)
             serviceErrorDisplayer.displayServiceErrorDialog(R.string.offline_error);
-//        if (offlineAlertDialog == null){
-//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-//            alertDialogBuilder.setTitle(R.string.offline_error_title);
-//            alertDialogBuilder
-//                    .setMessage(R.string.offline_error)
-//                    .setCancelable(true)
-//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-//                        dialog.dismiss();
-//                    });
-//            offlineAlertDialog = alertDialogBuilder.create();
-//        }
-//
-//        offlineAlertDialog.show();
     }
 
     @Override
@@ -222,19 +209,6 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
         Log.d(TAG,"displayUnknownErrorDialog()");
         if (serviceErrorDisplayer != null)
             serviceErrorDisplayer.displayServiceErrorDialog(R.string.unknown_error);
-//        if (unknownErrorDialog == null){
-//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-//            alertDialogBuilder.setTitle(R.string.unknown_error_title);
-//            alertDialogBuilder
-//                    .setMessage(R.string.unknown_error)
-//                    .setCancelable(true)
-//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-//                        dialog.dismiss();
-//                    });
-//            unknownErrorDialog = alertDialogBuilder.create();
-//        }
-//
-//        unknownErrorDialog.show();
     }
 
     @Override

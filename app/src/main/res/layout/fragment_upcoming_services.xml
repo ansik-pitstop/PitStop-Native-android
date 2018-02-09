@@ -1,60 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_timeline"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.pitstop.ui.upcoming_timeline.TimelineActivity">
 
-    <RelativeLayout
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
-        android:visibility="visible"
-        android:id="@+id/upcoming_service_rel_layout"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
+        <RelativeLayout
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             android:visibility="visible"
-            android:id="@+id/no_car"
-            layout="@layout/layout_no_car_services"/>
-
-
-        <include
-            android:visibility="gone"
-            android:id="@+id/offline_view"
-            layout="@layout/layout_offline"
-            />
-
-        <include
-            android:id="@+id/unknown_error_view"
-            layout="@layout/layout_unknown_error"
-            android:visibility="gone"/>
-
-        <LinearLayout
-            android:id="@+id/no_services"
+            android:id="@+id/upcoming_service_rel_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:visibility="gone">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:text="@string/no_data_timeline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:padding="8dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:gravity="center"
+            <include
+                android:visibility="visible"
+                android:id="@+id/no_car"
+                layout="@layout/layout_no_car_services"/>
+
+
+            <include
+                android:visibility="gone"
+                android:id="@+id/offline_view"
+                layout="@layout/layout_offline"
                 />
-        </LinearLayout>
 
-        <include
-            android:id="@+id/progress"
-            android:visibility="gone"
-            layout="@layout/layout_load"/>
+            <include
+                android:id="@+id/unknown_error_view"
+                layout="@layout/layout_unknown_error"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/no_services"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <TextView
+                    android:text="@string/no_data_timeline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:padding="8dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:gravity="center"
+                    />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/progress"
+                android:visibility="gone"
+                layout="@layout/layout_load"/>
 
 
             <android.support.v7.widget.RecyclerView
@@ -63,6 +67,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-</android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>
