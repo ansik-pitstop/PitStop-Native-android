@@ -402,7 +402,7 @@
     <string name="contact_us_for_support">Contact us for support</string>
     <string name="car_connected">Car is Connected</string>
     <string name="address">Address</string>
-    <string name="input_mileage_dashboard">Please input your current Mileage</string>
+    <string name="input_mileage_dashboard">Please input your current mileage</string>
     <string name="change_later">You can change this anytime later</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
@@ -598,4 +598,9 @@
     <string name="alarms_enabled_caption">Alarms generated while driving are being read and displayed below only for your viewing. Connecting to your Pitstop device will ensure that alarms from previous trips are loaded.</string>
     <string name="alarms_disabled_caption">Enabling driver alerts tracks important data directly from your Pitstop device, this will give you feedback on how your driving affects your car. The data collected is in safe hands and is used to help improve our predictive maintenance and alerts.</string>
     <string name="unavailable">Unavailable</string>
+    <string name="service_mileage_update_message">Update your mileage to see your predicted service date</string>
+    <string name="service_appointment_booked_message">You have an appointment with %s on</string>
+    <string name="service_predicted_service_message">Your predicted service date is between</string>
+    <string name="request_appointment">Request Appointment</string>
+    <string name="waiting_predicted_service_message">Your predicted service date is being calculated and will soon be displayed</string>
 </resources>

@@ -3,6 +3,7 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 import android.util.Log;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
@@ -15,6 +16,8 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Date;
 

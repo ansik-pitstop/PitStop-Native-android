@@ -7,8 +7,11 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
+import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
+import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
@@ -44,9 +47,20 @@ public class TabFragmentManager implements BadgeDisplayer{
     private FragmentActivity mActivity;
     private MixpanelHelper mMixpanelHelper;
 
-    public TabFragmentManager(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
+    private MainServicesFragment mainServicesFragment;
+    private StartReportFragment startReportFragment;
+    private VehicleSpecsFragment vehicleSpecsFragment;
+    private NotificationFragment notificationFragment;
+
+    public TabFragmentManager(FragmentActivity activity, MainServicesFragment mainServicesFragment
+            , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
+            , NotificationFragment notificationFragment, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
+        this.mainServicesFragment = mainServicesFragment;
+        this.startReportFragment = startReportFragment;
+        this.vehicleSpecsFragment = vehicleSpecsFragment;
+        this.notificationFragment = notificationFragment;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.scan),
@@ -63,7 +77,8 @@ public class TabFragmentManager implements BadgeDisplayer{
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
-                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mActivity);
+                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
+                , startReportFragment, vehicleSpecsFragment, notificationFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);

@@ -1,7 +1,6 @@
 package com.pitstop.ui.services.upcoming;
 
 import android.content.Context;
-import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,9 +12,7 @@ import com.pitstop.R;
 import com.pitstop.models.service.UpcomingService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -78,6 +75,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.context = con;
             mileageTV = itemView.findViewById(R.id.mileage_timeline_list_item_text_view);
             mRecyclerView = itemView.findViewById(R.id.mileage_specific_issues_recycler_view);
+            mRecyclerView.setNestedScrollingEnabled(false);
             this.upcomingServicesView = servicesView;
 
         }

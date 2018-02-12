@@ -13,7 +13,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -26,6 +25,7 @@ import com.pitstop.models.service.UpcomingService;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.issue_detail.IssueDetailsActivity;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.services.ServiceErrorDisplayer;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -66,11 +66,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @BindView(R.id.offline_view)
     View offlineView;
 
-    @BindView(R.id.activity_timeline)
-    SwipeRefreshLayout swipeRefreshLayout;
-
     @BindView(R.id.unknown_error_view)
     View unknownErrorView;
+
+    private SwipeRefreshLayout parentSwipeRefreshLayout;
 
     private TimelineAdapter timelineAdapter;
 
@@ -82,6 +81,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     private List<Integer> listOfMileages =  new ArrayList<>();
     private boolean hasBeenPopulated = false;
     private boolean isRefreshing = false;
+    private ServiceErrorDisplayer serviceErrorDisplayer;
+
+    private LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -100,14 +103,27 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             presenter = new UpcomingServicesPresenter(useCaseComponent,mixPanelHelper);
         }
 
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-
         timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages, this);
         timelineRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        timelineRecyclerView.setNestedScrollingEnabled(true);
+        timelineRecyclerView.setNestedScrollingEnabled(false);
         timelineRecyclerView.setAdapter(timelineAdapter);
 
         return view;
+    }
+
+    public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
+        Log.d(TAG,"setParentSwipeRefreshLayout()");
+        this.parentSwipeRefreshLayout = swipeRefreshLayout;
+    }
+
+    public void setErrorMessageDisplayer(ServiceErrorDisplayer serviceErrorDisplayer){
+        Log.d(TAG,"setErrorMessageDisplayer()");
+        this.serviceErrorDisplayer = serviceErrorDisplayer;
+    }
+
+    public void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        if (presenter != null) presenter.onRefresh();
     }
 
     @Override
@@ -129,9 +145,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 
     @Override
     public void displayNoServices() {
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER_VERTICAL;
         relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayNoServices()");
@@ -146,9 +159,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()) {
             params.gravity = Gravity.CENTER_VERTICAL;
             relativeLayout.setLayoutParams(params);
             timelineRecyclerView.setVisibility(View.GONE);
@@ -159,79 +170,82 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             loadingView.setVisibility(View.VISIBLE);
             relativeLayout.bringToFront();
             loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
+            parentSwipeRefreshLayout.setEnabled(false);
         }
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()){
             params.gravity = Gravity.CENTER_VERTICAL;
             relativeLayout.setLayoutParams(params);
-            swipeRefreshLayout.setEnabled(true);
+            parentSwipeRefreshLayout.setEnabled(true);
             noCarView.setVisibility(View.GONE);
             noServicesView.setVisibility(View.GONE);
             loadingView.setVisibility(View.GONE);
             relativeLayout.bringToFront();
             timelineRecyclerView.bringToFront();
-        }else{
-            swipeRefreshLayout.setRefreshing(false);
+        }else if (parentSwipeRefreshLayout != null){
+            parentSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
     @Override
     public void hideRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
+        if (parentSwipeRefreshLayout != null) parentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return parentSwipeRefreshLayout == null? null: parentSwipeRefreshLayout.isRefreshing();
     }
 
     @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG,"displayOfflineErrorDialog()");
-        if (offlineAlertDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.offline_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.offline_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            offlineAlertDialog = alertDialogBuilder.create();
-        }
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.offline_error);
 
-        offlineAlertDialog.show();
+//        if (offlineAlertDialog == null){
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//            alertDialogBuilder.setTitle(R.string.offline_error_title);
+//            alertDialogBuilder
+//                    .setMessage(R.string.offline_error)
+//                    .setCancelable(true)
+//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+//                        dialog.dismiss();
+//                    });
+//            offlineAlertDialog = alertDialogBuilder.create();
+//        }
+//
+//        offlineAlertDialog.show();
+
     }
 
     @Override
     public void displayUnknownErrorDialog() {
         Log.d(TAG,"displayUnknownErrorDialog()");
-        if (unknownErrorDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.unknown_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.unknown_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            unknownErrorDialog = alertDialogBuilder.create();
-        }
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.unknown_error);
 
-        unknownErrorDialog.show();
+//        if (unknownErrorDialog == null){
+//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+//            alertDialogBuilder
+//                    .setMessage(R.string.unknown_error)
+//                    .setCancelable(true)
+//                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+//                        dialog.dismiss();
+//                    });
+//            unknownErrorDialog = alertDialogBuilder.create();
+//        }
+//
+//        unknownErrorDialog.show();
     }
 
     @Override
     public void displayUnknownErrorView() {
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER_VERTICAL;
         relativeLayout.setLayoutParams(params);
         Log.d(TAG,"displayUnknownErrorView()");
@@ -247,8 +261,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayOfflineView() {
         Log.d(TAG,"displayOfflineView()");
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER_VERTICAL;
         relativeLayout.setLayoutParams(params);
         timelineRecyclerView.setVisibility(View.GONE);
@@ -264,8 +276,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     public void displayOnlineView() {
         Log.d(TAG,"displayOnlineView()");
         relativeLayout.setGravity(Gravity.NO_GRAVITY);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.NO_GRAVITY;
         relativeLayout.setLayoutParams(params);
         noCarView.setVisibility(View.GONE);
@@ -291,8 +301,6 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
     @Override
     public void displayNoCarView() {
         Log.d(TAG,"displayNoCarView()");
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER_VERTICAL;
         relativeLayout.setLayoutParams(params);
         timelineRecyclerView.setVisibility(View.GONE);
