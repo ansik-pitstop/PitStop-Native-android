@@ -3,7 +3,6 @@ package com.pitstop.ui.vehicle_specs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
@@ -12,7 +11,6 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.Interactor;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
@@ -21,7 +19,6 @@ import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
-import com.pitstop.interactors.update.UpdateCarMileageUseCase;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -257,78 +254,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         Log.d(TAG, "onRefresh()");
         onUpdateNeeded();
     }
-
-    void onUpdateMileageDialogConfirmClicked(String mileageText) {
-        Log.d(TAG, "onUpdateMileageDialogConfirmClicked()");
-        if (updating) return;
-        updating = true;
-        getView().showLoading();
-        double mileage;
-        try {
-            mileage = Double.valueOf(mileageText);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            getView().displayUpdateMileageError();
-            getView().hideLoading();
-            updating = false;
-            return;
-        }
-
-        if (mileage < 0 || mileage > 3000000) {
-            getView().hideLoading();
-            getView().displayUpdateMileageError();
-            updating = false;
-            return;
-        }
-
-        useCaseComponent.updateCarMileageUseCase().execute(mileage
-                , new UpdateCarMileageUseCase.Callback() {
-
-                    @Override
-                    public void onMileageUpdated() {
-                        updating = false;
-                        EventBus.getDefault().post(new CarDataChangedEvent(
-                                new EventTypeImpl(EventType.EVENT_MILEAGE), EVENT_SOURCE));
-                        if (getView() == null) return;
-                        getView().hideLoading();
-
-                        try {
-                            getView().displayMileage(mileage);
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
-                            getView().displayUnknownErrorDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onNoCarAdded() {
-                        updating = false;
-                        if (getView() == null) return;
-                        getView().hideLoading();
-                        getView().showNoCarView();
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        updating = false;
-                        if (getView() == null) return;
-
-                        if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                            if (getView().hasBeenPopulated()) {
-                                getView().displayOfflineErrorDialog();
-                            } else {
-                                getView().showOfflineErrorView();
-                            }
-                        } else {
-                            getView().hideLoading();
-                            getView().displayUnknownErrorDialog();
-                        }
-
-                        getView().hideLoading();
-                    }
-                });
-    }
-
 
     private void getAmountSpent(String scannerId) {
         Log.d(TAG, "getAmountSpent();");
