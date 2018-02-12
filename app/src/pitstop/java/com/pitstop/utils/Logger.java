@@ -97,7 +97,7 @@ public class Logger {
 
         handler.post(() -> {
             InetSocketAddress inetSocketAddress
-                    = new InetSocketAddress("52.89.249.17",12900);
+                    = new InetSocketAddress("graylog-lx.backend-service.getpitstop.io",12900);
             gelfConfiguration = new GelfConfiguration(inetSocketAddress)
                     .transport(GelfTransports.TCP)
                     .tcpKeepAlive(false)
