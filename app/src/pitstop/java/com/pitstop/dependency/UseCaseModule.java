@@ -40,6 +40,8 @@ import com.pitstop.interactors.get.GetAlarmsUseCase;
 import com.pitstop.interactors.get.GetAlarmsUseCaseImpl;
 import com.pitstop.interactors.get.GetAllAppointmentsUseCase;
 import com.pitstop.interactors.get.GetAllAppointmentsUseCaseImpl;
+import com.pitstop.interactors.get.GetAppointmentStateUseCase;
+import com.pitstop.interactors.get.GetAppointmentStateUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCaseImpl;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
@@ -682,6 +684,15 @@ public class UseCaseModule {
             , @Named("mainHandler")Handler mainHandler){
 
         return new GetPredictedServiceUseCaseImpl(userRepository, appointmentRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetAppointmentStateUseCase getAppointmentStateUseCase(UserRepository userRepository
+            , AppointmentRepository appointmentRepository, ShopRepository shopRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new GetAppointmentStateUseCaseImpl(userRepository, appointmentRepository
+                , shopRepository, useCaseHandler, mainHandler);
     }
 }
 

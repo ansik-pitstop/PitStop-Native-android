@@ -9,6 +9,7 @@ public interface EventSource {
     public static String SOURCE_SERVICES_CURRENT = "source_services_current";
     public static String SOURCE_SERVICES_UPCOMING = "source_services_upcoming";
     public static String SOURCE_SERVICES_HISTORY = "source_services_history";
+    public static String SOURCE_MAIN_SERIVCES = "source_main_services";
     public static String SOURCE_SCAN = "source_scan";
     public static String SOURCE_NOTIFICATIONS = "source_notifications";
     public static String SOURCE_SETTINGS = "source_settings";

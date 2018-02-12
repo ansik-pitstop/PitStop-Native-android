@@ -28,6 +28,7 @@ import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.main_activity.BadgeDisplayer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.MainActivityCallback;
+import com.pitstop.ui.services.ServiceErrorDisplayer;
 import com.pitstop.ui.services.ServicesDatePickerDialog;
 import com.pitstop.ui.services.custom_service.CustomServiceActivity;
 import com.pitstop.utils.MixpanelHelper;
@@ -84,9 +85,6 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @BindView(R.id.routine_serivces_holder)
     LinearLayout routineServicesHolder;
 
-    @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
-
     @BindView(R.id.offline_view)
     View offlineView;
 
@@ -119,6 +117,8 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     private AlertDialog offlineAlertDialog;
     private AlertDialog unknownErrorDialog;
     private boolean hasBeenPopulated = false;
+    private SwipeRefreshLayout parentSwipeRefreshLayout;
+    private ServiceErrorDisplayer serviceErrorDisplayer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -141,9 +141,23 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         recallsRecyclerView.setNestedScrollingEnabled(false);
         storedEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
 
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
-
         return view;
+    }
+
+    public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
+        Log.d(TAG,"setParentSwipeRefreshLayout()");
+        this.parentSwipeRefreshLayout = swipeRefreshLayout;
+    }
+
+    public void setErrorMessageDisplayer(ServiceErrorDisplayer serviceErrorDisplayer){
+        Log.d(TAG,"setErrorMessageDisplayer()");
+        this.serviceErrorDisplayer = serviceErrorDisplayer;
+    }
+
+    public void onRefresh(){
+        Log.d(TAG,"onRefresh()");
+        if (presenter != null)
+            presenter.onRefresh();
     }
 
     @Override
@@ -202,37 +216,15 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG,"displayOfflineErrorDialog()");
-        if (offlineAlertDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.offline_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.offline_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            offlineAlertDialog = alertDialogBuilder.create();
-        }
-
-        offlineAlertDialog.show();
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.offline_error);
     }
 
     @Override
     public void displayUnknownErrorDialog() {
         Log.d(TAG,"displayUnknownErrorDialog()");
-        if (unknownErrorDialog == null){
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.unknown_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.unknown_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            unknownErrorDialog = alertDialogBuilder.create();
-        }
-
-        unknownErrorDialog.show();
+        if (serviceErrorDisplayer != null)
+            serviceErrorDisplayer.displayServiceErrorDialog(R.string.unknown_error);
     }
 
     @Override
@@ -378,32 +370,32 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void showLoading() {
         Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()) {
             loadingView.setVisibility(View.VISIBLE);
             loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
+            parentSwipeRefreshLayout.setEnabled(false);
         }
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG,"hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
-            swipeRefreshLayout.setEnabled(true);
+        if (parentSwipeRefreshLayout != null && !parentSwipeRefreshLayout.isRefreshing()){
+            parentSwipeRefreshLayout.setEnabled(true);
             loadingView.setVisibility(View.GONE);
-        }else{
-            swipeRefreshLayout.setRefreshing(false);
+        }else if (parentSwipeRefreshLayout != null){
+            parentSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
     @Override
     public void hideRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
+        if (parentSwipeRefreshLayout != null) parentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return parentSwipeRefreshLayout == null? null: parentSwipeRefreshLayout.isRefreshing();
     }
 
 
