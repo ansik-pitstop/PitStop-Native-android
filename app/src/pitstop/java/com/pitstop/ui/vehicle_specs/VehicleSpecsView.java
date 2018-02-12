@@ -11,7 +11,6 @@ public interface VehicleSpecsView {
 
     void showLicensePlate(String s);
     void toast(String message);
-    void showImage(String s);
     void showLoading();
     void hideLoading();
     void showLoadingDialog(String message);
@@ -21,8 +20,6 @@ public interface VehicleSpecsView {
     void showNoCarView();
     void showOfflineErrorView();
     void showUnknownErrorView();
-    void displayUpdateMileageError();
-    void displayMileage(double mileage);
     void displayUnknownErrorDialog();
     void displayOfflineErrorDialog();
     boolean hasBeenPopulated();
