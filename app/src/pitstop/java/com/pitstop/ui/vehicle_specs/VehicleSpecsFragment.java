@@ -70,27 +70,18 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog buyDeviceDialog;
     private AlertDialog fuelExpensesAlertDialog;
     private AlertDialog licensePlateDialog;
-    private AlertDialog updateMileageDialog;
     private AlertDialog pairScannerAlertDialog;
     private AlertDialog deleteCarAlertDialog;
     private AlertDialog changeDealershipAlertDialog;
     private VehicleSpecsPresenter presenter;
-    private AlertDialog mileageErrorDialog;
     private AlertDialog unknownErrorDialog;
     private AlertDialog scannerAlreadyActiveDialog;
     private AlertDialog offlineErrorDialog;
     private AlertDialog confirmScannerUpdateDialog;
     private boolean isPoppulated = false;
 
-
     @BindView(R.id.swiper)
     protected SwipeRefreshLayout swipeRefreshLayout;
-
-//    @BindView(R.id.car_logo_imageview)
-//    protected ImageView carLogo;
-
-//    @BindView(R.id.car_name_banner)
-//    protected TextView carName;
 
     @BindView(R.id.alarms_row)
     protected View alarmsView;
@@ -119,7 +110,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.car_logo_imageview)
     protected ImageView mCarLogoImage;
 
-
     @BindView(R.id.car_name)
     protected TextView carName;
 
@@ -131,9 +121,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.dealership_icon)
     protected ImageView dealershipIcon;
-
-    @BindView(R.id.mileage_icon)
-    protected ImageView mileageIcon;
 
     @BindView(R.id.engine_icon)
     protected ImageView engineIcon;
@@ -153,16 +140,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.money_spent)
     TextView fuelExpensesTextView;
 
-
-//    @BindView(R.id.banner_overlay)
-//    protected FrameLayout bannerOverlay;
-
-//    @BindView(R.id.dealership_name_banner)
-//    protected TextView dealershipName;
-//
-//    @BindView(R.id.background_image)
-//    protected ImageView carPic;
-
     @BindView(R.id.no_car)
     protected View noCarView;
 
@@ -171,9 +148,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.unknown_error_view)
     protected View unknownErrorView;
-
-    @BindView(R.id.total_mileage_tv)
-    protected TextView totalMileagetv;
 
     @BindView(R.id.dealership_tv)
     protected TextView dealership;
@@ -223,14 +197,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.tank_size)
     protected TextView tankSize;
 
-//    @BindView(R.id.progress)
-//    protected View imageLoadingView;
-
-    public static VehicleSpecsFragment newInstance() {
-        return new VehicleSpecsFragment();
-    }
-
-    private boolean carPicgetError;
     private ProgressDialog progressDialog;
 
     @Nullable
@@ -330,17 +296,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @Override
-    public void showImage(String s) {
-        Log.d(TAG, "showImage()");
-        // carLogo.setVisibility(View.GONE);
-//        dealershipName.setVisibility(View.GONE);
-//        carName.setVisibility(View.GONE);
-        //bannerOverlay.setVisibility(View.GONE);
-//        if (getActivity()!=null)
-//            Picasso.with(getActivity()).load(s).into(carPic);
-    }
-
-    @Override
     public void setCarView(Car car) {
         Log.d(TAG, "setView()");
         //Set other views to GONE and main to VISIBLE
@@ -364,7 +319,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             dealership.setText(presenter.getDealership().getName());
         }
         presenter.getLicensePlate(car.getId());
-        totalMileagetv.setText(String.format("%.2fkm", car.getTotalMileage()));
     }
 
     @Override
@@ -416,7 +370,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         scannerIcon.setImageResource(R.drawable.scanner_2x);
         licenseIcon.setImageResource(R.drawable.license_2x);
         dealershipIcon.setImageResource(R.drawable.dealership_2x);
-        mileageIcon.setImageResource(R.drawable.odometer3x);
         engineIcon.setImageResource(R.drawable.car_engine);
         cityMileageIcon.setImageResource(R.drawable.traffic_lights_2x);
         highwayMileageIcon.setImageResource(R.drawable.highway_mileage2x);
@@ -536,29 +489,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         changeDealershipAlertDialog.show();
     }
 
-    @OnClick(R.id.mileage_row)
-    public void displayUpdateMileageDialog() {
-        Log.d(TAG, "displayUpdateMileageDialog()");
-        if (updateMileageDialog == null) {
-            final View dialogLayout = LayoutInflater.from(
-                    getActivity()).inflate(R.layout.dialog_input_mileage, null);
-            final TextInputEditText textInputEditText = (TextInputEditText) dialogLayout
-                    .findViewById(R.id.mileage_input);
-            updateMileageDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Update Mileage")
-                    .setView(dialogLayout)
-                    .setPositiveButton("Confirm", (dialog, which)
-                            -> presenter.onUpdateMileageDialogConfirmClicked(
-                            textInputEditText.getText().toString()))
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                    .create();
-        }
-
-        updateMileageDialog.show();
-    }
-
-
     @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG, "displayOfflineErrorDialog()");
@@ -576,22 +506,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
         offlineErrorDialog.show();
     }
-
-    @Override
-    public void displayUpdateMileageError() {
-        Log.d(TAG, "displayUpdateMileageError()");
-        if (mileageErrorDialog == null) {
-            mileageErrorDialog = new AnimatedDialogBuilder(getActivity())
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Invalid Mileage")
-                    .setMessage("Please input a valid mileage.")
-                    .setPositiveButton("OK", (dialog, which)
-                            -> dialog.dismiss())
-                    .create();
-        }
-        mileageErrorDialog.show();
-    }
-
 
     public void showLoadingDialog(String text) {
         Log.d(TAG, "showLoadingDialog()");
@@ -626,13 +540,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
         startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
-
-    @Override
-    public void displayMileage(double mileage) {
-        Log.d(TAG, "displayMileage() mileage: " + mileage);
-        totalMileagetv.setText(String.format("%.2f km", mileage));
-    }
-
 
     @Override
     public void showFuelConsumptionExplanationDialog() {
@@ -771,7 +678,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "displayCarDetails() car: " + car);
         carName.setText(car.getYear() + " " + car.getMake() + " "
                 + car.getModel());
-        totalMileagetv.setText(String.format("%.2f km", car.getTotalMileage()));
         mCarLogoImage.setVisibility(View.VISIBLE);
         mCarLogoImage.setImageResource(getCarSpecificLogo(car.getMake()));
         isPoppulated = true;

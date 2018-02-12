@@ -150,52 +150,6 @@
 
                     <include layout="@layout/divider" />
 
-                    <!-- Mileage Row -->
-                    <RelativeLayout
-                        android:id="@+id/mileage_row"
-                        android:background="@color/white"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/mileage_icon"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/odometer"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp" />
-
-
-                        <TextView
-                            android:layout_marginStart="15dp"
-                            android:layout_toRightOf="@id/mileage_icon"
-                            android:layout_centerVertical="true"
-                            android:id="@+id/mileage_title"
-                            style="@style/vehicle_specs_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:text="@string/mileage_title" />
-
-                        <TextView
-                            android:text="N/A"
-                            android:layout_alignEnd="@+id/mileage_title"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:id="@+id/total_mileage_tv"
-                            style="@style/vehicle_specs_text"
-                            android:textAlignment="viewEnd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </RelativeLayout>
-
-                    <include layout="@layout/divider" />
-
                     <!-- Fuel Consumption Row -->
                     <RelativeLayout
                         android:id="@+id/fuel_consumption_row"
