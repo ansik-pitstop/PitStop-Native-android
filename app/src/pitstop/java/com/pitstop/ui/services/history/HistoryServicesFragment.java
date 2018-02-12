@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 
 import com.pitstop.R;
@@ -92,27 +93,28 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
         doneServices = new ArrayList<>();
         issueGroupAdapter = new HistoryIssueGroupAdapter(doneServices);
+        //Allow scrolling inside nested refresh view
+        issueGroup.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                boolean allow = false;
+
+                if(visibleItemCount>0) {
+                    long packedPosition = issueGroup.getExpandableListPosition(firstVisibleItem);
+                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                    int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+                    allow = groupPosition==0 && childPosition==-1 && issueGroup.getChildAt(0).getTop()==0;
+                }
+
+                parentSwipeRefreshLayout.setEnabled(allow);
+            }
+        });
         issueGroup.setAdapter(issueGroupAdapter);
 
-//        //Allow scrolling inside nested refresh view
-//        issueGroup.setOnScrollListener(new AbsListView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(AbsListView view, int scrollState) {}
-//
-//            @Override
-//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//                boolean allow = false;
-//
-//                if(visibleItemCount>0) {
-//                    long packedPosition = issueGroup.getExpandableListPosition(firstVisibleItem);
-//                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-//                    int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-//                    allow = groupPosition==0 && childPosition==-1 && issueGroup.getChildAt(0).getTop()==0;
-//                }
-//
-//                swipeRefreshLayout.setEnabled(allow);
-//            }
-//        });
+
 
         return view;
     }
