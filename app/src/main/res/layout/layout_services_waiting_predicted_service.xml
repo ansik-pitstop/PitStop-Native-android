@@ -6,7 +6,7 @@
 
     <TextView
         android:textAlignment="center"
-        android:text="Your predicted service date is being calculated and will soon be displayed"
+        android:text="@string/waiting_predicted_service_message"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:layout_width="match_parent"

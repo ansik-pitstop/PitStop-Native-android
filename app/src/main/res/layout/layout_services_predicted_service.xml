@@ -34,7 +34,7 @@
         android:layout_gravity="center"
         android:background="@drawable/color_button_rectangle_primary"
         style="@style/Base.Widget.AppCompat.Button.Colored"
-        android:text="Request an Appointment"
+        android:text="@string/request_appointment"
         android:textAllCaps="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
