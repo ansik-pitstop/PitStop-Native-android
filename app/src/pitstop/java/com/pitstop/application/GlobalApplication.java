@@ -51,6 +51,7 @@ import java.util.List;
 import io.fabric.sdk.android.Fabric;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
+import io.smooch.core.SmoochCallback;
 
 /**
  * Created by Ansik on 12/28/15.
@@ -135,7 +136,9 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings);
+        Smooch.init(this, settings, response -> {
+            Log.d(TAG,"smooch init response: "+response);
+        });
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
