@@ -5,14 +5,12 @@ import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.R.array.car
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.add.AddAlarmUseCase
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
 import com.pitstop.interactors.get.GetCurrentUserUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
-import com.pitstop.models.Alarm
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
@@ -197,7 +195,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         useCaseCompnent.getCurrentUserUseCase.execute(object: GetCurrentUserUseCase.Callback{
             override fun onUserRetrieved(user: com.pitstop.models.User) {
                 Log.d(TAG,"retrieved current user: "+user)
-                Smooch.getConversation().sendMessage(io.smooch.core.Message(user.firstName +
+                if (Smooch.getConversation() == null) return
+                Smooch.getConversation()?.sendMessage(io.smooch.core.Message(user.firstName +
                         (if (user.lastName == null || user.lastName == "null")
                             ""
                         else

@@ -49,9 +49,10 @@ import org.acra.config.ConfigurationBuilder;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
-import io.smooch.core.SmoochCallback;
 
 /**
  * Created by Ansik on 12/28/15.
@@ -133,11 +134,12 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
+        Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this));
 
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, settings, response -> {
-            Log.d(TAG,"smooch init response: "+response);
+            Log.d(TAG,"smooch init response: "+response.getError());
         });
 
         // Parse
@@ -258,11 +260,14 @@ public class GlobalApplication extends Application {
         editor.apply();
 
         ParseUser.logOut();
-
+        String compactJws = Jwts.builder()
+                .setSubject(String.valueOf(currentUser.getId()))
+                .signWith(SignatureAlgorithm.HS512, SecretUtils.getClientId(this))
+                .compact();
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null);
+            Smooch.login(String.valueOf(userId), compactJws, response -> Log.d(TAG,"smooch login response: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -346,7 +351,9 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout();
+        Smooch.logout(response -> {
+            Log.d(TAG,"smooch logout response: "+response.getError());
+        });
 
         cleanUpDatabase();
     }
