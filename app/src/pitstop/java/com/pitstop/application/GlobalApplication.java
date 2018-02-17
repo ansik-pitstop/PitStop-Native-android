@@ -49,6 +49,8 @@ import org.acra.config.ConfigurationBuilder;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -132,10 +134,13 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
-        Settings settings = new Settings(SecretUtils.getSmoochToken(this));
+        Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
+        Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
-        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings);
+        //settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        Smooch.init(this, settings, response -> {
+            Log.d(TAG,"smooch init response: "+response.getError());
+        });
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -255,11 +260,15 @@ public class GlobalApplication extends Application {
         editor.apply();
 
         ParseUser.logOut();
-
+        String compactJws = Jwts.builder()
+                .setSubject(String.valueOf(currentUser.getId()))
+                .signWith(SignatureAlgorithm.HS512, SecretUtils.getClientId(this))
+                .compact();
+        Log.d(TAG,"jwt for smooch: "+compactJws);
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null);
+            Smooch.login(String.valueOf(userId), compactJws, response -> Log.d(TAG,"smooch login response: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -343,7 +352,9 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout();
+        Smooch.logout(response -> {
+            Log.d(TAG,"smooch logout response: "+response.getError());
+        });
 
         cleanUpDatabase();
     }
