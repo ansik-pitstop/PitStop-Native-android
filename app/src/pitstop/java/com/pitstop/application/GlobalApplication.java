@@ -135,9 +135,9 @@ public class GlobalApplication extends Application {
 
         // Smooch
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
-        Settings settings = new Settings(SecretUtils.getSmoochToken(this));
+        Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
-        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        //settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, settings, response -> {
             Log.d(TAG,"smooch init response: "+response.getError());
         });
@@ -264,6 +264,7 @@ public class GlobalApplication extends Application {
                 .setSubject(String.valueOf(currentUser.getId()))
                 .signWith(SignatureAlgorithm.HS512, SecretUtils.getClientId(this))
                 .compact();
+        Log.d(TAG,"jwt for smooch: "+compactJws);
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
