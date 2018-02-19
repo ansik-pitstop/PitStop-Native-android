@@ -109,7 +109,9 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
                     allow = groupPosition==0 && childPosition==-1 && issueGroup.getChildAt(0).getTop()==0;
                 }
 
-                parentSwipeRefreshLayout.setEnabled(allow);
+                if(parentSwipeRefreshLayout != null){
+                    parentSwipeRefreshLayout.setEnabled(allow);
+                }
             }
         });
         issueGroup.setAdapter(issueGroupAdapter);
