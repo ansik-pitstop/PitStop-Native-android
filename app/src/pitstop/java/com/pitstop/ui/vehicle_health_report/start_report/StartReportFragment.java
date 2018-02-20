@@ -88,9 +88,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
         return view;
     }
 
-    public static StartReportFragment newInstance() {
-        StartReportFragment fragment = new StartReportFragment();
-        return fragment;
+    public void setBluetoothConnectionObservable(
+            BluetoothConnectionObservable bluetoothConnectionObservable){
+        if (presenter != null)
+            presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }
 
     @Override
@@ -162,6 +163,12 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .create();
         }
         promptOfflineDialog.show();
+    }
+
+    @Override
+    public void changeTitle(int stringId) {
+        Log.d(TAG,"changeTitle() stringId: "+stringId+", string: "+getString(stringId));
+        vehicleHealthTitle.setText(stringId);
     }
 
     @Override

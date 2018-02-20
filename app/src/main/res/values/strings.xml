@@ -202,6 +202,7 @@
     <string name="scan_historical_message">We have found a lot of historical car data.
         Engine issues may take longer than usual to load.</string>
     <string name="scan_historical_title">Loading Data</string>
+    <string name="scan_title_no_connection">No device connected, tap to begin</string>
 
     <!--Services-->
     <string name="services_nav_text">Services</string>
@@ -603,4 +604,6 @@
     <string name="service_predicted_service_message">Your predicted service date is between</string>
     <string name="request_appointment">Request Appointment</string>
     <string name="waiting_predicted_service_message">Your predicted service date is being calculated and will soon be displayed</string>
+    <string name="found_devices">Found Devices</string>
+    <string name="connecting_to_device">Connecting to Device</string>
 </resources>
