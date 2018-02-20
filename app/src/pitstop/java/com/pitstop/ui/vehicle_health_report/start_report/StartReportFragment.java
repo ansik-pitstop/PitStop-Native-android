@@ -82,6 +82,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                 .contextModule(new ContextModule(getContext()))
                 .build();
         presenter = new StartReportPresenter(useCaseComponent, mixpanelHelper);
+        
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
@@ -90,6 +91,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     public void setBluetoothConnectionObservable(
             BluetoothConnectionObservable bluetoothConnectionObservable){
+        Log.d(TAG,"setBluetoothConnectionObservable()");
         if (presenter != null)
             presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }

@@ -33,6 +33,7 @@ public class StartReportPresenter implements BluetoothConnectionObserver {
         Log.d(TAG,"setBluetoothConnectionObservable() state: "+bluetoothConnectionObservable.getDeviceState());
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         if (view != null){
+            bluetoothConnectionObservable.subscribe(this);
             String state = bluetoothConnectionObservable.getDeviceState();
             switch(state){
                 case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
