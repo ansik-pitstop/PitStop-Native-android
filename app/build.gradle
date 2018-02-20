@@ -154,7 +154,6 @@ dependencies {
     // Multidex support library - Use when Building Apps with Over 65K Methods
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'eu.lp0.slf4j:slf4j-android:1.7.25-0'
-    // compile 'com.github.Graylog2:gelfclient:gelfclient-1.4.2.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.7.22'
     androidTestCompile 'com.android.support:support-annotations:26.0.2'
@@ -201,8 +200,6 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
-    //compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    // compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'ch.acra:acra:4.9.0'
     compile 'org.jsoup:jsoup:1.10.1'
@@ -216,7 +213,7 @@ dependencies {
     }
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('../libs/gelfclient.jar')
 }
 

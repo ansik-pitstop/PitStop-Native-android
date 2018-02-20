@@ -20,6 +20,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -183,6 +184,7 @@ public class LoginActivity extends DebugDrawerActivity {
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        phoneNumber.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -604,7 +606,8 @@ public class LoginActivity extends DebugDrawerActivity {
                 return;
             }
 
-            if (phoneNumber.getText().toString().length() != 10 && phoneNumber.getText().toString().length() != 11) {
+            if (phoneNumber.getText().toString().length() < 9
+                    || phoneNumber.getText().toString().length() > 15) {
                 Toast.makeText(LoginActivity.this, R.string.invalid_phone_error, Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;

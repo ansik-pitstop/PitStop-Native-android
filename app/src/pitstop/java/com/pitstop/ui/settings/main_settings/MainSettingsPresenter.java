@@ -1,5 +1,6 @@
 package com.pitstop.ui.settings.main_settings;
 
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.update.UpdateUserNameUseCase;
@@ -123,6 +124,12 @@ public class MainSettingsPresenter {
             });
         }else if(key.equals(PHONE_PREF_KEY)){
             mixpanelHelper.trackButtonTapped("Phone","MainSettings");
+            String prevNum = mainSettings.getDisplayedPhoneNum();
+            if (text.length() < 9 || text.length() > 15){
+                mainSettings.toast(R.string.invalid_phone_error);
+                return;
+
+            }
             mainSettings.showPhone(text);
             component.getUpdateUserPhoneUseCase().execute(text, new UpdateUserPhoneUseCase.Callback() {
                 @Override
@@ -132,8 +139,12 @@ public class MainSettingsPresenter {
 
                 @Override
                 public void onError(RequestError error) {
-                    if (mainSettings != null)
-                        mainSettings.toast(error.getMessage());
+                    if (mainSettings != null){
+                        if (prevNum != null){
+                            mainSettings.showPhone(prevNum);
+                            mainSettings.toast(error.getMessage());
+                        }
+                    }
                 }
             });
 
