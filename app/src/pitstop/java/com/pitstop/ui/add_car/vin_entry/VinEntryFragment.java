@@ -350,6 +350,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void displayVin(String vin) {
         Log.d(TAG,"displayVin() vin: "+vin);
         if (vin == null) vin = "";
+        this.VIN = vin;
         vinEditText.setText(vin);
     }
 
@@ -444,10 +445,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
                     ", result: "+(result == null ? "" : result.getContents()));
 
-            if (result == null || result.getContents() == null){
-                vinEditText.setText(this.VIN);
-                presenter.onGotVinScanResult("");}
-            else{
+            if (result != null && result.getContents() != null){
                 presenter.onGotVinScanResult(result.getContents());
             }
         }
