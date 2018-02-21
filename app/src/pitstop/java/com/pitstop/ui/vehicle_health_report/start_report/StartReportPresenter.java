@@ -37,28 +37,28 @@ public class StartReportPresenter implements BluetoothConnectionObserver {
             String state = bluetoothConnectionObservable.getDeviceState();
             switch(state){
                 case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
-                    view.changeTitle(R.string.device_connected_action_bar);
+                    view.changeTitle(R.string.device_connected_action_bar,false);
                     break;
                 case BluetoothConnectionObservable.State.CONNECTED_UNVERIFIED:
-                    view.changeTitle(R.string.verifying_device_action_bar);
+                    view.changeTitle(R.string.verifying_device_action_bar,true);
                     break;
                 case BluetoothConnectionObservable.State.VERIFYING:
-                    view.changeTitle(R.string.verifying_device_action_bar);
+                    view.changeTitle(R.string.verifying_device_action_bar,true);
                     break;
                 case BluetoothConnectionObservable.State.CONNECTING:
-                    view.changeTitle(R.string.connecting_to_device);
+                    view.changeTitle(R.string.connecting_to_device,true);
                     break;
                 case BluetoothConnectionObservable.State.FOUND_DEVICES:
-                    view.changeTitle(R.string.found_devices);
+                    view.changeTitle(R.string.found_devices,true);
                     break;
                 case BluetoothConnectionObservable.State.SEARCHING:
-                    view.changeTitle(R.string.searching_for_device_action_bar);
+                    view.changeTitle(R.string.searching_for_device_action_bar,true);
                     break;
                 case BluetoothConnectionObservable.State.DISCONNECTED:
-                    view.changeTitle(R.string.device_not_connected_action_bar);
+                    view.changeTitle(R.string.scan_title_no_connection,false);
                     break;
                 default:
-                    view.changeTitle(R.string.device_not_connected_action_bar);
+                    view.changeTitle(R.string.device_not_connected_action_bar,false);
                     break;
             }
         }
@@ -146,25 +146,25 @@ public class StartReportPresenter implements BluetoothConnectionObserver {
     @Override
     public void onSearchingForDevice() {
         Log.d(TAG,"onSearchingForDevice()");
-        if (view != null) view.changeTitle(R.string.searching_for_device_action_bar);
+        if (view != null) view.changeTitle(R.string.searching_for_device_action_bar,true);
     }
 
     @Override
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady() readyDevice: "+readyDevice);
-        if (view != null) view.changeTitle(R.string.device_connected_action_bar);
+        if (view != null) view.changeTitle(R.string.tap_to_begin,false);
     }
 
     @Override
     public void onDeviceDisconnected() {
         Log.d(TAG,"onDeviceDisconnected()");
-        if (view != null) view.changeTitle(R.string.scan_title_no_connection);
+        if (view != null) view.changeTitle(R.string.scan_title_no_connection,false);
     }
 
     @Override
     public void onDeviceVerifying() {
         Log.d(TAG,"onDeviceVerifying");
-        if (view != null) view.changeTitle(R.string.verifying_device_action_bar);
+        if (view != null) view.changeTitle(R.string.verifying_device_action_bar,true);
     }
 
     @Override
@@ -180,12 +180,12 @@ public class StartReportPresenter implements BluetoothConnectionObserver {
     @Override
     public void onConnectingToDevice() {
         Log.d(TAG,"onConnectingToDevice()");
-        if (view != null) view.changeTitle(R.string.connecting_to_device);
+        if (view != null) view.changeTitle(R.string.connecting_to_device,true);
     }
 
     @Override
     public void onFoundDevices() {
         Log.d(TAG,"onFoundDevices()");
-        if (view != null) view.changeTitle(R.string.found_devices);
+        if (view != null) view.changeTitle(R.string.found_devices,true);
     }
 }

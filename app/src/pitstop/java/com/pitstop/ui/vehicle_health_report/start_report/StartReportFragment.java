@@ -82,7 +82,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                 .contextModule(new ContextModule(getContext()))
                 .build();
         presenter = new StartReportPresenter(useCaseComponent, mixpanelHelper);
-        
+
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
@@ -168,9 +168,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void changeTitle(int stringId) {
+    public void changeTitle(int stringId, boolean progress) {
         Log.d(TAG,"changeTitle() stringId: "+stringId+", string: "+getString(stringId));
-        vehicleHealthTitle.setText(stringId);
+        String title = String.format("%s%s",getText(stringId),progress? "..." : "");
+        vehicleHealthTitle.setText(title);
     }
 
     @Override

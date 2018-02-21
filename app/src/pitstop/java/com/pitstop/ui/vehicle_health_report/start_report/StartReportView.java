@@ -15,6 +15,6 @@ public interface StartReportView {
     void promptBluetoothSearch();
     void displaySearchInProgress();
     void displayOffline();
-    void changeTitle(int stringId);
+    void changeTitle(int stringId, boolean progress);
     BluetoothConnectionObservable getBluetoothConnectionObservable();
 }
