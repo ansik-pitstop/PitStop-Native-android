@@ -219,9 +219,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void onDestroy() {
-        Log.d(TAG,"onDestroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+        super.onDestroyView();
         presenter.unsubscribe();
     }
 

@@ -57,34 +57,38 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             bluetoothConnectionObservable.subscribe(this);
 
             if (carAdded){
-                String state = bluetoothConnectionObservable.getDeviceState();
-                switch(state){
-                    case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
-                        getView().changeTitle(R.string.device_connected_action_bar,false);
-                        break;
-                    case BluetoothConnectionObservable.State.CONNECTED_UNVERIFIED:
-                        getView().changeTitle(R.string.verifying_device_action_bar,true);
-                        break;
-                    case BluetoothConnectionObservable.State.VERIFYING:
-                        getView().changeTitle(R.string.verifying_device_action_bar,true);
-                        break;
-                    case BluetoothConnectionObservable.State.CONNECTING:
-                        getView().changeTitle(R.string.connecting_to_device,true);
-                        break;
-                    case BluetoothConnectionObservable.State.FOUND_DEVICES:
-                        getView().changeTitle(R.string.found_devices,true);
-                        break;
-                    case BluetoothConnectionObservable.State.SEARCHING:
-                        getView().changeTitle(R.string.searching_for_device_action_bar,true);
-                        break;
-                    case BluetoothConnectionObservable.State.DISCONNECTED:
-                        getView().changeTitle(R.string.scan_title_no_connection,false);
-                        break;
-                    default:
-                        getView().changeTitle(R.string.device_not_connected_action_bar,false);
-                        break;
-                }
+                displayBluetoothState(bluetoothConnectionObservable);
             }
+        }
+    }
+
+    private void displayBluetoothState(BluetoothConnectionObservable bluetoothConnectionObservable){
+        String state = bluetoothConnectionObservable.getDeviceState();
+        switch(state){
+            case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
+                getView().changeTitle(R.string.device_connected_action_bar,false);
+                break;
+            case BluetoothConnectionObservable.State.CONNECTED_UNVERIFIED:
+                getView().changeTitle(R.string.verifying_device_action_bar,true);
+                break;
+            case BluetoothConnectionObservable.State.VERIFYING:
+                getView().changeTitle(R.string.verifying_device_action_bar,true);
+                break;
+            case BluetoothConnectionObservable.State.CONNECTING:
+                getView().changeTitle(R.string.connecting_to_device,true);
+                break;
+            case BluetoothConnectionObservable.State.FOUND_DEVICES:
+                getView().changeTitle(R.string.found_devices,true);
+                break;
+            case BluetoothConnectionObservable.State.SEARCHING:
+                getView().changeTitle(R.string.searching_for_device_action_bar,true);
+                break;
+            case BluetoothConnectionObservable.State.DISCONNECTED:
+                getView().changeTitle(R.string.scan_title_no_connection,false);
+                break;
+            default:
+                getView().changeTitle(R.string.device_not_connected_action_bar,false);
+                break;
         }
     }
 
@@ -115,7 +119,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
     @Override
     public void onAppStateChanged() {
-        Log.d(TAG,"onAppStateChanged()");
+        Log.d(TAG,"onAppStateChanged() view null? "+(getView() == null));
         if (getView() != null) loadView();
     }
 
@@ -209,14 +213,18 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
+                Log.d(TAG,"onCarRetrieved() car: "+car);
                 if (!isLocal){
                     carAdded = true;
+                    if (bluetoothConnectionObservable != null)
+                        displayBluetoothState(bluetoothConnectionObservable);
                 }
             }
 
             @Override
             public void onNoCarSet(boolean isLocal) {
                 if (!isLocal){
+                    Log.d(TAG,"onNoCarSet()");
                     carAdded = false;
                     if (getView() != null) getView().changeTitle(R.string.scan_title_add_car,false);
                 }
@@ -224,6 +232,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
             @Override
             public void onError(RequestError error) {
+                Log.d(TAG,"onError() err: "+error);
             }
         });
     }
