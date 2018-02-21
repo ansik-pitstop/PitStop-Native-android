@@ -13,7 +13,10 @@ public interface StartReportView {
     void startVehicleHealthReportProgressActivity();
     void startPastReportsActivity();
     void promptBluetoothSearch();
+    void promptAddCar();
+    void startAddCar();
     void displaySearchInProgress();
     void displayOffline();
+    void changeTitle(int stringId, boolean progress);
     BluetoothConnectionObservable getBluetoothConnectionObservable();
 }
