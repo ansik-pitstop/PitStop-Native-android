@@ -35,7 +35,7 @@ public class VHRMacroUseCase {
         void onStartGeneratingReport();
         void onFinishGeneratingReport(VehicleHealthReport vehicleHealthReport
                 , EmissionsReport emissionsReport);
-        void onErrorGeneratingReport();
+        void onErrorGeneratingReport(RequestError error);
         void onStartGetDTC();
         void onGotDTC();
         void onDTCError();
@@ -143,7 +143,7 @@ public class VHRMacroUseCase {
         else if (current instanceof GenerateReportUseCaseImpl){
             callback.onStartGeneratingReport();
             if (retrievedPid == null || retrievedDtc == null){
-                callback.onErrorGeneratingReport();
+                callback.onErrorGeneratingReport(RequestError.getUnknownError());
                 if (progressTimerQueue.peek() != null) progressTimerQueue.peek().cancel();
                 return;
             }
@@ -168,7 +168,7 @@ public class VHRMacroUseCase {
                         @Override
                         public void onError(RequestError requestError) {
                             Log.d(TAG,"generateReportUseCase.onError() vhr null!");
-                            callback.onErrorGeneratingReport();
+                            callback.onErrorGeneratingReport(requestError);
                         }
             });
         }
@@ -249,7 +249,7 @@ public class VHRMacroUseCase {
             switch(type){
                 case TYPE_GENERATE_REPORT:
                     if (retrievedDtc == null || retrievedPid == null || vehicleHealthReport == null){
-                        callback.onErrorGeneratingReport();
+                        callback.onErrorGeneratingReport(RequestError.getUnknownError());
                         Logger.getInstance().logE(TAG,"Macro use case: error generating report!"
                                 , DebugMessage.TYPE_USE_CASE);
                         finish();

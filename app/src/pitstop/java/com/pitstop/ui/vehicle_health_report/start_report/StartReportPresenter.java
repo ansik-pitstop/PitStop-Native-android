@@ -55,32 +55,35 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         if (getView() != null){
             bluetoothConnectionObservable.subscribe(this);
-            String state = bluetoothConnectionObservable.getDeviceState();
-            switch(state){
-                case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
-                    getView().changeTitle(R.string.device_connected_action_bar,false);
-                    break;
-                case BluetoothConnectionObservable.State.CONNECTED_UNVERIFIED:
-                    getView().changeTitle(R.string.verifying_device_action_bar,true);
-                    break;
-                case BluetoothConnectionObservable.State.VERIFYING:
-                    getView().changeTitle(R.string.verifying_device_action_bar,true);
-                    break;
-                case BluetoothConnectionObservable.State.CONNECTING:
-                    getView().changeTitle(R.string.connecting_to_device,true);
-                    break;
-                case BluetoothConnectionObservable.State.FOUND_DEVICES:
-                    getView().changeTitle(R.string.found_devices,true);
-                    break;
-                case BluetoothConnectionObservable.State.SEARCHING:
-                    getView().changeTitle(R.string.searching_for_device_action_bar,true);
-                    break;
-                case BluetoothConnectionObservable.State.DISCONNECTED:
-                    getView().changeTitle(R.string.scan_title_no_connection,false);
-                    break;
-                default:
-                    getView().changeTitle(R.string.device_not_connected_action_bar,false);
-                    break;
+
+            if (carAdded){
+                String state = bluetoothConnectionObservable.getDeviceState();
+                switch(state){
+                    case BluetoothConnectionObservable.State.CONNECTED_VERIFIED:
+                        getView().changeTitle(R.string.device_connected_action_bar,false);
+                        break;
+                    case BluetoothConnectionObservable.State.CONNECTED_UNVERIFIED:
+                        getView().changeTitle(R.string.verifying_device_action_bar,true);
+                        break;
+                    case BluetoothConnectionObservable.State.VERIFYING:
+                        getView().changeTitle(R.string.verifying_device_action_bar,true);
+                        break;
+                    case BluetoothConnectionObservable.State.CONNECTING:
+                        getView().changeTitle(R.string.connecting_to_device,true);
+                        break;
+                    case BluetoothConnectionObservable.State.FOUND_DEVICES:
+                        getView().changeTitle(R.string.found_devices,true);
+                        break;
+                    case BluetoothConnectionObservable.State.SEARCHING:
+                        getView().changeTitle(R.string.searching_for_device_action_bar,true);
+                        break;
+                    case BluetoothConnectionObservable.State.DISCONNECTED:
+                        getView().changeTitle(R.string.scan_title_no_connection,false);
+                        break;
+                    default:
+                        getView().changeTitle(R.string.device_not_connected_action_bar,false);
+                        break;
+                }
             }
         }
     }
@@ -185,8 +188,12 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         Log.d(TAG,"onShowReportsButtonClicked() emissionMode: "+emissionMode);
         mixpanelHelper.trackButtonTapped(
                 MixpanelHelper.BUTTON_VHR_PAST_REPORTS,MixpanelHelper.VIEW_VHR_TAB);
-        if (getView() == null) return;
-        if (emissionMode){
+        if (getView() == null)return;
+
+        if (!carAdded){
+            getView().promptAddCar();
+        }
+        else if (emissionMode){
             //Do nothing yet
         }else{
             getView().startPastReportsActivity();

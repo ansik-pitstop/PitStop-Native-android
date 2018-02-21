@@ -154,7 +154,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                     .setCancelable(false)
                     .create();
         }
-        promptBluetoothSearchDialog.show();
+        promptAddCar.show();
     }
 
     @Override
