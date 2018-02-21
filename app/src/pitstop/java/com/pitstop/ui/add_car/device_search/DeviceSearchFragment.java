@@ -277,6 +277,15 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
+    public void showLoading(@NonNull int message) {
+        Log.d(TAG,"showLoading(): "+getText(message));
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.setMessage(getText(message));
+        progressDialog.show();
+    }
+
+    @Override
     public void hideLoading(@Nullable String message) {
         Log.d(TAG,"hideLoading(): "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -359,7 +368,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void connectingToDevice() {
-        showLoading("Connecting to Device");
+        showLoading(getString(R.string.connecting_to_device));
     }
 
 

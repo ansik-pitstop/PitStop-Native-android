@@ -125,6 +125,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
             autoConnectService.subscribe(this@MainActivity)
             autoConnectService.requestDeviceSearch(false, false)
+            startReportFragment.bluetoothConnectionObservable = autoConnectService
             displayDeviceState(autoConnectService.deviceState)
             notifyServiceBinded(autoConnectService)
             checkPermissions()
@@ -223,6 +224,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
         }
 
+        mainServicesFragment = MainServicesFragment()
+        startReportFragment = StartReportFragment()
+        vehicleSpecsFragment = VehicleSpecsFragment()
+        notificationFragment = NotificationFragment()
+
         serviceIntent = Intent(this@MainActivity, BluetoothAutoConnectService::class.java)
         startService(serviceIntent)
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -243,8 +249,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 //        } else {
        /*     drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name
             mDrawerLayout.setDrawerListener(drawerToggle)
-
-
         //}
         setUpDrawer()*/
         progressDialog = ProgressDialog(this)
@@ -257,11 +261,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         logAuthInfo()
         updateScannerLocalStore()
-
-        mainServicesFragment = MainServicesFragment()
-        startReportFragment = StartReportFragment()
-        vehicleSpecsFragment = VehicleSpecsFragment()
-        notificationFragment = NotificationFragment()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
                 , vehicleSpecsFragment, notificationFragment, mixpanelHelper)

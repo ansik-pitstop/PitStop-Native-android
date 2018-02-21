@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -68,6 +69,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptBluetoothSearchDialog;
     private AlertDialog promptSearchInProgressDialog;
     private AlertDialog promptOfflineDialog;
+    private AlertDialog promptAddCar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,15 +84,18 @@ public class StartReportFragment extends Fragment implements StartReportView {
                 .contextModule(new ContextModule(getContext()))
                 .build();
         presenter = new StartReportPresenter(useCaseComponent, mixpanelHelper);
+
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
 
-    public static StartReportFragment newInstance() {
-        StartReportFragment fragment = new StartReportFragment();
-        return fragment;
+    public void setBluetoothConnectionObservable(
+            BluetoothConnectionObservable bluetoothConnectionObservable){
+        Log.d(TAG,"setBluetoothConnectionObservable()");
+        if (presenter != null)
+            presenter.setBluetoothConnectionObservable(bluetoothConnectionObservable);
     }
 
     @Override
@@ -134,6 +139,32 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
+    public void promptAddCar() {
+        Log.d(TAG,"promptAddCar()");
+        if (promptAddCar == null) {
+            promptAddCar = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(getString(R.string.add_car_alert_title))
+                    .setMessage(getString(R.string.prompt_add_car))
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog, which) -> {
+                        Log.d(TAG,"promptAddCarClicked()");
+                        presenter.onAddCarClicked();
+                    })
+                    .setNegativeButton(getString(R.string.no_button_text), null)
+                    .setCancelable(false)
+                    .create();
+        }
+        promptAddCar.show();
+    }
+
+    @Override
+    public void startAddCar() {
+        Log.d(TAG,"startAddCar()");
+        if (getActivity() != null)
+            ((MainActivity)getActivity()).openAddCarActivity();
+    }
+
+    @Override
     public void displaySearchInProgress() {
         Log.d(TAG,"displaySearchInProgress()");
         if (promptSearchInProgressDialog == null) {
@@ -165,6 +196,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
+    public void changeTitle(int stringId, boolean progress) {
+        Log.d(TAG,"changeTitle() stringId: "+stringId+", string: "+getString(stringId));
+        String title = String.format("%s%s",getText(stringId),progress? "..." : "");
+        vehicleHealthTitle.setText(title);
+    }
+
+    @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
         BluetoothConnectionObservable bluetoothConnectionObservable
                 = ((MainActivity)getActivity()).getBluetoothConnectService();
@@ -174,16 +212,16 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void onResume() {
-        Log.d(TAG,"onResume()");
-        super.onResume();
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        presenter.onViewReadyForLoad();
     }
 
     @Override
-    public void onDestroy() {
-        Log.d(TAG,"onDestroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+        super.onDestroyView();
         presenter.unsubscribe();
     }
 

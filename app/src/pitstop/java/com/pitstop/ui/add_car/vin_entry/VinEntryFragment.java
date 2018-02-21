@@ -32,8 +32,6 @@ import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.jsoup.select.Evaluator;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -403,6 +401,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
         if (progressDialog == null || getActivity() == null) return;
 
         progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    @Override
+    public void showLoading(@NonNull int message) {
+        Log.d(TAG,"showLoading(): "+message+", indeterminate: "+indeterminate);
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.setMessage(getText(message));
         progressDialog.show();
     }
 
