@@ -105,7 +105,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final int RTC_RETRY_COUNT = 0;
     private final int VERIFICATION_TIMEOUT = 15; //Seconds
     private final int PERIOD_TRACK_PID_LEN = 60; //Seconds
-    private final int PERIOD_RESET_DEV_TM = 120; //Seconds
+    private final int PERIOD_RESET_DEV_TM = 1800; //Seconds
     private final int PERIOD_RTC_LEN = 60000; //Milliseconds
     private final int PERIOD_VIN_LEN = 10000; //Milliseconds
 
@@ -662,6 +662,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                         @Override
                         public void onError(@NotNull RequestError error) {
                             Log.d(TAG,"getDeviceClockSyncUseCase().onError() error: "+error);
+                            readyForDeviceTime = false;
+                            readyForDeviceTimeResetTimer.start();
                         }
                     });
                 }
