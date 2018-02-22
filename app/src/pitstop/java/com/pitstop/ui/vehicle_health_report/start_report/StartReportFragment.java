@@ -144,7 +144,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         if (promptAddCar == null) {
             promptAddCar = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle(getString(R.string.add_car_alert_title))
+                    .setTitle(getString(R.string.title_activity_add_car))
                     .setMessage(getString(R.string.prompt_add_car))
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog, which) -> {
                         Log.d(TAG,"promptAddCarClicked()");
@@ -185,9 +185,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
         if (promptOfflineDialog == null) {
             promptOfflineDialog = new AnimatedDialogBuilder(getActivity())
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setTitle("Couldn't Connect to Internet")
-                    .setMessage("We couldn't establish a connection with our servers. " +
-                            "Please make sure you're connected to the internet before starting")
+                    .setTitle(getText(R.string.offline_error_title))
+                    .setMessage(getText(R.string.offline_error))
                     .setCancelable(false)
                     .setPositiveButton("OK",null)
                     .create();
