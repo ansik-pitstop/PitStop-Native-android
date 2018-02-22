@@ -105,6 +105,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final int RTC_RETRY_COUNT = 0;
     private final int VERIFICATION_TIMEOUT = 15; //Seconds
     private final int PERIOD_TRACK_PID_LEN = 60; //Seconds
+    private final int PERIOD_RESET_DEV_TM = 120; //Seconds
     private final int PERIOD_RTC_LEN = 60000; //Milliseconds
     private final int PERIOD_VIN_LEN = 10000; //Milliseconds
 
@@ -117,6 +118,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private boolean allPidRequested = false;
     private boolean dtcRequested = false;
     private boolean receivedDtcResponse = false;
+    private boolean readyForDeviceTime = true;
 
     //Connection state values
     private long terminalRtcTime = -1;
@@ -146,6 +148,20 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private List<Observer> observerList = Collections.synchronizedList(new ArrayList<>());
     private AlarmHandler alarmHandler;
     private FuelHandler fuelHandler;
+
+    /**Resetting flag that allows for the execution of the device clock sync use case
+     * this is done so that the use case is only executed once every 600 seconds**/
+    private final TimeoutTimer readyForDeviceTimeResetTimer
+            = new TimeoutTimer(PERIOD_RESET_DEV_TM,0) {
+        @Override
+        public void onRetry() {}
+
+        @Override
+        public void onTimeout() {
+            Log.d(TAG,"readyForDeviceTimeResetTimer.onTimeout()");
+            readyForDeviceTime = true;
+        }
+    };
 
     /**For tracking pid in mixpanel helper**/
     private final TimeoutTimer pidTrackTimeoutTimer
@@ -258,7 +274,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             backgroundHandler.postDelayed(this, PERIOD_RTC_LEN);
         }
     };
-
 
     /**Sometimes vin might not be returned**/
     private final Runnable periodicGetVinRunnable = new Runnable() {
@@ -633,13 +648,15 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 if (terminalRtcTime == -1) terminalRtcTime = rtcTime;
                 notifyRtc(rtcTime);
 
-                if (readyDevice != null){
+                if (readyDevice != null && readyForDeviceTime){
                     Log.d(TAG,"executing deviceClockSyncUseCase()");
                     useCaseComponent.getDeviceClockSyncUseCase().execute(rtcTime, readyDevice.getScannerId()
                             , readyDevice.getVin(), new DeviceClockSyncUseCase.Callback() {
                         @Override
                         public void onClockSynced() {
                             Log.d(TAG,"getDeviceClockSyncUseCase().onClockSynced()");
+                            readyForDeviceTime = false;
+                            readyForDeviceTimeResetTimer.start();
                         }
 
                         @Override
@@ -1255,6 +1272,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         readyDevice = null;
         deviceIsVerified = false;
         currentDeviceId = null;
+        readyForDeviceTime = true;
     }
 
     @Override
