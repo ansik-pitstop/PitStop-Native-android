@@ -352,9 +352,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"onCouldNotConnectToDevice()");
         if (connectErrorDialog == null) {
             connectErrorDialog = new AnimatedDialogBuilder(getActivity())
-                    .setTitle("Connection Error")
+                    .setTitle(getString(R.string.connection_error))
                     .setCancelable(true)
-                    .setMessage("We couldn't connect to your device. Try again?")
+                    .setMessage(getString(R.string.connection_try_again))
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
                             presenter.startSearch();
                     })
