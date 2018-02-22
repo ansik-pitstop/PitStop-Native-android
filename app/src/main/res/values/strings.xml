@@ -609,4 +609,6 @@
     <string name="waiting_predicted_service_message">Your predicted service date is being calculated and will soon be displayed</string>
     <string name="found_devices">Found Devices</string>
     <string name="connecting_to_device">Connecting to Device</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="connection_try_again">We couldn\'t connect to your device. Try again?</string>
 </resources>
