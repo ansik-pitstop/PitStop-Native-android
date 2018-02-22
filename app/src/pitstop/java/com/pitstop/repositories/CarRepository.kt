@@ -149,6 +149,31 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
+    //Update mileage with device
+    fun updateMileage(car: Car, deviceMileage: Int, rtcTime: Int, callback: Repository.Callback<Any>) {
+        Log.d(tag,"update() car: $car")
+        val body = JSONObject()
+
+        try {
+            body.put("deviceMileage",deviceMileage)
+            body.put("rtcTime",rtcTime)
+            body.put("carId", car.id)
+            body.put("totalMileage", car.totalMileage)
+        } catch (e: JSONException) {
+            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
+            e.printStackTrace()
+        }
+
+        networkHelper.put("car", { response, requestError ->
+            if (requestError == null) {
+                localCarStorage.updateCar(car)
+                callback.onSuccess(response)
+            } else {
+                callback.onError(requestError)
+            }
+        }, body)
+    }
+
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
