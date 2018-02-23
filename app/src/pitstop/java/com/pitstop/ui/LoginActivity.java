@@ -648,8 +648,13 @@ public class LoginActivity extends DebugDrawerActivity {
                         login(email.getText().toString().toLowerCase(), password.getText().toString());
                     } else {
                         Logger.getInstance().logE(TAG,"Sign up error: err="+requestError.getMessage(),DebugMessage.TYPE_OTHER);
-                        Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
                         hideLoading();
+                        if (requestError.getMessage().contains("already used") || requestError.getMessage().contains("username")){
+                            Log.d(TAG,"contains already used!");
+                            onBackPressed();
+                            email.requestFocus();
+                        }
                     }
                 });
             } else {

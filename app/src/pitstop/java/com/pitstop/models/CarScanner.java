@@ -4,7 +4,7 @@ package com.pitstop.models;
  * Created by Karol Zdebel on 11/8/2017.
  */
 
-class CarScanner {
+public class CarScanner {
     private int id;
     private String scannerId;
 
