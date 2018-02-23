@@ -611,5 +611,5 @@
     <string name="connecting_to_device">Connecting to Device</string>
     <string name="connection_error">Connection Error</string>
     <string name="connection_try_again">We couldn\'t connect to your device. Try again?</string>
-    <string name="device_id_input_hint">Enter the device id ex: 215B001234</string>
+    <string name="device_id_input_hint">Enter the ID located on the back of the device</string>
 </resources>
