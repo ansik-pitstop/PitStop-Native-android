@@ -919,7 +919,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                 getActivity()).inflate(R.layout.dialog_input_scanner_id, null);
         TextInputEditText textInputEditText = (TextInputEditText) dialogLayout
                 .findViewById(R.id.scanner_input);
-        textInputEditText.setHint("Enter the device ID found on your Pitstop Device");
+        textInputEditText.setHint("ex: 215B001234");
         pairScannerAlertDialog = new AnimatedDialogBuilder(getActivity())
                 .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                 .setTitle("Pair Scanner")
