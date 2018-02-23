@@ -339,7 +339,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void onFuelConsumptionClicked() {
-        if (this.mCar.getScanner() == null || this.mCar.getScannerId().equalsIgnoreCase(""))
+        Log.d(TAG,"onFuelConsumptionClicked() car: "+mCar);
+        if (this.mCar.getScannerId() == null || this.mCar.getScannerId().isEmpty())
             getView().showBuyDeviceDialog();
         else
             getView().showFuelConsumptionExplanationDialog();
