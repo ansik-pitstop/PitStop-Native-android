@@ -52,7 +52,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     private MixpanelHelper mixpanelHelper;
     private boolean updating;
     private Car mCar;
-    private boolean carHasScanner = false;
     private FuelObservable fuelObservable;
     private AlarmObservable alarmObservable;
 
@@ -210,7 +209,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
                     getFuelConsumed(car.getScannerId());
                     String scannerId = car.getScannerId();
-                    carHasScanner = (scannerId != null && !scannerId.equalsIgnoreCase(""));
                     getAmountSpent(scannerId);
 
                     getView().displayCarDetails(car);
@@ -381,7 +379,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         Log.d(TAG, "onTotalAlarmsClicked()");
         if (updating) return;
         if (getView() == null) return;
-        if (carHasScanner) {
+        if (mCar != null && mCar.getScannerId() != null && !mCar.getScannerId().isEmpty()) {
             getView().openAlarmsActivity();
         } else {
             getView().showBuyDeviceDialog();
