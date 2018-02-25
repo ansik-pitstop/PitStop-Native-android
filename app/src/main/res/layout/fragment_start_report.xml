@@ -14,7 +14,7 @@
         android:layout_marginTop="40dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_above="@id/start_report_button_holder"
+        android:layout_above="@id/start_report_animation"
         android:text="@string/scan_title_no_connection"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/primary" />
