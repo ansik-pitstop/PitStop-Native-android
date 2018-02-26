@@ -238,13 +238,16 @@ public class Logger {
                 .additionalField("version", BuildConfig.VERSION_NAME)
                 .level(gelfLevel)
                 .build();
-
-        if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
-                && connectivityManager.getActiveNetworkInfo().isConnected()
-                && gelfTransport != null) {
-            boolean trySend = gelfTransport.trySend(gelfMessage);
-            if (trySend)
-                return true;
+        try{
+            if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
+                    && connectivityManager.getActiveNetworkInfo().isConnected()
+                    && gelfTransport != null) {
+                boolean trySend = gelfTransport.trySend(gelfMessage);
+                if (trySend)
+                    return true;
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
         }
         return false;
     }
