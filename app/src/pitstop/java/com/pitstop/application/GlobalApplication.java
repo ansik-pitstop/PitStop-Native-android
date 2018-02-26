@@ -132,10 +132,13 @@ public class GlobalApplication extends Application {
         initiateDatabase();
 
         // Smooch
-        Settings settings = new Settings(SecretUtils.getSmoochToken(this));
+        Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
+        Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
-        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings);
+        //settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        Smooch.init(this, settings, response -> {
+            Log.d(TAG,"smooch init response: "+response.getError());
+        });
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
@@ -259,7 +262,8 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            Smooch.login(String.valueOf(userId), null);
+
+            Smooch.login(String.valueOf(userId), compactJws, response -> Log.d(TAG,"smooch login response: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
@@ -343,7 +347,9 @@ public class GlobalApplication extends Application {
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
-        Smooch.logout();
+        Smooch.logout(response -> {
+            Log.d(TAG,"smooch logout response: "+response.getError());
+        });
 
         cleanUpDatabase();
     }
