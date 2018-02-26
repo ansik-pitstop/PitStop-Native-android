@@ -1,13 +1,8 @@
 package com.pitstop.ui;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -23,7 +18,6 @@ import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.database.LocalAlarmStorage;
@@ -71,32 +65,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     private QueryObservable mQueryOtherObservable;
     private Subscription mQueryOtherSubscription;
     private AlertDialog confirmRTCAlertDialog;
-    private BluetoothWriter bluetoothWriter;
 
-    private Intent serviceIntent;
     private boolean mLogsEnabled;
-    BluetoothConnectionObservable bluetoothConnectionObservable;
     EditText editText;
-
-
-    ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.i(TAG, "connecting: onServiceConnected");
-            // cast the IBinder and get MyService instance
-            bluetoothConnectionObservable = ((BluetoothConnectionObservable)((BluetoothAutoConnectService.BluetoothBinder) service).getService());
-            bluetoothConnectionObservable.subscribe(DebugDrawerActivity.this);
-            bluetoothWriter = ((BluetoothWriter)((BluetoothAutoConnectService.BluetoothBinder) service).getService());
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            Log.i(TAG, "Disconnecting: onServiceConnection");
-            bluetoothConnectionObservable = null;
-        }
-    };
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -150,9 +121,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         super.setContentView(mDrawerLayout);
 
         View mainActivityLayout = (View) findViewById(R.id.main_activity_layout);
-        serviceIntent = new Intent(DebugDrawerActivity.this, BluetoothAutoConnectService.class);
-        startService(serviceIntent);
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         if (!(this instanceof MainActivity)){
             mainActivityLayout.setVisibility(View.GONE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, findViewById(R.id.drawer_layout_garage));
@@ -162,8 +130,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
        editText = ViewUtils.findView(mDrawerLayout, R.id.debug_edit_text);
         Button getSupportedPids = ViewUtils.findView(mDrawerLayout, R.id.debugGetSupportedPids);
         getSupportedPids.setOnClickListener(v -> {
-            if (bluetoothConnectionObservable!=null)
-                bluetoothConnectionObservable.getSupportedPids();
+            if (getBluetoothConnectionObservable()!=null)
+                getBluetoothConnectionObservable().getSupportedPids();
         });
 
         Button clearAlarms = ViewUtils.findView(mDrawerLayout, R.id.clear_alarms);
@@ -251,33 +219,33 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.describeProtocol).setOnClickListener(view -> {
-            if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.requestDescribeProtocol();
+            if (getBluetoothConnectionObservable() != null)
+                getBluetoothConnectionObservable().requestDescribeProtocol();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.request2141PID).setOnClickListener(view -> {
-            if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.request2141PID();
+            if (getBluetoothConnectionObservable() != null)
+                getBluetoothConnectionObservable().request2141PID();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.requestPendingDTC).setOnClickListener(view -> {
-            if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.requestPendingDTC();
+            if (getBluetoothConnectionObservable() != null)
+                getBluetoothConnectionObservable().requestPendingDTC();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.requestStoredDTC).setOnClickListener(view -> {
-            if (bluetoothConnectionObservable != null)
-                bluetoothConnectionObservable.requestStoredDTC();
+            if (getBluetoothConnectionObservable() != null)
+                getBluetoothConnectionObservable().requestStoredDTC();
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.selectELMProtocol).setOnClickListener(view -> {
-            if (bluetoothWriter != null){
+            if (getBluetoothWriter() != null){
                 try{
                     int editTextValue = Integer.valueOf(editText.getText().toString());
                     if (editTextValue < 0 || editTextValue > 13){
                         editText.setText("Invalid input, only integers between 0-13 accepted");
                     }else{
-                        boolean succeeded = bluetoothWriter.requestSelectProtocol(ObdProtocols.values()[editTextValue]);
+                        boolean succeeded = getBluetoothWriter().requestSelectProtocol(ObdProtocols.values()[editTextValue]);
                         if (!succeeded)
                             editText.setText("Failed to write");
                         else editText.setText("Wrote successfully");
@@ -294,13 +262,13 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     }
 
     private void setChunkSize(int chunkSize) {
-        if(bluetoothWriter!= null){
-            bluetoothWriter.setChunkSize(chunkSize);
+        if(getBluetoothWriter()!= null){
+            getBluetoothWriter().setChunkSize(chunkSize);
         }
     }
 
     private void showConfirmResetDTCDialog() {
-        if (bluetoothWriter==null)
+        if (getBluetoothWriter()==null)
             return;
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle("Confirm Clear DTC");
@@ -312,7 +280,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        bluetoothWriter.clearDTCs();
+                        getBluetoothWriter().clearDTCs();
                     }
                 });
         confirmRTCAlertDialog = alertDialogBuilder.create();
@@ -321,7 +289,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     }
 
     private void showConfirmResetMemoryDialog() {
-        if (bluetoothWriter==null)
+        if (getBluetoothWriter()==null)
             return;
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle("Confirm Clear Memory");
@@ -333,7 +301,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        bluetoothWriter.resetMemory();
+                        getBluetoothWriter().resetMemory();
                     }
                 });
         confirmRTCAlertDialog = alertDialogBuilder.create();
@@ -341,7 +309,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     }
 
     private void showRTCOverWriteCOnfirmDialog() {
-        if (bluetoothWriter==null)
+        if (getBluetoothWriter()==null)
             return;
         int Interval;
         try {
@@ -365,7 +333,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Log.d(TAG, "yes OverwriteRTC");
-                            bluetoothWriter.writeRTCInterval(Integer.parseInt(editText.getText().toString()));
+                            getBluetoothWriter().writeRTCInterval(Integer.parseInt(editText.getText().toString()));
                         }
                     });
         confirmRTCAlertDialog = alertDialogBuilder.create();
@@ -392,9 +360,6 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         }
         if (mQueryOtherObservable != null) {
             mQueryOtherObservable.unsubscribeOn(AndroidSchedulers.mainThread());
-        }
-        if (serviceConnection != null) {
-            unbindService(serviceConnection);
         }
     }
 
@@ -526,8 +491,11 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     @Override
     protected void onStop() {
         super.onStop();
-        if (bluetoothConnectionObservable != null){
-            bluetoothConnectionObservable.unsubscribe(this);
+        if (getBluetoothConnectionObservable() != null){
+            getBluetoothConnectionObservable().unsubscribe(this);
         }
     }
+
+    public abstract BluetoothConnectionObservable getBluetoothConnectionObservable();
+    public abstract BluetoothWriter getBluetoothWriter();
 }
