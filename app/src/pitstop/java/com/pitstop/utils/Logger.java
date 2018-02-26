@@ -43,6 +43,7 @@ public class Logger {
     private LocalDebugMessageStorage localDebugMessageStorage;
     private GelfConfiguration gelfConfiguration = null;
     private Handler handler;
+    private Context context;
     private int userId = -1;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -83,6 +84,7 @@ public class Logger {
 
     public Logger(Context context){
         this.localUserStorage = new LocalUserStorage(context);
+        this.context = context;
         connectivityManager =
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -239,6 +241,8 @@ public class Logger {
                 .level(gelfLevel)
                 .build();
         try{
+            if (connectivityManager == null)
+                connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null
                     && connectivityManager.getActiveNetworkInfo().isConnected()
                     && gelfTransport != null) {
