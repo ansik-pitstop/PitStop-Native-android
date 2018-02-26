@@ -54,6 +54,7 @@ import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -61,6 +62,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MigrationService;
@@ -311,6 +313,16 @@ public class LoginActivity extends DebugDrawerActivity {
         });
         logoAnimator.start();
 
+    }
+
+    @Override
+    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
+        return null;
+    }
+
+    @Override
+    public BluetoothWriter getBluetoothWriter() {
+        return null;
     }
 
     private void fadeInLoginViews() {

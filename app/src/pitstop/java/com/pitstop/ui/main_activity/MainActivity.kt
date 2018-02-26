@@ -31,6 +31,7 @@ import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalScannerStorage
 import com.pitstop.database.LocalShopStorage
@@ -978,4 +979,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (mDrawerLayout != null)
             mDrawerLayout.closeDrawers()
     }
+
+    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable
+            = autoConnectService
+
+    override fun getBluetoothWriter(): BluetoothWriter = autoConnectService
+
 }
