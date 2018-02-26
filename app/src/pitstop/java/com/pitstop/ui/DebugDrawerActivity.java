@@ -30,9 +30,16 @@ import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
+import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.TempNetworkComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetUserCarUseCase;
+import com.pitstop.interactors.update.UpdateCarMileageUseCase;
+import com.pitstop.models.Car;
+import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ReadyDevice;
+import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -132,6 +139,10 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
                 .contextModule(new ContextModule(this))
                 .build();
 
+        UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this))
+                .build();
+
         mNetworkHelper = tempNetworkComponent.networkHelper();
 
         localAlarmStorage = new LocalAlarmStorage(this);
@@ -185,6 +196,58 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             catch(NumberFormatException e){
                 editText.setText("Make sure you input an integer.");
             }
+        });
+
+        Button getMileage = findViewById(R.id.getMileage);
+        getMileage.setOnClickListener(v -> {
+            Log.d(TAG,"getMileage()");
+            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+                @Override
+                public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
+                    editText.setText("mileage: "+car.getTotalMileage());
+                }
+
+                @Override
+                public void onNoCarSet(boolean isLocal) {
+                    Toast.makeText(DebugDrawerActivity.this
+                            ,"No car added",Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(RequestError error) {
+                    Toast.makeText(DebugDrawerActivity.this
+                            ,"Error: "+error.getMessage(),Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        Button updateMileage = findViewById(R.id.updateMileage);
+        updateMileage.setOnClickListener(v -> {
+            try{
+                int num = Integer.valueOf(editText.getText().toString());
+                useCaseComponent.updateCarMileageUseCase().execute(num, new UpdateCarMileageUseCase.Callback() {
+                    @Override
+                    public void onMileageUpdated() {
+                        Toast.makeText(DebugDrawerActivity.this
+                                ,"Mileage updated",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNoCarAdded() {
+                        Toast.makeText(DebugDrawerActivity.this
+                                ,"Error: no car added",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        Toast.makeText(DebugDrawerActivity.this
+                                ,"Error: "+error.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }catch(NumberFormatException e){
+                editText.setText("Invalid mileage, try again");
+            }
+            Log.d(TAG,"updateMileage()");
         });
 
         ViewUtils.findView(mDrawerLayout, R.id.describeProtocol).setOnClickListener(view -> {
