@@ -14,6 +14,7 @@ import android.util.Log;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -240,8 +241,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     }
 
+    @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable(){
         return bluetoothConnectionObservable;
+    }
+
+    @Override
+    public BluetoothWriter getBluetoothWriter() {
+        return autoConnectService;
     }
 
     public void setViewVinAndDeviceEntry() {
