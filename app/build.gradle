@@ -181,8 +181,8 @@ dependencies {
     compile 'com.android.support:support-annotations:26.0.2'
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.goebl:david-webb:1.3.0'
-    compile 'com.google.android.gms:play-services-vision:10.0.1'
-    compile 'com.google.android.gms:play-services-gcm:10.0.1'
+    compile 'com.google.android.gms:play-services-vision:11.0.4'
+    compile 'com.google.android.gms:play-services-gcm:11.0.4'
     compile 'com.parse:parse-android:1.+'
     compile 'com.facebook.android:facebook-android-sdk:4.12.1'
     compile 'com.facebook.stetho:stetho:1.5.0'
@@ -193,11 +193,11 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.mikhaellopez:circularimageview:3.0.2'
     compile 'com.google.zxing:core:3.2.1'
-    compile 'com.google.android.gms:play-services-location:10.0.1'
+    compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'com.github.bmarrdev:android-DecoView-charting:v0.9.6'
     compile 'com.github.brnunes:swipeablerecyclerview:1.0.1'
-    compile 'com.jakewharton:butterknife:8.4.0'
-    kapt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'com.jakewharton:butterknife:8.7.0'
+    kapt 'com.jakewharton:butterknife-compiler:8.7.0'
     compile 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     compile 'com.github.akarnokd:rxjava2-interop:0.10.0'
     compile 'io.reactivex:rxandroid:1.2.1'
@@ -211,9 +211,9 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services-maps:11.0.4'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation files('../libs/gelfclient.jar')
 }
 

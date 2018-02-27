@@ -3,14 +3,14 @@ package com.pitstop.interactors.other
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
-import com.pitstop.retrofit.PitstopAuthApi
+import com.pitstop.retrofit.PitstopSmoochApi
 import com.pitstop.utils.Logger
 import io.smooch.core.Smooch
 
 /**
  * Created by Karol Zdebel on 2/26/2018.
  */
-class SmoochLoginUseCaseImpl(val authApi: PitstopAuthApi, val usecaseHandler: Handler
+class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler: Handler
                              , val mainHandler: Handler): SmoochLoginUseCase {
     private val tag = javaClass.simpleName
 
@@ -28,12 +28,13 @@ class SmoochLoginUseCaseImpl(val authApi: PitstopAuthApi, val usecaseHandler: Ha
 
     override fun run() {
         Log.d(tag,"run()")
-        val call = authApi.getSmoochToken().execute()
+        val call = smoochApi.getSmoochToken().execute()
         if (call.isSuccessful){
             Log.d(tag,"call successful")
             val body = call.body()
             if (body != null){
                 val smoochToken = body.get("smoochToken").asString
+                Log.d(tag,"smooch token: "+smoochToken)
                 if (smoochToken != null){
                     Smooch.login(userId,smoochToken, {
                         Log.d(tag,"login response err: "+it.error)

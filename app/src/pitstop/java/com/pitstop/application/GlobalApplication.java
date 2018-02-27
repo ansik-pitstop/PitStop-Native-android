@@ -34,6 +34,10 @@ import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
@@ -45,6 +49,7 @@ import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -80,6 +85,8 @@ public class GlobalApplication extends Application {
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
+
+    private UseCaseComponent useCaseComponent;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -135,9 +142,20 @@ public class GlobalApplication extends Application {
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
-        //settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, settings, response -> {
+        Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        Smooch.init(this, smoochSettings, response -> {
             Log.d(TAG,"smooch init response: "+response.getError());
+        });
+        useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
+            @Override
+            public void onError(@NotNull String err) {
+                Log.d(TAG, "Error logging into smooch err: " + err);
+            }
+            @Override
+            public void onLogin() {
+                Log.d(TAG,"Logged into smooch successfully");
+            }
         });
 
         // Parse
@@ -262,8 +280,8 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-
-            Smooch.login(String.valueOf(userId), "", response -> Log.d(TAG,"smooch login response: "+response.getError()));
+            UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(new ContextModule(this)).build();
         }
 
         setCurrentUser(currentUser);
