@@ -263,7 +263,7 @@ public class GlobalApplication extends Application {
         int userId = currentUser.getId();
         if (userId != -1){
 
-            Smooch.login(String.valueOf(userId), compactJws, response -> Log.d(TAG,"smooch login response: "+response.getError()));
+            Smooch.login(String.valueOf(userId), "", response -> Log.d(TAG,"smooch login response: "+response.getError()));
         }
 
         setCurrentUser(currentUser);
