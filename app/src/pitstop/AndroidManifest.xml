@@ -150,6 +150,9 @@
             android:name=".utils.MigrationService"
             android:exported="false"/>
 
+        <service
+            android:name=".ui.trip.ActivityService" />
+
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"

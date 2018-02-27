@@ -24,6 +24,9 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.ActivityRecognition
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
@@ -79,7 +82,7 @@ import kotlin.collections.ArrayList
  */
 class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver
         , BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable
-        , BadgeDisplayer {
+        , BadgeDisplayer, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private var presenter: MainActivityPresenter? = null
     private var application: GlobalApplication? = null
@@ -273,7 +276,13 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        val googleApiClient: GoogleApiClient = GoogleApiClient.Builder(this)
+            .addApi(ActivityRecognition.API)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .build()
 
+        googleApiClient.connect()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -987,5 +996,17 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             = autoConnectService
 
     override fun getBluetoothWriter(): BluetoothWriter? = autoConnectService
+
+    override fun onConnected(p0: Bundle?) {
+        Log.d(TAG,"onConnected() google api")
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+        Log.d(TAG,"onConnectionSuspended() google api")
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.d(TAG,"onConnectionFailed() google api")
+    }
 
 }

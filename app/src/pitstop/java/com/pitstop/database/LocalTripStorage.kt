@@ -7,7 +7,7 @@ import com.pitstop.models.Trip
 /**
  * Created by Karol Zdebel on 2/27/2018.
  */
-class LocalTripStorage(val context: Context) {
+class LocalGpsTripStorage(val context: Context) {
 
     val tag = javaClass.simpleName
 
