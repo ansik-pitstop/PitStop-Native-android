@@ -2,11 +2,13 @@ package com.pitstop.ui.trip
 
 import android.app.IntentService
 import android.content.Intent
+import android.location.Location
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
+import com.google.android.gms.location.LocationResult
 import com.pitstop.R
 
 
@@ -21,9 +23,19 @@ class ActivityService: IntentService("ActivityService") {
 
     override fun onHandleIntent(intent: Intent?) {
         if (ActivityRecognitionResult.hasResult(intent)) {
-            val result = ActivityRecognitionResult.extractResult(intent)
-            handleDetectedActivities(result.probableActivities)
+            val activityResult = ActivityRecognitionResult.extractResult(intent)
+            handleDetectedActivities(activityResult.probableActivities)
         }
+        if (LocationResult.hasResult(intent)){
+            val locationResult = LocationResult.extractResult(intent)
+            handleLocations(locationResult.locations)
+        }else{
+            Log.d(tag,"location unavailable")
+        }
+    }
+
+    private fun handleLocations(locations: List<Location>){
+        Log.d(tag,"location list: "+locations)
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
@@ -66,10 +78,12 @@ class ActivityService: IntentService("ActivityService") {
     }
 
     private fun displayActivityNotif(type: String, conf: Int){
-        val builder = NotificationCompat.Builder(this)
-        builder.setContentText("$type activity detected with confidence $conf")
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-        builder.setContentTitle(getString(R.string.app_name))
-        NotificationManagerCompat.from(this).notify(0, builder.build())
+        if (conf > 75){
+            val builder = NotificationCompat.Builder(this)
+            builder.setContentText("$type activity detected with confidence $conf")
+            builder.setSmallIcon(R.mipmap.ic_launcher)
+            builder.setContentTitle(getString(R.string.app_name))
+            NotificationManagerCompat.from(this).notify(0, builder.build())
+        }
     }
 }
