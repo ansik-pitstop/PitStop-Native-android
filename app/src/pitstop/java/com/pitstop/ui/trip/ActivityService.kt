@@ -11,6 +11,7 @@ import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.pitstop.R
+import com.pitstop.models.Trip
 
 
 /**
@@ -66,6 +67,10 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
         }else{
             Log.d(tag,"location unavailable")
         }
+    }
+
+    override fun getCurrentTrip(): Trip {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun handleLocations(locations: List<Location>){
