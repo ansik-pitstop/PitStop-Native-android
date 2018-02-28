@@ -3,6 +3,7 @@ package com.pitstop.ui.trip
 import android.app.IntentService
 import android.content.Intent
 import android.location.Location
+import android.os.Binder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
@@ -20,6 +21,11 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     private val tag = javaClass.simpleName
     private val observerList = arrayListOf<TripActivityObserver>()
     private var tripInProgress = false
+
+    inner class BluetoothBinder : Binder() {
+        val service: ActivityService
+            get() = this@ActivityService
+    }
 
     override fun subscribeTripActivity(observer: TripActivityObserver) {
         if (!observerList.contains(observer))

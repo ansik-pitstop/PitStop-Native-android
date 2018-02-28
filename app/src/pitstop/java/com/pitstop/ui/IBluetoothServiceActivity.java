@@ -15,6 +15,7 @@ import android.view.View;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
+import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
 /**
@@ -23,6 +24,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     private final String TAG = getClass().getSimpleName();
     public BluetoothAutoConnectService autoConnectService;
+    public TripActivityObservable tripActivityObservable;
 
     public static final int RC_LOCATION_PERM = 101;
 
