@@ -13,6 +13,13 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     private val tag = javaClass.simpleName
     private var view: TripsView? = null
+    private var tripActivityObservable: TripActivityObservable? = null
+
+    fun onTripActivityObservableReady(tripActivityObservable: TripActivityObservable){
+        Log.d(tag,"onTripActivityObservableReady()")
+        this.tripActivityObservable = tripActivityObservable
+        tripActivityObservable.subscribeTripActivity(this)
+    }
 
     override fun onTripStart() {
         if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations received")
@@ -29,11 +36,15 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
     fun subscribe(view: TripsView){
         Log.d(tag,"subscribe()")
         this.view = view
+        if (tripActivityObservable != null)
+            tripActivityObservable?.subscribeTripActivity(this)
     }
 
     fun unsubscribe(){
         Log.d(tag,"unsubscribe()")
         this.view = null
+        if (tripActivityObservable != null)
+            tripActivityObservable?.subscribeTripActivity(this)
     }
 
     fun onReadyForLoad(){
