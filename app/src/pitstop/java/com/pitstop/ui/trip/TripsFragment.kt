@@ -1,9 +1,5 @@
 package com.pitstop.ui.trip
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -27,16 +23,7 @@ class TripsFragment: Fragment(),TripsView {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         //Trip info receiver
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(ActivityService.TRIP_START)
-        intentFilter.addAction(ActivityService.TRIP_END)
-        intentFilter.addAction(ActivityService.TRIP_UPDATE)
-        activity.registerReceiver(object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                if (tripsPresenter != null)
-                    tripsPresenter?.onTripActivityReceived(p1)
-            }
-        },intentFilter)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
