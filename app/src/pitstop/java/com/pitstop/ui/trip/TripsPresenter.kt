@@ -1,36 +1,47 @@
 package com.pitstop.ui.trip
 
+import android.content.Intent
 import android.location.Location
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Karol Zdebel on 2/27/2018.
  */
-class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserver {
+class TripsPresenter(val useCaseComponent: UseCaseComponent) {
 
     private val tag = javaClass.simpleName
     private var view: TripsView? = null
-    private var tripActivityObservable: TripActivityObservable? = null
 
-    fun onTripActivityObservableReady(tripActivityObservable: TripActivityObservable){
-        Log.d(tag,"onTripActivityObservableReady()")
-        this.tripActivityObservable = tripActivityObservable
-        tripActivityObservable.subscribeTripActivity(this)
+    fun onTripActivityReceived(intent: Intent?){
+        Log.d(tag, "onReceive action: {$intent?.action}")
+        when(intent?.action){
+            ActivityService.TRIP_UPDATE -> {
+                val trip: ArrayList<Location>
+                        = ArrayList(intent?.getParcelableArrayListExtra(ActivityService.TRIP_EXTRA))
+                if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations received")
+            }
+            ActivityService.TRIP_START -> {
+                if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip started")
+            }
+            ActivityService.TRIP_END -> {
+                val trip: ArrayList<Location>
+                        = ArrayList(intent?.getParcelableArrayListExtra(ActivityService.TRIP_EXTRA))
+                if (view != null) view?.displayTripActivity(getCurrentTime(), "Trip ended")
+            }
+        }
     }
 
     fun subscribe(view: TripsView){
         Log.d(tag,"subscribe()")
         this.view = view
-        if (tripActivityObservable != null)
-            tripActivityObservable?.subscribeTripActivity(this)
     }
 
     fun unsubscribe(){
         Log.d(tag,"unsubscribe()")
         this.view = null
-        if (tripActivityObservable != null)
-            tripActivityObservable?.subscribeTripActivity(this)
     }
 
     fun onReadyForLoad(){
@@ -42,16 +53,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
         Log.d(tag,"onClearClicked()")
     }
 
-    override fun onTripStart() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onTripUpdate(trip: List<Location>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onTripEnd(trip: List<Location>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    private fun getCurrentTime() = SimpleDateFormat("hh:mm aa",Locale.CANADA)
+            .format(Date(System.currentTimeMillis()))
 
 }

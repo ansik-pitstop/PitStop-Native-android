@@ -18,6 +18,13 @@ import com.pitstop.R
  */
 class ActivityService: IntentService("ActivityService"), TripActivityObservable {
 
+    companion object {
+        val TRIP_START = "trip_start"
+        val TRIP_END = "trip_end"
+        val TRIP_UPDATE = "trip_update"
+        val TRIP_EXTRA = "trip_extra"
+    }
+
     private val tag = javaClass.simpleName
     private val observerList = arrayListOf<TripActivityObserver>()
     private var tripInProgress = false
@@ -61,6 +68,7 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
         currentTrip.addAll(locations)
         for (observer in observerList)
             observer.onTripUpdate(currentTrip)
+        application.applicationContext
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -100,7 +108,7 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         for (activity in probableActivities) {
             when (activity.type) {
-                DetectedActivity.IN_VEHICLE -> {
+                DetectedActivity.ON_FOOT -> {
                     Log.d(tag, "In Vehicle: " + activity.confidence)
                     displayActivityNotif("Vehicle",activity.confidence)
                     if (!tripInProgress && activity.confidence > 80){
@@ -114,7 +122,7 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
                         tripEnd()
                     }
                 }
-                DetectedActivity.ON_FOOT -> {
+                DetectedActivity.IN_VEHICLE -> {
                     Log.d(tag, "On Foot: " + activity.confidence)
                     displayActivityNotif("On Foot",activity.confidence)
                     if (tripInProgress && activity.confidence > 90){

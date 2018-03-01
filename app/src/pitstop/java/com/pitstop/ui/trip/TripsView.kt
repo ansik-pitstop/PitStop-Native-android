@@ -9,4 +9,5 @@ interface TripsView {
     fun displayPastTrips(trips: List<Trip>)
     fun clearTripActivity()
     fun getTripActivityObservable(): TripActivityObservable?
+    fun displayTripActivity(time: String, activity: String)
 }
