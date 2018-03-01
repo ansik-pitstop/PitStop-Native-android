@@ -125,7 +125,6 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         }
     }
 
-
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: " + tripInProgress)
         for (activity in probableActivities) {

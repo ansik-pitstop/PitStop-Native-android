@@ -18,11 +18,13 @@ import kotlinx.android.synthetic.main.fragment_trips.*
  */
 class TripsFragment: Fragment(),TripsView {
 
+    private val TAG = javaClass.simpleName
+
     private var tripsPresenter: TripsPresenter? = null
     private var tripActivityObservable: TripActivityObservable? = null
 
     fun setTripActivityObservable(tripActivityObservable: TripActivityObservable){
-        Log.d(tag,"setTripActivityObservable()")
+        Log.d(TAG,"setTripActivityObservable()")
         this.tripActivityObservable = tripActivityObservable
         if (tripsPresenter != null)
             tripsPresenter?.onTripActivityObservableReady(tripActivityObservable)
@@ -58,15 +60,15 @@ class TripsFragment: Fragment(),TripsView {
     }
 
     override fun displayPastTrips(trips: List<Trip>) {
-        Log.d(tag,"displayPastTrips()")
+        Log.d(TAG,"displayPastTrips()")
     }
 
     override fun clearTripActivity() {
-        Log.d(tag,"clearTripActivity()")
+        Log.d(TAG,"clearTripActivity()")
     }
 
     override fun getTripActivityObservable(): TripActivityObservable? {
-        Log.d(tag,"getTripActivityObservable()")
+        Log.d(TAG,"getTripActivityObservable()")
         return if (activity != null) (activity as MainActivity).tripActivityObservable
         else null
     }
