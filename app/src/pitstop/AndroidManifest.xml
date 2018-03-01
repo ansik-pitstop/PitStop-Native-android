@@ -148,6 +148,10 @@
             android:label="Background Service" />
 
         <service
+            android:name=".ui.trip.TripsService"
+            android:label="Trips Service" />
+
+        <service
             android:name=".utils.MigrationService"
             android:exported="false"/>
 

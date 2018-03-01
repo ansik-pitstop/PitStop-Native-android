@@ -30,10 +30,10 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     private var currentTrip: ArrayList<Location>
     private var observers: ArrayList<TripActivityObserver>
     private lateinit var googleApiClient: GoogleApiClient
+    private val binder = TripsBinder()
 
-
-    private final val TRIP_START_THRESHHOLD = 90
-    private final val TRIP_END_THRESHHOLD = 30
+    private val TRIP_START_THRESHHOLD = 90
+    private val TRIP_END_THRESHHOLD = 30
 
     init{
         tripInProgress = false
@@ -46,11 +46,10 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
             get() = this@TripsService
     }
 
-    override fun onBind(p0: Intent?): IBinder {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun onBind(p0: Intent?): IBinder = binder
 
     override fun onCreate() {
+        Log.d(tag,"onCreate()")
         super.onCreate()
 
         val intentFilter = IntentFilter()
