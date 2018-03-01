@@ -1,6 +1,6 @@
 package com.pitstop.ui.trip
 
-import com.pitstop.models.Trip
+import android.location.Location
 
 /**
  * Created by Karol Zdebel on 2/28/2018.
@@ -8,5 +8,6 @@ import com.pitstop.models.Trip
 interface TripActivityObservable {
     fun subscribeTripActivity(observer: TripActivityObserver)
     fun unsubscribeTripActivity(observer: TripActivityObserver)
-    fun getCurrentTrip(): Trip
+    fun getCurrentTrip(): List<Location>
+    fun isTripInProgress(): Boolean
 }

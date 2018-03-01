@@ -11,7 +11,6 @@ import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.pitstop.R
-import com.pitstop.models.Trip
 
 
 /**
@@ -22,6 +21,11 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     private val tag = javaClass.simpleName
     private val observerList = arrayListOf<TripActivityObserver>()
     private var tripInProgress = false
+    private var currentTrip: ArrayList<Location>
+
+    init{
+        currentTrip = arrayListOf()
+    }
 
     inner class BluetoothBinder : Binder() {
         val service: ActivityService
@@ -29,38 +33,45 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     }
 
     override fun subscribeTripActivity(observer: TripActivityObserver) {
+        Log.d(tag,"subscribeTripActivity()")
         if (!observerList.contains(observer))
             observerList.add(observer)
     }
 
     override fun unsubscribeTripActivity(observer: TripActivityObserver) {
+        Log.d(tag,"unsubscribeTripActivity()")
         observerList.remove(observer)
     }
 
     private fun tripStart(){
         tripInProgress = true
+        currentTrip = arrayListOf()
         for (observer in observerList)
-            observer.onTripActivity(TripActivity(TripActivity.TripType.START,null))
+            observer.onTripStart()
     }
 
     private fun tripEnd(){
         tripInProgress = false
         for (observer in observerList)
-            observer.onTripActivity(TripActivity(TripActivity.TripType.END,null))
+            observer.onTripEnd(currentTrip)
+        currentTrip = arrayListOf()
     }
 
     private fun tripUpdate(locations:List<Location>){
+        currentTrip.addAll(locations)
         for (observer in observerList)
-            observer.onTripActivity(TripActivity(TripActivity.TripType.UPDATE,locations))
+            observer.onTripUpdate(currentTrip)
     }
 
     override fun onHandleIntent(intent: Intent?) {
 
         if (ActivityRecognitionResult.hasResult(intent)) {
+            Log.d(tag,"Got activity intent")
             val activityResult = ActivityRecognitionResult.extractResult(intent)
             handleDetectedActivities(activityResult.probableActivities)
         }
         if (LocationResult.hasResult(intent)){
+            Log.d(tag,"Got location intent")
             val locationResult = LocationResult.extractResult(intent)
             handleLocations(locationResult.locations)
 
@@ -69,8 +80,14 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
         }
     }
 
-    override fun getCurrentTrip(): Trip {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getCurrentTrip(): List<Location> {
+        Log.d(tag,"getCurrentTrip()")
+        return currentTrip
+    }
+
+    override fun isTripInProgress(): Boolean{
+        Log.d(tag,"isTripInProgress() ? "+tripInProgress)
+        return tripInProgress
     }
 
     private fun handleLocations(locations: List<Location>){
