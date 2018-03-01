@@ -19,6 +19,14 @@ import kotlinx.android.synthetic.main.fragment_trips.*
 class TripsFragment: Fragment(),TripsView {
 
     private var tripsPresenter: TripsPresenter? = null
+    private var tripActivityObservable: TripActivityObservable? = null
+
+    fun setTripActivityObservable(tripActivityObservable: TripActivityObservable){
+        Log.d(tag,"setTripActivityObservable()")
+        this.tripActivityObservable = tripActivityObservable
+        if (tripsPresenter != null)
+            tripsPresenter?.onTripActivityObservableReady(tripActivityObservable)
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -39,6 +47,9 @@ class TripsFragment: Fragment(),TripsView {
             tripsPresenter = TripsPresenter(useCaseComponent)
         }
         tripsPresenter?.subscribe(this)
+        if (tripActivityObservable != null){
+            tripsPresenter?.onTripActivityObservableReady(tripActivityObservable!!)
+        }
     }
 
     override fun onDestroyView() {
