@@ -2,6 +2,7 @@ package com.pitstop.ui.trip
 
 import android.app.IntentService
 import android.content.Intent
+import android.util.Log
 
 
 /**
@@ -14,6 +15,7 @@ class ActivityService: IntentService("ActivityService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
+        Log.d(javaClass.simpleName,"onHandleIntent()")
         intent?.action = DETECTED_ACTIVITY
         sendBroadcast(intent)
     }

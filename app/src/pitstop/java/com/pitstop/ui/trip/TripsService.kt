@@ -17,7 +17,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.pitstop.R
-import com.pitstop.ui.main_activity.MainActivity
 
 /**
  * Created by Karol Zdebel on 3/1/2018.
@@ -54,8 +53,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)
-
-        applicationContext.registerReceiver(object : BroadcastReceiver() {
+        registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, intent: Intent?) {
                 if (ActivityRecognitionResult.hasResult(intent)) {
                     Log.d(tag,"Got activity intent")
@@ -198,7 +196,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     }
 
     override fun onConnected(p0: Bundle?) {
-        Log.d(MainActivity.TAG,"onConnected() google api")
+        Log.d(tag,"onConnected() google api")
         val intent = Intent(this, ActivityService::class.java)
         val pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, pendingIntent)
@@ -213,11 +211,11 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     }
 
     override fun onConnectionSuspended(p0: Int) {
-        Log.d(MainActivity.TAG,"onConnectionSuspended() google api")
+        Log.d(tag,"onConnectionSuspended() google api")
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d(MainActivity.TAG,"onConnectionFailed() google api")
+        Log.d(tag,"onConnectionFailed() google api")
     }
 
 }
