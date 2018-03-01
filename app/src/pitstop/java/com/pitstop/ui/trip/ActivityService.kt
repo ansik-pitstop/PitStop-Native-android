@@ -16,7 +16,7 @@ import com.pitstop.R
 /**
  * Created by Karol Zdebel on 2/27/2018.
  */
-class ActivityService: IntentService("ActivityService"), TripActivityObservable {
+class ActivityService: IntentService("ActivityService") {
 
     companion object {
         val TRIP_START = "trip_start"
@@ -37,17 +37,6 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     inner class BluetoothBinder : Binder() {
         val service: ActivityService
             get() = this@ActivityService
-    }
-
-    override fun subscribeTripActivity(observer: TripActivityObserver) {
-        Log.d(tag,"subscribeTripActivity()")
-        if (!observerList.contains(observer))
-            observerList.add(observer)
-    }
-
-    override fun unsubscribeTripActivity(observer: TripActivityObserver) {
-        Log.d(tag,"unsubscribeTripActivity()")
-        observerList.remove(observer)
     }
 
     private fun tripStart(){
@@ -89,16 +78,6 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
         }else{
             Log.d(tag,"location unavailable")
         }
-    }
-
-    override fun getCurrentTrip(): List<Location> {
-        Log.d(tag,"getCurrentTrip()")
-        return currentTrip
-    }
-
-    override fun isTripInProgress(): Boolean{
-        Log.d(tag,"isTripInProgress() ? "+tripInProgress)
-        return tripInProgress
     }
 
     private fun handleLocations(locations: List<Location>){
