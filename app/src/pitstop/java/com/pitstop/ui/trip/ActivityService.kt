@@ -88,6 +88,7 @@ class ActivityService: IntentService("ActivityService") {
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
+        Log.d(tag,"handleDetectedActivities() tripInProgress: "+tripInProgress)
         for (activity in probableActivities) {
             when (activity.type) {
                 DetectedActivity.ON_FOOT -> {

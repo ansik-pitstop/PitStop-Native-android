@@ -16,7 +16,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent) {
     private var view: TripsView? = null
 
     fun onTripActivityReceived(intent: Intent?){
-        Log.d(tag, "onReceive action: {$intent?.action}")
+        Log.d(tag, "onReceive action: ${intent?.action}")
         when(intent?.action){
             ActivityService.TRIP_UPDATE -> {
                 val trip: ArrayList<Location>
