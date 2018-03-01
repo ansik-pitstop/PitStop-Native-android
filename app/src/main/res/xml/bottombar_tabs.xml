@@ -22,6 +22,6 @@
 
     <tab
         id="@+id/tab_trips"
-        icon="@drawable/ic_garage"
+        icon="@drawable/route_2"
         title="@string/my_trips" />
 </tabs>

@@ -8,4 +8,5 @@ import com.pitstop.models.Trip
 interface TripsView {
     fun displayPastTrips(trips: List<Trip>)
     fun clearTripActivity()
+    fun getTripActivityObservable(): TripActivityObservable?
 }
