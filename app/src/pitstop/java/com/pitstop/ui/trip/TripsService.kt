@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
+import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
@@ -38,6 +39,11 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         tripInProgress = false
         currentTrip = arrayListOf()
         observers = arrayListOf()
+    }
+
+    inner class TripsBinder : Binder() {
+        val service: TripsService
+            get() = this@TripsService
     }
 
     override fun onBind(p0: Intent?): IBinder {
