@@ -1,29 +1,35 @@
 package com.pitstop.ui.trip
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
+import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
-import com.google.android.gms.location.ActivityRecognitionResult
-import com.google.android.gms.location.DetectedActivity
-import com.google.android.gms.location.LocationResult
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.*
 import com.pitstop.R
+import com.pitstop.ui.main_activity.MainActivity
 
 /**
  * Created by Karol Zdebel on 3/1/2018.
  */
-class TripsService: Service(), TripActivityObservable {
+class TripsService: Service(), TripActivityObservable, GoogleApiClient.ConnectionCallbacks
+        , GoogleApiClient.OnConnectionFailedListener {
 
     private val tag = javaClass.simpleName
     private var tripInProgress: Boolean
     private var currentTrip: ArrayList<Location>
     private var observers: ArrayList<TripActivityObserver>
+    private lateinit var googleApiClient: GoogleApiClient
+
 
     private final val TRIP_START_THRESHHOLD = 90
     private final val TRIP_END_THRESHHOLD = 30
@@ -62,6 +68,15 @@ class TripsService: Service(), TripActivityObservable {
                 }
             }
         },intentFilter)
+
+        googleApiClient = GoogleApiClient.Builder(this)
+                .addApi(ActivityRecognition.API)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build()
+
+        googleApiClient.connect()
     }
 
     override fun subscribeTripActivity(observer: TripActivityObserver) {
@@ -176,6 +191,29 @@ class TripsService: Service(), TripActivityObservable {
             builder.setContentTitle(getString(R.string.app_name))
             NotificationManagerCompat.from(this).notify(0, builder.build())
         }
+    }
+
+    override fun onConnected(p0: Bundle?) {
+        Log.d(MainActivity.TAG,"onConnected() google api")
+        val intent = Intent(this, ActivityService::class.java)
+        val pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, pendingIntent)
+
+        val locationRequest = LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        try{
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, pendingIntent)
+        }catch(e: SecurityException){
+            e.printStackTrace()
+        }
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+        Log.d(MainActivity.TAG,"onConnectionSuspended() google api")
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.d(MainActivity.TAG,"onConnectionFailed() google api")
     }
 
 }
