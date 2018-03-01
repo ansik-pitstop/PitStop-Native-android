@@ -53,21 +53,24 @@ class ActivityService: IntentService("ActivityService"), TripActivityObservable 
     private fun tripStart(){
         tripInProgress = true
         currentTrip = arrayListOf()
-        for (observer in observerList)
-            observer.onTripStart()
+        val intent = Intent()
+        intent.action = TRIP_START
+        sendBroadcast(intent)
     }
 
     private fun tripEnd(){
         tripInProgress = false
-        for (observer in observerList)
-            observer.onTripEnd(currentTrip)
+        val intent = Intent()
+        intent.action = TRIP_END
+        intent.putParcelableArrayListExtra(TRIP_EXTRA,currentTrip)
         currentTrip = arrayListOf()
     }
 
     private fun tripUpdate(locations:List<Location>){
         currentTrip.addAll(locations)
-        for (observer in observerList)
-            observer.onTripUpdate(currentTrip)
+        val intent = Intent()
+        intent.action = TRIP_UPDATE
+        intent.putParcelableArrayListExtra(TRIP_EXTRA,currentTrip)
         application.applicationContext
     }
 
