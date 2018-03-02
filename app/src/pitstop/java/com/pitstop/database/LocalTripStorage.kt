@@ -32,34 +32,36 @@ class LocalTripStorage(context: Context) {
     /**
      * Store appointment data
      */
-    fun storeTripData(locations: List<Location>) {
+    fun store(locations: List<Location>) {
         val db = databaseHelper?.writableDatabase
 
-       // val values = tripObjectToContentValues(trip)
-
-        val result = db.insert(TABLES.MANUAL_TRIP.TABLE_NAME, null, null)
-
-
-    }
-
-    fun storeTrips(tripList: List<Trip>) {
-        for (trip in tripList) {
-            //storeTripData(trip)
-        }
+        locations.forEach({
+            db.insert(TABLES.TRIP.TABLE_NAME, null
+                    , objectToContentValues(locations[0].time,it))
+        })
     }
 
     /**
      * Get all appointments
      */
-    fun getAllTrips(): List<Trip> {
-        val trips = ArrayList<Trip>()
+    fun getAllTrips(): List<List<Location>> {
+        val trips = ArrayList<List<Location>>()
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.MANUAL_TRIP.TABLE_NAME, null, null, null, null, null, null)
+        val c = db.query(TABLES.TRIP.TABLE_NAME, null, null, null, null, null, null)
 
         if (c.moveToFirst()) {
+            var curTripId = -1L
+            var curTrip = arrayListOf<Location>()
             while (!c.isAfterLast) {
-                trips.add(cursorToTrip(c))
+                val tripId = c.getLong(c.getColumnIndex(TABLES.TRIP.KEY_TRIP_ID))
+                if (curTripId != tripId && curTripId != -1L){
+                    //New trip
+                    trips.add(curTrip)
+                    curTrip = arrayListOf()
+                }
+                curTrip.add(cursorToLocation(c))
                 c.moveToNext()
+                curTripId = tripId
             }
         }
         c.close()
@@ -94,15 +96,17 @@ class LocalTripStorage(context: Context) {
     }
 
 
-    private fun cursorToTrip(c: Cursor): Trip {
-        val trip = Trip()
-        trip.start = gson.fromJson(c.getString(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_START)), TripLocation::class.java)
-        trip.end = gson.fromJson(c.getString(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_END)), TripLocation::class.java)
-        trip.startAddress = c.getString(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_START_ADDRESS))
-        trip.endAddress = c.getString(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_END_ADDRESS))
-        trip.totalDistance = c.getDouble(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_TOTAL_DISTANCE))
-        trip.setTripId(c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)))
-        return trip
+    private fun cursorToLocation(c: Cursor): Location {
+        val longitude = c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_LONGITUDE))
+        val latitude = c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_LATITUDE))
+        val time = c.getLong(c.getColumnIndex(TABLES.TRIP.KEY_TIME))
+
+        val location = Location("")
+        location.longitude = longitude
+        location.latitude = latitude
+        location.time = time
+
+        return location
     }
 
     private fun cursorToTripWithPath(c: Cursor): Trip {
@@ -121,23 +125,12 @@ class LocalTripStorage(context: Context) {
     }
 
 
-    private fun objectToContentValues(locations: List<Location>): ContentValues {
+    private fun objectToContentValues(tripId: Long, location: Location): ContentValues {
         val values = ContentValues()
-
-        val gson = Gson()
-        var jsonData: String
-//
-//        values.put(TABLES.COMMON.KEY_OBJECT_ID, trip.id)
-//        jsonData = gson.toJson(trip.start)
-//        values.put(TABLES.MANUAL_TRIP.KEY_START, jsonData)
-//        jsonData = gson.toJson(trip.end)
-//        values.put(TABLES.MANUAL_TRIP.KEY_END, jsonData)
-//        values.put(TABLES.MANUAL_TRIP.KEY_START_ADDRESS, trip.startAddress)
-//        values.put(TABLES.MANUAL_TRIP.KEY_END_ADDRESS, trip.endAddress)
-//        values.put(TABLES.MANUAL_TRIP.KEY_TOTAL_DISTANCE, trip.totalDistance)
-//        jsonData = gson.toJson(trip.path)
-//        values.put(TABLES.MANUAL_TRIP.KEY_PATH, jsonData)
-
+        values.put(TABLES.TRIP.KEY_TRIP_ID, tripId)
+        values.put(TABLES.TRIP.KEY_LONGITUDE, location.longitude)
+        values.put(TABLES.TRIP.KEY_LATITUDE, location.latitude)
+        values.put(TABLES.TRIP.KEY_TIME, location.time)
         return values
     }
 
