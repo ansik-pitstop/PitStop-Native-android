@@ -55,19 +55,19 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, intent: Intent?) {
-                if (ActivityRecognitionResult.hasResult(intent)) {
-                    Log.d(tag,"Got activity intent")
-                    val activityResult = ActivityRecognitionResult.extractResult(intent)
-                    handleDetectedActivities(activityResult.probableActivities)
-                }
-                if (LocationResult.hasResult(intent)){
-                    Log.d(tag,"Got location intent")
-                    val locationResult = LocationResult.extractResult(intent)
-                    if (tripInProgress && locationResult != null)
-                        tripUpdate(locationResult.locations)
-
-                }else{
-                    Log.d(tag,"location unavailable")
+                Log.d(tag,"onReceive() intent: "+intent)
+                if (intent?.action == ActivityService.DETECTED_ACTIVITY){
+                    Log.d(tag,"Received detected activity intent")
+                    val result = intent?.getParcelableExtra<ActivityRecognitionResult>(
+                            ActivityService.ACTIVITY_EXTRA)
+                    handleDetectedActivities(result.probableActivities)
+                }else if (intent?.action == ActivityService.GOT_LOCATION){
+                    Log.d(tag,"Received location intent")
+                    val result = intent?.getParcelableExtra<LocationResult>(
+                            ActivityService.LOCATION_EXTRA)
+                    if (tripInProgress){
+                        tripUpdate(result.locations)
+                    }
                 }
             }
         },intentFilter)
