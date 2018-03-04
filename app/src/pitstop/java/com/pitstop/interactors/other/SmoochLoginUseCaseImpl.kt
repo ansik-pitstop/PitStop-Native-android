@@ -28,7 +28,7 @@ class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler
 
     override fun run() {
         Log.d(tag,"run()")
-        val call = smoochApi.getSmoochToken().execute()
+        val call = smoochApi.getSmoochToken(userId.toInt()).execute()
         if (call.isSuccessful){
             Log.d(tag,"call successful")
             val body = call.body()
