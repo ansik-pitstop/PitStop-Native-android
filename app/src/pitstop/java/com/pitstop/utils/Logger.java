@@ -269,11 +269,11 @@ public class Logger {
     }
 
     public void logD(String tag, String message, int type) {
-        if(BuildConfig.DEBUG) {
+       // if(BuildConfig.DEBUG) {
             Log.d(tag, message);
             DebugMessage debugMessage = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D);
             localDebugMessageStorage.addMessage(debugMessage);
-        }
+       // }
     }
 
     public void logI(String tag, String message, int type) {
