@@ -983,6 +983,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable?
             = autoConnectService
 
-    override fun getBluetoothWriter(): BluetoothWriter = autoConnectService
+    override fun getBluetoothWriter(): BluetoothWriter? = autoConnectService
 
 }
