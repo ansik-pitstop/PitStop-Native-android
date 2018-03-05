@@ -92,7 +92,7 @@ public class UserRepository implements Repository{
         //Create corresponding request callback
         RequestCallback requestCallback = (response, requestError) -> {
             try {
-                if (requestError == null){
+                if (requestError == null && localUserStorage.getUser() != null){
                     User newUser = localUserStorage.getUser();
                     user.setFirstName(user.getFirstName());
                     user.setLastName(user.getLastName());
@@ -185,7 +185,7 @@ public class UserRepository implements Repository{
         return (response, requestError) -> {
             Log.d(TAG,"set user settings response: "+response+", requestError: "+requestError);
             try {
-                if (requestError == null){
+                if (requestError == null && localUserStorage.getUser() != null){
                     User user = localUserStorage.getUser();
                     Settings settingsNew = user.getSettings();
                     settingsNew.setCarId(carId);
@@ -279,7 +279,7 @@ public class UserRepository implements Repository{
             @Override
             public void done(String response, RequestError requestError) {
                 try {
-                    if (requestError == null){
+                    if (requestError == null && localUserStorage.getUser() != null){
                         User user = localUserStorage.getUser();
                         Settings settingsNew = user.getSettings();
                         settingsNew.setAlarmsEnabled(enabled);
@@ -307,7 +307,7 @@ public class UserRepository implements Repository{
         //Create corresponding request callback
         return (response, requestError) -> {
             try {
-                if (requestError == null){
+                if (requestError == null && localUserStorage.getUser() != null){
                     User user = localUserStorage.getUser();
                     Settings settingsNew = user.getSettings();
                     settingsNew.setFirstCarAdded(added);
@@ -342,7 +342,7 @@ public class UserRepository implements Repository{
         final int userId = localUserStorage.getUser().getId();
 
         getUserSettings(userId, (response, requestError) -> {
-            if (requestError != null){
+            if (requestError != null || localUserStorage.getUser() == null){
                 callback.onError(requestError);
                 return;
             }
