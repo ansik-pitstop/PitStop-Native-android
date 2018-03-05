@@ -980,7 +980,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             mDrawerLayout.closeDrawers()
     }
 
-    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable
+    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable?
             = autoConnectService
 
     override fun getBluetoothWriter(): BluetoothWriter = autoConnectService
