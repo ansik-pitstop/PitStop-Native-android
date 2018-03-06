@@ -51,6 +51,7 @@ class TripsFragment: Fragment(),TripsView {
             tripsPresenter = TripsPresenter(useCaseComponent)
         }
         tripsPresenter?.subscribe(this)
+        tripsPresenter?.onReadyForLoad()
         if (tripActivityObservable != null){
             tripsPresenter?.onTripActivityObservableReady(tripActivityObservable!!)
         }

@@ -3,6 +3,8 @@ package com.pitstop.ui.trip
 import android.location.Location
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.get.GetTripsUseCase
+import com.pitstop.network.RequestError
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,6 +54,18 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     fun onReadyForLoad(){
         Log.d(tag,"onReadyForLoad()")
+        useCaseComponent.tripUseCase.execute(object: GetTripsUseCase.Callback{
+            override fun onGotTrips(trips: List<List<Location>>) {
+                Log.d(tag,"onGotTrips() trips: "+trips)
+                if (view != null)
+                    view?.displayPastTrips(trips)
+            }
+
+            override fun onError(err: RequestError) {
+                Log.d(tag,"onError() err: "+err)
+            }
+
+        })
     }
 
     fun onClearClicked(){
