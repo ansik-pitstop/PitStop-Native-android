@@ -17,6 +17,11 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.pitstop.R
+import com.pitstop.dependency.ContextModule
+import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.add.AddTripUseCase
+import com.pitstop.network.RequestError
 
 /**
  * Created by Karol Zdebel on 3/1/2018.
@@ -30,6 +35,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     private var observers: ArrayList<TripActivityObserver>
     private lateinit var googleApiClient: GoogleApiClient
     private val binder = TripsBinder()
+    private lateinit var useCaseComponent: UseCaseComponent
 
     private val TRIP_START_THRESHHOLD = 90
     private val TRIP_END_THRESHHOLD = 30
@@ -50,6 +56,9 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     override fun onCreate() {
         Log.d(tag,"onCreate()")
         super.onCreate()
+
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(ContextModule(applicationContext)).build()
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)
@@ -112,7 +121,13 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         for (o in observers){
             o.onTripEnd(currentTrip)
         }
+        useCaseComponent.addTripUseCase.execute(currentTrip, object: AddTripUseCase.Callback{
+            override fun onAddedTrip() {
+            }
 
+            override fun onError(err: RequestError) {
+            }
+        })
         currentTrip = arrayListOf()
     }
 

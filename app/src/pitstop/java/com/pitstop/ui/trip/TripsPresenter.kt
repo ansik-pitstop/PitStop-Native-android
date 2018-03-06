@@ -54,15 +54,12 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     fun onReadyForLoad(){
         Log.d(tag,"onReadyForLoad()")
-        useCaseComponent.tripUseCase.execute(object: GetTripsUseCase.Callback{
+        useCaseComponent.getTripUseCase.execute(object: GetTripsUseCase.Callback{
             override fun onGotTrips(trips: List<List<Location>>) {
-                Log.d(tag,"onGotTrips() trips: "+trips)
-                if (view != null)
-                    view?.displayPastTrips(trips)
+                if (view != null) view?.displayPastTrips(trips)
             }
 
             override fun onError(err: RequestError) {
-                Log.d(tag,"onError() err: "+err)
             }
 
         })
