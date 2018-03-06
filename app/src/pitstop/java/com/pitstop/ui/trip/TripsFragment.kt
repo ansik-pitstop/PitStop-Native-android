@@ -1,7 +1,9 @@
 package com.pitstop.ui.trip
 
+import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +11,6 @@ import android.view.ViewGroup
 import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
-import com.pitstop.models.Trip
 import com.pitstop.ui.main_activity.MainActivity
 import kotlinx.android.synthetic.main.fragment_trips.*
 
@@ -22,6 +23,7 @@ class TripsFragment: Fragment(),TripsView {
 
     private var tripsPresenter: TripsPresenter? = null
     private var tripActivityObservable: TripActivityObservable? = null
+    private var tripsAdapter: TripsAdapter? = null
 
     fun setTripActivityObservable(tripActivityObservable: TripActivityObservable){
         Log.d(TAG,"setTripActivityObservable()")
@@ -59,8 +61,11 @@ class TripsFragment: Fragment(),TripsView {
         if (tripsPresenter != null) tripsPresenter?.unsubscribe()
     }
 
-    override fun displayPastTrips(trips: List<Trip>) {
+    override fun displayPastTrips(trips: List<List<Location>>) {
         Log.d(TAG,"displayPastTrips()")
+        tripsAdapter = TripsAdapter(trips)
+        past_trips.adapter = tripsAdapter
+        past_trips.layoutManager = LinearLayoutManager(context)
     }
 
     override fun clearTripActivity() {

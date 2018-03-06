@@ -52,7 +52,6 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     fun onReadyForLoad(){
         Log.d(tag,"onReadyForLoad()")
-        //Get trips use case
     }
 
     fun onClearClicked(){
