@@ -19,13 +19,13 @@ class LocalTripStorage(context: Context) {
     private val gson = Gson()
 
     companion object {
-        val CREATE_TABLE_APPOINTMENT = ("CREATE TABLE IF NOT EXISTS "
+        val CREATE_TABLE_TRIPS = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.TRIP.TABLE_NAME + "("
                 + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
                 + TABLES.TRIP.KEY_TRIP_ID + "INTEGER"
                 + TABLES.TRIP.KEY_TIME + " INTEGER, "
                 + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
-                + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
+                + TABLES.TRIP.KEY_LATITUDE + " REAL, "
                 + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }

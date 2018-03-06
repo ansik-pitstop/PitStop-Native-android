@@ -22,10 +22,11 @@ class ActivityService: IntentService("ActivityService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
-        Log.d(javaClass.simpleName,"onHandleIntent()")
+        Log.d(javaClass.simpleName,"onHandleIntent() intent: "+intent?.action)
 
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
+            Log.d(tag,"activity result probably activities: "+activityResult.probableActivities)
             val intent = Intent(DETECTED_ACTIVITY)
             intent.putExtra(ACTIVITY_EXTRA,activityResult)
             sendBroadcast(intent)

@@ -140,7 +140,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
-        Log.d(tag, "handleDetectedActivities() tripInProgress: " + tripInProgress)
+        Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
             when (activity.type) {
                 DetectedActivity.ON_FOOT -> {
@@ -218,7 +218,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, pendingIntent)
 
         val locationRequest = LocationRequest()
-        locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         try{
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, pendingIntent)
         }catch(e: SecurityException){
