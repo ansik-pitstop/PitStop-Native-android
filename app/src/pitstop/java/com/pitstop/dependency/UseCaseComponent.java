@@ -8,6 +8,7 @@ import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
+import com.pitstop.interactors.add.AddTripUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
@@ -228,5 +229,7 @@ public interface UseCaseComponent {
     GetSnapToRoadUseCase getSnapToRoadUseCase();
 
     RemoveTripUseCase removeTripUseCase();
+
+    AddTripUseCase addTripUseCase();
 
 }
