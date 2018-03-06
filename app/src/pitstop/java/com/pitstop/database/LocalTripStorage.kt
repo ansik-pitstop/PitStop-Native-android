@@ -18,20 +18,18 @@ class LocalTripStorage(context: Context) {
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
     private val gson = Gson()
 
-    val CREATE_TABLE_APPOINTMENT = ("CREATE TABLE IF NOT EXISTS "
-            + TABLES.TRIP.TABLE_NAME + "("
-            + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-            + TABLES.TRIP.KEY_TRIP_ID + "INTEGER"
-            + TABLES.TRIP.KEY_TIME + " INTEGER, "
-            + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
-            + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
-            + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
-            + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
+    companion object {
+        val CREATE_TABLE_APPOINTMENT = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.TRIP.TABLE_NAME + "("
+                + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
+                + TABLES.TRIP.KEY_TRIP_ID + "INTEGER"
+                + TABLES.TRIP.KEY_TIME + " INTEGER, "
+                + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
+                + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
+                + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
+                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
+    }
 
-
-    /**
-     * Store appointment data
-     */
     fun store(locations: List<Location>) {
         val db = databaseHelper?.writableDatabase
 
@@ -41,9 +39,6 @@ class LocalTripStorage(context: Context) {
         })
     }
 
-    /**
-     * Get all appointments
-     */
     fun getAllTrips(): List<List<Location>> {
         val trips = ArrayList<List<Location>>()
         val db = databaseHelper.readableDatabase
@@ -68,10 +63,6 @@ class LocalTripStorage(context: Context) {
         return trips
     }
 
-    /**
-     * Get appointment by parse id
-     */
-
     fun getTrip(parseId: String): Trip? {
 
         val db = databaseHelper.readableDatabase
@@ -86,7 +77,6 @@ class LocalTripStorage(context: Context) {
         return trip
     }
 
-    /** Delete all appointments */
     fun deleteAllTrips() {
         val db = databaseHelper.writableDatabase
 
@@ -94,7 +84,6 @@ class LocalTripStorage(context: Context) {
 
 
     }
-
 
     private fun cursorToLocation(c: Cursor): Location {
         val longitude = c.getDouble(c.getColumnIndex(TABLES.TRIP.KEY_LONGITUDE))
@@ -123,7 +112,6 @@ class LocalTripStorage(context: Context) {
         trip.path = gson.fromJson<Any>(c.getString(c.getColumnIndex(TABLES.MANUAL_TRIP.KEY_PATH)), locListType) as List<TripLocation>
         return trip
     }
-
 
     private fun objectToContentValues(tripId: Long, location: Location): ContentValues {
         val values = ContentValues()

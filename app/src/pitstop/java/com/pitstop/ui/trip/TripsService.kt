@@ -112,6 +112,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         for (o in observers){
             o.onTripEnd(currentTrip)
         }
+
         currentTrip = arrayListOf()
     }
 
