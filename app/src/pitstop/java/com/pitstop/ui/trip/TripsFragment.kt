@@ -63,7 +63,7 @@ class TripsFragment: Fragment(),TripsView {
     }
 
     override fun displayPastTrips(trips: List<List<Location>>) {
-        Log.d(TAG,"displayPastTrips()")
+        Log.d(TAG,"displayPastTrips() size: "+trips.size)
         tripsAdapter = TripsAdapter(trips)
         past_trips.adapter = tripsAdapter
         past_trips.layoutManager = LinearLayoutManager(context)

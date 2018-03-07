@@ -28,7 +28,7 @@ import com.pitstop.utils.Logger
 /**
  * Created by Karol Zdebel on 3/1/2018.
  */
-class TripsService: Service(), TripActivityObservable, GoogleApiClient.ConnectionCallbacks
+class TripsService: Service(), TripActivityObservable, TripParameterSetter, GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener {
 
     private val tag = javaClass.simpleName
@@ -39,8 +39,8 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     private val binder = TripsBinder()
     private lateinit var useCaseComponent: UseCaseComponent
 
-    private val TRIP_START_THRESHHOLD = 70
-    private val TRIP_END_THRESHHOLD = 30
+    private var tripStartThreshold = 70
+    private var tripEndThreshold = 30
 
     init{
         tripInProgress = false
@@ -110,6 +110,67 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     override fun isTripInProgress(): Boolean = tripInProgress
 
+    override fun setStartThreshold(threshold: Int): Boolean {
+        Log.d(tag,"setStartThreshold() threshold: $threshold")
+        tripStartThreshold = threshold
+        return true
+    }
+
+    override fun getStartThreshold(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setEndThreshold(threshold: Int): Boolean {
+        Log.d(tag,"setEndThreshold() threshold: $threshold")
+        tripEndThreshold = threshold
+        return true
+    }
+
+    override fun getEndThreshold(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setLocationUpdateInterval(interval: Long) {
+        if (!googleApiClient.isConnected) return false
+        else{
+
+        }
+    }
+
+    override fun getLocationUpdateInterval(): Long {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setLocationUpdatePriority(priority: Int) {
+        if (!googleApiClient.isConnected) return false
+        else{
+
+        }
+    }
+
+    override fun getLocationUpdatePriority(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setActivityUpdateInterval(interval: Int) {
+        if (!googleApiClient.isConnected) return false
+        else{
+
+        }
+    }
+
+    override fun getActivityUpdateInterval(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setActivityTrigger(trigger: Int){
+
+    }
+
+    override fun getActivityTrigger(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 
     private fun tripStart(){
         Log.d(tag,"tripStart()")
@@ -155,7 +216,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.ON_FOOT -> {
                     Log.d(tag, "In Vehicle: " + activity.confidence)
                     displayActivityNotif("Vehicle", activity.confidence)
-                    if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
+                    if (!tripInProgress && activity.confidence > tripStartThreshold){
                         tripStart()
                     }
                     activityType = "ON_FOOT"
@@ -164,7 +225,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.ON_BICYCLE -> {
                     Log.d(tag, "On Bicycle: " + activity.confidence)
                     displayActivityNotif("Bicycle", activity.confidence)
-                    if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
+                    if (tripInProgress && activity.confidence > tripEndThreshold){
                         tripEnd()
                     }
                     activityType = "ON_BICYCLE"
@@ -172,7 +233,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.IN_VEHICLE -> {
                     Log.d(tag, "On Foot: " + activity.confidence)
                     displayActivityNotif("On Foot", activity.confidence)
-                    if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
+                    if (tripInProgress && activity.confidence > tripEndThreshold){
                         tripEnd()
                     }
                     activityType = "IN_VEHICLE"
@@ -180,7 +241,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.RUNNING -> {
                     Log.d(tag, "Running: " + activity.confidence)
                     displayActivityNotif("Running", activity.confidence)
-                    if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
+                    if (!tripInProgress && activity.confidence > tripStartThreshold){
                         tripStart()
                     }
                     activityType = "RUNNING"
@@ -188,7 +249,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.STILL -> {
                     Log.d(tag, "Still: " + activity.confidence)
                     displayActivityNotif("Still", activity.confidence)
-                    if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
+                    if (tripInProgress && activity.confidence > tripEndThreshold){
                         tripEnd()
                     }
                     activityType = "STILL"
@@ -200,7 +261,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                 DetectedActivity.WALKING -> {
                     Log.d(tag, "Walking: " + activity.confidence)
                     displayActivityNotif("Walking", activity.confidence)
-                    if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
+                    if (!tripInProgress && activity.confidence > tripStartThreshold){
                         tripStart()
                     }
                     activityType = "WALKING"

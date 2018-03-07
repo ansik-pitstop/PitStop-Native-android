@@ -58,6 +58,7 @@ class LocalTripStorage(context: Context) {
                 Log.d(TAG,"got tripId: $tripId")
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
+                    Log.d(TAG,"new trip")
                     trips.add(curTrip)
                     curTrip = arrayListOf()
                 }
@@ -66,6 +67,7 @@ class LocalTripStorage(context: Context) {
                 curTripId = tripId
             }
             trips.add(curTrip)
+            Log.d(TAG,"exiting afterlast loop")
         }
         c.close()
         return trips
