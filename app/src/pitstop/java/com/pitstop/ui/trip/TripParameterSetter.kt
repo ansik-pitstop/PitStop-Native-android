@@ -8,11 +8,11 @@ interface TripParameterSetter {
     fun getStartThreshold(): Int
     fun setEndThreshold(threshold: Int): Boolean
     fun getEndThreshold(): Int
-    fun setLocationUpdateInterval(interval: Long)
+    fun setLocationUpdateInterval(interval: Long): Boolean
     fun getLocationUpdateInterval(): Long
-    fun setLocationUpdatePriority(priority: Int)
+    fun setLocationUpdatePriority(priority: Int): Boolean
     fun getLocationUpdatePriority(): Int
-    fun setActivityUpdateInterval(interval: Int)
+    fun setActivityUpdateInterval(interval: Int): Boolean
     fun getActivityUpdateInterval(): Int
     fun setActivityTrigger(trigger: Int)
     fun getActivityTrigger(): Int
