@@ -154,6 +154,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun getLocationUpdateInterval(): Long = locationUpdateInterval
 
     override fun setLocationUpdatePriority(priority: Int): Boolean {
+        Log.d(tag,"setLocationUpdatePriority() priority: $priority")
         if (!googleApiClient.isConnected) return false
         else{
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
@@ -174,6 +175,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun getLocationUpdatePriority(): Int = locationUpdatePriority
 
     override fun setActivityUpdateInterval(interval: Long): Boolean {
+        Log.d(tag,"setActivityUpdateInterval() interval: $interval")
         return if (!googleApiClient.isConnected) false
         else{
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates( googleApiClient, googlePendingIntent)
@@ -186,6 +188,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun getActivityUpdateInterval(): Long = activityUpdateInterval
 
     override fun setActivityTrigger(trigger: Int): Boolean{
+        Log.d(tag,"setActivityTrigger() trigger: $trigger")
         return if (!TripUtils.isActivityValid(trigger)) false
         else{
             tripTrigger = trigger
@@ -194,7 +197,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun getActivityTrigger(): Int = tripTrigger
-
 
     private fun tripStart(){
         Log.d(tag,"tripStart()")
