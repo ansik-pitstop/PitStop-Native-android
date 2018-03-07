@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.location.Location
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pitstop.models.Trip
@@ -15,6 +16,7 @@ import java.util.*
  */
 class LocalTripStorage(context: Context) {
 
+    private val TAG = javaClass.simpleName
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
     private val gson = Gson()
 
@@ -22,33 +24,38 @@ class LocalTripStorage(context: Context) {
         val CREATE_TABLE_TRIPS = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.TRIP.TABLE_NAME + "("
                 + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-                + TABLES.TRIP.KEY_TRIP_ID + "INTEGER"
-                + TABLES.TRIP.KEY_TIME + " INTEGER, "
-                + TABLES.TRIP.KEY_LONGITUDE + " REAL, "
-                + TABLES.TRIP.KEY_LATITUDE + " REAL, "
-                + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
+                + TABLES.TRIP.KEY_TRIP_ID + " INTEGER,"
+                + TABLES.TRIP.KEY_TIME + " INTEGER,"
+                + TABLES.TRIP.KEY_LONGITUDE + " REAL,"
+                + TABLES.TRIP.KEY_LATITUDE + " REAL,"
+                + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
-    fun store(locations: List<Location>) {
+    fun store(locations: List<Location>): Long {
         val db = databaseHelper?.writableDatabase
-
+        var rows = 0L
         locations.forEach({
-            db.insert(TABLES.TRIP.TABLE_NAME, null
+            rows += db.insert(TABLES.TRIP.TABLE_NAME, null
                     , objectToContentValues(locations[0].time,it))
         })
+
+        return rows
     }
 
     fun getAllTrips(): List<List<Location>> {
+        Log.d(TAG,"getAllTrips()")
         val trips = ArrayList<List<Location>>()
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.TRIP.TABLE_NAME, null, null, null, null, null, null)
 
         if (c.moveToFirst()) {
+            Log.d(TAG,"c.moveToFirst()")
             var curTripId = -1L
             var curTrip = arrayListOf<Location>()
             while (!c.isAfterLast) {
                 val tripId = c.getLong(c.getColumnIndex(TABLES.TRIP.KEY_TRIP_ID))
+                Log.d(TAG,"got tripId: $tripId")
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
                     trips.add(curTrip)
@@ -58,6 +65,7 @@ class LocalTripStorage(context: Context) {
                 c.moveToNext()
                 curTripId = tripId
             }
+            trips.add(curTrip)
         }
         c.close()
         return trips

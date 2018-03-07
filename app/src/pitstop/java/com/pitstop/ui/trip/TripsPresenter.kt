@@ -35,7 +35,18 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     override fun onTripEnd(trip: List<Location>) {
         Log.d(tag,"onTripEnd()")
-        if (view != null) view?.displayTripActivity(getCurrentTime(), "Trip ended")
+        if (view != null){
+            view?.displayTripActivity(getCurrentTime(), "Trip ended")
+            useCaseComponent.getTripUseCase.execute(object: GetTripsUseCase.Callback{
+                override fun onGotTrips(trips: List<List<Location>>) {
+                    if (view != null) view?.displayPastTrips(trips)
+                }
+
+                override fun onError(err: RequestError) {
+                }
+
+            })
+        }
     }
 
     fun subscribe(view: TripsView){

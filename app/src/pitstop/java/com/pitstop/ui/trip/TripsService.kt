@@ -39,7 +39,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     private val binder = TripsBinder()
     private lateinit var useCaseComponent: UseCaseComponent
 
-    private val TRIP_START_THRESHHOLD = 90
+    private val TRIP_START_THRESHHOLD = 70
     private val TRIP_END_THRESHHOLD = 30
 
     init{
@@ -64,6 +64,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)
+        intentFilter.addAction(ActivityService.GOT_LOCATION)
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, intent: Intent?) {
                 Log.d(tag,"onReceive() intent: "+intent)
@@ -233,7 +234,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, pendingIntent)
 
         val locationRequest = LocationRequest()
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         try{
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, pendingIntent)
         }catch(e: SecurityException){

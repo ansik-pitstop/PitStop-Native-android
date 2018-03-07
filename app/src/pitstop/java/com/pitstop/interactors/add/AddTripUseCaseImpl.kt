@@ -25,8 +25,11 @@ class AddTripUseCaseImpl(private val localTripStorage: LocalTripStorage
     }
 
     override fun run() {
-        localTripStorage.store(trip)
-        AddTripUseCaseImpl@this.onAddedTrip()
+        if (localTripStorage.store(trip) > 0){
+            AddTripUseCaseImpl@this.onAddedTrip()
+        }else{
+            AddTripUseCaseImpl@this.onError(RequestError.getUnknownError())
+        }
     }
 
     private fun onAddedTrip() {

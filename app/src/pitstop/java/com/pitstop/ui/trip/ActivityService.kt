@@ -33,6 +33,7 @@ class ActivityService: IntentService("ActivityService") {
         }
         if (LocationResult.hasResult(intent)){
             val locationResult = LocationResult.extractResult(intent)
+            Log.d(tag,"location result locations: "+locationResult.locations)
             val intent = Intent(GOT_LOCATION)
             intent.putExtra(LOCATION_EXTRA,locationResult)
             sendBroadcast(intent)

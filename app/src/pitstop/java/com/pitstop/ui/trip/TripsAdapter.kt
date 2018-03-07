@@ -38,7 +38,7 @@ class TripsAdapter(val trips: List<List<Location>>): RecyclerView.Adapter<TripsA
             title.text = String.format("%d minute trip recorded",len)
             description.text = String.format("Trip start coordinates (%f,%f), Trip end coordinates (%f,%f)"
                     ,trip[0].longitude,trip[0].latitude,trip.last().longitude,trip.last().latitude)
-            date.text = SimpleDateFormat("yyyy/mm/dd", Locale.CANADA).format(Date(trip[0].time))
+            date.text = SimpleDateFormat("yyyy/MM/dd", Locale.CANADA).format(Date(trip[0].time))
         }
     }
 }
