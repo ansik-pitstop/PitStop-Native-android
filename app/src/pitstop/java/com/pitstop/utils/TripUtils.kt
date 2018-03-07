@@ -41,5 +41,19 @@ class TripUtils {
                 else -> "Unknown"
             }
         }
+
+        fun isActivityValid(activity: Int): Boolean{
+            return when (activity) {
+                DetectedActivity.ON_FOOT -> true
+                DetectedActivity.ON_BICYCLE -> true
+                DetectedActivity.IN_VEHICLE -> true
+                DetectedActivity.RUNNING -> true
+                DetectedActivity.STILL -> true
+                DetectedActivity.TILTING -> true
+                DetectedActivity.WALKING -> true
+                DetectedActivity.UNKNOWN -> true
+                else -> false
+            }
+        }
     }
 }

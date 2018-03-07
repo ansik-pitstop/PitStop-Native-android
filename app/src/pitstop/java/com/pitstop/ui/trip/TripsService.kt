@@ -17,7 +17,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.pitstop.R
-import com.pitstop.R.string.threshold
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
@@ -25,6 +24,7 @@ import com.pitstop.interactors.add.AddTripUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.TripUtils
 
 /**
  * Created by Karol Zdebel on 3/1/2018.
@@ -43,8 +43,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private var locationUpdateInterval = 5000L
     private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+    private var activityUpdateInterval = 3000L
     private var tripStartThreshold = 70
     private var tripEndThreshold = 30
+    private var tripTrigger = DetectedActivity.ON_FOOT
 
     init{
         tripInProgress = false
@@ -134,7 +136,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"setLocationUpdateInterval() interval: $interval")
         if (!googleApiClient.isConnected || interval < 1000L) return false
         else{
-            locationUpdateInterval = interval
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
             val locationRequest = LocationRequest()
             locationRequest.interval = interval
@@ -143,7 +144,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
             }catch(e: SecurityException){
                 e.printStackTrace()
+                return false
             }
+            locationUpdateInterval = interval
+            return true
         }
     }
 
@@ -152,32 +156,44 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun setLocationUpdatePriority(priority: Int): Boolean {
         if (!googleApiClient.isConnected) return false
         else{
-
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+            val locationRequest = LocationRequest()
+            locationRequest.interval = locationUpdateInterval
+            locationRequest.priority = priority
+            try{
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
+            }catch(e: SecurityException){
+                e.printStackTrace()
+                return false
+            }
+            locationUpdatePriority = priority
+            return true
         }
     }
 
-    override fun getLocationUpdatePriority(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getLocationUpdatePriority(): Int = locationUpdatePriority
 
-    override fun setActivityUpdateInterval(interval: Int): Boolean {
-        if (!googleApiClient.isConnected) return false
+    override fun setActivityUpdateInterval(interval: Long): Boolean {
+        return if (!googleApiClient.isConnected) false
         else{
-
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates( googleApiClient, googlePendingIntent)
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, interval, googlePendingIntent)
+            activityUpdateInterval = interval
+            true
         }
     }
 
-    override fun getActivityUpdateInterval(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getActivityUpdateInterval(): Long = activityUpdateInterval
+
+    override fun setActivityTrigger(trigger: Int): Boolean{
+        return if (!TripUtils.isActivityValid(trigger)) false
+        else{
+            tripTrigger = trigger
+            true
+        }
     }
 
-    override fun setActivityTrigger(trigger: Int){
-
-    }
-
-    override fun getActivityTrigger(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getActivityTrigger(): Int = tripTrigger
 
 
     private fun tripStart(){
@@ -219,69 +235,19 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-            var activityType = ""
-            when (activity.type) {
-                DetectedActivity.ON_FOOT -> {
-                    Log.d(tag, "In Vehicle: " + activity.confidence)
-                    displayActivityNotif("Vehicle", activity.confidence)
-                    if (!tripInProgress && activity.confidence > tripStartThreshold){
-                        tripStart()
-                    }
-                    activityType = "ON_FOOT"
-
+            displayActivityNotif(TripUtils.activityToString(activity.type), activity.confidence)
+            if (activity.type == tripTrigger){
+                if (!tripInProgress && activity.confidence > tripStartThreshold){
+                    tripStart()
                 }
-                DetectedActivity.ON_BICYCLE -> {
-                    Log.d(tag, "On Bicycle: " + activity.confidence)
-                    displayActivityNotif("Bicycle", activity.confidence)
-                    if (tripInProgress && activity.confidence > tripEndThreshold){
-                        tripEnd()
-                    }
-                    activityType = "ON_BICYCLE"
-                }
-                DetectedActivity.IN_VEHICLE -> {
-                    Log.d(tag, "On Foot: " + activity.confidence)
-                    displayActivityNotif("On Foot", activity.confidence)
-                    if (tripInProgress && activity.confidence > tripEndThreshold){
-                        tripEnd()
-                    }
-                    activityType = "IN_VEHICLE"
-                }
-                DetectedActivity.RUNNING -> {
-                    Log.d(tag, "Running: " + activity.confidence)
-                    displayActivityNotif("Running", activity.confidence)
-                    if (!tripInProgress && activity.confidence > tripStartThreshold){
-                        tripStart()
-                    }
-                    activityType = "RUNNING"
-                }
-                DetectedActivity.STILL -> {
-                    Log.d(tag, "Still: " + activity.confidence)
-                    displayActivityNotif("Still", activity.confidence)
-                    if (tripInProgress && activity.confidence > tripEndThreshold){
-                        tripEnd()
-                    }
-                    activityType = "STILL"
-                }
-                DetectedActivity.TILTING -> {
-                    Log.d(tag, "Tilting: " + activity.confidence)
-                    activityType = "TILTING"
-                }
-                DetectedActivity.WALKING -> {
-                    Log.d(tag, "Walking: " + activity.confidence)
-                    displayActivityNotif("Walking", activity.confidence)
-                    if (!tripInProgress && activity.confidence > tripStartThreshold){
-                        tripStart()
-                    }
-                    activityType = "WALKING"
-                }
-                DetectedActivity.UNKNOWN -> {
-                    Log.e("ActivityRecogition", "Unknown: " + activity.confidence)
-                    displayActivityNotif("Unknown", activity.confidence)
-                    activityType = "UNKNOWN"
+            }else{
+                if (tripInProgress && activity.confidence > tripEndThreshold){
+                    tripEnd()
                 }
             }
-            Logger.getInstance()!!.logI(tag, "Activity detected activity = $activityType" +
-                    ", confidence = ${activity.confidence}", DebugMessage.TYPE_TRIP)
+            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
+                    " = ${TripUtils.activityToString(activity.type)}, confidence = " +
+                    "${activity.confidence}", DebugMessage.TYPE_TRIP)
         }
     }
 
@@ -300,7 +266,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Google API connected", DebugMessage.TYPE_TRIP)
         val intent = Intent(this, ActivityService::class.java)
         googlePendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, googlePendingIntent)
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, activityUpdateInterval, googlePendingIntent)
 
         val locationRequest = LocationRequest()
         locationRequest.priority = locationUpdatePriority

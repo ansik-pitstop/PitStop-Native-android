@@ -12,8 +12,8 @@ interface TripParameterSetter {
     fun getLocationUpdateInterval(): Long
     fun setLocationUpdatePriority(priority: Int): Boolean
     fun getLocationUpdatePriority(): Int
-    fun setActivityUpdateInterval(interval: Int): Boolean
-    fun getActivityUpdateInterval(): Int
-    fun setActivityTrigger(trigger: Int)
+    fun setActivityUpdateInterval(interval: Long): Boolean
+    fun getActivityUpdateInterval(): Long
+    fun setActivityTrigger(trigger: Int): Boolean
     fun getActivityTrigger(): Int
 }
