@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.pitstop.R
+import com.pitstop.ui.trip.TripParameterSetter
 import kotlinx.android.synthetic.main.fragment_trip_settings.*
 
 
@@ -16,7 +17,8 @@ import kotlinx.android.synthetic.main.fragment_trip_settings.*
  */
 class TripSettingsFragment: Fragment(), TripSettingsView {
 
-    var presenter: TripSettingsPresenter? = null
+    private var presenter: TripSettingsPresenter? = null
+    private var tripsParameterSetter: TripParameterSetter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater!!.inflate(R.layout.fragment_trip_settings, container)
@@ -28,6 +30,7 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
 
         if (presenter == null) presenter = TripSettingsPresenter()
         presenter?.subscribe(this)
+        if (tripsParameterSetter != null) presenter!!.setTripParameterSetter(tripsParameterSetter!!)
 
         val triggersArray = resources.getStringArray(R.array.detected_activities)
         val locationPrioritiesArray = resources.getStringArray(R.array.location_priority)
@@ -44,6 +47,12 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         if (presenter != null) presenter?.unsubscribe()
         super.onDestroyView()
     }
+
+    fun onTripParameterSetterReady(tripParameterSetter: TripParameterSetter){
+        if (presenter != null) presenter?.setTripParameterSetter(tripParameterSetter)
+    }
+
+    override fun getTripParameterSetter(): TripParameterSetter? = tripsParameterSetter
 
     override fun showTrigger(trigger: Int) {
         triggers.setSelection(trigger)

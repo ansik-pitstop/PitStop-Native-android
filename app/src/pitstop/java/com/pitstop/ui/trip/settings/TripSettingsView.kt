@@ -1,5 +1,7 @@
 package com.pitstop.ui.trip.settings
 
+import com.pitstop.ui.trip.TripParameterSetter
+
 /**
  * Created by Karol Zdebel on 3/7/2018.
  */
@@ -17,4 +19,5 @@ interface TripSettingsView {
     fun getThresholdStart(): String
     fun getThresholdEnd(): String
     fun displayError(err: String)
+    fun getTripParameterSetter(): TripParameterSetter?
 }
