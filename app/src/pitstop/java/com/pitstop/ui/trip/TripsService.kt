@@ -21,7 +21,9 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.add.AddTripUseCase
+import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
+import com.pitstop.utils.Logger
 
 /**
  * Created by Karol Zdebel on 3/1/2018.
@@ -92,12 +94,14 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     }
 
     override fun subscribeTripActivity(observer: TripActivityObserver) {
+        Logger.getInstance()!!.logI(tag, "Observer subscribed", DebugMessage.TYPE_TRIP)
         if (!observers.contains(observer)){
             observers.add(observer)
         }
     }
 
     override fun unsubscribeTripActivity(observer: TripActivityObserver) {
+        Logger.getInstance()!!.logI(tag, "Observer unsubscribed", DebugMessage.TYPE_TRIP)
         observers.remove(observer)
     }
 
@@ -108,6 +112,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     private fun tripStart(){
         Log.d(tag,"tripStart()")
+        Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
         tripInProgress = true
         currentTrip = arrayListOf()
         for (o in observers){
@@ -117,6 +122,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     private fun tripEnd(){
         Log.d(tag,"tripEnd()")
+        Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         tripInProgress = false
         for (o in observers){
             o.onTripEnd(currentTrip)
@@ -133,6 +139,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     private fun tripUpdate(locations:List<Location>){
         Log.d(tag,"tripUpdate()")
+        Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = $locations", DebugMessage.TYPE_TRIP)
         currentTrip.addAll(locations)
         for (o in observers){
             o.onTripUpdate(currentTrip)
@@ -142,6 +149,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
+            var activityType = ""
             when (activity.type) {
                 DetectedActivity.ON_FOOT -> {
                     Log.d(tag, "In Vehicle: " + activity.confidence)
@@ -149,6 +157,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
                         tripStart()
                     }
+                    activityType = "ON_FOOT"
 
                 }
                 DetectedActivity.ON_BICYCLE -> {
@@ -157,7 +166,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
                         tripEnd()
                     }
-
+                    activityType = "ON_BICYCLE"
                 }
                 DetectedActivity.IN_VEHICLE -> {
                     Log.d(tag, "On Foot: " + activity.confidence)
@@ -165,7 +174,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
                         tripEnd()
                     }
-
+                    activityType = "IN_VEHICLE"
                 }
                 DetectedActivity.RUNNING -> {
                     Log.d(tag, "Running: " + activity.confidence)
@@ -173,6 +182,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
                         tripStart()
                     }
+                    activityType = "RUNNING"
                 }
                 DetectedActivity.STILL -> {
                     Log.d(tag, "Still: " + activity.confidence)
@@ -180,10 +190,11 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (tripInProgress && activity.confidence > TRIP_END_THRESHHOLD){
                         tripEnd()
                     }
-
+                    activityType = "STILL"
                 }
                 DetectedActivity.TILTING -> {
                     Log.d(tag, "Tilting: " + activity.confidence)
+                    activityType = "TILTING"
                 }
                 DetectedActivity.WALKING -> {
                     Log.d(tag, "Walking: " + activity.confidence)
@@ -191,13 +202,16 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
                     if (!tripInProgress && activity.confidence > TRIP_START_THRESHHOLD){
                         tripStart()
                     }
-
+                    activityType = "WALKING"
                 }
                 DetectedActivity.UNKNOWN -> {
                     Log.e("ActivityRecogition", "Unknown: " + activity.confidence)
                     displayActivityNotif("Unknown", activity.confidence)
+                    activityType = "UNKNOWN"
                 }
             }
+            Logger.getInstance()!!.logI(tag, "Activity detected activity = $activityType" +
+                    ", confidence = ${activity.confidence}", DebugMessage.TYPE_TRIP)
         }
     }
 
@@ -213,6 +227,7 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     override fun onConnected(p0: Bundle?) {
         Log.d(tag,"onConnected() google api")
+        Logger.getInstance()!!.logI(tag, "Google API connected", DebugMessage.TYPE_TRIP)
         val intent = Intent(this, ActivityService::class.java)
         val pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, 1000, pendingIntent)
@@ -228,10 +243,13 @@ class TripsService: Service(), TripActivityObservable, GoogleApiClient.Connectio
 
     override fun onConnectionSuspended(p0: Int) {
         Log.d(tag,"onConnectionSuspended() google api")
+        Logger.getInstance()!!.logI(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
         Log.d(tag,"onConnectionFailed() google api")
+        Logger.getInstance()!!.logI(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
+
     }
 
 }
