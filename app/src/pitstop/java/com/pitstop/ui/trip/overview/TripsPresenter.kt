@@ -1,10 +1,12 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip.overview
 
 import android.location.Location
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetTripsUseCase
 import com.pitstop.network.RequestError
+import com.pitstop.ui.trip.TripActivityObservable
+import com.pitstop.ui.trip.TripActivityObserver
 import java.text.SimpleDateFormat
 import java.util.*
 

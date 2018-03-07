@@ -9,7 +9,8 @@ import com.pitstop.R;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
-import com.pitstop.ui.trip.TripsFragment;
+import com.pitstop.ui.trip.overview.TripsFragment;
+import com.pitstop.ui.trip.settings.TripSettingsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
@@ -27,17 +28,19 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     private VehicleSpecsFragment vehicleSpecsFragment;
     private NotificationFragment notificationFragment;
     private TripsFragment tripsFragment;
+    private TripSettingsFragment tripSettingsFragment;
     private Context context;
 
     public TabViewPagerAdapter(FragmentManager fm, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, TripsFragment tripsFragment, Context context) {
+            , NotificationFragment notificationFragment, TripsFragment tripsFragment, TripSettingsFragment tripSettingsFragment, Context context) {
         super(fm);
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
         this.notificationFragment = notificationFragment;
         this.tripsFragment = tripsFragment;
+        this.tripSettingsFragment = tripSettingsFragment;
         this.context = context;
     }
 
@@ -59,6 +62,9 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
             case TabFragmentManager.TAB_TRIPS_LIST:
                 return tripsFragment;
+
+            case TabFragmentManager.TAB_TRIP_SETTINGS:
+                return tripSettingsFragment;
         }
         return null;
     }
@@ -66,7 +72,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
 
-        return 5;
+        return 6;
     }
 
     @Override

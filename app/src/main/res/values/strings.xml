@@ -436,6 +436,7 @@
     <string name="settings">SETTINGS</string>
     <string name="couldnt_get_cars">We couldn\'t get your cars</string>
     <string name="my_trips">My Trips</string>
+    <string name="trip_settings">Trip Settings</string>
     <string name="message_dealer">Message Dealer</string>
     <string name="vehicle_support">VEHICLE SUPPORT</string>
     <string name="vehicle_overview">Vehicle Overview</string>

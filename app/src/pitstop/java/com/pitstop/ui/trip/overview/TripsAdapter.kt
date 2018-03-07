@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip.overview
 
 import android.location.Location
 import android.support.v7.widget.RecyclerView
@@ -15,16 +15,16 @@ import java.util.*
  */
 class TripsAdapter(val trips: List<List<Location>>): RecyclerView.Adapter<TripsAdapter.Holder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TripsAdapter.Holder{
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): Holder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.list_item_trip, parent, false)
-        return TripsAdapter.Holder(view)
+        return Holder(view)
     }
 
     override fun getItemCount(): Int {
         return trips.size
     }
 
-    override fun onBindViewHolder(holder: TripsAdapter.Holder, position: Int) {
+    override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.bind(trips[position])
     }
 

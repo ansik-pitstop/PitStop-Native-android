@@ -24,9 +24,6 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.*
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.ActivityRecognition
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
@@ -55,6 +52,7 @@ import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.Notifications.NotificationFragment
+import com.pitstop.ui.Notifications.NotificationFragment
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -63,6 +61,10 @@ import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
+import com.pitstop.ui.trip.TripActivityObservable
+import com.pitstop.ui.trip.TripsService
+import com.pitstop.ui.trip.overview.TripsFragment
+import com.pitstop.ui.trip.settings.TripSettingsFragment
 import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
@@ -82,7 +84,7 @@ import kotlin.collections.ArrayList
  */
 class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device215BreakingObserver
         , BluetoothConnectionObserver, TabSwitcher, MainView, BluetoothAutoConnectServiceObservable
-        , BadgeDisplayer, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        , BadgeDisplayer {
 
     private var presenter: MainActivityPresenter? = null
     private var application: GlobalApplication? = null
@@ -120,28 +122,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var notificationFragment: NotificationFragment
     private lateinit var tripsFragment: TripsFragment
-
-
-    protected var serviceConnection: ServiceConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            Log.i(TAG, "connecting: onServiceConnection")
-            // cast the IBinder and get MyService instance
-
-            autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
-            autoConnectService.subscribe(this@MainActivity)
-            autoConnectService.requestDeviceSearch(false, false)
-            startReportFragment.bluetoothConnectionObservable = autoConnectService
-            displayDeviceState(autoConnectService.deviceState)
-            notifyServiceBinded(autoConnectService)
-            checkPermissions()
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            Log.i(TAG, "Disconnecting: onServiceConnection")
-            autoConnectService = null
-        }
-    }
+    private lateinit var tripSettingsFragment: TripSettingsFragment
 
     // Database accesses
     private var carLocalStore: LocalCarStorage? = null
@@ -163,7 +144,34 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     private var useCaseComponent: UseCaseComponent? = null
 
-    var counter = 0
+
+    protected var serviceConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            Log.i(TAG, "connecting: onServiceConnection, className: ${className.className}, className: ${BluetoothAutoConnectService::class.java.canonicalName}")
+            if (className.className == BluetoothAutoConnectService::class.java.canonicalName){
+                Log.d(TAG,"auto connect service observable reference set")
+                // cast the IBinder and get MyService instance
+                autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
+                autoConnectService.subscribe(this@MainActivity)
+                autoConnectService.requestDeviceSearch(false, false)
+                startReportFragment.bluetoothConnectionObservable = autoConnectService
+                displayDeviceState(autoConnectService.deviceState)
+                notifyServiceBinded(autoConnectService)
+                checkPermissions()
+            }else if (className.className == TripsService::class.java.canonicalName){
+                Log.d(TAG,"trips observable reference set")
+                tripsService = (service as TripsService.TripsBinder).service
+                tripsFragment.setTripActivityObservable(tripsService as TripActivityObservable)
+            }
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            Log.i(TAG, "Disconnecting: onServiceConnection")
+            autoConnectService = null
+        }
+    }
+
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,6 +243,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         vehicleSpecsFragment = VehicleSpecsFragment()
         notificationFragment = NotificationFragment()
         tripsFragment = TripsFragment()
+        tripSettingsFragment = TripSettingsFragment()
 
         serviceIntent = Intent(this@MainActivity, BluetoothAutoConnectService::class.java)
         startService(serviceIntent)
@@ -270,19 +279,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
-                , vehicleSpecsFragment, notificationFragment, tripsFragment, mixpanelHelper)
+                , vehicleSpecsFragment, notficationFragment, tripsFragment, tripSettingsFragment mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val googleApiClient: GoogleApiClient = GoogleApiClient.Builder(this)
-            .addApi(ActivityRecognition.API)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .build()
-
-        googleApiClient.connect()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -992,21 +993,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             mDrawerLayout.closeDrawers()
     }
 
-    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable?
+    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable
             = autoConnectService
 
-    override fun getBluetoothWriter(): BluetoothWriter? = autoConnectService
-
-    override fun onConnected(p0: Bundle?) {
-        Log.d(TAG,"onConnected() google api")
-    }
-
-    override fun onConnectionSuspended(p0: Int) {
-        Log.d(TAG,"onConnectionSuspended() google api")
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d(TAG,"onConnectionFailed() google api")
-    }
+    override fun getBluetoothWriter(): BluetoothWriter = autoConnectService
 
 }

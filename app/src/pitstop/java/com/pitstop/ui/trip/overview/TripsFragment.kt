@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip.overview
 
 import android.location.Location
 import android.os.Bundle
@@ -12,12 +12,13 @@ import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
+import com.pitstop.ui.trip.TripActivityObservable
 import kotlinx.android.synthetic.main.fragment_trips.*
 
 /**
  * Created by Karol Zdebel on 2/27/2018.
  */
-class TripsFragment: Fragment(),TripsView {
+class TripsFragment: Fragment(), TripsView {
 
     private val TAG = javaClass.simpleName
 
