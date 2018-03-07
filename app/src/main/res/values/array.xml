@@ -1,6 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string-array name="location_priority">
+        <item>High accuracy</item>
+        <item>Balanced power accuracy</item>
+        <item>Low power</item>
+        <item>No power</item>
+    </string-array>
+    <string-array name="detected_activities">
+        <item>Driving</item>
+        <item>On Foot</item>
+        <item>Walking</item>
+        <item>Running</item>
+        <item>Biking</item>
+    </string-array>
     <string-array name="alarm">
         <item>Speeding</item>
         <item>Low voltage</item>
