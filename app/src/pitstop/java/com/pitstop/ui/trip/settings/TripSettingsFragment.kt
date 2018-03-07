@@ -35,6 +35,8 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         triggers.adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, triggersArray)
         location_priority.adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, locationPrioritiesArray)
 
+        update_button.setOnClickListener({presenter?.onUpdateSelected()})
+
         presenter?.onReadyForLoad()
     }
 
@@ -44,51 +46,51 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     }
 
     override fun showTrigger(trigger: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        triggers.setSelection(trigger)
     }
 
     override fun showLocationUpdatePriority(priority: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        location_priority.setSelection(priority)
     }
 
     override fun showLocationUpdateInterval(interval: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        location_update_interval.setText(interval.toString())
     }
 
     override fun showActivityUpdateInterval(interval: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        activity_update_interval.setText(interval.toString())
     }
 
     override fun showThresholdStart(threshold: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        trip_start_threshold.setText(threshold)
     }
 
     override fun showThresholdEnd(threshold: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        trip_end_threshold.setText(threshold)
     }
 
     override fun getTrigger(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return triggers.selectedItemPosition
     }
 
     override fun getLocationUpdatePriority(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return location_priority.selectedItemPosition
     }
 
     override fun getLocationUpdateInterval(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return location_update_interval.text.toString()
     }
 
     override fun getActivityUpdateInterval(): String{
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return activity_update_interval.text.toString()
     }
 
     override fun getThresholdStart(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return trip_start_threshold.text.toString()
     }
 
     override fun getThresholdEnd(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return trip_end_threshold.text.toString()
     }
 
     override fun displayError(err: String) {

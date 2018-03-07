@@ -75,8 +75,6 @@ class TripSettingsPresenter {
         }
     }
 
-
-
     fun subscribe(view: TripSettingsView){
         Log.d(TAG,"subscribe()")
         this.view = view
