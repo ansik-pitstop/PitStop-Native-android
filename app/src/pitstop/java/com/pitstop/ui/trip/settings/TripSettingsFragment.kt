@@ -21,7 +21,7 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     private var tripsParameterSetter: TripParameterSetter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater!!.inflate(R.layout.fragment_trip_settings, container)
+        val rootView = inflater!!.inflate(R.layout.fragment_trip_settings, null)
         return rootView
     }
 
