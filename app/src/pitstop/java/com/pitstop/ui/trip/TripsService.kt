@@ -45,8 +45,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
     private var activityUpdateInterval = 3000L
     private var tripStartThreshold = 70
-    private var tripEndThreshold = 30
-    private var tripTrigger = DetectedActivity.ON_FOOT
+    private var tripEndThreshold = 80
+    private var tripTrigger = DetectedActivity.IN_VEHICLE
 
     init{
         tripInProgress = false
@@ -242,7 +242,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
                 }
-            }else{
+                break
+            }else if (tripTrigger != DetectedActivity.ON_FOOT && activity.type != DetectedActivity.STILL && activity.type != DetectedActivity.UNKNOWN){
+                if (tripInProgress && activity.confidence > tripEndThreshold){
+                    tripEnd()
+                }
+            }else if (tripTrigger == DetectedActivity.ON_FOOT
+                    && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
                 }
