@@ -19,4 +19,9 @@
         id="@+id/tab_notifications"
         icon="@drawable/ic_notification"
         title="@string/notifications" />
+
+    <tab
+        id="@+id/tab_trips"
+        icon="@drawable/ic_garage"
+        title="@string/my_trips" />
 </tabs>

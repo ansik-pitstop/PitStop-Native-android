@@ -1,7 +1,7 @@
 package com.pitstop.repositories
 
 import android.util.Log
-import com.pitstop.models.trip.DaoSession
+import com.pitstop.application.GlobalApplication
 import com.pitstop.models.trip.Trip
 import com.pitstop.models.trip.TripDao
 import com.pitstop.retrofit.PitstopTripApi
@@ -12,13 +12,15 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by David C. on 9/3/18.
  */
-class TripRepository(private val daoSession: DaoSession,
+class TripRepository(//private val daoSession: DaoSession,
                      private val networkHelper: NetworkHelper,
                      private val tripApi: PitstopTripApi) : Repository {
 
     private val tag = javaClass.simpleName
 
     fun getTripsByCarId(carId: Int): Observable<RepositoryResponse<List<Trip>>> {
+
+        var daoSession = GlobalApplication().daoSession
 
         Log.d(tag,"getTripsByCarId() userId: $carId")
 
@@ -49,6 +51,8 @@ class TripRepository(private val daoSession: DaoSession,
     }
 
     fun getTripByTripId(tripId: Int): Observable<RepositoryResponse<Trip>> {
+
+        var daoSession = GlobalApplication().daoSession
 
         Log.d(tag,"getTripByTripId() userId: $tripId")
 

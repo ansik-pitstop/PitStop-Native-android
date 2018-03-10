@@ -150,6 +150,11 @@ kapt {
     generateStubs = true
 }
 
+greendao {
+    schemaVersion 1
+    targetGenDir "src/main/java"
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
