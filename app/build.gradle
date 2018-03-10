@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.android.extensions'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.greenrobot.greendao'
 
 androidExtensions {
     experimental = true
@@ -214,6 +215,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compile 'org.greenrobot:greendao:3.2.2'
     implementation files('../libs/gelfclient.jar')
 }
 
