@@ -10,6 +10,7 @@ import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
+import com.pitstop.ui.trip.TripListFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -31,6 +32,7 @@ public class TabFragmentManager implements BadgeDisplayer{
     public static final int TAB_SCAN = 1;
     public static final int TAB_VEHICLE_SPECS = 0;
     public static final int TAB_NOTIF = 3;
+    public static final int TAB_TRIPS_LIST = 4;
 
     public String[] TAB_NAMES;
 
@@ -51,22 +53,25 @@ public class TabFragmentManager implements BadgeDisplayer{
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
     private NotificationFragment notificationFragment;
+    private TripListFragment tripListFragment;
 
     public TabFragmentManager(FragmentActivity activity, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, MixpanelHelper mixpanelHelper) {
+            , NotificationFragment notificationFragment, TripListFragment tripListFragment, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
         this.notificationFragment = notificationFragment;
+        this.tripListFragment = tripListFragment;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.my_garage),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.services_nav_text),
-                mActivity.getApplicationContext().getString(R.string.notifications)
+                mActivity.getApplicationContext().getString(R.string.notifications),
+                mActivity.getApplicationContext().getString(R.string.my_trips)
         };
     }
 
@@ -78,10 +83,10 @@ public class TabFragmentManager implements BadgeDisplayer{
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
-                , startReportFragment, vehicleSpecsFragment, notificationFragment, mActivity);
+                , startReportFragment, vehicleSpecsFragment, notificationFragment, tripListFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(5);
 
         bottomBar.setOnTabSelectListener(tabId -> {
             switch(tabId){
@@ -96,6 +101,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                     break;
                 case R.id.tab_notifications:
                     mViewPager.setCurrentItem(TAB_NOTIF);
+                    break;
+                case R.id.tab_trips:
+                    mViewPager.setCurrentItem(TAB_TRIPS_LIST);
                     break;
             }
         });
@@ -127,6 +135,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");
+                        break;
+                    case TAB_TRIPS_LIST:
+                        mMixpanelHelper.trackSwitchedToTab("Trips");
                         break;
                 }
 
@@ -163,6 +174,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                         break;
                     case TAB_NOTIF:
                         bottomBar.selectTabWithId(R.id.tab_notifications);
+                        break;
+                    case TAB_TRIPS_LIST:
+                        bottomBar.selectTabWithId(R.id.tab_trips);
                         break;
                 }
             }
