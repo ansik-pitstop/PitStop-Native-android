@@ -176,7 +176,7 @@ public class GlobalApplication extends Application {
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
-        Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
+        Log.d(TAG, "google sender id: " + SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
@@ -400,7 +400,7 @@ public class GlobalApplication extends Application {
     /**
      * Delete all rows in database
      */
-    private void cleanUpDatabase(){
+    private void cleanUpDatabase() {
         mLocalUserStorage.deleteAllUsers();
         mLocalScannerStorage.deleteAllRows();
         mLocalPidStorage.deleteAllRows();
