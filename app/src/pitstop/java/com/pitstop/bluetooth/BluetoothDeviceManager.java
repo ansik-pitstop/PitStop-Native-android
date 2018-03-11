@@ -186,6 +186,10 @@ public class BluetoothDeviceManager{
         }
     }
 
+    public void changeScanUrgency(boolean urgent){
+        this.nonUrgentScanInProgress = !urgent;
+    }
+
     public int getState() {
         return btConnectionState;
     }
