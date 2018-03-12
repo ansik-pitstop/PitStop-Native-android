@@ -286,7 +286,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
             //Start timer if still to end trip on timeout
             else if (activity.type == DetectedActivity.STILL){
-                if (activity.confidence > stillStartConfidence){
+                if (tripInProgress && activity.confidence > stillStartConfidence){
                     Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
                     stillTimeoutTimer.start()
                 }
