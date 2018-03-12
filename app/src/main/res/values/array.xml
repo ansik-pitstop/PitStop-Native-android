@@ -10,8 +10,6 @@
     <string-array name="detected_activities">
         <item>Driving</item>
         <item>On Foot</item>
-        <item>Walking</item>
-        <item>Running</item>
         <item>Biking</item>
     </string-array>
 

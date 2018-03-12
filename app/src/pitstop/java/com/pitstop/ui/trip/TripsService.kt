@@ -2,10 +2,7 @@ package com.pitstop.ui.trip
 
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.location.Location
 import android.os.Binder
 import android.os.Bundle
@@ -32,6 +29,15 @@ import com.pitstop.utils.TripUtils
 class TripsService: Service(), TripActivityObservable, TripParameterSetter, GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener {
 
+    companion object {
+        const val LOCATION_UPDATE_INTERVAL = "location_update_interval"
+        const val TRIP_START_THRESHOLD = "trip_start_threshold"
+        const val LOCATION_UPDATE_PRIORITY = "location_update_priority"
+        const val ACTIVITY_UPDATE_INTERVAL = "activity_update_interval"
+        const val TRIP_END_THRESHOLD = "trip_end_threshold"
+        const val TRIP_TRIGGER = "trip_trigger"
+    }
+
     private val tag = javaClass.simpleName
     private var tripInProgress: Boolean
     private var currentTrip: ArrayList<Location>
@@ -40,6 +46,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private val binder = TripsBinder()
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
+    private lateinit var sharedPreferences: SharedPreferences
 
     private var locationUpdateInterval = 5000L
     private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
@@ -64,6 +71,17 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun onCreate() {
         Log.d(tag,"onCreate()")
         super.onCreate()
+
+        sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
+
+        //Update shared preferences
+        locationUpdateInterval = sharedPreferences.getLong(LOCATION_UPDATE_INTERVAL,5000L)
+        locationUpdatePriority = sharedPreferences.getInt(LOCATION_UPDATE_PRIORITY
+                ,LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+        activityUpdateInterval = sharedPreferences.getLong(ACTIVITY_UPDATE_INTERVAL,3000L)
+        tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
+        tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
+        tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
@@ -119,6 +137,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun setStartThreshold(threshold: Int): Boolean {
         Log.d(tag,"setStartThreshold() threshold: $threshold")
         tripStartThreshold = threshold
+        sharedPreferences.edit().putInt(TRIP_START_THRESHOLD,threshold).apply()
         return true
     }
 
@@ -127,6 +146,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun setEndThreshold(threshold: Int): Boolean {
         Log.d(tag,"setEndThreshold() threshold: $threshold")
         tripEndThreshold = threshold
+        sharedPreferences.edit().putInt(TRIP_END_THRESHOLD,threshold).apply()
         return true
     }
 
@@ -147,6 +167,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 return false
             }
             locationUpdateInterval = interval
+            sharedPreferences.edit().putLong(LOCATION_UPDATE_INTERVAL,locationUpdateInterval).apply()
             return true
         }
     }
@@ -168,6 +189,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 return false
             }
             locationUpdatePriority = priority
+            sharedPreferences.edit().putInt(LOCATION_UPDATE_PRIORITY,locationUpdatePriority).apply()
             return true
         }
     }
@@ -181,6 +203,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates( googleApiClient, googlePendingIntent)
             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, interval, googlePendingIntent)
             activityUpdateInterval = interval
+            sharedPreferences.edit().putLong(ACTIVITY_UPDATE_INTERVAL,activityUpdateInterval).apply()
             true
         }
     }
@@ -192,6 +215,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         return if (!TripUtils.isActivityValid(trigger)) false
         else{
             tripTrigger = trigger
+            sharedPreferences.edit().putInt(TRIP_TRIGGER,tripTrigger).apply()
             true
         }
     }

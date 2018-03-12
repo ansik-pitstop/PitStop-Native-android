@@ -2,6 +2,7 @@ package com.pitstop.ui.trip.settings
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,8 @@ import kotlinx.android.synthetic.main.fragment_trip_settings.*
  * Created by Karol Zdebel on 3/7/2018.
  */
 class TripSettingsFragment: Fragment(), TripSettingsView {
+
+    private val TAG = javaClass.simpleName
 
     private var presenter: TripSettingsPresenter? = null
     private var tripsParameterSetter: TripParameterSetter? = null
@@ -49,16 +52,19 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     }
 
     fun onTripParameterSetterReady(tripParameterSetter: TripParameterSetter){
+        Log.d(TAG,"onTripParameterSetterReady()")
         if (presenter != null) presenter?.setTripParameterSetter(tripParameterSetter)
     }
 
     override fun getTripParameterSetter(): TripParameterSetter? = tripsParameterSetter
 
     override fun showTrigger(trigger: Int) {
+        Log.d(TAG,"showTrigger() trigger: "+trigger)
         triggers.setSelection(trigger)
     }
 
     override fun showLocationUpdatePriority(priority: Int) {
+        Log.d(TAG,"showLocationUpdatePriority() priority: "+priority)
         location_priority.setSelection(priority)
     }
 
@@ -71,11 +77,11 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     }
 
     override fun showThresholdStart(threshold: Int) {
-        trip_start_threshold.setText(threshold)
+        trip_start_threshold.setText(threshold.toString())
     }
 
     override fun showThresholdEnd(threshold: Int) {
-        trip_end_threshold.setText(threshold)
+        trip_end_threshold.setText(threshold.toString())
     }
 
     override fun getTrigger(): Int {
@@ -104,5 +110,9 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
 
     override fun displayError(err: String) {
         Toast.makeText(context,err,Toast.LENGTH_LONG).show()
+    }
+
+    override fun displayToast(msg: String) {
+        Toast.makeText(context,msg,Toast.LENGTH_SHORT).show()
     }
 }

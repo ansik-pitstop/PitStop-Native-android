@@ -20,4 +20,5 @@ interface TripSettingsView {
     fun getThresholdEnd(): String
     fun displayError(err: String)
     fun getTripParameterSetter(): TripParameterSetter?
+    fun displayToast(msg: String)
 }

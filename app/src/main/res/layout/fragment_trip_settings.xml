@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/parameter_holder"
         android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:orientation="vertical"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <TextView
+            android:text="Trip Activity Trigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <Spinner
             android:id="@+id/triggers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown"/>
-
+        <TextView
+            android:text="Location Update Priority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <Spinner
             android:layout_marginTop="5dp"
             android:id="@+id/location_priority"
@@ -25,44 +34,56 @@
             android:layout_height="wrap_content"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown"/>
-
+        <TextView
+            android:text="Location Update Interval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <EditText
             android:layout_marginTop="5dp"
             android:id="@+id/location_update_interval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
-
+        <TextView
+            android:text="Location Update Interval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <EditText
             android:layout_marginTop="5dp"
             android:id="@+id/activity_update_interval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
-
+        <TextView
+            android:text="Trip Start Threshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <EditText
             android:layout_marginTop="5dp"
             android:id="@+id/trip_start_threshold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
-
+        <TextView
+            android:text="Trip End Threshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <EditText
             android:layout_marginTop="5dp"
             android:id="@+id/trip_end_threshold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
-
+        <Button
+            android:id="@+id/update_button"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentBottom="true"
+            android:text="Update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/update_button"
-        android:layout_marginBottom="10dp"
-        android:layout_alignParentBottom="true"
-        android:text="Update"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 
-</RelativeLayout>
+
+</ScrollView>
