@@ -1,8 +1,8 @@
 package com.pitstop.dependency;
 
 import com.pitstop.database.LocalAppointmentStorage;
-import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalCarIssueStorage;
+import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -11,14 +11,16 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
-import com.pitstop.repositories.Device215TripRepository;
+import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopCarApi;
+import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Singleton;
@@ -94,5 +96,11 @@ public class RepositoryModule {
     AppointmentRepository getAppointmentRepository(PitstopAppointmentApi pitstopAppointmentApi
             , LocalAppointmentStorage localAppointmentStorage){
         return new AppointmentRepository(localAppointmentStorage, pitstopAppointmentApi);
+    }
+
+    @Provides
+    @Singleton
+    TripRepository getTripRepository(PitstopTripApi pitstopAppointmentApi){
+        return new TripRepository(pitstopAppointmentApi);
     }
 }

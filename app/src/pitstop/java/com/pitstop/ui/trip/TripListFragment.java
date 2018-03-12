@@ -16,7 +16,7 @@ import butterknife.ButterKnife;
  * Created by David C. on 10/3/18.
  */
 
-public class TripListFragment extends Fragment implements TripListView {
+public class TripListFragment extends Fragment /*implements TripListView*/ {
 
     private final String TAG = getClass().getSimpleName();
 

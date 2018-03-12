@@ -1,10 +1,13 @@
 package com.pitstop.models.trip;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
@@ -27,7 +30,10 @@ public class LocationDao extends AbstractDao<Location, Long> {
         public final static Property Latitude = new Property(2, double.class, "latitude", false, "LATITUDE");
         public final static Property Longitude = new Property(3, double.class, "longitude", false, "LONGITUDE");
         public final static Property Timestamp = new Property(4, long.class, "timestamp", false, "TIMESTAMP");
+        public final static Property Trip = new Property(5, Long.class, "trip", false, "TRIP");
     }
+
+    private DaoSession daoSession;
 
 
     public LocationDao(DaoConfig config) {
@@ -36,6 +42,7 @@ public class LocationDao extends AbstractDao<Location, Long> {
     
     public LocationDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -46,7 +53,8 @@ public class LocationDao extends AbstractDao<Location, Long> {
                 "\"ALTITUDE\" REAL NOT NULL ," + // 1: altitude
                 "\"LATITUDE\" REAL NOT NULL ," + // 2: latitude
                 "\"LONGITUDE\" REAL NOT NULL ," + // 3: longitude
-                "\"TIMESTAMP\" INTEGER NOT NULL );"); // 4: timestamp
+                "\"TIMESTAMP\" INTEGER NOT NULL ," + // 4: timestamp
+                "\"TRIP\" INTEGER);"); // 5: trip
     }
 
     /** Drops the underlying database table. */
@@ -73,6 +81,12 @@ public class LocationDao extends AbstractDao<Location, Long> {
         stmt.bindDouble(3, entity.getLatitude());
         stmt.bindDouble(4, entity.getLongitude());
         stmt.bindLong(5, entity.getTimestamp());
+    }
+
+    @Override
+    protected final void attachEntity(Location entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override
@@ -126,4 +140,95 @@ public class LocationDao extends AbstractDao<Location, Long> {
         return true;
     }
     
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getTripDao().getAllColumns());
+            builder.append(" FROM LOCATION T");
+            builder.append(" LEFT JOIN TRIP T0 ON T.\"TRIP\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected Location loadCurrentDeep(Cursor cursor, boolean lock) {
+        Location entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        Trip trip = loadCurrentOther(daoSession.getTripDao(), cursor, offset);
+        entity.setTrip(trip);
+
+        return entity;    
+    }
+
+    public Location loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<Location> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<Location> list = new ArrayList<Location>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<Location> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<Location> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }
