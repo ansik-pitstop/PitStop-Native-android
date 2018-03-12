@@ -1,7 +1,6 @@
 package com.pitstop.ui.my_trips.view_fragments;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -92,8 +91,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
         TextView details;
         public TripsViewHolder(View itemView) {
             super(itemView);
-            date = (TextView) itemView.findViewById(R.id.trip_date);
-            details = (TextView) itemView.findViewById(R.id.trip_details);
+//            date = (TextView) itemView.findViewById(R.id.trip_date);
+//            details = (TextView) itemView.findViewById(R.id.trip_details);
         }
 
         public void setClickListener(final View.OnClickListener clickListener){

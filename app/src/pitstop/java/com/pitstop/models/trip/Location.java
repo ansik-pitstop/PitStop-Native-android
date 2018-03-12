@@ -6,7 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
+import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.DaoException;
 
 /**
  * Created by David C. on 9/3/18.
@@ -17,6 +19,9 @@ public class Location {
 
     @Id(autoincrement = true)
     private long id;
+
+    @ToOne(joinProperty = "")
+    private Trip trip;
 
     @NotNull
     @SerializedName("altitude")
@@ -35,6 +40,13 @@ public class Location {
     @Expose
     private long timestamp;
 
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+
+    /** Used for active entity operations. */
+    @Generated(hash = 842527347)
+    private transient LocationDao myDao;
     @Generated(hash = 602334664)
     public Location(long id, double altitude, double latitude, double longitude,
             long timestamp) {
@@ -76,6 +88,73 @@ public class Location {
     }
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+    @Generated(hash = 955026413)
+    private transient boolean trip__refreshed;
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 865380166)
+    public Trip getTrip() {
+        if (trip != null || !trip__refreshed) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            TripDao targetDao = daoSession.getTripDao();
+            targetDao.refresh(trip);
+            trip__refreshed = true;
+        }
+        return trip;
+    }
+    /** To-one relationship, returned entity is not refreshed and may carry only the PK property. */
+    @Generated(hash = 1643156524)
+    public Trip peakTrip() {
+        return trip;
+    }
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1544724637)
+    public void setTrip(Trip trip) {
+        synchronized (this) {
+            this.trip = trip;
+            trip__refreshed = true;
+        }
+    }
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1046799944)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getLocationDao() : null;
     }
 
 }

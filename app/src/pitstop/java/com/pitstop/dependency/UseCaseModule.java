@@ -90,6 +90,8 @@ import com.pitstop.interactors.get.GetReportUseCaseImpl;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
+import com.pitstop.interactors.get.GetTripsUseCase;
+import com.pitstop.interactors.get.GetTripsUseCaseImpl;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCaseImpl;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -152,6 +154,7 @@ import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
+import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.utils.ConnectionChecker;
@@ -696,6 +699,16 @@ public class UseCaseModule {
 
         return new GetAppointmentStateUseCaseImpl(userRepository, appointmentRepository
                 , shopRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    GetTripsUseCase getTripsUseCase(UserRepository userRepository,
+                                    TripRepository tripRepository,
+                                    @Named("useCaseHandler") Handler useCaseHandler,
+                                    @Named("mainHandler") Handler mainHandler) {
+
+        return new GetTripsUseCaseImpl(userRepository, tripRepository, useCaseHandler, mainHandler);
+
     }
 
     @Provides
