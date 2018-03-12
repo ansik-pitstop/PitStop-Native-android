@@ -2,6 +2,7 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Geocoder;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
@@ -16,6 +17,8 @@ import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
+
+import java.util.Locale;
 
 import javax.inject.Singleton;
 
@@ -138,6 +141,12 @@ public class NetworkModule {
                 .client(getHttpClientNoAuth(context))
                 .build()
                 .create(PitstopAuthApi.class);
+    }
+
+    @Provides
+    @Singleton
+    Geocoder geocoder(Context context){
+        return new Geocoder(context, Locale.getDefault());
     }
 
     @Provides
