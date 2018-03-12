@@ -85,6 +85,6 @@ class TripsFragment: Fragment(), TripsView {
     }
 
     override fun refreshTrips() {
-        tripsAdapter.notifyDataSetChanged()
+        tripsAdapter?.notifyDataSetChanged()
     }
 }

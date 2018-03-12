@@ -49,6 +49,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var receiver: BroadcastReceiver
 
     private var locationUpdateInterval = 5000L
     private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
@@ -106,7 +107,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         val intentFilter = IntentFilter()
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)
         intentFilter.addAction(ActivityService.GOT_LOCATION)
-        registerReceiver(object : BroadcastReceiver() {
+        receiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, intent: Intent?) {
                 Log.d(tag,"onReceive() intent: "+intent)
                 if (intent?.action == ActivityService.DETECTED_ACTIVITY){
@@ -123,7 +124,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     }
                 }
             }
-        },intentFilter)
+        }
+        registerReceiver(receiver,intentFilter)
 
         googleApiClient = GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -133,6 +135,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 .build()
 
         googleApiClient.connect()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 
 
