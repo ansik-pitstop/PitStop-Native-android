@@ -35,7 +35,7 @@
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown"/>
         <TextView
-            android:text="Location Update Interval"
+            android:text="Location Update Interval(ms)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <EditText
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
         <TextView
-            android:text="Activity Update Interval"
+            android:text="Activity Update Interval(ms)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <EditText
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
         <TextView
-            android:text="Trip Start Threshold"
+            android:text="Trip Start Threshold(%)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <EditText
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
         <TextView
-            android:text="Trip End Threshold"
+            android:text="Trip End Threshold(%)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <EditText
@@ -74,6 +74,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
+        <TextView
+            android:text="Still Activity Timeout(ms)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:layout_marginTop="5dp"
+            android:id="@+id/still_activity_timeout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"/>
+
         <Button
             android:id="@+id/update_button"
             android:layout_marginBottom="10dp"

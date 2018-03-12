@@ -39,6 +39,7 @@ class TripSettingsPresenter {
             view?.showLocationUpdateInterval(tripParameterSetter!!.getLocationUpdateInterval())
             view?.showThresholdEnd(tripParameterSetter!!.getEndThreshold())
             view?.showThresholdStart(tripParameterSetter!!.getStartThreshold())
+            view?.showStillActivityTimeout(tripParameterSetter!!.getStillActivityTimeout().toString())
         }
     }
 
@@ -105,6 +106,16 @@ class TripSettingsPresenter {
                 view?.displayError("Invalid trip start threshold, input a number between 0 and 100")
             }
 
+            try{
+                val stillActivityTimeout = view!!.getStillActivityTimeout().toInt()
+                if (stillActivityTimeout < 0){
+                    view?.displayError("Invalid still activity timeout, input a number greater than 0")
+                }else{
+                    tripParameterSetter?.setStillActivityTimeout(stillActivityTimeout)
+                }
+            }catch(e: NumberFormatException){
+                view?.displayError("Invalid still activity timeout, input a number greater than 0")
+            }
         }
 
         view?.displayToast("Update processed, make take a moment to update")

@@ -84,6 +84,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         trip_end_threshold.setText(threshold.toString())
     }
 
+    override fun showStillActivityTimeout(timeout: String) {
+        still_activity_timeout.setText(timeout)
+    }
+
     override fun getTrigger(): Int {
         return triggers.selectedItemPosition
     }
@@ -106,6 +110,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
 
     override fun getThresholdEnd(): String {
         return trip_end_threshold.text.toString()
+    }
+
+    override fun getStillActivityTimeout(): String {
+        return still_activity_timeout.text.toString()
     }
 
     override fun displayError(err: String) {

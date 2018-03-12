@@ -12,12 +12,14 @@ interface TripSettingsView {
     fun showActivityUpdateInterval(interval: Long)
     fun showThresholdStart(threshold: Int)
     fun showThresholdEnd(threshold: Int)
+    fun showStillActivityTimeout(timeout: String)
     fun getTrigger(): Int
     fun getLocationUpdatePriority(): Int
     fun getLocationUpdateInterval(): String
     fun getActivityUpdateInterval(): String
     fun getThresholdStart(): String
     fun getThresholdEnd(): String
+    fun getStillActivityTimeout(): String
     fun displayError(err: String)
     fun getTripParameterSetter(): TripParameterSetter?
     fun displayToast(msg: String)

@@ -37,6 +37,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val ACTIVITY_UPDATE_INTERVAL = "activity_update_interval"
         const val TRIP_END_THRESHOLD = "trip_end_threshold"
         const val TRIP_TRIGGER = "trip_trigger"
+        const val STILL_TIMEOUT = "still_timeout"
     }
 
     private val tag = javaClass.simpleName
@@ -55,11 +56,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var tripStartThreshold = 70
     private var tripEndThreshold = 80
     private var tripTrigger = DetectedActivity.IN_VEHICLE
-    private var stillTimeoutTime = 500
+    private var stillTimeoutTime = 600
     private var stillStartConfidence = 90
     private var stillEndConfidence = 40
 
-    private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime,0) {
+    private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime/1000,0) {
         override fun onRetry() {
         }
 
@@ -97,6 +98,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
+        stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 50000)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
@@ -241,6 +243,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun getActivityTrigger(): Int = tripTrigger
+
+    override fun getStillActivityTimeout(): Int {
+        return stillTimeoutTime
+    }
+
+    override fun setStillActivityTimeout(timeout: Int) {
+        stillTimeoutTime = timeout
+        sharedPreferences.edit().putInt(STILL_TIMEOUT,timeout).apply()
+    }
 
     private fun tripStart(){
         Log.d(tag,"tripStart()")

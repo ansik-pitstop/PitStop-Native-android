@@ -16,4 +16,6 @@ interface TripParameterSetter {
     fun getActivityUpdateInterval(): Long
     fun setActivityTrigger(trigger: Int): Boolean
     fun getActivityTrigger(): Int
+    fun getStillActivityTimeout(): Int
+    fun setStillActivityTimeout(timeout: Int)
 }
