@@ -139,7 +139,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(receiver)
+        try{
+            unregisterReceiver(receiver)
+        }catch(e: Exception){
+            
+        }
     }
 
 
