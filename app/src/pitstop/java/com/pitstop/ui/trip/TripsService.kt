@@ -230,6 +230,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         for (o in observers){
             o.onTripStart()
         }
+        displayActivityNotif("Trip recording started")
     }
 
     private fun tripEnd(){
@@ -247,6 +248,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             }
         })
         currentTrip = arrayListOf()
+        displayActivityNotif("Trip recording completed, view app for more info")
     }
 
     private fun tripUpdate(locations:List<Location>){
@@ -261,7 +263,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-            displayActivityNotif(TripUtils.activityToString(activity.type), activity.confidence)
             if (activity.type == tripTrigger){
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
@@ -283,14 +284,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
     }
 
-    private fun displayActivityNotif(type: String, conf: Int){
-        if (conf > 75){
-            val builder = NotificationCompat.Builder(this)
-            builder.setContentText("$type activity detected with confidence $conf")
-            builder.setSmallIcon(R.mipmap.ic_launcher)
-            builder.setContentTitle(getString(R.string.app_name))
-            NotificationManagerCompat.from(this).notify(0, builder.build())
-        }
+    private fun displayActivityNotif(notif: String){
+        val builder = NotificationCompat.Builder(this)
+        builder.setContentText(notif)
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+        builder.setContentTitle(getString(R.string.app_name))
+        NotificationManagerCompat.from(this).notify(0, builder.build())
     }
 
     override fun onConnected(p0: Bundle?) {
