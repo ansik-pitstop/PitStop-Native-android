@@ -1,5 +1,6 @@
 package com.pitstop.dependency;
 
+import android.location.Geocoder;
 import android.os.Handler;
 
 import com.pitstop.database.LocalAlarmStorage;
@@ -745,10 +746,10 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddTripUseCase addTripUseCase(LocalTripStorage localTripStorage
+    AddTripUseCase addTripUseCase(Geocoder geocoder, LocalTripStorage localTripStorage
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new AddTripUseCaseImpl(localTripStorage,useCaseHandler,mainHandler);
+        return new AddTripUseCaseImpl(geocoder, localTripStorage,useCaseHandler,mainHandler);
     }
 }
 
