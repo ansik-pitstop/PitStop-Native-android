@@ -133,6 +133,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         googleApiClient.connect()
     }
 
+
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        return Service.START_STICKY
+    }
+
     override fun subscribeTripActivity(observer: TripActivityObserver) {
         Logger.getInstance()!!.logI(tag, "Observer subscribed", DebugMessage.TYPE_TRIP)
         if (!observers.contains(observer)){
