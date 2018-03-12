@@ -21,6 +21,7 @@ import com.pitstop.interactors.add.AddTripUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.TimeoutTimer
 import com.pitstop.utils.TripUtils
 
 /**
@@ -54,6 +55,20 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var tripStartThreshold = 70
     private var tripEndThreshold = 80
     private var tripTrigger = DetectedActivity.IN_VEHICLE
+    private var stillTimeoutTime = 500
+    private var stillStartConfidence = 90
+    private var stillEndConfidence = 40
+
+    private val stillTimeoutTimer = object: TimeoutTimer(500,0) {
+        override fun onRetry() {
+        }
+
+        override fun onTimeout() {
+            Log.d(tag,"stillTimeoutTimer.onTimeout()")
+            tripEnd()
+        }
+
+    }
 
     init{
         tripInProgress = false
@@ -263,12 +278,26 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-            if (activity.type == tripTrigger){
+
+            //skip ignored activities
+            if (activity.type == DetectedActivity.TILTING
+                    || activity.type == DetectedActivity.UNKNOWN
+                    || activity.type == DetectedActivity.UNKNOWN) break
+            else if (activity.type == DetectedActivity.STILL){
+                if (activity.confidence > stillStartConfidence){
+                    stillTimeoutTimer.start()
+                }
+            }
+            else if (activity.type == tripTrigger){
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
+                }else if (tripInProgress && activity.confidence > stillEndConfidence){
+                    stillTimeoutTimer.cancel()
                 }
                 break
-            }else if (tripTrigger != DetectedActivity.ON_FOOT && activity.type != DetectedActivity.STILL && activity.type != DetectedActivity.UNKNOWN){
+            }else if (tripTrigger != DetectedActivity.ON_FOOT
+                    && activity.type != DetectedActivity.STILL
+                    && activity.type != DetectedActivity.UNKNOWN){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
                 }
