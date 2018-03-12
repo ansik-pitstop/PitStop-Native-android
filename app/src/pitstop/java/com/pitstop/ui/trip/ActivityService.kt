@@ -5,6 +5,8 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.LocationResult
+import com.pitstop.models.DebugMessage
+import com.pitstop.utils.Logger
 
 
 /**
@@ -26,14 +28,14 @@ class ActivityService: IntentService("ActivityService") {
 
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
-            Log.d(tag,"activity result probably activities: "+activityResult.probableActivities)
+            Logger.getInstance().logV(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
             val intent = Intent(DETECTED_ACTIVITY)
             intent.putExtra(ACTIVITY_EXTRA,activityResult)
             sendBroadcast(intent)
         }
         if (LocationResult.hasResult(intent)){
             val locationResult = LocationResult.extractResult(intent)
-            Log.d(tag,"location result locations: "+locationResult.locations)
+            Logger.getInstance().logV(tag,"Received activity location intent",DebugMessage.TYPE_TRIP)
             val intent = Intent(GOT_LOCATION)
             intent.putExtra(LOCATION_EXTRA,locationResult)
             sendBroadcast(intent)

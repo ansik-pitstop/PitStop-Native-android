@@ -281,8 +281,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
             //skip ignored activities
             if (activity.type == DetectedActivity.TILTING
-                    || activity.type == DetectedActivity.UNKNOWN
-                    || activity.type == DetectedActivity.UNKNOWN) break
+                    || activity.type == DetectedActivity.UNKNOWN)
 
             //Start timer if still to end trip on timeout
             else if (activity.type == DetectedActivity.STILL){
@@ -293,21 +292,22 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             }
             //Trigger trip start, or resume trip from still state
             else if (activity.type == tripTrigger){
+                Log.d(tag,"trip trigger received, confidence: "+activity.confidence)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
                 }else if (tripInProgress && activity.confidence > stillEndConfidence){
                     Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
                     stillTimeoutTimer.cancel()
                 }
-                break
-            //End trip if type of trigger is NOT ON_FOOT
+                break //Don't allow trip end in same receival
+                //End trip if type of trigger is NOT ON_FOOT
             }else if (tripTrigger != DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.STILL
                     && activity.type != DetectedActivity.UNKNOWN){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
                 }
-            //End trip if type of trigger IS ON_FFOT
+            //End trip if type of trigger IS ON_FOOT
             }else if (tripTrigger == DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
