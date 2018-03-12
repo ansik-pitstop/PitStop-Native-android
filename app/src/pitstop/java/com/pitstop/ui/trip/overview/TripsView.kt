@@ -11,4 +11,5 @@ interface TripsView {
     fun clearTripActivity()
     fun getTripActivityObservable(): TripActivityObservable?
     fun displayTripActivity(time: String, activity: String)
+    fun refreshTrips()
 }

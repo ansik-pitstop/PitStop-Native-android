@@ -83,4 +83,8 @@ class TripsFragment: Fragment(), TripsView {
     override fun displayTripActivity(time: String, activity: String) {
         activity_updates.append("$time > $activity\n")
     }
+
+    override fun refreshTrips() {
+        tripsAdapter.notifyDataSetChanged()
+    }
 }

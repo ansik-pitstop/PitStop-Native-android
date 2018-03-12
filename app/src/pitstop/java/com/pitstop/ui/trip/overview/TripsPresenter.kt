@@ -18,6 +18,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
     private val tag = javaClass.simpleName
     private var view: TripsView? = null
     private var tripActivityObservable: TripActivityObservable? = null
+    private var tripsDisplayed: ArrayList<List<Location>>? = null
 
     fun onTripActivityObservableReady(tripActivityObservable: TripActivityObservable){
         Log.d(tag,"onTripActivityObservableReady()")
@@ -39,15 +40,8 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
         Log.d(tag,"onTripEnd()")
         if (view != null){
             view?.displayTripActivity(getCurrentTime(), "Trip ended")
-            useCaseComponent.getTripUseCase.execute(object: GetTripsUseCase.Callback{
-                override fun onGotTrips(trips: List<List<Location>>) {
-                    if (view != null) view?.displayPastTrips(trips)
-                }
-
-                override fun onError(err: RequestError) {
-                }
-
-            })
+            tripsDisplayed?.add(trip)
+            view?.refreshTrips()
         }
     }
 
