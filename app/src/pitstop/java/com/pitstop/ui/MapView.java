@@ -19,7 +19,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.pitstop.models.trip.Location;
+import com.pitstop.models.trip.Location2;
 
 import java.util.List;
 
@@ -79,7 +79,7 @@ public class MapView extends FrameLayout {
         });
     }
 
-    public void addPolyline(List<Location> locationList) {
+    public void addPolyline(List<Location2> locationList) {
 
 
 

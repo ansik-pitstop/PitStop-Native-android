@@ -707,7 +707,7 @@ public class UseCaseModule {
                                     @Named("useCaseHandler") Handler useCaseHandler,
                                     @Named("mainHandler") Handler mainHandler) {
 
-        return new GetTripsUseCaseImpl(userRepository, tripRepository, useCaseHandler, mainHandler);
+        return new GetTripsUseCaseImpl(tripRepository, useCaseHandler, mainHandler);
 
     }
 

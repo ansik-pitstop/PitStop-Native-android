@@ -5,7 +5,9 @@ import android.util.Log;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.models.Notification;
 import com.pitstop.models.trip.Trip;
@@ -13,7 +15,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 /**
@@ -22,10 +25,20 @@ import java.util.List;
 
 public class TripListPresenter extends TabPresenter<TripListView> {
 
-    private List<Trip> tripList = new ArrayList<>();
+    //private List<Trip> tripList = new ArrayList<>();
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
+
+    public final EventType[] ignoredEvents = {
+            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
+            new EventTypeImpl(EventType.EVENT_MILEAGE),
+            new EventTypeImpl(EventType.EVENT_SCANNER),
+            new EventTypeImpl(EventType.EVENT_SERVICES_NEW),
+            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
+            new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP),
+            new EventTypeImpl(EventType.EVENT_DTC_NEW)
+    };
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
@@ -40,7 +53,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
     @Override
     public EventType[] getIgnoredEventTypes() {
         Log.d(TAG, "getIgnoredEventTypes()");
-        return new EventType[0];
+        return ignoredEvents;
     }
 
     @Override
@@ -63,6 +76,30 @@ public class TripListPresenter extends TabPresenter<TripListView> {
         } else {
             onUpdateNeeded();
         }
+
+    }
+
+    public void loadView() {
+
+        Log.d(TAG,"loadView()");
+
+        useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
+            @Override
+            public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
+
+                if (getView() != null) {
+                    getView().displayTripList((List<Trip>) tripList);
+                }
+
+            }
+
+            @Override
+            public void onError(@NotNull RequestError error) {
+
+                Log.d("jakarta", "ERROR, NO DATA FETCHED");
+
+            }
+        });
 
     }
 

@@ -5,17 +5,18 @@ import com.google.gson.annotations.SerializedName;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
 /**
  * Created by David C. on 9/3/18.
+ *
+ * Temporal. Should be replaced by Location2 object
  */
 
 @Entity
-public class Location {
+public class LocationStart {
 
     @Id(autoincrement = true)
     private long id;
@@ -23,41 +24,46 @@ public class Location {
     @ToOne(joinProperty = "")
     private Trip trip;
 
-    @NotNull
     @SerializedName("altitude")
     @Expose
-    private double altitude;
-    @NotNull
+    private String altitude;
     @SerializedName("latitude")
     @Expose
-    private double latitude;
-    @NotNull
+    private String latitude;
     @SerializedName("longitude")
     @Expose
-    private double longitude;
-    @NotNull
-    @SerializedName("timestamp")
+    private String longitude;
+    @SerializedName("startLocation")
     @Expose
-    private long timestamp;
+    private String startLocation;
+    @SerializedName("startCityLocation")
+    @Expose
+    private String startCityLocation;
+    @SerializedName("startStreetLocation")
+    @Expose
+    private String startStreetLocation;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 842527347)
-    private transient LocationDao myDao;
-    @Generated(hash = 602334664)
-    public Location(long id, double altitude, double latitude, double longitude,
-            long timestamp) {
+    @Generated(hash = 64568133)
+    private transient LocationStartDao myDao;
+    @Generated(hash = 1782690668)
+    public LocationStart(long id, String altitude, String latitude,
+            String longitude, String startLocation, String startCityLocation,
+            String startStreetLocation) {
         this.id = id;
         this.altitude = altitude;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.timestamp = timestamp;
+        this.startLocation = startLocation;
+        this.startCityLocation = startCityLocation;
+        this.startStreetLocation = startStreetLocation;
     }
-    @Generated(hash = 375979639)
-    public Location() {
+    @Generated(hash = 802456816)
+    public LocationStart() {
     }
     public long getId() {
         return this.id;
@@ -65,29 +71,41 @@ public class Location {
     public void setId(long id) {
         this.id = id;
     }
-    public double getAltitude() {
+    public String getAltitude() {
         return this.altitude;
     }
-    public void setAltitude(double altitude) {
+    public void setAltitude(String altitude) {
         this.altitude = altitude;
     }
-    public double getLatitude() {
+    public String getLatitude() {
         return this.latitude;
     }
-    public void setLatitude(double latitude) {
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
-    public double getLongitude() {
+    public String getLongitude() {
         return this.longitude;
     }
-    public void setLongitude(double longitude) {
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
-    public long getTimestamp() {
-        return this.timestamp;
+    public String getStartLocation() {
+        return this.startLocation;
     }
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setStartLocation(String startLocation) {
+        this.startLocation = startLocation;
+    }
+    public String getStartCityLocation() {
+        return this.startCityLocation;
+    }
+    public void setStartCityLocation(String startCityLocation) {
+        this.startCityLocation = startCityLocation;
+    }
+    public String getStartStreetLocation() {
+        return this.startStreetLocation;
+    }
+    public void setStartStreetLocation(String startStreetLocation) {
+        this.startStreetLocation = startStreetLocation;
     }
     @Generated(hash = 955026413)
     private transient boolean trip__refreshed;
@@ -151,10 +169,10 @@ public class Location {
         myDao.update(this);
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1046799944)
+    @Generated(hash = 291616961)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getLocationDao() : null;
+        myDao = daoSession != null ? daoSession.getLocationStartDao() : null;
     }
 
 }

@@ -3,12 +3,11 @@ package com.pitstop.models.trip;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.DaoException;
 
 /**
  * Created by David C. on 9/3/18.
@@ -24,29 +23,23 @@ public class Trip {
     @SerializedName("tripId")
     @Expose
     private String tripId;
-    @NotNull
-    private long carId;
     @ToOne//(joinProperty = "locationStartId")
     @SerializedName("locationStart")
     @Expose
-    private Location locationStart;
+    private LocationStart locationStart;
     @ToOne//(joinProperty = "locationEndId")
     @SerializedName("locationEnd")
     @Expose
-    private Location locationEnd;
-    @NotNull
+    private LocationEnd locationEnd;
     @SerializedName("mileageStart")
     @Expose
     private double mileageStart;
-    @NotNull
     @SerializedName("mileageAccum")
     @Expose
     private double mileageAccum;
-    @NotNull
     @SerializedName("fuelConsumptionAccum")
     @Expose
     private double fuelConsumptionAccum;
-    @NotNull
     @SerializedName("fuelConsumptionStart")
     @Expose
     private double fuelConsumptionStart;
@@ -59,21 +52,18 @@ public class Trip {
     @SerializedName("vin")
     @Expose
     private String vin;
-
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
     /** Used for active entity operations. */
     @Generated(hash = 1659297594)
     private transient TripDao myDao;
-    @Generated(hash = 874799312)
-    public Trip(long id, String tripId, long carId, double mileageStart,
-            double mileageAccum, double fuelConsumptionAccum,
-            double fuelConsumptionStart, String timeStart, String timeEnd,
-            String vin) {
+    @Generated(hash = 1485524751)
+    public Trip(long id, String tripId, double mileageStart, double mileageAccum,
+            double fuelConsumptionAccum, double fuelConsumptionStart,
+            String timeStart, String timeEnd, String vin) {
         this.id = id;
         this.tripId = tripId;
-        this.carId = carId;
         this.mileageStart = mileageStart;
         this.mileageAccum = mileageAccum;
         this.fuelConsumptionAccum = fuelConsumptionAccum;
@@ -96,12 +86,6 @@ public class Trip {
     }
     public void setTripId(String tripId) {
         this.tripId = tripId;
-    }
-    public long getCarId() {
-        return this.carId;
-    }
-    public void setCarId(long carId) {
-        this.carId = carId;
     }
     public double getMileageStart() {
         return this.mileageStart;
@@ -148,26 +132,26 @@ public class Trip {
     @Generated(hash = 457471430)
     private transient boolean locationStart__refreshed;
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1949177494)
-    public Location getLocationStart() {
+    @Generated(hash = 609145131)
+    public LocationStart getLocationStart() {
         if (locationStart != null || !locationStart__refreshed) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            LocationDao targetDao = daoSession.getLocationDao();
+            LocationStartDao targetDao = daoSession.getLocationStartDao();
             targetDao.refresh(locationStart);
             locationStart__refreshed = true;
         }
         return locationStart;
     }
     /** To-one relationship, returned entity is not refreshed and may carry only the PK property. */
-    @Generated(hash = 357087003)
-    public Location peakLocationStart() {
+    @Generated(hash = 1785442233)
+    public LocationStart peakLocationStart() {
         return locationStart;
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1487689477)
-    public void setLocationStart(Location locationStart) {
+    @Generated(hash = 1577625810)
+    public void setLocationStart(LocationStart locationStart) {
         synchronized (this) {
             this.locationStart = locationStart;
             locationStart__refreshed = true;
@@ -176,26 +160,26 @@ public class Trip {
     @Generated(hash = 1522237955)
     private transient boolean locationEnd__refreshed;
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1891548690)
-    public Location getLocationEnd() {
+    @Generated(hash = 269389826)
+    public LocationEnd getLocationEnd() {
         if (locationEnd != null || !locationEnd__refreshed) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            LocationDao targetDao = daoSession.getLocationDao();
+            LocationEndDao targetDao = daoSession.getLocationEndDao();
             targetDao.refresh(locationEnd);
             locationEnd__refreshed = true;
         }
         return locationEnd;
     }
     /** To-one relationship, returned entity is not refreshed and may carry only the PK property. */
-    @Generated(hash = 1315415714)
-    public Location peakLocationEnd() {
+    @Generated(hash = 503602238)
+    public LocationEnd peakLocationEnd() {
         return locationEnd;
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1101978280)
-    public void setLocationEnd(Location locationEnd) {
+    @Generated(hash = 105818733)
+    public void setLocationEnd(LocationEnd locationEnd) {
         synchronized (this) {
             this.locationEnd = locationEnd;
             locationEnd__refreshed = true;
@@ -240,5 +224,6 @@ public class Trip {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getTripDao() : null;
     }
+
 
 }

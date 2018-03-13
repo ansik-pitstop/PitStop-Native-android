@@ -121,10 +121,10 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         private void setRowText(Trip trip) {
 
-            // Set Address and Location
+            // Set Address and Location2
             tripAddress.setText("Start Address" + " - " + "End Address");
 
-            tripLocation.setText("Start Location" + " - " + "End Location");
+            tripLocation.setText("Start Location2" + " - " + "End Location2");
 
         }
 
