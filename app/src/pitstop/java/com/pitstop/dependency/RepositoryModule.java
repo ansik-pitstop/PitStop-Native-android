@@ -8,6 +8,7 @@ import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.models.trip.DaoSession;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
@@ -100,7 +101,7 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    TripRepository getTripRepository(PitstopTripApi pitstopAppointmentApi){
-        return new TripRepository(pitstopAppointmentApi);
+    TripRepository getTripRepository(DaoSession daoSession, PitstopTripApi pitstopTripApi){
+        return new TripRepository(daoSession, pitstopTripApi);
     }
 }

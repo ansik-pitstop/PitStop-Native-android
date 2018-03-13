@@ -27,16 +27,15 @@ public class TripDao extends AbstractDao<Trip, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, long.class, "id", true, "_id");
         public final static Property TripId = new Property(1, String.class, "tripId", false, "TRIP_ID");
-        public final static Property CarId = new Property(2, long.class, "carId", false, "CAR_ID");
-        public final static Property MileageStart = new Property(3, double.class, "mileageStart", false, "MILEAGE_START");
-        public final static Property MileageAccum = new Property(4, double.class, "mileageAccum", false, "MILEAGE_ACCUM");
-        public final static Property FuelConsumptionAccum = new Property(5, double.class, "fuelConsumptionAccum", false, "FUEL_CONSUMPTION_ACCUM");
-        public final static Property FuelConsumptionStart = new Property(6, double.class, "fuelConsumptionStart", false, "FUEL_CONSUMPTION_START");
-        public final static Property TimeStart = new Property(7, String.class, "timeStart", false, "TIME_START");
-        public final static Property TimeEnd = new Property(8, String.class, "timeEnd", false, "TIME_END");
-        public final static Property Vin = new Property(9, String.class, "vin", false, "VIN");
-        public final static Property LocationStart = new Property(10, Long.class, "locationStart", false, "LOCATION_START");
-        public final static Property LocationEnd = new Property(11, Long.class, "locationEnd", false, "LOCATION_END");
+        public final static Property MileageStart = new Property(2, double.class, "mileageStart", false, "MILEAGE_START");
+        public final static Property MileageAccum = new Property(3, double.class, "mileageAccum", false, "MILEAGE_ACCUM");
+        public final static Property FuelConsumptionAccum = new Property(4, double.class, "fuelConsumptionAccum", false, "FUEL_CONSUMPTION_ACCUM");
+        public final static Property FuelConsumptionStart = new Property(5, double.class, "fuelConsumptionStart", false, "FUEL_CONSUMPTION_START");
+        public final static Property TimeStart = new Property(6, String.class, "timeStart", false, "TIME_START");
+        public final static Property TimeEnd = new Property(7, String.class, "timeEnd", false, "TIME_END");
+        public final static Property Vin = new Property(8, String.class, "vin", false, "VIN");
+        public final static Property LocationStart = new Property(9, Long.class, "locationStart", false, "LOCATION_START");
+        public final static Property LocationEnd = new Property(10, Long.class, "locationEnd", false, "LOCATION_END");
     }
 
     private DaoSession daoSession;
@@ -57,16 +56,15 @@ public class TripDao extends AbstractDao<Trip, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"TRIP\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
                 "\"TRIP_ID\" TEXT," + // 1: tripId
-                "\"CAR_ID\" INTEGER NOT NULL ," + // 2: carId
-                "\"MILEAGE_START\" REAL NOT NULL ," + // 3: mileageStart
-                "\"MILEAGE_ACCUM\" REAL NOT NULL ," + // 4: mileageAccum
-                "\"FUEL_CONSUMPTION_ACCUM\" REAL NOT NULL ," + // 5: fuelConsumptionAccum
-                "\"FUEL_CONSUMPTION_START\" REAL NOT NULL ," + // 6: fuelConsumptionStart
-                "\"TIME_START\" TEXT," + // 7: timeStart
-                "\"TIME_END\" TEXT," + // 8: timeEnd
-                "\"VIN\" TEXT," + // 9: vin
-                "\"LOCATION_START\" INTEGER," + // 10: locationStart
-                "\"LOCATION_END\" INTEGER);"); // 11: locationEnd
+                "\"MILEAGE_START\" REAL NOT NULL ," + // 2: mileageStart
+                "\"MILEAGE_ACCUM\" REAL NOT NULL ," + // 3: mileageAccum
+                "\"FUEL_CONSUMPTION_ACCUM\" REAL NOT NULL ," + // 4: fuelConsumptionAccum
+                "\"FUEL_CONSUMPTION_START\" REAL NOT NULL ," + // 5: fuelConsumptionStart
+                "\"TIME_START\" TEXT," + // 6: timeStart
+                "\"TIME_END\" TEXT," + // 7: timeEnd
+                "\"VIN\" TEXT," + // 8: vin
+                "\"LOCATION_START\" INTEGER," + // 9: locationStart
+                "\"LOCATION_END\" INTEGER);"); // 10: locationEnd
     }
 
     /** Drops the underlying database table. */
@@ -84,25 +82,24 @@ public class TripDao extends AbstractDao<Trip, Long> {
         if (tripId != null) {
             stmt.bindString(2, tripId);
         }
-        stmt.bindLong(3, entity.getCarId());
-        stmt.bindDouble(4, entity.getMileageStart());
-        stmt.bindDouble(5, entity.getMileageAccum());
-        stmt.bindDouble(6, entity.getFuelConsumptionAccum());
-        stmt.bindDouble(7, entity.getFuelConsumptionStart());
+        stmt.bindDouble(3, entity.getMileageStart());
+        stmt.bindDouble(4, entity.getMileageAccum());
+        stmt.bindDouble(5, entity.getFuelConsumptionAccum());
+        stmt.bindDouble(6, entity.getFuelConsumptionStart());
  
         String timeStart = entity.getTimeStart();
         if (timeStart != null) {
-            stmt.bindString(8, timeStart);
+            stmt.bindString(7, timeStart);
         }
  
         String timeEnd = entity.getTimeEnd();
         if (timeEnd != null) {
-            stmt.bindString(9, timeEnd);
+            stmt.bindString(8, timeEnd);
         }
  
         String vin = entity.getVin();
         if (vin != null) {
-            stmt.bindString(10, vin);
+            stmt.bindString(9, vin);
         }
     }
 
@@ -115,25 +112,24 @@ public class TripDao extends AbstractDao<Trip, Long> {
         if (tripId != null) {
             stmt.bindString(2, tripId);
         }
-        stmt.bindLong(3, entity.getCarId());
-        stmt.bindDouble(4, entity.getMileageStart());
-        stmt.bindDouble(5, entity.getMileageAccum());
-        stmt.bindDouble(6, entity.getFuelConsumptionAccum());
-        stmt.bindDouble(7, entity.getFuelConsumptionStart());
+        stmt.bindDouble(3, entity.getMileageStart());
+        stmt.bindDouble(4, entity.getMileageAccum());
+        stmt.bindDouble(5, entity.getFuelConsumptionAccum());
+        stmt.bindDouble(6, entity.getFuelConsumptionStart());
  
         String timeStart = entity.getTimeStart();
         if (timeStart != null) {
-            stmt.bindString(8, timeStart);
+            stmt.bindString(7, timeStart);
         }
  
         String timeEnd = entity.getTimeEnd();
         if (timeEnd != null) {
-            stmt.bindString(9, timeEnd);
+            stmt.bindString(8, timeEnd);
         }
  
         String vin = entity.getVin();
         if (vin != null) {
-            stmt.bindString(10, vin);
+            stmt.bindString(9, vin);
         }
     }
 
@@ -153,14 +149,13 @@ public class TripDao extends AbstractDao<Trip, Long> {
         Trip entity = new Trip( //
             cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // tripId
-            cursor.getLong(offset + 2), // carId
-            cursor.getDouble(offset + 3), // mileageStart
-            cursor.getDouble(offset + 4), // mileageAccum
-            cursor.getDouble(offset + 5), // fuelConsumptionAccum
-            cursor.getDouble(offset + 6), // fuelConsumptionStart
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // timeStart
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // timeEnd
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // vin
+            cursor.getDouble(offset + 2), // mileageStart
+            cursor.getDouble(offset + 3), // mileageAccum
+            cursor.getDouble(offset + 4), // fuelConsumptionAccum
+            cursor.getDouble(offset + 5), // fuelConsumptionStart
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // timeStart
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // timeEnd
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // vin
         );
         return entity;
     }
@@ -169,14 +164,13 @@ public class TripDao extends AbstractDao<Trip, Long> {
     public void readEntity(Cursor cursor, Trip entity, int offset) {
         entity.setId(cursor.getLong(offset + 0));
         entity.setTripId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setCarId(cursor.getLong(offset + 2));
-        entity.setMileageStart(cursor.getDouble(offset + 3));
-        entity.setMileageAccum(cursor.getDouble(offset + 4));
-        entity.setFuelConsumptionAccum(cursor.getDouble(offset + 5));
-        entity.setFuelConsumptionStart(cursor.getDouble(offset + 6));
-        entity.setTimeStart(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setTimeEnd(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setVin(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setMileageStart(cursor.getDouble(offset + 2));
+        entity.setMileageAccum(cursor.getDouble(offset + 3));
+        entity.setFuelConsumptionAccum(cursor.getDouble(offset + 4));
+        entity.setFuelConsumptionStart(cursor.getDouble(offset + 5));
+        entity.setTimeStart(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setTimeEnd(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setVin(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }
     
     @Override
@@ -211,12 +205,12 @@ public class TripDao extends AbstractDao<Trip, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getLocationDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getLocationStartDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getLocationDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getLocationEndDao().getAllColumns());
             builder.append(" FROM TRIP T");
-            builder.append(" LEFT JOIN LOCATION T0 ON T.\"LOCATION_START\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN LOCATION T1 ON T.\"LOCATION_END\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN LOCATION_START T0 ON T.\"LOCATION_START\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN LOCATION_END T1 ON T.\"LOCATION_END\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -227,11 +221,11 @@ public class TripDao extends AbstractDao<Trip, Long> {
         Trip entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        Location locationStart = loadCurrentOther(daoSession.getLocationDao(), cursor, offset);
+        LocationStart locationStart = loadCurrentOther(daoSession.getLocationStartDao(), cursor, offset);
         entity.setLocationStart(locationStart);
-        offset += daoSession.getLocationDao().getAllColumns().length;
+        offset += daoSession.getLocationStartDao().getAllColumns().length;
 
-        Location locationEnd = loadCurrentOther(daoSession.getLocationDao(), cursor, offset);
+        LocationEnd locationEnd = loadCurrentOther(daoSession.getLocationEndDao(), cursor, offset);
         entity.setLocationEnd(locationEnd);
 
         return entity;    

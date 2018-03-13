@@ -37,7 +37,6 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.models.trip.DaoMaster;
 import com.pitstop.models.trip.DaoSession;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
@@ -47,7 +46,6 @@ import org.acra.ACRA;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationException;
 import org.acra.config.ConfigurationBuilder;
-import org.greenrobot.greendao.database.Database;
 
 import java.util.List;
 
@@ -379,10 +377,6 @@ public class GlobalApplication extends Application {
         mLocalSpecsStorage = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
-
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "trips-db");
-        Database db = helper.getWritableDb();
-        daoSession = new DaoMaster(db).newSession();
 
     }
 

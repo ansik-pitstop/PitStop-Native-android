@@ -7,16 +7,16 @@ import com.pitstop.network.RequestError
 /**
  * Created by David C. on 12/3/18.
  */
-interface GetTripsUseCase: Interactor {
+interface GetTripsUseCase : Interactor {
 
     interface Callback {
 
-        fun onTripsRetrieved(tripList: List<Trip>)
+        fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean)
         fun onError(error: RequestError)
 
     }
 
     //Execute the use case
-    fun execute(callback: Callback)
+    fun execute(vin: String, callback: Callback)
 
 }
