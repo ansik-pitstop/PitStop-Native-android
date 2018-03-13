@@ -23,6 +23,8 @@ public class DaoMaster extends AbstractDaoMaster {
     public static void createAllTables(Database db, boolean ifNotExists) {
         LocationEndDao.createTable(db, ifNotExists);
         Location2Dao.createTable(db, ifNotExists);
+        LocationPolylineDao.createTable(db, ifNotExists);
+        LocationDao.createTable(db, ifNotExists);
         LocationStartDao.createTable(db, ifNotExists);
         TripDao.createTable(db, ifNotExists);
     }
@@ -31,6 +33,8 @@ public class DaoMaster extends AbstractDaoMaster {
     public static void dropAllTables(Database db, boolean ifExists) {
         LocationEndDao.dropTable(db, ifExists);
         Location2Dao.dropTable(db, ifExists);
+        LocationPolylineDao.dropTable(db, ifExists);
+        LocationDao.dropTable(db, ifExists);
         LocationStartDao.dropTable(db, ifExists);
         TripDao.dropTable(db, ifExists);
     }
@@ -53,6 +57,8 @@ public class DaoMaster extends AbstractDaoMaster {
         super(db, SCHEMA_VERSION);
         registerDaoClass(LocationEndDao.class);
         registerDaoClass(Location2Dao.class);
+        registerDaoClass(LocationPolylineDao.class);
+        registerDaoClass(LocationDao.class);
         registerDaoClass(LocationStartDao.class);
         registerDaoClass(TripDao.class);
     }

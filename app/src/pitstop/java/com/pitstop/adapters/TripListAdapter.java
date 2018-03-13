@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.ui.my_trips.view_fragments.TripView;
+import com.pitstop.ui.trip.TripListView;
 
 import java.util.List;
 
@@ -25,11 +25,11 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
     private Context context;
     private List<Trip> tripList;
-    private TripView tripView;
+    private TripListView tripView;
 
     private int selectedTripId = -1;
 
-    public TripListAdapter(Context context, List<Trip> tripList, TripView tripView) {
+    public TripListAdapter(Context context, List<Trip> tripList, TripListView tripView) {
         this.context = context;
         this.tripList = tripList;
         this.tripView = tripView;
@@ -121,10 +121,14 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         private void setRowText(Trip trip) {
 
-            // Set Address and Location2
-            tripAddress.setText("Start Address" + " - " + "End Address");
+            // Set Address and Location
+            tripAddress.setText("Trip ID: " + trip.getTripId());
 
-            tripLocation.setText("Start Location2" + " - " + "End Location2");
+            tripLocation.setText("VIN: " + trip.getVin());
+
+            //tripAddress.setText(trip.getLocationStart().getStartStreetLocation() + " - " + trip.getLocationEnd().getEndStreetLocation());
+
+            //tripLocation.setText(trip.getLocationStart().getStartCityLocation() + " - " + trip.getLocationEnd().getEndLocation());
 
         }
 
