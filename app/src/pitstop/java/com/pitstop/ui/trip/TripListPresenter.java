@@ -103,6 +103,34 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
+    public void onTripClicked(Trip trip) {
+
+//        String pushType = n.getPushType();
+//        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+n.getTitle());
+//        mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
+//        useCaseComponent.getSetNotificationReadUseCase().execute(notifications, true, () -> {
+//            if (getView() != null){
+//                getView().onReadStatusChanged();
+//                getView().displayBadgeCount(0);
+//            }
+//            Log.d(TAG,"setNotificationUseCase.success()");
+//        });
+//        if (getView() == null) return;
+//        if (convertPushType(pushType).equalsIgnoreCase("serviceUpdate"))
+//            getView().openCurrentServices();
+//        else if (convertPushType(pushType).equalsIgnoreCase("scanReminder"))
+//            getView().openScanTab();
+//        else if (convertPushType(pushType).equalsIgnoreCase("serviceRequest"))
+//            getView().openRequestService();
+
+        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
+
+        if (getView() == null || trip.getLocationPolyline() == null ) return;
+
+        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
+
+    }
+
     public void onUpdateNeeded() {
         Log.d(TAG, "onUpdateNeeded");
         if (getView() == null || updating) {

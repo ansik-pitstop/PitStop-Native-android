@@ -41,7 +41,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
         TripViewHolder tripViewHolder = new TripViewHolder((view));
         int position = getItemViewType(viewType);
 
-        //view.setOnClickListener(v -> tripView.onTripClicked(tripList.get(position)));
+        view.setOnClickListener(v -> tripView.onTripClicked(tripList.get(position)));
 
         return tripViewHolder;
     }
@@ -134,4 +134,8 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 }
