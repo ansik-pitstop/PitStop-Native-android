@@ -17,8 +17,9 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip.Location2;
+import com.pitstop.models.trip.LocationPolyline;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.MapView;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -36,6 +37,9 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @BindView(R.id.relative_main_container)
     protected View mainLayout;
+
+    @BindView(R.id.mapview_trips)
+    protected MapView mapView;
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
@@ -137,9 +141,16 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
-    public void displayTripPolylineOnMap(List<Location2> listLocation) {
+    public void onTripClicked(Trip trip) {
+        Log.d(TAG, "onTripClicked() title: " + trip.getTripId());
+        presenter.onTripClicked(trip);
+    }
+
+    @Override
+    public void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline) {
 
         // TODO: displayTripPolylineOnMap
+        mapView.addPolyline(locationPolyline);
 
     }
 
