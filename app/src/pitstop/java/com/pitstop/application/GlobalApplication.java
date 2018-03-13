@@ -143,23 +143,23 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
         Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
-        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, smoochSettings, response -> {
-            Log.d(TAG,"smooch init response: "+response.getError());
-        });
+       // settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(this)).build();
         if (getCurrentUser() != null){
-            useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
-                @Override
-                public void onError(@NotNull String err) {
-                    Log.d(TAG, "Error logging into smooch err: " + err);
-                }
-                @Override
-                public void onLogin() {
-                    Log.d(TAG,"Logged into smooch successfully");
-                }
+            Smooch.init(this, smoochSettings, response -> {
+                Log.d(TAG,"Smooch: init response: "+response.getError());
+                useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
+                    @Override
+                    public void onError(@NotNull String err) {
+                        Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
+                    }
+                    @Override
+                    public void onLogin() {
+                        Log.d(TAG,"Smooch: Logged into smooch successfully");
+                    }
+                });
             });
         }
 
@@ -285,15 +285,20 @@ public class GlobalApplication extends Application {
         //Login to smooch with userId
         int userId = currentUser.getId();
         if (userId != -1){
-            useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(userId), new SmoochLoginUseCase.Callback() {
-                @Override
-                public void onError(@NotNull String err) {
-                    Log.d(TAG, "Error logging into smooch err: " + err);
-                }
-                @Override
-                public void onLogin() {
-                    Log.d(TAG,"Logged into smooch successfully");
-                }
+            Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
+            //smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+            Smooch.init(this, smoochSettings, response -> {
+                Log.d(TAG,"Smooch: init response: "+response.getError());
+                useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(userId), new SmoochLoginUseCase.Callback() {
+                    @Override
+                    public void onError(@NotNull String err) {
+                        Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
+                    }
+                    @Override
+                    public void onLogin() {
+                        Log.d(TAG,"Smooch: Logged into smooch successfully");
+                    }
+                });
             });
         }
 
