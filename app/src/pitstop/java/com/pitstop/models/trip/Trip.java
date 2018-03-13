@@ -3,11 +3,14 @@ package com.pitstop.models.trip;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.ToMany;
+import org.greenrobot.greendao.annotation.ToOne;
+
+import java.util.List;
 
 /**
  * Created by David C. on 9/3/18.
@@ -52,6 +55,11 @@ public class Trip {
     @SerializedName("vin")
     @Expose
     private String vin;
+    @ToMany(referencedJoinProperty = "locationPolylineId")
+    @SerializedName("location_polyline")
+    @Expose
+    private List<LocationPolyline> locationPolyline = null;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -186,6 +194,33 @@ public class Trip {
         }
     }
     /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1204571604)
+    public List<LocationPolyline> getLocationPolyline() {
+        if (locationPolyline == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            LocationPolylineDao targetDao = daoSession.getLocationPolylineDao();
+            List<LocationPolyline> locationPolylineNew = targetDao
+                    ._queryTrip_LocationPolyline(id);
+            synchronized (this) {
+                if (locationPolyline == null) {
+                    locationPolyline = locationPolylineNew;
+                }
+            }
+        }
+        return locationPolyline;
+    }
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 130258694)
+    public synchronized void resetLocationPolyline() {
+        locationPolyline = null;
+    }
+    /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
      */
@@ -224,6 +259,5 @@ public class Trip {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getTripDao() : null;
     }
-
 
 }

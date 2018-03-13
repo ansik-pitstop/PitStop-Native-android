@@ -96,7 +96,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             @Override
             public void onError(@NotNull RequestError error) {
 
-                Log.d("jakarta", "ERROR, NO DATA FETCHED");
+                Log.d(TAG,"loadView().onError(): " + error);
 
             }
         });

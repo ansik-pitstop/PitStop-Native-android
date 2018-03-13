@@ -48,33 +48,33 @@ class TripRepository(private val daoSession: DaoSession,
 
     }
 
-    fun getTripByTripId(tripId: Int): Observable<RepositoryResponse<Trip>> {
-
-        Log.d(tag, "getTripByTripId() userId: $tripId")
-
-        val localResponse = Observable.just(RepositoryResponse(daoSession.tripDao.queryBuilder().where(TripDao.Properties.Id.eq(tripId)).unique(), true))
-        val remoteResponse = tripApi.getTrip(tripId)
-
-        remoteResponse.map { tripListResponse -> RepositoryResponse(tripListResponse, false) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnNext({ next ->
-                    if (next.data == null) return@doOnNext
-                }).onErrorReturn { error ->
-                    Log.d(tag, "getTripByTripId() remote error: $error")
-                    RepositoryResponse(null, false)
-                }
-                .subscribe()
-
-        val returnRemote = remoteResponse.cache().map { pitstopResponse ->
-            val tripList = pitstopResponse
-            RepositoryResponse(tripList, false)
-        }
-
-        return Observable.concat(localResponse, localResponse) // TODO: change the 2nd concat param
-
-    }
-
+//    fun getTripByTripId(tripId: Int): Observable<RepositoryResponse<Trip>> {
+//
+//        Log.d(tag, "getTripByTripId() userId: $tripId")
+//
+//        val localResponse = Observable.just(RepositoryResponse(daoSession.tripDao.queryBuilder().where(TripDao.Properties.Id.eq(tripId)).unique(), true))
+//        val remoteResponse = tripApi.getTrip(tripId)
+//
+//        remoteResponse.map { tripListResponse -> RepositoryResponse(tripListResponse, false) }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .doOnNext({ next ->
+//                    if (next.data == null) return@doOnNext
+//                }).onErrorReturn { error ->
+//                    Log.d(tag, "getTripByTripId() remote error: $error")
+//                    RepositoryResponse(null, false)
+//                }
+//                .subscribe()
+//
+//        val returnRemote = remoteResponse.cache().map { pitstopResponse ->
+//            val tripList = pitstopResponse
+//            RepositoryResponse(tripList, false)
+//        }
+//
+//        return Observable.concat(localResponse, localResponse) // TODO: change the 2nd concat param
+//
+//    }
+//
 //    fun getTripPolyline(tripId: Int): Observable<RepositoryResponse<List<Location2>>> {
 //
 //        var daoSession = GlobalApplication().daoSession

@@ -1,14 +1,18 @@
 package com.pitstop.ui.trip;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
+import com.pitstop.adapters.TripListAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -19,6 +23,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -29,25 +34,33 @@ public class TripListFragment extends Fragment implements TripListView {
 
     private final String TAG = getClass().getSimpleName();
 
+    @BindView(R.id.relative_main_container)
+    protected View mainLayout;
+
+    @BindView(R.id.trips_recyclerview)
+    protected RecyclerView tripsRecyclerView;
+
+    private Context context;
     private TripListPresenter presenter;
+
+    private TripListAdapter tripListAdapter;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"onCreateView()");
+        Log.d(TAG, "onCreateView()");
         View view = inflater.inflate(R.layout.fragment_trip_list, null);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
 
-//        notificationAdapter = new NotificationAdapter(this, notificationList);
-//        notificationRecyclerView.setAdapter(notificationAdapter);
-//        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        context = getContext();
+
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getContext()))
                     .build();
 
             MixpanelHelper mixpanelHelper = new MixpanelHelper(
-                    (GlobalApplication)getActivity().getApplicationContext());
+                    (GlobalApplication) getActivity().getApplicationContext());
 
             presenter = new TripListPresenter(useCaseComponent, mixpanelHelper);
         }
@@ -58,7 +71,8 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"onViewCreated()");
+        Log.d(TAG, "onViewCreated()");
+        presenter.subscribe(this);
         presenter.loadView();
         super.onViewCreated(view, savedInstanceState);
     }
@@ -112,6 +126,13 @@ public class TripListFragment extends Fragment implements TripListView {
     public void displayTripList(List<Trip> listTrip) {
 
         // TODO: displayTripList
+        if (listTrip != null && listTrip.size() > 0) {
+
+            tripListAdapter = new TripListAdapter(context, listTrip, this);
+            tripsRecyclerView.setAdapter(tripListAdapter);
+            tripsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        }
 
     }
 

@@ -10,11 +10,15 @@ import org.greenrobot.greendao.internal.DaoConfig;
 
 import com.pitstop.models.trip.LocationEnd;
 import com.pitstop.models.trip.Location2;
+import com.pitstop.models.trip.LocationPolyline;
+import com.pitstop.models.trip.Location;
 import com.pitstop.models.trip.LocationStart;
 import com.pitstop.models.trip.Trip;
 
 import com.pitstop.models.trip.LocationEndDao;
 import com.pitstop.models.trip.Location2Dao;
+import com.pitstop.models.trip.LocationPolylineDao;
+import com.pitstop.models.trip.LocationDao;
 import com.pitstop.models.trip.LocationStartDao;
 import com.pitstop.models.trip.TripDao;
 
@@ -29,11 +33,15 @@ public class DaoSession extends AbstractDaoSession {
 
     private final DaoConfig locationEndDaoConfig;
     private final DaoConfig location2DaoConfig;
+    private final DaoConfig locationPolylineDaoConfig;
+    private final DaoConfig locationDaoConfig;
     private final DaoConfig locationStartDaoConfig;
     private final DaoConfig tripDaoConfig;
 
     private final LocationEndDao locationEndDao;
     private final Location2Dao location2Dao;
+    private final LocationPolylineDao locationPolylineDao;
+    private final LocationDao locationDao;
     private final LocationStartDao locationStartDao;
     private final TripDao tripDao;
 
@@ -47,6 +55,12 @@ public class DaoSession extends AbstractDaoSession {
         location2DaoConfig = daoConfigMap.get(Location2Dao.class).clone();
         location2DaoConfig.initIdentityScope(type);
 
+        locationPolylineDaoConfig = daoConfigMap.get(LocationPolylineDao.class).clone();
+        locationPolylineDaoConfig.initIdentityScope(type);
+
+        locationDaoConfig = daoConfigMap.get(LocationDao.class).clone();
+        locationDaoConfig.initIdentityScope(type);
+
         locationStartDaoConfig = daoConfigMap.get(LocationStartDao.class).clone();
         locationStartDaoConfig.initIdentityScope(type);
 
@@ -55,11 +69,15 @@ public class DaoSession extends AbstractDaoSession {
 
         locationEndDao = new LocationEndDao(locationEndDaoConfig, this);
         location2Dao = new Location2Dao(location2DaoConfig, this);
+        locationPolylineDao = new LocationPolylineDao(locationPolylineDaoConfig, this);
+        locationDao = new LocationDao(locationDaoConfig, this);
         locationStartDao = new LocationStartDao(locationStartDaoConfig, this);
         tripDao = new TripDao(tripDaoConfig, this);
 
         registerDao(LocationEnd.class, locationEndDao);
         registerDao(Location2.class, location2Dao);
+        registerDao(LocationPolyline.class, locationPolylineDao);
+        registerDao(Location.class, locationDao);
         registerDao(LocationStart.class, locationStartDao);
         registerDao(Trip.class, tripDao);
     }
@@ -67,6 +85,8 @@ public class DaoSession extends AbstractDaoSession {
     public void clear() {
         locationEndDaoConfig.clearIdentityScope();
         location2DaoConfig.clearIdentityScope();
+        locationPolylineDaoConfig.clearIdentityScope();
+        locationDaoConfig.clearIdentityScope();
         locationStartDaoConfig.clearIdentityScope();
         tripDaoConfig.clearIdentityScope();
     }
@@ -77,6 +97,14 @@ public class DaoSession extends AbstractDaoSession {
 
     public Location2Dao getLocation2Dao() {
         return location2Dao;
+    }
+
+    public LocationPolylineDao getLocationPolylineDao() {
+        return locationPolylineDao;
+    }
+
+    public LocationDao getLocationDao() {
+        return locationDao;
     }
 
     public LocationStartDao getLocationStartDao() {
