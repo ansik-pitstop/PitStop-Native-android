@@ -93,7 +93,7 @@ public class MapView extends FrameLayout {
             PolylineOptions polylineOptions = new PolylineOptions()
                     .width(4)
                     .geodesic(true)
-                    .color(Color.RED);
+                    .color(Color.BLUE);
 
             for (LocationPolyline location : locationPolyline) {
 
@@ -111,7 +111,7 @@ public class MapView extends FrameLayout {
                         lng = Double.parseDouble(obj1.getData());
                     }
 
-                    Location obj2 = location.getLocation().get(0);
+                    Location obj2 = location.getLocation().get(1);
                     if (obj2.getId().equalsIgnoreCase("latitude")) {
                         lat = Double.parseDouble(obj2.getData());
                     } else if (obj2.getId().equalsIgnoreCase("longitude")) {
