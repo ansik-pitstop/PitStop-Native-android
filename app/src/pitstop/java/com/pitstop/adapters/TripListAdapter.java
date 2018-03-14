@@ -27,7 +27,8 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     private List<Trip> tripList;
     private TripListView tripView;
 
-    private int selectedTripId = -1;
+    private TripViewHolder lastSelectedRow;
+    private long selectedTripId = -1;
 
     public TripListAdapter(Context context, List<Trip> tripList, TripListView tripView) {
         this.context = context;
@@ -39,9 +40,15 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     public TripViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
         TripViewHolder tripViewHolder = new TripViewHolder((view));
-        int position = getItemViewType(viewType);
-
-        view.setOnClickListener(v -> tripView.onTripClicked(tripList.get(position)));
+//        int position = getItemViewType(viewType);
+//
+//        view.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                tripView.onTripClicked(tripList.get(position));
+//                selectedTripId = tripList.get(position).getId();
+//            }
+//        });
 
         return tripViewHolder;
     }
@@ -50,6 +57,23 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     public void onBindViewHolder(TripViewHolder holder, int position) {
 
         holder.bind(tripList.get(position));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                tripView.onTripClicked(tripList.get(position));
+
+                invertColors(lastSelectedRow, false);
+
+                lastSelectedRow = holder;
+
+                invertColors(lastSelectedRow, true);
+
+                selectedTripId = tripList.get(position).getId();
+
+            }
+        });
 
     }
 
@@ -92,31 +116,6 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
             }
 
-//            tripAddress.setText(trip.get);
-//
-//            boolean isCarCurrent = car.isCurrentCar();
-//            Log.d(TAG, car.getModel() + isCarCurrent);
-//            carNameView.setText(car.getYear() + " " + car.getMake() + " " + car.getModel());
-//            if (isCarCurrent) {
-//                carNameView.setTextColor(Color.rgb(43, 131, 226));
-//                scanner.setTextColor(Color.rgb(43, 131, 226));
-//                dealershipName.setTextColor(Color.rgb(43, 131, 226));
-//            } else {
-//                carNameView.setTextColor(Color.BLACK);
-//                scanner.setTextColor(Color.GRAY);
-//                dealershipName.setTextColor(Color.GRAY);
-//            }
-//            if (car.getScannerId() == null) {
-//                scanner.setText("No Paired Device");
-//            } else {
-//                scanner.setText(car.getScannerId());
-//            }
-//            if (dealership.getName().equalsIgnoreCase("No Dealership")
-//                    || !dealership.getName().equalsIgnoreCase("No Shop")) {
-//                dealershipName.setText(dealership.getName());
-//            } else {
-//                dealershipName.setText("No Associated Shop");
-//            }
         }
 
         private void setRowText(Trip trip) {
@@ -129,6 +128,31 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
             //tripAddress.setText(trip.getLocationStart().getStartStreetLocation() + " - " + trip.getLocationEnd().getEndStreetLocation());
 
             //tripLocation.setText(trip.getLocationStart().getStartCityLocation() + " - " + trip.getLocationEnd().getEndLocation());
+
+        }
+
+    }
+
+    private void invertColors(TripViewHolder holder, boolean isNowSelected) {
+
+
+        if (!isNowSelected) { // Set the last selected item to the original colors (only if there was a previous selected item)
+
+            if (holder != null) {
+
+                holder.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+                holder.tripLocation.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+                holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
+                holder.itemView.setBackgroundColor(Color.WHITE);
+
+            }
+
+        } else { // Set the selected row in the selected colors
+
+            holder.tripAddress.setTextColor(Color.WHITE);
+            holder.tripLocation.setTextColor(Color.WHITE);
+            holder.tripInfoButton.setImageResource(R.drawable.chat);
+            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
         }
 
