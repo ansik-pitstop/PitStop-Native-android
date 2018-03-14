@@ -149,7 +149,7 @@
 
         <service
             android:name=".ui.trip.TripsService"
-            android:label="Trips Service" />
+            android:label="Trips Service"/>
 
         <service
             android:name=".utils.MigrationService"

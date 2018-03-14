@@ -139,6 +139,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(tag,"onDestroy()")
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
@@ -146,9 +147,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
     }
 
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     override fun subscribeTripActivity(observer: TripActivityObserver) {
