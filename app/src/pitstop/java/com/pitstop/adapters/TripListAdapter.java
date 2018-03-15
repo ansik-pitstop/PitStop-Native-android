@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.ui.trip.TripListView;
+import com.pitstop.ui.trip.list.TripListView;
 
 import java.util.List;
 
@@ -25,15 +25,15 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
     private Context context;
     private List<Trip> tripList;
-    private TripListView tripView;
+    private TripListView tripListView;
 
     private TripViewHolder lastSelectedRow;
     private long selectedTripId = -1;
 
-    public TripListAdapter(Context context, List<Trip> tripList, TripListView tripView) {
+    public TripListAdapter(Context context, List<Trip> tripList, TripListView tripListView) {
         this.context = context;
         this.tripList = tripList;
-        this.tripView = tripView;
+        this.tripListView = tripListView;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 //        view.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                tripView.onTripClicked(tripList.get(position));
+//                tripListView.onTripClicked(tripList.get(position));
 //                selectedTripId = tripList.get(position).getId();
 //            }
 //        });
@@ -58,21 +58,24 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         holder.bind(tripList.get(position));
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.itemView.setOnClickListener(v -> { // Row click
 
-                tripView.onTripClicked(tripList.get(position));
+            tripListView.onTripRowClicked(tripList.get(position));
 
-                invertColors(lastSelectedRow, false);
+            invertColors(lastSelectedRow, false);
 
-                lastSelectedRow = holder;
+            lastSelectedRow = holder;
 
-                invertColors(lastSelectedRow, true);
+            invertColors(lastSelectedRow, true);
 
-                selectedTripId = tripList.get(position).getId();
+            selectedTripId = tripList.get(position).getId();
 
-            }
+        });
+
+        holder.tripInfoButton.setOnClickListener(v -> { // Info Button click
+
+            tripListView.onTripInfoClicked(tripList.get(position));
+
         });
 
     }
@@ -104,7 +107,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
                 this.tripAddress.setTextColor(Color.WHITE);
                 this.tripLocation.setTextColor(Color.WHITE);
-                this.tripInfoButton.setImageResource(R.drawable.chat);
+                this.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
                 this.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
             } else {
@@ -151,7 +154,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
             holder.tripAddress.setTextColor(Color.WHITE);
             holder.tripLocation.setTextColor(Color.WHITE);
-            holder.tripInfoButton.setImageResource(R.drawable.chat);
+            holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
         }

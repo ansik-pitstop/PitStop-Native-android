@@ -38,6 +38,8 @@ class TripRepository(private val daoSession: DaoSession,
                 .observeOn(Schedulers.io())
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
+                    Log.d(tag,"remote.cache() local store update trips: "+next.data)
+                    deleteAndStoreTrips(next.data.orEmpty())
                 }).onErrorReturn { error ->
                     Log.d(tag, "getTripByTripId() remote error: $error caused by: ${error.cause}")
                     RepositoryResponse(null, false)
@@ -45,6 +47,42 @@ class TripRepository(private val daoSession: DaoSession,
                 .subscribe()
 
         return Observable.concat(localResponse, remoteResponse.cache())
+
+    }
+
+    private fun deleteAndStoreTrips(tripList: List<Trip>) {
+
+        //// Delete previous Trips ////
+        // Remove all the Trips
+        for (trip in tripList) {
+
+            for (locationPolylineObj in trip.locationPolyline) {
+
+                //location.delete()
+
+                // Remove all Objects from the related Polyline's Location object
+                for (locationObj in locationPolylineObj.location) {
+
+                    val ok1 = locationPolylineObj.location.remove(locationObj)
+                    if (ok1) {
+                        Log.d("jakarta","locationObj deleted")
+                    }
+
+                }
+
+                val ok2 = trip.locationPolyline.remove(locationPolylineObj)
+                if (ok2) {
+                    Log.d("jakarta","locationPolylineObj deleted")
+                }
+
+            }
+
+            daoSession.delete(trip)
+
+        }
+
+        //// Store new Trips ////
+        daoSession.insert(tripList)
 
     }
 

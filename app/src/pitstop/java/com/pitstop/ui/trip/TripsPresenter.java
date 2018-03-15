@@ -7,15 +7,13 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.models.Notification;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
+import com.pitstop.ui.trip.list.TripListView;
 import com.pitstop.utils.MixpanelHelper;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -23,7 +21,7 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public class TripListPresenter extends TabPresenter<TripListView> {
+public class TripsPresenter extends TabPresenter<TripsView> implements TripListView.TripListInterface {
 
     //private List<Trip> tripList = new ArrayList<>();
 
@@ -35,7 +33,6 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             new EventTypeImpl(EventType.EVENT_MILEAGE),
             new EventTypeImpl(EventType.EVENT_SCANNER),
             new EventTypeImpl(EventType.EVENT_SERVICES_NEW),
-            new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY),
             new EventTypeImpl(EventType.EVENT_CAR_DEALERSHIP),
             new EventTypeImpl(EventType.EVENT_DTC_NEW)
     };
@@ -45,7 +42,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     private boolean updating = false;
 
-    public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    public TripsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
     }
@@ -79,29 +76,29 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
-    public void loadView() {
-
-        Log.d(TAG,"loadView()");
-
-        useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
-            @Override
-            public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
-
-                if (getView() != null) {
-                    getView().displayTripList((List<Trip>) tripList);
-                }
-
-            }
-
-            @Override
-            public void onError(@NotNull RequestError error) {
-
-                Log.d(TAG,"loadView().onError(): " + error);
-
-            }
-        });
-
-    }
+//    public void loadView() {
+//
+//        Log.d(TAG,"loadView()");
+//
+//        useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
+//            @Override
+//            public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
+//
+//                if (getView() != null) {
+//                    getView().displayTripList((List<Trip>) tripList);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onError(@NotNull RequestError error) {
+//
+//                Log.d(TAG,"loadView().onError(): " + error);
+//
+//            }
+//        });
+//
+//    }
 
     public void onTripClicked(Trip trip) {
 
@@ -131,7 +128,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
-    public void onUpdateNeeded() {
+    public void onUpdateNeeded() { // TODO
         Log.d(TAG, "onUpdateNeeded");
         if (getView() == null || updating) {
             return;
@@ -197,5 +194,17 @@ public class TripListPresenter extends TabPresenter<TripListView> {
                 getView().hideLoading();
             }
         });
+    }
+
+    @Override
+    public void onTripRowClicked(Trip trip) {
+
+        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
+
+    }
+
+    @Override
+    public void onTripInfoClicked(Trip trip) {
+
     }
 }

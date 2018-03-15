@@ -11,9 +11,9 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public interface TripListView extends LoadingTabView, ErrorHandlingView {
+public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
-    void displayTripList(List<Trip> listTrip);
+    //void displayTripList(List<Trip> listTrip);
     void onTripClicked(Trip trip);
     void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline);
     void openTripDetailsView(Trip trip);

@@ -10,7 +10,7 @@ import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
-import com.pitstop.ui.trip.TripListFragment;
+import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -53,18 +53,18 @@ public class TabFragmentManager implements BadgeDisplayer{
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
     private NotificationFragment notificationFragment;
-    private TripListFragment tripListFragment;
+    private TripsFragment tripsFragment;
 
     public TabFragmentManager(FragmentActivity activity, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, TripListFragment tripListFragment, MixpanelHelper mixpanelHelper) {
+            , NotificationFragment notificationFragment, TripsFragment tripsFragment, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
         this.notificationFragment = notificationFragment;
-        this.tripListFragment = tripListFragment;
+        this.tripsFragment = tripsFragment;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.my_garage),
@@ -83,7 +83,7 @@ public class TabFragmentManager implements BadgeDisplayer{
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
-                , startReportFragment, vehicleSpecsFragment, notificationFragment, tripListFragment, mActivity);
+                , startReportFragment, vehicleSpecsFragment, notificationFragment, tripsFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(5);
