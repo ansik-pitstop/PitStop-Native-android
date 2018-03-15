@@ -23,7 +23,16 @@ import java.util.List;
 
 public class TripListPresenter extends TabPresenter<TripListView> {
 
+    public interface OnChildPresenterInteractorListener {
+        void showTripOnMap(Trip trip);
+
+        void showTripDetail(Trip trip);
+    }
+
     private final String TAG = getClass().getSimpleName();
+
+    private OnChildPresenterInteractorListener mParentListener;
+
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
 
     public final EventType[] ignoredEvents = {
@@ -48,7 +57,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     public void loadView() {
 
-        Log.d(TAG,"loadView()");
+        Log.d(TAG, "loadView()");
 
         useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
             @Override
@@ -63,20 +72,38 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             @Override
             public void onError(@NotNull RequestError error) {
 
-                Log.d(TAG,"loadView().onError(): " + error);
+                Log.d(TAG, "loadView().onError(): " + error);
 
             }
         });
 
     }
 
-    void onRefresh(){
-        Log.d(TAG,"onRefresh()");
+    public void setCommunicationInteractor(OnChildPresenterInteractorListener onChildPresenterInteractorListener) {
+
+        this.mParentListener = onChildPresenterInteractorListener;
+
+    }
+
+    public void onTripRowClicked(Trip trip) {
+
+        mParentListener.showTripOnMap(trip);
+
+    }
+
+    public void onTripInfoClicked(Trip trip) {
+
+        mParentListener.showTripDetail(trip);
+
+    }
+
+    void onRefresh() {
+        Log.d(TAG, "onRefresh()");
 
         mixpanelHelper.trackViewRefreshed(MixpanelHelper.SERVICE_UPCOMING_VIEW);
-        if (getView() != null && getView().isRefreshing() && updating){
+        if (getView() != null && getView().isRefreshing() && updating) {
             getView().hideRefreshing();
-        }else{
+        } else {
             //onUpdateNeeded();
         }
 

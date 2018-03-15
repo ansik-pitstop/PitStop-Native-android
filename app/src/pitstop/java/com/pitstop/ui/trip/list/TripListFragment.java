@@ -18,6 +18,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.trip.TripsFragment;
+import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -59,6 +61,10 @@ public class TripListFragment extends Fragment implements TripListView {
                     (GlobalApplication) getActivity().getApplicationContext());
 
             presenter = new TripListPresenter(useCaseComponent, mixpanelHelper);
+
+            if (getParentFragment() instanceof TripsView) {
+                presenter.setCommunicationInteractor(((TripsFragment) getParentFragment()).getPresenter());
+            }
         }
 //        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
@@ -71,6 +77,20 @@ public class TripListFragment extends Fragment implements TripListView {
         presenter.subscribe(this);
         presenter.loadView();
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (getParentFragment() instanceof TripsView) {
+            presenter.setCommunicationInteractor(null);
+        }
     }
 
     public void onRefresh() {
@@ -123,12 +143,14 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void onTripRowClicked(Trip trip) {
 
-        this.onTripRowClicked(trip);
+        presenter.onTripRowClicked(trip);
 
     }
 
     @Override
     public void onTripInfoClicked(Trip trip) {
+
+        presenter.onTripInfoClicked(trip);
 
     }
 

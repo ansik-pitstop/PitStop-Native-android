@@ -14,11 +14,11 @@ import java.util.List;
 public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
     //void displayTripList(List<Trip> listTrip);
-    void onTripClicked(Trip trip);
+    //void onTripClicked(Trip trip);
     void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline);
-    void openTripDetailsView(Trip trip);
+    void displayTripDetailsView(Trip trip);
     void removeTrip();
-    void updateTripList(List<Trip> listTrip);
+    //void updateTripList(List<Trip> listTrip);
     void displayErrorMessage(String errorMessage);
 
 }

@@ -80,7 +80,7 @@ public class TripsFragment extends Fragment implements TripsView {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"onActivityCreated()");
+        Log.d(TAG, "onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
 
         tripListFragment = new TripListFragment();
@@ -150,23 +150,26 @@ public class TripsFragment extends Fragment implements TripsView {
 //    }
 
     @Override
-    public void onTripClicked(Trip trip) {
-        Log.d(TAG, "onTripClicked() title: " + trip.getTripId());
-        presenter.onTripClicked(trip);
-    }
-
-    @Override
     public void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline) {
 
-        // TODO: displayTripPolylineOnMap
         mapView.addPolyline(locationPolyline);
 
     }
 
     @Override
-    public void openTripDetailsView(Trip trip) {
+    public void displayTripDetailsView(Trip trip) {
 
-        // TODO: openTripDetailsView
+        List<LocationPolyline> locationPolyline = trip.getLocationPolyline();
+
+        if (locationPolyline != null) {
+            displayTripPolylineOnMap(locationPolyline);
+        }
+
+        // Replace the child fragment (Trip List) for the Trip Details View
+        tripDetailFragment = new TripDetailFragment();
+        tripDetailFragment.setTrip(trip);
+
+        getChildFragmentManager().beginTransaction().add(R.id.fragment_container, tripDetailFragment).commit();
 
     }
 
@@ -178,16 +181,13 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void updateTripList(List<Trip> listTrip) {
-
-        // TODO: updateTripList
-
-    }
-
-    @Override
     public void displayErrorMessage(String errorMessage) {
 
         // TODO: displayErrorMessage
 
+    }
+
+    public TripsPresenter getPresenter() {
+        return presenter;
     }
 }
