@@ -5,7 +5,6 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -36,9 +35,9 @@ public class TripDetailPresenter extends TabPresenter<TripDetailView> {
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    public void loadTripData(Trip trip) {
-        getView().loadTripData(trip);
-    }
+//    public void loadTripData(Trip trip) {
+//        getView().loadTripData(trip);
+//    }
 
     @Override
     public EventType[] getIgnoredEventTypes() {

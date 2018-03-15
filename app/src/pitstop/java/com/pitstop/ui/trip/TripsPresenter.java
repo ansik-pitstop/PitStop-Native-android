@@ -12,7 +12,7 @@ import com.pitstop.models.Notification;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
-import com.pitstop.ui.trip.list.TripListView;
+import com.pitstop.ui.trip.list.TripListPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public class TripsPresenter extends TabPresenter<TripsView> implements TripListView.TripListInterface {
+public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnChildPresenterInteractorListener {
 
     //private List<Trip> tripList = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListV
 //
 //    }
 
-    public void onTripClicked(Trip trip) {
+//    public void onTripClicked(Trip trip) {
 
 //        String pushType = n.getPushType();
 //        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+n.getTitle());
@@ -119,14 +119,14 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListV
 //            getView().openScanTab();
 //        else if (convertPushType(pushType).equalsIgnoreCase("serviceRequest"))
 //            getView().openRequestService();
-
-        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
-
-        if (getView() == null || trip.getLocationPolyline() == null ) return;
-
-        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
-
-    }
+//
+//        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
+//
+//        if (getView() == null || trip.getLocationPolyline() == null ) return;
+//
+//        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
+//
+//    }
 
     public void onUpdateNeeded() { // TODO
         Log.d(TAG, "onUpdateNeeded");
@@ -197,14 +197,23 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListV
     }
 
     @Override
-    public void onTripRowClicked(Trip trip) {
+    public void showTripOnMap(Trip trip) {
+        // TODO:
+        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
+
+        if (getView() == null || trip.getLocationPolyline() == null ) return;
 
         getView().displayTripPolylineOnMap(trip.getLocationPolyline());
-
     }
 
     @Override
-    public void onTripInfoClicked(Trip trip) {
+    public void showTripDetail(Trip trip) {
+
+        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
+
+        if (getView() == null) return;
+
+        getView().displayTripDetailsView(trip);
 
     }
 }

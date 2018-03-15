@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <View
         android:id="@+id/divider_top"
@@ -25,7 +26,7 @@
             android:id="@+id/relative_miles"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:layout_weight="1">
 
             <TextView
@@ -35,7 +36,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="22"
                 android:textColor="@color/primary_dark"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textview_miles_label"
@@ -45,7 +46,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="miles"
                 android:textColor="@color/primary"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </RelativeLayout>
 
@@ -58,7 +59,7 @@
             android:id="@+id/relative_mins"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:layout_weight="1">
 
             <TextView
@@ -68,7 +69,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="22"
                 android:textColor="@color/primary_dark"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textview_mins_label"
@@ -78,7 +79,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="minutes"
                 android:textColor="@color/primary"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </RelativeLayout>
 
@@ -91,7 +92,7 @@
             android:id="@+id/relative_fuel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:layout_weight="1">
 
             <TextView
@@ -101,7 +102,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="22"
                 android:textColor="@color/primary_dark"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textview_fuel_label"
@@ -111,7 +112,7 @@
                 android:layout_centerHorizontal="true"
                 android:text="fuel"
                 android:textColor="@color/primary"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </RelativeLayout>
 
@@ -133,10 +134,10 @@
         android:layout_below="@id/divider_bottom"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:text="Woodbine Peter Ave - Chester Saint a very long name here Ave"
         android:textColor="@color/primary_dark"
-        android:textSize="20sp"
+        android:textSize="17sp"
         android:textStyle="bold" />
 
     <TextView
@@ -149,15 +150,26 @@
         android:layout_marginTop="3dp"
         android:text="ON, Toronto, CA - OH, Cleveland, USA"
         android:textColor="@color/primary_dark"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textStyle="normal" />
+
+    <Button
+        android:id="@+id/button_trip_detail_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp" />
 
     <RelativeLayout
         android:id="@+id/relative_alarms_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/button_trip_detail_back"
         android:layout_below="@id/textview_country_location"
-        android:layout_margin="20dp">
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp">
 
         <TextView
             android:id="@+id/textview_alarms_label"
@@ -169,7 +181,7 @@
             android:gravity="center"
             android:text="ALARMS"
             android:textColor="@color/primary_dark"
-            android:textSize="17sp" />
+            android:textSize="14sp" />
 
         <LinearLayout
             android:id="@+id/layout_alarms"

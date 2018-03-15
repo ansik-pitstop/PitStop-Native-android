@@ -3,6 +3,8 @@ package com.pitstop.ui.trip.detail;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by David C. on 14/3/18.
@@ -37,13 +40,24 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     @BindView(R.id.textview_fuel_num)
     protected TextView fuelNum;
 
+    @BindView(R.id.textview_street_location)
+    protected TextView streetLocation;
+
+    @BindView(R.id.textview_country_location)
+    protected TextView countryLocation;
+
     private TripDetailPresenter presenter;
+
+    private Trip trip;
+
+    public TripDetailFragment() {
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView()");
-        View view = inflater.inflate(R.layout.fragment_trip_list, null);
+        View view = inflater.inflate(R.layout.fragment_trip_detail, null);
         ButterKnife.bind(this, view);
 
         if (presenter == null) {
@@ -55,6 +69,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
                     (GlobalApplication) getActivity().getApplicationContext());
 
             presenter = new TripDetailPresenter(useCaseComponent, mixpanelHelper);
+
+            this.loadTripData(trip);
         }
 //        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
@@ -65,7 +81,6 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
-        presenter.loadTripData(null);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -101,12 +116,32 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
             return;
         }
 
-        milesNum.setText(String.valueOf((int) trip.getMileageAccum()));
+        streetLocation.setText("Trip ID: " + trip.getTripId());
+
+        countryLocation.setText("VIN: " + trip.getVin());
+
+        milesNum.setText(String.valueOf(trip.getMileageAccum()));
 
         // Calculate minutes using timestamps
-        minutesNum.setText(String.valueOf((int) 2));
+        long totalTimestamp = Long.valueOf(trip.getTimeEnd()) - Long.valueOf(trip.getTimeStart());
+        long totalMinutes = totalTimestamp / (1000 * 60);
+        minutesNum.setText(String.valueOf(totalMinutes));
 
         fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));
+
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
+
+    @OnClick(R.id.button_trip_detail_back)
+    public void onBackButtonClick() {
+
+        FragmentManager manager = ((Fragment) this).getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.remove((Fragment) this);
+        transaction.commit();
 
     }
 }
