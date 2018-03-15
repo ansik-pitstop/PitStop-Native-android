@@ -7,6 +7,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.JoinProperty;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
@@ -19,15 +20,17 @@ import java.util.List;
 public class LocationPolyline {
 
     @Id(autoincrement = true)
-    private long id;
-    @ToMany(referencedJoinProperty = "locationId")
+    private Long id;
     @SerializedName("location")
     @Expose
+    @ToMany(joinProperties = {
+            @JoinProperty(name = "timestamp", referencedName = "locationPolylineId")
+    })
     private List<Location> location = null;
     @SerializedName("timestamp")
     @Expose
     private String timestamp;
-    private long locationPolylineId; // referencedJoinProperty from TRIP object
+    private String tripId;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -35,19 +38,19 @@ public class LocationPolyline {
     /** Used for active entity operations. */
     @Generated(hash = 1444330853)
     private transient LocationPolylineDao myDao;
-    @Generated(hash = 167703979)
-    public LocationPolyline(long id, String timestamp, long locationPolylineId) {
+    @Generated(hash = 144688920)
+    public LocationPolyline(Long id, String timestamp, String tripId) {
         this.id = id;
         this.timestamp = timestamp;
-        this.locationPolylineId = locationPolylineId;
+        this.tripId = tripId;
     }
     @Generated(hash = 1156315372)
     public LocationPolyline() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getTimestamp() {
@@ -56,17 +59,17 @@ public class LocationPolyline {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
-    public long getLocationPolylineId() {
-        return this.locationPolylineId;
+    public String getTripId() {
+        return this.tripId;
     }
-    public void setLocationPolylineId(long locationPolylineId) {
-        this.locationPolylineId = locationPolylineId;
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
     }
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 448772976)
+    @Generated(hash = 1883164829)
     public List<Location> getLocation() {
         if (location == null) {
             final DaoSession daoSession = this.daoSession;
@@ -75,7 +78,7 @@ public class LocationPolyline {
             }
             LocationDao targetDao = daoSession.getLocationDao();
             List<Location> locationNew = targetDao
-                    ._queryLocationPolyline_Location(id);
+                    ._queryLocationPolyline_Location(timestamp);
             synchronized (this) {
                 if (location == null) {
                     location = locationNew;

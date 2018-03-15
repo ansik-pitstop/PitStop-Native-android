@@ -16,7 +16,7 @@ import org.greenrobot.greendao.query.QueryBuilder;
 /** 
  * DAO for table "LOCATION".
 */
-public class LocationDao extends AbstractDao<Location, Void> {
+public class LocationDao extends AbstractDao<Location, Long> {
 
     public static final String TABLENAME = "LOCATION";
 
@@ -25,9 +25,10 @@ public class LocationDao extends AbstractDao<Location, Void> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, String.class, "id", false, "ID");
-        public final static Property Data = new Property(1, String.class, "data", false, "DATA");
-        public final static Property LocationId = new Property(2, long.class, "locationId", false, "LOCATION_ID");
+        public final static Property ObjId = new Property(0, Long.class, "objId", true, "_id");
+        public final static Property Id = new Property(1, String.class, "id", false, "ID");
+        public final static Property Data = new Property(2, String.class, "data", false, "DATA");
+        public final static Property LocationPolylineId = new Property(3, String.class, "locationPolylineId", false, "LOCATION_POLYLINE_ID");
     }
 
     private Query<Location> locationPolyline_LocationQuery;
@@ -44,9 +45,10 @@ public class LocationDao extends AbstractDao<Location, Void> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"LOCATION\" (" + //
-                "\"ID\" TEXT," + // 0: id
-                "\"DATA\" TEXT," + // 1: data
-                "\"LOCATION_ID\" INTEGER NOT NULL );"); // 2: locationId
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: objId
+                "\"ID\" TEXT," + // 1: id
+                "\"DATA\" TEXT," + // 2: data
+                "\"LOCATION_POLYLINE_ID\" TEXT NOT NULL );"); // 3: locationPolylineId
     }
 
     /** Drops the underlying database table. */
@@ -59,71 +61,86 @@ public class LocationDao extends AbstractDao<Location, Void> {
     protected final void bindValues(DatabaseStatement stmt, Location entity) {
         stmt.clearBindings();
  
+        Long objId = entity.getObjId();
+        if (objId != null) {
+            stmt.bindLong(1, objId);
+        }
+ 
         String id = entity.getId();
         if (id != null) {
-            stmt.bindString(1, id);
+            stmt.bindString(2, id);
         }
  
         String data = entity.getData();
         if (data != null) {
-            stmt.bindString(2, data);
+            stmt.bindString(3, data);
         }
-        stmt.bindLong(3, entity.getLocationId());
+        stmt.bindString(4, entity.getLocationPolylineId());
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, Location entity) {
         stmt.clearBindings();
  
+        Long objId = entity.getObjId();
+        if (objId != null) {
+            stmt.bindLong(1, objId);
+        }
+ 
         String id = entity.getId();
         if (id != null) {
-            stmt.bindString(1, id);
+            stmt.bindString(2, id);
         }
  
         String data = entity.getData();
         if (data != null) {
-            stmt.bindString(2, data);
+            stmt.bindString(3, data);
         }
-        stmt.bindLong(3, entity.getLocationId());
+        stmt.bindString(4, entity.getLocationPolylineId());
     }
 
     @Override
-    public Void readKey(Cursor cursor, int offset) {
-        return null;
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public Location readEntity(Cursor cursor, int offset) {
         Location entity = new Location( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // data
-            cursor.getLong(offset + 2) // locationId
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // objId
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // id
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // data
+            cursor.getString(offset + 3) // locationPolylineId
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, Location entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setData(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setLocationId(cursor.getLong(offset + 2));
+        entity.setObjId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setData(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setLocationPolylineId(cursor.getString(offset + 3));
      }
     
     @Override
-    protected final Void updateKeyAfterInsert(Location entity, long rowId) {
-        // Unsupported or missing PK type
-        return null;
+    protected final Long updateKeyAfterInsert(Location entity, long rowId) {
+        entity.setObjId(rowId);
+        return rowId;
     }
     
     @Override
-    public Void getKey(Location entity) {
-        return null;
+    public Long getKey(Location entity) {
+        if(entity != null) {
+            return entity.getObjId();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean hasKey(Location entity) {
-        // TODO
-        return false;
+        return entity.getObjId() != null;
     }
 
     @Override
@@ -132,16 +149,16 @@ public class LocationDao extends AbstractDao<Location, Void> {
     }
     
     /** Internal query to resolve the "location" to-many relationship of LocationPolyline. */
-    public List<Location> _queryLocationPolyline_Location(long locationId) {
+    public List<Location> _queryLocationPolyline_Location(String locationPolylineId) {
         synchronized (this) {
             if (locationPolyline_LocationQuery == null) {
                 QueryBuilder<Location> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.LocationId.eq(null));
+                queryBuilder.where(Properties.LocationPolylineId.eq(null));
                 locationPolyline_LocationQuery = queryBuilder.build();
             }
         }
         Query<Location> query = locationPolyline_LocationQuery.forCurrentThread();
-        query.setParameter(0, locationId);
+        query.setParameter(0, locationPolylineId);
         return query.list();
     }
 

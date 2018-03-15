@@ -25,7 +25,7 @@ public class TripDao extends AbstractDao<Trip, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property TripId = new Property(1, String.class, "tripId", false, "TRIP_ID");
         public final static Property MileageStart = new Property(2, double.class, "mileageStart", false, "MILEAGE_START");
         public final static Property MileageAccum = new Property(3, double.class, "mileageAccum", false, "MILEAGE_ACCUM");
@@ -54,7 +54,7 @@ public class TripDao extends AbstractDao<Trip, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"TRIP\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"TRIP_ID\" TEXT," + // 1: tripId
                 "\"MILEAGE_START\" REAL NOT NULL ," + // 2: mileageStart
                 "\"MILEAGE_ACCUM\" REAL NOT NULL ," + // 3: mileageAccum
@@ -76,7 +76,11 @@ public class TripDao extends AbstractDao<Trip, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, Trip entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String tripId = entity.getTripId();
         if (tripId != null) {
@@ -106,7 +110,11 @@ public class TripDao extends AbstractDao<Trip, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, Trip entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String tripId = entity.getTripId();
         if (tripId != null) {
@@ -141,13 +149,13 @@ public class TripDao extends AbstractDao<Trip, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public Trip readEntity(Cursor cursor, int offset) {
         Trip entity = new Trip( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // tripId
             cursor.getDouble(offset + 2), // mileageStart
             cursor.getDouble(offset + 3), // mileageAccum
@@ -162,7 +170,7 @@ public class TripDao extends AbstractDao<Trip, Long> {
      
     @Override
     public void readEntity(Cursor cursor, Trip entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setTripId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setMileageStart(cursor.getDouble(offset + 2));
         entity.setMileageAccum(cursor.getDouble(offset + 3));
@@ -190,7 +198,7 @@ public class TripDao extends AbstractDao<Trip, Long> {
 
     @Override
     public boolean hasKey(Trip entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override

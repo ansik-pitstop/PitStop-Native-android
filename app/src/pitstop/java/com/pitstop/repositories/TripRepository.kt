@@ -1,9 +1,7 @@
 package com.pitstop.repositories
 
 import android.util.Log
-import com.pitstop.models.trip.DaoSession
-import com.pitstop.models.trip.Trip
-import com.pitstop.models.trip.TripDao
+import com.pitstop.models.trip.*
 import com.pitstop.retrofit.PitstopTripApi
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -23,6 +21,7 @@ class TripRepository(private val daoSession: DaoSession,
         val localResponse = Observable.just(RepositoryResponse(daoSession.tripDao.queryBuilder().where(TripDao.Properties.Vin.eq(vin)).list(), true)).map { next ->
 
             Log.d(tag, "remote.replay() next: $next")
+            Log.d("jakarta", "GETTING LOCAL DATA, ${next.data.orEmpty().size} Trips")
             next//.data
             //.orEmpty()
 
@@ -38,8 +37,8 @@ class TripRepository(private val daoSession: DaoSession,
                 .observeOn(Schedulers.io())
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
-                    Log.d(tag,"remote.cache() local store update trips: "+next.data)
-                    deleteAndStoreTrips(next.data.orEmpty())
+                    Log.d(tag, "remote.cache() local store update trips: " + next.data)
+                    deleteAndStoreTrips(vin, next.data.orEmpty())
                 }).onErrorReturn { error ->
                     Log.d(tag, "getTripByTripId() remote error: $error caused by: ${error.cause}")
                     RepositoryResponse(null, false)
@@ -50,101 +49,61 @@ class TripRepository(private val daoSession: DaoSession,
 
     }
 
-    private fun deleteAndStoreTrips(tripList: List<Trip>) {
+    private fun deleteAndStoreTrips(carVin: String, tripList: List<Trip>) {
 
         //// Delete previous Trips ////
-        // Remove all the Trips
+
+        // REMOVE
         for (trip in tripList) {
 
-            for (locationPolylineObj in trip.locationPolyline) {
+            for (locationPolyline in trip.locationPolyline) {
 
-                //location.delete()
-
-                // Remove all Objects from the related Polyline's Location object
-                for (locationObj in locationPolylineObj.location) {
-
-                    val ok1 = locationPolylineObj.location.remove(locationObj)
-                    if (ok1) {
-                        Log.d("jakarta","locationObj deleted")
-                    }
-
-                }
-
-                val ok2 = trip.locationPolyline.remove(locationPolylineObj)
-                if (ok2) {
-                    Log.d("jakarta","locationPolylineObj deleted")
-                }
+                val locationDeleteQuery = daoSession.queryBuilder(Location::class.java)
+                        .where(LocationDao.Properties.LocationPolylineId.eq(locationPolyline.timestamp))
+                        .buildDelete()
+                locationDeleteQuery.executeDeleteWithoutDetachingEntities()
 
             }
 
-            daoSession.delete(trip)
+            val locationPolylineDeleteQuery = daoSession.queryBuilder(LocationPolyline::class.java)
+                    .where(LocationPolylineDao.Properties.TripId.eq(trip.tripId))
+                    .buildDelete()
+            locationPolylineDeleteQuery.executeDeleteWithoutDetachingEntities()
 
         }
 
-        //// Store new Trips ////
-        daoSession.insert(tripList)
+        val tripDeleteQuery = daoSession.queryBuilder(Trip::class.java)
+                .where(TripDao.Properties.Vin.eq(carVin))
+                .buildDelete()
+        tripDeleteQuery.executeDeleteWithoutDetachingEntities()
+
+        daoSession.clear()
+
+        // All Car's trips deleted
+
+        // STORE
+        for (trip in tripList) {
+
+            for (locationPolyline in trip.locationPolyline) {
+
+                locationPolyline.tripId = trip.tripId
+
+                for (location in locationPolyline.location) {
+
+                    location.locationPolylineId = locationPolyline.timestamp
+
+                    daoSession.insertOrReplace(location)
+
+                }
+
+                daoSession.insertOrReplace(locationPolyline)
+
+            }
+
+            daoSession.insertOrReplace(trip)
+
+        }
 
     }
-
-//    fun getTripByTripId(tripId: Int): Observable<RepositoryResponse<Trip>> {
-//
-//        Log.d(tag, "getTripByTripId() userId: $tripId")
-//
-//        val localResponse = Observable.just(RepositoryResponse(daoSession.tripDao.queryBuilder().where(TripDao.Properties.Id.eq(tripId)).unique(), true))
-//        val remoteResponse = tripApi.getTrip(tripId)
-//
-//        remoteResponse.map { tripListResponse -> RepositoryResponse(tripListResponse, false) }
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-//                .doOnNext({ next ->
-//                    if (next.data == null) return@doOnNext
-//                }).onErrorReturn { error ->
-//                    Log.d(tag, "getTripByTripId() remote error: $error")
-//                    RepositoryResponse(null, false)
-//                }
-//                .subscribe()
-//
-//        val returnRemote = remoteResponse.cache().map { pitstopResponse ->
-//            val tripList = pitstopResponse
-//            RepositoryResponse(tripList, false)
-//        }
-//
-//        return Observable.concat(localResponse, localResponse) // TODO: change the 2nd concat param
-//
-//    }
-//
-//    fun getTripPolyline(tripId: Int): Observable<RepositoryResponse<List<Location2>>> {
-//
-//        var daoSession = GlobalApplication().daoSession
-//
-//        Log.d(tag,"getTripsByCarId() userId: $tripId")
-//
-//        val desiredTrip = daoSession.tripDao.queryBuilder().where(TripDao.Properties.Id.eq(tripId))
-//
-//        val localResponse = Observable.just(RepositoryResponse(daoSession.locationDao.queryBuilder().where(LocationDao.Properties.Trip.eq(desiredTrip)).list(), true)).map { next ->
-//
-//            Log.d(tag,"remote.replay() next: $next")
-//            next//.data
-//            //.orEmpty()
-//
-//        }
-//
-//        val remoteResponse: Observable<RepositoryResponse<List<Location2>>> = tripApi.getTripPolyline(tripId).map { locationListResponse ->
-//            return@map RepositoryResponse(locationListResponse, false)
-//        }
-//
-//        remoteResponse.subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-//                .doOnNext({ next ->
-//                    if (next == null) return@doOnNext
-//                }).onErrorReturn { error ->
-//                    Log.d(tag, "getTripByTripId() remote error: $error caused by: ${error.cause}")
-//                    RepositoryResponse(null, false)
-//                }
-//                .subscribe()
-//
-//        return Observable.concat(localResponse, remoteResponse.cache())
-//
-//    }
 
 }

@@ -49,12 +49,12 @@ class GetTripsUseCaseImpl(private val tripRepository: TripRepository,
     override fun run() {
         Log.d(tag, "run()")
 
-        tripRepository.getTripsByCarVin("WVWXK73C37E116278")
+        tripRepository.getTripsByCarVin("WVWXK73C37E116278") //TODO: replace with the current Car's VIN
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                 .subscribe({ next ->
                     Log.d(tag, "tripRepository.onNext() data: " + next)
-                    this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty()) //TODO: check this retrieve value
+                    this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty())
                 }, { error ->
                     Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
                     this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
