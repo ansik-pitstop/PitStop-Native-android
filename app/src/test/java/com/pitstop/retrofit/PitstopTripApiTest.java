@@ -1,14 +1,16 @@
 package com.pitstop.retrofit;
 
+import com.google.gson.Gson;
 import com.pitstop.models.trip.DataPoint;
-import com.pitstop.models.trip.LocationDataPoint;
 
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+
+import retrofit2.Response;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -22,32 +24,75 @@ public class PitstopTripApiTest {
     public void storeTripTest(){
         System.out.println("running storeTripTest");
 
-        //Input
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        Gson gson = new Gson();
 
-        String VIN = "";
+        String VIN = "1GB0CVCL7BF147611";
 
-        LocationDataPoint locationDataPoint = new LocationDataPoint()
+        List<List<DataPoint>> data = new ArrayList<>();
+        data.add(getRandomLocationDataPoint(VIN,false));
+        data.add(getEndTripDataPoint(VIN));
 
-
+        System.out.println("body: "+gson.toJsonTree(data));
         try{
-            assertTrue(future.get(10000, java.util.concurrent.TimeUnit.MILLISECONDS));
-        }catch(InterruptedException | ExecutionException | TimeoutException e){
+            Response response = RetrofitTestUtil.Companion.getTripApi().store(gson.toJsonTree(data)).execute();
+            System.out.println("storeTripTest: isSuccessful? "+response.isSuccessful());
+            assertTrue(response.isSuccessful());
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
 
-    private LocationDataPoint getRandomLocationDataPoint(String vehVin){
+    private List<DataPoint> getRandomLocationDataPoint(String vehVin, boolean isTripIndicator){
         Random r = new Random();
         DataPoint latitiude = new DataPoint(DataPoint.ID_LATITUDE,String.valueOf(r.nextDouble()*100));
-        DataPoint longitude = new DataPoint(DataPoint.ID_LATITUDE,String.valueOf(r.nextDouble()*100));
-        DataPoint deviceTimestamp = new DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, String.valueOf(r.nextInt()*100000));
-        DataPoint tripId = new DataPoint(DataPoint.ID_TRIP_ID, String.valueOf(r.nextInt()*100000));
+        DataPoint longitude = new DataPoint(DataPoint.ID_LONGITUDE,String.valueOf(r.nextDouble()*100));
+        DataPoint deviceTimestamp = new DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, String.valueOf(Math.abs(r.nextInt()*100000)));
+        DataPoint tripId = new DataPoint(DataPoint.ID_TRIP_ID, String.valueOf(Math.abs(r.nextInt()*100000)));
         DataPoint vin = new DataPoint(DataPoint.ID_VIN, vehVin);
-        DataPoint tripIndicator = new DataPoint(DataPoint.ID_TRIP_INDICATOR, "false");
-        return new LocationDataPoint(longitude,latitiude,tripIndicator,deviceTimestamp,tripId,vin
-                ,null,null,null,null
-                ,null,null,null,null,null
-                ,null,null,null,null);
+        DataPoint tripIndicator = new DataPoint(DataPoint.ID_TRIP_INDICATOR, isTripIndicator? "true":"false");
+
+        List<DataPoint> locationPoint = new ArrayList<>();
+        locationPoint.add(latitiude);
+        locationPoint.add(longitude);
+        locationPoint.add(deviceTimestamp);
+        locationPoint.add(tripId);
+        locationPoint.add(vin);
+        locationPoint.add(tripIndicator);
+
+        return locationPoint;
+    }
+
+    private List<DataPoint> getEndTripDataPoint(String vehVin){
+        DataPoint startLocation = new DataPoint(DataPoint.ID_START_LOCATION, "Start location");
+        DataPoint endLocation = new DataPoint(DataPoint.ID_END_LOCATION, "End location");
+        DataPoint startStreetLocation = new DataPoint(DataPoint.ID_START_STREET_LOCATION, "Start street location");
+        DataPoint endStreetLocation = new DataPoint(DataPoint.ID_END_STREET_LOCATION, "End street location");
+        DataPoint startCityLocation = new DataPoint(DataPoint.ID_START_CITY_LOCATION, "Start city location");
+        DataPoint endCityLocation = new DataPoint(DataPoint.ID_END_CITY_LOCATION, "End city location");
+        DataPoint startLatitude = new DataPoint(DataPoint.ID_START_LATITUDE, "12.9");
+        DataPoint endLatitude = new DataPoint(DataPoint.ID_END_LATITUDE, "13.1");
+        DataPoint startLongtitude = new DataPoint(DataPoint.ID_START_LONGTITUDE, "11.2");
+        DataPoint endLongitude = new DataPoint(DataPoint.ID_END_LONGITUDE, "11.1");
+        DataPoint mileageTrip = new DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2");
+        DataPoint startTimestamp = new DataPoint(DataPoint.ID_START_TIMESTAMP, "10");
+        DataPoint endTimestamp = new DataPoint(DataPoint.ID_END_TIMESTAMP, "111");
+
+        List<DataPoint> tripEnd = getRandomLocationDataPoint(vehVin,true);
+
+        tripEnd.add(startLocation);
+        tripEnd.add(endLocation);
+        tripEnd.add(startStreetLocation);
+        tripEnd.add(endStreetLocation);
+        tripEnd.add(startCityLocation);
+        tripEnd.add(endCityLocation);
+        tripEnd.add(startLatitude);
+        tripEnd.add(endLatitude);
+        tripEnd.add(startLongtitude);
+        tripEnd.add(endLongitude);
+        tripEnd.add(mileageTrip);
+        tripEnd.add(startTimestamp);
+        tripEnd.add(endTimestamp);
+
+        return tripEnd;
     }
 }

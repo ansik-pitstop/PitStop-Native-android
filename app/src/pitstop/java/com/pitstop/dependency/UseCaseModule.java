@@ -747,9 +747,11 @@ public class UseCaseModule {
 
     @Provides
     AddTripUseCase addTripUseCase(Geocoder geocoder, LocalTripStorage localTripStorage
-            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+            , UserRepository userRepository,CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
 
-        return new AddTripUseCaseImpl(geocoder, localTripStorage,useCaseHandler,mainHandler);
+        return new AddTripUseCaseImpl(geocoder, localTripStorage, userRepository, carRepository
+                , useCaseHandler,mainHandler);
     }
 }
 

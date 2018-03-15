@@ -3,17 +3,27 @@ package com.pitstop.interactors.add
 import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
+import android.util.Log
 import com.pitstop.database.LocalTripStorage
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.Settings
+import com.pitstop.models.trip.DataPoint
 import com.pitstop.network.RequestError
+import com.pitstop.repositories.CarRepository
+import com.pitstop.repositories.Repository
+import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.io.IOException
 
 /**
  * Created by Karol Zdebel on 3/6/2018.
  */
 class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripStorage: LocalTripStorage
-                         , private val useCaseHandler: Handler, private val mainHandler: Handler): AddTripUseCase {
+                         ,private val userRepository: UserRepository , private val carRepository: CarRepository
+                         , private val useCaseHandler: Handler
+                         , private val mainHandler: Handler): AddTripUseCase {
 
     private val TAG = javaClass.simpleName
     private lateinit var trip: List<Location>
@@ -33,6 +43,85 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
             val endAddress = geocoder
                     .getFromLocation(trip.last().latitude,trip.last().longitude,1).first()
 
+            val tripDataPoints: MutableList<List<DataPoint>> = arrayListOf()
+
+            userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+                override fun onSuccess(data: Settings?) {
+                    carRepository.get(data!!.carId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                            .subscribe({ car ->
+
+                                //Add everything but indicator, body of trip
+                                trip.forEach({
+                                    val tripDataPoint: MutableList<DataPoint> = arrayListOf()
+                                    val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
+                                    val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
+                                    val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
+                                    val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
+                                    val vin = DataPoint(DataPoint.ID_VIN, car.data!!.vin)
+                                    val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
+                                    tripDataPoint.add(latitude)
+                                    tripDataPoint.add(longitude)
+                                    tripDataPoint.add(deviceTimestamp)
+                                    tripDataPoint.add(tripId)
+                                    tripDataPoint.add(vin)
+                                    tripDataPoint.add(indicator)
+
+                                    tripDataPoints.add(tripDataPoint)
+                                })
+
+                                //Add indicator
+                                val indicatorDataPoint: MutableList<DataPoint> = arrayListOf()
+                                val startLocation = DataPoint(DataPoint.ID_START_LOCATION, startAddress.getAddressLine(0))
+                                val endLocation = DataPoint(DataPoint.ID_END_LOCATION, endAddress.getAddressLine(0))
+                                val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION, startAddress.getAddressLine(0))
+                                val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION, endAddress.getAddressLine(0))
+                                val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION, startAddress.locality)
+                                val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION, endAddress.locality)
+                                val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE, startAddress.latitude.toString())
+                                val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE, endAddress.latitude.toString())
+                                val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress.longitude.toString())
+                                val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress.longitude.toString())
+                                val mileageTrip = DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2") //Todo("Add mileage trip logic")
+                                val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, trip.first().time.toString())
+                                val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, trip.last().time.toString())
+                                val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
+                                indicatorDataPoint.add(startLocation)
+                                indicatorDataPoint.add(endLocation)
+                                indicatorDataPoint.add(startStreetLocation)
+                                indicatorDataPoint.add(endStreetLocation)
+                                indicatorDataPoint.add(startCityLocation)
+                                indicatorDataPoint.add(endCityLocation)
+                                indicatorDataPoint.add(startLatitude)
+                                indicatorDataPoint.add(endLatitude)
+                                indicatorDataPoint.add(startLongitude)
+                                indicatorDataPoint.add(endLongitude)
+                                indicatorDataPoint.add(mileageTrip)
+                                indicatorDataPoint.add(startTimestamp)
+                                indicatorDataPoint.add(endTimestamp)
+                                indicatorDataPoint.add(indicator)
+                                tripDataPoints.add(indicatorDataPoint)
+
+
+                            }, { err ->
+                                Log.d(TAG, "Error: " + err)
+                                onError(RequestError(err))
+                            })
+                }
+                override fun onError(error: RequestError?) {
+                    onError(error)
+                }
+
+            })
+
+
+//            val (id, data) = DataPoint(DataPoint.ID_LATITUDE, (r.nextDouble() * 100).toString())
+//            val longitude = DataPoint(DataPoint.ID_LONGITUDE, (r.nextDouble() * 100).toString())
+//            val (id1, data1) = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, Math.abs(r.nextInt() * 100000).toString())
+//            val (id2, data2) = DataPoint(DataPoint.ID_TRIP_ID, Math.abs(r.nextInt() * 100000).toString())
+//            val (id3, data3) = DataPoint(DataPoint.ID_VIN, vehVin)
+//            val (id4, data4) = DataPoint(DataPoint.ID_TRIP_INDICATOR, if (isTripIndicator) "true" else "false")
 
             if (localTripStorage.store(trip) > 0){
                 AddTripUseCaseImpl@this.onAddedTrip()

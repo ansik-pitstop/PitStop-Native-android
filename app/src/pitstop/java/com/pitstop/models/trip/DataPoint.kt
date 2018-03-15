@@ -20,5 +20,9 @@ data class DataPoint(val id: String, val data: String){
         const val ID_MILEAGE_TRIP = "mileage_trip"
         const val ID_START_TIMESTAMP = "start_timestamp"
         const val ID_END_TIMESTAMP = "end_timestamp"
+        const val ID_START_LATITUDE = "start_latitude"
+        const val ID_END_LATITUDE = "end_latitude"
+        const val ID_START_LONGTITUDE = "start_longitude"
+        const val ID_END_LONGITUDE = "end_longitude"
     }
 }
