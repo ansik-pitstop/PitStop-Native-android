@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip;
+package com.pitstop.ui.trip.list;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,9 +17,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip.LocationPolyline;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.ui.MapView;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.List;
@@ -28,18 +26,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by David C. on 10/3/18.
+ * Created by David C. on 14/3/18.
  */
 
 public class TripListFragment extends Fragment implements TripListView {
 
     private final String TAG = getClass().getSimpleName();
-
-    @BindView(R.id.relative_main_container)
-    protected View mainLayout;
-
-    @BindView(R.id.mapview_trips)
-    protected MapView mapView;
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
@@ -81,24 +73,12 @@ public class TripListFragment extends Fragment implements TripListView {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    @Override
-    public void showLoading() {
+    public void onRefresh() {
 
-    }
+        Log.d(TAG,"onRefresh()");
+        if (presenter != null)
+            presenter.onRefresh();
 
-    @Override
-    public void hideLoading() {
-
-    }
-
-    @Override
-    public void hideRefreshing() {
-
-    }
-
-    @Override
-    public boolean isRefreshing() {
-        return false;
     }
 
     @Override
@@ -141,44 +121,34 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
-    public void onTripClicked(Trip trip) {
-        Log.d(TAG, "onTripClicked() title: " + trip.getTripId());
-        presenter.onTripClicked(trip);
-    }
+    public void onTripRowClicked(Trip trip) {
 
-    @Override
-    public void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline) {
-
-        // TODO: displayTripPolylineOnMap
-        mapView.addPolyline(locationPolyline);
+        this.onTripRowClicked(trip);
 
     }
 
     @Override
-    public void openTripDetailsView(Trip trip) {
-
-        // TODO: openTripDetailsView
+    public void onTripInfoClicked(Trip trip) {
 
     }
 
     @Override
-    public void removeTrip() {
-
-        // TODO: removeTrip
+    public void showLoading() {
 
     }
 
     @Override
-    public void updateTripList(List<Trip> listTrip) {
-
-        // TODO: updateTripList
+    public void hideLoading() {
 
     }
 
     @Override
-    public void displayErrorMessage(String errorMessage) {
+    public void hideRefreshing() {
 
-        // TODO: displayErrorMessage
+    }
 
+    @Override
+    public boolean isRefreshing() {
+        return false;
     }
 }

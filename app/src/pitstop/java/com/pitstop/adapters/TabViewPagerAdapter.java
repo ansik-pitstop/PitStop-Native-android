@@ -9,7 +9,7 @@ import com.pitstop.R;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
-import com.pitstop.ui.trip.TripListFragment;
+import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
@@ -26,18 +26,18 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
     private NotificationFragment notificationFragment;
-    private TripListFragment tripListFragment;
+    private TripsFragment tripsFragment;
     private Context context;
 
     public TabViewPagerAdapter(FragmentManager fm, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, TripListFragment tripListFragment, Context context) {
+            , NotificationFragment notificationFragment, TripsFragment tripsFragment, Context context) {
         super(fm);
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
         this.notificationFragment = notificationFragment;
-        this.tripListFragment = tripListFragment;
+        this.tripsFragment = tripsFragment;
         this.context = context;
     }
 
@@ -58,7 +58,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return notificationFragment;
 
             case TabFragmentManager.TAB_TRIPS_LIST:
-                return tripListFragment;
+                return tripsFragment;
         }
         return null;
     }
