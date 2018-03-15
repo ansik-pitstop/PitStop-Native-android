@@ -4,13 +4,13 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
 import android.util.Log
-import com.pitstop.database.LocalTripStorage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
+import com.pitstop.repositories.TripRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,7 +20,7 @@ import java.io.IOException
 /**
  * Created by Karol Zdebel on 3/6/2018.
  */
-class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripStorage: LocalTripStorage
+class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripRepository: TripRepository
                          ,private val userRepository: UserRepository , private val carRepository: CarRepository
                          , private val useCaseHandler: Handler
                          , private val mainHandler: Handler): AddTripUseCase {
@@ -47,11 +47,12 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
 
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
+                    Log.d(TAG,"got settings with carId: ${data!!.carId}")
                     carRepository.get(data!!.carId)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                             .subscribe({ car ->
-
+                                Log.d(TAG,"got car vin: ${car.data!!.vin}")
                                 //Add everything but indicator, body of trip
                                 trip.forEach({
                                     val tripDataPoint: MutableList<DataPoint> = arrayListOf()
@@ -59,7 +60,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
                                     val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
                                     val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
                                     val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
-                                    val vin = DataPoint(DataPoint.ID_VIN, car.data!!.vin)
+                                    val vin = DataPoint(DataPoint.ID_VIN, car.data.vin)
                                     val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
                                     tripDataPoint.add(latitude)
                                     tripDataPoint.add(longitude)
@@ -67,7 +68,6 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
                                     tripDataPoint.add(tripId)
                                     tripDataPoint.add(vin)
                                     tripDataPoint.add(indicator)
-
                                     tripDataPoints.add(tripDataPoint)
                                 })
 
@@ -103,6 +103,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
                                 indicatorDataPoint.add(indicator)
                                 tripDataPoints.add(indicatorDataPoint)
 
+                                tripRepository.storeTripData(tripDataPoints)
 
                             }, { err ->
                                 Log.d(TAG, "Error: " + err)
@@ -112,18 +113,10 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val localTripSt
                 override fun onError(error: RequestError?) {
                     onError(error)
                 }
-
             })
 
-
-//            val (id, data) = DataPoint(DataPoint.ID_LATITUDE, (r.nextDouble() * 100).toString())
-//            val longitude = DataPoint(DataPoint.ID_LONGITUDE, (r.nextDouble() * 100).toString())
-//            val (id1, data1) = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, Math.abs(r.nextInt() * 100000).toString())
-//            val (id2, data2) = DataPoint(DataPoint.ID_TRIP_ID, Math.abs(r.nextInt() * 100000).toString())
-//            val (id3, data3) = DataPoint(DataPoint.ID_VIN, vehVin)
-//            val (id4, data4) = DataPoint(DataPoint.ID_TRIP_INDICATOR, if (isTripIndicator) "true" else "false")
-
-            if (localTripStorage.store(trip) > 0){
+            if (tripRepository.localTripStorage.store(trip) > 0){
+                Log.d(TAG,"local trips stored")
                 AddTripUseCaseImpl@this.onAddedTrip()
             }else{
                 AddTripUseCaseImpl@this.onError(RequestError.getUnknownError())
