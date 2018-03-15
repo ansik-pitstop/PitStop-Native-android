@@ -13,10 +13,4 @@ interface PitstopTripApi {
     @GET("/v1/trip")
     fun getTripListFromCarVin(@Query("vin") vin: String): Observable<PitstopResponse<List<Trip>>>
 
-//    @GET("/v1/trip/{tripId}")
-//    fun getTrip(@Path("tripId") id: Int): Observable<Response<Trip>>
-//
-//    @GET("/v1/trip/{tripId}/polyline")
-//    fun getTripPolyline(@Path("tripId") id: Int): Observable<List<Location2>>
-
 }

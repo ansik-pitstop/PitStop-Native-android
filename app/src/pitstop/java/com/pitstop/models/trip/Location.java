@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
 
 /**
@@ -13,22 +15,33 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity
 public class Location {
 
+    @Id(autoincrement = true)
+    private Long objId;
     @SerializedName("id")
     @Expose
     private String id;
     @SerializedName("data")
     @Expose
     private String data;
-    private long locationId; // referencedJoinProperty from LOCATIONPOLYLINE object
+    @NotNull
+    private String locationPolylineId;
 
-    @Generated(hash = 1845230654)
-    public Location(String id, String data, long locationId) {
+    @Generated(hash = 1005771765)
+    public Location(Long objId, String id, String data,
+            @NotNull String locationPolylineId) {
+        this.objId = objId;
         this.id = id;
         this.data = data;
-        this.locationId = locationId;
+        this.locationPolylineId = locationPolylineId;
     }
     @Generated(hash = 375979639)
     public Location() {
+    }
+    public Long getObjId() {
+        return this.objId;
+    }
+    public void setObjId(Long objId) {
+        this.objId = objId;
     }
     public String getId() {
         return this.id;
@@ -42,11 +55,11 @@ public class Location {
     public void setData(String data) {
         this.data = data;
     }
-    public long getLocationId() {
-        return this.locationId;
+    public String getLocationPolylineId() {
+        return this.locationPolylineId;
     }
-    public void setLocationId(long locationId) {
-        this.locationId = locationId;
+    public void setLocationPolylineId(String locationPolylineId) {
+        this.locationPolylineId = locationPolylineId;
     }
 
 }

@@ -7,6 +7,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.JoinProperty;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 
@@ -19,10 +20,10 @@ import java.util.List;
 @Entity
 public class Trip {
 
-    @Id(autoincrement = true)
+    @Id
     @SerializedName("_id")
     @Expose
-    private long id;
+    private Long id;
     @SerializedName("tripId")
     @Expose
     private String tripId;
@@ -55,9 +56,11 @@ public class Trip {
     @SerializedName("vin")
     @Expose
     private String vin;
-    @ToMany(referencedJoinProperty = "locationPolylineId")
     @SerializedName("location_polyline")
     @Expose
+    @ToMany(joinProperties = {
+            @JoinProperty(name = "tripId", referencedName = "tripId")
+    })
     private List<LocationPolyline> locationPolyline = null;
 
     /** Used to resolve relations */
@@ -66,8 +69,8 @@ public class Trip {
     /** Used for active entity operations. */
     @Generated(hash = 1659297594)
     private transient TripDao myDao;
-    @Generated(hash = 1485524751)
-    public Trip(long id, String tripId, double mileageStart, double mileageAccum,
+    @Generated(hash = 1568624946)
+    public Trip(Long id, String tripId, double mileageStart, double mileageAccum,
             double fuelConsumptionAccum, double fuelConsumptionStart,
             String timeStart, String timeEnd, String vin) {
         this.id = id;
@@ -83,10 +86,10 @@ public class Trip {
     @Generated(hash = 1047475835)
     public Trip() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getTripId() {
@@ -197,7 +200,7 @@ public class Trip {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1204571604)
+    @Generated(hash = 222647382)
     public List<LocationPolyline> getLocationPolyline() {
         if (locationPolyline == null) {
             final DaoSession daoSession = this.daoSession;
@@ -206,7 +209,7 @@ public class Trip {
             }
             LocationPolylineDao targetDao = daoSession.getLocationPolylineDao();
             List<LocationPolyline> locationPolylineNew = targetDao
-                    ._queryTrip_LocationPolyline(id);
+                    ._queryTrip_LocationPolyline(tripId);
             synchronized (this) {
                 if (locationPolyline == null) {
                     locationPolyline = locationPolylineNew;

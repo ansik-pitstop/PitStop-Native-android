@@ -25,9 +25,9 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Timestamp = new Property(1, String.class, "timestamp", false, "TIMESTAMP");
-        public final static Property LocationPolylineId = new Property(2, long.class, "locationPolylineId", false, "LOCATION_POLYLINE_ID");
+        public final static Property TripId = new Property(2, String.class, "tripId", false, "TRIP_ID");
     }
 
     private DaoSession daoSession;
@@ -47,9 +47,9 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"LOCATION_POLYLINE\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"TIMESTAMP\" TEXT," + // 1: timestamp
-                "\"LOCATION_POLYLINE_ID\" INTEGER NOT NULL );"); // 2: locationPolylineId
+                "\"TRIP_ID\" TEXT);"); // 2: tripId
     }
 
     /** Drops the underlying database table. */
@@ -61,25 +61,41 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, LocationPolyline entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String timestamp = entity.getTimestamp();
         if (timestamp != null) {
             stmt.bindString(2, timestamp);
         }
-        stmt.bindLong(3, entity.getLocationPolylineId());
+ 
+        String tripId = entity.getTripId();
+        if (tripId != null) {
+            stmt.bindString(3, tripId);
+        }
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, LocationPolyline entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String timestamp = entity.getTimestamp();
         if (timestamp != null) {
             stmt.bindString(2, timestamp);
         }
-        stmt.bindLong(3, entity.getLocationPolylineId());
+ 
+        String tripId = entity.getTripId();
+        if (tripId != null) {
+            stmt.bindString(3, tripId);
+        }
     }
 
     @Override
@@ -90,24 +106,24 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public LocationPolyline readEntity(Cursor cursor, int offset) {
         LocationPolyline entity = new LocationPolyline( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // timestamp
-            cursor.getLong(offset + 2) // locationPolylineId
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2) // tripId
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, LocationPolyline entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setTimestamp(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setLocationPolylineId(cursor.getLong(offset + 2));
+        entity.setTripId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
      }
     
     @Override
@@ -127,7 +143,7 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
 
     @Override
     public boolean hasKey(LocationPolyline entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override
@@ -136,16 +152,16 @@ public class LocationPolylineDao extends AbstractDao<LocationPolyline, Long> {
     }
     
     /** Internal query to resolve the "locationPolyline" to-many relationship of Trip. */
-    public List<LocationPolyline> _queryTrip_LocationPolyline(long locationPolylineId) {
+    public List<LocationPolyline> _queryTrip_LocationPolyline(String tripId) {
         synchronized (this) {
             if (trip_LocationPolylineQuery == null) {
                 QueryBuilder<LocationPolyline> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.LocationPolylineId.eq(null));
+                queryBuilder.where(Properties.TripId.eq(null));
                 trip_LocationPolylineQuery = queryBuilder.build();
             }
         }
         Query<LocationPolyline> query = trip_LocationPolylineQuery.forCurrentThread();
-        query.setParameter(0, locationPolylineId);
+        query.setParameter(0, tripId);
         return query.list();
     }
 
