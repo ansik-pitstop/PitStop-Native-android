@@ -86,7 +86,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun onBind(p0: Intent?): IBinder = binder
 
     override fun onCreate() {
-        Log.d(tag,"onCreate()")
+        Logger.getInstance()!!.logI(tag, "Trips service created", DebugMessage.TYPE_TRIP)
+
         super.onCreate()
 
         sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
@@ -139,7 +140,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(tag,"onDestroy()")
+        Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
@@ -322,6 +323,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 Log.d(tag,"trip trigger received, confidence: "+activity.confidence)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
+                    stillTimeoutTimer.cancel()
                 }else if (tripInProgress && activity.confidence > stillEndConfidence){
                     Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
                     stillTimeoutTimer.cancel()
@@ -333,12 +335,14 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     && activity.type != DetectedActivity.UNKNOWN){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    stillTimeoutTimer.cancel()
                 }
             //End trip if type of trigger IS ON_FOOT
             }else if (tripTrigger == DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    stillTimeoutTimer.cancel()
                 }
             }
             Logger.getInstance()!!.logI(tag, "Activity detected activity" +
