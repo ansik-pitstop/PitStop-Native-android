@@ -384,7 +384,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun onConnectionFailed(p0: ConnectionResult) {
         Log.d(tag,"onConnectionFailed() google api")
         Logger.getInstance()!!.logI(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
-
     }
 
 }
