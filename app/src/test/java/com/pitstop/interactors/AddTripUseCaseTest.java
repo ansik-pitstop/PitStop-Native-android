@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -53,8 +53,7 @@ public class AddTripUseCaseTest {
             return null;
         }).when(userRepository).getCurrentUserSettings(any(Repository.Callback.class));
         CarRepository carRepository = Mockito.mock(CarRepository.class);
-        Mockito.doReturn(Observable.just(new RepositoryResponse<>(dummyCar,false)))
-                .when(carRepository.get(1559));
+        Mockito.when(carRepository.get(1559)).thenReturn(Observable.just(new RepositoryResponse<>(dummyCar,false)));
         TripRepository tripRepository = Mockito.mock(TripRepository.class);
 
         //Mock location objects
