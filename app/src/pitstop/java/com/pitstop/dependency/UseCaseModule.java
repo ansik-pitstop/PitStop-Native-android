@@ -703,11 +703,12 @@ public class UseCaseModule {
 
     @Provides
     GetTripsUseCase getTripsUseCase(UserRepository userRepository,
+                                    CarRepository carRepository,
                                     TripRepository tripRepository,
                                     @Named("useCaseHandler") Handler useCaseHandler,
                                     @Named("mainHandler") Handler mainHandler) {
 
-        return new GetTripsUseCaseImpl(tripRepository, useCaseHandler, mainHandler);
+        return new GetTripsUseCaseImpl(userRepository, carRepository, tripRepository, useCaseHandler, mainHandler);
 
     }
 
