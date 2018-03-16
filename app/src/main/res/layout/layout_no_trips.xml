@@ -13,4 +13,20 @@
         android:text="@string/no_trips"
         android:textColor="@color/black50" />
 
+    <Button
+        android:id="@+id/try_again_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/offline_text"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="9dp"
+        android:backgroundTint="@color/primary"
+        android:minWidth="250dp"
+        android:padding="16dp"
+        android:text="Try Again"
+        android:textAllCaps="false"
+        android:textColor="#efefef"
+        android:textSize="18sp" />
+
 </RelativeLayout>

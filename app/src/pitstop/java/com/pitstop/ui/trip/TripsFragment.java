@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by David C. on 10/3/18.
@@ -102,20 +104,33 @@ public class TripsFragment extends Fragment implements TripsView {
     @Override
     public void showLoading() {
 
+        Log.d(TAG,"showLoading()");
+//        if (!swipeRefreshLayout.isRefreshing()){
+        loadingSpinner.setVisibility(View.VISIBLE);
+//        }
+
     }
 
     @Override
     public void hideLoading() {
 
+        Log.d(TAG,"hideLoading()");
+//        if (swipeRefreshLayout.isRefreshing()){
+//            swipeRefreshLayout.setRefreshing(false);
+//        }else{
+        loadingSpinner.setVisibility(View.GONE);
+//            swipeRefreshLayout.setEnabled(true);
+//        }
+
     }
 
     @Override
-    public void hideRefreshing() {
+    public void hideRefreshing() { // TODO: implement
 
     }
 
     @Override
-    public boolean isRefreshing() {
+    public boolean isRefreshing() { // TODO: implement
         return false;
     }
 
@@ -151,9 +166,22 @@ public class TripsFragment extends Fragment implements TripsView {
         mainLayout.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
+        //offlineView.setVisibility(View.GONE);
         noTripView.setVisibility(View.VISIBLE);
         loadingSpinner.bringToFront();
         //swipeRefreshLayout.setEnabled(true); // TODO: Implement
+
+    }
+
+    @Override
+    public void thereAreTrips() {
+
+        if (noTripView.getVisibility() == View.VISIBLE) {
+
+            mainLayout.setVisibility(View.VISIBLE);
+            noTripView.setVisibility(View.GONE);
+
+        }
 
     }
 
@@ -182,6 +210,21 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
+    public void requestForDataUpdate() {
+
+        Log.d(TAG, "requestForDataUpdate()");
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        TripListFragment childListFragment = (TripListFragment) fragmentManager.findFragmentById(R.id.fragment_container);
+
+        if (childListFragment != null) {
+            Log.d(TAG, "Child found");
+            childListFragment.requestForDataUpdate();
+        }
+
+    }
+
+    @Override
     public void removeTrip() {
 
         // TODO: removeTrip
@@ -197,5 +240,11 @@ public class TripsFragment extends Fragment implements TripsView {
 
     public TripsPresenter getPresenter() {
         return presenter;
+    }
+
+    @OnClick(R.id.try_again_btn)
+    public void onTryAgainClicked() {
+        Log.d(TAG, "onTryAgainClicked()");
+        presenter.onRefresh();
     }
 }
