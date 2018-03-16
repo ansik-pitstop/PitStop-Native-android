@@ -3,9 +3,13 @@ package com.pitstop.interactors.get
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.Settings
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
+import com.pitstop.repositories.CarRepository
+import com.pitstop.repositories.Repository
 import com.pitstop.repositories.TripRepository
+import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -13,7 +17,9 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by David C. on 12/3/18.
  */
-class GetTripsUseCaseImpl(private val tripRepository: TripRepository,
+class GetTripsUseCaseImpl(private val userRepository: UserRepository,
+                          private val carRepository: CarRepository,
+                          private val tripRepository: TripRepository,
                           private val useCaseHandler: Handler,
                           private val mainHandler: Handler) : GetTripsUseCase {
 
@@ -49,16 +55,38 @@ class GetTripsUseCaseImpl(private val tripRepository: TripRepository,
     override fun run() {
         Log.d(tag, "run()")
 
-        tripRepository.getTripsByCarVin("WVWXK73C37E116278") //TODO: replace with the current Car's VIN
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
-                .subscribe({ next ->
-                    Log.d(tag, "tripRepository.onNext() data: " + next)
-                    this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty())
-                }, { error ->
-                    Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
-                    this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
-                })
+        //val currentVin = GlobalApplication().currentCar.vin // TODO: Check!
+        //val currentVin = "WVWXK73C37E116278" //TODO: replace with the current Car's VIN
+
+        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+            override fun onSuccess(data: Settings?) {
+                Log.d(tag,"got settings with carId: ${data!!.carId}")
+                carRepository.get(data!!.carId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                        .subscribe({ car ->
+                            Log.d(tag,"got car vin: ${car.data!!.vin}")
+
+                            tripRepository.getTripsByCarVin(car.data.vin)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                                    .subscribe({ next ->
+                                        Log.d(tag, "tripRepository.onNext() data: " + next)
+                                        this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty())
+                                    }, { error ->
+                                        Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
+                                        this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
+                                    })
+
+                        }, { err ->
+                            Log.d(tag, "Error: " + err)
+                            this@GetTripsUseCaseImpl.onError(RequestError(err))
+                        })
+            }
+            override fun onError(error: RequestError?) {
+                this@GetTripsUseCaseImpl.onError(error)
+            }
+        })
 
     }
 

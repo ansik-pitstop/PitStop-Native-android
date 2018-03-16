@@ -55,11 +55,11 @@ public class TripListPresenter extends TabPresenter<TripListView> {
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    public void loadView() {
+    public void loadView(String carVin) {
 
         Log.d(TAG, "loadView()");
 
-        useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
+        useCaseComponent.getTripsUseCase().execute(carVin, new GetTripsUseCase.Callback() {
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 

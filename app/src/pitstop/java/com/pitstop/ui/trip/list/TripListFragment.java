@@ -75,7 +75,7 @@ public class TripListFragment extends Fragment implements TripListView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
-        presenter.loadView();
+        presenter.loadView(((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin()); //TODO: replace with the current Car's VIN
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -123,6 +123,11 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @Override
     public void displayOnlineView() {
+
+    }
+
+    @Override
+    public void noTripList() {
 
     }
 

@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface TripListView extends ErrorHandlingView, LoadingTabView {
 
+    void noTripList();
     void displayTripList(List<Trip> listTrip);
     void onTripRowClicked(Trip trip);
     void onTripInfoClicked(Trip trip);
