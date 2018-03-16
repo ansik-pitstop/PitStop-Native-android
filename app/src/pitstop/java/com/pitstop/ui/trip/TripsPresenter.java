@@ -7,15 +7,10 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetUserNotificationUseCase;
-import com.pitstop.models.Notification;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.list.TripListPresenter;
 import com.pitstop.utils.MixpanelHelper;
-
-import java.util.List;
 
 /**
  * Created by David C. on 10/3/18.
@@ -56,7 +51,8 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     @Override
     public void onAppStateChanged() {
         Log.d(TAG, "onAppStateChanged()");
-        onUpdateNeeded();
+        getView().requestForDataUpdate();
+        //onUpdateNeeded();
 
     }
 
@@ -71,7 +67,8 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         if (updating && getView().isRefreshing() && getView() != null) {
             getView().hideRefreshing();
         } else {
-            onUpdateNeeded();
+            getView().requestForDataUpdate();
+            //onUpdateNeeded();
         }
 
     }
@@ -128,80 +125,23 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 //
 //    }
 
-    public void onUpdateNeeded() { // TODO
-        Log.d(TAG, "onUpdateNeeded");
-        if (getView() == null || updating) {
-            return;
-        }
-        updating = true;
-        getView().showLoading();
-        useCaseComponent.getUserNotificationUseCase().execute(new GetUserNotificationUseCase.Callback() {
-            @Override
-            public void onNotificationsRetrieved(List<Notification> list) {
-                Log.d(TAG, "onNotificationsRetrieved() notifs: " + list);
-                updating = false;
-                if (getView() == null) {
-                    Log.d("notifications", "return");
-                    return;
-                }
-/*
-                getView().hideLoading();
-                if (notifications == null) {
-                    getView().displayUnknownErrorView();
-                    getView().displayBadgeCount(0);
-                    return;
-                } else if (list.size() == 0) {
-                    getView().noNotifications();
-                    getView().displayBadgeCount(0);
-                    Log.d("notifications", "zerolist");
-                } else {
-                    Log.d("notifications", "display");
-                    notifications.clear();
-                    notifications.addAll(list);
-                    Collections.sort(notifications, (t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()));
-
-                    int badgeCount = 0;
-                    for (Notification n : notifications) {
-                        if (n.isRead() != null && !n.isRead())
-                            badgeCount++;
-                    }
-
-                    getView().displayBadgeCount(badgeCount);
-                    getView().displayNotifications(notifications);
-                }
-*/
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                updating = false;
-                if (getView() == null) return;
-/*
-                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                    if (getView().hasBeenPopulated()) {
-                        getView().displayOfflineErrorDialog();
-                    } else {
-                        getView().displayOfflineView();
-                    }
-                } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
-                    if (getView().hasBeenPopulated()) {
-                        getView().displayUnknownErrorDialog();
-                    } else {
-                        getView().displayUnknownErrorView();
-                    }
-                }
-*/
-                getView().hideLoading();
-            }
-        });
-    }
-
     @Override
     public void noTrips() {
 
         if (getView() != null) {
 
             getView().noTrips();
+
+        }
+
+    }
+
+    @Override
+    public void thereAreTrips() {
+
+        if (getView() != null) {
+
+            getView().thereAreTrips();
 
         }
 
@@ -225,6 +165,24 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         if (getView() == null) return;
 
         getView().displayTripDetailsView(trip);
+
+    }
+
+    @Override
+    public void onShowLoading() {
+
+        if (getView() != null) {
+            getView().showLoading();
+        }
+
+    }
+
+    @Override
+    public void onHideLoading() {
+
+        if (getView() != null) {
+            getView().hideLoading();
+        }
 
     }
 }

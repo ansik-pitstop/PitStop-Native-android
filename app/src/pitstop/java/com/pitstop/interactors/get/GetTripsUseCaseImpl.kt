@@ -67,7 +67,7 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                         .subscribe({ car ->
                             Log.d(tag,"got car vin: ${car.data!!.vin}")
 
-                            tripRepository.getTripsByCarVin(car.data.vin)
+                            tripRepository.getTripsByCarVin(car.data!!.vin)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                                     .subscribe({ next ->

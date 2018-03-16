@@ -40,15 +40,29 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     public TripViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false);
         TripViewHolder tripViewHolder = new TripViewHolder((view));
-//        int position = getItemViewType(viewType);
-//
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                tripListView.onTripClicked(tripList.get(position));
-//                selectedTripId = tripList.get(position).getId();
-//            }
-//        });
+        int position = getItemViewType(viewType);
+
+        tripViewHolder.itemView.setOnClickListener(v -> { // Row click
+
+            tripListView.onTripRowClicked(tripList.get(position));
+
+            // Reset last selected row aspect
+            invertColors(lastSelectedRow, false);
+
+            lastSelectedRow = tripViewHolder;
+
+            // Set the current selected row aspect
+            invertColors(lastSelectedRow, true);
+
+            selectedTripId = tripList.get(position).getId();
+
+        });
+
+        tripViewHolder.tripInfoButton.setOnClickListener(v -> { // Info Button click
+
+            tripListView.onTripInfoClicked(tripList.get(position));
+
+        });
 
         return tripViewHolder;
     }
@@ -57,26 +71,6 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     public void onBindViewHolder(TripViewHolder holder, int position) {
 
         holder.bind(tripList.get(position));
-
-        holder.itemView.setOnClickListener(v -> { // Row click
-
-            tripListView.onTripRowClicked(tripList.get(position));
-
-            invertColors(lastSelectedRow, false);
-
-            lastSelectedRow = holder;
-
-            invertColors(lastSelectedRow, true);
-
-            selectedTripId = tripList.get(position).getId();
-
-        });
-
-        holder.tripInfoButton.setOnClickListener(v -> { // Info Button click
-
-            tripListView.onTripInfoClicked(tripList.get(position));
-
-        });
 
     }
 
@@ -137,7 +131,6 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     }
 
     private void invertColors(TripViewHolder holder, boolean isNowSelected) {
-
 
         if (!isNowSelected) { // Set the last selected item to the original colors (only if there was a previous selected item)
 
