@@ -24,6 +24,8 @@ import java.util.List;
 public class TripListPresenter extends TabPresenter<TripListView> {
 
     public interface OnChildPresenterInteractorListener {
+        void noTrips();
+
         void showTripOnMap(Trip trip);
 
         void showTripDetail(Trip trip);
@@ -63,8 +65,14 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 
-                if (getView() != null) {
+                if (getView() == null) {
+                    return;
+                }
+
+                if (tripList != null && tripList.size() > 0) {
                     getView().displayTripList((List<Trip>) tripList);
+                } else {
+                    mParentListener.noTrips();
                 }
 
             }

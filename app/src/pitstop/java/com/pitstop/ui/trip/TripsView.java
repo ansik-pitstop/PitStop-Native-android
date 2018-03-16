@@ -15,6 +15,7 @@ public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
     //void displayTripList(List<Trip> listTrip);
     //void onTripClicked(Trip trip);
+    void noTrips();
     void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline);
     void displayTripDetailsView(Trip trip);
     void removeTrip();

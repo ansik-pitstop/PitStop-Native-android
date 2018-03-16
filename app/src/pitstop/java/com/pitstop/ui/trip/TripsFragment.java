@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.pitstop.R;
-import com.pitstop.adapters.TripListAdapter;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -35,13 +34,23 @@ public class TripsFragment extends Fragment implements TripsView {
 
     private final String TAG = getClass().getSimpleName();
 
+    @BindView(R.id.unknown_error_view)
+    protected View unknownErrorView;
+
+    @BindView(R.id.no_trip_view)
+    protected View noTripView;
+
+    @BindView(R.id.loading_spinner)
+    protected View loadingSpinner;
+
+    @BindView(R.id.linear_container)
+    protected View mainLayout;
+
     @BindView(R.id.mapview_trips)
     protected MapView mapView;
 
     private Context context;
     private TripsPresenter presenter;
-
-    private TripListAdapter tripListAdapter;
 
     private TripListFragment tripListFragment;
     private TripDetailFragment tripDetailFragment;
@@ -135,19 +144,18 @@ public class TripsFragment extends Fragment implements TripsView {
 
     }
 
-//    @Override
-//    public void displayTripList(List<Trip> listTrip) {
-//
-//        // TODO: displayTripList
-//        if (listTrip != null && listTrip.size() > 0) {
-//
-//            tripListAdapter = new TripListAdapter(context, listTrip, this);
-//            tripsRecyclerView.setAdapter(tripListAdapter);
-//            tripsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//
-//        }
-//
-//    }
+    @Override
+    public void noTrips() {
+
+        Log.d(TAG, "noTrips()");
+        mainLayout.setVisibility(View.GONE);
+        loadingSpinner.setVisibility(View.GONE);
+        unknownErrorView.setVisibility(View.GONE);
+        noTripView.setVisibility(View.VISIBLE);
+        loadingSpinner.bringToFront();
+        //swipeRefreshLayout.setEnabled(true); // TODO: Implement
+
+    }
 
     @Override
     public void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline) {

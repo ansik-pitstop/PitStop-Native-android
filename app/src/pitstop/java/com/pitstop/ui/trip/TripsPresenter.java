@@ -197,6 +197,17 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     }
 
     @Override
+    public void noTrips() {
+
+        if (getView() != null) {
+
+            getView().noTrips();
+
+        }
+
+    }
+
+    @Override
     public void showTripOnMap(Trip trip) {
         // TODO:
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
