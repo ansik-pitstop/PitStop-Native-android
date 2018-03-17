@@ -40,6 +40,29 @@ public class SecretUtils {
         }
     }
 
+    /**
+     * SnapToRoad
+     */
+
+    private static native String getSnapToRoadEndpointStaging();
+
+    private static native String getSnapToRoadEndpointSnapshot();
+
+    private static native String getSnapToRoadEndpointRelease();
+
+    public static String getSnapToRoadEndpointUrl(Context context) {
+        switch (getEndpointType(context)) {
+            case BuildConfig.ENDPOINT_TYPE_RELEASE:
+                return getSnapToRoadEndpointRelease();
+            case BuildConfig.ENDPOINT_TYPE_STAGING:
+                return getSnapToRoadEndpointStaging();
+            case BuildConfig.ENDPOINT_TYPE_SNAPSHOT:
+                return getSnapToRoadEndpointSnapshot();
+            default:
+                return "";
+        }
+    }
+
     private static native String getPitstopClientIdDebug();
 
     private static native String getPitstopClientIdRelease();

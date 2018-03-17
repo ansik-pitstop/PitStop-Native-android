@@ -87,3 +87,20 @@ JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getGoogleSenderId(JNIEnv *env, jobject instance) {
     return (*env) ->  NewStringUTF(env, "309712221750");
 }
+
+// SnapToRoad endpoints
+
+JNIEXPORT jstring JNICALL
+Java_com_pitstop_utils_SecretUtils_getSnapToRoadEndpointStaging(JNIEnv *env, jobject instance) {
+    return (*env) ->  NewStringUTF(env, "https://roads.googleapis.com/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_pitstop_utils_SecretUtils_getSnapToRoadEndpointSnapshot(JNIEnv *env, jobject instance) {
+    return (*env) ->  NewStringUTF(env, "https://roads.googleapis.com/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_pitstop_utils_SecretUtils_getSnapToRoadEndpointRelease(JNIEnv *env, jobject instance) {
+    return (*env) ->  NewStringUTF(env, "https://roads.googleapis.com/");
+}

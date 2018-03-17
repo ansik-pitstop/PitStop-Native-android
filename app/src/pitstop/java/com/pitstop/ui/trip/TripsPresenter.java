@@ -2,23 +2,30 @@ package com.pitstop.ui.trip;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.get.GetSnapToRoadUseCase;
+import com.pitstop.models.snapToRoad.SnappedPoint;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.list.TripListPresenter;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.TripUtils;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Created by David C. on 10/3/18.
  */
 
 public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnChildPresenterInteractorListener {
-
-    //private List<Trip> tripList = new ArrayList<>();
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
@@ -65,65 +72,13 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
         if (updating && getView().isRefreshing() && getView() != null) {
-            getView().hideRefreshing();
+            //getView().hideRefreshing();
         } else {
             getView().requestForDataUpdate();
             //onUpdateNeeded();
         }
 
     }
-
-//    public void loadView() {
-//
-//        Log.d(TAG,"loadView()");
-//
-//        useCaseComponent.getTripsUseCase().execute("WVWXK73C37E116278", new GetTripsUseCase.Callback() {
-//            @Override
-//            public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
-//
-//                if (getView() != null) {
-//                    getView().displayTripList((List<Trip>) tripList);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onError(@NotNull RequestError error) {
-//
-//                Log.d(TAG,"loadView().onError(): " + error);
-//
-//            }
-//        });
-//
-//    }
-
-//    public void onTripClicked(Trip trip) {
-
-//        String pushType = n.getPushType();
-//        Log.d(TAG, "onNotificationClicked() pushType:" +pushType+", title: "+n.getTitle());
-//        mixpanelHelper.trackItemTapped(MixpanelHelper.NOTIFICATION, pushType);
-//        useCaseComponent.getSetNotificationReadUseCase().execute(notifications, true, () -> {
-//            if (getView() != null){
-//                getView().onReadStatusChanged();
-//                getView().displayBadgeCount(0);
-//            }
-//            Log.d(TAG,"setNotificationUseCase.success()");
-//        });
-//        if (getView() == null) return;
-//        if (convertPushType(pushType).equalsIgnoreCase("serviceUpdate"))
-//            getView().openCurrentServices();
-//        else if (convertPushType(pushType).equalsIgnoreCase("scanReminder"))
-//            getView().openScanTab();
-//        else if (convertPushType(pushType).equalsIgnoreCase("serviceRequest"))
-//            getView().openRequestService();
-//
-//        mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
-//
-//        if (getView() == null || trip.getLocationPolyline() == null ) return;
-//
-//        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
-//
-//    }
 
     @Override
     public void noTrips() {
@@ -149,12 +104,47 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
     @Override
     public void showTripOnMap(Trip trip) {
-        // TODO:
+
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
 
-        if (getView() == null || trip.getLocationPolyline() == null ) return;
+        // Convert LocationPolyline's to LatLng's String
+        String listLatLng = TripUtils.locationPolylineToLatLngString(trip.getLocationPolyline());
 
-        getView().displayTripPolylineOnMap(trip.getLocationPolyline());
+        useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, "true", new GetSnapToRoadUseCase.Callback() {
+            @Override
+            public void onError(@NotNull RequestError error) {
+
+                updating = false;
+                if (getView() == null) return;
+
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+//                    if (getView().hasBeenPopulated()){
+                        getView().displayOfflineErrorDialog();
+//                    }
+//                    else {
+//                        getView().displayOfflineView();
+//                    }
+                }
+                else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
+//                    if (getView().hasBeenPopulated()){
+                        getView().displayUnknownErrorDialog();
+//                    }
+//                    else {
+//                        getView().displayUnknownErrorView();
+//                    }
+                }
+                getView().hideLoading();
+
+            }
+
+            @Override
+            public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
+
+                sendPolylineToMap(TripUtils.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
+
+            }
+        });
+
     }
 
     @Override
@@ -163,6 +153,8 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
 
         if (getView() == null) return;
+
+        showTripOnMap(trip);
 
         getView().displayTripDetailsView(trip);
 
@@ -183,6 +175,14 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         if (getView() != null) {
             getView().hideLoading();
         }
+
+    }
+
+    private void sendPolylineToMap(PolylineOptions polylineOptions) {
+
+        if (getView() == null || polylineOptions == null ) return;
+
+        getView().displayTripPolylineOnMap(polylineOptions);
 
     }
 }

@@ -17,10 +17,12 @@ import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
+import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopCarApi;
+import com.pitstop.retrofit.PitstopSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.utils.NetworkHelper;
 
@@ -103,5 +105,11 @@ public class RepositoryModule {
     @Singleton
     TripRepository getTripRepository(DaoSession daoSession, PitstopTripApi pitstopTripApi){
         return new TripRepository(daoSession, pitstopTripApi);
+    }
+
+    @Provides
+    @Singleton
+    SnapToRoadRepository getSnapToRoadRepository(PitstopSnapToRoadApi pitstopSnapToRoadApi){
+        return new SnapToRoadRepository(pitstopSnapToRoadApi);
     }
 }
