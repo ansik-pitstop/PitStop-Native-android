@@ -55,7 +55,6 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
     override fun run() {
         Log.d(tag, "run()")
 
-        //val currentVin = GlobalApplication().currentCar.vin // TODO: Check!
         //val currentVin = "WVWXK73C37E116278" //TODO: replace with the current Car's VIN
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{

@@ -10,19 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip.LocationPolyline;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.MapView;
 import com.pitstop.ui.trip.detail.TripDetailFragment;
 import com.pitstop.ui.trip.list.TripListFragment;
 import com.pitstop.utils.MixpanelHelper;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -99,6 +97,13 @@ public class TripsFragment extends Fragment implements TripsView {
         getChildFragmentManager().beginTransaction().add(R.id.fragment_container, tripListFragment).commit();
 
         //tripListFragment.onRefresh();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView()");
+        super.onDestroyView();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -186,20 +191,14 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void displayTripPolylineOnMap(List<LocationPolyline> locationPolyline) {
+    public void displayTripPolylineOnMap(PolylineOptions polylineOptions) {
 
-        mapView.addPolyline(locationPolyline);
+        mapView.addPolyline(polylineOptions);
 
     }
 
     @Override
     public void displayTripDetailsView(Trip trip) {
-
-        List<LocationPolyline> locationPolyline = trip.getLocationPolyline();
-
-        if (locationPolyline != null) {
-            displayTripPolylineOnMap(locationPolyline);
-        }
 
         // Replace the child fragment (Trip List) for the Trip Details View
         tripDetailFragment = new TripDetailFragment();

@@ -84,7 +84,44 @@ public class MapView extends FrameLayout {
         });
     }
 
-    public void addPolyline(List<LocationPolyline> locationPolyline) {
+    public void addPolyline(PolylineOptions polylineOptions) {
+
+        mapSubject.subscribe(googleMap -> {
+
+            googleMap.clear();
+
+            polylineOptions.width(4)
+                    .geodesic(true)
+                    .color(Color.BLUE);
+
+            googleMap.addPolyline(polylineOptions);
+
+            try {
+
+                if (polylineOptions.getPoints().size() > 0) {
+                    //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(polylineOptions.getPoints().get(0), 16));
+
+                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                    for (LatLng latLng : polylineOptions.getPoints()) {
+                        builder.include(latLng);
+                    }
+
+                    final LatLngBounds bounds = builder.build();
+
+                    //BOUND_PADDING is an int to specify padding of bound.. try 100.
+                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 100);
+                    googleMap.animateCamera(cu);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+
+    }
+
+    public void addPolyline_old(List<LocationPolyline> locationPolyline) {
 
         mapSubject.subscribe(googleMap -> {
 

@@ -90,6 +90,8 @@ import com.pitstop.interactors.get.GetReportUseCaseImpl;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCaseImpl;
+import com.pitstop.interactors.get.GetSnapToRoadUseCase;
+import com.pitstop.interactors.get.GetSnapToRoadUseCaseImpl;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetTripsUseCaseImpl;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
@@ -152,6 +154,7 @@ import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
+import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.ConnectionChecker;
@@ -706,6 +709,15 @@ public class UseCaseModule {
                                     @Named("mainHandler") Handler mainHandler) {
 
         return new GetTripsUseCaseImpl(userRepository, carRepository, tripRepository, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    GetSnapToRoadUseCase getSnapToRoadUseCase(SnapToRoadRepository snapToRoadRepository,
+                                              @Named("useCaseHandler") Handler useCaseHandler,
+                                              @Named("mainHandler") Handler mainHandler) {
+
+        return new GetSnapToRoadUseCaseImpl(snapToRoadRepository, useCaseHandler, mainHandler);
 
     }
 }

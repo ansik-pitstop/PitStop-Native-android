@@ -41,6 +41,7 @@ import com.pitstop.interactors.get.GetPredictedServiceUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.get.GetSnapToRoadUseCase;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -219,5 +220,7 @@ public interface UseCaseComponent {
     GetAppointmentStateUseCase getAppointmentStateUseCase();
 
     GetTripsUseCase getTripsUseCase();
+
+    GetSnapToRoadUseCase getSnapToRoadUseCase();
 
 }
