@@ -4,6 +4,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
 import android.util.Log
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.network.RequestError
@@ -11,6 +12,7 @@ import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.TripRepository
 import com.pitstop.repositories.UserRepository
+import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.IOException
@@ -28,22 +30,22 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
     private lateinit var callback: AddTripUseCase.Callback
 
     override fun execute(trip: List<Location>, callback: AddTripUseCase.Callback) {
-        //Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
-        System.out.println("AddTripUseCaseImpl: Use case execution started, trip: "+trip)
-        this.trip = trip
+        Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
+        this.trip = arrayListOf()
+        (this.trip as ArrayList<Location>).addAll(trip)
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     override fun run() {
-        System.out.println("AddTripUseCaseImpl: run()")
+        Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${trip.size}")
         try{
             val startAddress = geocoder
-                    .getFromLocation(trip.first().latitude,trip.first().longitude,1).first()
+                    .getFromLocation(trip.first().latitude,trip.first().longitude,1).firstOrNull()
             val endAddress = geocoder
-                    .getFromLocation(trip.last().latitude,trip.last().longitude,1).first()
+                    .getFromLocation(trip.last().latitude,trip.last().longitude,1).firstOrNull()
 
-            System.out.println("AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
+            Log.i(TAG,"AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
 
             val tripDataPoints: MutableList<List<DataPoint>> = arrayListOf()
 
@@ -55,16 +57,16 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                             .subscribe({ car ->
-                                System.out.println("AddTripUseCaseImpl: Got car vin: ${car.data!!.vin}")
+                                if (car.isLocal) return@subscribe
+                                val vin = DataPoint(DataPoint.ID_VIN, car.data!!.vin)
+                                val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
+                                val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
                                 Log.d(TAG,"got car vin: ${car.data!!.vin}")
                                 //Add everything but indicator, body of trip
                                 trip.forEach({
                                     val tripDataPoint: MutableList<DataPoint> = arrayListOf()
                                     val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
                                     val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
-                                    val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
-                                    val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
-                                    val vin = DataPoint(DataPoint.ID_VIN, car.data.vin)
                                     val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
                                     tripDataPoint.add(latitude)
                                     tripDataPoint.add(longitude)
@@ -77,16 +79,24 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
                                 //Add indicator
                                 val indicatorDataPoint: MutableList<DataPoint> = arrayListOf()
-                                val startLocation = DataPoint(DataPoint.ID_START_LOCATION, startAddress.getAddressLine(0))
-                                val endLocation = DataPoint(DataPoint.ID_END_LOCATION, endAddress.getAddressLine(0))
-                                val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION, startAddress.getAddressLine(0))
-                                val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION, endAddress.getAddressLine(0))
-                                val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION, startAddress.locality)
-                                val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION, endAddress.locality)
-                                val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE, startAddress.latitude.toString())
-                                val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE, endAddress.latitude.toString())
-                                val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress.longitude.toString())
-                                val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress.longitude.toString())
+                                val startLocation = DataPoint(DataPoint.ID_START_LOCATION
+                                        , if (startAddress == null) "null" else startAddress.getAddressLine(0))
+                                val endLocation = DataPoint(DataPoint.ID_END_LOCATION
+                                        , if (endAddress == null) "null" else endAddress.getAddressLine(0))
+                                val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
+                                        , if (startAddress == null) "null" else startAddress.getAddressLine(0))
+                                val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
+                                        , if (endAddress == null) "null" else endAddress.getAddressLine(0))
+                                val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
+                                        , if (startAddress == null || startAddress.locality == null) "null" else startAddress.locality)
+                                val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
+                                        , if (endAddress == null || endAddress.locality == null) "null" else  endAddress.locality)
+                                val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
+                                        , if (startAddress == null) "null" else startAddress.latitude.toString())
+                                val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE
+                                        , endAddress?.latitude?.toString() ?: "null")
+                                val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress?.longitude?.toString() ?: "null")
+                                val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress?.longitude?.toString() ?: "null")
                                 val mileageTrip = DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2") //Todo("Add mileage trip logic")
                                 val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, trip.first().time.toString())
                                 val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, trip.last().time.toString())
@@ -105,17 +115,21 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 indicatorDataPoint.add(startTimestamp)
                                 indicatorDataPoint.add(endTimestamp)
                                 indicatorDataPoint.add(indicator)
+                                indicatorDataPoint.add(vin)
+                                indicatorDataPoint.add(tripId)
+                                indicatorDataPoint.add(deviceTimestamp)
                                 tripDataPoints.add(indicatorDataPoint)
 
                                 tripRepository.storeTripData(tripDataPoints)
+                                AddTripUseCaseImpl@onAddedTrip()
 
                             }, { err ->
                                 Log.d(TAG, "Error: " + err)
-                                onError(RequestError(err))
+                                AddTripUseCaseImpl@onErrorFound(RequestError(err))
                             })
                 }
                 override fun onError(error: RequestError?) {
-                    onError(error)
+                    AddTripUseCaseImpl@onErrorFound(error ?: RequestError.getUnknownError())
                 }
             })
 
@@ -127,18 +141,18 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 //            }
         }catch(e: IOException){
             e.printStackTrace()
-            onError(RequestError.getUnknownError())
+            AddTripUseCaseImpl@onErrorFound(RequestError.getUnknownError())
         }
 
     }
 
     private fun onAddedTrip() {
-        //Logger.getInstance().logI(TAG, "Use case finished: trip added!", DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logI(TAG, "Use case finished: trip added!", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onAddedTrip()})
     }
 
-    private fun onError(err: RequestError){
-        //Logger.getInstance().logE(TAG, "Use case returned error: "+err, DebugMessage.TYPE_USE_CASE)
+    private fun onErrorFound(err: RequestError){
+        Logger.getInstance().logE(TAG, "Use case returned error: "+err.message, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(err)})
     }
 }

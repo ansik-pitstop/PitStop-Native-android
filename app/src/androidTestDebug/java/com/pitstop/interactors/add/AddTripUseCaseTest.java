@@ -59,7 +59,7 @@ public class AddTripUseCaseTest {
         dummyCar.setId(6014);
 
         List<Location> trip = new ArrayList<>();
-        for (int i=0;i<10;i++){
+        for (int i=0;i<3;i++){
             trip.add(getRandomLocation());
         }
 
@@ -79,7 +79,7 @@ public class AddTripUseCaseTest {
         });
 
         try{
-            assertTrue(completableFuture.get(2000, TimeUnit.MILLISECONDS).equals(true));
+            assertTrue(completableFuture.get(10000, TimeUnit.MILLISECONDS).equals(true));
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
@@ -88,15 +88,10 @@ public class AddTripUseCaseTest {
     private Location getRandomLocation(){
         Random r = new Random();
         Location location = new Location("dummyprovider");
-        double latitude = r.nextDouble()*100;
-        location.setLatitude(latitude);
-        location.setLongitude(r.nextDouble()*100);
-        Log.i(TAG,"latitude rand: "+latitude+", latitude get: "+location.getLatitude());
-        location.setAccuracy(3.0f);
-        location.setTime(1521200114 + Math.abs(r.nextInt()*1000000));
-        Log.i(TAG,String.format("rand: %f lat: %f long: %f accuracy: %f time: %d",r.nextDouble(),location.getLatitude()
-                ,location.getLongitude(),location.getAccuracy(),location.getTime()));
-
+        location.setLatitude(r.nextDouble()*90);
+        location.setLongitude(r.nextDouble()*90);
+        location.setTime(System.currentTimeMillis());
+        Log.d(TAG,"time = "+Math.abs(r.nextInt()*1000000));
         return location;
     }
 }
