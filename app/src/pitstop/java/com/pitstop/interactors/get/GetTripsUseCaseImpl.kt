@@ -11,7 +11,6 @@ import com.pitstop.repositories.Repository
 import com.pitstop.repositories.TripRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -45,10 +44,10 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
         }
     }
 
-    private fun onTripsRetrieved(tripList: List<Trip>) {
+    private fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean) {
 
         Logger.getInstance()!!.logI(tag, "Use case finished result: trips=$tripList", DebugMessage.TYPE_USE_CASE)
-        mainHandler.post({ callback!!.onTripsRetrieved(tripList, isLocal = true) })
+        mainHandler.post({ callback!!.onTripsRetrieved(tripList, isLocal) })
 
     }
 
@@ -62,16 +61,16 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                 Log.d(tag,"got settings with carId: ${data!!.carId}")
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                        .observeOn(Schedulers.computation())
                         .subscribe({ car ->
                             Log.d(tag,"got car vin: ${car.data!!.vin}")
 
                             tripRepository.getTripsByCarVin(car.data!!.vin)
                                     .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                                    .observeOn(Schedulers.computation())
                                     .subscribe({ next ->
                                         Log.d(tag, "tripRepository.onNext() data: " + next)
-                                        this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty())
+                                        this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)
                                     }, { error ->
                                         Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
                                         this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
