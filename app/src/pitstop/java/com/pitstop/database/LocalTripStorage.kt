@@ -91,8 +91,6 @@ class LocalTripStorage(context: Context) {
         val db = databaseHelper.writableDatabase
 
         db.delete(TABLES.MANUAL_TRIP.TABLE_NAME, null, null)
-
-
     }
 
     private fun cursorToLocation(c: Cursor): Location {

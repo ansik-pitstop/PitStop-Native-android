@@ -10,7 +10,7 @@ import com.pitstop.models.trip.LocationData
 /**
  * Created by Karol Zdebel on 3/19/2018.
  */
-class LocalPendingTripStorage(val context: Context) {
+class LocalPendingTripStorage(private val context: Context) {
     private val TAG = javaClass.simpleName
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
@@ -92,7 +92,7 @@ class LocalPendingTripStorage(val context: Context) {
         db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null)
     }
 
-    fun cursorToDataPoint(c: Cursor):DataPoint{
+    private fun cursorToDataPoint(c: Cursor):DataPoint{
         val id = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_ID))
         val data = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_DATA))
         return DataPoint(id,data)
