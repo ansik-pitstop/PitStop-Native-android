@@ -5,12 +5,15 @@ import com.pitstop.models.trip.DataPoint;
 
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import retrofit2.Response;
+import io.reactivex.schedulers.Schedulers;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -26,6 +29,8 @@ public class PitstopTripApiTest {
 
         Gson gson = new Gson();
 
+        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+
         String VIN = "1GB0CVCL7BF147611";
 
         List<List<DataPoint>> data = new ArrayList<>();
@@ -33,12 +38,21 @@ public class PitstopTripApiTest {
         data.add(getEndTripDataPoint(VIN));
 
         System.out.println("body: "+gson.toJsonTree(data));
+        RetrofitTestUtil.Companion
+                .getTripApi()
+                .store(gson.toJsonTree(data))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(stringResponse -> {
+                    completableFuture.complete(true);
+                }, errResponse -> {
+                    completableFuture.complete(false);
+                });
         try{
-            Response response = RetrofitTestUtil.Companion.getTripApi().store(gson.toJsonTree(data)).execute();
-            System.out.println("storeTripTest: isSuccessful? "+response.isSuccessful());
-            assertTrue(response.isSuccessful());
-        }catch(IOException e){
+            assertTrue(completableFuture.get(12000, TimeUnit.MILLISECONDS));
+        }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
+            throw new AssertionError();
         }
     }
 

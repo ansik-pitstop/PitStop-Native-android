@@ -121,7 +121,15 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 tripDataPoints.add(indicatorDataPoint)
 
                                 tripRepository.storeTripData(tripDataPoints)
-                                AddTripUseCaseImpl@onAddedTrip()
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io())
+                                        .subscribe({next ->
+                                            Log.d(TAG,"trip repo response: $next")
+                                            AddTripUseCaseImpl@onAddedTrip()
+                                        }, {err ->
+                                            Log.d(TAG,"trip repo err: $err")
+                                            AddTripUseCaseImpl@onErrorFound(RequestError(err))
+                                        })
 
                             }, { err ->
                                 Log.d(TAG, "Error: " + err)
@@ -132,13 +140,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                     AddTripUseCaseImpl@onErrorFound(error ?: RequestError.getUnknownError())
                 }
             })
-
-//            if (tripRepository.localTripStorage.store(trip) > 0){
-//                Log.d(TAG,"local trips stored")
-//                AddTripUseCaseImpl@this.onAddedTrip()
-//            }else{
-//                AddTripUseCaseImpl@this.onError(RequestError.getUnknownError())
-//            }
+            tripRepository.localTripStorage.store(trip)
         }catch(e: IOException){
             e.printStackTrace()
             AddTripUseCaseImpl@onErrorFound(RequestError.getUnknownError())
