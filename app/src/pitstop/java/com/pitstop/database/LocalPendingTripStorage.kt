@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.util.Log
-import com.google.gson.Gson
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.models.trip.LocationData
 
@@ -14,7 +13,6 @@ import com.pitstop.models.trip.LocationData
 class LocalPendingTripStorage(val context: Context) {
     private val TAG = javaClass.simpleName
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
-    private val gson = Gson()
 
     companion object {
         val CREATE_PENDING_TRIP_TABLE = ("CREATE TABLE IF NOT EXISTS "

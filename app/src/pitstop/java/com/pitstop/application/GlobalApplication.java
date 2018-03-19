@@ -28,6 +28,7 @@ import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
@@ -83,6 +84,7 @@ public class GlobalApplication extends Application {
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
     private LocalTripStorage mLocalTripStorage;
+    private LocalPendingTripStorage mLocalPendingTripStorage;
 
     private UseCaseComponent useCaseComponent;
 
@@ -396,6 +398,7 @@ public class GlobalApplication extends Application {
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
         mLocalTripStorage = new LocalTripStorage(this);
+        mLocalPendingTripStorage = new LocalPendingTripStorage(this);
 
     }
 
@@ -416,7 +419,8 @@ public class GlobalApplication extends Application {
         mLocalAlarmStorage.deleteAllRows();
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
-        mLocalTripStorage.deleteAllTrips();
+        mLocalTripStorage.removeAll();
+        mLocalPendingTripStorage.deleteAll();
     }
 
 }
