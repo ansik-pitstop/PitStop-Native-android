@@ -3,6 +3,7 @@ package com.pitstop.repositories
 import android.util.Log
 import com.pitstop.application.Constants
 import com.pitstop.database.LocalTripStorage
+import com.pitstop.models.trip.TripData
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopResponse
@@ -11,7 +12,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
- * Created by David C. on 9/3/18.
+ * Created by Karol Zdebel on 3/12/2018.
  */
 class TripRepository(private val localTripStorage: LocalTripStorage,
                      private val tripApi: PitstopTripApi) : Repository {
@@ -137,4 +138,20 @@ class TripRepository(private val localTripStorage: LocalTripStorage,
 
     }
 
+    fun storeTripData(trip: TripData): Observable<Boolean> {
+        Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
+        val gson = Gson()
+        //Todo: Parameters need to be changed, models used in local storage need to
+        // be integrated or maybe seperate method made or maybe it should be directly referenced from the use case idk
+        localPendingTripStorage.store(trip)
+        tripApi.store(gson.toJsonTree(trip))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe({ next ->
+                    Log.d(tag, "next = $next")
+                }, { err ->
+                    Log.d(tag, "error = ${err.message}")
+                })
+        return Observable.just(true)
+    }
 }
