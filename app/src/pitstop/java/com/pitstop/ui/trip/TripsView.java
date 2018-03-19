@@ -11,8 +11,6 @@ import com.pitstop.ui.LoadingTabView;
 
 public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
-    //void displayTripList(List<Trip> listTrip);
-    //void onTripClicked(Trip trip);
     void noTrips();
 
     void thereAreTrips();
@@ -25,7 +23,6 @@ public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
     void removeTrip();
 
-    //void updateTripList(List<Trip> listTrip);
     void displayErrorMessage(String errorMessage);
 
 }

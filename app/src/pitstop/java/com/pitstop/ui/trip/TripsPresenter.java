@@ -154,7 +154,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
         if (getView() == null) return;
 
-        showTripOnMap(trip);
+        //showTripOnMap(trip);
 
         getView().displayTripDetailsView(trip);
 

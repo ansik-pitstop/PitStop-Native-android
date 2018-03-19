@@ -60,6 +60,8 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         tripViewHolder.tripInfoButton.setOnClickListener(v -> { // Info Button click
 
+            tripViewHolder.itemView.performClick(); // Select the row as the focused one
+
             tripListView.onTripInfoClicked(tripList.get(position));
 
         });
