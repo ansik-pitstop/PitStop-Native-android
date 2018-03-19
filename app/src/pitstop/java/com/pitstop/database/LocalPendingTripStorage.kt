@@ -19,7 +19,7 @@ class LocalPendingTripStorage(private val context: Context) {
         val CREATE_PENDING_TRIP_TABLE = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.PENDING_TRIP_DATA.TABLE_NAME + "("
                 + TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID +" INTEGER,"
-                + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " INTEGER PRIMARY KEY,"
+                + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " INTEGER,"
                 + TABLES.PENDING_TRIP_DATA.KEY_ID+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_DATA+ " TEXT"+ ")")
     }
