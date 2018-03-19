@@ -3,6 +3,7 @@ package com.pitstop.repositories
 import android.util.Log
 import com.pitstop.application.Constants
 import com.pitstop.database.LocalTripStorage
+import com.pitstop.models.trip.DataPoint
 import com.pitstop.models.trip.TripData
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
@@ -141,17 +142,22 @@ class TripRepository(private val localTripStorage: LocalTripStorage,
     fun storeTripData(trip: TripData): Observable<Boolean> {
         Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
         val gson = Gson()
-        //Todo: Parameters need to be changed, models used in local storage need to
-        // be integrated or maybe seperate method made or maybe it should be directly referenced from the use case idk
+
         localPendingTripStorage.store(trip)
-        tripApi.store(gson.toJsonTree(trip))
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe({ next ->
-                    Log.d(tag, "next = $next")
-                }, { err ->
-                    Log.d(tag, "error = ${err.message}")
-                })
-        return Observable.just(true)
+        val data: MutableList<List<DataPoint>> = arrayListOf()
+        trip.locations.forEach({
+            data.add(it.data)
+        })
+
+        val remote = tripApi.store(gson.toJsonTree(data))
+
+        remote.subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe({ next ->
+                Log.d(tag, "next = $next")
+            }, { err ->
+                Log.d(tag, "error = ${err.message}")
+            })
+        return remote.cache().map { true }
     }
 }
