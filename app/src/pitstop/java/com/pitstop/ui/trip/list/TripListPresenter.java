@@ -137,13 +137,12 @@ public class TripListPresenter extends TabPresenter<TripListView> {
     }
 
     public void onUpdateNeeded(String carVin){
-        Log.d(TAG, "onUpdateNeeded");
+        Log.d(TAG, "onUpdateNeeded, TripListPresenter, Car VIN: " + carVin);
         if (getView() == null || updating) {
             return;
         }
         updating = true;
         getView().showLoading();
-        Log.d(TAG, "onUpdateNeeded, TripListPresenter, Car VIN: " + carVin);
 
         useCaseComponent.getTripsUseCase().execute(carVin, new GetTripsUseCase.Callback() {
             @Override
@@ -176,6 +175,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
             @Override
             public void onError(@NotNull RequestError error) {
+                Log.d(TAG, "getTripsUseCase().error() event fired: " + error);
 
                 updating = false;
                 if (getView() == null) return;
