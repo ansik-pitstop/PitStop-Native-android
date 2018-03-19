@@ -4,7 +4,6 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
 import android.util.Log
-import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.network.RequestError
@@ -12,7 +11,6 @@ import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.TripRepository
 import com.pitstop.repositories.UserRepository
-import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.IOException
@@ -30,28 +28,34 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
     private lateinit var callback: AddTripUseCase.Callback
 
     override fun execute(trip: List<Location>, callback: AddTripUseCase.Callback) {
-        Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
+        //Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
+        System.out.println("AddTripUseCaseImpl: Use case execution started, trip: "+trip)
         this.trip = trip
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     override fun run() {
+        System.out.println("AddTripUseCaseImpl: run()")
         try{
             val startAddress = geocoder
                     .getFromLocation(trip.first().latitude,trip.first().longitude,1).first()
             val endAddress = geocoder
                     .getFromLocation(trip.last().latitude,trip.last().longitude,1).first()
 
+            System.out.println("AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
+
             val tripDataPoints: MutableList<List<DataPoint>> = arrayListOf()
 
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
+                    System.out.println("AddTripUseCaseImpl: Got settings with carId: ${data!!.carId}")
                     Log.d(TAG,"got settings with carId: ${data!!.carId}")
                     carRepository.get(data!!.carId)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                             .subscribe({ car ->
+                                System.out.println("AddTripUseCaseImpl: Got car vin: ${car.data!!.vin}")
                                 Log.d(TAG,"got car vin: ${car.data!!.vin}")
                                 //Add everything but indicator, body of trip
                                 trip.forEach({
@@ -115,12 +119,12 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                 }
             })
 
-            if (tripRepository.localTripStorage.store(trip) > 0){
-                Log.d(TAG,"local trips stored")
-                AddTripUseCaseImpl@this.onAddedTrip()
-            }else{
-                AddTripUseCaseImpl@this.onError(RequestError.getUnknownError())
-            }
+//            if (tripRepository.localTripStorage.store(trip) > 0){
+//                Log.d(TAG,"local trips stored")
+//                AddTripUseCaseImpl@this.onAddedTrip()
+//            }else{
+//                AddTripUseCaseImpl@this.onError(RequestError.getUnknownError())
+//            }
         }catch(e: IOException){
             e.printStackTrace()
             onError(RequestError.getUnknownError())
@@ -129,12 +133,12 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
     }
 
     private fun onAddedTrip() {
-        Logger.getInstance().logI(TAG, "Use case finished: trip added!", DebugMessage.TYPE_USE_CASE)
+        //Logger.getInstance().logI(TAG, "Use case finished: trip added!", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onAddedTrip()})
     }
 
     private fun onError(err: RequestError){
-        Logger.getInstance().logE(TAG, "Use case returned error: "+err, DebugMessage.TYPE_USE_CASE)
+        //Logger.getInstance().logE(TAG, "Use case returned error: "+err, DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(err)})
     }
 }

@@ -86,7 +86,8 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int
+                        , scannerId: String?, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
@@ -196,9 +197,9 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         return Observable.concat(localResponse,remote.cache())
     }
 
-    operator fun get(id: Int): Observable<RepositoryResponse<Car>> {
+    fun get(id: Int): Observable<RepositoryResponse<Car>> {
         Log.d(tag,"get() id: $id")
-            val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
+        val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
