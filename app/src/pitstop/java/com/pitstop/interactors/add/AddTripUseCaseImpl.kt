@@ -7,6 +7,8 @@ import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.DataPoint
+import com.pitstop.models.trip.LocationData
+import com.pitstop.models.trip.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -29,6 +31,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
     private lateinit var trip: List<Location>
     private lateinit var callback: AddTripUseCase.Callback
 
+
     override fun execute(trip: List<Location>, callback: AddTripUseCase.Callback) {
         Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
         this.trip = arrayListOf()
@@ -47,7 +50,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
             Log.i(TAG,"AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
 
-            val tripDataPoints: MutableList<List<DataPoint>> = arrayListOf()
+            val tripDataPoints: MutableList<LocationData> = arrayListOf()
 
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
@@ -74,7 +77,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                     tripDataPoint.add(tripId)
                                     tripDataPoint.add(vin)
                                     tripDataPoint.add(indicator)
-                                    tripDataPoints.add(tripDataPoint)
+                                    tripDataPoints.add(LocationData(it.time.toInt(),tripDataPoint))
                                 })
 
                                 //Add indicator
@@ -118,9 +121,9 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 indicatorDataPoint.add(vin)
                                 indicatorDataPoint.add(tripId)
                                 indicatorDataPoint.add(deviceTimestamp)
-                                tripDataPoints.add(indicatorDataPoint)
+                                tripDataPoints.add(LocationData(trip.last().time.toInt()*4,indicatorDataPoint))
 
-                                tripRepository.storeTripData(tripDataPoints)
+                                tripRepository.storeTripData(TripData(trip.first().time.toInt(),tripDataPoints))
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(Schedulers.io())
                                         .subscribe({next ->
