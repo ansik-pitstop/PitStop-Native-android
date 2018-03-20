@@ -43,9 +43,9 @@ class LocalPendingTripStorage(private val context: Context) {
         return rows
     }
 
-    fun get(): List<TripData> {
+    fun get(): Set<TripData> {
         Log.d(TAG,"get()")
-        val trips = mutableListOf<TripData>()
+        val trips = mutableSetOf<TripData>()
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null
                 , null, null, null

@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.Context;
-import android.location.Geocoder;
 import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -30,38 +28,52 @@ import static junit.framework.Assert.assertEquals;
 public class LocalPendingTripStorageTest {
 
     private final String TAG = LocalPendingTripStorageTest.class.getSimpleName();
-    private final int LOC_NUM = 2;
     private final String VIN = "1GB0CVCL7BF147611";
 
     private LocalPendingTripStorage localPendingTripStorage;
-    private Geocoder geocoder;
-    private TripData tripData;
-
+    private Gson gson;
 
     @Before
     public void setup(){
         Context context = InstrumentationRegistry.getTargetContext();
         localPendingTripStorage = new LocalPendingTripStorage(context);
         localPendingTripStorage.deleteAll();
-        geocoder = new Geocoder(context);
-
-        Set<Location> testData = new HashSet<>();
-        for (int i=0;i<LOC_NUM;i++){
-            testData.add(getRandomLocation());
-        }
-        tripData = Util.Companion.locationsToDataPoints(VIN,testData);
-
+        gson = new Gson();
     }
 
     @Test
     public void storePendingTripTest(){
-        Log.d(TAG,"running storePendingTripTest(), tripData = "+new Gson().toJsonTree(tripData));
+        Log.d(TAG,"running storePendingTripTest()");
+        Set<Location> testData = new HashSet<>();
+        for (int i=0;i<3;i++){
+            testData.add(getRandomLocation());
+        }
+        TripData tripData = Util.Companion.locationsToDataPoints(VIN,testData);
+        Log.d(TAG,"storePendingTripTest() tripData = "+tripData);
         localPendingTripStorage.store(tripData);
-        List<TripData> tripDataRetrieved = localPendingTripStorage.get();
-        Log.d(TAG,"tripData after retrieving: "+new Gson().toJsonTree(tripDataRetrieved));
+        Set<TripData> tripDataRetrieved = localPendingTripStorage.get();
+        Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
         assertEquals(tripDataRetrieved.size(),1);
-        assertEquals(tripData,tripDataRetrieved.get(0));
+        assertEquals(tripData,tripDataRetrieved.iterator().next());
 
+    }
+
+    @Test
+    public void getMultipleTripTest(){
+        Set<TripData> tripDataList = new HashSet<>();
+        for (int i=0;i<3;i++){
+            Set<Location> testData = new HashSet<>();
+            for (int j=0;j<3;j++){
+                testData.add(getRandomLocation());
+            }
+            TripData tripData = Util.Companion.locationsToDataPoints(VIN,testData);
+            tripDataList.add(tripData);
+            localPendingTripStorage.store(tripData);
+        }
+
+        Set<TripData> tripDataRetrieved = localPendingTripStorage.get();
+
+        assertEquals(tripDataList,tripDataRetrieved);
     }
 
     private Location getRandomLocation(){
