@@ -15,9 +15,12 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Karol Zdebel on 3/12/2018.
  */
-class TripRepository(private val localTripStorage: LocalTripStorage,
-                     private val tripApi: PitstopTripApi) : Repository {
+open class TripRepository(private val tripApi: PitstopTripApi
+                          , val localPendingTripStorage: LocalPendingTripStorage
+                          , val localTripStorage: LocalTripStorage) {
 
+    private val tag = javaClass.simpleName
+    private val gson: Gson = Gson()
     private val tag = javaClass.simpleName
 
     fun getTripsByCarVin(vin: String, whatToReturn: String): Observable<RepositoryResponse<List<Trip>>> {
@@ -139,25 +142,42 @@ class TripRepository(private val localTripStorage: LocalTripStorage,
 
     }
 
+    //Stores data in server, or local database if fails to upload to server
     fun storeTripData(trip: TripData): Observable<Boolean> {
         Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
-        val gson = Gson()
 
-        localPendingTripStorage.store(trip)
         val data: MutableSet<Set<DataPoint>> = mutableSetOf()
         trip.locations.forEach({
             data.add(it.data)
         })
-
         val remote = tripApi.store(gson.toJsonTree(data))
-
         remote.subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe({ next ->
                 Log.d(tag, "next = $next")
             }, { err ->
+                localPendingTripStorage.store(trip)
                 Log.d(tag, "error = ${err.message}")
             })
+        return remote.cache().map { true }
+    }
+
+    //Dumps data from local database to server
+    fun dumpData(): Observable<Boolean>{
+        val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
+        localPendingTripStorage.get().forEach({
+            it.locations.forEach({location ->
+                tripData.add(location.data)
+            })
+        })
+        val remote = tripApi.store(gson.toJsonTree(tripData))
+        remote.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe({ next ->
+                    Log.d(tag, "next = $next")
+                }, { err ->
+                    Log.d(tag, "error = ${err.message}")
+                })
         return remote.cache().map { true }
     }
 }
