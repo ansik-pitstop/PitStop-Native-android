@@ -77,7 +77,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                     tripDataPoint.add(tripId)
                                     tripDataPoint.add(vin)
                                     tripDataPoint.add(indicator)
-                                    tripDataPoints.add(LocationData(it.time.toInt(),tripDataPoint))
+                                    tripDataPoints.add(LocationData(it.time,tripDataPoint))
                                 })
 
                                 //Add indicator
@@ -121,9 +121,9 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 indicatorDataPoint.add(vin)
                                 indicatorDataPoint.add(tripId)
                                 indicatorDataPoint.add(deviceTimestamp)
-                                tripDataPoints.add(LocationData(trip.last().time.toInt()*4,indicatorDataPoint))
+                                tripDataPoints.add(LocationData(trip.last().time*4,indicatorDataPoint))
 
-                                tripRepository.storeTripData(TripData(trip.first().time.toInt(),tripDataPoints))
+                                tripRepository.storeTripData(TripData(trip.first().time,tripDataPoints))
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(Schedulers.io())
                                         .subscribe({next ->

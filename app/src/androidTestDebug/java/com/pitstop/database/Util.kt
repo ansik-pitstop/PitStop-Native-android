@@ -28,7 +28,7 @@ class Util {
                 tripDataPoint.add(tripId)
                 tripDataPoint.add(vin)
                 tripDataPoint.add(indicator)
-                tripDataPoints.add(LocationData(it.time.toInt(),tripDataPoint))
+                tripDataPoints.add(LocationData(it.time,tripDataPoint))
             })
 
             //Add indicator
@@ -64,8 +64,8 @@ class Util {
             indicatorDataPoint.add(vin)
             indicatorDataPoint.add(tripId)
             indicatorDataPoint.add(deviceTimestamp)
-            tripDataPoints.add(LocationData(trip.last().time.toInt()*4,indicatorDataPoint))
-            return TripData(trip.first().time.toInt(),tripDataPoints)
+            tripDataPoints.add(LocationData(trip.last().time*4,indicatorDataPoint))
+            return TripData(trip.first().time,tripDataPoints)
         }
     }
 }

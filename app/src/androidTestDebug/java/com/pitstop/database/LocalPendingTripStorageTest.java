@@ -8,6 +8,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.pitstop.models.trip.TripData;
 
 import org.junit.Before;
@@ -54,10 +55,10 @@ public class LocalPendingTripStorageTest {
 
     @Test
     public void storePendingTripTest(){
-        Log.d(TAG,"running storePendingTripTest(), tripData = "+tripData);
+        Log.d(TAG,"running storePendingTripTest(), tripData = "+new Gson().toJsonTree(tripData));
         localPendingTripStorage.store(tripData);
         List<TripData> tripDataRetrieved = localPendingTripStorage.get();
-        Log.d(TAG,"tripData after retrieving: "+tripData);
+        Log.d(TAG,"tripData after retrieving: "+new Gson().toJsonTree(tripDataRetrieved));
         assertEquals(tripDataRetrieved.size(),1);
         assertEquals(tripData,tripDataRetrieved.get(0));
 
@@ -68,7 +69,7 @@ public class LocalPendingTripStorageTest {
         Location location = new Location("dummyprovider");
         location.setLatitude(r.nextDouble()*90);
         location.setLongitude(r.nextDouble()*90);
-        location.setTime(System.currentTimeMillis());
+        location.setTime(System.currentTimeMillis()-(Math.abs(r.nextInt())*1000));
         Log.d(TAG,"time = "+Math.abs(r.nextInt()*1000000));
         return location;
     }

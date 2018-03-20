@@ -18,14 +18,14 @@ class LocalPendingTripStorage(private val context: Context) {
     companion object {
         val CREATE_PENDING_TRIP_TABLE = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.PENDING_TRIP_DATA.TABLE_NAME + "("
-                + TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID +" INTEGER,"
-                + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID +" LONG,"
+                + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_ID+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_DATA+ " TEXT"+ ")")
     }
 
     fun store(trip: TripData): Long {
-        Log.d(TAG,"store()")
+        Log.d(TAG,"store() trip size = ${trip.locations.size}")
         val db = databaseHelper?.writableDatabase
         var rows = 0L
 
@@ -48,30 +48,33 @@ class LocalPendingTripStorage(private val context: Context) {
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null
-                , null, null, null, TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID)
+                , null, null, null
+                , TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+
+                ","+TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID)
 
         if (c.moveToFirst()) {
             Log.d(TAG,"c.moveToFirst()")
-            var curTripId = -1
-            var curLocationId = -1
+            var curTripId = -1L
+            var curLocationId = -1L
 
             var curTrip = mutableSetOf<LocationData>()
             var curLocation = mutableSetOf<DataPoint>()
             while (!c.isAfterLast) {
-                val tripId = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
-                val locationId = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
+                val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+                val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
                 Log.d(TAG,"got tripId: $tripId")
-                if (curTripId != tripId && curTripId != -1){
+                Log.d(TAG,"got locationId: $locationId")
+                if (curTripId != tripId && curTripId != -1L){
                     //New trip
                     Log.d(TAG,"new trip")
-                    curTrip.add(LocationData(locationId,curLocation))
+                    curTrip.add(LocationData(curLocationId,curLocation))
                     curLocation = mutableSetOf()
                     trips.add(TripData(curTripId,curTrip))
                     curTrip = mutableSetOf()
-                }else if (curLocationId != locationId && locationId != -1){
+                }else if (curLocationId != locationId && curLocationId != -1L){
                     //New location
                     Log.d(TAG, "new location")
-                    curTrip.add(LocationData(locationId,curLocation))
+                    curTrip.add(LocationData(curLocationId,curLocation))
                     curLocation = mutableSetOf()
                 }
                 curLocation.add(cursorToDataPoint(c))
