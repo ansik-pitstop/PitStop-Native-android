@@ -16,8 +16,9 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 3/12/2018.
  */
 open class TripRepository(private val tripApi: PitstopTripApi
-                          , val localPendingTripStorage: LocalPendingTripStorage
-                          , val localTripStorage: LocalTripStorage) {
+                          , private val localPendingTripStorage: LocalPendingTripStorage
+                          , val localTripStorage: LocalTripStorage
+                          , connectionObservable: Observable<Boolean>) {
 
     private val tag = javaClass.simpleName
     private val gson: Gson = Gson()
@@ -142,6 +143,17 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     }
 
+    init{
+        connectionObservable.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe({next ->
+                    Log.d(tag,"connectionObservable onNext(): $next")
+                    if (next) dumpData()
+                }, {error ->
+                    Log.d(tag,"connectionObservable onError() err: $error")
+                })
+    }
+
     //Stores data in server, or local database if fails to upload to server
     fun storeTripData(trip: TripData): Observable<Boolean> {
         Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
@@ -164,6 +176,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     //Dumps data from local database to server
     fun dumpData(): Observable<Boolean>{
+        Log.d(tag,"dumpData()")
         val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
         localPendingTripStorage.get().forEach({
             it.locations.forEach({location ->

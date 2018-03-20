@@ -30,6 +30,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.Observable;
 
 /**
  * Created by Karol Zdebel on 6/2/2017.
@@ -103,6 +104,11 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
+    TripRepository getTripRepository(PitstopTripApi pitstopTripApi
+            , LocalPendingTripStorage localPendingTripStorage, LocalTripStorage localTripStorage
+            , Observable<Boolean> connectionObservable){
+        return new TripRepository(pitstopTripApi, localPendingTripStorage
+                , localTripStorage, connectionObservable);
     TripRepository getTripRepository(LocalTripStorage localTripStorage, PitstopTripApi pitstopTripApi){
         return new TripRepository(localTripStorage, pitstopTripApi);
     }
