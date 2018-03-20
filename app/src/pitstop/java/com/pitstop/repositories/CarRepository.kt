@@ -20,7 +20,6 @@ import org.json.JSONException
 import org.json.JSONObject
 
 
-
 /**
  * Car repository, use this class to modify, retrieve, and delete car data.
  * Updates data both remotely and locally.
@@ -200,11 +199,11 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     operator fun get(id: Int): Observable<RepositoryResponse<Car>> {
         Log.d(tag,"get() id: $id")
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
-        val remote = carApi.getCar(id)
+        val remote = carApi.getCar(id)//.delay(100, TimeUnit.MILLISECONDS)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.io(), true)
                 .doOnNext({next ->
                     if (next.data == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
@@ -234,7 +233,13 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             RepositoryResponse(carList, false)
         })
 
-        return Observable.concat(local,retRemote)
+        //return Observable.mergeDelayError(local,retRemote)
+
+        var list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
+        list.add(local)
+        list.add(retRemote)
+
+        return Observable.concatDelayError(list)
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {

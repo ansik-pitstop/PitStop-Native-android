@@ -61,13 +61,13 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                 Log.d(tag,"got settings with carId: ${data!!.carId}")
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .observeOn(Schedulers.computation(), true)
                         .subscribe({ car ->
                             Log.d(tag,"got car vin: ${car.data!!.vin}")
 
                             tripRepository.getTripsByCarVin(car.data!!.vin)
                                     .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.computation())
+                                    .observeOn(Schedulers.computation(), true)
                                     .subscribe({ next ->
                                         Log.d(tag, "tripRepository.onNext() data: " + next)
                                         this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)

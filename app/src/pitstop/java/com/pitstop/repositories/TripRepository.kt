@@ -31,10 +31,10 @@ class TripRepository(private val daoSession: DaoSession,
 
             return@map RepositoryResponse(tripListResponse.response, false)
 
-        }
+        }//.delay(100, TimeUnit.MILLISECONDS)
 
         remoteResponse.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.io(), true)
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
                     Log.d(tag, "remote.cache() local store update trips: " + next.data)
@@ -45,7 +45,15 @@ class TripRepository(private val daoSession: DaoSession,
                 }
                 .subscribe()
 
-        return Observable.concat(localResponse, remoteResponse.cache())
+//        return Observable.mergeDelayError(localResponse.subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io(), true), remoteResponse.cache().subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io(), true))
+
+        var list: MutableList<Observable<RepositoryResponse<List<Trip>>>> = mutableListOf()
+        list.add(localResponse)
+        list.add(remoteResponse)
+
+        return Observable.concatDelayError(list)
 
     }
 
