@@ -55,8 +55,8 @@ class LocalPendingTripStorage(private val context: Context) {
             var curTripId = -1
             var curLocationId = -1
 
-            var curTrip = arrayListOf<LocationData>()
-            var curLocation = arrayListOf<DataPoint>()
+            var curTrip = mutableSetOf<LocationData>()
+            var curLocation = mutableSetOf<DataPoint>()
             while (!c.isAfterLast) {
                 val tripId = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
                 val locationId = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
@@ -65,21 +65,21 @@ class LocalPendingTripStorage(private val context: Context) {
                     //New trip
                     Log.d(TAG,"new trip")
                     curTrip.add(LocationData(locationId,curLocation))
-                    curLocation = arrayListOf()
+                    curLocation = mutableSetOf()
                     trips.add(TripData(curTripId,curTrip))
-                    curTrip = arrayListOf()
+                    curTrip = mutableSetOf()
                 }else if (curLocationId != locationId && locationId != -1){
                     //New location
                     Log.d(TAG, "new location")
                     curTrip.add(LocationData(locationId,curLocation))
-                    curLocation = arrayListOf()
+                    curLocation = mutableSetOf()
                 }
                 curLocation.add(cursorToDataPoint(c))
                 curTripId = tripId
                 curLocationId = locationId
                 c.moveToNext()
             }
-            curTrip.add(curTripId, LocationData(curLocationId,curLocation))
+            curTrip.add(LocationData(curLocationId,curLocation))
             trips.add(TripData(curTripId,curTrip))
             Log.d(TAG,"exiting afterlast loop")
         }

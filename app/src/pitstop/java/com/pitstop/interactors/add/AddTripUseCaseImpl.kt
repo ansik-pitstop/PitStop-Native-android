@@ -50,7 +50,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
             Log.i(TAG,"AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
 
-            val tripDataPoints: MutableList<LocationData> = arrayListOf()
+            val tripDataPoints: MutableSet<LocationData> = mutableSetOf()
 
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
@@ -67,7 +67,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 Log.d(TAG,"got car vin: ${car.data!!.vin}")
                                 //Add everything but indicator, body of trip
                                 trip.forEach({
-                                    val tripDataPoint: MutableList<DataPoint> = arrayListOf()
+                                    val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
                                     val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
                                     val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
                                     val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
@@ -81,7 +81,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                                 })
 
                                 //Add indicator
-                                val indicatorDataPoint: MutableList<DataPoint> = arrayListOf()
+                                val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
                                 val startLocation = DataPoint(DataPoint.ID_START_LOCATION
                                         , if (startAddress == null) "null" else startAddress.getAddressLine(0))
                                 val endLocation = DataPoint(DataPoint.ID_END_LOCATION

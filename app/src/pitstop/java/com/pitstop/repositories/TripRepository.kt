@@ -144,7 +144,7 @@ class TripRepository(private val localTripStorage: LocalTripStorage,
         val gson = Gson()
 
         localPendingTripStorage.store(trip)
-        val data: MutableList<List<DataPoint>> = arrayListOf()
+        val data: MutableSet<Set<DataPoint>> = mutableSetOf()
         trip.locations.forEach({
             data.add(it.data)
         })
