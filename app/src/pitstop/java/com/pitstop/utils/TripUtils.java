@@ -62,28 +62,30 @@ public class TripUtils {
 
         for (LocationPolyline location : polylineList) {
 
-            if (location.getLocation().size() > 2) { // First Array containing 4 objects inside
+            if (location.getLocation().size() > 2) { // TODO: First Array containing 4 objects inside. Still to assure whether this
+                // object will be returned in the Production environment or not
 
-            } else { // Arrays that will only contain 2 objects
+            } else if (location.getLocation().size() == 2) { // Arrays that will only contain 2 objects (lat and lon)
 
                 double lat = 0f;
                 double lng = 0f;
 
-                Location obj1 = location.getLocation().get(0);
-                if (obj1.getId().equalsIgnoreCase("latitude")) {
-                    lat = Double.parseDouble(obj1.getData());
-                } else if (obj1.getId().equalsIgnoreCase("longitude")) {
-                    lng = Double.parseDouble(obj1.getData());
-                }
+                lat = getLatitudeValue(location);
+                lng = getLongitudeValue(location);
 
-                Location obj2 = location.getLocation().get(1);
-                if (obj2.getId().equalsIgnoreCase("latitude")) {
-                    lat = Double.parseDouble(obj2.getData());
-                } else if (obj2.getId().equalsIgnoreCase("longitude")) {
-                    lng = Double.parseDouble(obj2.getData());
-                }
-
-                LatLng latLng = new LatLng(lat, lng);
+//                Location obj1 = location.getLocation().get(0);
+//                if (obj1.getId().equalsIgnoreCase("latitude")) {
+//                    lat = Double.parseDouble(obj1.getData());
+//                } else if (obj1.getId().equalsIgnoreCase("longitude")) {
+//                    lng = Double.parseDouble(obj1.getData());
+//                }
+//
+//                Location obj2 = location.getLocation().get(1);
+//                if (obj2.getId().equalsIgnoreCase("latitude")) {
+//                    lat = Double.parseDouble(obj2.getData());
+//                } else if (obj2.getId().equalsIgnoreCase("longitude")) {
+//                    lng = Double.parseDouble(obj2.getData());
+//                }
 
                 latLngStringList += lat + "," + lng + "|";
 
@@ -91,9 +93,71 @@ public class TripUtils {
 
         }
 
-        latLngStringList = latLngStringList.substring(0, latLngStringList.length() - 1);// Remove the last "|"
+        if (latLngStringList.length() > 0) {
+            latLngStringList = latLngStringList.substring(0, latLngStringList.length() - 1);// Remove the last "|"
+        }
 
         return latLngStringList;
+
+    }
+
+    /**
+     * Returns the Latitude value inside a LocationPolyline object
+     * @param locationPolyline
+     * @return
+     */
+    private static double getLatitudeValue(LocationPolyline locationPolyline) {
+
+        double latitude = 0;
+
+        List<Location> locationList = locationPolyline.getLocation();
+
+        int i = 0;
+        boolean found = false;
+        while (!found && i < locationList.size()) {
+
+            Location location = locationList.get(i);
+
+            if (location.getId().equalsIgnoreCase("latitude")) {
+                latitude = Double.parseDouble(location.getData());
+                found = true;
+            }
+
+            i++;
+
+        }
+
+        return latitude;
+
+    }
+
+    /**
+     * Returns the Longitude value inside a LocationPolyline object
+     * @param locationPolyline
+     * @return
+     */
+    private static double getLongitudeValue(LocationPolyline locationPolyline) {
+
+        double longitude = 0;
+
+        List<Location> locationList = locationPolyline.getLocation();
+
+        int i = 0;
+        boolean found = false;
+        while (!found && i < locationList.size()) {
+
+            Location location = locationList.get(i);
+
+            if (location.getId().equalsIgnoreCase("longitude")) {
+                longitude = Double.parseDouble(location.getData());
+                found = true;
+            }
+
+            i++;
+
+        }
+
+        return longitude;
 
     }
 
