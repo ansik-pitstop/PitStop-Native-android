@@ -14,9 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -43,7 +44,7 @@ public class LocalPendingTripStorageTest {
         localPendingTripStorage.deleteAll();
         geocoder = new Geocoder(context);
 
-        List<Location> testData = new ArrayList<>();
+        Set<Location> testData = new HashSet<>();
         for (int i=0;i<LOC_NUM;i++){
             testData.add(getRandomLocation());
         }
@@ -58,8 +59,7 @@ public class LocalPendingTripStorageTest {
         List<TripData> tripDataRetrieved = localPendingTripStorage.get();
         Log.d(TAG,"tripData after retrieving: "+tripData);
         assertEquals(tripDataRetrieved.size(),1);
-        assertEquals(tripData.getId(),tripDataRetrieved.get(0).getId());
-        assertEquals(tripData.getLocations().size(),tripDataRetrieved.get(0).getLocations().size());
+        assertEquals(tripData,tripDataRetrieved.get(0));
 
     }
 

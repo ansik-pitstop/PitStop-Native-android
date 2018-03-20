@@ -10,15 +10,15 @@ import com.pitstop.models.trip.TripData
  */
 class Util {
     companion object {
-        fun locationsToDataPoints(vin: String, trip: List<Location>): TripData{
-            val tripDataPoints: MutableList<LocationData> = arrayListOf()
+        fun locationsToDataPoints(vin: String, trip: Set<Location>): TripData{
+            val tripDataPoints: MutableSet<LocationData> = mutableSetOf()
 
             val vin = DataPoint(DataPoint.ID_VIN, vin)
             val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
             val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
             //Add everything but indicator, body of trip
             trip.forEach({
-                val tripDataPoint: MutableList<DataPoint> = arrayListOf()
+                val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
                 val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
                 val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
                 val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
@@ -32,7 +32,7 @@ class Util {
             })
 
             //Add indicator
-            val indicatorDataPoint: MutableList<DataPoint> = arrayListOf()
+            val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
             val startLocation = DataPoint(DataPoint.ID_START_LOCATION,"start location")
             val endLocation = DataPoint(DataPoint.ID_END_LOCATION,"end location")
             val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION,"start street location")
