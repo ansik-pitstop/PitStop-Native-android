@@ -18,6 +18,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
@@ -91,8 +92,9 @@ public class TripListFragment extends Fragment implements TripListView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
-        String carVin = ((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin();
-        presenter.onUpdateNeeded(carVin);
+
+        startUpdateProcess();
+
         //presenter.loadView(((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin()); //TODO: replace with the current Car's VIN
         super.onViewCreated(view, savedInstanceState);
     }
@@ -220,7 +222,20 @@ public class TripListFragment extends Fragment implements TripListView {
 
     public void requestForDataUpdate() {
         Log.d(TAG,"isRefreshing()");
-        String carVin = ((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin();
-        presenter.onUpdateNeeded(carVin);
+
+        startUpdateProcess();
+    }
+
+    private void startUpdateProcess() {
+
+        Car car = ((GlobalApplication) context.getApplicationContext()).getCurrentCar();
+
+        if (car != null) { // The user has a selected car
+            String carVin = car.getVin();
+            presenter.onUpdateNeeded(carVin);
+        } else { // The user hasn't a selected car
+            presenter.notifyParentFragmentNoTrips();
+        }
+
     }
 }
