@@ -25,6 +25,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
+    //Store trip
     fun store(trip: TripData): Long {
         Log.d(TAG,"store() trip size = ${trip.locations.size}")
         val db = databaseHelper?.writableDatabase
@@ -44,6 +45,7 @@ class LocalPendingTripStorage(private val context: Context) {
         return rows
     }
 
+    //Return list of trips stored in database
     fun get(): Set<TripData> {
         Log.d(TAG,"get()")
         val trips = mutableSetOf<TripData>()
@@ -91,6 +93,7 @@ class LocalPendingTripStorage(private val context: Context) {
         return trips
     }
 
+    //Delete list of locations from database if they're present
     fun delete(locations: List<LocationData>): Int{
         Log.d(TAG,"delete() locations size: ${locations.size}")
         val db = databaseHelper.writableDatabase

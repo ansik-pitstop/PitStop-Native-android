@@ -167,36 +167,29 @@ open class TripRepository(private val tripApi: PitstopTripApi
     }
 
     //Stores data in server, or local database if fails to upload to server
-    fun storeTripData(trip: TripData): Observable<Boolean> {
+    //Returns number of location data points uploaded to server
+    fun storeTripData(trip: TripData): Observable<Int> {
         Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
 
         val data: MutableSet<Set<DataPoint>> = mutableSetOf()
         trip.locations.forEach({
             data.add(it.data)
         })
-        val remote = tripApi.store(gson.toJsonTree(data))
-        remote.subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe({ next ->
-                Log.d(tag, "next = $next")
-            }, { err ->
-                localPendingTripStorage.store(trip)
-                Log.d(tag, "error = ${err.message}")
-            })
-        return remote.cache().map { true }
+        localPendingTripStorage.store(trip)
+        return dumpData()
     }
 
     //Dumps data from local database to server
-    fun dumpData(): Observable<Boolean>{
+    fun dumpData(): Observable<Int>{
         Log.d(tag,"dumpData()")
         val localPendingData = localPendingTripStorage.get()
         Log.d(tag,"dumping ${localPendingData.size} data points")
-        if (localPendingData.isEmpty()) return Observable.just(true)
+        if (localPendingData.isEmpty()) return Observable.just(0)
 
+        val observableList = arrayListOf<Observable<Int>>()
         /*Go through each trip and chunk the location data points to not overload the network layer
         * , remove the data from the local storage chunk by chunk depending on if the request
-        * succeeded or failed
-        */
+        * succeeded or failed*/
         localPendingData.forEach({
             it.locations.chunked(SIZE_CHUNK).forEach({locationChunk ->
                 val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
@@ -207,14 +200,26 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 remote.subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe({ next ->
-                            Log.d(tag, "next = $next")
+                            Log.d(tag, "successfully stored chunk = $next")
                             localPendingTripStorage.delete(locationChunk)
                         }, { err ->
-                            Log.d(tag, "error = ${err.message}")
+                            Log.d(tag, "error storing chunk = ${err.message}")
                         })
+                observableList.add(
+                        remote.cache()
+                                .map({ SIZE_CHUNK })
+                                .onErrorResumeNext { t:Throwable ->
+                                    Log.d(tag,"observableList.add().onErrorResumeNext() returning 0")
+                                    Observable.just(0)
+                                })
             })
         })
 
-        return Observable.just(true)
+        return Observable.zip(observableList, {
+            (it as Array<Int>).sumBy { num: Int -> num}
+        }).onErrorResumeNext({ t:Throwable ->
+            Log.d(tag,"Obervable.zip().onErrorResumeNext() err $t")
+            Observable.just(0)
+        })
     }
 }
