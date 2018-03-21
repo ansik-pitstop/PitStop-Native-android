@@ -21,6 +21,7 @@ class Util {
             return location
         }
 
+        //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
         fun locationsToDataPoints(locNum: Int, inVin: String): TripData{
             val trip: MutableSet<Location> = hashSetOf()
 
