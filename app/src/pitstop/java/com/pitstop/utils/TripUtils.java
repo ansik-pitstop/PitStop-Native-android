@@ -1,6 +1,7 @@
 package com.pitstop.utils;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -60,32 +61,40 @@ public class TripUtils {
 
         String latLngStringList = "";
 
-        for (LocationPolyline location : polylineList) {
+        double startLat = -500, startLng = -500, endLat = -500, endLng = -500;
 
-            if (location.getLocation().size() > 2) { // TODO: First Array containing 4 objects inside. Still to assure whether this
-                // object will be returned in the Production environment or not
+        for (LocationPolyline locationPolyline : polylineList) {
 
-            } else if (location.getLocation().size() == 2) { // Arrays that will only contain 2 objects (lat and lon)
+            if (locationPolyline.getLocation().size() > 2) { // First Array containing 4 objects inside (start & end + lat & lng)
+
+                for (Location location : locationPolyline.getLocation()) {
+
+                    double data = Double.parseDouble(location.getData());
+
+                    switch (location.getId()) {
+                        case "start_latitude":
+                            startLat = data;
+                            break;
+                        case "start_longitude":
+                            startLng = data;
+                            break;
+                        case "end_latitude":
+                            endLat = data;
+                            break;
+                        case "end_longitude":
+                            endLng = data;
+                            break;
+                    }
+
+                }
+
+            } else if (locationPolyline.getLocation().size() == 2) { // Arrays that will only contain 2 objects (lat and lng)
 
                 double lat = 0f;
                 double lng = 0f;
 
-                lat = getLatitudeValue(location);
-                lng = getLongitudeValue(location);
-
-//                Location obj1 = location.getLocation().get(0);
-//                if (obj1.getId().equalsIgnoreCase("latitude")) {
-//                    lat = Double.parseDouble(obj1.getData());
-//                } else if (obj1.getId().equalsIgnoreCase("longitude")) {
-//                    lng = Double.parseDouble(obj1.getData());
-//                }
-//
-//                Location obj2 = location.getLocation().get(1);
-//                if (obj2.getId().equalsIgnoreCase("latitude")) {
-//                    lat = Double.parseDouble(obj2.getData());
-//                } else if (obj2.getId().equalsIgnoreCase("longitude")) {
-//                    lng = Double.parseDouble(obj2.getData());
-//                }
+                lat = getLatitudeValue(locationPolyline);
+                lng = getLongitudeValue(locationPolyline);
 
                 latLngStringList += lat + "," + lng + "|";
 
@@ -93,9 +102,23 @@ public class TripUtils {
 
         }
 
-        if (latLngStringList.length() > 0) {
-            latLngStringList = latLngStringList.substring(0, latLngStringList.length() - 1);// Remove the last "|"
+        if (startLat != -500 && startLng != -500) { // Add the Start Location if exists
+
+            latLngStringList = startLat + "," + startLng + "|" + latLngStringList;
+
         }
+
+        if (endLat != -500 && endLng != -500) { // Add the End Location if exists
+
+            latLngStringList += endLat + "," + endLng;
+
+        }
+
+        if (latLngStringList.length() > 0 && latLngStringList.endsWith("|")) {
+            latLngStringList = latLngStringList.substring(0, latLngStringList.length() - 1); // Remove the last "|"
+        }
+
+        Log.d("jakarta", latLngStringList);
 
         return latLngStringList;
 
