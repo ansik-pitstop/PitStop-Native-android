@@ -62,7 +62,6 @@ public class Trip {
             @JoinProperty(name = "tripId", referencedName = "tripId")
     })
     private List<LocationPolyline> locationPolyline = null;
-
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;

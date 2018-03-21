@@ -5,6 +5,7 @@ import com.pitstop.models.trip.*
 import com.pitstop.retrofit.PitstopTripApi
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import org.greenrobot.greendao.DaoException
 
 /**
  * Created by David C. on 9/3/18.
@@ -22,16 +23,31 @@ class TripRepository(private val daoSession: DaoSession,
 
             Log.d(tag, "remote.replay() next: $next")
             Log.d("jakarta", "GETTING LOCAL DATA, ${next.data.orEmpty().size} Trips")
-            next//.data
-            //.orEmpty()
+            next
 
         }
 
         val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin).map { tripListResponse ->
 
-            return@map RepositoryResponse(tripListResponse.response, false)
+            // This logic will ignore those Trips without LocationPolyline content
+            var tempList = tripListResponse.response
+            val deffList: MutableList<Trip> = mutableListOf()
 
-        }//.delay(100, TimeUnit.MILLISECONDS)
+            tempList.forEach { trip: Trip? ->
+
+                try {
+                    if (trip != null && trip.locationPolyline != null) { // seems to be a problem here when trip.locationPolyline == null
+                        deffList.add(trip)
+                    }
+                } catch (ex: DaoException) {
+                    ex.stackTrace
+                }
+
+            }
+
+            return@map RepositoryResponse(deffList, false)
+
+        }
 
         remoteResponse.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io(), true)
@@ -45,15 +61,18 @@ class TripRepository(private val daoSession: DaoSession,
                 }
                 .subscribe()
 
-//        return Observable.mergeDelayError(localResponse.subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io(), true), remoteResponse.cache().subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io(), true))
 
         var list: MutableList<Observable<RepositoryResponse<List<Trip>>>> = mutableListOf()
         list.add(localResponse)
         list.add(remoteResponse)
 
         return Observable.concatDelayError(list)
+
+    }
+
+    fun deleteTripsFromCarVin(carVin: String, callback: Repository.Callback<Any>) {
+
+        // TODO: implement this method
 
     }
 
@@ -64,12 +83,16 @@ class TripRepository(private val daoSession: DaoSession,
         // REMOVE
         for (trip in tripList) {
 
-            for (locationPolyline in trip.locationPolyline) {
+            if (trip.locationPolyline != null) {
 
-                val locationDeleteQuery = daoSession.queryBuilder(Location::class.java)
-                        .where(LocationDao.Properties.LocationPolylineId.eq(locationPolyline.timestamp))
-                        .buildDelete()
-                locationDeleteQuery.executeDeleteWithoutDetachingEntities()
+                for (locationPolyline in trip.locationPolyline) {
+
+                    val locationDeleteQuery = daoSession.queryBuilder(Location::class.java)
+                            .where(LocationDao.Properties.LocationPolylineId.eq(locationPolyline.timestamp))
+                            .buildDelete()
+                    locationDeleteQuery.executeDeleteWithoutDetachingEntities()
+
+                }
 
             }
 
@@ -92,19 +115,27 @@ class TripRepository(private val daoSession: DaoSession,
         // STORE
         for (trip in tripList) {
 
-            for (locationPolyline in trip.locationPolyline) {
+            if (trip.locationPolyline != null) {
 
-                locationPolyline.tripId = trip.tripId
+                for (locationPolyline in trip.locationPolyline) {
 
-                for (location in locationPolyline.location) {
+                    locationPolyline.tripId = trip.tripId
 
-                    location.locationPolylineId = locationPolyline.timestamp
+                    if (locationPolyline.location != null) {
 
-                    daoSession.insertOrReplace(location)
+                        for (location in locationPolyline.location) {
+
+                            location.locationPolylineId = locationPolyline.timestamp
+
+                            daoSession.insertOrReplace(location)
+
+                        }
+
+                    }
+
+                    daoSession.insertOrReplace(locationPolyline)
 
                 }
-
-                daoSession.insertOrReplace(locationPolyline)
 
             }
 

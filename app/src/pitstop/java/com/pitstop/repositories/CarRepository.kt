@@ -199,7 +199,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
     operator fun get(id: Int): Observable<RepositoryResponse<Car>> {
         Log.d(tag,"get() id: $id")
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
-        val remote = carApi.getCar(id)//.delay(100, TimeUnit.MILLISECONDS)
+        val remote = carApi.getCar(id)
 
         remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
                 .subscribeOn(Schedulers.io())
@@ -232,8 +232,6 @@ class CarRepository(private val localCarStorage: LocalCarStorage
             }
             RepositoryResponse(carList, false)
         })
-
-        //return Observable.mergeDelayError(local,retRemote)
 
         var list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
         list.add(local)
