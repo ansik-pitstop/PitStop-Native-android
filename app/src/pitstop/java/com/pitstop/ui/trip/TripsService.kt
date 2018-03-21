@@ -18,6 +18,7 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.add.AddTripUseCase
+import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
@@ -104,6 +105,18 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
+
+        useCaseComponent.startDumpingTripDataWhenConnectedUseCase
+                .execute(object: StartDumpingTripDataWhenConnecteUseCase.Callback{
+                    override fun started() {
+                        Log.d(tag,"started()")
+                    }
+
+                    override fun onError(error: RequestError) {
+                        Log.d(tag,"onError() err: $error")
+                    }
+
+        })
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(ActivityService.DETECTED_ACTIVITY)

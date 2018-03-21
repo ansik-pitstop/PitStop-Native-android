@@ -21,7 +21,8 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID +" LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_ID+ " TEXT,"
-                + TABLES.PENDING_TRIP_DATA.KEY_DATA+ " TEXT"+ ")")
+                + TABLES.PENDING_TRIP_DATA.KEY_DATA+ " TEXT"
+                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
     fun store(trip: TripData): Long {
@@ -88,6 +89,31 @@ class LocalPendingTripStorage(private val context: Context) {
         }
         c.close()
         return trips
+    }
+
+    fun delete(locations: List<LocationData>): Int{
+        Log.d(TAG,"delete() locations size: ${locations.size}")
+        val db = databaseHelper.writableDatabase
+        val idArr = Array(locations.size, {locations[it].id.toString()})
+        val rows = db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                , TABLES.COMMON.KEY_OBJECT_ID + "=?", idArr)
+        Log.d(TAG,"deleted $rows rows")
+        return rows
+    }
+
+    //Deletes the oldest data points past 10k rows
+    fun cleanDatabase(): Int{
+        Log.d(TAG,"deleteOldData()")
+        val db = databaseHelper.writableDatabase
+        val count = db.rawQuery("DELETE t FROM ${TABLES.PENDING_TRIP_DATA.TABLE_NAME} AS t" +
+                " JOIN ( SELECT ${TABLES.COMMON.KEY_CREATED_AT} AS ts" +
+                " FROM ${TABLES.PENDING_TRIP_DATA.TABLE_NAME}" +
+                " ORDER BY ts ASC" +
+                " LIMIT 1 OFFSET 10000" +
+                " ) tlimit" +
+                " ON t.${TABLES.COMMON.KEY_CREATED_AT} > tlimit.ts",null).count
+        Log.d(TAG,"deleted $count old data points")
+        return count
     }
 
     fun deleteAll() {

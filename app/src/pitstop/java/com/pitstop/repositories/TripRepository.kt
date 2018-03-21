@@ -18,10 +18,11 @@ import io.reactivex.schedulers.Schedulers
 open class TripRepository(private val tripApi: PitstopTripApi
                           , private val localPendingTripStorage: LocalPendingTripStorage
                           , val localTripStorage: LocalTripStorage
-                          , connectionObservable: Observable<Boolean>) {
+                          , private val connectionObservable: Observable<Boolean>) {
 
     private val tag = javaClass.simpleName
     private val gson: Gson = Gson()
+    private var dumping: Boolean = false
     private val tag = javaClass.simpleName
 
     fun getTripsByCarVin(vin: String, whatToReturn: String): Observable<RepositoryResponse<List<Trip>>> {
@@ -143,12 +144,23 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     }
 
-    init{
+    private val SIZE_CHUNK = 30
+
+    fun dumpDataOnConnectedToNetwork(){
+        //Begins dumping data on connected to internet
+        if (dumping) return
+        dumping = true
         connectionObservable.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
                     Log.d(tag,"connectionObservable onNext(): $next")
-                    if (next) dumpData()
+                    if (next){
+                        dumpData().subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io())
+                                .subscribe({next ->
+                                    Log.d(tag,"dump data response: "+next)
+                                })
+                    }
                 }, {error ->
                     Log.d(tag,"connectionObservable onError() err: $error")
                 })
@@ -177,20 +189,32 @@ open class TripRepository(private val tripApi: PitstopTripApi
     //Dumps data from local database to server
     fun dumpData(): Observable<Boolean>{
         Log.d(tag,"dumpData()")
-        val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
-        localPendingTripStorage.get().forEach({
-            it.locations.forEach({location ->
-                tripData.add(location.data)
+        val localPendingData = localPendingTripStorage.get()
+        Log.d(tag,"dumping ${localPendingData.size} data points")
+        if (localPendingData.isEmpty()) return Observable.just(true)
+
+        /*Go through each trip and chunk the location data points to not overload the network layer
+        * , remove the data from the local storage chunk by chunk depending on if the request
+        * succeeded or failed
+        */
+        localPendingData.forEach({
+            it.locations.chunked(SIZE_CHUNK).forEach({locationChunk ->
+                val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
+                locationChunk.forEach({location ->
+                    tripData.add(location.data)
+                })
+                val remote = tripApi.store(gson.toJsonTree(tripData))
+                remote.subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .subscribe({ next ->
+                            Log.d(tag, "next = $next")
+                            localPendingTripStorage.delete(locationChunk)
+                        }, { err ->
+                            Log.d(tag, "error = ${err.message}")
+                        })
             })
         })
-        val remote = tripApi.store(gson.toJsonTree(tripData))
-        remote.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe({ next ->
-                    Log.d(tag, "next = $next")
-                }, { err ->
-                    Log.d(tag, "error = ${err.message}")
-                })
-        return remote.cache().map { true }
+
+        return Observable.just(true)
     }
 }

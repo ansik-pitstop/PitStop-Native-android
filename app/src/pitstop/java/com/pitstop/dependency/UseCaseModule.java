@@ -121,6 +121,8 @@ import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.SortReportsUseCaseImpl;
+import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
+import com.pitstop.interactors.other.StartDumpingTripDataWhenConnectedUseCaseImpl;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCaseImpl;
 import com.pitstop.interactors.other.Trip215EndUseCase;
@@ -751,6 +753,15 @@ public class UseCaseModule {
             , @Named("mainHandler")Handler mainHandler){
 
         return new AddTripUseCaseImpl(geocoder, localTripStorage, userRepository, carRepository
+                , useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    StartDumpingTripDataWhenConnecteUseCase startDumpingTripDataWhenConnecteUseCase(
+            TripRepository tripRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new StartDumpingTripDataWhenConnectedUseCaseImpl(tripRepository
                 , useCaseHandler,mainHandler);
     }
 }

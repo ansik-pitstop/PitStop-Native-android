@@ -196,14 +196,18 @@ public class NetworkModule {
     @Provides
     @Singleton
     Observable<Boolean> connectionObservable(Context context){
+        String TAG = "connectionObservable";
+        Log.d(TAG,"connectionObservable being created");
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 
         return Observable.create(emitter -> {
+            Log.d(TAG,"subscribe() emitter");
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context1, Intent intent) {
                     try {
+                        Log.d(TAG,"Received broadcast!");
                         ConnectivityManager conn = (ConnectivityManager)
                                 context1.getSystemService(Context.CONNECTIVITY_SERVICE);
                         if (conn != null && conn.getActiveNetworkInfo() != null) {
@@ -215,6 +219,7 @@ public class NetworkModule {
                 }
             };
             if (!receiverRegistered){
+                Log.d(TAG,"registering receiver");
                 context.registerReceiver(broadcastReceiver,intentFilter);
                 receiverRegistered = true;
             }

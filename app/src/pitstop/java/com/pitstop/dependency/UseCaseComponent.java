@@ -56,6 +56,7 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
+import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
@@ -231,5 +232,7 @@ public interface UseCaseComponent {
     RemoveTripUseCase removeTripUseCase();
 
     AddTripUseCase addTripUseCase();
+
+    StartDumpingTripDataWhenConnecteUseCase getStartDumpingTripDataWhenConnectedUseCase();
 
 }
