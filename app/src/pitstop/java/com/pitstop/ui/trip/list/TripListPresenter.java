@@ -162,7 +162,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
                     return;
                 }
                 else if (tripList.size() == 0) {
-                    mParentListener.noTrips();
+                    notifyParentFragmentNoTrips();
                     Log.d("trips", "zerolist");
                 }
                 else {
@@ -201,6 +201,10 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             }
         });
 
+    }
+
+    public void notifyParentFragmentNoTrips() {
+        mParentListener.noTrips();
     }
 
     @Override
