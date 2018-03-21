@@ -107,6 +107,10 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
 
+        if (trip.getLocationPolyline() == null) {
+            return;
+        }
+
         // Convert LocationPolyline's to LatLng's String
         String listLatLng = TripUtils.locationPolylineToLatLngString(trip.getLocationPolyline());
 
