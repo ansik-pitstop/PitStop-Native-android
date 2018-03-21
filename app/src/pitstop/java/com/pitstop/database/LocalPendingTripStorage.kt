@@ -97,9 +97,16 @@ class LocalPendingTripStorage(private val context: Context) {
     fun delete(locations: List<LocationData>): Int{
         Log.d(TAG,"delete() locations size: ${locations.size}")
         val db = databaseHelper.writableDatabase
-        val idArr = Array(locations.size, {locations[it].id.toString()})
-        val rows = db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
-                , TABLES.COMMON.KEY_OBJECT_ID + "=?", idArr)
+        var rows = 0
+        db.beginTransaction()
+        locations.forEach({locationData ->
+            val idArr = Array(1, {locationData.id.toString()})
+            Log.d(TAG,"idArr: ${idArr[0]}")
+            rows += db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                    , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=?", idArr)
+        })
+        db.setTransactionSuccessful()
+        db.endTransaction()
         Log.d(TAG,"deleted $rows rows")
         return rows
     }

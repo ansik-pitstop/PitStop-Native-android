@@ -7,6 +7,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.pitstop.Util;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -20,7 +21,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +60,7 @@ public class AddTripUseCaseTest {
 
         List<Location> trip = new ArrayList<>();
         for (int i=0;i<3;i++){
-            trip.add(getRandomLocation());
+            trip.add(Util.Companion.getRandomLocation());
         }
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
@@ -83,15 +83,5 @@ public class AddTripUseCaseTest {
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
-    }
-
-    private Location getRandomLocation(){
-        Random r = new Random();
-        Location location = new Location("dummyprovider");
-        location.setLatitude(r.nextDouble()*90);
-        location.setLongitude(r.nextDouble()*90);
-        location.setTime(System.currentTimeMillis());
-        Log.d(TAG,"time = "+Math.abs(r.nextInt()*1000000));
-        return location;
     }
 }

@@ -1,19 +1,36 @@
-package com.pitstop.database
+package com.pitstop
 
 import android.location.Location
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.models.trip.LocationData
 import com.pitstop.models.trip.TripData
+import java.util.*
 
 /**
  * Created by Karol Zdebel on 3/20/2018.
  */
 class Util {
     companion object {
-        fun locationsToDataPoints(vin: String, trip: Set<Location>): TripData{
+
+        fun getRandomLocation(): Location {
+            val r = Random()
+            val location = Location("dummyprovider")
+            location.latitude = r.nextDouble() * 90
+            location.longitude = r.nextDouble() * 90
+            location.time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
+            return location
+        }
+
+        fun locationsToDataPoints(locNum: Int, inVin: String): TripData{
+            val trip: MutableSet<Location> = hashSetOf()
+
+            for (i in 1..locNum){
+                trip.add(getRandomLocation())
+            }
+
             val tripDataPoints: MutableSet<LocationData> = mutableSetOf()
 
-            val vin = DataPoint(DataPoint.ID_VIN, vin)
+            val vin = DataPoint(DataPoint.ID_VIN, inVin)
             val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
             val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
             //Add everything but indicator, body of trip

@@ -180,7 +180,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
     }
 
     //Dumps data from local database to server
-    fun dumpData(): Observable<Int>{
+    fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
         val localPendingData = localPendingTripStorage.get()
         Log.d(tag,"dumping ${localPendingData.size} data points")
@@ -192,6 +192,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
         * succeeded or failed*/
         localPendingData.forEach({
             it.locations.chunked(SIZE_CHUNK).forEach({locationChunk ->
+                Log.d(tag,"locationChunk: ${locationChunk.size}")
                 val tripData: MutableSet<Set<DataPoint>> = mutableSetOf()
                 locationChunk.forEach({location ->
                     tripData.add(location.data)
@@ -201,13 +202,14 @@ open class TripRepository(private val tripApi: PitstopTripApi
                         .observeOn(Schedulers.io())
                         .subscribe({ next ->
                             Log.d(tag, "successfully stored chunk = $next")
-                            localPendingTripStorage.delete(locationChunk)
+                            val rows = localPendingTripStorage.delete(locationChunk)
+                            Log.d(tag,"removed $rows rows after storing chunk")
                         }, { err ->
-                            Log.d(tag, "error storing chunk = ${err.message}")
+                            Log.d(tag, "error storing chunk = $err")
                         })
                 observableList.add(
                         remote.cache()
-                                .map({ SIZE_CHUNK })
+                                .map({ locationChunk.size })
                                 .onErrorResumeNext { t:Throwable ->
                                     Log.d(tag,"observableList.add().onErrorResumeNext() returning 0")
                                     Observable.just(0)
@@ -215,11 +217,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
             })
         })
 
-        return Observable.zip(observableList, {
-            (it as Array<Int>).sumBy { num: Int -> num}
-        }).onErrorResumeNext({ t:Throwable ->
-            Log.d(tag,"Obervable.zip().onErrorResumeNext() err $t")
-            Observable.just(0)
+        return Observable.zip(observableList,{ list ->
+            Log.d(tag,"observable.zip()")
+            list.sumBy { (it as Int) }
         })
     }
 }
