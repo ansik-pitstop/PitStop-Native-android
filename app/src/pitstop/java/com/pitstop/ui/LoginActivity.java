@@ -20,6 +20,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -53,6 +54,7 @@ import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -60,6 +62,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MigrationService;
@@ -183,6 +186,7 @@ public class LoginActivity extends DebugDrawerActivity {
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        phoneNumber.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -309,6 +313,16 @@ public class LoginActivity extends DebugDrawerActivity {
         });
         logoAnimator.start();
 
+    }
+
+    @Override
+    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
+        return null;
+    }
+
+    @Override
+    public BluetoothWriter getBluetoothWriter() {
+        return null;
     }
 
     private void fadeInLoginViews() {
@@ -604,7 +618,8 @@ public class LoginActivity extends DebugDrawerActivity {
                 return;
             }
 
-            if (phoneNumber.getText().toString().length() != 10 && phoneNumber.getText().toString().length() != 11) {
+            if (phoneNumber.getText().toString().length() < 9
+                    || phoneNumber.getText().toString().length() > 15) {
                 Toast.makeText(LoginActivity.this, R.string.invalid_phone_error, Toast.LENGTH_LONG).show();
                 hideLoading();
                 return;
@@ -645,8 +660,13 @@ public class LoginActivity extends DebugDrawerActivity {
                         login(email.getText().toString().toLowerCase(), password.getText().toString());
                     } else {
                         Logger.getInstance().logE(TAG,"Sign up error: err="+requestError.getMessage(),DebugMessage.TYPE_OTHER);
-                        Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, requestError.getMessage(), Toast.LENGTH_LONG).show();
                         hideLoading();
+                        if (requestError.getMessage().contains("already used") || requestError.getMessage().contains("username")){
+                            Log.d(TAG,"contains already used!");
+                            onBackPressed();
+                            email.requestFocus();
+                        }
                     }
                 });
             } else {

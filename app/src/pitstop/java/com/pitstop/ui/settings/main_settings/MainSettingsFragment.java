@@ -32,7 +32,8 @@ import com.pitstop.utils.MixpanelHelper;
  * Created by Matt on 2017-06-12.
  */
 
-public class MainSettingsFragment extends PreferenceFragment implements MainSettingsView, SharedPreferences.OnSharedPreferenceChangeListener  {
+    public class MainSettingsFragment extends PreferenceFragment implements MainSettingsView, SharedPreferences.OnSharedPreferenceChangeListener  {
+
     private final String NAME_PREF_KEY = "pref_username_key";
     private final String PHONE_PREF_KEY = "pref_phone_number_key";
     private final String APP_INFO_KEY = "AppInfo";
@@ -108,6 +109,11 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
     @Override
     public void toast(String message) {
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void toast(int message) {
+        Toast.makeText(context,getText(message),Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -203,6 +209,13 @@ public class MainSettingsFragment extends PreferenceFragment implements MainSett
         startActivity(intent);
     }
 
-
+    @Override
+    public String getDisplayedPhoneNum() {
+        if (phonePreference != null){
+            return phonePreference.getText();
+        }else{
+            return "";
+        }
+    }
 }
 

@@ -9,6 +9,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
+import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportCallback;
 import com.pitstop.utils.MixpanelHelper;
@@ -77,7 +78,7 @@ public class HealthReportProgressPresenter {
            }
 
            @Override
-           public void onErrorGeneratingReport() {
+           public void onErrorGeneratingReport(RequestError error) {
                Log.d(TAG,"onErrorGeneratingReport()");
                mixpanelHelper.trackVhrProcess(MixpanelHelper.STEP_VHR_GENERATE_REPORT
                        ,MixpanelHelper.FAIL);

@@ -21,4 +21,6 @@ public interface MainSettingsView {
     void startPriv();
     void startTerms();
     void showLogOut();
+    String getDisplayedPhoneNum();
+    void toast(int message);
 }

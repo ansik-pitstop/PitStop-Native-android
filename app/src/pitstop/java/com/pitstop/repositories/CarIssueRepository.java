@@ -350,7 +350,7 @@ public class CarIssueRepository implements Repository{
         networkHelper.post(END_POINT_REQUEST_SERVICE, getRequestServiceCallback(callback), body);
 
         // If state is tentative, we put salesPerson to another endpoint
-        if (appointment.getState().equals(RequestServiceActivity.STATE_TENTATIVE)) {
+        if (appointment.getState().equals(RequestServiceActivity.activityResult.STATE_TENTATIVE)) {
             JSONObject updateSalesman = new JSONObject();
             try {
                 updateSalesman.put("carId", carId);

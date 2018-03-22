@@ -16,6 +16,7 @@ import com.pitstop.interactors.emissions.Post2141UseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
 import com.pitstop.interactors.get.GetAlarmsUseCase;
 import com.pitstop.interactors.get.GetAllAppointmentsUseCase;
+import com.pitstop.interactors.get.GetAppointmentStateUseCase;
 import com.pitstop.interactors.get.GetCarByCarIdUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
 import com.pitstop.interactors.get.GetCarImagesArrayUseCase;
@@ -40,6 +41,8 @@ import com.pitstop.interactors.get.GetPredictedServiceUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.get.GetSnapToRoadUseCase;
+import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
@@ -213,5 +216,11 @@ public interface UseCaseComponent {
     GetAllAppointmentsUseCase getAllAppointmentsUseCase();
 
     GetPredictedServiceUseCase getPredictedServiceDateUseCase();
+
+    GetAppointmentStateUseCase getAppointmentStateUseCase();
+
+    GetTripsUseCase getTripsUseCase();
+
+    GetSnapToRoadUseCase getSnapToRoadUseCase();
 
 }

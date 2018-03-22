@@ -40,6 +40,18 @@
                 />
 
             <Button
+                android:id="@+id/updateMileage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Mileage" />
+
+            <Button
+                android:id="@+id/getMileage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Get Mileage" />
+
+            <Button
                 android:id="@+id/describeProtocol"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

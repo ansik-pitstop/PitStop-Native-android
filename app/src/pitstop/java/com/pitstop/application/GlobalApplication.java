@@ -37,6 +37,7 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
+import com.pitstop.models.trip.DaoSession;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -81,6 +82,11 @@ public class GlobalApplication extends Application {
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
 
+    /**
+     * GreenDAO
+     */
+    private DaoSession daoSession;
+
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
 
@@ -118,13 +124,12 @@ public class GlobalApplication extends Application {
 
         Fabric.with(this, crashlyticsKit);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
-            Log.d(TAG,"Release build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
-        }
-        else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
-            Log.d(TAG,"Beta build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
+            Log.d(TAG, "Release build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Release");
+        } else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
+            Log.d(TAG, "Beta build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Beta");
         }
 
         Logger.initLogger(this);
@@ -141,7 +146,7 @@ public class GlobalApplication extends Application {
         ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
         FacebookSdk.sdkInitialize(this);
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
@@ -156,7 +161,7 @@ public class GlobalApplication extends Application {
         );
 
         ParseInstallation.getCurrentInstallation().saveInBackground(e -> {
-            if(e == null) {
+            if (e == null) {
                 Log.d(TAG, "Installation saved");
             } else {
                 Log.w(TAG, "Error saving installation: " + e.getMessage());
@@ -166,16 +171,16 @@ public class GlobalApplication extends Application {
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
-        Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
+        Log.d(TAG, "google sender id: " + SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
 
     }
 
-    public void setUpMixPanel(){
+    public void setUpMixPanel() {
         User user = mLocalUserStorage.getUser();
-        if(user != null) {
+        if (user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
@@ -188,7 +193,7 @@ public class GlobalApplication extends Application {
     }
 
     public MixpanelAPI getMixpanelAPI() {
-        if(mixpanelAPI == null) {
+        if (mixpanelAPI == null) {
             mixpanelAPI = MixpanelAPI.getInstance(this, SecretUtils.getMixpanelToken(this));
         }
         return mixpanelAPI;
@@ -244,7 +249,7 @@ public class GlobalApplication extends Application {
 
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
 
-        Log.d(TAG,"logInUser() user: "+currentUser);
+        Log.d(TAG, "logInUser() user: " + currentUser);
 
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -258,7 +263,7 @@ public class GlobalApplication extends Application {
 
         //Login to smooch with userId
         int userId = currentUser.getId();
-        if (userId != -1){
+        if (userId != -1) {
             Smooch.login(String.valueOf(userId), null);
         }
 
@@ -276,7 +281,7 @@ public class GlobalApplication extends Application {
         return mLocalUserStorage.getUser();
     }
 
-    public Car getCurrentCar(){
+    public Car getCurrentCar() {
 
         //Get most recent version of car list
         List<Car> carList = mLocalCarStorage.getAllCars();
@@ -285,7 +290,7 @@ public class GlobalApplication extends Application {
         if (carList.size() == 0)
             return null;
 
-        for (Car c: carList){
+        for (Car c : carList) {
             if (c.isCurrentCar())
                 return c;
         }
@@ -299,7 +304,7 @@ public class GlobalApplication extends Application {
     }
 
     public void setCurrentUser(User user) {
-        Log.i(TAG, "UserId:"+user.getId());
+        Log.i(TAG, "UserId:" + user.getId());
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
@@ -348,14 +353,18 @@ public class GlobalApplication extends Application {
         cleanUpDatabase();
     }
 
-    public void modifyMixpanelSettings(String field, Object value){
+    public void modifyMixpanelSettings(String field, Object value) {
         getMixpanelAPI().getPeople().set(field, value);
+    }
+
+    public DaoSession getDaoSession() {
+        return daoSession;
     }
 
     /**
      * Initiate database open helper when the app start
      */
-    private void initiateDatabase(){
+    private void initiateDatabase() {
         mLocalUserStorage = new LocalUserStorage(this);
         mLocalScannerStorage = new LocalScannerStorage(this);
         mLocalCarStorage = new LocalCarStorage(this);
@@ -365,7 +374,7 @@ public class GlobalApplication extends Application {
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
         mLocalDeviceTripStorage = new LocalDeviceTripStorage(this);
-        mLocalSpecsStorage  = new LocalSpecsStorage(this);
+        mLocalSpecsStorage = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
 
@@ -374,7 +383,7 @@ public class GlobalApplication extends Application {
     /**
      * Delete all rows in database
      */
-    private void cleanUpDatabase(){
+    private void cleanUpDatabase() {
         mLocalUserStorage.deleteAllUsers();
         mLocalScannerStorage.deleteAllRows();
         mLocalPidStorage.deleteAllRows();

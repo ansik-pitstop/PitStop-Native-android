@@ -279,8 +279,8 @@ public class ServiceFormPresenter implements PresenterCallback{
                                if(view == null || callback == null){return;}
                                view.showLoading(false);
                                view.disableButton(false);
-                               callback.finishActivity();
                                view.toast("Service requested successfully.");
+                               callback.finishActivity(true);
                            }
 
                            @Override

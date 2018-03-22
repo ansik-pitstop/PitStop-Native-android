@@ -2,8 +2,6 @@ package com.pitstop.interactors.get;
 
 import android.os.Handler;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Notification;
@@ -65,11 +63,10 @@ public class GetUserNotificationUseCaseImpl implements GetUserNotificationUseCas
                 List<String> userInstallationIds = data.getInstallationID();
                 ParseQuery<Notification> parseQuery = ParseQuery.getQuery("Notification");
                 parseQuery.whereContainedIn("recipients", userInstallationIds);
-                parseQuery.findInBackground(new FindCallback<Notification>() {
-                    @Override
-                    public void done(List<Notification> notificationsList, ParseException e) {
+                parseQuery.findInBackground((notificationsList, e) -> {
+                    if (e == null)
                         GetUserNotificationUseCaseImpl.this.onNotificationsRetrieved(notificationsList);
-                    }
+                    else GetUserNotificationUseCaseImpl.this.onError(RequestError.getUnknownError());
                 });
             }
             @Override

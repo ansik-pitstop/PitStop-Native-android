@@ -277,6 +277,15 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     @Override
+    public void showLoading(@NonNull int message) {
+        Log.d(TAG,"showLoading(): "+getText(message));
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.setMessage(getText(message));
+        progressDialog.show();
+    }
+
+    @Override
     public void hideLoading(@Nullable String message) {
         Log.d(TAG,"hideLoading(): "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -343,9 +352,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"onCouldNotConnectToDevice()");
         if (connectErrorDialog == null) {
             connectErrorDialog = new AnimatedDialogBuilder(getActivity())
-                    .setTitle("Connection Error")
+                    .setTitle(getString(R.string.connection_error))
                     .setCancelable(true)
-                    .setMessage("We couldn't connect to your device. Try again?")
+                    .setMessage(getString(R.string.connection_try_again))
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
                             presenter.startSearch();
                     })
@@ -359,7 +368,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public void connectingToDevice() {
-        showLoading("Connecting to Device");
+        showLoading(getString(R.string.connecting_to_device));
     }
 
 

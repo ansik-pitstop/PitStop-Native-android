@@ -8,16 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -35,6 +31,7 @@ import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalScannerStorage
 import com.pitstop.database.LocalShopStorage
@@ -43,7 +40,6 @@ import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
-import com.pitstop.interactors.get.GetCurrentCarDealershipUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.models.Car
@@ -55,13 +51,18 @@ import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
+import com.pitstop.ui.Notifications.NotificationFragment
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
+import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
+import com.pitstop.ui.trip.TripsFragment
+import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MigrationService
@@ -111,6 +112,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var addCarDialog: AlertDialog? = null;
     private var addDealershipDialog: AlertDialog? = null;
 
+    private lateinit var mainServicesFragment: MainServicesFragment
+    private lateinit var startReportFragment: StartReportFragment
+    private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
+    private lateinit var notificationFragment: NotificationFragment
+    private lateinit var tripsFragment: TripsFragment
+
 
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
 
@@ -121,6 +128,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
             autoConnectService.subscribe(this@MainActivity)
             autoConnectService.requestDeviceSearch(false, false)
+            startReportFragment.bluetoothConnectionObservable = autoConnectService
             displayDeviceState(autoConnectService.deviceState)
             notifyServiceBinded(autoConnectService)
             checkPermissions()
@@ -219,6 +227,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
         }
 
+        mainServicesFragment = MainServicesFragment()
+        startReportFragment = StartReportFragment()
+        vehicleSpecsFragment = VehicleSpecsFragment()
+        notificationFragment = NotificationFragment()
+        tripsFragment = TripsFragment()
+
         serviceIntent = Intent(this@MainActivity, BluetoothAutoConnectService::class.java)
         startService(serviceIntent)
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -239,8 +253,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 //        } else {
        /*     drawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.app_name, R.string.app_name
             mDrawerLayout.setDrawerListener(drawerToggle)
-
-
         //}
         setUpDrawer()*/
         progressDialog = ProgressDialog(this)
@@ -253,7 +265,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         logAuthInfo()
         updateScannerLocalStore()
-        tabFragmentManager = TabFragmentManager(this, mixpanelHelper)
+
+        tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
+                , vehicleSpecsFragment, notificationFragment, tripsFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
@@ -459,7 +473,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             } else {
                 mixpanelHelper?.trackButtonTapped("Cancel in Add Car", "Add Car")
             }
-        } else {
+        } else if (requestCode == RC_REQUEST_SERVICE
+                && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
+            mainServicesFragment.onServiceRequested();
+        }else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
     }
@@ -652,7 +669,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         val thisInstance = this
         val intent = Intent(thisInstance, RequestServiceActivity::class.java)
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, isFirstAppointment)
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, isFirstAppointment)
         isFirstAppointment = false
         startActivity(intent)
 
@@ -839,9 +856,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun openRequestService(tentative: Boolean) {
         val intent = Intent(this, RequestServiceActivity::class.java)
-        intent.putExtra(RequestServiceActivity.EXTRA_FIRST_BOOKING, tentative)
+        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
         isFirstAppointment = false
-        startActivity(intent)
+        //Result is captured by certain fragments such as service fragment which displays booked appointment
+        startActivityForResult(intent,RC_REQUEST_SERVICE)
         hideLoading()
     }
 
@@ -964,4 +982,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (mDrawerLayout != null)
             mDrawerLayout.closeDrawers()
     }
+
+    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable?
+            = autoConnectService
+
+    override fun getBluetoothWriter(): BluetoothWriter? = autoConnectService
+
 }

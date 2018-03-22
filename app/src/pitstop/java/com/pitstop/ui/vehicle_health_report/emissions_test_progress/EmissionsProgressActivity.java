@@ -17,6 +17,7 @@ import android.view.WindowManager;
 
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress_view.InProgressFragment;
@@ -96,6 +97,16 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
         super.onDestroy();
         unbindService(serviceConnection);
         presenter.unsubscribe();
+    }
+
+    @Override
+    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
+        return autoConnectService;
+    }
+
+    @Override
+    public BluetoothWriter getBluetoothWriter() {
+        return autoConnectService;
     }
 
     @Override

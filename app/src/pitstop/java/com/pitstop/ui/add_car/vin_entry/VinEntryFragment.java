@@ -32,8 +32,6 @@ import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
-import org.jsoup.select.Evaluator;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -352,6 +350,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void displayVin(String vin) {
         Log.d(TAG,"displayVin() vin: "+vin);
         if (vin == null) vin = "";
+        this.VIN = vin;
         vinEditText.setText(vin);
     }
 
@@ -407,6 +406,15 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     }
 
     @Override
+    public void showLoading(@NonNull int message) {
+        Log.d(TAG,"showLoading(): "+message+", indeterminate: "+indeterminate);
+        if (progressDialog == null || getActivity() == null) return;
+
+        progressDialog.setMessage(getText(message));
+        progressDialog.show();
+    }
+
+    @Override
     public void hideLoading(@Nullable String message) {
         Log.d(TAG,"hideLoading() message: "+message);
         if (progressDialog == null || getActivity() == null) return;
@@ -437,10 +445,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
             Log.d(TAG,"onActivityResult() requestCode == ScanRequestCode" +
                     ", result: "+(result == null ? "" : result.getContents()));
 
-            if (result == null || result.getContents() == null){
-                vinEditText.setText(this.VIN);
-                presenter.onGotVinScanResult("");}
-            else{
+            if (result != null && result.getContents() != null){
                 presenter.onGotVinScanResult(result.getContents());
             }
         }

@@ -7,10 +7,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.R;
 import com.pitstop.ui.Notifications.NotificationFragment;
-import com.pitstop.ui.dashboard.DashboardFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
-import com.pitstop.ui.my_garage.MyGarageFragment;
 import com.pitstop.ui.services.MainServicesFragment;
+import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
@@ -23,14 +22,22 @@ import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
 public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    MainServicesFragment mainServicesFragment;
-    StartReportFragment startReportFragment;
-    VehicleSpecsFragment vehicleSpecsFragment;
-    NotificationFragment notificationFragment;
-    Context context;
+    private MainServicesFragment mainServicesFragment;
+    private StartReportFragment startReportFragment;
+    private VehicleSpecsFragment vehicleSpecsFragment;
+    private NotificationFragment notificationFragment;
+    private TripsFragment tripsFragment;
+    private Context context;
 
-    public TabViewPagerAdapter(FragmentManager fm, Context context) {
+    public TabViewPagerAdapter(FragmentManager fm, MainServicesFragment mainServicesFragment
+            , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
+            , NotificationFragment notificationFragment, TripsFragment tripsFragment, Context context) {
         super(fm);
+        this.mainServicesFragment = mainServicesFragment;
+        this.startReportFragment = startReportFragment;
+        this.vehicleSpecsFragment = vehicleSpecsFragment;
+        this.notificationFragment = notificationFragment;
+        this.tripsFragment = tripsFragment;
         this.context = context;
     }
 
@@ -40,27 +47,18 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         switch(position){
             case TabFragmentManager.TAB_SERVICES:
-                if (mainServicesFragment == null){
-                    mainServicesFragment = new MainServicesFragment();
-                }
                 return mainServicesFragment;
             case TabFragmentManager.TAB_SCAN:
-                if (startReportFragment == null){
-                    startReportFragment = new StartReportFragment();
-                }
                 return startReportFragment;
 
             case TabFragmentManager.TAB_VEHICLE_SPECS:
-                if (vehicleSpecsFragment == null){
-                    vehicleSpecsFragment = vehicleSpecsFragment.newInstance();
-                }
                 return vehicleSpecsFragment;
 
             case TabFragmentManager.TAB_NOTIF:
-                if (notificationFragment == null){
-                    notificationFragment = NotificationFragment.newInstance();
-                }
                 return notificationFragment;
+
+            case TabFragmentManager.TAB_TRIPS_LIST:
+                return tripsFragment;
         }
         return null;
     }
@@ -68,7 +66,7 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
 
-        return 4;
+        return 5;
     }
 
     @Override
@@ -83,6 +81,8 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return "My Car";
             case TabFragmentManager.TAB_SERVICES:
                 return context.getString(R.string.services_nav_text);
+            case TabFragmentManager.TAB_TRIPS_LIST:
+                return context.getString(R.string.my_trips);
         }
         return "";
     }

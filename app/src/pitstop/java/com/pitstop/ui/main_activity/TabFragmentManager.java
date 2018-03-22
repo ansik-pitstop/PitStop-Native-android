@@ -7,8 +7,12 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
+import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
+import com.pitstop.ui.trip.TripsFragment;
+import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
+import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.MixpanelHelper;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
@@ -24,10 +28,11 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     private final String TAG = getClass().getSimpleName();
 
-    public static final int TAB_SERVICES = 1;
-    public static final int TAB_SCAN = 0;
-    public static final int TAB_VEHICLE_SPECS = 2;
+    public static final int TAB_SERVICES = 2;
+    public static final int TAB_SCAN = 1;
+    public static final int TAB_VEHICLE_SPECS = 0;
     public static final int TAB_NOTIF = 3;
+    public static final int TAB_TRIPS_LIST = 4;
 
     public String[] TAB_NAMES;
 
@@ -44,15 +49,29 @@ public class TabFragmentManager implements BadgeDisplayer{
     private FragmentActivity mActivity;
     private MixpanelHelper mMixpanelHelper;
 
-    public TabFragmentManager(FragmentActivity activity, MixpanelHelper mixpanelHelper) {
+    private MainServicesFragment mainServicesFragment;
+    private StartReportFragment startReportFragment;
+    private VehicleSpecsFragment vehicleSpecsFragment;
+    private NotificationFragment notificationFragment;
+    private TripsFragment tripsFragment;
+
+    public TabFragmentManager(FragmentActivity activity, MainServicesFragment mainServicesFragment
+            , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
+            , NotificationFragment notificationFragment, TripsFragment tripsFragment, MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
+        this.mainServicesFragment = mainServicesFragment;
+        this.startReportFragment = startReportFragment;
+        this.vehicleSpecsFragment = vehicleSpecsFragment;
+        this.notificationFragment = notificationFragment;
+        this.tripsFragment = tripsFragment;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
+                mActivity.getApplicationContext().getString(R.string.my_garage),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.services_nav_text),
-                mActivity.getApplicationContext().getString(R.string.my_garage),
-                mActivity.getApplicationContext().getString(R.string.notifications)
+                mActivity.getApplicationContext().getString(R.string.notifications),
+                mActivity.getApplicationContext().getString(R.string.my_trips)
         };
     }
 
@@ -63,10 +82,11 @@ public class TabFragmentManager implements BadgeDisplayer{
     public void createTabs(){
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
-                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mActivity);
+                = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
+                , startReportFragment, vehicleSpecsFragment, notificationFragment, tripsFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(5);
 
         bottomBar.setOnTabSelectListener(tabId -> {
             switch(tabId){
@@ -81,6 +101,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                     break;
                 case R.id.tab_notifications:
                     mViewPager.setCurrentItem(TAB_NOTIF);
+                    break;
+                case R.id.tab_trips:
+                    mViewPager.setCurrentItem(TAB_TRIPS_LIST);
                     break;
             }
         });
@@ -112,6 +135,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                         break;
                     case TAB_NOTIF:
                         mMixpanelHelper.trackSwitchedToTab("Notifications");
+                        break;
+                    case TAB_TRIPS_LIST:
+                        mMixpanelHelper.trackSwitchedToTab("Trips");
                         break;
                 }
 
@@ -148,6 +174,9 @@ public class TabFragmentManager implements BadgeDisplayer{
                         break;
                     case TAB_NOTIF:
                         bottomBar.selectTabWithId(R.id.tab_notifications);
+                        break;
+                    case TAB_TRIPS_LIST:
+                        bottomBar.selectTabWithId(R.id.tab_trips);
                         break;
                 }
             }

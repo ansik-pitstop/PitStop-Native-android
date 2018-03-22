@@ -11,4 +11,26 @@ interface MainServicesView {
 
     //Select respective tab
     fun selectTab(tab: ServiceTab)
+
+    //Display layout #1
+    fun displayMileageUpdateNeeded()
+    //Displays dialog which allows the input of mileage
+    fun displayMileageInputDialog()
+    //Called when predicted service date is loading on backend
+    fun displayWaitingForPredictedService()
+
+
+    //Display booked appointment
+    fun displayAppointmentBooked(date: String, who: String)
+
+    //Display predicted service
+    fun displayPredictedService(from: String, to: String)
+    //Go to RequestServiceActivity
+    fun beginRequestService()
+
+    //Displays error message in dialog
+    fun displayErrorMessage(stringCode: Int)
+    fun displayErrorMessage(error: String)
+    //Displays nothing
+    fun displayNoState()
 }

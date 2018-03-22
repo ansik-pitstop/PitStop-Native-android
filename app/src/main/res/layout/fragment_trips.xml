@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relative_main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/unknown_error_view"
+        layout="@layout/layout_unknown_error"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/no_trip_view"
+        layout="@layout/layout_no_trips"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/linear_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
+
+        <com.pitstop.ui.MapView
+            android:id="@+id/mapview_trips"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="50"></com.pitstop.ui.MapView>
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="50" />
+
+    </LinearLayout>
+
+</RelativeLayout>

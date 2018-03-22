@@ -50,8 +50,7 @@ public class AppointmentsAdapter extends RecyclerView.Adapter<AppointmentsAdapte
 
         } else {
             Appointment currentApp = mAppts.get(position);
-
-            SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa", Locale.CANADA);
+            SimpleDateFormat newFormat = new SimpleDateFormat("EEE dd MMM yyyy - hh:mm aa z", Locale.CANADA);
             holder.date.setText(newFormat.format(currentApp.getDate()));
 
             if(currentApp.getComments().equals("")) {

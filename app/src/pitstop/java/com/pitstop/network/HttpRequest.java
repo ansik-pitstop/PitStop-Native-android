@@ -232,7 +232,12 @@ public class HttpRequest {
                             DebugMessage.TYPE_NETWORK);
 
                     RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
-                    error.setStatusCode(response.getStatusCode());
+                    if (error != null){
+                        error.setStatusCode(response.getStatusCode());
+                    }else{
+                        error = RequestError.getUnknownError();
+                        error.setStatusCode(500);
+                    }
 
                     if (response.getStatusCode() == 401
                             && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)

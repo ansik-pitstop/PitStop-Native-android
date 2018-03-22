@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -17,11 +18,15 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class RequestServiceActivity extends AppCompatActivity implements RequestServiceView,RequestServiceCallback {
 
+    private final String TAG = RequestServiceActivity.class.getSimpleName();
 
-    public static final String EXTRA_FIRST_BOOKING = "is_first_booking";
-    public static final String STATE_TENTATIVE = "tentative";
-    public static final String STATE_REQUESTED = "requested";
-
+    public interface activityResult{
+        int RESULT_SUCCESS = 1;
+        int RESULT_FAILURE = 0;
+        String EXTRA_FIRST_BOOKING = "is_first_booking";
+        String STATE_TENTATIVE = "tentative";
+        String STATE_REQUESTED = "requested";
+    }
 
     private ServiceFormFragment serviceFormFragment;
 
@@ -35,7 +40,7 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_service);
-        isFirstBooking = getIntent().getExtras().getBoolean(EXTRA_FIRST_BOOKING);
+        isFirstBooking = getIntent().getExtras().getBoolean(activityResult.EXTRA_FIRST_BOOKING);
 
         fragmentManager = getSupportFragmentManager();
         MixpanelHelper mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
@@ -63,21 +68,23 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         presenter.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
-    public void finishActivity() {
-        super.finish();
+    public void finishActivity(boolean success) {
+        Log.d(TAG,"finishActivity() success? "+success);
+        setResult(success? activityResult.RESULT_SUCCESS: activityResult.RESULT_FAILURE);
+        finish();
     }
 
     @Override
     public String checkTentative() {
         if(isFirstBooking){
-            return STATE_TENTATIVE;
+            return activityResult.STATE_TENTATIVE;
         }else{
-            return STATE_REQUESTED;
+            return activityResult.STATE_REQUESTED;
         }
     }
 }

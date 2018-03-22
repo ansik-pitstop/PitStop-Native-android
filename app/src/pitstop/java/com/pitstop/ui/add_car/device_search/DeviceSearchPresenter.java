@@ -295,7 +295,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             findDeviceTimer.cancel();
             connectingToDevice = true;
             connectionTimer.start();
-            view.showLoading("Found Devices");
+            view.showLoading(R.string.found_devices);
         }
 
     }
