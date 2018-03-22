@@ -22,7 +22,7 @@ import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopCarApi;
-import com.pitstop.retrofit.PitstopSnapToRoadApi;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.utils.NetworkHelper;
 
@@ -109,7 +109,7 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    SnapToRoadRepository getSnapToRoadRepository(PitstopSnapToRoadApi pitstopSnapToRoadApi){
-        return new SnapToRoadRepository(pitstopSnapToRoadApi);
+    SnapToRoadRepository getSnapToRoadRepository(GoogleSnapToRoadApi googleSnapToRoadApi){
+        return new SnapToRoadRepository(googleSnapToRoadApi);
     }
 }
