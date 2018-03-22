@@ -80,8 +80,7 @@ public class TripListFragment extends Fragment implements TripListView {
         }
         swipeRefreshLayout.setOnRefreshListener(() -> {
 
-            String carVin = ((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin();
-            presenter.onRefresh(carVin);
+            presenter.onRefresh();
 
         });
 
@@ -231,8 +230,7 @@ public class TripListFragment extends Fragment implements TripListView {
         Car car = ((GlobalApplication) context.getApplicationContext()).getCurrentCar();
 
         if (car != null) { // The user has a selected car
-            String carVin = car.getVin();
-            presenter.onUpdateNeeded(carVin);
+            presenter.onUpdateNeeded();
         } else { // The user hasn't a selected car
             presenter.notifyParentFragmentNoTrips();
         }

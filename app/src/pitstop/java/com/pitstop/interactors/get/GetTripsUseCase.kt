@@ -17,6 +17,6 @@ interface GetTripsUseCase : Interactor {
     }
 
     //Execute the use case
-    fun execute(vin: String, callback: Callback)
+    fun execute(callback: Callback)
 
 }

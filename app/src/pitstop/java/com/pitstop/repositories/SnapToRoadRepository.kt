@@ -2,13 +2,13 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.pitstop.models.snapToRoad.SnappedPoint
-import com.pitstop.retrofit.PitstopSnapToRoadApi
+import com.pitstop.retrofit.GoogleSnapToRoadApi
 import io.reactivex.Observable
 
 /**
  * Created by David C. on 16/3/18.
  */
-class SnapToRoadRepository(private val snapToRoadApi: PitstopSnapToRoadApi) : Repository {
+class SnapToRoadRepository(private val snapToRoadApi: GoogleSnapToRoadApi) : Repository {
 
     private val tag = javaClass.simpleName
 

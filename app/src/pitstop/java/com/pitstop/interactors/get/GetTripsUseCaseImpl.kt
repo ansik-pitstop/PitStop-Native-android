@@ -24,11 +24,9 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
 
     private val tag = javaClass.simpleName
     private var callback: GetTripsUseCase.Callback? = null
-    private var vin: String = ""
 
-    override fun execute(vin: String, callback: GetTripsUseCase.Callback) {
+    override fun execute(callback: GetTripsUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
-        this.vin = vin
         this.callback = callback
         useCaseHandler.post(this)
     }

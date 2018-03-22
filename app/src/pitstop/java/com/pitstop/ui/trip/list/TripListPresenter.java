@@ -125,26 +125,26 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
-    void onRefresh(String carVin) {
+    void onRefresh() {
         Log.d(TAG, "onRefresh()");
 
         if (getView() != null && getView().isRefreshing() && updating) {
             getView().hideRefreshing();
         } else {
-            onUpdateNeeded(carVin);
+            onUpdateNeeded();
         }
 
     }
 
-    public void onUpdateNeeded(String carVin){
-        Log.d(TAG, "onUpdateNeeded, TripListPresenter, Car VIN: " + carVin);
+    public void onUpdateNeeded(){
+        Log.d(TAG, "onUpdateNeeded, TripListPresenter");
         if (getView() == null || updating) {
             return;
         }
         updating = true;
         getView().showLoading();
 
-        useCaseComponent.getTripsUseCase().execute(carVin, new GetTripsUseCase.Callback() {
+        useCaseComponent.getTripsUseCase().execute(new GetTripsUseCase.Callback() {
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 

@@ -10,7 +10,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
-import com.pitstop.retrofit.PitstopSnapToRoadApi;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
@@ -153,13 +153,13 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    PitstopSnapToRoadApi pitstopSnapToRoadApi(Context context){
+    GoogleSnapToRoadApi googleSnapToRoadApi(Context context){
         return new Retrofit.Builder()
                 .baseUrl(SecretUtils.getSnapToRoadEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(getHttpClient(context))
                 .build()
-                .create(PitstopSnapToRoadApi.class);
+                .create(GoogleSnapToRoadApi.class);
     }
 }
