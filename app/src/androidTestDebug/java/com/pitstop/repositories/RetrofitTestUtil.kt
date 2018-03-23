@@ -2,8 +2,10 @@ package com.pitstop.repositories
 
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopAppointmentApi
 import com.pitstop.retrofit.PitstopAuthApi
+import com.pitstop.retrofit.PitstopTripApi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,6 +22,22 @@ class RetrofitTestUtil {
                 .client(getHttpClient())
                 .build()
                 .create(PitstopAppointmentApi::class.java)
+
+        fun getTripApi(): PitstopTripApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(PitstopTripApi::class.java)
+
+        fun getSnapToRoadApi(): GoogleSnapToRoadApi = Retrofit.Builder()
+                .baseUrl(getSnapToRoadBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(GoogleSnapToRoadApi::class.java)
 
         private fun getAccessToken(): String{
             val username = "unit_test@test.com"
@@ -44,6 +62,8 @@ class RetrofitTestUtil {
         }
 
         private fun getBaseURL(): String = "http://staging.api.getpitstop.io:10010/"
+
+        private fun getSnapToRoadBaseURL(): String = "https://roads.googleapis.com/"
 
         private fun getHttpClient(): OkHttpClient {
             return OkHttpClient.Builder()

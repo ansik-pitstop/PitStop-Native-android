@@ -22,6 +22,7 @@ import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.SecretUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class TripListFragment extends Fragment implements TripListView {
 
     private final String TAG = getClass().getSimpleName();
 
+    private static final String INTERPOLATE = "true";
+
     @BindView(R.id.swiperefresh_trip_list)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -50,6 +53,8 @@ public class TripListFragment extends Fragment implements TripListView {
     private List<Trip> mTripList = new ArrayList<>();
     private TripListAdapter tripListAdapter;
 
+    private String apiKey;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,6 +63,8 @@ public class TripListFragment extends Fragment implements TripListView {
         ButterKnife.bind(this, view);
 
         context = getContext();
+
+        apiKey = SecretUtils.getMapsApiKey(context);
 
         tripListAdapter = new TripListAdapter(context, mTripList, this);
         tripsRecyclerView.setAdapter(tripListAdapter);
@@ -93,7 +100,6 @@ public class TripListFragment extends Fragment implements TripListView {
 
         presenter.onUpdateNeeded();
 
-        //presenter.loadView(((GlobalApplication) context.getApplicationContext()).getCurrentCar().getVin()); //TODO: replace with the current Car's VIN
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -164,7 +170,7 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void onTripRowClicked(Trip trip) {
 
-        presenter.onTripRowClicked(trip);
+        presenter.onTripRowClicked(trip, INTERPOLATE, apiKey);
 
     }
 

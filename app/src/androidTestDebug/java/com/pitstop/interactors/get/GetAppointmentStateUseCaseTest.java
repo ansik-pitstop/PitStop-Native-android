@@ -9,6 +9,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Appointment;
+import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.PredictedService;
 import com.pitstop.utils.NetworkHelper;
@@ -57,7 +58,7 @@ public class GetAppointmentStateUseCaseTest {
             }
 
             @Override
-            public void onAppointmentBookedState(@NotNull Appointment appointment) {
+            public void onAppointmentBookedState(@NotNull Appointment appointment, Dealership dealership) {
                 Log.d(TAG,"onAppointmentBookedState() appointment: "+appointment);
                 completableFuture.complete(appointment);
             }

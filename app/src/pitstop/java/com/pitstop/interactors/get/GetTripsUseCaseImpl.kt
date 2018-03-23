@@ -52,33 +52,36 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
     override fun run() {
         Log.d(tag, "run()")
 
-        //val currentVin = "WVWXK73C37E116278" //TODO: replace with the current Car's VIN
+        //val currentVin = "WVWXK73C37E116278"
 
-        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
             override fun onSuccess(data: Settings?) {
-                Log.d(tag,"got settings with carId: ${data!!.carId}")
+                Log.d(tag, "got settings with carId: ${data!!.carId}")
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation(), true)
-                        .subscribe({ car ->
-                            Log.d(tag,"got car vin: ${car.data!!.vin}")
+                        .doOnError { err ->
+                            Log.d(tag, "Error: " + err)
+                            this@GetTripsUseCaseImpl.onError(RequestError(err))
+                        }
+                        .doOnNext { car ->
+                            Log.d(tag, "got car vin: ${car.data!!.vin}, isLocal = ${car.isLocal}")
 
                             tripRepository.getTripsByCarVin(car.data!!.vin)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.computation(), true)
                                     .subscribe({ next ->
-                                        Log.d(tag, "tripRepository.onNext() data: " + next)
+                                        Log.d(tag, "tripRepository.onNext() data: $next , isLocal = ${next.isLocal}")
                                         this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)
                                     }, { error ->
                                         Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
                                         this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
                                     })
 
-                        }, { err ->
-                            Log.d(tag, "Error: " + err)
-                            this@GetTripsUseCaseImpl.onError(RequestError(err))
-                        })
+                        }
+                        .subscribe()
             }
+
             override fun onError(error: RequestError?) {
                 this@GetTripsUseCaseImpl.onError(error)
             }
