@@ -59,7 +59,6 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     public void onAppStateChanged() {
         Log.d(TAG, "onAppStateChanged()");
         getView().requestForDataUpdate();
-        //onUpdateNeeded();
 
     }
 

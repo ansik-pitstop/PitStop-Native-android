@@ -1,6 +1,5 @@
 package com.pitstop.ui.trip;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -49,7 +48,6 @@ public class TripsFragment extends Fragment implements TripsView {
     @BindView(R.id.mapview_trips)
     protected MapView mapView;
 
-    private Context context;
     private TripsPresenter presenter;
 
     private TripListFragment tripListFragment;
@@ -62,8 +60,6 @@ public class TripsFragment extends Fragment implements TripsView {
         View view = inflater.inflate(R.layout.fragment_trips, null);
         ButterKnife.bind(this, view);
 
-        context = getContext();
-
         if (presenter == null) {
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getContext()))
@@ -74,7 +70,6 @@ public class TripsFragment extends Fragment implements TripsView {
 
             presenter = new TripsPresenter(useCaseComponent, mixpanelHelper);
         }
-//        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;
     }
@@ -83,7 +78,6 @@ public class TripsFragment extends Fragment implements TripsView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
-        //presenter.loadView();
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -96,7 +90,6 @@ public class TripsFragment extends Fragment implements TripsView {
 
         getChildFragmentManager().beginTransaction().add(R.id.fragment_container, tripListFragment).commit();
 
-        //tripListFragment.onRefresh();
     }
 
     @Override
@@ -109,23 +102,16 @@ public class TripsFragment extends Fragment implements TripsView {
     @Override
     public void showLoading() {
 
-        Log.d(TAG,"showLoading()");
-//        if (!swipeRefreshLayout.isRefreshing()){
+        Log.d(TAG, "showLoading()");
         loadingSpinner.setVisibility(View.VISIBLE);
-//        }
 
     }
 
     @Override
     public void hideLoading() {
 
-        Log.d(TAG,"hideLoading()");
-//        if (swipeRefreshLayout.isRefreshing()){
-//            swipeRefreshLayout.setRefreshing(false);
-//        }else{
+        Log.d(TAG, "hideLoading()");
         loadingSpinner.setVisibility(View.GONE);
-//            swipeRefreshLayout.setEnabled(true);
-//        }
 
     }
 
@@ -174,7 +160,6 @@ public class TripsFragment extends Fragment implements TripsView {
         //offlineView.setVisibility(View.GONE);
         noTripView.setVisibility(View.VISIBLE);
         loadingSpinner.bringToFront();
-        //swipeRefreshLayout.setEnabled(true); // TODO: Implement
 
     }
 

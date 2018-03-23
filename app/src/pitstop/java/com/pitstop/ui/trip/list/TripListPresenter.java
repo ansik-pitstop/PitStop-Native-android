@@ -15,6 +15,7 @@ import com.pitstop.utils.MixpanelHelper;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -95,18 +96,18 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
-    void onRefresh() {
+    void onRefresh(int sortParam) {
         Log.d(TAG, "onRefresh()");
 
         if (getView() != null && getView().isRefreshing() && updating) {
             getView().hideRefreshing();
         } else {
-            onUpdateNeeded();
+            onUpdateNeeded(sortParam);
         }
 
     }
 
-    public void onUpdateNeeded(){
+    public void onUpdateNeeded(int sortParam) {
         Log.d(TAG, "onUpdateNeeded, TripListPresenter");
         if (getView() == null || updating) {
             return;
@@ -118,27 +119,25 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 
-                Log.d(TAG,"onTripListRetrieved() trips: " + tripList);
+                Log.d(TAG, "onTripListRetrieved() trips: " + tripList);
                 updating = false;
-                if (getView() == null){
+                if (getView() == null) {
                     Log.d("trips", "return");
                     return;
                 }
 
                 getView().hideLoading();
-                if (tripList == null){
+                if (tripList == null) {
                     getView().displayUnknownErrorView();
-                    //getView().displayBadgeCount(0);
                     return;
-                }
-                else if (tripList.size() == 0) {
+                } else if (tripList.size() == 0) {
                     notifyParentFragmentNoTrips();
                     Log.d("trips", "zerolist");
-                }
-                else {
+                } else {
                     Log.d("trips", "display");
                     mParentListener.thereAreTrips();
-                    getView().displayTripList((List<Trip>) tripList);
+                    sortTripListBy((List<Trip>) tripList, sortParam);
+                    //getView().displayTripList((List<Trip>) tripList);
                 }
 
             }
@@ -150,19 +149,16 @@ public class TripListPresenter extends TabPresenter<TripListView> {
                 updating = false;
                 if (getView() == null) return;
 
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (getView().hasBeenPopulated()){
+                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                    if (getView().hasBeenPopulated()) {
                         getView().displayOfflineErrorDialog();
-                    }
-                    else {
+                    } else {
                         getView().displayOfflineView();
                     }
-                }
-                else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
-                    if (getView().hasBeenPopulated()){
+                } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
+                    if (getView().hasBeenPopulated()) {
                         getView().displayUnknownErrorDialog();
-                    }
-                    else {
+                    } else {
                         getView().displayUnknownErrorView();
                     }
                 }
@@ -175,6 +171,65 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     public void notifyParentFragmentNoTrips() {
         mParentListener.noTrips();
+    }
+
+    public void sortTripListBy(List<Trip> tripList, int sortParam) {
+
+        List<Trip> sortedTripList;
+
+        switch (sortParam) {
+            case 0:
+                sortedTripList = sortTripsByDate(tripList);
+                break;
+            case 1:
+                sortedTripList = sortTripsByLengthOfTime(tripList);
+                break;
+            case 2:
+                sortedTripList = sortTripsByDistance(tripList);
+                break;
+            default:
+                sortedTripList = tripList;
+                break;
+        }
+
+        getView().displayTripList(sortedTripList);
+
+    }
+
+    private List<Trip> sortTripsByDate(List<Trip> tripList) {
+        Collections.sort(tripList, (trip1, trip2) -> {
+
+            int date1 = Integer.valueOf(trip1.getTimeStart());
+            int date2 = Integer.valueOf(trip2.getTimeStart());
+
+            return date1 > date2 ? 1 : -1;
+        });
+
+        return tripList;
+    }
+
+    private List<Trip> sortTripsByLengthOfTime(List<Trip> tripList) {
+        Collections.sort(tripList, (trip1, trip2) -> {
+
+            int time1 = Integer.valueOf(trip1.getTimeEnd()) - Integer.valueOf(trip1.getTimeStart());
+            int time2 = Integer.valueOf(trip2.getTimeEnd()) - Integer.valueOf(trip2.getTimeStart());
+
+            return time1 > time2 ? 1 : -1;
+        });
+
+        return tripList;
+    }
+
+    private List<Trip> sortTripsByDistance(List<Trip> tripList) {
+        Collections.sort(tripList, (trip1, trip2) -> {
+
+            double distance1 = trip1.getMileageAccum();
+            double distance2 = trip2.getMileageAccum();
+
+            return distance1 > distance2 ? 1 : -1;
+        });
+
+        return tripList;
     }
 
     @Override
