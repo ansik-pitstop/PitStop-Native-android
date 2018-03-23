@@ -37,7 +37,6 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.models.trip.DaoSession;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -81,11 +80,6 @@ public class GlobalApplication extends Application {
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
-
-    /**
-     * GreenDAO
-     */
-    private DaoSession daoSession;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -355,10 +349,6 @@ public class GlobalApplication extends Application {
 
     public void modifyMixpanelSettings(String field, Object value) {
         getMixpanelAPI().getPeople().set(field, value);
-    }
-
-    public DaoSession getDaoSession() {
-        return daoSession;
     }
 
     /**

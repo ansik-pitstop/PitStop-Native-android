@@ -161,6 +161,7 @@
         android:text="Back"
         android:layout_margin="10dp" />
 
+    <!--
     <RelativeLayout
         android:id="@+id/relative_alarms_container"
         android:layout_width="match_parent"
@@ -230,5 +231,6 @@
         </LinearLayout>
 
     </RelativeLayout>
+    -->
 
 </RelativeLayout>
