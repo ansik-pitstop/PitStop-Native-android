@@ -63,6 +63,25 @@ public class SecretUtils {
         }
     }
 
+    private static native String getMapsApiKeyStaging();
+
+    private static native String getMapsApiKeySnapshot();
+
+    private static native String getMapsApiKeyRelease();
+
+    public static String getMapsApiKey(Context context) {
+        switch (getEndpointType(context)) {
+            case BuildConfig.ENDPOINT_TYPE_RELEASE:
+                return getMapsApiKeyRelease();
+            case BuildConfig.ENDPOINT_TYPE_STAGING:
+                return getMapsApiKeyStaging();
+            case BuildConfig.ENDPOINT_TYPE_SNAPSHOT:
+                return getMapsApiKeySnapshot();
+            default:
+                return "";
+        }
+    }
+
     private static native String getPitstopClientIdDebug();
 
     private static native String getPitstopClientIdRelease();

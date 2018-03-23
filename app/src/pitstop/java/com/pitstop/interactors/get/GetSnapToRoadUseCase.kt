@@ -17,6 +17,6 @@ interface GetSnapToRoadUseCase : Interactor {
     }
 
     //Execute the use case
-    fun execute(listLatLng: String, interpolate: String, callback: Callback)
+    fun execute(listLatLng: String, interpolate: String, apiKey: String, callback: Callback)
 
 }

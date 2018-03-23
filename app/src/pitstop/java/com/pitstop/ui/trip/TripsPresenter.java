@@ -71,11 +71,8 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
-        if (updating && getView().isRefreshing() && getView() != null) {
-            //getView().hideRefreshing();
-        } else {
+        if (!updating && getView() != null) {
             getView().requestForDataUpdate();
-            //onUpdateNeeded();
         }
 
     }
@@ -103,7 +100,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     }
 
     @Override
-    public void showTripOnMap(Trip trip) {
+    public void showTripOnMap(Trip trip, String interpolate, String apiKey) {
 
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
 
@@ -114,7 +111,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         // Convert LocationPolyline's to LatLng's String
         String listLatLng = TripUtils.locationPolylineToLatLngString(trip.getLocationPolyline());
 
-        useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, "true", new GetSnapToRoadUseCase.Callback() {
+        useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
             @Override
             public void onError(@NotNull RequestError error) {
 

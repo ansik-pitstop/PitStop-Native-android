@@ -58,7 +58,7 @@ public class GetSnapToRoadUseCaseTest {
         CompletableFuture<List<SnappedPoint>> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
 
-        useCaseComponent.getSnapToRoadUseCase().execute(path, interpolate, new GetSnapToRoadUseCase.Callback() {
+        useCaseComponent.getSnapToRoadUseCase().execute(path, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
 
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {

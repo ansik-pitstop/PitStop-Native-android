@@ -29,7 +29,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
         void thereAreTrips();
 
-        void showTripOnMap(Trip trip);
+        void showTripOnMap(Trip trip, String interpolate, String apiKey);
 
         void showTripDetail(Trip trip);
 
@@ -83,9 +83,9 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
-    public void onTripRowClicked(Trip trip) {
+    public void onTripRowClicked(Trip trip, String interpolate, String apiKey) {
 
-        mParentListener.showTripOnMap(trip);
+        mParentListener.showTripOnMap(trip, interpolate, apiKey);
 
     }
 
