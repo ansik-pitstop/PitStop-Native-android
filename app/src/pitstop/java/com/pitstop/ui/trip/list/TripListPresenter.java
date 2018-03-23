@@ -65,36 +65,6 @@ public class TripListPresenter extends TabPresenter<TripListView> {
         this.mixpanelHelper = mixpanelHelper;
     }
 
-//    public void loadView(String carVin) {
-//
-//        Log.d(TAG, "loadView()");
-//
-//        useCaseComponent.getTripsUseCase().execute(carVin, new GetTripsUseCase.Callback() {
-//            @Override
-//            public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
-//
-//                if (getView() == null) {
-//                    return;
-//                }
-//
-//                if (tripList != null && tripList.size() > 0) {
-//                    getView().displayTripList((List<Trip>) tripList);
-//                } else {
-//                    mParentListener.noTrips();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onError(@NotNull RequestError error) {
-//
-//                Log.d(TAG, "loadView().onError(): " + error);
-//
-//            }
-//        });
-//
-//    }
-
     public void setCommunicationInteractor(OnChildPresenterInteractorListener onChildPresenterInteractorListener) {
 
         this.mParentListener = onChildPresenterInteractorListener;
