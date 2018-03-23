@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TripListAdapter;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnItemSelected;
 
 /**
  * Created by David C. on 14/3/18.
@@ -42,6 +45,9 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @BindView(R.id.swiperefresh_trip_list)
     protected SwipeRefreshLayout swipeRefreshLayout;
+
+    @BindView(R.id.spinner_sort_by)
+    protected Spinner sortSpinner;
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
@@ -66,6 +72,11 @@ public class TripListFragment extends Fragment implements TripListView {
 
         apiKey = SecretUtils.getMapsApiKey(context);
 
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
+                R.array.trip_sort, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(adapter);
+
         tripListAdapter = new TripListAdapter(context, mTripList, this);
         tripsRecyclerView.setAdapter(tripListAdapter);
         tripsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -86,7 +97,7 @@ public class TripListFragment extends Fragment implements TripListView {
         }
         swipeRefreshLayout.setOnRefreshListener(() -> {
 
-            presenter.onRefresh();
+            presenter.onRefresh(sortSpinner.getSelectedItemPosition());
 
         });
 
@@ -98,7 +109,7 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
 
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(sortSpinner.getSelectedItemPosition());
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -188,20 +199,20 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
-    public void showLoading(){
-        Log.d(TAG,"showLoading()");
-        if (!swipeRefreshLayout.isRefreshing()){
+    public void showLoading() {
+        Log.d(TAG, "showLoading()");
+        if (!swipeRefreshLayout.isRefreshing()) {
             presenter.sentOnShowLoading();
             //loadingView.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
-    public void hideLoading(){
-        Log.d(TAG,"hideLoading()");
-        if (swipeRefreshLayout.isRefreshing()){
+    public void hideLoading() {
+        Log.d(TAG, "hideLoading()");
+        if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
-        }else{
+        } else {
             presenter.sendOnHideLoading();
             //loadingView.setVisibility(View.GONE);
             swipeRefreshLayout.setEnabled(true);
@@ -211,7 +222,7 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void hideRefreshing() {
 
-        Log.d(TAG,"hideRefreshing()");
+        Log.d(TAG, "hideRefreshing()");
         swipeRefreshLayout.setRefreshing(false);
 
     }
@@ -219,14 +230,30 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public boolean isRefreshing() {
 
-        Log.d(TAG,"isRefreshing()");
+        Log.d(TAG, "isRefreshing()");
         return swipeRefreshLayout.isRefreshing();
 
     }
 
     public void requestForDataUpdate() {
-        Log.d(TAG,"isRefreshing()");
+        Log.d(TAG, "isRefreshing()");
 
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(sortSpinner.getSelectedItemPosition());
+    }
+
+    @OnItemSelected(R.id.spinner_sort_by)
+    void onSortItemSelected(int position) {
+        Log.d(TAG, "onSortItemSelected()");
+
+        // It's mandatory to create a new array, by passing mTripList the array content will be removed
+        // when this.displayTripList() will be called
+        List<Trip> listToSort = new ArrayList<>();
+
+        for (Trip trip : mTripList) {
+            listToSort.add(trip);
+        }
+
+        presenter.sortTripListBy(listToSort, position);
+
     }
 }

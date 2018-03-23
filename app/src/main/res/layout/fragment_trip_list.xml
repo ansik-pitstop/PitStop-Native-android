@@ -6,9 +6,49 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/trips_recyclerview"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textview_sort_by_static"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/sort_by"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+
+            <Spinner
+                android:id="@+id/spinner_sort_by"
+                style="@android:style/Widget.Holo.Light.Spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="10dp"
+                android:translationZ="2dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignParentBottom="true"
+            android:background="@color/facebook_blue" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/trips_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>
