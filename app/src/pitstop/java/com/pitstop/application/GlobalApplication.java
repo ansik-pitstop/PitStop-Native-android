@@ -45,10 +45,6 @@ import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
-import org.acra.ACRA;
-import org.acra.config.ACRAConfiguration;
-import org.acra.config.ACRAConfigurationException;
-import org.acra.config.ConfigurationBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -97,18 +93,6 @@ public class GlobalApplication extends Application {
 
         MultiDex.install(this);
 
-        if (BuildConfig.DEBUG) {
-            try {
-                final ACRAConfiguration config = new ConfigurationBuilder(this)
-                        .setAlsoReportToAndroidFramework(true)
-                        .setMailTo("developers@getpitstop.io")
-                        .build();
-                ACRA.init(this, config);
-            } catch (ACRAConfigurationException e) {
-                e.printStackTrace();
-                ACRA.init(this);
-            }
-        }
     }
 
     @Override
