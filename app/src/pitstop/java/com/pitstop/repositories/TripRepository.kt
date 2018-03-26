@@ -2,6 +2,7 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.pitstop.models.trip.*
+import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -142,6 +143,22 @@ class TripRepository(private val daoSession: DaoSession,
             daoSession.insertOrReplace(trip)
 
         }
+
+    }
+
+    fun delete(tripId: String, vin: String) : Observable<PitstopResponse<String>> {
+
+        Log.d(tag, "delete() tripId: $tripId, vin: $vin")
+
+        val remoteResponse : Observable<PitstopResponse<String>> = tripApi.deleteTripById(tripId, vin)
+
+        val deleteQuery = daoSession.tripDao.queryBuilder().where(TripDao.Properties.TripId.eq(tripId), TripDao.Properties.Vin.eq(vin)).buildDelete()
+
+        val localResponse = Observable.just(deleteQuery.executeDeleteWithoutDetachingEntities()).map { next ->
+            return@map "success"
+        }
+
+        return remoteResponse//Observable.concat(remoteResponse, localResponse) TODO: pass local?
 
     }
 

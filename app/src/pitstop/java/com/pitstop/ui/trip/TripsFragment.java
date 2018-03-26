@@ -3,7 +3,6 @@ package com.pitstop.ui.trip;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -178,6 +177,8 @@ public class TripsFragment extends Fragment implements TripsView {
     @Override
     public void displayTripPolylineOnMap(PolylineOptions polylineOptions) {
 
+        if (mapView == null) return;
+
         mapView.addPolyline(polylineOptions);
 
     }
@@ -198,20 +199,22 @@ public class TripsFragment extends Fragment implements TripsView {
 
         Log.d(TAG, "requestForDataUpdate()");
 
-        FragmentManager fragmentManager = getChildFragmentManager();
-        TripListFragment childListFragment = (TripListFragment) fragmentManager.findFragmentById(R.id.fragment_container);
+//        FragmentManager fragmentManager = getChildFragmentManager();
+//        TripListFragment childListFragment = (TripListFragment) fragmentManager.findFragmentById(R.id.fragment_container);
 
-        if (childListFragment != null) {
+        if (tripListFragment != null) {
             Log.d(TAG, "Child found");
-            childListFragment.requestForDataUpdate();
+            tripListFragment.requestForDataUpdate();
         }
 
     }
 
     @Override
-    public void removeTrip() {
+    public void clearMap() {
 
-        // TODO: removeTrip
+        if (mapView == null) return;
+
+        mapView.clearPolyline();
 
     }
 

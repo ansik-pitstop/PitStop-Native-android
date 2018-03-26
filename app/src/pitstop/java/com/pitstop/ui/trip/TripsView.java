@@ -21,7 +21,7 @@ public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
     void requestForDataUpdate();
 
-    void removeTrip();
+    void clearMap();
 
     void displayErrorMessage(String errorMessage);
 

@@ -60,6 +60,7 @@ import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
+import com.pitstop.interactors.remove.RemoveTripUseCase;
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetNotificationReadUseCase;
@@ -225,5 +226,7 @@ public interface UseCaseComponent {
     GetTripsUseCase getTripsUseCase();
 
     GetSnapToRoadUseCase getSnapToRoadUseCase();
+
+    RemoveTripUseCase removeTripUseCase();
 
 }
