@@ -60,11 +60,16 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
+import com.pitstop.ui.services.TripService
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripsService
+import com.pitstop.ui.trip.TripActivityObservable
+import com.pitstop.ui.trip.TripParameterSetter
 import com.pitstop.ui.trip.overview.TripsFragment
 import com.pitstop.ui.trip.settings.TripSettingsFragment
+import com.pitstop.ui.trip_k.TripActivityObservable
+import com.pitstop.ui.trip_k.TripParameterSetter
 import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.trip_k.TripParameterSetter
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
@@ -240,6 +245,25 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        (applicationContext as GlobalApplication).services
+                .subscribe({
+                    Log.d(TAG,"GlobalApplication.services() onNext()")
+                    if (it is BluetoothAutoConnectService){
+                        autoConnectService = it
+                        it.subscribe(this@MainActivity)
+                        it.requestDeviceSearch(false, false)
+                        startReportFragment.bluetoothConnectionObservable = it
+                        displayDeviceState(it.deviceState)
+                        notifyServiceBinded(it)
+                        checkPermissions()
+                    }else if (it is TripService){
+                        tripsFragment.setTripActivityObservable(it as TripActivityObservable)
+                        tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
+                    }
+                }, {
+                    Log.d(TAG,"GlobalApplication.services() onError() err= ${it.message}")
+                })
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {

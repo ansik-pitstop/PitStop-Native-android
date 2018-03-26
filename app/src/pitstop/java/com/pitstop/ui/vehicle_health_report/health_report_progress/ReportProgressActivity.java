@@ -1,13 +1,9 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -19,9 +15,9 @@ import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 
 /**
  * Created by Matt on 2017-08-14.

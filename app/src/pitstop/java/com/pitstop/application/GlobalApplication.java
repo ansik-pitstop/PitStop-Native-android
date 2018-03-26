@@ -208,8 +208,8 @@ public class GlobalApplication extends Application {
 
                     @Override
                     public void onServiceConnected(ComponentName className, IBinder service) {
-                        Log.i(TAG, "connecting: onServiceConnection, className: ${className.className}" +
-                                ", className: ${BluetoothAutoConnectService::class.java.canonicalName}");
+                        Log.i(TAG, String.format("connecting: onServiceConnection, className: %s"
+                                ,className.getClassName()));
                         if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
                             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
                             emitter.onNext(autoConnectService);
@@ -217,22 +217,6 @@ public class GlobalApplication extends Application {
                             tripsService = ((TripsService.TripsBinder)service).getService();
                             emitter.onNext(tripsService);
                         }
-                        //            if (className.className == BluetoothAutoConnectService::class.java.canonicalName){
-                        //                Log.d(TAG,"auto connect service observable reference set")
-                        //                // cast the IBinder and get MyService instance
-                        //                autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
-                        //                autoConnectService.subscribe(this@MainActivity)
-                        //                autoConnectService.requestDeviceSearch(false, false)
-                        //                startReportFragment.bluetoothConnectionObservable = autoConnectService
-                        //                displayDeviceState(autoConnectService.deviceState)
-                        //                notifyServiceBinded(autoConnectService)
-                        //                checkPermissions()
-                        //            }else if (className.className == TripsService::class.java.canonicalName){
-                        //                Log.d(TAG,"trips observable reference set")
-                        //                tripsService = (service as TripsService.TripsBinder).service
-                        //                tripsFragment.setTripActivityObservable(tripsService as TripActivityObservable)
-                        //                tripSettingsFragment.onTripParameterSetterReady(tripsService as TripParameterSetter)
-                        //            }
                     }
 
                     @Override
@@ -258,9 +242,6 @@ public class GlobalApplication extends Application {
                 bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
             }
         });
-
-
-
     }
 
     public void setUpMixPanel(){
