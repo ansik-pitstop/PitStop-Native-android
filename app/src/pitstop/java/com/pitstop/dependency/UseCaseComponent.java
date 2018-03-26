@@ -51,6 +51,7 @@ import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
+import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCase;
@@ -216,5 +217,7 @@ public interface UseCaseComponent {
     GetPredictedServiceUseCase getPredictedServiceDateUseCase();
 
     GetAppointmentStateUseCase getAppointmentStateUseCase();
+
+    SmoochLoginUseCase getSmoochLoginUseCase();
 
 }

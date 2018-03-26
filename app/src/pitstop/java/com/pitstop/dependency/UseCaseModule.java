@@ -110,6 +110,8 @@ import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
+import com.pitstop.interactors.other.SmoochLoginUseCase;
+import com.pitstop.interactors.other.SmoochLoginUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
@@ -151,6 +153,7 @@ import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.utils.ConnectionChecker;
 import com.pitstop.utils.NetworkHelper;
 
@@ -693,6 +696,13 @@ public class UseCaseModule {
 
         return new GetAppointmentStateUseCaseImpl(userRepository, appointmentRepository
                 , shopRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SmoochLoginUseCase getSmoochLoginUseCase(PitstopSmoochApi pitstopSmoochApi
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
+
+        return new SmoochLoginUseCaseImpl(pitstopSmoochApi, useCaseHandler, mainHandler);
     }
 }
 

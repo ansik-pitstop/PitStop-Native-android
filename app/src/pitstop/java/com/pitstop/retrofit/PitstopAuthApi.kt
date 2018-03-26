@@ -16,5 +16,4 @@ interface PitstopAuthApi {
     @POST("login")
     fun login(@Body login: JsonObject): Call<JsonObject>
 
-
 }
