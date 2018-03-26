@@ -250,6 +250,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 .subscribe({
                     Log.d(TAG,"GlobalApplication.services() onNext()")
                     if (it is BluetoothAutoConnectService){
+                        Log.d(TAG,"got bluetooth service")
                         autoConnectService = it
                         it.subscribe(this@MainActivity)
                         it.requestDeviceSearch(false, false)
@@ -258,6 +259,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         notifyServiceBinded(it)
                         checkPermissions()
                     }else if (it is TripService){
+                        Log.d(TAG,"got trips service")
                         tripsFragment.setTripActivityObservable(it as TripActivityObservable)
                         tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
                     }

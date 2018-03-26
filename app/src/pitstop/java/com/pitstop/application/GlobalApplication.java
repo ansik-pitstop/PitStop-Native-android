@@ -48,7 +48,6 @@ import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.ui.services.TripService;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
@@ -208,14 +207,21 @@ public class GlobalApplication extends Application {
 
                     @Override
                     public void onServiceConnected(ComponentName className, IBinder service) {
-                        Log.i(TAG, String.format("connecting: onServiceConnection, className: %s"
-                                ,className.getClassName()));
+                        Log.i(TAG, String.format("connecting: onServiceConnection, className: %s, trips class: %s"
+                                ,className.getClassName(),TripsService.class.getCanonicalName()));
                         if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
                             autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
                             emitter.onNext(autoConnectService);
-                        }else if (className.getClassName().equals(TripService.class.getCanonicalName())){
-                            tripsService = ((TripsService.TripsBinder)service).getService();
-                            emitter.onNext(tripsService);
+                            Log.d(TAG,"bluetooth service set");
+                        }
+                        else if (className.getClassName().equals(TripsService.class.getName())) {
+                            Log.d(TAG, "trips service set");
+                            try {
+                                tripsService = ((TripsService.TripsBinder) service).getService();
+                                emitter.onNext(tripsService);
+                            } catch (ClassCastException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
 
@@ -225,7 +231,7 @@ public class GlobalApplication extends Application {
                                 +arg0.getClassName());
                         if (arg0.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
                             autoConnectService = null;
-                        }else if (arg0.getClassName().equals(TripsService.class.getCanonicalName())){
+                        }else if (arg0.getClassName().equals(TripsService.class.getName())){
                             tripsService = null;
                         }
                     }
