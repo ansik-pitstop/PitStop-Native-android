@@ -14,17 +14,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.models.Trip;
 import com.pitstop.models.TripLocation;
 import com.pitstop.ui.my_trips.MyTripsActivity;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +29,7 @@ import java.util.List;
  * Created by Matthew on 2017-05-29.
  */
 
-public class TripService extends Service {
+public class ManualTripService extends Service {
 
     private LocationListener locationListener;
     private LocationManager locationManager;

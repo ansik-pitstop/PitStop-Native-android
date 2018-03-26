@@ -198,7 +198,7 @@
             android:label="My Trips"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
-        <service android:name=".ui.services.TripService"/>
+        <service android:name=".ui.services.ManualTripService"/>
 
         <activity android:name=".ui.custom_shops.CustomShopActivity"
             android:label="Choose Shop"

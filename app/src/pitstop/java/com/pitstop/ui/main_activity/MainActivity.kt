@@ -60,12 +60,12 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
-import com.pitstop.ui.services.TripService
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripParameterSetter
+import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.trip.overview.TripsFragment
 import com.pitstop.ui.trip.settings.TripSettingsFragment
 import com.pitstop.ui.trip_k.TripActivityObservable
@@ -258,7 +258,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
                         checkPermissions()
-                    }else if (it is TripService){
+                    }else if (it is TripsService){
                         Log.d(TAG,"got trips service")
                         tripsFragment.setTripActivityObservable(it as TripActivityObservable)
                         tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
