@@ -2,9 +2,12 @@ package com.pitstop.application;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -22,12 +25,14 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.database.LocalManualTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -43,6 +48,8 @@ import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
+import com.pitstop.ui.services.TripService;
+import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -52,6 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Observable;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -113,12 +121,13 @@ public class GlobalApplication extends Application {
 
         Fabric.with(this, crashlyticsKit);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
-            Log.d(TAG, "Release build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Release");
-        } else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
-            Log.d(TAG, "Beta build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Beta");
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            Log.d(TAG,"Release build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
+        }
+        else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            Log.d(TAG,"Beta build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
 
         Logger.initLogger(this);
@@ -154,7 +163,7 @@ public class GlobalApplication extends Application {
         ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
         FacebookSdk.sdkInitialize(this);
-        if (BuildConfig.DEBUG) {
+        if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
@@ -169,7 +178,7 @@ public class GlobalApplication extends Application {
         );
 
         ParseInstallation.getCurrentInstallation().saveInBackground(e -> {
-            if (e == null) {
+            if(e == null) {
                 Log.d(TAG, "Installation saved");
             } else {
                 Log.w(TAG, "Error saving installation: " + e.getMessage());
@@ -179,16 +188,84 @@ public class GlobalApplication extends Application {
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
-        Log.d(TAG, "google sender id: " + SecretUtils.getGoogleSenderId());
+        Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
 
+        serviceObservable = Observable.create(emitter -> {
+            Log.d(TAG,"serviceObservable.subscribe() autoconnectService null? "
+                    +(autoConnectService == null) +", tripsService null? "+(tripsService == null));
+            if (autoConnectService != null){
+                emitter.onNext(autoConnectService);
+            }
+            if (tripsService != null){
+                emitter.onNext(tripsService);
+            }
+
+            if (serviceConnection == null){
+                serviceConnection = new ServiceConnection() {
+
+                    @Override
+                    public void onServiceConnected(ComponentName className, IBinder service) {
+                        Log.i(TAG, "connecting: onServiceConnection, className: ${className.className}" +
+                                ", className: ${BluetoothAutoConnectService::class.java.canonicalName}");
+                        if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
+                            emitter.onNext(autoConnectService);
+                        }else if (className.getClassName().equals(TripService.class.getCanonicalName())){
+                            tripsService = ((TripsService.TripsBinder)service).getService();
+                            emitter.onNext(tripsService);
+                        }
+                        //            if (className.className == BluetoothAutoConnectService::class.java.canonicalName){
+                        //                Log.d(TAG,"auto connect service observable reference set")
+                        //                // cast the IBinder and get MyService instance
+                        //                autoConnectService = (service as BluetoothAutoConnectService.BluetoothBinder).service
+                        //                autoConnectService.subscribe(this@MainActivity)
+                        //                autoConnectService.requestDeviceSearch(false, false)
+                        //                startReportFragment.bluetoothConnectionObservable = autoConnectService
+                        //                displayDeviceState(autoConnectService.deviceState)
+                        //                notifyServiceBinded(autoConnectService)
+                        //                checkPermissions()
+                        //            }else if (className.className == TripsService::class.java.canonicalName){
+                        //                Log.d(TAG,"trips observable reference set")
+                        //                tripsService = (service as TripsService.TripsBinder).service
+                        //                tripsFragment.setTripActivityObservable(tripsService as TripActivityObservable)
+                        //                tripSettingsFragment.onTripParameterSetterReady(tripsService as TripParameterSetter)
+                        //            }
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName arg0) {
+                        Log.i(TAG, "Disconnecting: onServiceConnection componentName.className: "
+                                +arg0.getClassName());
+                        if (arg0.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                            autoConnectService = null;
+                        }else if (arg0.getClassName().equals(TripsService.class.getCanonicalName())){
+                            tripsService = null;
+                        }
+                    }
+                };
+
+                Intent serviceIntent = new Intent(GlobalApplication.this
+                        , BluetoothAutoConnectService.class);
+                startService(serviceIntent);
+                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+                Intent tripsServiceIntent = new Intent(GlobalApplication.this
+                        , TripsService.class);
+                startService(serviceIntent);
+                bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+            }
+        });
+
+
+
     }
 
-    public void setUpMixPanel() {
+    public void setUpMixPanel(){
         User user = mLocalUserStorage.getUser();
-        if (user != null) {
+        if(user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
@@ -200,8 +277,12 @@ public class GlobalApplication extends Application {
         }
     }
 
+    public Observable<Service> getServices(){
+        return serviceObservable;
+    }
+
     public MixpanelAPI getMixpanelAPI() {
-        if (mixpanelAPI == null) {
+        if(mixpanelAPI == null) {
             mixpanelAPI = MixpanelAPI.getInstance(this, SecretUtils.getMixpanelToken(this));
         }
         return mixpanelAPI;
@@ -303,7 +384,7 @@ public class GlobalApplication extends Application {
         return mLocalUserStorage.getUser();
     }
 
-    public Car getCurrentCar() {
+    public Car getCurrentCar(){
 
         //Get most recent version of car list
         List<Car> carList = mLocalCarStorage.getAllCars();
@@ -312,7 +393,7 @@ public class GlobalApplication extends Application {
         if (carList.size() == 0)
             return null;
 
-        for (Car c : carList) {
+        for (Car c: carList){
             if (c.isCurrentCar())
                 return c;
         }
@@ -326,7 +407,7 @@ public class GlobalApplication extends Application {
     }
 
     public void setCurrentUser(User user) {
-        Log.i(TAG, "UserId:" + user.getId());
+        Log.i(TAG, "UserId:"+user.getId());
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
@@ -377,7 +458,7 @@ public class GlobalApplication extends Application {
         cleanUpDatabase();
     }
 
-    public void modifyMixpanelSettings(String field, Object value) {
+    public void modifyMixpanelSettings(String field, Object value){
         getMixpanelAPI().getPeople().set(field, value);
     }
 

@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
@@ -23,17 +22,12 @@ import com.pitstop.utils.AnimatedDialogBuilder;
  */
 public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     private final String TAG = getClass().getSimpleName();
-    public BluetoothAutoConnectService autoConnectService;
     public TripActivityObservable tripActivityObservable;
 
     public static final int RC_LOCATION_PERM = 101;
 
     public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
-
-    protected void setAutoConnectService(BluetoothAutoConnectService bluetoothAutoConnectService){
-        autoConnectService = bluetoothAutoConnectService;
-    }
 
     public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                    final boolean needDescription, @Nullable final String message) {
@@ -82,9 +76,6 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == BluetoothServiceConnection.RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (autoConnectService != null){
-                    autoConnectService.requestDeviceSearch(false,false);  // after permissions granted
-                }
             } else {
                 Snackbar.make(findViewById(android.R.id.content), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
                         .setAction(getString(R.string.retry_button), new View.OnClickListener() {
