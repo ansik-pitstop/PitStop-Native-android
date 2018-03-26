@@ -24,7 +24,7 @@ import java.util.List;
 
 public class TripListPresenter extends TabPresenter<TripListView> {
 
-    public interface OnChildPresenterInteractorListener {
+    public interface OnListChildPresenterInteractorListener {
 
         void noTrips();
 
@@ -42,7 +42,7 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     private final String TAG = getClass().getSimpleName();
 
-    private OnChildPresenterInteractorListener mParentListener;
+    private OnListChildPresenterInteractorListener mParentListener;
 
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
 
@@ -66,9 +66,9 @@ public class TripListPresenter extends TabPresenter<TripListView> {
         this.mixpanelHelper = mixpanelHelper;
     }
 
-    public void setCommunicationInteractor(OnChildPresenterInteractorListener onChildPresenterInteractorListener) {
+    public void setCommunicationInteractor(OnListChildPresenterInteractorListener onListChildPresenterInteractorListener) {
 
-        this.mParentListener = onChildPresenterInteractorListener;
+        this.mParentListener = onListChildPresenterInteractorListener;
 
     }
 

@@ -11,4 +11,6 @@ public interface TripDetailView extends ErrorHandlingView {
 
     void loadTripData(Trip trip);
 
+    void onCloseView();
+
 }

@@ -162,6 +162,15 @@
         android:layout_margin="10dp"
         android:text="Back" />
 
+    <Button
+        android:id="@+id/button_trip_detail_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/button_trip_detail_back"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:text="Delete" />
+
     <!--
     <RelativeLayout
         android:id="@+id/relative_alarms_container"

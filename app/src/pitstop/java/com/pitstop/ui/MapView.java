@@ -121,6 +121,16 @@ public class MapView extends FrameLayout {
 
     }
 
+    public void clearPolyline() {
+
+        mapSubject.subscribe(googleMap -> {
+
+            googleMap.clear();
+
+        });
+
+    }
+
     public void addPolyline_old(List<LocationPolyline> locationPolyline) {
 
         mapSubject.subscribe(googleMap -> {

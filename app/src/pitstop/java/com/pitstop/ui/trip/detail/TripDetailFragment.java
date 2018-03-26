@@ -17,6 +17,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.trip.TripsFragment;
+import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -70,6 +72,10 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
             presenter = new TripDetailPresenter(useCaseComponent, mixpanelHelper);
 
+            if (getParentFragment() instanceof TripsView) {
+                presenter.setCommunicationInteractor(((TripsFragment) getParentFragment()).getPresenter());
+            }
+
             this.loadTripData(trip);
         }
 //        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
@@ -82,6 +88,15 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (getParentFragment() instanceof TripsView) {
+            presenter.setCommunicationInteractor(null);
+        }
     }
 
     @Override
@@ -131,17 +146,45 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
     }
 
+    @Override
+    public void onCloseView() {
+
+        Log.d(TAG, "onCloseView()");
+
+        closeView();
+
+    }
+
     public void setTrip(Trip trip) {
         this.trip = trip;
     }
 
-    @OnClick(R.id.button_trip_detail_back)
-    public void onBackButtonClick() {
+    private void closeView() {
+
+        Log.d(TAG, "closeView()");
 
         FragmentManager manager = ((Fragment) this).getFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.remove((Fragment) this);
         transaction.commit();
+
+    }
+
+    @OnClick(R.id.button_trip_detail_back)
+    public void onBackButtonClick() {
+
+        Log.d(TAG, "onBackButtonClick()");
+
+        closeView();
+
+    }
+
+    @OnClick(R.id.button_trip_detail_delete)
+    public void  onDeleteButtonClick() {
+
+        Log.d(TAG, "onDeleteButtonClick()");
+
+        presenter.onDeleteTripClicked(trip);
 
     }
 }

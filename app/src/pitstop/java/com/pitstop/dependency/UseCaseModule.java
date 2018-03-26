@@ -126,6 +126,8 @@ import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCaseImpl;
+import com.pitstop.interactors.remove.RemoveTripUseCase;
+import com.pitstop.interactors.remove.RemoveTripUseCaseImpl;
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCase;
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCaseImpl;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
@@ -718,6 +720,15 @@ public class UseCaseModule {
                                               @Named("mainHandler") Handler mainHandler) {
 
         return new GetSnapToRoadUseCaseImpl(snapToRoadRepository, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    RemoveTripUseCase removeTripUseCase(TripRepository tripRepository,
+                                        @Named("useCaseHandler") Handler useCaseHandler,
+                                        @Named("mainHandler") Handler mainHandler) {
+
+        return new RemoveTripUseCaseImpl(tripRepository, useCaseHandler, mainHandler);
 
     }
 }

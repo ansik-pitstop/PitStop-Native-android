@@ -13,6 +13,7 @@ import com.pitstop.models.snapToRoad.SnappedPoint;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
+import com.pitstop.ui.trip.detail.TripDetailPresenter;
 import com.pitstop.ui.trip.list.TripListPresenter;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TripUtils;
@@ -25,7 +26,7 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnChildPresenterInteractorListener {
+public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnListChildPresenterInteractorListener, TripDetailPresenter.OnDetailChildPresenterInteractorListener {
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
@@ -154,8 +155,6 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
         if (getView() == null) return;
 
-        //showTripOnMap(trip);
-
         getView().displayTripDetailsView(trip);
 
     }
@@ -183,6 +182,17 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         if (getView() == null || polylineOptions == null ) return;
 
         getView().displayTripPolylineOnMap(polylineOptions);
+
+    }
+
+    @Override
+    public void onTripRemoved() {
+
+        if (getView() == null) return;
+
+        getView().requestForDataUpdate(); // Update the List children to stop showing the removed item
+
+        getView().clearMap(); // Once the trip has been removed, let's clear the old polyline on Map
 
     }
 }
