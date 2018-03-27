@@ -244,7 +244,7 @@ public class GlobalApplication extends Application {
 
                 Intent tripsServiceIntent = new Intent(GlobalApplication.this
                         , TripsService.class);
-                startService(serviceIntent);
+                startService(tripsServiceIntent);
                 bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
             }
         });

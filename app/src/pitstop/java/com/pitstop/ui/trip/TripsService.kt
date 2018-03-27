@@ -152,16 +152,16 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
             
         }
+        super.onDestroy()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_STICKY
     }
 
