@@ -3,6 +3,7 @@ package com.pitstop.repositories
 import android.util.Log
 import com.pitstop.application.Constants
 import com.pitstop.models.trip.*
+import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
 import io.reactivex.Observable
@@ -88,7 +89,8 @@ class TripRepository(private val daoSession: DaoSession,
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
                     Log.d(tag, "getRemoteTripsByCarVin() local store update trips: " + next.data)
-                    updateTrips(vin, next.data.orEmpty())
+                    //insertOrReplaceTripsFromCarVin(vin, next.data.orEmpty())
+                    deleteAndStoreTrips(vin, next.data.orEmpty())
                 }).onErrorReturn { error ->
                     Log.d(tag, "getRemoteTripsByCarVin() remote error: $error caused by: ${error.cause}")
                     RepositoryResponse(null, false)
@@ -101,11 +103,23 @@ class TripRepository(private val daoSession: DaoSession,
 
     fun deleteTripsFromCarVin(carVin: String, callback: Repository.Callback<Any>) {
 
-        // TODO: implement this method
+        var tripList = getLocalTripsByCarVin(carVin)
+
+        tripList.subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation(), true)
+                .subscribe({ next ->
+                    Log.d(tag, "tripRepository.deleteTripsFromCarVin() data: $next")
+                    this@TripRepository.deleteTrips(carVin, next.data.orEmpty())
+                    callback.onSuccess(next)
+                }, { error ->
+                    Log.d(tag, "tripRepository.onErrorDeleteTripsFromCarVin() error: " + error)
+                    //this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
+                    callback.onError(RequestError.jsonToRequestErrorObject(error.message))
+                })
 
     }
 
-    private fun updateTrips(carVin: String, tripList: List<Trip>) {
+    private fun insertOrReplaceTripsFromCarVin(carVin: String, tripList: List<Trip>) {
 
         for (trip in tripList) {
 
@@ -142,9 +156,7 @@ class TripRepository(private val daoSession: DaoSession,
 
     }
 
-    private fun deleteAndStoreTrips(carVin: String, tripList: List<Trip>) {
-
-        //// Delete previous Trips ////
+    private fun deleteTrips(carVin: String, tripList: List<Trip>) {
 
         // REMOVE
         for (trip in tripList) {
@@ -152,11 +164,6 @@ class TripRepository(private val daoSession: DaoSession,
             if (trip.locationPolyline != null) {
 
                 for (locationPolyline in trip.locationPolyline) {
-
-//                    val locationDeleteQuery = daoSession.queryBuilder(Location::class.java)
-//                            .where(LocationDao.Properties.LocationPolylineId.eq(locationPolyline.timestamp))
-//                            .buildDelete()
-//                    locationDeleteQuery.executeDeleteWithoutDetachingEntities()
 
                     val locationDeleteList = daoSession.queryBuilder(Location::class.java)
                             .where(LocationDao.Properties.LocationPolylineId.eq(locationPolyline.timestamp))
@@ -168,22 +175,12 @@ class TripRepository(private val daoSession: DaoSession,
 
             }
 
-//            val locationPolylineDeleteQuery = daoSession.queryBuilder(LocationPolyline::class.java)
-//                    .where(LocationPolylineDao.Properties.TripId.eq(trip.tripId))
-//                    .buildDelete()
-//            locationPolylineDeleteQuery.executeDeleteWithoutDetachingEntities()
-
             val locationPolylineDeleteList = daoSession.queryBuilder(LocationPolyline::class.java)
                     .where(LocationPolylineDao.Properties.TripId.eq(trip.tripId))
                     .list()
             daoSession.locationPolylineDao.deleteInTx(locationPolylineDeleteList)
 
         }
-
-//        val tripDeleteQuery = daoSession.queryBuilder(Trip::class.java)
-//                .where(TripDao.Properties.Vin.eq(carVin))
-//                .buildDelete()
-//        tripDeleteQuery.executeDeleteWithoutDetachingEntities()
 
         val tripDeleteList = daoSession.queryBuilder(Trip::class.java)
                 .where(TripDao.Properties.Vin.eq(carVin))
@@ -192,41 +189,19 @@ class TripRepository(private val daoSession: DaoSession,
 
         daoSession.clear()
 
+    }
+
+    private fun deleteAndStoreTrips(carVin: String, tripList: List<Trip>) {
+
+        //// Delete previous Trips ////
+
+        // REMOVE
+        deleteTrips(carVin, tripList)
+
         // All Car's trips deleted
 
         // STORE
-        for (trip in tripList) {
-
-            if (trip.locationPolyline != null) {
-
-                for (locationPolyline in trip.locationPolyline) {
-
-                    locationPolyline.tripId = trip.tripId
-
-                    if (locationPolyline.location != null) {
-
-                        for (location in locationPolyline.location) {
-
-                            location.locationPolylineId = locationPolyline.timestamp
-
-                            daoSession.locationDao.insertOrReplaceInTx(location)
-                            //daoSession.insertOrReplace(location)
-
-                        }
-
-                    }
-
-                    daoSession.locationPolylineDao.insertOrReplaceInTx(locationPolyline)
-                    //daoSession.insertOrReplace(locationPolyline)
-
-                }
-
-            }
-
-            daoSession.tripDao.insertOrReplaceInTx(trip)
-            //daoSession.insertOrReplace(trip)
-
-        }
+        insertOrReplaceTripsFromCarVin(carVin, tripList)
 
     }
 
