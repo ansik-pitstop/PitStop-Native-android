@@ -39,6 +39,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val TRIP_END_THRESHOLD = "trip_end_threshold"
         const val TRIP_TRIGGER = "trip_trigger"
         const val STILL_TIMEOUT = "still_timeout"
+        const val TRIP_IN_PROGRESS = "trip_in_progress"
     }
 
     private val tag = javaClass.simpleName
@@ -102,6 +103,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
         stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 50000)
+        tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
@@ -282,6 +284,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"tripStart()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
         tripInProgress = true
+        sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         currentTrip = arrayListOf()
         for (o in observers){
             o.onTripStart()
@@ -293,6 +296,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"tripEnd()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         tripInProgress = false
+        sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         for (o in observers){
             o.onTripEnd(currentTrip)
         }
