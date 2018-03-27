@@ -6,6 +6,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.pitstop.application.Constants;
 import com.pitstop.models.Car;
 import com.pitstop.models.trip.DaoMaster;
 import com.pitstop.models.trip.DaoSession;
@@ -59,7 +60,9 @@ public class TripRepositoryTest {
         dummyCar.setVin("WVWXK73C37E116278");
         dummyCar.setId(5942);
 
-        tripRepository.getTripsByCarVin(dummyCar.getVin())
+        String whatToReturn = Constants.TRIP_REQUEST_BOTH;
+
+        tripRepository.getTripsByCarVin(dummyCar.getVin(), whatToReturn)
                 .doOnNext(next -> {
 
                     Log.i(TAG, "Got appointments: " + next);
