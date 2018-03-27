@@ -2,6 +2,7 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.application.Constants
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.Trip
@@ -64,10 +65,17 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                             Log.d(tag, "Error: " + err)
                             this@GetTripsUseCaseImpl.onError(RequestError(err))
                         }
-                        .doOnNext { car ->
+                        .subscribe({ car ->
                             Log.d(tag, "got car vin: ${car.data!!.vin}, isLocal = ${car.isLocal}")
 
-                            tripRepository.getTripsByCarVin(car.data!!.vin)
+                            var whatToReturn: String
+                            if (car.isLocal) {
+                                whatToReturn = Constants.TRIP_REQUEST_LOCAL
+                            } else {
+                                whatToReturn = Constants.TRIP_REQUEST_REMOTE
+                            }
+
+                            tripRepository.getTripsByCarVin(car.data!!.vin, whatToReturn)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.computation(), true)
                                     .subscribe({ next ->
@@ -78,8 +86,7 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                                         this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
                                     })
 
-                        }
-                        .subscribe()
+                        })
             }
 
             override fun onError(error: RequestError?) {
