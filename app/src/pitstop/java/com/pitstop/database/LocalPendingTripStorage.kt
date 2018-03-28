@@ -56,8 +56,9 @@ class LocalPendingTripStorage(private val context: Context) {
         Log.d(TAG,"get()")
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null
-                , null, null, null
+        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+" = ?"
+                , arrayOf("0"), null, null
                 , TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+
                 ","+TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID)
 
@@ -67,12 +68,6 @@ class LocalPendingTripStorage(private val context: Context) {
 
             var curTrip = mutableSetOf<LocationData>()
             while (!c.isAfterLast) {
-
-                //Skip location data points that haven't been marked completed (trip hasn't ended)
-                if (c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED)) == 0){
-                    continue
-                }
-
                 val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
                 val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
@@ -147,7 +142,7 @@ class LocalPendingTripStorage(private val context: Context) {
         Log.d(TAG,"complete()")
         val db = databaseHelper.writableDatabase
         val contentValues = ContentValues()
-        contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED,"0")
+        contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED,"1")
         return db.update(TABLES.PENDING_TRIP_DATA.TABLE_NAME,contentValues
                 ,TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+" = ?"
                 , arrayOf("0"))
