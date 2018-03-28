@@ -4,6 +4,7 @@ import android.location.Location
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetTripsUseCase
+import com.pitstop.models.trip.PendingLocation
 import com.pitstop.network.RequestError
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripActivityObserver
@@ -48,11 +49,19 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
         if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations stored")
     }
 
-    override fun onTripEnd(trip: List<Location>) {
+    override fun onTripEnd(trip: List<PendingLocation>) {
         Log.d(tag,"onTripEnd()")
         if (view != null){
             view?.displayTripActivity(getCurrentTime(), "Trip ended")
-            tripsDisplayed?.add(trip)
+            val locList = arrayListOf<Location>()
+            trip.forEach({
+                val loc = Location("")
+                loc.latitude = it.latitude
+                loc.longitude = it.longitude
+                loc.time = it.time
+                locList.add(loc)
+            })
+            tripsDisplayed?.add(locList)
             view?.refreshTrips()
         }
     }

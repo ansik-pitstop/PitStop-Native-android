@@ -22,6 +22,7 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.trip.PendingLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import com.pitstop.utils.TimeoutTimer
@@ -63,7 +64,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var stillTimeoutTime = 600  //Time that a user can remain still in seconds before trip is ended
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
-    private val locationSizeCache = 5
+    private val locationSizeCache = 2 //How many GPS points are collected in memory before sending to use casse
 
     private var currentTrip = arrayListOf<Location>()
 
@@ -318,7 +319,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"tripEnd()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
-            override fun finished(trip: List<Location>) {
+            override fun finished(trip: List<PendingLocation>) {
                 Log.d(tag,"end trip use case finished()")
                 observers.forEach({ it.onTripEnd(trip) })
             }

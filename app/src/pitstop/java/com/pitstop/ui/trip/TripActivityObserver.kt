@@ -1,6 +1,6 @@
 package com.pitstop.ui.trip
 
-import android.location.Location
+import com.pitstop.models.trip.PendingLocation
 
 /**
  * Created by Karol Zdebel on 2/28/2018.
@@ -8,5 +8,5 @@ import android.location.Location
 interface TripActivityObserver {
     fun onTripStart()
     fun onTripUpdate()
-    fun onTripEnd(trip: List<Location>)
+    fun onTripEnd(trip: List<PendingLocation>)
 }

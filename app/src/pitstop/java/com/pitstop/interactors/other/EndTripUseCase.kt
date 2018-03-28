@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.location.Location
 import com.pitstop.interactors.Interactor
+import com.pitstop.models.trip.PendingLocation
 import com.pitstop.network.RequestError
 
 /**
@@ -9,7 +10,7 @@ import com.pitstop.network.RequestError
  */
 interface EndTripUseCase: Interactor {
     interface Callback{
-        fun finished(trip: List<Location>)
+        fun finished(trip: List<PendingLocation>)
         fun onError(err: RequestError)
     }
 

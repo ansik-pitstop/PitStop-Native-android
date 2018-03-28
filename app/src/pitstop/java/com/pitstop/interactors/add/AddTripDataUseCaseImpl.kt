@@ -66,12 +66,13 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                                 return@subscribe
                             }
 
-                            val locationDataList: MutableSet<LocationData> = hashSetOf()
-                            trip.forEach{ locationDataList.add(LocationData(trip[0].time, it)) }
-
                             val tripIdFromRepo = tripRepository.getIncompleteTripId()
+                            Log.d(TAG,"got incompleteTripId: $tripIdFromRepo")
                             //First set of locations for this trip, set trip id its not in db yet, or use the retrieved if not -1
-                            val tripId = if (tripIdFromRepo == -1L) trip.first().time else tripIdFromRepo
+                            val tripId = if (tripIdFromRepo == -1L) trip.firstOrNull()?.time ?: tripIdFromRepo else tripIdFromRepo
+
+                            val locationDataList: MutableSet<LocationData> = hashSetOf()
+                            trip.forEach{ locationDataList.add(LocationData(it.time, it)) }
 
                             tripRepository.storeTripData(TripData(tripId,false, car.data!!.vin
                                     , locationDataList))

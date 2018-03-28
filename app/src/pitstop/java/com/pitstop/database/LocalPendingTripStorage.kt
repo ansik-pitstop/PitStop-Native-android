@@ -60,11 +60,14 @@ class LocalPendingTripStorage(private val context: Context) {
                 , arrayOf("0")
                 ,null
                 ,null
-                ,TABLES.PENDING_TRIP_DATA.KEY_TIME
+                ,TABLES.PENDING_TRIP_DATA.KEY_TIME+" DESC"
                 ,"1")
         if (c.moveToFirst()){
-            return c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+            val ret = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+            c.close()
+            return ret
         }else{
+            c.close()
             return -1L
         }
     }
