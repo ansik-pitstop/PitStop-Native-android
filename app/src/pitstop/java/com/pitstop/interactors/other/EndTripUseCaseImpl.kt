@@ -72,7 +72,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
 
                             carRepository.get(data!!.carId)
                                     .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
+                                    .observeOn(AndroidSchedulers.from(usecaseHandler.looper),true)
                                     .subscribe({ car ->
 
                                         //Use local response if it has data otherwise use remote
