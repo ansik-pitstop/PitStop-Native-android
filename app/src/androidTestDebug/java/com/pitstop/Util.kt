@@ -1,11 +1,7 @@
 package com.pitstop
 
 import android.location.Location
-import android.util.Log
-import com.pitstop.models.trip.DataPoint
-import com.pitstop.models.trip.LocationData
-import com.pitstop.models.trip.LocationDataFormatted
-import com.pitstop.models.trip.TripData
+import com.pitstop.models.trip.*
 import java.util.*
 
 /**
@@ -31,7 +27,7 @@ class Util {
 
             for (i in 1..locNum){
                 val loc = getRandomLocation()
-                trip.add(LocationData(loc.time,getRandomLocation()))
+                trip.add(LocationData(loc.time, PendingLocation(loc.longitude,loc.latitude,loc.time)))
             }
 
             return TripData(trip.first().id,inVin,deviceTimestampIn,trip)
@@ -103,36 +99,5 @@ class Util {
             return tripDataPoints
         }
 
-        fun checkTripsEqual(t1: TripData, t2:TripData):Boolean{
-
-            t1.locations.forEach({ t1Loc ->
-                var found = false
-                t2.locations.forEach { t2Loc ->
-                    if (t1Loc.data.longitude == t2Loc.data.longitude
-                            && t1Loc.data.latitude == t2Loc.data.latitude
-                            && t1Loc.data.time == t2Loc.data.time) {
-                        found  = true
-                    }
-                }
-                if (!found){
-                    Log.d(TAG,"t1Loc: $t1Loc not found inside $t2")
-                    return false
-                }
-            })
-
-            t2.locations.forEach({ t2Loc ->
-                var found = false
-                t1.locations.forEach { t1Loc ->
-                    if (t1Loc.data.longitude == t2Loc.data.longitude
-                            && t1Loc.data.latitude == t2Loc.data.latitude
-                            && t1Loc.data.time == t2Loc.data.time) {
-                        found  = true
-                    }
-                }
-                if (!found) return false
-            })
-
-            return true
-        }
     }
 }

@@ -15,7 +15,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -47,18 +49,19 @@ public class LocalPendingTripStorageTest {
         int locNum = 3;
         localPendingTripStorage.deleteAll();
         TripData tripData = Util.Companion.generateTripData(locNum,VIN,System.currentTimeMillis());
-        Log.d(TAG,"storePendingTripTest() tripData = "+tripData);
+        Log.d(TAG,"storePendingTripTest() tripData = "+gson.toJsonTree(tripData));
         assertTrue(localPendingTripStorage.store(tripData) > 0);
         List<TripData> tripDataRetrieved = localPendingTripStorage.get();
         Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
         assertEquals(tripDataRetrieved.size(),1);
-        assertTrue(Util.Companion.checkTripsEqual(tripData,tripDataRetrieved.iterator().next()));
+        assertEquals(tripData,tripDataRetrieved.get(0));
 
     }
 
     @Test
     public void getMultipleTripTest(){
         List<TripData> tripDataList = new ArrayList<>();
+        localPendingTripStorage.deleteAll();
         for (int i=0;i<3;i++){
             TripData tripData = Util.Companion.generateTripData(3,VIN,System.currentTimeMillis());
             tripDataList.add(tripData);
@@ -67,6 +70,11 @@ public class LocalPendingTripStorageTest {
 
         List<TripData> tripDataRetrieved = localPendingTripStorage.get();
 
-        assertEquals(tripDataList,tripDataRetrieved);
+        Log.d(TAG,"tripDataRetrieved: "+gson.toJsonTree(tripDataRetrieved));
+        Log.d(TAG,"tripDataStored: "+gson.toJsonTree(tripDataList));
+
+        Set<TripData> t1 = new HashSet<>(tripDataRetrieved);
+        Set<TripData> t2 = new HashSet<>(tripDataList);
+        assertEquals(t1, t2);
     }
 }

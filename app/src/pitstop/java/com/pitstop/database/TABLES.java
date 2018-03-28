@@ -89,7 +89,6 @@ public final class TABLES {
         String KEY_LATITUDE = "latitude";
         String KEY_TIME = "time";
         String KEY_VIN = "vin";
-        String KEY_DEVICE_TIMESTAMP = "device_timestamp";
         }
 
     public interface TRIP_DEVICE{

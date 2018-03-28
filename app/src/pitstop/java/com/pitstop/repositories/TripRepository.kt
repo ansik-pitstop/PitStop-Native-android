@@ -249,14 +249,14 @@ open class TripRepository(private val tripApi: PitstopTripApi
             //Get car and device info
             val vin = DataPoint(DataPoint.ID_VIN, it.vin)
             val tripId = DataPoint(DataPoint.ID_TRIP_ID, it.id.toString())
-            val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP
-                    , it.deviceTimestamp.toString())
             val locationDataSet = hashSetOf<LocationDataFormatted>()
 
             //Store each GPS point from this particular trip
             it.locations
                     .filter{ locationData -> locationData != it.locations.last()}
                     .forEach({ locationData ->
+                        val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP
+                                , locationData.data.time.toString())
                         val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
                         val latitude = DataPoint(DataPoint.ID_LATITUDE, locationData.data.latitude.toString())
                         val longitude = DataPoint(DataPoint.ID_LONGITUDE, locationData.data.longitude.toString())
@@ -310,7 +310,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
             indicatorDataPoint.add(indicator)
             indicatorDataPoint.add(vin)
             indicatorDataPoint.add(tripId)
-            indicatorDataPoint.add(deviceTimestamp)
+            indicatorDataPoint.add(DataPoint(DataPoint.ID_DEVICE_TIMESTAMP
+                    ,it.locations.last().data.time.toString()))
             locationDataSet.add(LocationDataFormatted(it.locations.first().data.time*4,indicatorDataPoint))
 
             allTripData.add(locationDataSet)

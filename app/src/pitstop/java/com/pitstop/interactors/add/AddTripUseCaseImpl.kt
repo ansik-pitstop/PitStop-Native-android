@@ -8,6 +8,7 @@ import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.LocationData
+import com.pitstop.models.trip.PendingLocation
 import com.pitstop.models.trip.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
@@ -28,20 +29,24 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                          , private val mainHandler: Handler): AddTripUseCase {
 
     private val TAG = javaClass.simpleName
-    private lateinit var trip: List<Location>
+    private lateinit var locationList: List<Location>
     private lateinit var callback: AddTripUseCase.Callback
 
 
-    override fun execute(trip: List<Location>, callback: AddTripUseCase.Callback) {
-        Logger.getInstance().logI(TAG, "Use case execution started, trip: " + trip, DebugMessage.TYPE_USE_CASE)
-        this.trip = arrayListOf()
-        (this.trip as ArrayList<Location>).addAll(trip)
+    override fun execute(locationList: List<Location>, callback: AddTripUseCase.Callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started, trip: " + locationList, DebugMessage.TYPE_USE_CASE)
+        this.locationList = arrayListOf()
+        (this.locationList as ArrayList<Location>).addAll(locationList)
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     override fun run() {
-        Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${trip.size}")
+        Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${locationList.size}")
+
+        val trip = arrayListOf<PendingLocation>()
+        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time))})
+
         var startAddress: Address? = null
         var endAddress: Address? = null
         try{
@@ -54,8 +59,6 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
         }
 
         Log.i(TAG,"AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
-
-        val tripDataPoints: MutableSet<LocationData> = mutableSetOf()
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {
@@ -72,7 +75,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
 
                             tripRepository.storeTripData(TripData(trip.first().time, car.data!!.vin
-                                    , System.currentTimeMillis(), locationDataList))
+                                    , locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
                                     .subscribe({next ->
@@ -92,7 +95,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                 AddTripUseCaseImpl@onErrorFound(error ?: RequestError.getUnknownError())
             }
         })
-        tripRepository.localTripStorage.store(trip)
+        tripRepository.localTripStorage.store(locationList)
     }
 
     private fun onAddedTrip() {

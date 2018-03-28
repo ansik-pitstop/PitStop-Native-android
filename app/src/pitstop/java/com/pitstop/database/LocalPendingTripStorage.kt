@@ -3,15 +3,16 @@ package com.pitstop.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.location.Location
 import android.util.Log
 import com.pitstop.models.trip.LocationData
 import com.pitstop.models.trip.LocationDataFormatted
+import com.pitstop.models.trip.PendingLocation
 import com.pitstop.models.trip.TripData
 
 /**
  * Created by Karol Zdebel on 3/19/2018.
  */
+
 class LocalPendingTripStorage(private val context: Context) {
     private val TAG = javaClass.simpleName
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
@@ -25,7 +26,6 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_LATITUDE+ " REAL,"
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
-                + TABLES.PENDING_TRIP_DATA.KEY_DEVICE_TIMESTAMP+ " LONG,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
@@ -43,7 +43,6 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_DEVICE_TIMESTAMP, trip.deviceTimestamp)
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
         })
 
@@ -68,20 +67,19 @@ class LocalPendingTripStorage(private val context: Context) {
             while (!c.isAfterLast) {
                 val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
                 val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
-                val deviceTimeStamp = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_DEVICE_TIMESTAMP))
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
                 Log.d(TAG,"got tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
-                curTrip.add(LocationData(locationId,cursorToLocation(c)))
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
-                    Log.d(TAG,"new trip")
-                    trips.add(TripData(curTripId,vin,deviceTimeStamp,curTrip))
+                    trips.add(TripData(curTripId,vin,curTrip))
+                    Log.d(TAG,"new trip: $curTrip")
                     curTrip = mutableSetOf()
                 }
+                curTrip.add(LocationData(locationId,cursorToLocation(c)))
                 curTripId = tripId
                 if (c.isLast){
-                    trips.add(TripData(curTripId,vin,deviceTimeStamp,curTrip))
+                    trips.add(TripData(curTripId,vin,curTrip))
                     Log.d(TAG,"exiting afterlast loop")
                 }
                 c.moveToNext()
@@ -131,11 +129,9 @@ class LocalPendingTripStorage(private val context: Context) {
         db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null)
     }
 
-    private fun cursorToLocation(c: Cursor):Location{
-        val location = Location("dummy_provider")
-        location.latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
-        location.longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
-        location.time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
-        return location
-    }
+    private fun cursorToLocation(c: Cursor):PendingLocation = PendingLocation(
+                latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
+                , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
+                , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
+        )
 }
