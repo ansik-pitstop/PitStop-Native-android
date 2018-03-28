@@ -57,8 +57,8 @@ class LocalPendingTripStorage(private val context: Context) {
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null
-                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+" = ?"
-                , arrayOf("0"), null, null
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+                , arrayOf("1"), null, null
                 , TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+
                 ","+TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID)
 
