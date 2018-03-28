@@ -43,6 +43,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val TRIP_TRIGGER = "trip_trigger"
         const val STILL_TIMEOUT = "still_timeout"
         const val TRIP_IN_PROGRESS = "trip_in_progress"
+        const val STILL_TIMER_RUNNING = "still_timer_running"
     }
 
     private val tag = javaClass.simpleName
@@ -65,6 +66,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
+    private var stillTimerRunning = false //Whether timer is ticking
 
     private var currentTrip = arrayListOf<Location>()
 
@@ -75,6 +77,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         override fun onTimeout() {
             Logger.getInstance()!!.logI(tag,"Still timer: Timeout",DebugMessage.TYPE_TRIP)
             tripEnd()
+            stillTimerRunning = false
         }
 
     }
@@ -108,6 +111,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
         stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 50000)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
+        stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
@@ -299,10 +303,22 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         } else false
     }
 
+    private fun cancelStillTimer(){
+        stillTimeoutTimer.cancel()
+        stillTimerRunning = false
+        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
+    }
+
+    private fun startStillTimer(){
+        stillTimeoutTimer.start()
+        stillTimerRunning = true
+        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
+    }
+
     private fun tripStart(){
         Log.d(tag,"tripStart()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.cancel()
+        cancelStillTimer()
         currentTrip = arrayListOf()
         useCaseComponent.startTripUseCase().execute(object : StartTripUseCase.Callback{
             override fun finished() {
@@ -319,7 +335,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripEnd(){
         Log.d(tag,"tripEnd()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.cancel()
+        cancelStillTimer()
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
             override fun finished(trip: List<PendingLocation>) {
                 Log.d(tag,"end trip use case finished()")
@@ -367,9 +383,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
             //Start timer if still to end trip on timeout
             else if (activity.type == DetectedActivity.STILL){
-                if (tripInProgress && activity.confidence > stillStartConfidence){
+                if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
                     Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
-                    stillTimeoutTimer.start()
+                    startStillTimer()
                 }
             }
             //Trigger trip start, or resume trip from still state
@@ -377,9 +393,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 Log.d(tag,"trip trigger received, confidence: "+activity.confidence)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
-                }else if (tripInProgress && activity.confidence > stillEndConfidence){
+                }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
                     Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
-                    stillTimeoutTimer.cancel()
+                    cancelStillTimer()
                 }
                 break //Don't allow trip end in same receival
                 //End trip if type of trigger is NOT ON_FOOT
