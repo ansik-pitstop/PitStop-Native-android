@@ -281,6 +281,23 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         sharedPreferences.edit().putInt(STILL_TIMEOUT,timeout).apply()
     }
 
+    override fun startTripManually(): Boolean {
+        Log.d(tag,"startTripManually()")
+        return if (tripInProgress) false
+        else{
+            tripStart()
+            return true
+        }
+    }
+
+    override fun endTripManually(): Boolean {
+        Log.d(tag,"endTripManually()")
+        return if (tripInProgress){
+            tripEnd()
+            true
+        } else false
+    }
+
     private fun tripStart(){
         Log.d(tag,"tripStart()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
@@ -334,6 +351,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 }
             })
         }
+        currentTrip = arrayListOf()
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {

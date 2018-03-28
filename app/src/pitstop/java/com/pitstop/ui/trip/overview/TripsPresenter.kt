@@ -26,6 +26,18 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
         tripActivityObservable.subscribeTripActivity(this)
     }
 
+    fun onStartTripClicked(){
+        if (tripActivityObservable?.startTripManually() == false){
+            view?.displayTripActivity(getCurrentTime(), "Error starting trip manually")
+        }
+    }
+
+    fun onEndTripClicked(){
+        if (tripActivityObservable?.endTripManually() == false){
+            view?.displayTripActivity(getCurrentTime(), "Error ending trip manually")
+        }
+    }
+
     override fun onTripStart() {
         Log.d(tag,"onTripStart()")
         if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip started")
@@ -33,7 +45,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     override fun onTripUpdate() {
         Log.d(tag,"onTripUpdate()")
-        if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations received")
+        if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations stored")
     }
 
     override fun onTripEnd(trip: List<Location>) {

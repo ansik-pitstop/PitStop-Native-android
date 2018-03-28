@@ -56,6 +56,8 @@ class TripsFragment: Fragment(), TripsView {
         if (tripActivityObservable != null){
             tripsPresenter?.onTripActivityObservableReady(tripActivityObservable!!)
         }
+        start_trip_button.setOnClickListener { tripsPresenter?.onStartTripClicked() }
+        end_trip_button.setOnClickListener { tripsPresenter?.onEndTripClicked() }
     }
 
     override fun onDestroyView() {

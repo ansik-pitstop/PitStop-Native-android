@@ -59,8 +59,10 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
 
                             //Use local response if it has data otherwise use remote
                             if (car.isLocal && car.data != null){
+                                Log.d(TAG,"using local car")
                                 usedLocalCar = true
                             }else if (usedLocalCar){
+                                Log.d(TAG,"used local car so returning on remote")
                                 return@subscribe
                             }
 
