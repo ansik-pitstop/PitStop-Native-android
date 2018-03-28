@@ -243,8 +243,12 @@ public class TripListFragment extends Fragment implements TripListView {
 
     }
 
-    public void requestForDataUpdate() {
+    public void requestForDataUpdate(boolean restartAdapterSelectedId) {
         Log.d(TAG, "isRefreshing()");
+
+        if (restartAdapterSelectedId) {
+            tripListAdapter.restartSelectedId();
+        }
 
         presenter.onUpdateNeeded(sortSpinner.getSelectedItemPosition());
     }
