@@ -107,6 +107,8 @@ import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
+import com.pitstop.interactors.other.EndTripUseCase;
+import com.pitstop.interactors.other.EndTripUseCaseImpl;
 import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandlePidDataUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
@@ -129,6 +131,8 @@ import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCaseImpl;
+import com.pitstop.interactors.other.TripStartUseCase;
+import com.pitstop.interactors.other.TripStartUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
@@ -763,6 +767,22 @@ public class UseCaseModule {
 
         return new StartDumpingTripDataWhenConnectedUseCaseImpl(tripRepository
                 , useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    TripStartUseCase tripStartUseCase(TripRepository tripRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new TripStartUseCaseImpl(tripRepository, useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    EndTripUseCase endTripUseCase(TripRepository tripRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new EndTripUseCaseImpl(tripRepository, useCaseHandler,mainHandler);
     }
 }
 
