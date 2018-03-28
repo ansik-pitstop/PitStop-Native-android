@@ -62,29 +62,65 @@ class TripRepository(private val daoSession: DaoSession,
 
     private fun getRemoteTripsByCarVin(vin: String): Observable<RepositoryResponse<List<Trip>>> {
 
-        val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin).map { tripListResponse ->
+//        val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin).map { tripListResponse ->
+//
+//            // This logic will ignore those Trips without LocationPolyline content
+//            var tempList = tripListResponse.response
+//            val deffList: MutableList<Trip> = mutableListOf()
+//
+//            tempList.forEach { trip: Trip? ->
+//
+//                try {
+//                    if (trip != null && trip.locationPolyline != null) { // seems to be a problem here when trip.locationPolyline == null
+//                        deffList.add(trip)
+//                    }
+//                } catch (ex: DaoException) {
+//                    ex.stackTrace
+//                }
+//
+//            }
+//
+//            return@map RepositoryResponse(deffList, false)
+//
+//        }
+//
+//        remoteResponse.subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io(), true)
+//                .doOnNext({ next ->
+//                    if (next == null) return@doOnNext
+//                    Log.d(tag, "getRemoteTripsByCarVin() local store update trips: " + next.data)
+//                    //insertOrReplaceTripsFromCarVin(vin, next.data.orEmpty())
+//                    deleteAndStoreTrips(vin, next.data.orEmpty())
+//                }).onErrorReturn { error ->
+//                    Log.d(tag, "getRemoteTripsByCarVin() remote error: $error caused by: ${error.cause}")
+//                    RepositoryResponse(null, false)
+//                }
+//                .subscribe()
 
-            // This logic will ignore those Trips without LocationPolyline content
-            var tempList = tripListResponse.response
-            val deffList: MutableList<Trip> = mutableListOf()
 
-            tempList.forEach { trip: Trip? ->
+        val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin)
+                .map { tripListResponse ->
 
-                try {
-                    if (trip != null && trip.locationPolyline != null) { // seems to be a problem here when trip.locationPolyline == null
-                        deffList.add(trip)
+                    // This logic will ignore those Trips without LocationPolyline content
+                    var tempList = tripListResponse.response
+                    val deffList: MutableList<Trip> = mutableListOf()
+
+                    tempList.forEach { trip: Trip? ->
+
+                        try {
+                            if (trip != null && trip.locationPolyline != null) { // seems to be a problem here when trip.locationPolyline == null
+                                deffList.add(trip)
+                            }
+                        } catch (ex: DaoException) {
+                            ex.stackTrace
+                        }
+
                     }
-                } catch (ex: DaoException) {
-                    ex.stackTrace
+
+                    return@map RepositoryResponse(deffList.orEmpty(), false)
+
                 }
-
-            }
-
-            return@map RepositoryResponse(deffList, false)
-
-        }
-
-        remoteResponse.subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io(), true)
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
@@ -95,7 +131,6 @@ class TripRepository(private val daoSession: DaoSession,
                     Log.d(tag, "getRemoteTripsByCarVin() remote error: $error caused by: ${error.cause}")
                     RepositoryResponse(null, false)
                 }
-                .subscribe()
 
         return remoteResponse
 
@@ -202,6 +237,8 @@ class TripRepository(private val daoSession: DaoSession,
 
         // STORE
         insertOrReplaceTripsFromCarVin(carVin, tripList)
+
+        Log.d("jakarta", "Update process finished")
 
     }
 

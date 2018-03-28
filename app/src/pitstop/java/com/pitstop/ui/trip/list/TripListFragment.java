@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TripListAdapter;
@@ -189,6 +190,13 @@ public class TripListFragment extends Fragment implements TripListView {
     public void onTripInfoClicked(Trip trip) {
 
         presenter.onTripInfoClicked(trip);
+
+    }
+
+    @Override
+    public void showToastStillRefreshing() {
+
+        Toast.makeText(context, R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
 
     }
 
