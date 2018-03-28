@@ -72,11 +72,19 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
             override fun onSuccess(data: Settings?) {
                 System.out.println("AddTripUseCaseImpl: Got settings with carId: ${data!!.carId}")
                 Log.d(TAG, "got settings with carId: ${data!!.carId}")
+                var usedLocalCar = false
+
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                         .subscribe({ car ->
-                            if (car.isLocal) return@subscribe
+
+                            //Use local response if it has data otherwise use remote
+                            if (car.isLocal && car.data != null){
+                                usedLocalCar = true
+                            }else if (usedLocalCar){
+                                return@subscribe
+                            }
 
                             val locationDataList: MutableSet<LocationData> = hashSetOf()
                             trip.forEach { locationDataList.add(LocationData(trip[0].time, it)) }

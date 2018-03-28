@@ -778,10 +778,11 @@ public class UseCaseModule {
 
     @Provides
     EndTripUseCase endTripUseCase(TripRepository tripRepository
-            , @Named("useCaseHandler")Handler useCaseHandler
+            , UserRepository userRepository, CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
-        return new EndTripUseCaseImpl(tripRepository, useCaseHandler,mainHandler);
+        return new EndTripUseCaseImpl(userRepository, carRepository
+                , tripRepository, useCaseHandler,mainHandler);
     }
 }
 
