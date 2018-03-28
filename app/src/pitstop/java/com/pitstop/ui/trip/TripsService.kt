@@ -63,6 +63,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var stillTimeoutTime = 600  //Time that a user can remain still in seconds before trip is ended
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
+    private val locationSizeCache = 5
+
+    private var currentTrip = arrayListOf<Location>()
 
     private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime/1000,0) {
         override fun onRetry() {
@@ -281,6 +284,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripStart(){
         Log.d(tag,"tripStart()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
+        currentTrip = arrayListOf()
         useCaseComponent.startTripUseCase().execute(object : StartTripUseCase.Callback{
             override fun finished() {
                 Log.d(tag,"start trip use case finished()")
@@ -296,13 +300,18 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripEnd(){
         Log.d(tag,"tripEnd()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
-        useCaseComponent.endTripUseCase().execute(object: EndTripUseCase.Callback{
+        useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
             override fun finished(trip: List<Location>) {
                 Log.d(tag,"end trip use case finished()")
                 observers.forEach({ it.onTripEnd(trip) })
             }
 
+            override fun onError(err: RequestError) {
+                Log.d(tag,"end trip use case error: ${err.message}")
+            }
+
         })
+        currentTrip = arrayListOf()
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         displayActivityNotif("Trip recording completed, view app for more info")
@@ -311,16 +320,20 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripUpdate(locations:List<Location>){
         Log.d(tag,"tripUpdate()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = $locations", DebugMessage.TYPE_TRIP)
-        useCaseComponent.addTripUseCase.execute(locations, object: AddTripDataUseCase.Callback{
-            override fun onAddedTripData() {
-                Log.d(tag,"add trip data use case added trip data")
-                observers.forEach{ it.onTripUpdate() }
-            }
+        currentTrip.addAll(locations)
+        //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
+        if (currentTrip.size > locationSizeCache){
+            useCaseComponent.addTripUseCase.execute(currentTrip, object: AddTripDataUseCase.Callback{
+                override fun onAddedTripData() {
+                    Log.d(tag,"add trip data use case added trip data")
+                    observers.forEach{ it.onTripUpdate() }
+                }
 
-            override fun onError(err: RequestError) {
-                Log.d(tag,"error adding trip data through use case")
-            }
-        })
+                override fun onError(err: RequestError) {
+                    Log.d(tag,"error adding trip data through use case")
+                }
+            })
+        }
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
