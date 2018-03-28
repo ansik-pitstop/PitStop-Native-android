@@ -98,7 +98,8 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                                 .subscribe({ next ->
 
                                                     //Return complete list of locations
-                                                    val firstTrip = tripRepository.localPendingTripStorage.getCompleted().lastOrNull()
+                                                    val firstTrip = tripRepository.localPendingTripStorage
+                                                            .getCompleted(false).lastOrNull()
                                                     val locationList = arrayListOf<PendingLocation>()
                                                     firstTrip?.locations?.forEach({
                                                         locationList.add(PendingLocation(it.data.longitude,it.data.latitude,it.data.time))

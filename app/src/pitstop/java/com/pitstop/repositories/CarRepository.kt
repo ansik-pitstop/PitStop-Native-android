@@ -21,7 +21,7 @@ import org.json.JSONObject
 
 
 /**
- * Car repository, use this class to modify, retrieve, and delete car data.
+ * Car repository, use this class to modify, retrieve, and markAsSent car data.
  * Updates data both remotely and locally.
  *
  * Created by Karol Zdebel on 5/26/2017.

@@ -200,7 +200,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
     //Dumps data from local database to server
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
-        val localPendingData = localPendingTripStorage.getCompleted()
+        val localPendingData = localPendingTripStorage.getCompleted(false)
         Log.d(tag,"dumping ${localPendingData.size} data points")
         if (localPendingData.isEmpty()) return Observable.just(0)
 
@@ -225,8 +225,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
                         .observeOn(Schedulers.io())
                         .subscribe({ next ->
                             Log.d(tag, "successfully stored chunk = $next")
-                            val rows = localPendingTripStorage.delete(locationChunk)
-                            Log.d(tag,"removed $rows rows after storing chunk")
+                            val rows = localPendingTripStorage.markAsSent(locationChunk)
+                            Log.d(tag,"marked $rows as sent after storing chunk")
                         }, { err ->
                             Log.d(tag, "error storing chunk = $err")
                         })

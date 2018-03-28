@@ -27,6 +27,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+ " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_SENT+ " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
@@ -45,6 +46,7 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED, if (trip.completed) 1 else 0)
+            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "0")
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
         })
 
@@ -72,14 +74,24 @@ class LocalPendingTripStorage(private val context: Context) {
         }
     }
 
-    //Return list of trips stored in database
-    fun getCompleted(): List<TripData> {
+    //Return list of trips stored in database that are completed
+    //If sent is false all trips are returned whether or not they have been sent to server
+    fun getCompleted(sent: Boolean): List<TripData> {
         Log.d(TAG,"get()")
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
+        val selection = if (sent){
+            TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=? AND "+TABLES.PENDING_TRIP_DATA.KEY_SENT+"=?"
+        }else{
+            TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+        }
+        val selectionArgs = if (sent){
+            arrayOf("1","0")
+        }else{
+            arrayOf("1")
+        }
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null
-                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
-                , arrayOf("1"), null, null
+                , selection, selectionArgs, null, null
                 , TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+
                 ","+TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID)
 
@@ -117,20 +129,22 @@ class LocalPendingTripStorage(private val context: Context) {
     }
 
     //Delete list of locations from database if they're present
-    fun delete(locations: List<LocationDataFormatted>): Int{
-        Log.d(TAG,"delete() locations size: ${locations.size}")
+    fun markAsSent(locations: List<LocationDataFormatted>): Int{
+        Log.d(TAG,"markAsSent() locations size: ${locations.size}")
         val db = databaseHelper.writableDatabase
         var rows = 0
         db.beginTransaction()
 
         locations.forEach({locationData ->
-            rows += db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+            val contentValues = ContentValues()
+            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "1")
+            rows += db.update(TABLES.PENDING_TRIP_DATA.TABLE_NAME, contentValues
                     , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=${locationData.id}", null)
         })
 
         db.setTransactionSuccessful()
         db.endTransaction()
-        Log.d(TAG,"deleted $rows rows")
+        Log.d(TAG,"updated $rows rows to sent")
         return rows
     }
 

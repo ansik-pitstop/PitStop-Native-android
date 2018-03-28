@@ -25,7 +25,8 @@ class TripsAdapter(val trips: List<List<Location>>): RecyclerView.Adapter<TripsA
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(trips[position])
+        if (!trips[position].isEmpty())
+            holder.bind(trips[position])
     }
 
     class Holder(itemView: View): RecyclerView.ViewHolder(itemView){
