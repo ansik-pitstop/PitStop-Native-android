@@ -156,20 +156,26 @@
 
     <Button
         android:id="@+id/button_trip_detail_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
-        android:text="Back" />
+        android:background="@drawable/round_button_back"
+        android:elevation="10dp"
+        android:text="Back"
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/button_trip_detail_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/button_trip_detail_back"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:layout_margin="10dp"
-        android:text="Delete" />
+        android:background="@drawable/round_button_delete_trip"
+        android:elevation="10dp"
+        android:text="Delete"
+        android:textColor="@color/white" />
 
     <!--
     <RelativeLayout

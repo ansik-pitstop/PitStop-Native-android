@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
+import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
@@ -51,6 +53,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     private TripDetailPresenter presenter;
 
     private Trip trip;
+
+    private AlertDialog deleteTripAlertDialog;
 
     public TripDetailFragment() {
     }
@@ -180,11 +184,24 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     }
 
     @OnClick(R.id.button_trip_detail_delete)
-    public void  onDeleteButtonClick() {
+    public void onDeleteButtonClick() {
 
         Log.d(TAG, "onDeleteButtonClick()");
 
-        presenter.onDeleteTripClicked(trip);
+        if (deleteTripAlertDialog == null) {
+            final View dialogLayout = LayoutInflater.from(
+                    getActivity()).inflate(R.layout.buy_device_dialog, null);
+            deleteTripAlertDialog = new AnimatedDialogBuilder(getActivity())
+                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
+                    .setTitle(R.string.delete_trip)
+                    .setView(dialogLayout)
+                    .setMessage(R.string.remove_trip_confirm_message)
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog, which)
+                            -> presenter.onDeleteTripClicked(trip))
+                    .setNegativeButton(getString(R.string.no_button_text), (dialog, which) -> dialog.cancel())
+                    .create();
+        }
+        deleteTripAlertDialog.show();
 
     }
 }
