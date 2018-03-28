@@ -8,6 +8,5 @@ import android.location.Location
 interface TripActivityObservable {
     fun subscribeTripActivity(observer: TripActivityObserver)
     fun unsubscribeTripActivity(observer: TripActivityObserver)
-    fun getCurrentTrip(): List<Location>
     fun isTripInProgress(): Boolean
 }

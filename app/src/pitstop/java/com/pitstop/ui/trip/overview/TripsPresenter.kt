@@ -31,7 +31,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
         if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip started")
     }
 
-    override fun onTripUpdate(trip: List<Location>) {
+    override fun onTripUpdate() {
         Log.d(tag,"onTripUpdate()")
         if (view != null) view?.displayTripActivity(getCurrentTime(),"Trip locations received")
     }

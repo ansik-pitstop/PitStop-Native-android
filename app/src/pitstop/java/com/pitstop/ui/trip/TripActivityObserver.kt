@@ -7,6 +7,6 @@ import android.location.Location
  */
 interface TripActivityObserver {
     fun onTripStart()
-    fun onTripUpdate(trip: List<Location>)
+    fun onTripUpdate()
     fun onTripEnd(trip: List<Location>)
 }

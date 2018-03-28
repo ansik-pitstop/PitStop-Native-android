@@ -47,7 +47,8 @@ class LocalTripStorage(context: Context) {
         Log.d(TAG,"getAllTrips()")
         val trips = ArrayList<List<Location>>()
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.TRIP.TABLE_NAME, null, null, null, null, null, null)
+        val c = db.query(TABLES.TRIP.TABLE_NAME, null, null, null
+                , null, null, TABLES.COMMON.KEY_ID+" DESC")
 
         if (c.moveToFirst()) {
             Log.d(TAG,"c.moveToFirst()")

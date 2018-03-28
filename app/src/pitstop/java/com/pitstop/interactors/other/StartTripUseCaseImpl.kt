@@ -10,14 +10,14 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Karol Zdebel on 3/28/2018.
  */
-class TripStartUseCaseImpl(private val tripRepository: TripRepository
+class StartTripUseCaseImpl(private val tripRepository: TripRepository
                            , private val usecaseHandler: Handler
-                           , private val mainHandler: Handler): TripStartUseCase {
+                           , private val mainHandler: Handler): StartTripUseCase {
 
     private val tag = javaClass.simpleName
-    private lateinit var callback: TripStartUseCase.Callback
+    private lateinit var callback: StartTripUseCase.Callback
 
-    override fun execute(callback: TripStartUseCase.Callback) {
+    override fun execute(callback: StartTripUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE)
         this.callback = callback

@@ -17,8 +17,10 @@ import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.add.AddTripUseCase
+import com.pitstop.interactors.add.AddTripDataUseCase
+import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
+import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
@@ -44,7 +46,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private val tag = javaClass.simpleName
     private var tripInProgress: Boolean
-    private var currentTrip: ArrayList<Location>
     private var observers: ArrayList<TripActivityObserver>
     private lateinit var googleApiClient: GoogleApiClient
     private val binder = TripsBinder()
@@ -76,7 +77,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     init{
         tripInProgress = false
-        currentTrip = arrayListOf()
         observers = arrayListOf()
     }
 
@@ -178,8 +178,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Observer unsubscribed", DebugMessage.TYPE_TRIP)
         observers.remove(observer)
     }
-
-    override fun getCurrentTrip(): List<Location> = currentTrip
 
     override fun isTripInProgress(): Boolean = tripInProgress
 
@@ -283,41 +281,46 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripStart(){
         Log.d(tag,"tripStart()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip start", DebugMessage.TYPE_TRIP)
+        useCaseComponent.startTripUseCase().execute(object : StartTripUseCase.Callback{
+            override fun finished() {
+                Log.d(tag,"start trip use case finished()")
+                observers.forEach{ it.onTripStart() }
+            }
+        })
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-        currentTrip = arrayListOf()
-        for (o in observers){
-            o.onTripStart()
-        }
+
         displayActivityNotif("Trip recording started")
     }
 
     private fun tripEnd(){
         Log.d(tag,"tripEnd()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
-        tripInProgress = false
-        sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-        for (o in observers){
-            o.onTripEnd(currentTrip)
-        }
-        useCaseComponent.addTripUseCase.execute(currentTrip, object: AddTripUseCase.Callback{
-            override fun onAddedTrip() {
+        useCaseComponent.endTripUseCase().execute(object: EndTripUseCase.Callback{
+            override fun finished(trip: List<Location>) {
+                Log.d(tag,"end trip use case finished()")
+                observers.forEach({ it.onTripEnd(trip) })
             }
 
-            override fun onError(err: RequestError) {
-            }
         })
-        currentTrip = arrayListOf()
+        tripInProgress = false
+        sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         displayActivityNotif("Trip recording completed, view app for more info")
     }
 
     private fun tripUpdate(locations:List<Location>){
         Log.d(tag,"tripUpdate()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = $locations", DebugMessage.TYPE_TRIP)
-        currentTrip.addAll(locations)
-        for (o in observers){
-            o.onTripUpdate(currentTrip)
-        }
+        useCaseComponent.addTripUseCase.execute(locations, object: AddTripDataUseCase.Callback{
+            override fun onAddedTripData() {
+                Log.d(tag,"add trip data use case added trip data")
+                observers.forEach{ it.onTripUpdate() }
+            }
+
+            override fun onError(err: RequestError) {
+                Log.d(tag,"error adding trip data through use case")
+            }
+        })
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {

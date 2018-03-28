@@ -7,9 +7,9 @@ import com.pitstop.network.RequestError
 /**
  * Created by Karol Zdebel on 3/6/2018.
  */
-interface AddTripUseCase: Interactor {
+interface AddTripDataUseCase : Interactor {
     interface Callback{
-        fun onAddedTrip()
+        fun onAddedTripData()
         fun onError(err: RequestError)
     }
 

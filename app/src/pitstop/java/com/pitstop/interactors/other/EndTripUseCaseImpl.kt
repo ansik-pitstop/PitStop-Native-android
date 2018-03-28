@@ -1,5 +1,6 @@
 package com.pitstop.interactors.other
 
+import android.location.Location
 import android.os.Handler
 import com.pitstop.models.DebugMessage
 import com.pitstop.repositories.TripRepository
@@ -29,7 +30,7 @@ class EndTripUseCaseImpl(private val tripRepository: TripRepository
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                 .subscribe({
-                    finished(it)
+                    finished(tripRepository.localTripStorage.getAllTrips().first(),it)
                 },{
                     it.printStackTrace()
                     Logger.getInstance()!!.logE(tag, "Use case returned error: err=${it.message}"
@@ -37,9 +38,9 @@ class EndTripUseCaseImpl(private val tripRepository: TripRepository
                 })
     }
 
-    private fun finished(rows: Int){
+    private fun finished(trip: List<Location>, rows: Int){
         Logger.getInstance()!!.logI(tag
-                , "Use case finished: success", DebugMessage.TYPE_USE_CASE)
-        mainHandler.post{callback.finished()}
+                , "Use case finished: success rows = $rows", DebugMessage.TYPE_USE_CASE)
+        mainHandler.post{callback.finished(trip)}
     }
 }

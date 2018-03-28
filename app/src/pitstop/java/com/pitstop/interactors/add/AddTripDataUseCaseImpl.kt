@@ -1,7 +1,5 @@
 package com.pitstop.interactors.add
 
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
 import android.util.Log
@@ -18,22 +16,21 @@ import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.io.IOException
 
 /**
  * Created by Karol Zdebel on 3/6/2018.
  */
-class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripRepository: TripRepository
-                         ,private val userRepository: UserRepository , private val carRepository: CarRepository
-                         , private val useCaseHandler: Handler
-                         , private val mainHandler: Handler): AddTripUseCase {
+class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
+                             , private val userRepository: UserRepository, private val carRepository: CarRepository
+                             , private val useCaseHandler: Handler
+                             , private val mainHandler: Handler): AddTripDataUseCase {
 
     private val TAG = javaClass.simpleName
     private lateinit var locationList: List<Location>
-    private lateinit var callback: AddTripUseCase.Callback
+    private lateinit var callback: AddTripDataUseCase.Callback
 
 
-    override fun execute(locationList: List<Location>, callback: AddTripUseCase.Callback) {
+    override fun execute(locationList: List<Location>, callback: AddTripDataUseCase.Callback) {
         Logger.getInstance().logI(TAG, "Use case execution started, trip: " + locationList, DebugMessage.TYPE_USE_CASE)
         this.locationList = arrayListOf()
         (this.locationList as ArrayList<Location>).addAll(locationList)
@@ -46,19 +43,6 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
         val trip = arrayListOf<PendingLocation>()
         locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time))})
-
-        var startAddress: Address? = null
-        var endAddress: Address? = null
-        try{
-            startAddress = geocoder
-                    .getFromLocation(trip.first().latitude,trip.first().longitude,1).firstOrNull()
-            endAddress = geocoder
-                    .getFromLocation(trip.last().latitude,trip.last().longitude,1).firstOrNull()
-        }catch (e: IOException){
-            e.printStackTrace()
-        }
-
-        Log.i(TAG,"AddTripUseCaseImpl: startAddress: $startAddress endAddress: $endAddress")
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {
@@ -73,8 +57,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                             val locationDataList: MutableSet<LocationData> = hashSetOf()
                             trip.forEach{ locationDataList.add(LocationData(trip[0].time, it)) }
 
-
-                            tripRepository.storeTripData(TripData(trip.first().time, true, car.data!!.vin
+                            tripRepository.storeTripData(TripData(trip.first().time, false, car.data!!.vin
                                     , locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
@@ -100,7 +83,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
 
     private fun onAddedTrip() {
         Logger.getInstance().logI(TAG, "Use case finished: trip added!", DebugMessage.TYPE_USE_CASE)
-        mainHandler.post({callback.onAddedTrip()})
+        mainHandler.post({callback.onAddedTripData()})
     }
 
     private fun onErrorFound(err: RequestError){

@@ -1,5 +1,6 @@
 package com.pitstop.interactors.other
 
+import android.location.Location
 import com.pitstop.interactors.Interactor
 
 /**
@@ -7,7 +8,7 @@ import com.pitstop.interactors.Interactor
  */
 interface EndTripUseCase: Interactor {
     interface Callback{
-        fun finished()
+        fun finished(trip: List<Location>)
     }
 
     fun execute(callback: Callback)
