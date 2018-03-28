@@ -72,6 +72,13 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
     @Override
     public void onBindViewHolder(TripViewHolder holder, int position) {
 
+        // In case of redraw having an item selected previously, this assures we'll conserve the
+        // reference to the selected row
+        boolean isSelectedTrip = (selectedTripId == tripList.get(position).getId());
+        if (isSelectedTrip) {
+            lastSelectedRow = holder;
+        }
+
         holder.bind(tripList.get(position));
 
     }
@@ -154,6 +161,10 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         }
 
+    }
+
+    public void restartSelectedId() {
+        selectedTripId = -1;
     }
 
     @Override

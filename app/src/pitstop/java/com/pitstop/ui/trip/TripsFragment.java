@@ -206,7 +206,7 @@ public class TripsFragment extends Fragment implements TripsView {
 
         if (tripListFragment != null) {
             Log.d(TAG, "Child found");
-            tripListFragment.requestForDataUpdate();
+            tripListFragment.requestForDataUpdate(true);
         }
 
     }
