@@ -30,7 +30,7 @@ class Util {
                 trip.add(LocationData(loc.time, PendingLocation(loc.longitude,loc.latitude,loc.time)))
             }
 
-            return TripData(trip.first().id,inVin,deviceTimestampIn,trip)
+            return TripData(trip.first().id,inVin,trip)
         }
 
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
