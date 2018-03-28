@@ -18,6 +18,8 @@ public interface TripListView extends ErrorHandlingView, LoadingTabView {
 
     void onTripInfoClicked(Trip trip);
 
+    void showToastStillRefreshing();
+
     boolean hasBeenPopulated();
 
 }

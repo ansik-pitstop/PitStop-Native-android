@@ -613,4 +613,5 @@
     <string name="connection_try_again">We couldn\'t connect to your device. Try again?</string>
     <string name="device_id_input_hint">Enter the ID located on the back of the device</string>
     <string name="sort_by">Sort by</string>
+    <string name="wait_loading_finish">Please, wait for loading to finish</string>
 </resources>

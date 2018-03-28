@@ -74,11 +74,15 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     public void sentOnShowLoading() {
 
+        Log.d(TAG, "sentOnShowLoading()");
+
         mParentListener.onShowLoading();
 
     }
 
     public void sendOnHideLoading() {
+
+        Log.d(TAG, "sendOnHideLoading()");
 
         mParentListener.onHideLoading();
 
@@ -92,7 +96,11 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     public void onTripInfoClicked(Trip trip) {
 
-        mParentListener.showTripDetail(trip);
+        if (getView().isRefreshing()) {
+            getView().showToastStillRefreshing();
+        } else {
+            mParentListener.showTripDetail(trip);
+        }
 
     }
 
@@ -126,7 +134,9 @@ public class TripListPresenter extends TabPresenter<TripListView> {
                     return;
                 }
 
-                getView().hideLoading();
+                if (!isLocal) { // Only hide the spinner when the Remote call (the 2nd and last) is finished
+                    getView().hideLoading();
+                }
                 if (tripList == null) {
                     getView().displayUnknownErrorView();
                     return;
