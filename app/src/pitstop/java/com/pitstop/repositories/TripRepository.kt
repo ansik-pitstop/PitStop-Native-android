@@ -186,7 +186,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
         Log.d(tag,"dumping ${localPendingData.size} data points")
         if (localPendingData.isEmpty()) return Observable.just(0)
 
-        val formattedData = formatTripData(localPendingData)
+        val formattedData = formatTripData(localPendingData) ?: return Observable.just(0)
+
+        //Check for error, likely due to geocoder
 
         val observableList = arrayListOf<Observable<Int>>()
         /*Go through each trip and chunk the location data points to not overload the network layer
@@ -225,7 +227,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
         })
     }
 
-    private fun formatTripData(tripData: List<TripData>): Set<Set<LocationDataFormatted>>{
+    private fun formatTripData(tripData: List<TripData>): Set<Set<LocationDataFormatted>>?{
 
         val allTripData = hashSetOf<Set<LocationDataFormatted>>()
 
@@ -244,6 +246,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                                 ,1).firstOrNull()
             }catch (e: IOException){
                 e.printStackTrace()
+                return null
             }
 
             //Get car and device info
