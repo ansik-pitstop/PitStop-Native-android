@@ -85,9 +85,12 @@ public final class TABLES {
         String TABLE_NAME = "pending_trip_data";
         String KEY_TRIP_ID = "trip_id";
         String KEY_LOCATION_ID = "location_id";
-        String KEY_ID = "id";
-        String KEY_DATA = "data";
-    }
+        String KEY_LONGITUDE = "longitude";
+        String KEY_LATITUDE = "latitude";
+        String KEY_TIME = "time";
+        String KEY_VIN = "vin";
+        String KEY_DEVICE_TIMESTAMP = "device_timestamp";
+        }
 
     public interface TRIP_DEVICE{
         String TABLE_NAME = "tripsDevice";

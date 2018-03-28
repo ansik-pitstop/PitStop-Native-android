@@ -7,7 +7,6 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
-import com.pitstop.models.trip.DataPoint
 import com.pitstop.models.trip.LocationData
 import com.pitstop.models.trip.TripData
 import com.pitstop.network.RequestError
@@ -67,69 +66,13 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                         .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                         .subscribe({ car ->
                             if (car.isLocal) return@subscribe
-                            val vin = DataPoint(DataPoint.ID_VIN, car.data!!.vin)
-                            val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
-                            val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
-                            Log.d(TAG,"got car vin: ${car.data!!.vin}")
-                            //Add everything but indicator, body of trip
-                            trip.forEach({
-                                val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
-                                val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
-                                val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
-                                val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
-                                tripDataPoint.add(latitude)
-                                tripDataPoint.add(longitude)
-                                tripDataPoint.add(deviceTimestamp)
-                                tripDataPoint.add(tripId)
-                                tripDataPoint.add(vin)
-                                tripDataPoint.add(indicator)
-                                tripDataPoints.add(LocationData(it.time,tripDataPoint))
-                            })
 
-                            //Add indicator
-                            val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
-                            val startLocation = DataPoint(DataPoint.ID_START_LOCATION
-                                    , if (startAddress == null) "null" else startAddress.getAddressLine(0))
-                            val endLocation = DataPoint(DataPoint.ID_END_LOCATION
-                                    , if (endAddress == null) "null" else endAddress.getAddressLine(0))
-                            val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
-                                    , if (startAddress == null) "null" else startAddress.getAddressLine(0))
-                            val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
-                                    , if (endAddress == null) "null" else endAddress.getAddressLine(0))
-                            val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
-                                    , if (startAddress == null || startAddress.locality == null) "null" else startAddress.locality)
-                            val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
-                                    , if (endAddress == null || endAddress.locality == null) "null" else  endAddress.locality)
-                            val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
-                                    , if (startAddress == null) "null" else startAddress.latitude.toString())
-                            val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE
-                                    , endAddress?.latitude?.toString() ?: "null")
-                            val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress?.longitude?.toString() ?: "null")
-                            val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress?.longitude?.toString() ?: "null")
-                            val mileageTrip = DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2") //Todo("Add mileage trip logic")
-                            val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, trip.first().time.toString())
-                            val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, trip.last().time.toString())
-                            val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
-                            indicatorDataPoint.add(startLocation)
-                            indicatorDataPoint.add(endLocation)
-                            indicatorDataPoint.add(startStreetLocation)
-                            indicatorDataPoint.add(endStreetLocation)
-                            indicatorDataPoint.add(startCityLocation)
-                            indicatorDataPoint.add(endCityLocation)
-                            indicatorDataPoint.add(startLatitude)
-                            indicatorDataPoint.add(endLatitude)
-                            indicatorDataPoint.add(startLongitude)
-                            indicatorDataPoint.add(endLongitude)
-                            indicatorDataPoint.add(mileageTrip)
-                            indicatorDataPoint.add(startTimestamp)
-                            indicatorDataPoint.add(endTimestamp)
-                            indicatorDataPoint.add(indicator)
-                            indicatorDataPoint.add(vin)
-                            indicatorDataPoint.add(tripId)
-                            indicatorDataPoint.add(deviceTimestamp)
-                            tripDataPoints.add(LocationData(trip.last().time*4,indicatorDataPoint))
+                            val locationDataList: MutableSet<LocationData> = hashSetOf()
+                            trip.forEach{ locationDataList.add(LocationData(trip[0].time, it)) }
 
-                            tripRepository.storeTripData(TripData(trip.first().time,tripDataPoints))
+
+                            tripRepository.storeTripData(TripData(trip.first().time, car.data!!.vin
+                                    , System.currentTimeMillis(), locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
                                     .subscribe({next ->
