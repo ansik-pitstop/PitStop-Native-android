@@ -54,15 +54,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var receiver: BroadcastReceiver
 
-    private var locationUpdateInterval = 5000L
-    private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-    private var activityUpdateInterval = 3000L
-    private var tripStartThreshold = 70
-    private var tripEndThreshold = 80
-    private var tripTrigger = DetectedActivity.IN_VEHICLE
-    private var stillTimeoutTime = 600
-    private var stillStartConfidence = 90
-    private var stillEndConfidence = 40
+    private var locationUpdateInterval = 5000L  //How often location GPS updates are to be received
+    private var locationUpdatePriority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY //Battery efficiency vs GPS accuracy
+    private var activityUpdateInterval = 3000L  //How often activity updates are received
+    private var tripStartThreshold = 70 //Confidence that starts trip
+    private var tripEndThreshold = 80   //Confidence that ends trip
+    private var tripTrigger = DetectedActivity.IN_VEHICLE   //Activity which triggers trip start
+    private var stillTimeoutTime = 600  //Time that a user can remain still in seconds before trip is ended
+    private var stillStartConfidence = 90   //Confidence to start still timer
+    private var stillEndConfidence = 40 //Confidence to end still timer
 
     private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime/1000,0) {
         override fun onRetry() {
