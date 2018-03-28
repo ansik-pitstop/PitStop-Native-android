@@ -175,6 +175,11 @@ open class TripRepository(private val tripApi: PitstopTripApi
     //Returns number of location data points uploaded to server
     fun storeTripData(trip: TripData): Observable<Int> {
         Log.d(tag, "storeTripData() trip.size = ${trip.locations.size}")
+        return Observable.just(localPendingTripStorage.store(trip).toInt())
+    }
+
+    fun storeTripDataAndDump(trip: TripData): Observable<Int>{
+        Log.d(tag,"storeTripDataAndDump() trip.size = ${trip.locations.size}")
         localPendingTripStorage.store(trip)
         return dumpData()
     }

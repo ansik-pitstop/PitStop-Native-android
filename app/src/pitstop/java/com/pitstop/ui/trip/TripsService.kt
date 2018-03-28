@@ -350,8 +350,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     Log.d(tag,"error adding trip data through use case")
                 }
             })
+            currentTrip = arrayListOf()
         }
-        currentTrip = arrayListOf()
     }
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {

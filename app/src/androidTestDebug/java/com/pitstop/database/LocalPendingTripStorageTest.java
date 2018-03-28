@@ -83,6 +83,19 @@ public class LocalPendingTripStorageTest {
     }
 
     @Test
+    public void getIncompleteTripIdTest(){
+        Log.d(TAG,"getIncompleteTripIdTest()");
+        int locNum = 3;
+        localPendingTripStorage.deleteAll();
+        TripData tripData = Util.Companion.generateTripData(false
+                ,locNum,VIN,System.currentTimeMillis());
+        localPendingTripStorage.store(tripData);
+        long incompleteTripId = localPendingTripStorage.getIncompleteTripId();
+        Log.d(TAG,"incompleteTripId: "+incompleteTripId);
+        assertNotEquals(-1,incompleteTripId);
+    }
+
+    @Test
     public void completeTripsTest(){
         Log.d(TAG,"completeTripsTest()");
         int locNum = 3;

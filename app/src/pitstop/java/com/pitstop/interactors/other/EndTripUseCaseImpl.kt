@@ -40,75 +40,74 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
 
     override fun run() {
 
+        val trip = arrayListOf<PendingLocation>()
+        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time))})
+
         //Complete trip data in the trip repo
         tripRepository.completeTripData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                 .subscribe({
                     finished(tripRepository.localTripStorage.getAllTrips().first(),it)
+
+                    //Insert remaining completed trips
+                    userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
+
+                        override fun onError(error: RequestError?) {
+                            if (error == null){
+                                onError(RequestError.getUnknownError())
+                            }else{
+                                onErrorFound(error)
+                            }
+                        }
+
+                        override fun onSuccess(data: Settings?) {
+                            System.out.println("AddTripUseCaseImpl: Got settings with carId: ${data!!.carId}")
+                            Log.d(TAG, "got settings with carId: ${data!!.carId}")
+                            var usedLocalCar = false
+
+                            carRepository.get(data!!.carId)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
+                                    .subscribe({ car ->
+
+                                        //Use local response if it has data otherwise use remote
+                                        if (car.isLocal && car.data != null){
+                                            usedLocalCar = true
+                                        }else if (usedLocalCar){
+                                            return@subscribe
+                                        }
+
+                                        val locationDataList: MutableSet<LocationData> = hashSetOf()
+                                        trip.forEach { locationDataList.add(LocationData(trip[0].time, it)) }
+
+                                        val tripIdFromRepo = tripRepository.getIncompleteTripId()
+                                        //First set of locations for this locationList, set locationList id its not in db yet, or use the retrieved if not -1
+                                        val tripId = if (tripIdFromRepo == -1L) trip.first().time else tripIdFromRepo
+
+                                        tripRepository.storeTripDataAndDump(TripData(tripId, true, car.data!!.vin
+                                                , locationDataList))
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(Schedulers.io())
+                                                .subscribe({ next ->
+                                                    Log.d(TAG, "locationList repo response: $next")
+                                                }, { err ->
+                                                    Log.d(TAG, "locationList repo err: $err")
+                                                })
+
+                                    }, { err ->
+                                        Log.d(TAG, "Error: " + err)
+                                        onErrorFound(RequestError(err))
+                                    })
+                        }
+                    })
+
                 },{
                     it.printStackTrace()
                     onErrorFound(RequestError(it))
                     Logger.getInstance()!!.logE(TAG, "Use case returned error: err=${it.message}"
                             , DebugMessage.TYPE_USE_CASE)
                 })
-
-        val trip = arrayListOf<PendingLocation>()
-        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time))})
-
-        /**Add completed trip data points to trip repo
-         *, this will run alongside the complete trip data call, which is fine
-         ** because they are being inserted as completed**/
-        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
-
-            override fun onError(error: RequestError?) {
-                if (error == null){
-                    onError(RequestError.getUnknownError())
-                }else{
-                    onErrorFound(error)
-                }
-            }
-
-            override fun onSuccess(data: Settings?) {
-                System.out.println("AddTripUseCaseImpl: Got settings with carId: ${data!!.carId}")
-                Log.d(TAG, "got settings with carId: ${data!!.carId}")
-                var usedLocalCar = false
-
-                carRepository.get(data!!.carId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
-                        .subscribe({ car ->
-
-                            //Use local response if it has data otherwise use remote
-                            if (car.isLocal && car.data != null){
-                                usedLocalCar = true
-                            }else if (usedLocalCar){
-                                return@subscribe
-                            }
-
-                            val locationDataList: MutableSet<LocationData> = hashSetOf()
-                            trip.forEach { locationDataList.add(LocationData(trip[0].time, it)) }
-
-                            val tripIdFromRepo = tripRepository.getIncompleteTripId()
-                            //First set of locations for this locationList, set locationList id its not in db yet, or use the retrieved if not -1
-                            val tripId = if (tripIdFromRepo == -1L) trip.first().time else tripIdFromRepo
-
-                            tripRepository.storeTripData(TripData(tripId, true, car.data!!.vin
-                                    , locationDataList))
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io())
-                                    .subscribe({ next ->
-                                        Log.d(TAG, "locationList repo response: $next")
-                                    }, { err ->
-                                        Log.d(TAG, "locationList repo err: $err")
-                                    })
-
-                        }, { err ->
-                            Log.d(TAG, "Error: " + err)
-                            onErrorFound(RequestError(err))
-                        })
-            }
-        })
     }
 
     private fun finished(trip: List<Location>, rows: Int){

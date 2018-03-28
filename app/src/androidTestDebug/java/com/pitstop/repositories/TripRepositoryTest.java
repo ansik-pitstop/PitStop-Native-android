@@ -58,7 +58,7 @@ public class TripRepositoryTest {
 
         TripData tripData = Util.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
         Log.d(TAG,"generated trip data, location size = "+tripData.getLocations().size());
-        tripRepository.storeTripData(tripData)
+        tripRepository.storeTripDataAndDump(tripData)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io(),true)
                 .subscribe(next -> {
