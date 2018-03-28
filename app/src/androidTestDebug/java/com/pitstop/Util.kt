@@ -22,7 +22,7 @@ class Util {
             return location
         }
 
-        fun generateTripData(locNum: Int, inVin:String, deviceTimestampIn: Long): TripData{
+        fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData{
             val trip: MutableSet<LocationData> = hashSetOf()
 
             for (i in 1..locNum){
@@ -30,7 +30,7 @@ class Util {
                 trip.add(LocationData(loc.time, PendingLocation(loc.longitude,loc.latitude,loc.time)))
             }
 
-            return TripData(trip.first().id,inVin,trip)
+            return TripData(trip.first().id,completed,inVin,trip)
         }
 
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added

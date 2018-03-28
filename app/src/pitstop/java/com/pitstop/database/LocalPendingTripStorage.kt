@@ -26,6 +26,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_LATITUDE+ " REAL,"
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
+                + TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+ " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
@@ -43,6 +44,7 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
+            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED, if (trip.completed) 1 else 0)
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
         })
 
@@ -50,7 +52,7 @@ class LocalPendingTripStorage(private val context: Context) {
     }
 
     //Return list of trips stored in database
-    fun get(): List<TripData> {
+    fun getCompleted(): List<TripData> {
         Log.d(TAG,"get()")
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
@@ -65,21 +67,29 @@ class LocalPendingTripStorage(private val context: Context) {
 
             var curTrip = mutableSetOf<LocationData>()
             while (!c.isAfterLast) {
+
+                //Skip location data points that haven't been marked completed (trip hasn't ended)
+                if (c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED)) == 0){
+                    continue
+                }
+
                 val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
                 val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
                 Log.d(TAG,"got tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
+
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
-                    trips.add(TripData(curTripId,vin,curTrip))
+                    trips.add(TripData(curTripId,true,vin,curTrip))
                     Log.d(TAG,"new trip: $curTrip")
                     curTrip = mutableSetOf()
                 }
                 curTrip.add(LocationData(locationId,cursorToLocation(c)))
                 curTripId = tripId
+
                 if (c.isLast){
-                    trips.add(TripData(curTripId,vin,curTrip))
+                    trips.add(TripData(curTripId,true,vin,curTrip))
                     Log.d(TAG,"exiting afterlast loop")
                 }
                 c.moveToNext()
@@ -96,12 +106,14 @@ class LocalPendingTripStorage(private val context: Context) {
         val db = databaseHelper.writableDatabase
         var rows = 0
         db.beginTransaction()
+
         locations.forEach({locationData ->
             val idArr = Array(1, {locationData.id.toString()})
             Log.d(TAG,"idArr: ${idArr[0]}")
             rows += db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
                     , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=?", idArr)
         })
+
         db.setTransactionSuccessful()
         db.endTransaction()
         Log.d(TAG,"deleted $rows rows")
@@ -121,6 +133,24 @@ class LocalPendingTripStorage(private val context: Context) {
                 " ON t.${TABLES.COMMON.KEY_CREATED_AT} > tlimit.ts",null).count
         Log.d(TAG,"deleted $count old data points")
         return count
+    }
+
+    fun deleteIncomplete(): Int{
+        Log.d(TAG,"deleteIncomplete()")
+        val db = databaseHelper.writableDatabase
+        return db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+" = ?"
+                , arrayOf("0"))
+    }
+
+    fun completeAll(): Int{
+        Log.d(TAG,"complete()")
+        val db = databaseHelper.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED,"0")
+        return db.update(TABLES.PENDING_TRIP_DATA.TABLE_NAME,contentValues
+                ,TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+" = ?"
+                , arrayOf("0"))
     }
 
     fun deleteAll() {

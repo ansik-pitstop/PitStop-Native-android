@@ -74,7 +74,7 @@ class AddTripUseCaseImpl(private val geocoder: Geocoder, private val tripReposit
                             trip.forEach{ locationDataList.add(LocationData(trip[0].time, it)) }
 
 
-                            tripRepository.storeTripData(TripData(trip.first().time, car.data!!.vin
+                            tripRepository.storeTripData(TripData(trip.first().time, true, car.data!!.vin
                                     , locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
