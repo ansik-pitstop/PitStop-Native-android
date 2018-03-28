@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
@@ -216,6 +217,13 @@ public class TripsFragment extends Fragment implements TripsView {
         if (mapView == null) return;
 
         mapView.clearPolyline();
+
+    }
+
+    @Override
+    public void showToastStillRefreshing() {
+
+        Toast.makeText(getContext(), R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
 
     }
 

@@ -23,6 +23,8 @@ public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
     void clearMap();
 
+    void showToastStillRefreshing();
+
     void displayErrorMessage(String errorMessage);
 
 }
