@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by Karol Zdebel on 3/20/2018.
@@ -94,12 +95,12 @@ public class LocalPendingTripStorageTest {
 
         //Make sure incomplete data is being removed
         assertEquals(0,localPendingTripStorage.getCompleted().size());
+        assertNotEquals(localPendingTripStorage.completeAll(),0);
         assertEquals(0,localPendingTripStorage.deleteIncomplete());
-        assertTrue(localPendingTripStorage.completeAll() > 0);
-        assertTrue(localPendingTripStorage.deleteIncomplete() > 0);
-        assertEquals(0,localPendingTripStorage.getCompleted().size());
+        assertEquals(1,localPendingTripStorage.getCompleted().size());
 
         //Make sure completed data isn't being removed by deleteIncomplete()
+        localPendingTripStorage.deleteAll();
         localPendingTripStorage.store(tripData);
         localPendingTripStorage.store(tripData2);
         assertTrue(localPendingTripStorage.deleteIncomplete() > 0);
