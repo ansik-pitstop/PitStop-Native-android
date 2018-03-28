@@ -1,5 +1,7 @@
 package com.pitstop.dependency;
 
+import android.location.Geocoder;
+
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
@@ -106,11 +108,9 @@ public class RepositoryModule {
     @Singleton
     TripRepository getTripRepository(PitstopTripApi pitstopTripApi
             , LocalPendingTripStorage localPendingTripStorage, LocalTripStorage localTripStorage
-            , Observable<Boolean> connectionObservable){
+            , Geocoder geocoder, Observable<Boolean> connectionObservable){
         return new TripRepository(pitstopTripApi, localPendingTripStorage
                 , localTripStorage, connectionObservable);
-    TripRepository getTripRepository(LocalTripStorage localTripStorage, PitstopTripApi pitstopTripApi){
-        return new TripRepository(localTripStorage, pitstopTripApi);
     }
 
     @Provides

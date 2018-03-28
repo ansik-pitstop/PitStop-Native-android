@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by Karol Zdebel on 3/20/2018.
@@ -43,13 +44,15 @@ public class LocalPendingTripStorageTest {
     @Test
     public void storePendingTripTest(){
         Log.d(TAG,"running storePendingTripTest()");
-        TripData tripData = Util.Companion.generateTripData(3,VIN,System.currentTimeMillis());
+        int locNum = 3;
+        localPendingTripStorage.deleteAll();
+        TripData tripData = Util.Companion.generateTripData(locNum,VIN,System.currentTimeMillis());
         Log.d(TAG,"storePendingTripTest() tripData = "+tripData);
-        localPendingTripStorage.store(tripData);
+        assertTrue(localPendingTripStorage.store(tripData) > 0);
         List<TripData> tripDataRetrieved = localPendingTripStorage.get();
         Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
         assertEquals(tripDataRetrieved.size(),1);
-        assertEquals(tripData,tripDataRetrieved.iterator().next());
+        assertTrue(Util.Companion.checkTripsEqual(tripData,tripDataRetrieved.iterator().next()));
 
     }
 

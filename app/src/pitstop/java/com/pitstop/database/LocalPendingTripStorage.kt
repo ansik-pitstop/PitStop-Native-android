@@ -24,8 +24,8 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE+ " REAL,"
                 + TABLES.PENDING_TRIP_DATA.KEY_LATITUDE+ " REAL,"
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
-                + TABLES.PENDING_TRIP_DATA.KEY_VIN+ "TEXT,"
-                + TABLES.PENDING_TRIP_DATA.KEY_DEVICE_TIMESTAMP+ "LONG,"
+                + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
+                + TABLES.PENDING_TRIP_DATA.KEY_DEVICE_TIMESTAMP+ " LONG,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
@@ -63,7 +63,6 @@ class LocalPendingTripStorage(private val context: Context) {
         if (c.moveToFirst()) {
             Log.d(TAG,"c.moveToFirst()")
             var curTripId = -1L
-            var curLocationId = -1L
 
             var curTrip = mutableSetOf<LocationData>()
             while (!c.isAfterLast) {
@@ -73,25 +72,20 @@ class LocalPendingTripStorage(private val context: Context) {
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
                 Log.d(TAG,"got tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
+                curTrip.add(LocationData(locationId,cursorToLocation(c)))
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
                     Log.d(TAG,"new trip")
-                    curTrip.add(LocationData(curLocationId,cursorToLocation(c)))
                     trips.add(TripData(curTripId,vin,deviceTimeStamp,curTrip))
                     curTrip = mutableSetOf()
-                }else if (curLocationId != locationId && curLocationId != -1L){
-                    //New location
-                    Log.d(TAG, "new location")
-                    curTrip.add(LocationData(curLocationId,cursorToLocation(c)))
                 }
                 curTripId = tripId
-                curLocationId = locationId
-                c.moveToNext()
-                if (c.isAfterLast){
-                    curTrip.add(LocationData(curLocationId,cursorToLocation(c)))
+                if (c.isLast){
                     trips.add(TripData(curTripId,vin,deviceTimeStamp,curTrip))
                     Log.d(TAG,"exiting afterlast loop")
                 }
+                c.moveToNext()
+
             }
         }
         c.close()
