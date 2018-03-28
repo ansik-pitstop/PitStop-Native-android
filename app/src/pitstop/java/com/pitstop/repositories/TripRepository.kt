@@ -274,7 +274,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
             //Store each GPS point from this particular trip
             it.locations
-                    .filter{ locationData -> locationData != it.locations.last()}
                     .forEach({ locationData ->
                         val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP
                                 , locationData.data.time.toString())

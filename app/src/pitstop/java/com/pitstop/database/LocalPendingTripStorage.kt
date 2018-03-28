@@ -124,10 +124,8 @@ class LocalPendingTripStorage(private val context: Context) {
         db.beginTransaction()
 
         locations.forEach({locationData ->
-            val idArr = Array(1, {locationData.id.toString()})
-            Log.d(TAG,"idArr: ${idArr[0]}")
             rows += db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
-                    , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=?", idArr)
+                    , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=${locationData.id}", null)
         })
 
         db.setTransactionSuccessful()
