@@ -72,6 +72,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
         if (!updating && getView() != null) {
+            updating = true;
             getView().requestForDataUpdate();
         }
 
@@ -155,6 +156,12 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
         if (getView() == null) return;
 
+        if (updating) {
+            getView().showToastStillRefreshing();
+
+            return;
+        }
+
         getView().displayTripDetailsView(trip);
 
     }
@@ -163,6 +170,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     public void onShowLoading() {
 
         if (getView() != null) {
+            updating = true;
             getView().showLoading();
         }
 
@@ -172,6 +180,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
     public void onHideLoading() {
 
         if (getView() != null) {
+            updating = false;
             getView().hideLoading();
         }
 
