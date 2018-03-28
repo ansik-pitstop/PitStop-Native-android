@@ -179,6 +179,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
         return dumpData()
     }
 
+    //Returns -1 if no current trip data points have been stored yet, returns trip id otherwise
+    fun getIncompleteTripId(): Long = localPendingTripStorage.getIncompleteTripId()
+
     fun removeIncompleteTripData(): Observable<Int>{
         Log.d(tag, "removeIncompleteTripData()")
         return Observable.just(localPendingTripStorage.deleteIncomplete())

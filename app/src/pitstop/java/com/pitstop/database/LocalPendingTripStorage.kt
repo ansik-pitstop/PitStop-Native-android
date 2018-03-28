@@ -51,6 +51,24 @@ class LocalPendingTripStorage(private val context: Context) {
         return rows
     }
 
+    //Returns -1 if no current trip data points have been stored yet, returns trip id otherwise
+    fun getIncompleteTripId(): Long{
+        val db = databaseHelper.readableDatabase
+        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                , arrayOf(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID)
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+                , arrayOf("0")
+                ,null
+                ,null
+                ,TABLES.PENDING_TRIP_DATA.KEY_TIME
+                ,"1")
+        if (c.moveToFirst()){
+            return c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+        }else{
+            return -1L
+        }
+    }
+
     //Return list of trips stored in database
     fun getCompleted(): List<TripData> {
         Log.d(TAG,"get()")

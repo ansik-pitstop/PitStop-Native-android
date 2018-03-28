@@ -57,7 +57,11 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                             val locationDataList: MutableSet<LocationData> = hashSetOf()
                             trip.forEach{ locationDataList.add(LocationData(trip[0].time, it)) }
 
-                            tripRepository.storeTripData(TripData(trip.first().time, false, car.data!!.vin
+                            val tripIdFromRepo = tripRepository.getIncompleteTripId()
+                            //First set of locations for this trip, set trip id its not in db yet, or use the retrieved if not -1
+                            val tripId = if (tripIdFromRepo == -1L) trip.first().time else tripIdFromRepo
+
+                            tripRepository.storeTripData(TripData(tripId,false, car.data!!.vin
                                     , locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
@@ -78,7 +82,6 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                 AddTripUseCaseImpl@onErrorFound(error ?: RequestError.getUnknownError())
             }
         })
-        tripRepository.localTripStorage.store(locationList)
     }
 
     private fun onAddedTrip() {
