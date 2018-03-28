@@ -1,6 +1,7 @@
 package com.pitstop.repositories;
 
 import android.content.Context;
+import android.location.Geocoder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -46,7 +47,8 @@ public class TripRepositoryTest {
         PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
         LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
         LocalTripStorage localTripStorage = new LocalTripStorage(context);
-        tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage, Observable.just(true));
+        tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage
+                , new Geocoder(context),Observable.just(true));
     }
 
     @Test
@@ -54,7 +56,7 @@ public class TripRepositoryTest {
         Log.d(TAG,"running storeTripTest()");
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        TripData tripData = Util.Companion.locationsToDataPoints(3,VIN);
+        TripData tripData = Util.Companion.generateTripData(3,VIN,System.currentTimeMillis());
         Log.d(TAG,"generated trip data, location size = "+tripData.getLocations().size());
         tripRepository.storeTripData(tripData)
                 .subscribeOn(Schedulers.io())

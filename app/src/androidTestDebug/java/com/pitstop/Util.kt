@@ -3,6 +3,7 @@ package com.pitstop
 import android.location.Location
 import com.pitstop.models.trip.DataPoint
 import com.pitstop.models.trip.LocationData
+import com.pitstop.models.trip.LocationDataFormatted
 import com.pitstop.models.trip.TripData
 import java.util.*
 
@@ -21,19 +22,30 @@ class Util {
             return location
         }
 
-        //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
-        fun locationsToDataPoints(locNum: Int, inVin: String): TripData{
-            val trip: MutableSet<Location> = hashSetOf()
+        fun generateTripData(locNum: Int, inVin:String, deviceTimestampIn: Long): TripData{
+            val trip: MutableSet<LocationData> = hashSetOf()
 
+            for (i in 1..locNum){
+                val loc = getRandomLocation()
+                trip.add(LocationData(loc.time,getRandomLocation()))
+            }
+
+            return TripData(trip.first().id,inVin,deviceTimestampIn,trip)
+        }
+
+        //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
+        fun generateTripDataFormtted(locNum: Int, inVin: String, deviceTimestampIn: Long): Set<LocationDataFormatted>{
+
+            val trip = hashSetOf<Location>()
             for (i in 1..locNum){
                 trip.add(getRandomLocation())
             }
 
-            val tripDataPoints: MutableSet<LocationData> = mutableSetOf()
+            val tripDataPoints: MutableSet<LocationDataFormatted> = mutableSetOf()
 
             val vin = DataPoint(DataPoint.ID_VIN, inVin)
             val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
-            val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, System.currentTimeMillis().toString())
+            val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, deviceTimestampIn.toString())
             //Add everything but indicator, body of trip
             trip.forEach({
                 val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
@@ -46,7 +58,7 @@ class Util {
                 tripDataPoint.add(tripId)
                 tripDataPoint.add(vin)
                 tripDataPoint.add(indicator)
-                tripDataPoints.add(LocationData(it.time,tripDataPoint))
+                tripDataPoints.add(LocationDataFormatted(it.time,tripDataPoint))
             })
 
             //Add indicator
@@ -82,8 +94,9 @@ class Util {
             indicatorDataPoint.add(vin)
             indicatorDataPoint.add(tripId)
             indicatorDataPoint.add(deviceTimestamp)
-            tripDataPoints.add(LocationData(trip.last().time*4,indicatorDataPoint))
-            return TripData(trip.first().time,tripDataPoints)
+            tripDataPoints.add(LocationDataFormatted(trip.last().time*4,indicatorDataPoint))
+
+            return tripDataPoints
         }
     }
 }
