@@ -55,6 +55,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     private Trip trip;
 
     private AlertDialog deleteTripAlertDialog;
+    private AlertDialog offlineAlertDialog;
+    private AlertDialog unknownErrorDialog;
 
     public TripDetailFragment() {
     }
@@ -82,7 +84,6 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
             this.loadTripData(trip);
         }
-//        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;
     }
@@ -92,6 +93,13 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG,"onDestroyView()");
+        super.onDestroyView();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -105,27 +113,51 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
     @Override
     public void displayOfflineErrorDialog() {
-
+        Log.d(TAG, "displayOfflineErrorDialog()");
+        if (offlineAlertDialog == null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.offline_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.offline_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            offlineAlertDialog = alertDialogBuilder.create();
+        }
+        offlineAlertDialog.show();
     }
 
     @Override
     public void displayUnknownErrorDialog() {
-
+        Log.d(TAG, "displayUnknownErrorDialog()");
+        if (unknownErrorDialog == null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
+        unknownErrorDialog.show();
     }
 
     @Override
     public void displayUnknownErrorView() {
-
+        // nothing to do here
     }
 
     @Override
     public void displayOfflineView() {
-
+        // nothing to do here
     }
 
     @Override
     public void displayOnlineView() {
-
+        // nothing to do here
     }
 
     @Override
@@ -195,7 +227,7 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle(R.string.delete_trip)
                     .setView(dialogLayout)
-                    .setMessage(R.string.remove_trip_confirm_message)
+                    .setMessage(R.string.delete_trip_confirm_message)
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog, which)
                             -> presenter.onDeleteTripClicked(trip))
                     .setNegativeButton(getString(R.string.no_button_text), (dialog, which) -> dialog.cancel())

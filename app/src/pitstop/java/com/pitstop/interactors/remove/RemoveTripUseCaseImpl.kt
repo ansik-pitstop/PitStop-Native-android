@@ -39,7 +39,7 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
                     Log.d(tag, "tripRepository.onNext() data: $next")
                     this@RemoveTripUseCaseImpl.onTripRemoved()
                 }, { error ->
-                    Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
+                    Log.d(tag, "tripRepository.onError() error: " + error)
                     this@RemoveTripUseCaseImpl.onError(com.pitstop.network.RequestError(error))
                 })
 

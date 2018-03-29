@@ -119,21 +119,10 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
                 updating = false;
                 if (getView() == null) return;
 
-                if (error.getError().equals(RequestError.ERR_OFFLINE)){
-//                    if (getView().hasBeenPopulated()){
-                        getView().displayOfflineErrorDialog();
-//                    }
-//                    else {
-//                        getView().displayOfflineView();
-//                    }
-                }
-                else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
-//                    if (getView().hasBeenPopulated()){
-                        getView().displayUnknownErrorDialog();
-//                    }
-//                    else {
-//                        getView().displayUnknownErrorView();
-//                    }
+                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                    getView().displayOfflineErrorDialog();
+                } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
+                    getView().displayUnknownErrorDialog();
                 }
                 getView().hideLoading();
 
@@ -188,7 +177,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
     private void sendPolylineToMap(PolylineOptions polylineOptions) {
 
-        if (getView() == null || polylineOptions == null ) return;
+        if (getView() == null || polylineOptions == null) return;
 
         getView().displayTripPolylineOnMap(polylineOptions);
 

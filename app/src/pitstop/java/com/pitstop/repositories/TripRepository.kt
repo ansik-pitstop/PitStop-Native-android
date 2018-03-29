@@ -62,42 +62,6 @@ class TripRepository(private val daoSession: DaoSession,
 
     private fun getRemoteTripsByCarVin(vin: String): Observable<RepositoryResponse<List<Trip>>> {
 
-//        val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin).map { tripListResponse ->
-//
-//            // This logic will ignore those Trips without LocationPolyline content
-//            var tempList = tripListResponse.response
-//            val deffList: MutableList<Trip> = mutableListOf()
-//
-//            tempList.forEach { trip: Trip? ->
-//
-//                try {
-//                    if (trip != null && trip.locationPolyline != null) { // seems to be a problem here when trip.locationPolyline == null
-//                        deffList.add(trip)
-//                    }
-//                } catch (ex: DaoException) {
-//                    ex.stackTrace
-//                }
-//
-//            }
-//
-//            return@map RepositoryResponse(deffList, false)
-//
-//        }
-//
-//        remoteResponse.subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io(), true)
-//                .doOnNext({ next ->
-//                    if (next == null) return@doOnNext
-//                    Log.d(tag, "getRemoteTripsByCarVin() local store update trips: " + next.data)
-//                    //insertOrReplaceTripsFromCarVin(vin, next.data.orEmpty())
-//                    deleteAndStoreTrips(vin, next.data.orEmpty())
-//                }).onErrorReturn { error ->
-//                    Log.d(tag, "getRemoteTripsByCarVin() remote error: $error caused by: ${error.cause}")
-//                    RepositoryResponse(null, false)
-//                }
-//                .subscribe()
-
-
         val remoteResponse: Observable<RepositoryResponse<List<Trip>>> = tripApi.getTripListFromCarVin(vin)
                 .map { tripListResponse ->
 
@@ -148,13 +112,13 @@ class TripRepository(private val daoSession: DaoSession,
                     callback.onSuccess(next)
                 }, { error ->
                     Log.d(tag, "tripRepository.onErrorDeleteTripsFromCarVin() error: " + error)
-                    //this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
+                    //this@TripRepository.onError(com.pitstop.network.RequestError(error))
                     callback.onError(RequestError.jsonToRequestErrorObject(error.message))
                 })
 
     }
 
-    private fun insertOrReplaceTripsFromCarVin(carVin: String, tripList: List<Trip>) {
+    private fun insertOrReplaceTripsFromCarVin(tripList: List<Trip>) {
 
         for (trip in tripList) {
 
@@ -228,17 +192,13 @@ class TripRepository(private val daoSession: DaoSession,
 
     private fun deleteAndStoreTrips(carVin: String, tripList: List<Trip>) {
 
-        //// Delete previous Trips ////
-
-        // REMOVE
+        // Delete previous Trips
         deleteTrips(carVin, tripList)
 
-        // All Car's trips deleted
+        // All Car's trips deleted, store them again
+        insertOrReplaceTripsFromCarVin(tripList)
 
-        // STORE
-        insertOrReplaceTripsFromCarVin(carVin, tripList)
-
-        Log.d("jakarta", "Update process finished")
+        Log.d(tag, "deleteAndStoreTrips() process finished")
 
     }
 
@@ -248,11 +208,20 @@ class TripRepository(private val daoSession: DaoSession,
 
         val remoteResponse: Observable<PitstopResponse<String>> = tripApi.deleteTripById(tripId, vin)
 
-        val deleteQuery = daoSession.tripDao.queryBuilder().where(TripDao.Properties.TripId.eq(tripId), TripDao.Properties.Vin.eq(vin)).buildDelete()
+        remoteResponse.subscribe({response ->
 
-        val localResponse = Observable.just(deleteQuery.executeDeleteWithoutDetachingEntities()).map { next ->
-            return@map "success"
-        }
+            val deleteQuery = daoSession.tripDao.queryBuilder().where(TripDao.Properties.TripId.eq(tripId), TripDao.Properties.Vin.eq(vin)).buildDelete()
+
+            val localResponse = Observable.just(deleteQuery.executeDeleteWithoutDetachingEntities()).map { next ->
+                return@map "success"
+            }
+
+        }, { error ->
+
+            Log.d(tag, "TRIP delete() remote error: $error caused by: ${error.cause}")
+            RepositoryResponse(null, false)
+
+        })
 
         return remoteResponse//Observable.concat(remoteResponse, localResponse) TODO: pass local?
 

@@ -9,7 +9,6 @@ import com.pitstop.models.snapToRoad.SnappedPoint;
 import com.pitstop.models.trip.Location;
 import com.pitstop.models.trip.LocationPolyline;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,45 +16,6 @@ import java.util.List;
  */
 
 public class TripUtils {
-
-    public static List<LatLng> locationPolylineToLatLngArray(List<LocationPolyline> polylineList) {
-
-        ArrayList<LatLng> latLngArrayList = new ArrayList<>();
-
-        for (LocationPolyline location : polylineList) {
-
-            if (location.getLocation().size() > 2) { // First Array containing 4 objects inside
-
-            } else { // Arrays that will only contain 2 objects
-
-                double lat = 0f;
-                double lng = 0f;
-
-                Location obj1 = location.getLocation().get(0);
-                if (obj1.getId().equalsIgnoreCase("latitude")) {
-                    lat = Double.parseDouble(obj1.getData());
-                } else if (obj1.getId().equalsIgnoreCase("longitude")) {
-                    lng = Double.parseDouble(obj1.getData());
-                }
-
-                Location obj2 = location.getLocation().get(1);
-                if (obj2.getId().equalsIgnoreCase("latitude")) {
-                    lat = Double.parseDouble(obj2.getData());
-                } else if (obj2.getId().equalsIgnoreCase("longitude")) {
-                    lng = Double.parseDouble(obj2.getData());
-                }
-
-                LatLng latLng = new LatLng(lat, lng);
-
-                latLngArrayList.add(latLng);
-
-            }
-
-        }
-
-        return latLngArrayList;
-
-    }
 
     public static String locationPolylineToLatLngString(List<LocationPolyline> polylineList) {
 
@@ -90,11 +50,8 @@ public class TripUtils {
 
             } else if (locationPolyline.getLocation().size() == 2) { // Arrays that will only contain 2 objects (lat and lng)
 
-                double lat = 0f;
-                double lng = 0f;
-
-                lat = getLatitudeValue(locationPolyline);
-                lng = getLongitudeValue(locationPolyline);
+                double lat = getLatitudeValue(locationPolyline);
+                double lng = getLongitudeValue(locationPolyline);
 
                 latLngStringList += lat + "," + lng + "|";
 
@@ -126,6 +83,7 @@ public class TripUtils {
 
     /**
      * Returns the Latitude value inside a LocationPolyline object
+     *
      * @param locationPolyline
      * @return
      */
@@ -156,6 +114,7 @@ public class TripUtils {
 
     /**
      * Returns the Longitude value inside a LocationPolyline object
+     *
      * @param locationPolyline
      * @return
      */
