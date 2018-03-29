@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -59,6 +60,8 @@ public class TripListFragment extends Fragment implements TripListView {
 
     private List<Trip> mTripList = new ArrayList<>();
     private TripListAdapter tripListAdapter;
+
+    private AlertDialog unknownErrorDialog;
 
     private String apiKey;
 
@@ -139,27 +142,41 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @Override
     public void displayOfflineErrorDialog() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayUnknownErrorDialog() {
 
+        Log.d(TAG, "displayUnknownErrorDialog()");
+        if (unknownErrorDialog == null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
+        unknownErrorDialog.show();
+
     }
 
     @Override
     public void displayUnknownErrorView() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayOfflineView() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayOnlineView() {
-
+        // Nothing to do here
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.pitstop.ui.trip;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +53,8 @@ public class TripsFragment extends Fragment implements TripsView {
 
     private TripListFragment tripListFragment;
     private TripDetailFragment tripDetailFragment;
+
+    private AlertDialog unknownErrorDialog;
 
     @Nullable
     @Override
@@ -117,7 +120,7 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void hideRefreshing() { // TODO: implement
+    public void hideRefreshing() {
 
     }
 
@@ -128,27 +131,41 @@ public class TripsFragment extends Fragment implements TripsView {
 
     @Override
     public void displayOfflineErrorDialog() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayUnknownErrorDialog() {
 
+        Log.d(TAG, "displayUnknownErrorDialog()");
+        if (unknownErrorDialog == null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(R.string.unknown_error_title);
+            alertDialogBuilder
+                    .setMessage(R.string.unknown_error)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        dialog.dismiss();
+                    });
+            unknownErrorDialog = alertDialogBuilder.create();
+        }
+        unknownErrorDialog.show();
+
     }
 
     @Override
     public void displayUnknownErrorView() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayOfflineView() {
-
+        // Nothing to do here
     }
 
     @Override
     public void displayOnlineView() {
-
+        // Nothing to do here
     }
 
     @Override
@@ -201,9 +218,6 @@ public class TripsFragment extends Fragment implements TripsView {
 
         Log.d(TAG, "requestForDataUpdate()");
 
-//        FragmentManager fragmentManager = getChildFragmentManager();
-//        TripListFragment childListFragment = (TripListFragment) fragmentManager.findFragmentById(R.id.fragment_container);
-
         if (tripListFragment != null) {
             Log.d(TAG, "Child found");
             tripListFragment.requestForDataUpdate(true);
@@ -230,7 +244,7 @@ public class TripsFragment extends Fragment implements TripsView {
     @Override
     public void displayErrorMessage(String errorMessage) {
 
-        // TODO: displayErrorMessage
+        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
 
     }
 

@@ -147,7 +147,6 @@ public class TripListPresenter extends TabPresenter<TripListView> {
                     Log.d("trips", "display");
                     mParentListener.thereAreTrips();
                     sortTripListBy((List<Trip>) tripList, sortParam);
-                    //getView().displayTripList((List<Trip>) tripList);
                 }
 
             }

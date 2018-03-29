@@ -11,7 +11,6 @@ interface RemoveTripUseCase : Interactor {
     interface Callback {
 
         fun onTripRemoved()
-        fun onCantRemoveTrip()
         fun onError(error: RequestError)
 
     }

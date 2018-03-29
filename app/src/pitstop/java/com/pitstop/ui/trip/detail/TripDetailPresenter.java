@@ -87,13 +87,6 @@ public class TripDetailPresenter extends TabPresenter<TripDetailView> {
 
             }
 
-            @Override
-            public void onCantRemoveTrip() {
-                Log.d(TAG, "removeTripUseCase().onCantRemoveTrip()");
-
-                // TODO: Is it possible to enter here? If so, show dialog alerting about the issue
-            }
-
         });
 
     }
