@@ -101,7 +101,12 @@ public class TripListFragment extends Fragment implements TripListView {
         }
         swipeRefreshLayout.setOnRefreshListener(() -> {
 
-            presenter.onRefresh(sortSpinner.getSelectedItemPosition());
+            if (!presenter.isRefreshing()) {
+                Log.d("jakarta", "entered on !isRefreshing");
+                presenter.onRefresh(sortSpinner.getSelectedItemPosition());
+            } else {
+                swipeRefreshLayout.setRefreshing(false);
+            }
 
         });
 

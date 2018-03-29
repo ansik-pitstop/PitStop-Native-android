@@ -104,6 +104,10 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     }
 
+    public boolean isRefreshing() {
+        return updating;
+    }
+
     void onRefresh(int sortParam) {
         Log.d(TAG, "onRefresh()");
 
@@ -128,16 +132,18 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 
                 Log.d(TAG, "onTripListRetrieved() trips: " + tripList);
-                updating = false;
                 if (getView() == null) {
                     Log.d("trips", "return");
+                    updating = false;
                     return;
                 }
 
                 if (!isLocal) { // Only hide the spinner when the Remote call (the 2nd and last) is finished
+                    updating = false;
                     getView().hideLoading();
                 }
                 if (tripList == null) {
+                    updating = false;
                     getView().displayUnknownErrorView();
                     return;
                 } else if (tripList.size() == 0) {
