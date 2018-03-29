@@ -61,10 +61,6 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation(), true)
-                        .doOnError { err ->
-                            Log.d(tag, "Error: " + err)
-                            this@GetTripsUseCaseImpl.onError(RequestError(err))
-                        }
                         .subscribe({ car ->
                             Log.d(tag, "got car vin: ${car.data!!.vin}, isLocal = ${car.isLocal}")
 
@@ -83,9 +79,12 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                                         this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)
                                     }, { error ->
                                         Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
-                                        this@GetTripsUseCaseImpl.onError(com.pitstop.network.RequestError(error))
+                                        this@GetTripsUseCaseImpl.onError(RequestError(error))
                                     })
 
+                        }, { err ->
+                            Log.d(tag, "Error: " + err)
+                            this@GetTripsUseCaseImpl.onError(RequestError(err))
                         })
             }
 
