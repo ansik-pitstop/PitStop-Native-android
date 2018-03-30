@@ -7,8 +7,8 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
+import com.pitstop.database.LocalTripStorageHelper;
 import com.pitstop.database.LocalUserStorage;
-import com.pitstop.models.trip.DaoSession;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
@@ -20,9 +20,9 @@ import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopCarApi;
-import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.utils.NetworkHelper;
 
@@ -103,8 +103,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    TripRepository getTripRepository(DaoSession daoSession, PitstopTripApi pitstopTripApi){
-        return new TripRepository(daoSession, pitstopTripApi);
+    TripRepository getTripRepository(LocalTripStorageHelper localTripStorageHelper, PitstopTripApi pitstopTripApi){
+        return new TripRepository(localTripStorageHelper, pitstopTripApi);
     }
 
     @Provides

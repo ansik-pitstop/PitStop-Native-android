@@ -4,9 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import com.orm.SugarRecord;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.network.SugarExclusionStrategy;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
@@ -156,9 +161,17 @@ public class NetworkModule {
     @Provides
     @Singleton
     PitstopTripApi pitstopTripApi(Context context){
+
+        final SugarExclusionStrategy strategy = new SugarExclusionStrategy(SugarRecord.class);
+
+        final Gson gson = new GsonBuilder()
+                .addDeserializationExclusionStrategy(strategy)
+                .addSerializationExclusionStrategy(strategy)
+                .create();
+
         return new Retrofit.Builder()
                 .baseUrl(SecretUtils.getEndpointUrl(context))
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(getHttpClient(context))
                 .build()

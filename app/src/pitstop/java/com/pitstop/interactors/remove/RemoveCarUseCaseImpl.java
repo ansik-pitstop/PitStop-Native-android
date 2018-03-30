@@ -111,7 +111,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                     public void onSuccess(Object response) {
 
                         // Once the car is successfully delete, let's delete all the associated Trips from the local DB
-                        tripRepository.deleteTripsFromCarVin(carToDeleteVin[0], new Repository.Callback<Object>() {
+                        tripRepository.deleteAllTripsFromCarVin(carToDeleteVin[0], new Repository.Callback<Object>() {
                             @Override
                             public void onSuccess(Object data) {
                                 Log.d(TAG, "tripRepository.deleteTripsFromCarVin() response: " + data);

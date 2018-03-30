@@ -1,6 +1,5 @@
 package com.pitstop.application;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -16,6 +15,7 @@ import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.orm.SugarApp;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -33,6 +33,7 @@ import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
+import com.pitstop.database.LocalTripStorageHelper;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -56,7 +57,7 @@ import io.smooch.core.Smooch;
 /**
  * Created by Ansik on 12/28/15.
  */
-public class GlobalApplication extends Application {
+public class GlobalApplication extends SugarApp {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 
@@ -81,6 +82,7 @@ public class GlobalApplication extends Application {
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
+    private LocalTripStorageHelper mLocalTripStorageHelper;
 
     private UseCaseComponent useCaseComponent;
 
@@ -393,6 +395,7 @@ public class GlobalApplication extends Application {
         mLocalSpecsStorage  = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
+        mLocalTripStorageHelper = new LocalTripStorageHelper(this);
 
     }
 
@@ -413,6 +416,7 @@ public class GlobalApplication extends Application {
         mLocalAlarmStorage.deleteAllRows();
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
+        mLocalTripStorageHelper.deleteAllRows();
     }
 
 }

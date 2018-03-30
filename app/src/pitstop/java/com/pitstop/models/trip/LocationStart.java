@@ -2,12 +2,7 @@ package com.pitstop.models.trip;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
+import com.orm.SugarRecord;
 
 /**
  * Created by David C. on 9/3/18.
@@ -15,46 +10,38 @@ import org.greenrobot.greendao.DaoException;
  * Temporal. Should be replaced by Location2 object
  */
 
-@Entity
-public class LocationStart {
+public class LocationStart extends SugarRecord {
 
-    @Id(autoincrement = true)
-    private long id;
-
-    @ToOne(joinProperty = "")
-    private Trip trip;
+    private String tripId;
 
     @SerializedName("altitude")
     @Expose
     private String altitude;
+
     @SerializedName("latitude")
     @Expose
     private String latitude;
+
     @SerializedName("longitude")
     @Expose
     private String longitude;
+
     @SerializedName("startLocation")
     @Expose
     private String startLocation;
+
     @SerializedName("startCityLocation")
     @Expose
     private String startCityLocation;
+
     @SerializedName("startStreetLocation")
     @Expose
     private String startStreetLocation;
 
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
+    public LocationStart() {
+    }
 
-    /** Used for active entity operations. */
-    @Generated(hash = 64568133)
-    private transient LocationStartDao myDao;
-    @Generated(hash = 1782690668)
-    public LocationStart(long id, String altitude, String latitude,
-            String longitude, String startLocation, String startCityLocation,
-            String startStreetLocation) {
-        this.id = id;
+    public LocationStart(String altitude, String latitude, String longitude, String startLocation, String startCityLocation, String startStreetLocation) {
         this.altitude = altitude;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -62,117 +49,70 @@ public class LocationStart {
         this.startCityLocation = startCityLocation;
         this.startStreetLocation = startStreetLocation;
     }
-    @Generated(hash = 802456816)
-    public LocationStart() {
+
+    public LocationStart(String tripId, String altitude, String latitude, String longitude, String startLocation, String startCityLocation, String startStreetLocation) {
+        this.tripId = tripId;
+        this.altitude = altitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.startLocation = startLocation;
+        this.startCityLocation = startCityLocation;
+        this.startStreetLocation = startStreetLocation;
     }
-    public long getId() {
-        return this.id;
+
+    public String getTripId() {
+        return tripId;
     }
-    public void setId(long id) {
-        this.id = id;
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
     }
+
     public String getAltitude() {
-        return this.altitude;
+        return altitude;
     }
+
     public void setAltitude(String altitude) {
         this.altitude = altitude;
     }
+
     public String getLatitude() {
-        return this.latitude;
+        return latitude;
     }
+
     public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
+
     public String getLongitude() {
-        return this.longitude;
+        return longitude;
     }
+
     public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
+
     public String getStartLocation() {
-        return this.startLocation;
+        return startLocation;
     }
+
     public void setStartLocation(String startLocation) {
         this.startLocation = startLocation;
     }
+
     public String getStartCityLocation() {
-        return this.startCityLocation;
+        return startCityLocation;
     }
+
     public void setStartCityLocation(String startCityLocation) {
         this.startCityLocation = startCityLocation;
     }
+
     public String getStartStreetLocation() {
-        return this.startStreetLocation;
+        return startStreetLocation;
     }
+
     public void setStartStreetLocation(String startStreetLocation) {
         this.startStreetLocation = startStreetLocation;
     }
-    @Generated(hash = 955026413)
-    private transient boolean trip__refreshed;
-    /** To-one relationship, resolved on first access. */
-    @Generated(hash = 865380166)
-    public Trip getTrip() {
-        if (trip != null || !trip__refreshed) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            TripDao targetDao = daoSession.getTripDao();
-            targetDao.refresh(trip);
-            trip__refreshed = true;
-        }
-        return trip;
-    }
-    /** To-one relationship, returned entity is not refreshed and may carry only the PK property. */
-    @Generated(hash = 1643156524)
-    public Trip peakTrip() {
-        return trip;
-    }
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1544724637)
-    public void setTrip(Trip trip) {
-        synchronized (this) {
-            this.trip = trip;
-            trip__refreshed = true;
-        }
-    }
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 128553479)
-    public void delete() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.delete(this);
-    }
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 1942392019)
-    public void refresh() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.refresh(this);
-    }
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 713229351)
-    public void update() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.update(this);
-    }
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 291616961)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getLocationStartDao() : null;
-    }
-
 }

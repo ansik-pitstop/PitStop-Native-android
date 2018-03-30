@@ -152,16 +152,16 @@ public class MapView extends FrameLayout {
                     double lng = 0f;
 
                     Location obj1 = location.getLocation().get(0);
-                    if (obj1.getId().equalsIgnoreCase("latitude")) {
+                    if (obj1.getTypeId().equalsIgnoreCase("latitude")) {
                         lat = Double.parseDouble(obj1.getData());
-                    } else if (obj1.getId().equalsIgnoreCase("longitude")) {
+                    } else if (obj1.getTypeId().equalsIgnoreCase("longitude")) {
                         lng = Double.parseDouble(obj1.getData());
                     }
 
                     Location obj2 = location.getLocation().get(1);
-                    if (obj2.getId().equalsIgnoreCase("latitude")) {
+                    if (obj2.getTypeId().equalsIgnoreCase("latitude")) {
                         lat = Double.parseDouble(obj2.getData());
-                    } else if (obj2.getId().equalsIgnoreCase("longitude")) {
+                    } else if (obj2.getTypeId().equalsIgnoreCase("longitude")) {
                         lng = Double.parseDouble(obj2.getData());
                     }
 
