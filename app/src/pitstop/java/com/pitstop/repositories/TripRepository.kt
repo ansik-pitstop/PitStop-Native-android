@@ -52,8 +52,8 @@ class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
 
         return Observable.just(RepositoryResponse(localTripStorageHelper.getAllTripsFromCarVin(vin), true)).map { tripList ->
 
-//            Log.d(tag, "getLocalTripsByCarVin() next: $tripList")
-//            Log.d("jakarta", "GETTING LOCAL DATA, ${tripList.data.orEmpty().size} Trips")
+            Log.d(tag, "getLocalTripsByCarVin() next: $tripList")
+            Log.d("jakarta", "GETTING LOCAL DATA, ${tripList.data.orEmpty().size} Trips")
 
             tripList
 
