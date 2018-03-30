@@ -62,11 +62,10 @@ public class LocalTripStorageHelper {
                     location.setLocationPolylineId(locationPolyline.getId().intValue());
                 }
 
-                // Store Location
-                SugarRecord.saveInTx(location);
-                //location.save();
-
             }
+
+            // Store Location List
+            SugarRecord.saveInTx(locationList);
             //locationPolyline.save();
 
         }
@@ -74,93 +73,6 @@ public class LocalTripStorageHelper {
         // Store Trip
         SugarRecord.saveInTx(trip);
         //trip.save();
-
-    }
-
-    public void deleteTripsFromCarVin(String carVin) {
-
-        List<Trip> tripList = Select.from(Trip.class).where(Condition.prop("vin").eq(carVin)).list();
-
-        for (Trip trip : tripList) {
-            deleteTrip(trip);
-        }
-
-    }
-
-    public void deleteTripByTripIdAndCarVin(String tripId, String carVin) {
-
-        Trip trip = getTripByTripIdAndCarVin(tripId, carVin);
-
-        deleteTrip(trip);
-
-    }
-
-    private void deleteTrip(Trip trip) {
-
-        // Delete the corresponding LocationStart
-        LocationStart locationStart = Select.from(LocationStart.class).where(Condition.prop("trip_id").eq(trip.getTripId())).first();
-        SugarRecord.deleteInTx(locationStart);
-
-        // Delete the corresponding LocationEnd
-        LocationEnd locationEnd = Select.from(LocationEnd.class).where(Condition.prop("trip_id").eq(trip.getTripId())).first();
-        SugarRecord.deleteInTx(locationEnd);
-
-        // Delete all the corresponding LocationPolyline objects
-        List<LocationPolyline> locationPolylineList = Select.from(LocationPolyline.class).where(Condition.prop("trip_id").eq(trip.getTripId())).list();
-
-        for (LocationPolyline locationPolyline : locationPolylineList) {
-            deleteLocationPolyline(locationPolyline);
-        }
-
-        // Delete the Trip itself
-        SugarRecord.deleteInTx(trip);
-
-    }
-
-    private void deleteLocationPolyline(LocationPolyline locationPolyline) {
-
-        List<Location> locationList = Select.from(Location.class).where(Condition.prop("location_polyline_id").eq(locationPolyline.getId().intValue())).list();
-
-        // Delete all Location objects from a LocationPolyline
-        SugarRecord.deleteInTx(locationList);
-
-        // Delete the LocationPolyline itself
-        SugarRecord.deleteInTx(locationPolyline);
-
-    }
-
-    public void deleteAndStoreTrips(List<Trip> tripList) {
-
-        // Delete trips
-        for (Trip trip : tripList) {
-
-            Trip tripObj = getTripByTripIdAndCarVin(trip.getTripId(), trip.getVin());
-
-            if (tripObj != null) {
-                deleteTrip(tripObj);
-            }
-
-        }
-
-        // Store trips
-        for (Trip trip : tripList) {
-
-            if (trip != null) {
-                createTrip(trip);
-            }
-
-        }
-
-    }
-
-    public void deleteAllRows() {
-
-        //Location.deleteAll(Location.class);
-        SugarRecord.deleteAll(Location.class);
-        LocationStart.deleteAll(LocationStart.class);
-        LocationEnd.deleteAll(LocationEnd.class);
-        LocationPolyline.deleteAll(LocationPolyline.class);
-        Trip.deleteAll(Trip.class);
 
     }
 
@@ -199,18 +111,6 @@ public class LocalTripStorageHelper {
 
     }
 
-    private LocationStart getLocationStartByTripId(String tripId) {
-
-        return Select.from(LocationStart.class).where(Condition.prop("trip_id").eq(tripId)).first();
-
-    }
-
-    private LocationEnd getLocationEndByTripId(String tripId) {
-
-        return Select.from(LocationEnd.class).where(Condition.prop("trip_id").eq(tripId)).first();
-
-    }
-
     private List<LocationPolyline> getAllLocationPolylineByTripId(String tripId) {
 
         List<LocationPolyline> locationPolylineList = Select.from(LocationPolyline.class).where(Condition.prop("trip_id").eq(tripId)).list();
@@ -230,6 +130,105 @@ public class LocalTripStorageHelper {
     private List<Location> getAllLocationByLocationPolylineId(int locationPolylineId) {
 
         return Select.from(Location.class).where(Condition.prop("location_polyline_id").eq(locationPolylineId)).list();
+
+    }
+
+    private LocationStart getLocationStartByTripId(String tripId) {
+
+        return Select.from(LocationStart.class).where(Condition.prop("trip_id").eq(tripId)).first();
+
+    }
+
+    private LocationEnd getLocationEndByTripId(String tripId) {
+
+        return Select.from(LocationEnd.class).where(Condition.prop("trip_id").eq(tripId)).first();
+
+    }
+
+    public void deleteAndStoreTrips(List<Trip> tripList) {
+
+        // Delete trips
+        for (Trip trip : tripList) {
+
+            Trip tripObj = getTripByTripIdAndCarVin(trip.getTripId(), trip.getVin());
+
+            if (tripObj != null) {
+                deleteTrip(tripObj);
+            }
+
+        }
+
+        // Store trips
+        for (Trip trip : tripList) {
+
+            if (trip != null) {
+                createTrip(trip);
+            }
+
+        }
+
+    }
+
+    public void deleteTripsFromCarVin(String carVin) {
+
+        List<Trip> tripList = Select.from(Trip.class).where(Condition.prop("vin").eq(carVin)).list();
+
+        for (Trip trip : tripList) {
+            deleteTrip(trip);
+        }
+
+    }
+
+    public void deleteTripByTripIdAndCarVin(String tripId, String carVin) {
+
+        Trip trip = getTripByTripIdAndCarVin(tripId, carVin);
+
+        deleteTrip(trip);
+
+    }
+
+    private void deleteTrip(Trip trip) {
+
+        // Delete the corresponding LocationStart
+        LocationStart locationStart = Select.from(LocationStart.class).where(Condition.prop("trip_id").eq(trip.getTripId())).first();
+        SugarRecord.deleteInTx(locationStart);
+
+        // Delete the corresponding LocationEnd
+        LocationEnd locationEnd = Select.from(LocationEnd.class).where(Condition.prop("trip_id").eq(trip.getTripId())).first();
+        SugarRecord.deleteInTx(locationEnd);
+
+        // Delete all the corresponding LocationPolyline objects
+        List<LocationPolyline> locationPolylineList = Select.from(LocationPolyline.class).where(Condition.prop("trip_id").eq(trip.getTripId())).list();
+
+        for (LocationPolyline locationPolyline : locationPolylineList) {
+            deleteLocationPolylineAndItsLocation(locationPolyline);
+        }
+
+        // Delete the Trip itself
+        SugarRecord.deleteInTx(trip);
+
+    }
+
+    private void deleteLocationPolylineAndItsLocation(LocationPolyline locationPolyline) {
+
+        List<Location> locationList = Select.from(Location.class).where(Condition.prop("location_polyline_id").eq(locationPolyline.getId().intValue())).list();
+
+        // Delete all Location objects from a LocationPolyline
+        SugarRecord.deleteInTx(locationList);
+
+        // Delete the LocationPolyline itself
+        SugarRecord.deleteInTx(locationPolyline);
+
+    }
+
+    public void deleteAllRows() {
+
+        //SugarRecord.deleteAll(Location.class);
+        Location.deleteAll(Location.class);
+        LocationStart.deleteAll(LocationStart.class);
+        LocationEnd.deleteAll(LocationEnd.class);
+        LocationPolyline.deleteAll(LocationPolyline.class);
+        Trip.deleteAll(Trip.class);
 
     }
 
