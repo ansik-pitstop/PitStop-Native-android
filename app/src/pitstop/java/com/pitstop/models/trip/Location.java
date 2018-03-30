@@ -2,64 +2,59 @@ package com.pitstop.models.trip;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Generated;
+import com.orm.SugarRecord;
 
 /**
  * Created by David C. on 13/3/18.
  */
 
-@Entity
-public class Location {
+public class Location extends SugarRecord {
 
-    @Id(autoincrement = true)
-    private Long objId;
+    private int locationPolylineId;
+
     @SerializedName("id")
     @Expose
-    private String id;
+    private String typeId;
+
     @SerializedName("data")
     @Expose
     private String data;
-    @NotNull
-    private String locationPolylineId;
 
-    @Generated(hash = 1005771765)
-    public Location(Long objId, String id, String data,
-            @NotNull String locationPolylineId) {
-        this.objId = objId;
-        this.id = id;
-        this.data = data;
-        this.locationPolylineId = locationPolylineId;
-    }
-    @Generated(hash = 375979639)
     public Location() {
     }
-    public Long getObjId() {
-        return this.objId;
+
+    public Location(String typeId, String data) {
+        this.typeId = typeId;
+        this.data = data;
     }
-    public void setObjId(Long objId) {
-        this.objId = objId;
+
+    public Location(int locationPolylineId, String typeId, String data) {
+        this.locationPolylineId = locationPolylineId;
+        this.typeId = typeId;
+        this.data = data;
     }
-    public String getId() {
-        return this.id;
+
+    public int getLocationPolylineId() {
+        return locationPolylineId;
     }
-    public void setId(String id) {
-        this.id = id;
+
+    public void setLocationPolylineId(int locationPolylineId) {
+        this.locationPolylineId = locationPolylineId;
     }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
     public String getData() {
-        return this.data;
+        return data;
     }
+
     public void setData(String data) {
         this.data = data;
     }
-    public String getLocationPolylineId() {
-        return this.locationPolylineId;
-    }
-    public void setLocationPolylineId(String locationPolylineId) {
-        this.locationPolylineId = locationPolylineId;
-    }
-
 }

@@ -32,7 +32,7 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
 
         Log.d(tag, "run()")
 
-        tripRepository.delete(tripId, vin)
+        tripRepository.deleteTrip(tripId, vin)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe({ next ->

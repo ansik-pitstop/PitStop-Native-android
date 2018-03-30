@@ -12,11 +12,8 @@ import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
+import com.pitstop.database.LocalTripStorageHelper;
 import com.pitstop.database.LocalUserStorage;
-import com.pitstop.models.trip.DaoMaster;
-import com.pitstop.models.trip.DaoSession;
-
-import org.greenrobot.greendao.database.Database;
 
 import javax.inject.Singleton;
 
@@ -98,13 +95,8 @@ public class LocalStorageModule {
 
     @Singleton
     @Provides
-    DaoSession localTripDaoSession(Context context) {
-
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "trips-db");
-        Database db = helper.getWritableDb();
-        DaoSession daoSession = new DaoMaster(db).newSession();
-
-        return daoSession;
+    LocalTripStorageHelper localTripStorageHelper(Context context) {
+        return new LocalTripStorageHelper(context);
     }
 
 

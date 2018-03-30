@@ -220,7 +220,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.prolificinteractive:material-calendarview:1.4.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compile 'org.greenrobot:greendao:3.2.2'
+    compile 'com.github.satyan:sugar:1.5'
     implementation files('../libs/gelfclient.jar')
 }
 

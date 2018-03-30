@@ -31,7 +31,7 @@ public class TripUtils {
 
                     double data = Double.parseDouble(location.getData());
 
-                    switch (location.getId()) {
+                    switch (location.getTypeId()) {
                         case "start_latitude":
                             startLat = data;
                             break;
@@ -99,7 +99,7 @@ public class TripUtils {
 
             Location location = locationList.get(i);
 
-            if (location.getId().equalsIgnoreCase("latitude")) {
+            if (location.getTypeId().equalsIgnoreCase("latitude")) {
                 latitude = Double.parseDouble(location.getData());
                 found = true;
             }
@@ -130,7 +130,7 @@ public class TripUtils {
 
             Location location = locationList.get(i);
 
-            if (location.getId().equalsIgnoreCase("longitude")) {
+            if (location.getTypeId().equalsIgnoreCase("longitude")) {
                 longitude = Double.parseDouble(location.getData());
                 found = true;
             }
