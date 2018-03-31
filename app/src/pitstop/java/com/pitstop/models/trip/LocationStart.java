@@ -2,7 +2,6 @@ package com.pitstop.models.trip;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.orm.SugarRecord;
 
 /**
  * Created by David C. on 9/3/18.
@@ -10,9 +9,9 @@ import com.orm.SugarRecord;
  * Temporal. Should be replaced by Location2 object
  */
 
-public class LocationStart extends SugarRecord {
+public class LocationStart {
 
-    private String tripId;
+    private int id; // PK
 
     @SerializedName("altitude")
     @Expose
@@ -38,6 +37,10 @@ public class LocationStart extends SugarRecord {
     @Expose
     private String startStreetLocation;
 
+    private String tripId; // FK
+
+    private String carVin; // FK
+
     public LocationStart() {
     }
 
@@ -50,22 +53,24 @@ public class LocationStart extends SugarRecord {
         this.startStreetLocation = startStreetLocation;
     }
 
-    public LocationStart(String tripId, String altitude, String latitude, String longitude, String startLocation, String startCityLocation, String startStreetLocation) {
-        this.tripId = tripId;
+    public LocationStart(int id, String altitude, String latitude, String longitude, String startLocation, String startCityLocation, String startStreetLocation, String tripId, String carVin) {
+        this.id = id;
         this.altitude = altitude;
         this.latitude = latitude;
         this.longitude = longitude;
         this.startLocation = startLocation;
         this.startCityLocation = startCityLocation;
         this.startStreetLocation = startStreetLocation;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    public void setTripId(String tripId) {
         this.tripId = tripId;
+        this.carVin = carVin;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getAltitude() {
@@ -114,5 +119,21 @@ public class LocationStart extends SugarRecord {
 
     public void setStartStreetLocation(String startStreetLocation) {
         this.startStreetLocation = startStreetLocation;
+    }
+
+    public String getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
+    }
+
+    public String getCarVin() {
+        return carVin;
+    }
+
+    public void setCarVin(String carVin) {
+        this.carVin = carVin;
     }
 }

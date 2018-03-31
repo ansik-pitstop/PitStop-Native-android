@@ -2,8 +2,6 @@ package com.pitstop.models.trip;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.orm.SugarRecord;
-import com.orm.dsl.Ignore;
 
 import java.util.List;
 
@@ -11,19 +9,23 @@ import java.util.List;
  * Created by David C. on 9/3/18.
  */
 
-public class Trip extends SugarRecord {
+public class Trip {
 
     @SerializedName("_id")
     @Expose
-    private Long newId;
+    private long oldId;
 
     @SerializedName("tripId")
     @Expose
-    private String tripId;
+    private String tripId; // PK
+
+//    private int locationStartId; // FK
 
     @SerializedName("locationStart")
     @Expose
     private LocationStart locationStart;
+
+//    private int locationEndId; // FK
 
     @SerializedName("locationEnd")
     @Expose
@@ -57,7 +59,6 @@ public class Trip extends SugarRecord {
     @Expose
     private String vin;
 
-    @Ignore
     @SerializedName("location_polyline")
     @Expose
     private List<LocationPolyline> locationPolyline;
@@ -65,8 +66,8 @@ public class Trip extends SugarRecord {
     public Trip() {
     }
 
-    public Trip(Long newId, String tripId, LocationStart locationStart, LocationEnd locationEnd, double mileageStart, double mileageAccum, double fuelConsumptionAccum, double fuelConsumptionStart, String timeStart, String timeEnd, String vin, List<LocationPolyline> locationPolyline) {
-        this.newId = newId;
+    public Trip(long oldId, String tripId, LocationStart locationStart, LocationEnd locationEnd, double mileageStart, double mileageAccum, double fuelConsumptionAccum, double fuelConsumptionStart, String timeStart, String timeEnd, String vin, List<LocationPolyline> locationPolyline) {
+        this.oldId = oldId;
         this.tripId = tripId;
         this.locationStart = locationStart;
         this.locationEnd = locationEnd;
@@ -80,12 +81,29 @@ public class Trip extends SugarRecord {
         this.locationPolyline = locationPolyline;
     }
 
-    public Long getNewId() {
-        return newId;
+//    public Trip(long oldId, String tripId, int locationStartId, LocationStart locationStart, int locationEndId, LocationEnd locationEnd, double mileageStart, double mileageAccum, double fuelConsumptionAccum, double fuelConsumptionStart, String timeStart, String timeEnd, String vin, List<LocationPolyline> locationPolyline) {
+//        this.oldId = oldId;
+//        this.tripId = tripId;
+//        this.locationStartId = locationStartId;
+//        this.locationStart = locationStart;
+//        this.locationEndId = locationEndId;
+//        this.locationEnd = locationEnd;
+//        this.mileageStart = mileageStart;
+//        this.mileageAccum = mileageAccum;
+//        this.fuelConsumptionAccum = fuelConsumptionAccum;
+//        this.fuelConsumptionStart = fuelConsumptionStart;
+//        this.timeStart = timeStart;
+//        this.timeEnd = timeEnd;
+//        this.vin = vin;
+//        this.locationPolyline = locationPolyline;
+//    }
+
+    public long getOldId() {
+        return oldId;
     }
 
-    public void setNewId(Long newId) {
-        this.newId = newId;
+    public void setOldId(long oldId) {
+        this.oldId = oldId;
     }
 
     public String getTripId() {
@@ -96,6 +114,14 @@ public class Trip extends SugarRecord {
         this.tripId = tripId;
     }
 
+//    public int getLocationStartId() {
+//        return locationStartId;
+//    }
+//
+//    public void setLocationStartId(int locationStartId) {
+//        this.locationStartId = locationStartId;
+//    }
+
     public LocationStart getLocationStart() {
         return locationStart;
     }
@@ -103,6 +129,14 @@ public class Trip extends SugarRecord {
     public void setLocationStart(LocationStart locationStart) {
         this.locationStart = locationStart;
     }
+
+//    public int getLocationEndId() {
+//        return locationEndId;
+//    }
+//
+//    public void setLocationEndId(int locationEndId) {
+//        this.locationEndId = locationEndId;
+//    }
 
     public LocationEnd getLocationEnd() {
         return locationEnd;

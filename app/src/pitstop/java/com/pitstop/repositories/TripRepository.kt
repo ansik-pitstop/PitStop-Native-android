@@ -2,7 +2,7 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.pitstop.application.Constants
-import com.pitstop.database.LocalTripStorageHelper
+import com.pitstop.database.LocalTripStorage
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopResponse
@@ -13,7 +13,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by David C. on 9/3/18.
  */
-class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
+class TripRepository(private val localTripStorage: LocalTripStorage,
                      private val tripApi: PitstopTripApi) : Repository {
 
     private val tag = javaClass.simpleName
@@ -50,7 +50,7 @@ class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
 
     private fun getLocalTripsByCarVin(vin: String): Observable<RepositoryResponse<List<Trip>>> {
 
-        return Observable.just(RepositoryResponse(localTripStorageHelper.getAllTripsFromCarVin(vin), true)).map { tripList ->
+        return Observable.just(RepositoryResponse(localTripStorage.getAllTripsFromCarVin(vin), true)).map { tripList ->
 
             Log.d(tag, "getLocalTripsByCarVin() next: $tripList")
             Log.d("jakarta", "GETTING LOCAL DATA, ${tripList.data.orEmpty().size} Trips")
@@ -86,7 +86,7 @@ class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
                 .doOnNext({ next ->
                     if (next == null) return@doOnNext
                     Log.d(tag, "getRemoteTripsByCarVin() local store update trips: " + next.data)
-                    localTripStorageHelper.deleteAndStoreTrips(next.data.orEmpty())
+                    localTripStorage.deleteAndStoreTripList(next.data.orEmpty())
                 }).onErrorReturn { error ->
                     Log.d(tag, "getRemoteTripsByCarVin() remote error: $error caused by: ${error.cause}")
                     RepositoryResponse(null, false)
@@ -104,7 +104,7 @@ class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
                 .observeOn(Schedulers.computation(), true)
                 .subscribe({ next ->
                     Log.d(tag, "tripRepository.deleteTripsFromCarVin() data: $next")
-                    localTripStorageHelper.deleteTripsFromCarVin(carVin)
+                    localTripStorage.deleteTripsFromCarVin(carVin)
                     callback.onSuccess(next)
                 }, { error ->
                     Log.d(tag, "tripRepository.onErrorDeleteTripsFromCarVin() error: " + error)
@@ -122,7 +122,7 @@ class TripRepository(private val localTripStorageHelper: LocalTripStorageHelper,
 
         remoteResponse.subscribe({ response ->
 
-            val localResponse = Observable.just(localTripStorageHelper.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
+            val localResponse = Observable.just(localTripStorage.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
                 return@map "success"
             }
 

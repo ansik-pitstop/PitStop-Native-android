@@ -54,7 +54,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
             // Set the current selected row aspect
             invertColors(lastSelectedRow, true);
 
-            selectedTripId = tripList.get(position).getNewId();
+            selectedTripId = tripList.get(position).getOldId();
 
         });
 
@@ -74,7 +74,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
         // In case of redraw having an item selected previously, this assures we'll conserve the
         // reference to the selected row
-        boolean isSelectedTrip = (selectedTripId == tripList.get(position).getNewId());
+        boolean isSelectedTrip = (selectedTripId == tripList.get(position).getOldId());
         if (isSelectedTrip) {
             lastSelectedRow = holder;
         }
@@ -104,7 +104,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
             setRowText(trip);
 
-            boolean isSelectedTrip = (selectedTripId == trip.getNewId());
+            boolean isSelectedTrip = (selectedTripId == trip.getOldId());
 
             if (isSelectedTrip) {
 

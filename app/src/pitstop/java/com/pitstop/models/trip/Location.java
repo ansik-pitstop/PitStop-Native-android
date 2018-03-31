@@ -2,15 +2,14 @@ package com.pitstop.models.trip;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.orm.SugarRecord;
 
 /**
  * Created by David C. on 13/3/18.
  */
 
-public class Location extends SugarRecord {
+public class Location {
 
-    private int locationPolylineId;
+    private int realId; // PK
 
     @SerializedName("id")
     @Expose
@@ -20,6 +19,12 @@ public class Location extends SugarRecord {
     @Expose
     private String data;
 
+    private int locationPolylineId; // FK
+
+    private String tripId; // FK
+
+    private String carVin; // FK
+
     public Location() {
     }
 
@@ -28,18 +33,21 @@ public class Location extends SugarRecord {
         this.data = data;
     }
 
-    public Location(int locationPolylineId, String typeId, String data) {
-        this.locationPolylineId = locationPolylineId;
+    public Location(int realId, String typeId, String data, int locationPolylineId, String tripId, String carVin) {
+        this.realId = realId;
         this.typeId = typeId;
         this.data = data;
-    }
-
-    public int getLocationPolylineId() {
-        return locationPolylineId;
-    }
-
-    public void setLocationPolylineId(int locationPolylineId) {
         this.locationPolylineId = locationPolylineId;
+        this.tripId = tripId;
+        this.carVin = carVin;
+    }
+
+    public int getRealId() {
+        return realId;
+    }
+
+    public void setRealId(int realId) {
+        this.realId = realId;
     }
 
     public String getTypeId() {
@@ -56,5 +64,29 @@ public class Location extends SugarRecord {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public int getLocationPolylineId() {
+        return locationPolylineId;
+    }
+
+    public void setLocationPolylineId(int locationPolylineId) {
+        this.locationPolylineId = locationPolylineId;
+    }
+
+    public String getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
+    }
+
+    public String getCarVin() {
+        return carVin;
+    }
+
+    public void setCarVin(String carVin) {
+        this.carVin = carVin;
     }
 }

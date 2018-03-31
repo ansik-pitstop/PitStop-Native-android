@@ -1,23 +1,12 @@
 package com.pitstop.database;
 
-import android.content.Context;
-
-import com.orm.SugarRecord;
-import com.orm.query.Condition;
-import com.orm.query.Select;
-import com.pitstop.models.trip.Location;
-import com.pitstop.models.trip.LocationEnd;
-import com.pitstop.models.trip.LocationPolyline;
-import com.pitstop.models.trip.LocationStart;
-import com.pitstop.models.trip.Trip;
-
-import java.util.List;
-
 /**
  * Created by David C. on 30/3/18.
  */
 
 public class LocalTripStorageHelper {
+
+    /*
 
     private Context context;
 
@@ -231,5 +220,7 @@ public class LocalTripStorageHelper {
         Trip.deleteAll(Trip.class);
 
     }
+
+    */
 
 }
