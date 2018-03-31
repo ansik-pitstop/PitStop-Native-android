@@ -61,7 +61,7 @@ public final class TABLES {
         String KEY_STATE = "state";
         String KEY_SHOP_ID = "shopId";
     }
-    public interface TRIP{
+    public interface TRIP_OLD{
         String TABLE_NAME = "trips";
         String KEY_START = "start";
         String KEY_END = "end";
@@ -157,7 +157,61 @@ public final class TABLES {
         String FUEL_CONSUMED = "fuelConsumed";
     }
 
+    // TRIP tables //
 
+    public interface TRIP {
+        String TABLE_NAME = "Trip";
+        String OLD_ID = "_id";
+        String TRIP_ID = "tripId";
+        String FK_LOCATION_START_ID = "locationStartId";
+        String FK_LOCATION_END_ID = "locationEndId";
+        String MILEAGE_START = "mileageStart";
+        String MILEAGE_ACCUM = "mileageAccum";
+        String FUEL_CONSUMPTION_START = "fuelConsumptionStart";
+        String FUEL_CONSUMPTION_ACCUM = "fuelConsumptionAccum";
+        String TIME_START = "timeStart";
+        String TIME_END = "timeEnd";
+        String VIN = "vin";
+    }
 
+    public interface LOCATION_START {
+        String TABLE_NAME = "LocationStart";
+        String ALTITUDE = "altitude";
+        String LATITUDE = "latitude";
+        String LONGITUDE = "longitude";
+        String START_LOCATION = "startLocation";
+        String START_CITY_LOCATION = "startCityLocation";
+        String START_STREET_LOCATION = "startStreetLocation";
+        String FK_TRIP_ID = "tripId";
+        String FK_CAR_VIN = "carVin";
+    }
+
+    public interface LOCATION_END {
+        String TABLE_NAME = "LocationEnd";
+        String ALTITUDE = "altitude";
+        String LATITUDE = "latitude";
+        String LONGITUDE = "longitude";
+        String END_LOCATION = "endLocation";
+        String END_CITY_LOCATION = "endCityLocation";
+        String END_STREET_LOCATION = "endStreetLocation";
+        String FK_TRIP_ID = "tripId";
+        String FK_CAR_VIN = "carVin";
+    }
+
+    public interface LOCATION_POLYLINE {
+        String TABLE_NAME = "LocationPolyline";
+        String TIMESTAMP = "timestamp";
+        String FK_TRIP_ID = "tripId";
+        String FK_CAR_VIN = "carVin";
+    }
+
+    public interface LOCATION {
+        String TABLE_NAME = "Location";
+        String TYPE_ID = "typeId";
+        String DATA = "data";
+        String FK_LOCATION_POLYLINE_ID = "locationPolylineId";
+        String FK_TRIP_ID = "tripId";
+        String FK_CAR_VIN = "carVin";
+    }
 
 }

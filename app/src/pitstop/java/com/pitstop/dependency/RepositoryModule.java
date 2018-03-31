@@ -7,7 +7,7 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
-import com.pitstop.database.LocalTripStorageHelper;
+import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
@@ -103,8 +103,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    TripRepository getTripRepository(LocalTripStorageHelper localTripStorageHelper, PitstopTripApi pitstopTripApi){
-        return new TripRepository(localTripStorageHelper, pitstopTripApi);
+    TripRepository getTripRepository(LocalTripStorage localTripStorage, PitstopTripApi pitstopTripApi){
+        return new TripRepository(localTripStorage, pitstopTripApi);
     }
 
     @Provides

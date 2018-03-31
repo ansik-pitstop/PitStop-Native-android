@@ -1,5 +1,6 @@
 package com.pitstop.application;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -15,7 +16,6 @@ import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
-import com.orm.SugarApp;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -33,8 +33,8 @@ import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
-import com.pitstop.database.LocalTripStorageHelper;
 import com.pitstop.database.LocalUserStorage;
+import com.pitstop.database.OldLocalTripStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
@@ -56,7 +56,7 @@ import io.smooch.core.Smooch;
 /**
  * Created by Ansik on 12/28/15.
  */
-public class GlobalApplication extends SugarApp {
+public class GlobalApplication extends Application {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 
@@ -74,14 +74,14 @@ public class GlobalApplication extends SugarApp {
     private LocalCarStorage mLocalCarStorage;
     private LocalCarIssueStorage mLocalCarIssueStorage;
     private LocalAppointmentStorage mLocalAppointmentStorage;
-    private LocalTripStorage mLocalTripStorage;
+    private OldLocalTripStorage mOldLocalTripStorage;
     private LocalPidStorage mLocalPidStorage;
     private LocalShopStorage mLocalShopStorage;
     private LocalDeviceTripStorage mLocalDeviceTripStorage;
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
-    private LocalTripStorageHelper mLocalTripStorageHelper;
+    private LocalTripStorage mLocalTripStorage;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -361,7 +361,7 @@ public class GlobalApplication extends SugarApp {
         mLocalScannerStorage = new LocalScannerStorage(this);
         mLocalCarStorage = new LocalCarStorage(this);
         mLocalAppointmentStorage = new LocalAppointmentStorage(this);
-        mLocalTripStorage = new LocalTripStorage(this);
+        mOldLocalTripStorage = new OldLocalTripStorage(this);
         mLocalCarIssueStorage = new LocalCarIssueStorage(this);
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
@@ -369,7 +369,7 @@ public class GlobalApplication extends SugarApp {
         mLocalSpecsStorage = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
-        mLocalTripStorageHelper = new LocalTripStorageHelper(this);
+        mLocalTripStorage = new LocalTripStorage(this);
 
     }
 
@@ -382,7 +382,7 @@ public class GlobalApplication extends SugarApp {
         mLocalPidStorage.deleteAllRows();
         mLocalCarStorage.deleteAllRows();
         mLocalAppointmentStorage.deleteAllRows();
-        mLocalTripStorage.deleteAllRows();
+        mOldLocalTripStorage.deleteAllRows();
         mLocalCarIssueStorage.deleteAllRows();
         mLocalShopStorage.removeAllDealerships();
         mLocalDeviceTripStorage.deleteAllRows();
@@ -390,7 +390,7 @@ public class GlobalApplication extends SugarApp {
         mLocalAlarmStorage.deleteAllRows();
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
-        mLocalTripStorageHelper.deleteAllRows();
+        mLocalTripStorage.deleteAllTrips();
     }
 
 }
