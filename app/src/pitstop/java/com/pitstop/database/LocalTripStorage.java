@@ -308,8 +308,8 @@ public class LocalTripStorage {
         ContentValues values = new ContentValues();
         values.put(TABLES.TRIP.TRIP_ID, trip.getTripId());
         values.put(TABLES.TRIP.OLD_ID, trip.getOldId());
-        values.put(TABLES.TRIP.FK_LOCATION_START_ID, trip.getLocationStart().getId());
-        values.put(TABLES.TRIP.FK_LOCATION_END_ID, trip.getLocationEnd().getId());
+//        values.put(TABLES.TRIP.FK_LOCATION_START_ID, trip.getLocationStart().getId());
+//        values.put(TABLES.TRIP.FK_LOCATION_END_ID, trip.getLocationEnd().getId());
         values.put(TABLES.TRIP.MILEAGE_START, trip.getMileageStart());
         values.put(TABLES.TRIP.MILEAGE_ACCUM, trip.getMileageAccum());
         values.put(TABLES.TRIP.FUEL_CONSUMPTION_START, trip.getFuelConsumptionStart());
@@ -323,7 +323,7 @@ public class LocalTripStorage {
 
     private ContentValues locationStartObjectToContentValues(LocationStart locationStart) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_ID, locationStart.getId());
+        //values.put(TABLES.COMMON.KEY_ID, locationStart.getId());
         values.put(TABLES.LOCATION_START.ALTITUDE, locationStart.getAltitude());
         values.put(TABLES.LOCATION_START.LATITUDE, locationStart.getLatitude());
         values.put(TABLES.LOCATION_START.LONGITUDE, locationStart.getLongitude());
@@ -338,7 +338,7 @@ public class LocalTripStorage {
 
     private ContentValues locationEndObjectToContentValues(LocationEnd locationEnd) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_ID, locationEnd.getId());
+        //values.put(TABLES.COMMON.KEY_ID, locationEnd.getId());
         values.put(TABLES.LOCATION_END.ALTITUDE, locationEnd.getAltitude());
         values.put(TABLES.LOCATION_END.LATITUDE, locationEnd.getLatitude());
         values.put(TABLES.LOCATION_END.LONGITUDE, locationEnd.getLongitude());
@@ -353,7 +353,7 @@ public class LocalTripStorage {
 
     private ContentValues locationPolylineObjectToContentValues(LocationPolyline locationPolyline) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_ID, locationPolyline.getId());
+        //values.put(TABLES.COMMON.KEY_ID, locationPolyline.getId());
         values.put(TABLES.LOCATION_POLYLINE.TIMESTAMP, locationPolyline.getTimestamp());
         values.put(TABLES.LOCATION_POLYLINE.FK_TRIP_ID, locationPolyline.getTripId());
         values.put(TABLES.LOCATION_POLYLINE.FK_CAR_VIN, locationPolyline.getCarVin());
@@ -363,7 +363,7 @@ public class LocalTripStorage {
 
     private ContentValues locationObjectToContentValues(Location location) {
         ContentValues values = new ContentValues();
-        values.put(TABLES.COMMON.KEY_ID, location.getRealId());
+        //values.put(TABLES.COMMON.KEY_ID, location.getRealId());
         values.put(TABLES.LOCATION.TYPE_ID, location.getTypeId());
         values.put(TABLES.LOCATION.DATA, location.getData());
         values.put(TABLES.LOCATION.FK_LOCATION_POLYLINE_ID, location.getLocationPolylineId());
