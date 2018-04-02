@@ -82,8 +82,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
-        versionCode 216
-        versionName "4.4.3"
+        versionCode 220
+        versionName "5.0.0"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
@@ -151,11 +151,6 @@ kapt {
     generateStubs = true
 }
 
-greendao {
-    schemaVersion 1
-    targetGenDir "src/main/java"
-}
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Multidex support library - Use when Building Apps with Over 65K Methods
@@ -220,7 +215,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation 'com.prolificinteractive:material-calendarview:1.4.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation 'com.github.satyan:sugar:1.5'
     implementation files('../libs/gelfclient.jar')
 }
 
