@@ -113,6 +113,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
+        Logger.getInstance().logI(tag,"Trip settings: {locationUpdateInterval" +
+                "=$locationUpdateInterval, locationUpdatePriority=$locationUpdatePriority" +
+                ", activityUpdateInterval=$activityUpdateInterval, tripStartThreshold=$tripStartThreshold" +
+                ", tripEndThreshold=$tripEndThreshold, tripTrigger=$tripTrigger, stillTimeoutTime=$stillTimeoutTime" +
+                ", tripInProgress=$tripInProgress, stillTimerRunning=$stillTimerRunning}"
+                ,DebugMessage.TYPE_TRIP)
+
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(applicationContext)).build()
 
