@@ -167,15 +167,26 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
             return;
         }
 
-        streetLocation.setText("Trip ID: " + trip.getTripId());
+        String unknown = getResources().getString(R.string.unknown);
 
-        countryLocation.setText("VIN: " + trip.getVin());
+        String startStreet = (trip.getLocationStart().getStartStreetLocation() != null ? trip.getLocationStart().getStartStreetLocation() : unknown);
+        String endStreet = (trip.getLocationEnd().getEndStreetLocation() != null ? trip.getLocationEnd().getEndStreetLocation() : unknown);
+        String startCity = (trip.getLocationStart().getStartCityLocation() != null ? trip.getLocationStart().getStartCityLocation() : unknown);
+        String endCity = (trip.getLocationEnd().getEndCityLocation() != null ? trip.getLocationEnd().getEndCityLocation() : unknown);
+        String startCountry = (trip.getLocationStart().getStartLocation() != null ? trip.getLocationStart().getStartLocation() : unknown);;
+        String endCountry = (trip.getLocationEnd().getEndLocation() != null ? trip.getLocationEnd().getEndLocation() : unknown);
+
+        streetLocation.setText(startStreet + " - " + endStreet);
+        countryLocation.setText(startCity + ", " + startCountry + " - " + endCity + ", " + endCountry);
+
+//        streetLocation.setText("Trip ID: " + trip.getTripId());
+//        countryLocation.setText("VIN: " + trip.getVin());
 
         milesNum.setText(String.valueOf(trip.getMileageAccum()));
 
         // Calculate minutes using timestamps
         long totalTimestamp = Long.valueOf(trip.getTimeEnd()) - Long.valueOf(trip.getTimeStart());
-        long totalMinutes = totalTimestamp / (1000 * 60);
+        long totalMinutes = totalTimestamp / 60;
         minutesNum.setText(String.valueOf(totalMinutes));
 
         fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));
