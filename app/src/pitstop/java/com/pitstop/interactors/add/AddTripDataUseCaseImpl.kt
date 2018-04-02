@@ -44,7 +44,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
         Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${locationList.size}")
 
         val trip = arrayListOf<PendingLocation>()
-        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time))})
+        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time/1000))})
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {
@@ -54,12 +54,12 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
 
                 carRepository.get(data!!.carId)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.looper),true)
                         .subscribe({ car ->
 
                             //Use local response if it has data otherwise use remote
                             if (car.isLocal && car.data != null){
-                                Log.d(TAG,"using local car")
+                                Log.d(TAG,"using local car vin: ${car.data.vin}")
                                 usedLocalCar = true
                             }else if (usedLocalCar){
                                 Log.d(TAG,"used local car so returning on remote")
@@ -69,7 +69,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                             val tripIdFromRepo = tripRepository.getIncompleteTripId()
                             Log.d(TAG,"got incompleteTripId: $tripIdFromRepo")
                             //First set of locations for this trip, set trip id its not in db yet, or use the retrieved if not -1
-                            val tripId = if (tripIdFromRepo == -1L) trip.firstOrNull()?.time ?: tripIdFromRepo else tripIdFromRepo
+                            val tripId = if (tripIdFromRepo == -1L) trip.firstOrNull()?.time?: tripIdFromRepo else tripIdFromRepo
 
                             val locationDataList: MutableSet<LocationData> = hashSetOf()
                             trip.forEach{ locationDataList.add(LocationData(it.time, it)) }

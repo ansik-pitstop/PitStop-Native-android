@@ -41,8 +41,9 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
     override fun run() {
 
         val trip = arrayListOf<PendingLocation>()
+        //Location stores time in ms, we want seconds
         locationList.forEach({
-            trip.add(PendingLocation(it.longitude,it.latitude,it.time))
+            trip.add(PendingLocation(it.longitude,it.latitude,it.time/1000))
         })
 
         //Get the tripId of the incomplete trip in local database before marking these rows completed

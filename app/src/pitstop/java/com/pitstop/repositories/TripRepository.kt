@@ -221,6 +221,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     tripData.add(location.data)
                 })
                 val remote = tripApi.store(gson.toJsonTree(tripData))
+                Log.d(tag,"body: "+gson.toJsonTree(tripData))
                 remote.subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe({ next ->
@@ -262,6 +263,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 endAddress = geocoder
                         .getFromLocation(it.locations.last().data.latitude,it.locations.last().data.longitude
                                 ,1).firstOrNull()
+                Log.d(tag,"startAddress: $startAddress, endAddress: $endAddress")
             }catch (e: IOException){
                 e.printStackTrace()
                 return null
@@ -271,6 +273,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val vin = DataPoint(DataPoint.ID_VIN, it.vin)
             val tripId = DataPoint(DataPoint.ID_TRIP_ID, it.id.toString())
             val locationDataSet = hashSetOf<LocationDataFormatted>()
+
+            Log.d(tag,"formatTripData() tripId: $tripId vin: $vin")
 
             //Store each GPS point from this particular trip
             it.locations
