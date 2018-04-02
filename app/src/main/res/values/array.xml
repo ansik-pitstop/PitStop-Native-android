@@ -132,4 +132,10 @@
         <item>Acceleration</item>
         <item>Deceleration</item>
     </string-array>
+
+    <string-array name="trip_sort">
+        <item>Date</item>
+        <item>Length of time</item>
+        <item>Distance</item>
+    </string-array>
 </resources>

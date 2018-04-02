@@ -60,6 +60,7 @@ import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
+import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
@@ -115,6 +116,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var notificationFragment: NotificationFragment
+    private lateinit var tripsFragment: TripsFragment
 
 
     protected var serviceConnection: ServiceConnection = object : ServiceConnection {
@@ -229,6 +231,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         startReportFragment = StartReportFragment()
         vehicleSpecsFragment = VehicleSpecsFragment()
         notificationFragment = NotificationFragment()
+        tripsFragment = TripsFragment()
 
         serviceIntent = Intent(this@MainActivity, BluetoothAutoConnectService::class.java)
         startService(serviceIntent)
@@ -264,7 +267,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
-                , vehicleSpecsFragment, notificationFragment, mixpanelHelper)
+                , vehicleSpecsFragment, notificationFragment, tripsFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);

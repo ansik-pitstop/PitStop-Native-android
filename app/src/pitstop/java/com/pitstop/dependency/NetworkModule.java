@@ -7,10 +7,12 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSmoochApi;
+import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
@@ -148,5 +150,30 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(PitstopSmoochApi.class);
+    }
+
+    @Provides
+    @Singleton
+    PitstopTripApi pitstopTripApi(Context context){
+
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient(context))
+                .build()
+                .create(PitstopTripApi.class);
+    }
+
+    @Provides
+    @Singleton
+    GoogleSnapToRoadApi googleSnapToRoadApi(Context context){
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getSnapToRoadEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient(context))
+                .build()
+                .create(GoogleSnapToRoadApi.class);
     }
 }

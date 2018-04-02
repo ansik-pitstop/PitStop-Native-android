@@ -54,7 +54,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.database.LocalTripStorage;
+import com.pitstop.database.OldLocalTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.TempNetworkComponent;
@@ -112,7 +112,7 @@ public class MyTripsActivity extends AppCompatActivity{
     private Trip trip;
     private List<Trip> locallyStoredTrips;
     private BroadcastReceiver broadcastReceiver;
-    private LocalTripStorage localTripStorage;
+    private OldLocalTripStorage oldLocalTripStorage;
 
     private Gson gson = new Gson();
 
@@ -159,8 +159,8 @@ public class MyTripsActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         application = (GlobalApplication) getApplicationContext();
 
-        localTripStorage = new LocalTripStorage(this);
-        locallyStoredTrips = localTripStorage.getAllTrips();
+        oldLocalTripStorage = new OldLocalTripStorage(this);
+        locallyStoredTrips = oldLocalTripStorage.getAllTrips();
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))
@@ -315,7 +315,7 @@ public class MyTripsActivity extends AppCompatActivity{
 
 
     public void removeTrip(Trip trip){
-        localTripStorage.deleteTrip(trip);
+        oldLocalTripStorage.deleteTrip(trip);
         locallyStoredTrips.remove(trip);
     }
 
@@ -485,7 +485,7 @@ public class MyTripsActivity extends AppCompatActivity{
 
         @Override
         protected Void doInBackground(Void... params) {
-            tripWithPath = localTripStorage.getTrip(Integer.toString(trip.getId()));
+            tripWithPath = oldLocalTripStorage.getTrip(Integer.toString(trip.getId()));
             return null;
         }
 
@@ -611,7 +611,7 @@ public class MyTripsActivity extends AppCompatActivity{
         trip.setEnd(new TripLocation(lastKnownLocation));
         trip.setEndAddress(getAddress(lastKnownLocation));
         locallyStoredTrips.add(trip);
-        localTripStorage.storeTripData(trip);
+        oldLocalTripStorage.storeTripData(trip);
         setViewTripHistory();
 
     }

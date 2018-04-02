@@ -43,7 +43,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalCarStorage.CREATE_TABLE_CAR);
         db.execSQL(LocalCarIssueStorage.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalAppointmentStorage.CREATE_TABLE_APPOINTMENT);
-        db.execSQL(LocalTripStorage.CREATE_TABLE_APPOINTMENT);
+        db.execSQL(OldLocalTripStorage.CREATE_TABLE_APPOINTMENT);
         db.execSQL(LocalShopStorage.CREATE_TABLE_DEALERSHIP);
         db.execSQL(LocalParseNotificationStorage.CREATE_TABLE_NOTIFICATION);
         db.execSQL(LocalUserStorage.CREATE_TABLE_USER);
@@ -53,6 +53,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalSpecsStorage.CREATE_LOCAL_SPEC_STORAGE);
         db.execSQL(LocalAlarmStorage.CREATE_LOCAL_ALARM_STORAGE);
         db.execSQL(LocalFuelConsumptionStorage.CREATE_LOCAL_FUEL_CONSUMPTION_STORAGE);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_TRIP);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION_START);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION_END);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION_POLYLINE);
+        db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION);
     }
 
     @Override
@@ -72,6 +77,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_SPECS_DATA.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_ALARMS.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.TRIP.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_START.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_END.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_POLYLINE.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION.TABLE_NAME);
         onCreate(db);
     }
 
