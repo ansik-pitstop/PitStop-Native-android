@@ -110,7 +110,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         }
 
         // Convert LocationPolyline's to LatLng's String
-        String listLatLng = TripUtils.locationPolylineToLatLngString(trip.getLocationPolyline());
+        String listLatLng = TripUtils.Companion.locationPolylineToLatLngString(trip.getLocationPolyline());
 
         useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
             @Override
@@ -131,7 +131,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
 
-                sendPolylineToMap(TripUtils.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
+                sendPolylineToMap(TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
 
             }
         });
