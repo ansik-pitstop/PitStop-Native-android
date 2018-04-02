@@ -56,6 +56,12 @@ public class TripsFragment extends Fragment implements TripsView {
 
     private AlertDialog unknownErrorDialog;
 
+    private TripActivityObservable tripActivityObservable;
+
+    public void setTripActivityObservable(TripActivityObservable tripActivityObservable){
+        this.tripActivityObservable = tripActivityObservable;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -10,7 +10,7 @@ import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.trip.TripsFragment;
-import com.pitstop.ui.trip_k.settings.TripSettingsFragment;
+import com.pitstop.ui.trip.settings.TripSettingsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 

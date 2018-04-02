@@ -1,6 +1,8 @@
 package com.pitstop.application;
 
 import android.app.Application;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -32,7 +34,6 @@ import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
-import com.pitstop.database.LocalManualTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -48,7 +49,7 @@ import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
-import com.pitstop.ui.trip_k.TripsService;
+import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -94,6 +95,10 @@ public class GlobalApplication extends Application {
     private LocalPendingTripStorage mLocalPendingTripStorage;
 
     private UseCaseComponent useCaseComponent;
+    private Observable<Service> serviceObservable;
+    private BluetoothAutoConnectService autoConnectService;
+    private TripsService tripsService;
+    private ServiceConnection serviceConnection;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -487,7 +492,7 @@ public class GlobalApplication extends Application {
         mLocalAlarmStorage.deleteAllRows();
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
-        mLocalTripStorage.removeAll();
+        mLocalTripStorage.deleteAllTrips();
         mLocalPendingTripStorage.deleteAll();
     }
 

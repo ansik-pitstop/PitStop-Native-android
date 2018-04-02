@@ -227,15 +227,13 @@ public interface UseCaseComponent {
 
     SmoochLoginUseCase getSmoochLoginUseCase();
 
-    AddTripDataUseCase getAddTripUseCase();
+    AddTripDataUseCase getAddTripDataUseCase();
 
     GetTripsUseCase getTripsUseCase();
 
     GetSnapToRoadUseCase getSnapToRoadUseCase();
 
     RemoveTripUseCase removeTripUseCase();
-
-    AddTripUseCase addTripUseCase();
 
     StartDumpingTripDataWhenConnecteUseCase getStartDumpingTripDataWhenConnectedUseCase();
 

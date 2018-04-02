@@ -409,11 +409,11 @@ public class UseCaseModule {
 
     @Provides
     RemoveCarUseCase removeCarUseCase(UserRepository userRepository, CarRepository carRepository
-            , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
+            ,TripRepository tripRepository, NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
 
-        return new RemoveCarUseCaseImpl(userRepository,carRepository,networkHelper
-                ,useCaseHandler, mainHandler);
+        return new RemoveCarUseCaseImpl(userRepository,carRepository,tripRepository
+                ,networkHelper,useCaseHandler, mainHandler);
     }
 
 

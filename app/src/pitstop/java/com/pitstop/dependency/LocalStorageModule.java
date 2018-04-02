@@ -96,12 +96,6 @@ public class LocalStorageModule {
 
     @Singleton
     @Provides
-    LocalTripStorage localTripStorage(Context context) {
-        return new LocalTripStorage(context);
-    }
-
-    @Singleton
-    @Provides
     LocalTripStorage localTripStorage(Context context){return  new LocalTripStorage(context);}
 
     @Singleton

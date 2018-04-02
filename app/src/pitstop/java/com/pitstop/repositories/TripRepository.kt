@@ -22,8 +22,8 @@ import java.io.IOException
  * Created by Karol Zdebel on 3/12/2018.
  */
 open class TripRepository(private val tripApi: PitstopTripApi
-                          , private val localPendingTripStorage: LocalPendingTripStorage
-                          , val localTripStorage: LocalTripStorage
+                          , val localPendingTripStorage: LocalPendingTripStorage
+                          , private val localTripStorage: LocalTripStorage
                           , private val geocoder: Geocoder
                           , private val connectionObservable: Observable<Boolean>) {
 

@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.pitstop.Util;
 import com.pitstop.database.LocalPendingTripStorage;
+import com.pitstop.database.LocalTripStorage;
 import com.pitstop.models.trip_k.TripData;
 import com.pitstop.retrofit.PitstopTripApi;
 
@@ -36,7 +37,6 @@ public class TripRepositoryTest {
     private final String TAG = TripRepositoryTest.class.getSimpleName();
 
     private TripRepository tripRepository;
-
     private final String VIN = "1GB0CVCL7BF147611";
 
     @Before
@@ -45,7 +45,8 @@ public class TripRepositoryTest {
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
         LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
-        tripRepository = new TripRepositoryK(api,localPendingTripStorage
+        LocalTripStorage localTripStorage = new LocalTripStorage(context);
+        tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage
                 , new Geocoder(context),Observable.just(true));
     }
 

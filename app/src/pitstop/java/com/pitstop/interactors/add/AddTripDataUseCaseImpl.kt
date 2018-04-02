@@ -11,7 +11,7 @@ import com.pitstop.models.trip_k.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
-import com.pitstop.repositories.TripRepositoryK
+import com.pitstop.repositories.TripRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,7 +20,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Karol Zdebel on 3/6/2018.
  */
-class AddTripDataUseCaseImpl(private val tripRepository: TripRepositoryK
+class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                              , private val userRepository: UserRepository, private val carRepository: CarRepository
                              , private val useCaseHandler: Handler
                              , private val mainHandler: Handler): AddTripDataUseCase {

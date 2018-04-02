@@ -3,14 +3,11 @@ package com.pitstop.ui.main_activity
 import android.app.Activity
 import android.app.NotificationManager
 import android.app.ProgressDialog
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.IBinder
 import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
@@ -52,7 +49,6 @@ import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.Notifications.NotificationFragment
-import com.pitstop.ui.Notifications.NotificationFragment
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -61,17 +57,11 @@ import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.ui.trip.TripActivityObservable
-import com.pitstop.ui.trip.TripsService
+import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripParameterSetter
 import com.pitstop.ui.trip.TripsService
-import com.pitstop.ui.trip.overview.TripsFragment
 import com.pitstop.ui.trip.settings.TripSettingsFragment
-import com.pitstop.ui.trip_k.TripActivityObservable
-import com.pitstop.ui.trip_k.TripParameterSetter
-import com.pitstop.ui.trip.TripsFragment
-import com.pitstop.ui.trip_k.TripParameterSetter
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
@@ -240,7 +230,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
-                , vehicleSpecsFragment, notficationFragment, tripsFragment, tripSettingsFragment mixpanelHelper)
+                , vehicleSpecsFragment, notificationFragment, tripsFragment, tripSettingsFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);

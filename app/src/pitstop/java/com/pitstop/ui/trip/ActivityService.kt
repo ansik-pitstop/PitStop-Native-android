@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip_k
+package com.pitstop.ui.trip
 
 import android.app.IntentService
 import android.content.Intent
