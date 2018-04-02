@@ -272,6 +272,11 @@ public class MixpanelHelper {
     public static final String NOTIFICATION = "Notification";
 
     /**
+     * Trips
+     */
+    public static final String TRIP = "Trip";
+
+    /**
      * Bluetooth Events
      */
     public static final String EVENT_BLUETOOTH = "Bluetooth Event";

@@ -41,6 +41,8 @@ import com.pitstop.interactors.get.GetPredictedServiceUseCase;
 import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
+import com.pitstop.interactors.get.GetSnapToRoadUseCase;
+import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
@@ -58,6 +60,7 @@ import com.pitstop.interactors.other.Trip215EndUseCase;
 import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
+import com.pitstop.interactors.remove.RemoveTripUseCase;
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetNotificationReadUseCase;
@@ -219,5 +222,11 @@ public interface UseCaseComponent {
     GetAppointmentStateUseCase getAppointmentStateUseCase();
 
     SmoochLoginUseCase getSmoochLoginUseCase();
+
+    GetTripsUseCase getTripsUseCase();
+
+    GetSnapToRoadUseCase getSnapToRoadUseCase();
+
+    RemoveTripUseCase removeTripUseCase();
 
 }

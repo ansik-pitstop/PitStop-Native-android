@@ -16,6 +16,7 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
+import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
@@ -42,6 +43,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private CarRepository carRepository;
     private UserRepository userRepository;
+    private TripRepository tripRepository;
     private int carToDeleteId;
     private Callback callback;
     private Handler useCaseHandler;
@@ -50,10 +52,11 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private EventSource eventSource;
 
-    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, TripRepository tripRepository
             , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
+        this.tripRepository = tripRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
         this.networkHelper = networkHelper;
@@ -89,10 +92,38 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             @Override
             public void onSuccess(Settings data) {
 
+                final String[] carToDeleteVin = {""};
+
+                // GET the VIN from the car to be deleted BEFORE it
+                carRepository.get(carToDeleteId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .doOnNext(carRepositoryResponse -> {
+
+                            carToDeleteVin[0] = carRepositoryResponse.getData().getVin();
+
+                        })
+                        .subscribe();
+
                 carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
 
                     @Override
                     public void onSuccess(Object response) {
+
+                        // Once the car is successfully delete, let's delete all the associated Trips from the local DB
+                        tripRepository.deleteAllTripsFromCarVin(carToDeleteVin[0], new Repository.Callback<Object>() {
+                            @Override
+                            public void onSuccess(Object data) {
+                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() response: " + data);
+                            }
+
+                            @Override
+                            public void onError(RequestError error) {
+                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() error: " + error);
+                                RemoveCarUseCaseImpl.this.onError(error);
+                            }
+                        });
+
                         if(data.getCarId() == carToDeleteId){// deleted the users current car
                             userRepository.getCurrentUser(new Repository.Callback<User>() {
 
