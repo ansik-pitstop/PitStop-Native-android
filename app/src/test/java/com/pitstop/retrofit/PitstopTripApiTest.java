@@ -1,7 +1,7 @@
 package com.pitstop.retrofit;
 
 import com.google.gson.Gson;
-import com.pitstop.models.trip.DataPoint;
+import com.pitstop.models.trip_k.DataPoint;
 
 import org.junit.Test;
 

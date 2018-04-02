@@ -1,13 +1,13 @@
-package com.pitstop.ui.trip.overview
+package com.pitstop.ui.trip_k.overview
 
 import android.location.Location
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.get.GetTripsUseCase
-import com.pitstop.models.trip.PendingLocation
+import com.pitstop.interactors.get.GetTripsUseCaseKar
+import com.pitstop.models.trip_k.PendingLocation
 import com.pitstop.network.RequestError
-import com.pitstop.ui.trip.TripActivityObservable
-import com.pitstop.ui.trip.TripActivityObserver
+import com.pitstop.ui.trip_k.TripActivityObservable
+import com.pitstop.ui.trip_k.TripActivityObserver
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -82,7 +82,7 @@ class TripsPresenter(val useCaseComponent: UseCaseComponent): TripActivityObserv
 
     fun onReadyForLoad(){
         Log.d(tag,"onReadyForLoad()")
-        useCaseComponent.getTripUseCase.execute(object: GetTripsUseCase.Callback{
+        useCaseComponent.getTripUseCaseKar.execute(object: GetTripsUseCaseKar.Callback{
             override fun onGotTrips(trips: List<List<Location>>) {
                 if (trips.isEmpty()) return@onGotTrips
                 tripsDisplayed = trips as ArrayList<List<Location>>

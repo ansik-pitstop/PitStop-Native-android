@@ -1,4 +1,4 @@
-package com.pitstop.models.trip
+package com.pitstop.models.trip_k
 
 /**
  * Created by Karol Zdebel on 3/28/2018.

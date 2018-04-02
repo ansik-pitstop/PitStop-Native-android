@@ -1,6 +1,6 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip_k
 
-import com.pitstop.models.trip.PendingLocation
+import com.pitstop.models.trip_k.PendingLocation
 
 /**
  * Created by Karol Zdebel on 2/28/2018.

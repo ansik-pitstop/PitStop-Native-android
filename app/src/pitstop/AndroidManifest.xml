@@ -148,7 +148,7 @@
             android:label="Background Service" />
 
         <service
-            android:name=".ui.trip.TripsService"
+            android:name=".ui.trip_k.TripsService"
             android:label="Trips Service"/>
 
         <service
@@ -156,7 +156,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".ui.trip.ActivityService" />
+            android:name=".ui.trip_k.ActivityService" />
 
         <activity
             android:name=".ui.settings.SettingsActivity"

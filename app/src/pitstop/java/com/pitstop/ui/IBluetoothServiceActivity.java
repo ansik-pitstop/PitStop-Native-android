@@ -14,7 +14,7 @@ import android.view.View;
 
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothServiceConnection;
-import com.pitstop.ui.trip.TripActivityObservable;
+import com.pitstop.ui.trip_k.TripActivityObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
 /**

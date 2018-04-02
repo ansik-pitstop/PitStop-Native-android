@@ -2,13 +2,13 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import com.pitstop.models.DebugMessage
-import com.pitstop.repositories.TripRepository
+import com.pitstop.repositories.TripRepositoryK
 import com.pitstop.utils.Logger
 
 /**
  * Created by Karol Zdebel on 3/21/2018.
  */
-class StartDumpingTripDataWhenConnectedUseCaseImpl(private val tripRepository: TripRepository
+class StartDumpingTripDataWhenConnectedUseCaseImpl(private val tripRepository: TripRepositoryK
                                                    , private val usecaseHandler: Handler
                                                    , private val mainHandler: Handler)
     : StartDumpingTripDataWhenConnecteUseCase {

@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.pitstop.Util;
-import com.pitstop.models.trip.TripData;
+import com.pitstop.models.trip_k.TripData;
 
 import org.junit.Before;
 import org.junit.Test;

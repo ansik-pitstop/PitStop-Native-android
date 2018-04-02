@@ -12,7 +12,7 @@ import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip.PendingLocation;
+import com.pitstop.models.trip_k.PendingLocation;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;

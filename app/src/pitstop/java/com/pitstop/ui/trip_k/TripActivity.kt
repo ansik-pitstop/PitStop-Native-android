@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip_k
 
 import android.location.Location
 

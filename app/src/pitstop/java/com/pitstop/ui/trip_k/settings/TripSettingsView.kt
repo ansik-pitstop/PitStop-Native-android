@@ -1,6 +1,6 @@
-package com.pitstop.ui.trip.settings
+package com.pitstop.ui.trip_k.settings
 
-import com.pitstop.ui.trip.TripParameterSetter
+import com.pitstop.ui.trip_k.TripParameterSetter
 
 /**
  * Created by Karol Zdebel on 3/7/2018.

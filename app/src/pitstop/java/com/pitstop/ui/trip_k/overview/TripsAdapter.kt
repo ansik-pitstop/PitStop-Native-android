@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip.overview
+package com.pitstop.ui.trip_k.overview
 
 import android.location.Location
 import android.support.v7.widget.RecyclerView

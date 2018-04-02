@@ -2,7 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import com.pitstop.models.DebugMessage
-import com.pitstop.repositories.TripRepository
+import com.pitstop.repositories.TripRepositoryK
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -10,7 +10,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Karol Zdebel on 3/28/2018.
  */
-class StartTripUseCaseImpl(private val tripRepository: TripRepository
+class StartTripUseCaseImpl(private val tripRepository: TripRepositoryK
                            , private val usecaseHandler: Handler
                            , private val mainHandler: Handler): StartTripUseCase {
 

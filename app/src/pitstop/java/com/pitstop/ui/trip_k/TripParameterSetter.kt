@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip_k
 
 /**
  * Created by Karol Zdebel on 3/7/2018.

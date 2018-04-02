@@ -64,7 +64,7 @@ public class AddTripUseCaseTest {
         }
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-        useCaseComponent.getAddTripUseCase().execute(trip, new AddTripDataUseCase.Callback() {
+        useCaseComponent.getAddTripDataUseCase().execute(trip, new AddTripDataUseCase.Callback() {
             @Override
             public void onAddedTripData() {
                 completableFuture.complete(true);

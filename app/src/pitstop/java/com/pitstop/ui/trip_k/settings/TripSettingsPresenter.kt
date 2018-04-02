@@ -1,9 +1,9 @@
-package com.pitstop.ui.trip.settings
+package com.pitstop.ui.trip_k.settings
 
 import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationRequest
-import com.pitstop.ui.trip.TripParameterSetter
+import com.pitstop.ui.trip_k.TripParameterSetter
 
 /**
  * Created by Karol Zdebel on 3/7/2018.

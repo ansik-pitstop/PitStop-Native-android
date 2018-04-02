@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip.settings
+package com.pitstop.ui.trip_k.settings
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.pitstop.R
-import com.pitstop.ui.trip.TripParameterSetter
+import com.pitstop.ui.trip_k.TripParameterSetter
 import kotlinx.android.synthetic.main.fragment_trip_settings.*
 
 

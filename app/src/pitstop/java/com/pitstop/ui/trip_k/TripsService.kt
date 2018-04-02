@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip
+package com.pitstop.ui.trip_k
 
 import android.app.PendingIntent
 import android.app.Service
@@ -22,7 +22,7 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
-import com.pitstop.models.trip.PendingLocation
+import com.pitstop.models.trip_k.PendingLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import com.pitstop.utils.TimeoutTimer
@@ -366,7 +366,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         currentTrip.addAll(locations)
         //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
         if (currentTrip.size > locationSizeCache){
-            useCaseComponent.addTripUseCase.execute(currentTrip, object: AddTripDataUseCase.Callback{
+            useCaseComponent.addTripDataUseCase.execute(currentTrip, object: AddTripDataUseCase.Callback{
                 override fun onAddedTripData() {
                     Log.d(tag,"add trip data use case added trip data")
                     observers.forEach{ it.onTripUpdate() }

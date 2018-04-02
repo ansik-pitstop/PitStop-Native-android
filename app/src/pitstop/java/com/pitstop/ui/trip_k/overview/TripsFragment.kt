@@ -1,4 +1,4 @@
-package com.pitstop.ui.trip.overview
+package com.pitstop.ui.trip_k.overview
 
 import android.location.Location
 import android.os.Bundle
@@ -12,7 +12,7 @@ import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
-import com.pitstop.ui.trip.TripActivityObservable
+import com.pitstop.ui.trip_k.TripActivityObservable
 import kotlinx.android.synthetic.main.fragment_trips.*
 
 /**

@@ -1,7 +1,7 @@
 package com.pitstop
 
 import android.location.Location
-import com.pitstop.models.trip.*
+import com.pitstop.models.trip_k.*
 import java.util.*
 
 /**

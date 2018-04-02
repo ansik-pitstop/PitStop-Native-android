@@ -1,7 +1,7 @@
-package com.pitstop.ui.trip.overview
+package com.pitstop.ui.trip_k.overview
 
 import android.location.Location
-import com.pitstop.ui.trip.TripActivityObservable
+import com.pitstop.ui.trip_k.TripActivityObservable
 
 /**
  * Created by Karol Zdebel on 2/27/2018.

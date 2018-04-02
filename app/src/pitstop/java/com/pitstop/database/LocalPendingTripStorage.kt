@@ -4,10 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.util.Log
-import com.pitstop.models.trip.LocationData
-import com.pitstop.models.trip.LocationDataFormatted
-import com.pitstop.models.trip.PendingLocation
-import com.pitstop.models.trip.TripData
+import com.pitstop.models.trip_k.LocationData
+import com.pitstop.models.trip_k.LocationDataFormatted
+import com.pitstop.models.trip_k.PendingLocation
+import com.pitstop.models.trip_k.TripData
 
 /**
  * Created by Karol Zdebel on 3/19/2018.
