@@ -10,8 +10,7 @@ import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
-import com.pitstop.ui.trip.overview.TripsFragment;
-import com.pitstop.ui.trip.settings.TripSettingsFragment;
+import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip_k.settings.TripSettingsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
@@ -90,7 +89,7 @@ public class TabFragmentManager implements BadgeDisplayer{
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
-                , startReportFragment, vehicleSpecsFragment, tripsFragment, tripsSettingsFragment, mActivity);
+                , startReportFragment, vehicleSpecsFragment,notificationFragment, tripsFragment, tripSettingsFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(6);

@@ -3,12 +3,14 @@ package com.pitstop.repositories
 import android.location.Address
 import android.location.Geocoder
 import android.util.Log
+import com.google.gson.Gson
 import com.pitstop.application.Constants
+import com.pitstop.database.LocalPendingTripStorage
 import com.pitstop.database.LocalTripStorage
-import com.pitstop.models.trip.DataPoint
-import com.pitstop.models.trip.LocationDataFormatted
-import com.pitstop.models.trip.TripData
 import com.pitstop.models.trip.Trip
+import com.pitstop.models.trip_k.DataPoint
+import com.pitstop.models.trip_k.LocationDataFormatted
+import com.pitstop.models.trip_k.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
@@ -28,7 +30,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
     private val tag = javaClass.simpleName
     private val gson: Gson = Gson()
     private var dumping: Boolean = false
-    private val tag = javaClass.simpleName
 
     fun getTripsByCarVin(vin: String, whatToReturn: String): Observable<RepositoryResponse<List<Trip>>> {
 

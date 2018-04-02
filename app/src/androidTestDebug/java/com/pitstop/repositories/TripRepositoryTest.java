@@ -35,7 +35,7 @@ public class TripRepositoryTest {
 
     private final String TAG = TripRepositoryTest.class.getSimpleName();
 
-    private TripRepositoryK tripRepository;
+    private TripRepository tripRepository;
 
     private final String VIN = "1GB0CVCL7BF147611";
 

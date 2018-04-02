@@ -6,6 +6,7 @@ import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
