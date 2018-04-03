@@ -92,7 +92,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                         trip.forEach { locationDataList.add(LocationData(it.time, it)) }
 
                                         Log.d(TAG,"Storing trip data")
-                                        tripRepository.storeTripData(TripData(tripId, true, car.data!!.vin
+                                        tripRepository.storeTripDataAndDump(TripData(tripId, true, car.data!!.vin
                                                 , locationDataList))
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(Schedulers.io())
