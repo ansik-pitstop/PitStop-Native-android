@@ -23,6 +23,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
@@ -61,7 +62,7 @@ public class TripListFragment extends Fragment implements TripListView {
 
     private List<Trip> mTripList = new ArrayList<>();
     private TripListAdapter tripListAdapter;
-
+    private TripActivityObservable tripActivityObservable;
     private AlertDialog unknownErrorDialog;
 
     private String apiKey;
@@ -275,6 +276,18 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG, "isRefreshing()");
         return swipeRefreshLayout.isRefreshing();
 
+    }
+
+    public void onTripActivityObservableReady(TripActivityObservable tripActivityObservable){
+        Log.d(TAG,"onTripActivityObservableReady()");
+        this.tripActivityObservable = tripActivityObservable;
+        if (presenter != null) presenter.onTripActivityObservableReady(tripActivityObservable);
+    }
+
+    @Override
+    public TripActivityObservable getTripActivityObservable(){
+        Log.d(TAG,"getTripActivityObservable()");
+        return tripActivityObservable;
     }
 
     public void requestForDataUpdate(boolean restartAdapterSelectedId) {

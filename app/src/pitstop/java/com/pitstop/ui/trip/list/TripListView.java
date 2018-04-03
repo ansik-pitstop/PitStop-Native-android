@@ -3,6 +3,7 @@ package com.pitstop.ui.trip.list;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.ErrorHandlingView;
 import com.pitstop.ui.LoadingTabView;
+import com.pitstop.ui.trip.TripActivityObservable;
 
 import java.util.List;
 
@@ -25,5 +26,7 @@ public interface TripListView extends ErrorHandlingView, LoadingTabView {
     void toggleRecordingButton(boolean recording);
 
     int getSortType();
+
+    TripActivityObservable getTripActivityObservable();
 
 }

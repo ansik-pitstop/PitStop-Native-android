@@ -91,6 +91,15 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void subscribe(TripListView view) {
         super.subscribe(view);
+        if (tripActivityObservable == null && getView().getTripActivityObservable() != null){
+            this.tripActivityObservable = getView().getTripActivityObservable();
+            this.tripActivityObservable.subscribeTripActivity(this);
+        }
+    }
+
+    @Override
+    public void unsubscribe(){
+        super.unsubscribe();
         if (tripActivityObservable != null) tripActivityObservable.unsubscribeTripActivity(this);
     }
 
