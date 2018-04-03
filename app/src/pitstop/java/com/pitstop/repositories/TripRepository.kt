@@ -122,7 +122,7 @@ class TripRepository(private val localTripStorage: LocalTripStorage,
 
         remoteResponse.subscribe({ response ->
 
-            val localResponse = Observable.just(localTripStorage.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
+            Observable.just(localTripStorage.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
                 return@map "Success"
             }
 

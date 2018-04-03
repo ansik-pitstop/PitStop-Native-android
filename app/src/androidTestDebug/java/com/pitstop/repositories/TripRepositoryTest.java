@@ -12,6 +12,7 @@ import com.pitstop.application.Constants;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.PitstopTripApi;
 
 import org.json.JSONArray;
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Created by David C. on 22/3/18.
@@ -46,11 +47,10 @@ public class TripRepositoryTest {
         Log.i(TAG, "running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
-        LocalTripStorage localTripStorage = new LocalTripStorage(context);
-
-        tripRepository = new TripRepository(localTripStorage, api);
 
         localTripStorage = new LocalTripStorage(context);
+
+        tripRepository = new TripRepository(localTripStorage, api);
     }
 
     @Test
@@ -75,8 +75,8 @@ public class TripRepositoryTest {
                 }).subscribe();
 
         try {
-            assertTrue(future
-                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS).size() > 0);
+            assertNotNull(future
+                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -93,10 +93,28 @@ public class TripRepositoryTest {
 
         localTripStorage.deleteAndStoreTripList(tripList);
 
-        CompletableFuture<String> future = new CompletableFuture<>();
+        CompletableFuture<Object> future = new CompletableFuture<>();
 
         tripRepository.deleteAllTripsFromCarVin(trip.getVin(), new Repository.Callback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                Log.d(TAG, "deleteAllTripsFromCarVinTest() onTripRemoved()");
+                future.complete(data);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                future.complete(null);
+                Log.i(TAG, "deleteAllTripsFromCarVinTest() onError()");
+            }
         });
+
+        try {
+            assertNotNull(future
+                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -110,17 +128,18 @@ public class TripRepositoryTest {
 
         localTripStorage.deleteAndStoreTripList(tripList);
 
-        CompletableFuture<String> future = new CompletableFuture<>();
+        CompletableFuture<Object> future = new CompletableFuture<>();
 
-        tripRepository.deleteTrip(trip.getTripId(), trip.getVin()).doOnNext(stringPitstopResponse -> {
+        tripRepository.deleteTrip(trip.getTripId(), trip.getVin())
+                .subscribe(stringPitstopResponse -> {
 
-            future.complete(stringPitstopResponse.getResponse());
+            future.complete(stringPitstopResponse);
 
-        }).subscribe();
+        });
 
         try {
-            assertTrue(future
-                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS).equals("Success"));
+            assertNotNull(future
+                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
