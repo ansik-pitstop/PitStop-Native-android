@@ -48,7 +48,6 @@ import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
-import com.pitstop.ui.Notifications.NotificationFragment
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -57,9 +56,9 @@ import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.trip.TripActivityObservable
 import com.pitstop.ui.trip.TripParameterSetter
+import com.pitstop.ui.trip.TripsFragment
 import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.trip.settings.TripSettingsFragment
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
@@ -117,7 +116,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var mainServicesFragment: MainServicesFragment
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
-    private lateinit var notificationFragment: NotificationFragment
     private lateinit var tripsFragment: TripsFragment
     private lateinit var tripSettingsFragment: TripSettingsFragment
 
@@ -210,7 +208,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         mainServicesFragment = MainServicesFragment()
         startReportFragment = StartReportFragment()
         vehicleSpecsFragment = VehicleSpecsFragment()
-        notificationFragment = NotificationFragment()
         tripsFragment = TripsFragment()
         tripSettingsFragment = TripSettingsFragment()
 
@@ -230,7 +227,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         updateScannerLocalStore()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
-                , vehicleSpecsFragment, notificationFragment, tripsFragment, tripSettingsFragment, mixpanelHelper)
+                , vehicleSpecsFragment, tripsFragment, tripSettingsFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
@@ -951,12 +948,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG, "displayServicesBadgeCount() count: " + count)
         if (tabFragmentManager != null)
             tabFragmentManager?.displayServicesBadgeCount(count)
-    }
-
-    override fun displayNotificationsBadgeCount(count: Int) {
-        Log.d(TAG, "displayNotificationsBadgeCount() count: " + count)
-        if (tabFragmentManager != null)
-            tabFragmentManager?.displayNotificationsBadgeCount(count)
     }
 
     override fun closeDrawer() {

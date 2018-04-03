@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.pitstop.R;
-import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.trip.TripsFragment;
@@ -26,20 +25,18 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     private MainServicesFragment mainServicesFragment;
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
-    private NotificationFragment notificationFragment;
     private TripsFragment tripsFragment;
     private TripSettingsFragment tripSettingsFragment;
     private Context context;
 
     public TabViewPagerAdapter(FragmentManager fm, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, TripsFragment tripsFragment
+            , TripsFragment tripsFragment
             , TripSettingsFragment tripSettingsFragment, Context context) {
         super(fm);
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
-        this.notificationFragment = notificationFragment;
         this.tripsFragment = tripsFragment;
         this.tripSettingsFragment = tripSettingsFragment;
         this.context = context;
@@ -58,9 +55,6 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
             case TabFragmentManager.TAB_VEHICLE_SPECS:
                 return vehicleSpecsFragment;
 
-            case TabFragmentManager.TAB_NOTIF:
-                return notificationFragment;
-
             case TabFragmentManager.TAB_TRIPS_LIST:
                 return tripsFragment;
 
@@ -73,15 +67,12 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
 
-        return 6;
+        return 5;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         switch(position){
-
-            case TabFragmentManager.TAB_NOTIF:
-                return context.getString(R.string.notifications);
             case TabFragmentManager.TAB_SCAN:
                 return context.getString(R.string.scan);
             case TabFragmentManager.TAB_VEHICLE_SPECS:

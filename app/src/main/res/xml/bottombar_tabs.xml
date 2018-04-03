@@ -16,16 +16,13 @@
         title="@string/services_nav_text" />
 
     <tab
-        id="@+id/tab_notifications"
-        icon="@drawable/ic_notification"
-        title="@string/notifications" />
-
-    <tab
         id="@+id/tab_trips"
         icon="@drawable/route_2"
         title="@string/my_trips" />
+
     <tab
         id="@+id/tab_trip_settings"
         icon="@drawable/route_2"
         title="@string/trip_settings" />
+
 </tabs>

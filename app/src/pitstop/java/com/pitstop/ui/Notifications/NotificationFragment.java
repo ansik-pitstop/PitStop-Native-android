@@ -1,6 +1,5 @@
 package com.pitstop.ui.Notifications;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,7 +21,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Notification;
-import com.pitstop.ui.main_activity.BadgeDisplayer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
@@ -269,15 +267,15 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public void displayBadgeCount(int count) {
         Log.d(TAG,"displayBadgeCount() count: "+count);
-        Activity activity = getActivity();
-        try{
-            if (activity != null){
-                BadgeDisplayer badgeDisplayer = (BadgeDisplayer)activity;
-                badgeDisplayer.displayNotificationsBadgeCount(count);
-            }
-        }catch(ClassCastException e){
-            e.printStackTrace();
-        }
+//        Activity activity = getActivity();
+//        try{
+//            if (activity != null){
+//                BadgeDisplayer badgeDisplayer = (BadgeDisplayer)activity;
+//                badgeDisplayer.displayNotificationsBadgeCount(count);
+//            }
+//        }catch(ClassCastException e){
+//            e.printStackTrace();
+//        }
 
     }
 
