@@ -73,14 +73,6 @@ public final class TABLES {
         String KEY_PATH = "path";
     }
 
-    public interface PENDING_TRIP {
-        String TABLE_NAME = "trip";
-        String KEY_TRIP_ID = "trip_id";
-        String KEY_LONGITUDE = "longitude";
-        String KEY_LATITUDE = "latitude";
-        String KEY_TIME = "time";
-    }
-
     public interface PENDING_TRIP_DATA {
         String TABLE_NAME = "pending_trip_data";
         String KEY_TRIP_ID = "trip_id";

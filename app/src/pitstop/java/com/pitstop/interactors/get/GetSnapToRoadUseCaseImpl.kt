@@ -45,7 +45,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(next.data.orEmpty())
 
                 }, { error ->
-
+                    Log.d(tag,"snapToRoadRepository.error: $error")
                     this@GetSnapToRoadUseCaseImpl.onError(RequestError(error))
 
                 })
