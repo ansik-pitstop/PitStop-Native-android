@@ -33,6 +33,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
 /**
@@ -146,6 +147,12 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
+    public int getSortType(){
+        Log.d(TAG,"getSortType()");
+        return sortSpinner.getSelectedItemPosition();
+    }
+
+    @Override
     public void displayOfflineErrorDialog() {
         // Nothing to do here
     }
@@ -229,6 +236,11 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
+    public void toggleRecordingButton(boolean recording) {
+        Log.d(TAG,"toggleRecordingButton() recording: "+recording);
+    }
+
+    @Override
     public void showLoading() {
         Log.d(TAG, "showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
@@ -289,5 +301,11 @@ public class TripListFragment extends Fragment implements TripListView {
 
         presenter.sortTripListBy(listToSort, position);
 
+    }
+
+    @OnClick(R.id.trip_record_button)
+    public void onTripRecordClicked(){
+        Log.d(TAG,"onTripRecordClicked");
+        presenter.onTripRecordClicked();
     }
 }

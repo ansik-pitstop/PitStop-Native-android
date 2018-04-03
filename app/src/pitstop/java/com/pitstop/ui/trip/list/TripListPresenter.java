@@ -9,8 +9,11 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.models.trip_k.PendingLocation;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
+import com.pitstop.ui.trip.TripActivityObservable;
+import com.pitstop.ui.trip.TripActivityObserver;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +25,7 @@ import java.util.List;
  * Created by David C. on 14/3/18.
  */
 
-public class TripListPresenter extends TabPresenter<TripListView> {
+public class TripListPresenter extends TabPresenter<TripListView> implements TripActivityObserver {
 
     public interface OnListChildPresenterInteractorListener {
 
@@ -37,7 +40,6 @@ public class TripListPresenter extends TabPresenter<TripListView> {
         void onShowLoading();
 
         void onHideLoading();
-
     }
 
     private final String TAG = getClass().getSimpleName();
@@ -58,12 +60,38 @@ public class TripListPresenter extends TabPresenter<TripListView> {
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
+    private TripActivityObservable tripActivityObservable;
 
     private boolean updating = false;
 
     public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+    }
+
+    @Override
+    public void onTripStart() {
+        Log.d(TAG,"onTripStart()");
+        if (getView() != null) getView().toggleRecordingButton(true);
+    }
+
+    @Override
+    public void onTripUpdate() {
+        Log.d(TAG,"onTripUpdate()");
+        if (getView() != null) getView().toggleRecordingButton(true);
+    }
+
+    @Override
+    public void onTripEnd(@NotNull List<PendingLocation> trip) {
+        Log.d(TAG,"onTripEnd()");
+        if (getView() != null)
+            onUpdateNeeded(getView().getSortType());
+    }
+
+    @Override
+    public void subscribe(TripListView view) {
+        super.subscribe(view);
+        if (tripActivityObservable != null) tripActivityObservable.unsubscribeTripActivity(this);
     }
 
     public void setCommunicationInteractor(OnListChildPresenterInteractorListener onListChildPresenterInteractorListener) {
@@ -102,6 +130,23 @@ public class TripListPresenter extends TabPresenter<TripListView> {
             mParentListener.showTripDetail(trip);
         }
 
+    }
+
+    public void onTripRecordClicked(){
+        Log.d(TAG,"onTripRecordClicked()");
+        if (tripActivityObservable == null){
+            if (getView() != null) getView().displayUnknownErrorDialog();
+        }else{
+            if (tripActivityObservable.startTripManually()){
+                if (getView() != null) getView().toggleRecordingButton(true);
+            }
+        }
+    }
+
+    public void onTripActivityObservableReady(TripActivityObservable tripActivityObservable){
+        Log.d(TAG,"onTripObservableReady()");
+        this.tripActivityObservable = tripActivityObservable;
+        tripActivityObservable.subscribeTripActivity(this);
     }
 
     public boolean isRefreshing() {

@@ -26,7 +26,8 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnListChildPresenterInteractorListener, TripDetailPresenter.OnDetailChildPresenterInteractorListener {
+public class TripsPresenter extends TabPresenter<TripsView> implements
+        TripListPresenter.OnListChildPresenterInteractorListener, TripDetailPresenter.OnDetailChildPresenterInteractorListener {
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
