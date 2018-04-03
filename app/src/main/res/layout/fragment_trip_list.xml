@@ -11,46 +11,55 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/spinner_holder"
+            android:id="@+id/trip_holder"
+            android:layout_above="@id/trip_record_button"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textview_sort_by_static"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/spinner_holder"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/sort_by"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:orientation="horizontal">
 
-            <Spinner
-                android:id="@+id/spinner_sort_by"
-                style="@android:style/Widget.Holo.Light.Spinner"
-                android:layout_width="fill_parent"
-                android:layout_height="40dp"
-                android:layout_gravity="bottom"
-                android:layout_marginLeft="10dp"
-                android:translationZ="2dp" />
+                <TextView
+                    android:id="@+id/textview_sort_by_static"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/sort_by"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+
+                <Spinner
+                    android:id="@+id/spinner_sort_by"
+                    style="@android:style/Widget.Holo.Light.Spinner"
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginLeft="10dp"
+                    android:translationZ="2dp" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_below="@id/spinner_holder"
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/facebook_blue" />
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/trips_recyclerview"
+                android:layout_below="@id/spinner_holder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </LinearLayout>
-
-        <!--<View-->
-            <!--android:id="@+id/divider"-->
-            <!--android:layout_below="@id/spinner_holder"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1px"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:background="@color/facebook_blue" />-->
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/trips_recyclerview"
-            android:layout_below="@id/spinner_holder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
 
         <Button
             android:id="@+id/trip_record_button"
