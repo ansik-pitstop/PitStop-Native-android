@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 import java.io.IOException
 
 /**
- * Created by Karol Zdebel on 3/12/2018.
+ * Created by David C. on 9/3/18.
  */
 open class TripRepository(private val tripApi: PitstopTripApi
                           , val localPendingTripStorage: LocalPendingTripStorage
@@ -135,8 +135,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
         remoteResponse.subscribe({ response ->
 
-            val localResponse = Observable.just(localTripStorage.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
-                return@map "success"
+            Observable.just(localTripStorage.deleteTripByTripIdAndCarVin(tripId, vin)).map { next ->
+                return@map "Success"
             }
 
         }, { error ->

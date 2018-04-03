@@ -1,173 +1,88 @@
-package com.pitstop.repositories;
+package com.pitstop.interactors.remove;
 
 import android.content.Context;
-import android.location.Geocoder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.pitstop.Util;
-import com.pitstop.database.LocalPendingTripStorage;
-import com.pitstop.database.LocalTripStorage;
-import com.pitstop.models.trip_k.TripData;
-import com.pitstop.models.Car;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.pitstop.dependency.ContextModule;
+import com.pitstop.dependency.DaggerUseCaseComponent;
+import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
-import com.pitstop.retrofit.PitstopTripApi;
+import com.pitstop.utils.NetworkHelper;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.Assert.assertNotNull;
-import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
-
-import static junit.framework.Assert.assertTrue;
-
 /**
- * Created by David C. and Karol Z. on 22/3/18.
+ * Created by David C. on 2/4/18.
  */
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class TripRepositoryTest {
+public class RemoveTripUseCaseTest {
 
-    private final String TAG = TripRepositoryTest.class.getSimpleName();
-
-    private TripRepository tripRepository;
-    private final String VIN = "1GB0CVCL7BF147611";
+    private final String TAG = RemoveTripUseCaseTest.class.getSimpleName();
+    private UseCaseComponent useCaseComponent;
+    private boolean connected = true;
 
     @Before
     public void setup() {
         Log.i(TAG, "running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
-        PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
-        LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
-        LocalTripStorage localTripStorage = new LocalTripStorage(context);
-        tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage
-                , new Geocoder(context),Observable.just(true));
-    }
-
-    @Test
-    public void storeTripTest(){
-        Log.d(TAG,"running storeTripTest()");
-        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-
-        TripData tripData = Util.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
-        Log.d(TAG,"generated trip data, location size = "+tripData.getLocations().size());
-        tripRepository.storeTripDataAndDump(tripData)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io(),true)
-                .subscribe(next -> {
-                    completableFuture.complete(true);
-                    Log.d(TAG,"next() : "+next);
-                }, error -> {
-                    completableFuture.complete(false);
-                    Log.d(TAG,"error() : "+error);
-                });
-
-        try{
-            assertTrue(completableFuture.get(11000, TimeUnit.MILLISECONDS));
-        }catch(ExecutionException | InterruptedException | TimeoutException e){
-            throw new AssertionError();
-        }
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(context))
+                .build();
+        connected = NetworkHelper.isConnected(InstrumentationRegistry.getTargetContext());
 
     }
 
     @Test
-    public void getTripsByCarVinTest() {
-
-        Log.i(TAG, "running getTripsByCarVinTest()");
-
-        //Input
-        CompletableFuture<List<Trip>> future = new CompletableFuture<>();
-        Car dummyCar = new Car();
-        dummyCar.setVin("WVWXK73C37E116278");
-        dummyCar.setId(5942);
-
-        String whatToReturn = Constants.TRIP_REQUEST_BOTH;
-
-        tripRepository.getTripsByCarVin(dummyCar.getVin(), whatToReturn)
-                .doOnNext(next -> {
-
-                    Log.i(TAG, "Got trips: " + next);
-                    future.complete(next.getData());
-
-                }).subscribe();
-
-        try {
-            assertNotNull(future
-                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    public void deleteAllTripsFromCarVinTest() {
+    public void removeTripUseCaseTest() {
 
         Trip trip = generateTrip();
 
-        List<Trip> tripList = new ArrayList<>();
-        tripList.add(trip);
+        CompletableFuture<String> successFuture = new CompletableFuture<>();
+        CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
 
-        localTripStorage.deleteAndStoreTripList(tripList);
-
-        CompletableFuture<Object> future = new CompletableFuture<>();
-
-        tripRepository.deleteAllTripsFromCarVin(trip.getVin(), new Repository.Callback<Object>() {
+        useCaseComponent.removeTripUseCase().execute(trip.getTripId(), trip.getVin(), new RemoveTripUseCase.Callback() {
             @Override
-            public void onSuccess(Object data) {
-                Log.d(TAG, "deleteAllTripsFromCarVinTest() onTripRemoved()");
-                future.complete(data);
+            public void onTripRemoved() {
+                Log.d(TAG, "RemoveTripUseCaseTest onTripRemoved()");
+                successFuture.complete("Success");
+                errorFuture.complete(null);
             }
 
             @Override
-            public void onError(RequestError error) {
-                future.complete(null);
-                Log.i(TAG, "deleteAllTripsFromCarVinTest() onError()");
+            public void onError(@NotNull RequestError error) {
+                successFuture.complete(null);
+                errorFuture.complete(error);
+                Log.i(TAG, "RemoveTripUseCaseTest onError()");
             }
         });
 
         try {
-            assertNotNull(future
-                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    public void deleteTrip() {
-
-        Trip trip = generateTrip();
-
-        List<Trip> tripList = new ArrayList<>();
-        tripList.add(trip);
-
-        localTripStorage.deleteAndStoreTripList(tripList);
-
-        CompletableFuture<Object> future = new CompletableFuture<>();
-
-        tripRepository.deleteTrip(trip.getTripId(), trip.getVin())
-                .subscribe(stringPitstopResponse -> {
-
-            future.complete(stringPitstopResponse);
-
-        });
-
-        try {
-            assertNotNull(future
-                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
+            if (connected)
+                Assert.assertNotNull(successFuture.get(5000, TimeUnit.MILLISECONDS));
+            else
+                Assert.assertTrue(errorFuture.get(5000, TimeUnit.MILLISECONDS)
+                        .getError().equals(RequestError.ERR_OFFLINE));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
