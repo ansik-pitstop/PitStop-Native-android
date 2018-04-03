@@ -147,8 +147,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         if (tripActivityObservable == null){
             if (getView() != null) getView().displayUnknownErrorDialog();
         }else{
-            if (tripActivityObservable.startTripManually()){
+            if (!tripActivityObservable.isTripInProgress() && tripActivityObservable.startTripManually()){
                 if (getView() != null) getView().toggleRecordingButton(true);
+            }else if (tripActivityObservable.isTripInProgress() && tripActivityObservable.endTripManually()){
+                if (getView() != null) getView().toggleRecordingButton(false);
             }
         }
     }
