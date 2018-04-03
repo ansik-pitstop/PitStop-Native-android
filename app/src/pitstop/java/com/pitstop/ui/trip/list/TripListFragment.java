@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -55,6 +56,9 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
+
+    @BindView(R.id.trip_record_button)
+    protected Button tripRecordButton;
 
     private Context context;
     private boolean hasBeenPopulated = false;
@@ -239,6 +243,14 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void toggleRecordingButton(boolean recording) {
         Log.d(TAG,"toggleRecordingButton() recording: "+recording);
+        if (recording){
+            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
+            tripRecordButton.setText(R.string.stop_recording);
+        }else{
+            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
+            tripRecordButton.setText(R.string.begin_recording);
+        }
+
     }
 
     @Override

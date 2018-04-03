@@ -247,7 +247,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         checkPermissions()
                     }else if (it is TripsService){
                         Log.d(TAG,"got trips service")
-                        tripsFragment.setTripActivityObservable(it as TripActivityObservable)
+                        tripsFragment.onTripActivityObservableReady(it as TripActivityObservable)
                         tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
                     }
                 }, {

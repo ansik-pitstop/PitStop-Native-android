@@ -94,6 +94,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         if (tripActivityObservable == null && getView().getTripActivityObservable() != null){
             this.tripActivityObservable = getView().getTripActivityObservable();
             this.tripActivityObservable.subscribeTripActivity(this);
+            view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
         }
     }
 
@@ -156,6 +157,8 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         Log.d(TAG,"onTripObservableReady()");
         this.tripActivityObservable = tripActivityObservable;
         tripActivityObservable.subscribeTripActivity(this);
+        if (getView() != null)
+            getView().toggleRecordingButton(tripActivityObservable.isTripInProgress());
     }
 
     public boolean isRefreshing() {
