@@ -140,7 +140,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
             tripAddress.setText(String.format("%s - %s",startStreet,endStreet));
 
             try{
-                Date date = new Date(Integer.valueOf(trip.getTimeStart())*1000);
+                Date date = new Date(Long.valueOf(trip.getTimeStart())*1000);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm aa", Locale.CANADA);
                 tripDate.setText(simpleDateFormat.format(date));
             }catch(NumberFormatException e){

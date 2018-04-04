@@ -298,17 +298,20 @@ open class TripRepository(private val tripApi: PitstopTripApi
             //Add indicator data point which marks trip end
             val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
             val startLocation = DataPoint(DataPoint.ID_START_LOCATION
-                    , if (startAddress == null) "null" else startAddress.getAddressLine(0))
+                    , if (startAddress == null) "null"
+                        else "${startAddress.locality} ${startAddress.adminArea}, ${startAddress.countryCode}")
             val endLocation = DataPoint(DataPoint.ID_END_LOCATION
                     , if (endAddress == null) "null" else endAddress.getAddressLine(0))
             val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
-                    , if (startAddress == null || startAddress.thoroughfare == null) "null" else startAddress.thoroughfare)
+                    , if (startAddress == null) "null"
+                        else "${startAddress.subThoroughfare} + ${startAddress.thoroughfare}")
             val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
-                    , if (endAddress == null || endAddress.thoroughfare == null) "null" else endAddress.thoroughfare)
+                    , if (endAddress == null) "null"
+                        else "${endAddress.subThoroughfare} ${endAddress.thoroughfare}")
             val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
-                    , if (startAddress == null || startAddress.locality == null) "null" else startAddress.locality)
+                    , if (startAddress == null) "null" else startAddress.locality)
             val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
-                    , if (endAddress == null || endAddress.locality == null) "null" else  endAddress.locality)
+                    , if (endAddress == null) "null" else  endAddress.locality)
             val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
                     , if (startAddress == null) "null" else startAddress.latitude.toString())
             val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE
