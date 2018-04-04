@@ -17,6 +17,7 @@ import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.models.trip_k.TripData;
 import com.pitstop.network.RequestError;
+import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
 
 import org.json.JSONArray;
@@ -57,11 +58,13 @@ public class TripRepositoryTest {
     public void setup() {
         Log.i(TAG, "running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
-        PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
+        PitstopTripApi pitstopTripApi = RetrofitTestUtil.Companion.getTripApi();
+        GoogleSnapToRoadApi googleSnapToRoadApi = RetrofitTestUtil.Companion.getGoogleSnapToRoadApi();
         LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
+
         localTripStorage = new LocalTripStorage(context);
-        tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage
-                , new Geocoder(context),Observable.just(true));
+        tripRepository = new TripRepository(pitstopTripApi,localPendingTripStorage,localTripStorage
+                , googleSnapToRoadApi, new Geocoder(context),Observable.just(true));
     }
 
     @Test

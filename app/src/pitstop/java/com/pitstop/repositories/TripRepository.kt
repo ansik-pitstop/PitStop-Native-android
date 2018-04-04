@@ -12,8 +12,10 @@ import com.pitstop.models.trip_k.DataPoint
 import com.pitstop.models.trip_k.LocationDataFormatted
 import com.pitstop.models.trip_k.TripData
 import com.pitstop.network.RequestError
+import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
+import com.pitstop.utils.TripUtils
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import java.io.IOException
@@ -24,6 +26,7 @@ import java.io.IOException
 open class TripRepository(private val tripApi: PitstopTripApi
                           , val localPendingTripStorage: LocalPendingTripStorage
                           , private val localTripStorage: LocalTripStorage
+                          , private val snapToRoadApi: GoogleSnapToRoadApi
                           , private val geocoder: Geocoder
                           , private val connectionObservable: Observable<Boolean>) {
 
@@ -254,6 +257,21 @@ open class TripRepository(private val tripApi: PitstopTripApi
         //Go through each trip
         tripData.forEach({
 
+            //calculate mileage
+            var locString = ""
+            it.locations.map { loc -> loc.data }.forEach({ loc ->
+                locString += "${loc.latitude},${loc.longitude}"
+                if (it.locations.last().data != loc) locString += "|"
+            })
+            val response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
+                    , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
+            val mileageTrip = if (!response.isSuccessful) {
+                return null
+            }
+            else DataPoint(DataPoint.ID_MILEAGE_TRIP
+                    , TripUtils.Companion.getPolylineDistance(
+                            response.body()?.snappedPoints ?: arrayListOf()).toString())
+
             //Reverse geocode lat and long info
             var startAddress: Address? = null
             var endAddress: Address? = null
@@ -301,10 +319,11 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     , if (startAddress == null) "null"
                         else "${startAddress.locality} ${startAddress.adminArea}, ${startAddress.countryCode}")
             val endLocation = DataPoint(DataPoint.ID_END_LOCATION
-                    , if (endAddress == null) "null" else endAddress.getAddressLine(0))
+                    , if (endAddress == null) "null"
+                        else "${endAddress.locality} ${endAddress.adminArea}, ${endAddress.countryCode}")
             val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
                     , if (startAddress == null) "null"
-                        else "${startAddress.subThoroughfare} + ${startAddress.thoroughfare}")
+                        else "${startAddress.subThoroughfare} ${startAddress.thoroughfare}")
             val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
                     , if (endAddress == null) "null"
                         else "${endAddress.subThoroughfare} ${endAddress.thoroughfare}")
@@ -318,7 +337,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     , endAddress?.latitude?.toString() ?: "null")
             val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress?.longitude?.toString() ?: "null")
             val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress?.longitude?.toString() ?: "null")
-            val mileageTrip = DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2") //Todo("Add mileage trip logic")
             val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, it.locations.first().data.time.toString())
             val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, it.locations.last().data.time.toString())
             val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")

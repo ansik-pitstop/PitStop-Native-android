@@ -16,6 +16,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RetrofitTestUtil {
     companion object {
 
+        fun getGoogleSnapToRoadApi(): GoogleSnapToRoadApi = Retrofit.Builder()
+                .baseUrl("https://roads.googleapis.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(GoogleSnapToRoadApi::class.java)
+
         fun getAppointmentApi(): PitstopAppointmentApi = Retrofit.Builder()
                 .baseUrl(getBaseURL())
                 .addConverterFactory(GsonConverterFactory.create())

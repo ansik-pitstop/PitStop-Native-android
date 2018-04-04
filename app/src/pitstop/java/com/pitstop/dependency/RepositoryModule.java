@@ -109,9 +109,10 @@ public class RepositoryModule {
     @Singleton
     TripRepository getTripRepository(PitstopTripApi pitstopTripApi
             , LocalPendingTripStorage localPendingTripStorage, LocalTripStorage localTripStorage
-            , Geocoder geocoder, Observable<Boolean> connectionObservable){
+            ,GoogleSnapToRoadApi googleSnapToRoadApi, Geocoder geocoder
+            , Observable<Boolean> connectionObservable){
         return new TripRepository(pitstopTripApi, localPendingTripStorage
-                , localTripStorage, geocoder, connectionObservable);
+                , localTripStorage, googleSnapToRoadApi, geocoder, connectionObservable);
     }
 
     @Provides
