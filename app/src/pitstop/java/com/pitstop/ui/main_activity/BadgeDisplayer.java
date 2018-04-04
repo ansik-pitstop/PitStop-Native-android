@@ -6,5 +6,4 @@ package com.pitstop.ui.main_activity;
 
 public interface BadgeDisplayer {
     void displayServicesBadgeCount(int count);
-    void displayNotificationsBadgeCount(int count);
 }

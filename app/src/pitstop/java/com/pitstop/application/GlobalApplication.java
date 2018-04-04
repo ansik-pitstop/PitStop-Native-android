@@ -1,10 +1,15 @@
 package com.pitstop.application;
 
 import android.app.Application;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
@@ -22,12 +27,14 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
@@ -42,6 +49,7 @@ import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.User;
+import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -51,6 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Observable;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 
@@ -83,8 +92,13 @@ public class GlobalApplication extends Application {
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
     private LocalTripStorage mLocalTripStorage;
+    private LocalPendingTripStorage mLocalPendingTripStorage;
 
     private UseCaseComponent useCaseComponent;
+    private Observable<Service> serviceObservable;
+    private BluetoothAutoConnectService autoConnectService;
+    private TripsService tripsService;
+    private ServiceConnection serviceConnection;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
@@ -111,12 +125,13 @@ public class GlobalApplication extends Application {
 
         Fabric.with(this, crashlyticsKit);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) {
-            Log.d(TAG, "Release build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Release");
-        } else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
-            Log.d(TAG, "Beta build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME, "Beta");
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            Log.d(TAG,"Release build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
+        }
+        else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
+            Log.d(TAG,"Beta build.");
+            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
 
         Logger.initLogger(this);
@@ -152,7 +167,7 @@ public class GlobalApplication extends Application {
         ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
         FacebookSdk.sdkInitialize(this);
-        if (BuildConfig.DEBUG) {
+        if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
             Parse.setLogLevel(Parse.LOG_LEVEL_NONE);
@@ -167,7 +182,7 @@ public class GlobalApplication extends Application {
         );
 
         ParseInstallation.getCurrentInstallation().saveInBackground(e -> {
-            if (e == null) {
+            if(e == null) {
                 Log.d(TAG, "Installation saved");
             } else {
                 Log.w(TAG, "Error saving installation: " + e.getMessage());
@@ -177,16 +192,72 @@ public class GlobalApplication extends Application {
         // MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
-        Log.d(TAG, "google sender id: " + SecretUtils.getGoogleSenderId());
+        Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
 
+        serviceObservable = Observable.create(emitter -> {
+            Log.d(TAG,"serviceObservable.subscribe() autoconnectService null? "
+                    +(autoConnectService == null) +", tripsService null? "+(tripsService == null));
+            if (autoConnectService != null){
+                emitter.onNext(autoConnectService);
+            }
+            if (tripsService != null){
+                emitter.onNext(tripsService);
+            }
+
+            if (serviceConnection == null){
+                serviceConnection = new ServiceConnection() {
+
+                    @Override
+                    public void onServiceConnected(ComponentName className, IBinder service) {
+                        Log.i(TAG, String.format("connecting: onServiceConnection, className: %s, trips class: %s"
+                                ,className.getClassName(),TripsService.class.getCanonicalName()));
+                        if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
+                            emitter.onNext(autoConnectService);
+                            Log.d(TAG,"bluetooth service set");
+                        }
+                        else if (className.getClassName().equals(TripsService.class.getName())) {
+                            Log.d(TAG, "trips service set");
+                            try {
+                                tripsService = ((TripsService.TripsBinder) service).getService();
+                                emitter.onNext(tripsService);
+                            } catch (ClassCastException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName arg0) {
+                        Log.i(TAG, "Disconnecting: onServiceConnection componentName.className: "
+                                +arg0.getClassName());
+                        if (arg0.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                            autoConnectService = null;
+                        }else if (arg0.getClassName().equals(TripsService.class.getName())){
+                            tripsService = null;
+                        }
+                    }
+                };
+
+                Intent serviceIntent = new Intent(GlobalApplication.this
+                        , BluetoothAutoConnectService.class);
+                startService(serviceIntent);
+                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+                Intent tripsServiceIntent = new Intent(GlobalApplication.this
+                        , TripsService.class);
+                startService(tripsServiceIntent);
+                bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+            }
+        });
     }
 
-    public void setUpMixPanel() {
+    public void setUpMixPanel(){
         User user = mLocalUserStorage.getUser();
-        if (user != null) {
+        if(user != null) {
             Log.d(TAG, "Setting up mixpanel");
             mixpanelAPI.identify(String.valueOf(user.getId()));
             mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
@@ -198,8 +269,12 @@ public class GlobalApplication extends Application {
         }
     }
 
+    public Observable<Service> getServices(){
+        return serviceObservable;
+    }
+
     public MixpanelAPI getMixpanelAPI() {
-        if (mixpanelAPI == null) {
+        if(mixpanelAPI == null) {
             mixpanelAPI = MixpanelAPI.getInstance(this, SecretUtils.getMixpanelToken(this));
         }
         return mixpanelAPI;
@@ -301,7 +376,7 @@ public class GlobalApplication extends Application {
         return mLocalUserStorage.getUser();
     }
 
-    public Car getCurrentCar() {
+    public Car getCurrentCar(){
 
         //Get most recent version of car list
         List<Car> carList = mLocalCarStorage.getAllCars();
@@ -310,7 +385,7 @@ public class GlobalApplication extends Application {
         if (carList.size() == 0)
             return null;
 
-        for (Car c : carList) {
+        for (Car c: carList){
             if (c.isCurrentCar())
                 return c;
         }
@@ -324,7 +399,7 @@ public class GlobalApplication extends Application {
     }
 
     public void setCurrentUser(User user) {
-        Log.i(TAG, "UserId:" + user.getId());
+        Log.i(TAG, "UserId:"+user.getId());
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
@@ -375,7 +450,7 @@ public class GlobalApplication extends Application {
         cleanUpDatabase();
     }
 
-    public void modifyMixpanelSettings(String field, Object value) {
+    public void modifyMixpanelSettings(String field, Object value){
         getMixpanelAPI().getPeople().set(field, value);
     }
 
@@ -396,6 +471,7 @@ public class GlobalApplication extends Application {
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
         mLocalTripStorage = new LocalTripStorage(this);
+        mLocalPendingTripStorage = new LocalPendingTripStorage(this);
 
     }
 
@@ -417,6 +493,7 @@ public class GlobalApplication extends Application {
         mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
         mLocalTripStorage.deleteAllTrips();
+        mLocalPendingTripStorage.deleteAll();
     }
 
 }

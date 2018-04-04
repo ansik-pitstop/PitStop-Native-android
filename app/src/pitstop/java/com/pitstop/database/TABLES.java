@@ -61,6 +61,7 @@ public final class TABLES {
         String KEY_STATE = "state";
         String KEY_SHOP_ID = "shopId";
     }
+
     public interface TRIP_OLD{
         String TABLE_NAME = "trips";
         String KEY_START = "start";
@@ -71,6 +72,18 @@ public final class TABLES {
         String KEY_TRIP_ID = "tripId";
         String KEY_PATH = "path";
     }
+
+    public interface PENDING_TRIP_DATA {
+        String TABLE_NAME = "pending_trip_data";
+        String KEY_TRIP_ID = "trip_id";
+        String KEY_LOCATION_ID = "location_id";
+        String KEY_LONGITUDE = "longitude";
+        String KEY_LATITUDE = "latitude";
+        String KEY_TIME = "time";
+        String KEY_VIN = "vin";
+        String KEY_COMPLETED = "completed";
+        String KEY_SENT = "sent";
+        }
 
     public interface TRIP_DEVICE{
         String TABLE_NAME = "tripsDevice";

@@ -28,7 +28,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/trip_location"
+            android:id="@+id/trip_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ON, Toronto, CA - OH, Cleveland, USA"

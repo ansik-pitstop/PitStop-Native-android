@@ -19,6 +19,14 @@ class RetrofitTestUtil {
                 .build()
                 .create(PitstopAppointmentApi::class.java)
 
+        fun getTripApi(): PitstopTripApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(PitstopTripApi::class.java)
+
         private fun getAccessToken(): String{
             val username = "unit_test@test.com"
             val password = "testing123"

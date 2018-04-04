@@ -13,7 +13,10 @@ import com.pitstop.R;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.trip.list.TripListView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by David C. on 12/3/18.
@@ -90,13 +93,13 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
     public class TripViewHolder extends RecyclerView.ViewHolder {
         TextView tripAddress;
-        TextView tripLocation;
+        TextView tripDate;
         ImageView tripInfoButton;
 
         public TripViewHolder(View itemView) {
             super(itemView);
             this.tripAddress = itemView.findViewById(R.id.trip_address);
-            this.tripLocation = itemView.findViewById(R.id.trip_location);
+            this.tripDate = itemView.findViewById(R.id.trip_date);
             this.tripInfoButton = itemView.findViewById(R.id.trip_info_button);
         }
 
@@ -109,14 +112,14 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
             if (isSelectedTrip) {
 
                 this.tripAddress.setTextColor(Color.WHITE);
-                this.tripLocation.setTextColor(Color.WHITE);
+                this.tripDate.setTextColor(Color.WHITE);
                 this.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
                 this.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
             } else {
 
                 this.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                this.tripLocation.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+                this.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 this.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
                 this.itemView.setBackgroundColor(Color.WHITE);
 
@@ -125,15 +128,24 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
         }
 
         private void setRowText(Trip trip) {
+            String unknown = context.getResources().getString(R.string.unknown);
 
-            // Set Address and Location
-            tripAddress.setText("Trip ID: " + trip.getTripId());
+            String startStreet = (trip.getLocationStart().getStartStreetLocation() != null ? trip.getLocationStart().getStartStreetLocation() : unknown);
+            String endStreet = (trip.getLocationEnd().getEndStreetLocation() != null ? trip.getLocationEnd().getEndStreetLocation() : unknown);
+            String startCity = (trip.getLocationStart().getStartCityLocation() != null ? trip.getLocationStart().getStartCityLocation() : unknown);
+            String endCity = (trip.getLocationEnd().getEndCityLocation() != null ? trip.getLocationEnd().getEndCityLocation() : unknown);
+            String startCountry = (trip.getLocationStart().getStartLocation() != null ? trip.getLocationStart().getStartLocation() : unknown);;
+            String endCountry = (trip.getLocationEnd().getEndLocation() != null ? trip.getLocationEnd().getEndLocation() : unknown);
 
-            tripLocation.setText("VIN: " + trip.getVin());
+            tripAddress.setText(String.format("%s - %s",startStreet,endStreet));
 
-            //tripAddress.setText(trip.getLocationStart().getStartStreetLocation() + " - " + trip.getLocationEnd().getEndStreetLocation());
-
-            //tripLocation.setText(trip.getLocationStart().getStartCityLocation() + " - " + trip.getLocationEnd().getEndLocation());
+            try{
+                Date date = new Date(Long.valueOf(trip.getTimeStart())*1000);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm aa", Locale.CANADA);
+                tripDate.setText(simpleDateFormat.format(date));
+            }catch(NumberFormatException e){
+                e.printStackTrace();
+            }
 
         }
 
@@ -146,7 +158,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
             if (holder != null) {
 
                 holder.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                holder.tripLocation.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+                holder.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
                 holder.itemView.setBackgroundColor(Color.WHITE);
 
@@ -155,7 +167,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
         } else { // Set the selected row in the selected colors
 
             holder.tripAddress.setTextColor(Color.WHITE);
-            holder.tripLocation.setTextColor(Color.WHITE);
+            holder.tripDate.setTextColor(Color.WHITE);
             holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 

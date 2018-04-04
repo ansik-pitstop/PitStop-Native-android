@@ -21,13 +21,13 @@ import org.json.JSONObject
 
 
 /**
- * Car repository, use this class to modify, retrieve, and delete car data.
+ * Car repository, use this class to modify, retrieve, and markAsSent car data.
  * Updates data both remotely and locally.
  *
  * Created by Karol Zdebel on 5/26/2017.
  */
 
-class CarRepository(private val localCarStorage: LocalCarStorage
+open class CarRepository(private val localCarStorage: LocalCarStorage
                     , private val networkHelper: NetworkHelper
                     , private val carApi: PitstopCarApi) : Repository {
 
@@ -86,7 +86,8 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int
+                        , scannerId: String?, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
@@ -196,7 +197,7 @@ class CarRepository(private val localCarStorage: LocalCarStorage
         return Observable.concat(localResponse,remote.cache())
     }
 
-    operator fun get(id: Int): Observable<RepositoryResponse<Car>> {
+    fun get(id: Int): Observable<RepositoryResponse<Car>> {
         Log.d(tag,"get() id: $id")
         val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
         val remote = carApi.getCar(id)

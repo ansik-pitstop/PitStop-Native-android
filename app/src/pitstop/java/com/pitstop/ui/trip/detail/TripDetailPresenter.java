@@ -66,7 +66,7 @@ public class TripDetailPresenter extends TabPresenter<TripDetailView> {
             public void onTripRemoved() {
 
                 Log.d(TAG, "removeTripUseCase().onTripRemoved()");
-
+                if (getView() == null) return;
                 getView().onCloseView();
 
                 mParentListener.onTripRemoved();

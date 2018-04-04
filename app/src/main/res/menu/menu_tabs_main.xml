@@ -17,7 +17,7 @@
         android:icon="@drawable/ic_garage"
         android:title="Garage" />
     <item
-        android:id="@+id/action_notifications"
-        android:icon="@drawable/ic_notification"
+        android:id="@+id/action_trips"
+        android:icon="@drawable/route_2"
         android:title="@string/notifications" />
 </menu>

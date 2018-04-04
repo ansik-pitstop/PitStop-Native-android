@@ -1,26 +1,23 @@
 package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 
 import com.pitstop.R;
+import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
+import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
-import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 
 /**
  * Created by Matt on 2017-08-14.
@@ -37,28 +34,7 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
     private FragmentManager fragmentManager;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG,"serviceConnection.onServiceConnected()");
-            setAutoConnectService(((BluetoothAutoConnectService.BluetoothBinder)service)
-                    .getService());
-
-            bluetoothConnectionObservable = ((BluetoothAutoConnectService.BluetoothBinder)service)
-                    .getService();
-            checkPermissions();
-            healthReportProgressFragment.setBluetooth(bluetoothConnectionObservable);
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG,"serviceConnection.onServiceDisconnected()");
-            bluetoothConnectionObservable = null;
-        }
-    };
+    private BluetoothAutoConnectService bluetoothAutoConnectService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,13 +42,24 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_progress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
-                , serviceConnection, Context.BIND_AUTO_CREATE);
         fragmentManager = getSupportFragmentManager();
         presenter = new ReportPresenter(this);
         healthReportProgressFragment = new HealthReportProgressFragment();
         healthReportProgressFragment.setCallback(this);
         healthReportFragment = new HealthReportFragment();
+
+        ((GlobalApplication)getApplicationContext()).getServices()
+                .filter(next -> next instanceof BluetoothAutoConnectService)
+                .map(next -> (BluetoothAutoConnectService)next)
+                .subscribe(next -> {
+                    bluetoothConnectionObservable = next;
+                    bluetoothAutoConnectService = next;
+                    healthReportProgressFragment.setBluetooth(bluetoothConnectionObservable);
+                    checkPermissions();
+
+                }, error -> {
+
+                });
 
     }
 
@@ -85,28 +72,25 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
     @Override
     protected void onResume() {
         Log.d(TAG,"onResume()");
-        super.onResume();
-        bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
-                , serviceConnection, Context.BIND_AUTO_CREATE);
         presenter.subscribe(this);
+        super.onResume();
     }
 
     @Override
     protected void onDestroy() {
         Log.d(TAG,"onDestroy()");
         super.onDestroy();
-        unbindService(serviceConnection);
         presenter.unsubscribe();
     }
 
     @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        return autoConnectService;
+        return bluetoothAutoConnectService;
     }
 
     @Override
     public BluetoothWriter getBluetoothWriter() {
-        return autoConnectService;
+        return bluetoothAutoConnectService;
     }
 
     @Override

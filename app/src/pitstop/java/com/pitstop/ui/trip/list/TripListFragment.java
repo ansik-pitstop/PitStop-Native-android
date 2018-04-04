@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
@@ -33,6 +35,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
 /**
@@ -54,13 +57,16 @@ public class TripListFragment extends Fragment implements TripListView {
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
 
+    @BindView(R.id.trip_record_button)
+    protected Button tripRecordButton;
+
     private Context context;
     private boolean hasBeenPopulated = false;
     private TripListPresenter presenter;
 
     private List<Trip> mTripList = new ArrayList<>();
     private TripListAdapter tripListAdapter;
-
+    private TripActivityObservable tripActivityObservable;
     private AlertDialog unknownErrorDialog;
 
     private String apiKey;
@@ -143,6 +149,12 @@ public class TripListFragment extends Fragment implements TripListView {
         if (getParentFragment() instanceof TripsView) {
             presenter.setCommunicationInteractor(null);
         }
+    }
+
+    @Override
+    public int getSortType(){
+        Log.d(TAG,"getSortType()");
+        return sortSpinner.getSelectedItemPosition();
     }
 
     @Override
@@ -229,6 +241,19 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
+    public void toggleRecordingButton(boolean recording) {
+        Log.d(TAG,"toggleRecordingButton() recording: "+recording);
+        if (recording){
+            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
+            tripRecordButton.setText(R.string.stop_recording);
+        }else{
+            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
+            tripRecordButton.setText(R.string.begin_recording);
+        }
+
+    }
+
+    @Override
     public void showLoading() {
         Log.d(TAG, "showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
@@ -265,6 +290,18 @@ public class TripListFragment extends Fragment implements TripListView {
 
     }
 
+    public void onTripActivityObservableReady(TripActivityObservable tripActivityObservable){
+        Log.d(TAG,"onTripActivityObservableReady()");
+        this.tripActivityObservable = tripActivityObservable;
+        if (presenter != null) presenter.onTripActivityObservableReady(tripActivityObservable);
+    }
+
+    @Override
+    public TripActivityObservable getTripActivityObservable(){
+        Log.d(TAG,"getTripActivityObservable()");
+        return tripActivityObservable;
+    }
+
     public void requestForDataUpdate(boolean restartAdapterSelectedId) {
         Log.d(TAG, "isRefreshing()");
 
@@ -289,5 +326,11 @@ public class TripListFragment extends Fragment implements TripListView {
 
         presenter.sortTripListBy(listToSort, position);
 
+    }
+
+    @OnClick(R.id.trip_record_button)
+    public void onTripRecordClicked(){
+        Log.d(TAG,"onTripRecordClicked");
+        presenter.onTripRecordClicked();
     }
 }

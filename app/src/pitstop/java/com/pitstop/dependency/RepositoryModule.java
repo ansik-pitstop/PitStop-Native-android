@@ -1,9 +1,12 @@
 package com.pitstop.dependency;
 
+import android.location.Geocoder;
+
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDeviceTripStorage;
+import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalShopStorage;
@@ -30,6 +33,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.Observable;
 
 /**
  * Created by Karol Zdebel on 6/2/2017.
@@ -103,8 +107,12 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    TripRepository getTripRepository(LocalTripStorage localTripStorage, PitstopTripApi pitstopTripApi){
-        return new TripRepository(localTripStorage, pitstopTripApi);
+    TripRepository getTripRepository(PitstopTripApi pitstopTripApi
+            , LocalPendingTripStorage localPendingTripStorage, LocalTripStorage localTripStorage
+            ,GoogleSnapToRoadApi googleSnapToRoadApi, Geocoder geocoder
+            , Observable<Boolean> connectionObservable){
+        return new TripRepository(pitstopTripApi, localPendingTripStorage
+                , localTripStorage, googleSnapToRoadApi, geocoder, connectionObservable);
     }
 
     @Provides

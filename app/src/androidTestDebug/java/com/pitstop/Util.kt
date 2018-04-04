@@ -1,0 +1,103 @@
+package com.pitstop
+
+import android.location.Location
+import com.pitstop.models.trip_k.*
+import java.util.*
+
+/**
+ * Created by Karol Zdebel on 3/20/2018.
+ */
+class Util {
+    companion object {
+
+        val TAG = javaClass.simpleName
+
+
+        fun getRandomLocation(): Location {
+            val r = Random()
+            val location = Location("dummyprovider")
+            location.latitude = r.nextDouble() * 90
+            location.longitude = r.nextDouble() * 90
+            location.time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
+            return location
+        }
+
+        fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData{
+            val trip: MutableSet<LocationData> = hashSetOf()
+
+            for (i in 1..locNum){
+                val loc = getRandomLocation()
+                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
+            }
+
+            return TripData(trip.first().id,completed,inVin,trip)
+        }
+
+        //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
+        fun generateTripDataFormtted(locNum: Int, inVin: String, deviceTimestampIn: Long): Set<LocationDataFormatted>{
+
+            val trip = hashSetOf<Location>()
+            for (i in 1..locNum){
+                trip.add(getRandomLocation())
+            }
+
+            val tripDataPoints: MutableSet<LocationDataFormatted> = mutableSetOf()
+
+            val vin = DataPoint(DataPoint.ID_VIN, inVin)
+            val tripId = DataPoint(DataPoint.ID_TRIP_ID, trip.first().time.toString())
+            val deviceTimestamp = DataPoint(DataPoint.ID_DEVICE_TIMESTAMP, deviceTimestampIn.toString())
+            //Add everything but indicator, body of trip
+            trip.forEach({
+                val tripDataPoint: MutableSet<DataPoint> = mutableSetOf()
+                val latitude = DataPoint(DataPoint.ID_LATITUDE, it.latitude.toString())
+                val longitude = DataPoint(DataPoint.ID_LONGITUDE, it.longitude.toString())
+                val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR, "false")
+                tripDataPoint.add(latitude)
+                tripDataPoint.add(longitude)
+                tripDataPoint.add(deviceTimestamp)
+                tripDataPoint.add(tripId)
+                tripDataPoint.add(vin)
+                tripDataPoint.add(indicator)
+                tripDataPoints.add(LocationDataFormatted(it.time,tripDataPoint))
+            })
+
+            //Add indicator
+            val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
+            val startLocation = DataPoint(DataPoint.ID_START_LOCATION,"start location")
+            val endLocation = DataPoint(DataPoint.ID_END_LOCATION,"end location")
+            val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION,"start street location")
+            val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION,"end street location")
+            val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION,"start city location")
+            val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION,"end city location")
+            val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE,"88.8")
+            val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE,"78.9")
+            val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, "33.3")
+            val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, "22.8")
+            val mileageTrip = DataPoint(DataPoint.ID_MILEAGE_TRIP, "22.2") //Todo("Add mileage trip logic")
+            val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, trip.first().time.toString())
+            val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, trip.last().time.toString())
+            val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
+            indicatorDataPoint.add(startLocation)
+            indicatorDataPoint.add(endLocation)
+            indicatorDataPoint.add(startStreetLocation)
+            indicatorDataPoint.add(endStreetLocation)
+            indicatorDataPoint.add(startCityLocation)
+            indicatorDataPoint.add(endCityLocation)
+            indicatorDataPoint.add(startLatitude)
+            indicatorDataPoint.add(endLatitude)
+            indicatorDataPoint.add(startLongitude)
+            indicatorDataPoint.add(endLongitude)
+            indicatorDataPoint.add(mileageTrip)
+            indicatorDataPoint.add(startTimestamp)
+            indicatorDataPoint.add(endTimestamp)
+            indicatorDataPoint.add(indicator)
+            indicatorDataPoint.add(vin)
+            indicatorDataPoint.add(tripId)
+            indicatorDataPoint.add(deviceTimestamp)
+            tripDataPoints.add(LocationDataFormatted(trip.last().time*4,indicatorDataPoint))
+
+            return tripDataPoints
+        }
+
+    }
+}

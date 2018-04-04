@@ -214,6 +214,9 @@ public class Logger {
             case DebugMessage.TYPE_PRESENTER:
                 type = "presenter";
                 break;
+            case DebugMessage.TYPE_TRIP:
+                type = "trip";
+                break;
             default:
                 type = "other";
 

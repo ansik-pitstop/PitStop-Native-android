@@ -68,7 +68,7 @@ import com.pitstop.ui.my_trips.view_fragments.AddTrip;
 import com.pitstop.ui.my_trips.view_fragments.PrevTrip;
 import com.pitstop.ui.my_trips.view_fragments.TripHistory;
 import com.pitstop.ui.my_trips.view_fragments.TripView;
-import com.pitstop.ui.services.TripService;
+import com.pitstop.ui.services.ManualTripService;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -239,7 +239,7 @@ public class MyTripsActivity extends AppCompatActivity{
         loading = new ProgressDialog(MyTripsActivity.this);
         loading.setMessage(getString(R.string.show_loading_string));
         loading.hide();
-        boolean isServiceRunning = isMyServiceRunning(TripService.class);
+        boolean isServiceRunning = isMyServiceRunning(ManualTripService.class);
 
         supMapFragment = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_trip_map));
         supMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -247,7 +247,7 @@ public class MyTripsActivity extends AppCompatActivity{
             public void onMapReady(GoogleMap map) {
                 googleMap = map;
                 if(isServiceRunning) {
-                    Intent intent = new Intent(getApplicationContext(), TripService.class);
+                    Intent intent = new Intent(getApplicationContext(), ManualTripService.class);
                     stopService(intent);
                 }else{
                     setViewTripHistory();
@@ -309,7 +309,7 @@ public class MyTripsActivity extends AppCompatActivity{
     @Override
     protected void onRestart() {//get data from service
         super.onRestart();
-        Intent intent = new Intent(getApplicationContext(), TripService.class);
+        Intent intent = new Intent(getApplicationContext(), ManualTripService.class);
         stopService(intent);
     }
 
@@ -755,7 +755,7 @@ public class MyTripsActivity extends AppCompatActivity{
     }
     private void backGroundTrip(){
         if(tripStarted){
-            Intent serviceIntent = new Intent(getApplicationContext(),TripService.class);
+            Intent serviceIntent = new Intent(getApplicationContext(),ManualTripService.class);
             serviceIntent.putExtra("Trip",gson.toJson(trip));
             startService(serviceIntent);
         }

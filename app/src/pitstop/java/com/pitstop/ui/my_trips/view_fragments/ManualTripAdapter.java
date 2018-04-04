@@ -19,7 +19,7 @@ import java.util.List;
  * Created by Matthew on 2017-05-16.
  */
 
-public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolder>  {
+public class ManualTripAdapter extends RecyclerView.Adapter<ManualTripAdapter.TripsViewHolder>  {
 
     private final int VIEW_TYPE_EMPTY = 100;
     private final int VIEW_TYPE_CUSTOM = 101;
@@ -29,7 +29,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
     private TripHistory tripHistory;
     private DecimalFormat decimalFormat;
 
-    public TripAdapter(Context context, @NonNull List<Trip> trips, TripHistory mTripHistory) {
+    public ManualTripAdapter(Context context, @NonNull List<Trip> trips, TripHistory mTripHistory) {
         mTrips = trips;
         mContext = context;
         tripHistory = mTripHistory;
@@ -37,13 +37,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripsViewHolde
 
 
     @Override
-    public TripAdapter.TripsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ManualTripAdapter.TripsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         decimalFormat = new DecimalFormat("0.00");
-        return new TripAdapter.TripsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_trip, parent, false));
+        return new ManualTripAdapter.TripsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_manual_trip, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(TripAdapter.TripsViewHolder holder, final int position) {// do this last
+    public void onBindViewHolder(ManualTripAdapter.TripsViewHolder holder, final int position) {// do this last
         int viewType = getItemViewType(position);
 
         if (viewType == VIEW_TYPE_EMPTY) {

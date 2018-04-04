@@ -17,6 +17,7 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
     public static final int TYPE_USE_CASE = 4;
     public static final int TYPE_VIEW = 5;
     public static final int TYPE_PRESENTER = 6;
+    public static final int TYPE_TRIP = 7;
 
     public static final int LEVEL_V = 0;
     public static final int LEVEL_D = 1;
