@@ -182,7 +182,7 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 //        streetLocation.setText("Trip ID: " + trip.getTripId());
 //        countryLocation.setText("VIN: " + trip.getVin());
 
-        milesNum.setText(String.valueOf(trip.getMileageAccum()));
+        milesNum.setText(String.format("%.2f",trip.getMileageAccum()));
 
         // Calculate minutes using timestamps
         long totalTimestamp = Long.valueOf(trip.getTimeEnd()) - Long.valueOf(trip.getTimeStart());
