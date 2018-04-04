@@ -23,7 +23,7 @@ class TripUtils {
                         distFrom(it.location.latitude.toDouble()
                                 ,it.location.longitude.toDouble()
                                 ,next.latitude.toDouble()
-                                ,next.longitude.toDouble())
+                                ,next.longitude.toDouble())/1000
             }
         }
 
