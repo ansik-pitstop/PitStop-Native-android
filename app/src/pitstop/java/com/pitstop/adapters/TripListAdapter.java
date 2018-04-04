@@ -127,13 +127,21 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
         private void setRowText(Trip trip) {
 
             // Set Address and Location
-            tripAddress.setText("Trip ID: " + trip.getTripId());
+//            tripAddress.setText("Trip ID: " + trip.getTripId());
+//            tripLocation.setText("VIN: " + trip.getVin());
 
-            tripLocation.setText("VIN: " + trip.getVin());
+            String unknown = context.getResources().getString(R.string.unknown);
 
-            //tripAddress.setText(trip.getLocationStart().getStartStreetLocation() + " - " + trip.getLocationEnd().getEndStreetLocation());
+            String startStreet = (trip.getLocationStart().getStartStreetLocation() != null ? trip.getLocationStart().getStartStreetLocation() : unknown);
+            String endStreet = (trip.getLocationEnd().getEndStreetLocation() != null ? trip.getLocationEnd().getEndStreetLocation() : unknown);
+            String startCity = (trip.getLocationStart().getStartCityLocation() != null ? trip.getLocationStart().getStartCityLocation() : unknown);
+            String endCity = (trip.getLocationEnd().getEndCityLocation() != null ? trip.getLocationEnd().getEndCityLocation() : unknown);
+            String startCountry = (trip.getLocationStart().getStartLocation() != null ? trip.getLocationStart().getStartLocation() : unknown);;
+            String endCountry = (trip.getLocationEnd().getEndLocation() != null ? trip.getLocationEnd().getEndLocation() : unknown);
 
-            //tripLocation.setText(trip.getLocationStart().getStartCityLocation() + " - " + trip.getLocationEnd().getEndLocation());
+            tripAddress.setText(startStreet + " - " + endStreet);
+
+            tripLocation.setText(startCity + ", " + startCountry + " - " + endCity + ", " + endCountry);
 
         }
 
