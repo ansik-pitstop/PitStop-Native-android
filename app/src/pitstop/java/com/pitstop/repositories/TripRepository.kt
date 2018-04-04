@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.pitstop.application.Constants
 import com.pitstop.database.LocalPendingTripStorage
 import com.pitstop.database.LocalTripStorage
+import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.Trip
 import com.pitstop.models.trip_k.DataPoint
 import com.pitstop.models.trip_k.LocationDataFormatted
@@ -15,10 +16,13 @@ import com.pitstop.network.RequestError
 import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
+import com.pitstop.retrofit.SnapToRoadResponse
 import com.pitstop.utils.TripUtils
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 /**
  * Created by David C. on 9/3/18.
@@ -263,11 +267,16 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 locString += "${loc.latitude},${loc.longitude}"
                 if (it.locations.last().data != loc) locString += "|"
             })
-            val response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
-                    , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
-            val mileageTrip = if (!response.isSuccessful) {
+            lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
+            try{
+                response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
+                        , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
+            }catch(e: SocketTimeoutException){
+                e.printStackTrace()
                 return null
             }
+
+            val mileageTrip = if (!response.isSuccessful) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
             else DataPoint(DataPoint.ID_MILEAGE_TRIP
                     , TripUtils.Companion.getPolylineDistance(
                             response.body()?.snappedPoints ?: arrayListOf()).toString())
