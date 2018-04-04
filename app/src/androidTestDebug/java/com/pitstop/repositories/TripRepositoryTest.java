@@ -7,28 +7,36 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.pitstop.Util;
+import com.pitstop.application.Constants;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalTripStorage;
-import com.pitstop.models.trip_k.TripData;
 import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.models.trip_k.TripData;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.PitstopTripApi;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.Assert.assertNotNull;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -42,6 +50,7 @@ public class TripRepositoryTest {
     private final String TAG = TripRepositoryTest.class.getSimpleName();
 
     private TripRepository tripRepository;
+    private LocalTripStorage localTripStorage;
     private final String VIN = "1GB0CVCL7BF147611";
 
     @Before
@@ -50,7 +59,7 @@ public class TripRepositoryTest {
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopTripApi api = RetrofitTestUtil.Companion.getTripApi();
         LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
-        LocalTripStorage localTripStorage = new LocalTripStorage(context);
+        localTripStorage = new LocalTripStorage(context);
         tripRepository = new TripRepository(api,localPendingTripStorage,localTripStorage
                 , new Geocoder(context),Observable.just(true));
     }

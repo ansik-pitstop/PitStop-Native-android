@@ -66,7 +66,7 @@ public class EndTripUseCaseTest {
         for (int i=0;i<3;i++){
             Location randomLocation = Util.Companion.getRandomLocation();
             tripPending.add(new PendingLocation(randomLocation.getLongitude()
-                    ,randomLocation.getLatitude(),randomLocation.getTime()));
+                    ,randomLocation.getLatitude(),randomLocation.getTime()/1000));
             trip.add(randomLocation);
         }
 

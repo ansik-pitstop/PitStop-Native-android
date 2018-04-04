@@ -54,7 +54,7 @@ public class LocalPendingTripStorageTest {
         assertTrue(localPendingTripStorage.store(tripData) > 0);
         int rows = localPendingTripStorage.deleteIncomplete();
         Log.d(TAG,"deleteIncomplete() response: "+rows);
-        List<TripData> tripDataRetrieved = localPendingTripStorage.getCompletedUnsent();
+        List<TripData> tripDataRetrieved = localPendingTripStorage.getCompleted(false);
         Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
         assertEquals(tripDataRetrieved.size(),1);
         assertEquals(tripData,tripDataRetrieved.get(0));
@@ -72,7 +72,7 @@ public class LocalPendingTripStorageTest {
         }
 
         localPendingTripStorage.deleteIncomplete();
-        List<TripData> tripDataRetrieved = localPendingTripStorage.getCompletedUnsent();
+        List<TripData> tripDataRetrieved = localPendingTripStorage.getCompleted(false);
 
         Log.d(TAG,"tripDataRetrieved: "+gson.toJsonTree(tripDataRetrieved));
         Log.d(TAG,"tripDataStored: "+gson.toJsonTree(tripDataList));
@@ -107,17 +107,17 @@ public class LocalPendingTripStorageTest {
         localPendingTripStorage.store(tripData);
 
         //Make sure incomplete data is being removed
-        assertEquals(0,localPendingTripStorage.getCompletedUnsent().size());
+        assertEquals(0,localPendingTripStorage.getCompleted(false).size());
         assertNotEquals(localPendingTripStorage.completeAll(),0);
         assertEquals(0,localPendingTripStorage.deleteIncomplete());
-        assertEquals(1,localPendingTripStorage.getCompletedUnsent().size());
+        assertEquals(1,localPendingTripStorage.getCompleted(false).size());
 
         //Make sure completed data isn't being removed by deleteIncomplete()
         localPendingTripStorage.deleteAll();
         localPendingTripStorage.store(tripData);
         localPendingTripStorage.store(tripData2);
         assertTrue(localPendingTripStorage.deleteIncomplete() > 0);
-        List<TripData> retrieved = localPendingTripStorage.getCompletedUnsent();
+        List<TripData> retrieved = localPendingTripStorage.getCompleted(false);
         assertEquals(1,retrieved.size());
         assertEquals(retrieved.get(0),tripData2);
 

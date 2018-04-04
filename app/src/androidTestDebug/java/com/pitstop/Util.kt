@@ -27,7 +27,7 @@ class Util {
 
             for (i in 1..locNum){
                 val loc = getRandomLocation()
-                trip.add(LocationData(loc.time, PendingLocation(loc.longitude,loc.latitude,loc.time)))
+                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
             }
 
             return TripData(trip.first().id,completed,inVin,trip)
