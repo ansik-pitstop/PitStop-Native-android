@@ -84,8 +84,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void onTripEnd(@NotNull List<PendingLocation> trip) {
         Log.d(TAG,"onTripEnd()");
-        if (getView() != null)
+        if (getView() != null){
             onUpdateNeeded(getView().getSortType());
+            getView().toggleRecordingButton(false);
+        }
     }
 
     @Override

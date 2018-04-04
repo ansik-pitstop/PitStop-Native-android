@@ -302,9 +302,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val endLocation = DataPoint(DataPoint.ID_END_LOCATION
                     , if (endAddress == null) "null" else endAddress.getAddressLine(0))
             val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
-                    , if (startAddress == null) "null" else startAddress.getAddressLine(0))
+                    , if (startAddress == null || startAddress.thoroughfare == null) "null" else startAddress.thoroughfare)
             val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
-                    , if (endAddress == null) "null" else endAddress.getAddressLine(0))
+                    , if (endAddress == null || endAddress.thoroughfare == null) "null" else endAddress.thoroughfare)
             val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
                     , if (startAddress == null || startAddress.locality == null) "null" else startAddress.locality)
             val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
