@@ -154,28 +154,34 @@
         android:textSize="14sp"
         android:textStyle="normal" />
 
-    <Button
-        android:id="@+id/button_trip_detail_back"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+    <LinearLayout
         android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:background="@drawable/round_button_back"
-        android:elevation="10dp"
-        android:text="Back"
-        android:textColor="@color/white" />
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/button_trip_detail_delete"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="20dp"
-        android:background="@drawable/round_button_delete_trip"
-        android:elevation="10dp"
-        android:text="Delete"
-        android:textColor="@color/white" />
+        <Button
+            android:id="@+id/button_trip_detail_back"
+            android:text="Back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_alignParentBottom="true"
+            android:background="@color/facebook_blue"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/button_trip_detail_delete"
+            android:text="Delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/red"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
 
     <!--
     <RelativeLayout

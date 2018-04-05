@@ -12,7 +12,7 @@
 
         <LinearLayout
             android:id="@+id/trip_holder"
-            android:layout_above="@id/trip_record_button"
+            android:layout_above="@id/divider2"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -60,6 +60,13 @@
                 android:layout_height="match_parent" />
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_above="@+id/trip_record_button"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/white" />
 
         <Button
             android:id="@+id/trip_record_button"
