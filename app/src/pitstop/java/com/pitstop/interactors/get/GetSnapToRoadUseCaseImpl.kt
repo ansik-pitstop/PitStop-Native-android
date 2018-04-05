@@ -41,7 +41,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                 .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                 .subscribe({next ->
 
-                    Log.d(tag, "tripRepository.onNext() data: " + next)
+                    Log.d(tag, "snapToRoadRepository.onNext() data: " + next)
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(next.data.orEmpty())
 
                 }, { error ->
