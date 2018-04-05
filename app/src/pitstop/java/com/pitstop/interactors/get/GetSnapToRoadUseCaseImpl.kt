@@ -24,7 +24,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
     private var apiKey: String? = null
 
     override fun execute(listLatLng: String, interpolate: String, apiKey: String, callback: GetSnapToRoadUseCase.Callback) {
-        Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started listLatLng: $listLatLng", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.listLatLng = listLatLng
         this.interpolate = interpolate
