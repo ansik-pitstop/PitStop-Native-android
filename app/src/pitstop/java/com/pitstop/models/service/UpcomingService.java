@@ -18,7 +18,6 @@ public class UpcomingService implements Parcelable {
 
     private Issue realIssue;
 
-
     public String getDescription(){
         return realIssue.getDescription();
     }

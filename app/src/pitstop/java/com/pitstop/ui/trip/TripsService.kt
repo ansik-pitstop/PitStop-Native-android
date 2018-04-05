@@ -62,29 +62,17 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var tripStartThreshold = 70 //Confidence that starts trip
     private var tripEndThreshold = 80   //Confidence that ends trip
     private var tripTrigger = DetectedActivity.IN_VEHICLE   //Activity which triggers trip start
-    private var stillTimeoutTime = 600  //Time that a user can remain still in seconds before trip is ended
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
     private var stillTimerRunning = false //Whether timer is ticking
-
+    private var stillTimeoutTimer: TimeoutTimer
     private var currentTrip = arrayListOf<Location>()
-
-    private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime/1000,0) {
-        override fun onRetry() {
-        }
-
-        override fun onTimeout() {
-            Logger.getInstance()!!.logI(tag,"Still timer: Timeout",DebugMessage.TYPE_TRIP)
-            tripEnd()
-            stillTimerRunning = false
-        }
-
-    }
 
     init{
         tripInProgress = false
         observers = arrayListOf()
+        this.stillTimeoutTimer = getStillTimeoutTimer(60000)
     }
 
     inner class TripsBinder : Binder() {
@@ -109,14 +97,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
-        stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 50000)
+        val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 60000)
+        stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
-                ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeoutTime" +
+                ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeout" +
                 ", tripProg=$tripInProgress, timerRun=$stillTimerRunning}"
                 ,DebugMessage.TYPE_TRIP)
 
@@ -285,16 +274,17 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun getActivityTrigger(): Int = tripTrigger
 
     override fun getStillActivityTimeout(): Int {
-        return stillTimeoutTime
+        return sharedPreferences.getInt(STILL_TIMEOUT, 60000)
     }
 
     override fun setStillActivityTimeout(timeout: Int) {
-        stillTimeoutTime = timeout
+        stillTimeoutTimer = getStillTimeoutTimer(timeout)
         sharedPreferences.edit().putInt(STILL_TIMEOUT,timeout).apply()
     }
 
     override fun startTripManually(): Boolean {
-        Log.d(tag,"startTripManually()")
+        Logger.getInstance().logI(tag,"Attempting to start trip manually" +
+                ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress) false
         else{
             tripStart()
@@ -303,7 +293,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun endTripManually(): Boolean {
-        Log.d(tag,"endTripManually()")
+        Logger.getInstance().logI(tag,"Attempting to end trip manually" +
+                ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress){
             tripEnd()
             true
@@ -385,7 +376,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-
+            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
+                    " = ${TripUtils.activityToString(activity.type)}, confidence = " +
+                    "${activity.confidence}", DebugMessage.TYPE_TRIP)
             //skip ignored activities
             if (activity.type == DetectedActivity.TILTING
                     || activity.type == DetectedActivity.UNKNOWN)
@@ -402,27 +395,26 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                         , DebugMessage.TYPE_TRIP)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
+                    break //Don't allow trip end in same receival
                 }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
                     cancelStillTimer()
                 }
-                break //Don't allow trip end in same receival
                 //End trip if type of trigger is NOT ON_FOOT
             }else if (tripTrigger != DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.STILL
                     && activity.type != DetectedActivity.UNKNOWN){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    break
                 }
             //End trip if type of trigger IS ON_FOOT
             }else if (tripTrigger == DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    break
                 }
             }
-            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
-                    " = ${TripUtils.activityToString(activity.type)}, confidence = " +
-                    "${activity.confidence}", DebugMessage.TYPE_TRIP)
         }
     }
 
@@ -432,6 +424,20 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         builder.setSmallIcon(R.mipmap.ic_launcher)
         builder.setContentTitle(getString(R.string.app_name))
         NotificationManagerCompat.from(this).notify(0, builder.build())
+    }
+
+    private fun getStillTimeoutTimer(timeoutTime: Int): TimeoutTimer {
+        return object : TimeoutTimer(timeoutTime / 1000, 0) {
+            override fun onRetry() {
+            }
+
+            override fun onTimeout() {
+                Logger.getInstance()!!.logI(tag, "Still timer: Timeout, tripInProgress=$tripInProgress"
+                        , DebugMessage.TYPE_TRIP)
+                stillTimerRunning = false
+                tripEnd()
+            }
+        }
     }
 
     override fun onConnected(p0: Bundle?) {
