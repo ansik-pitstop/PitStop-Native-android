@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -55,6 +56,12 @@ public class TripsFragment extends Fragment implements TripsView {
     private TripDetailFragment tripDetailFragment;
 
     private AlertDialog unknownErrorDialog;
+
+    public void onTripActivityObservableReady(TripActivityObservable tripActivityObservable){
+        if (tripListFragment != null){
+            tripListFragment.onTripActivityObservableReady(tripActivityObservable);
+        }
+    }
 
     @Nullable
     @Override
@@ -194,11 +201,19 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void displayTripPolylineOnMap(PolylineOptions polylineOptions) {
+    public void displayTripPolylineOnMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
 
         if (mapView == null) return;
 
         mapView.addPolyline(polylineOptions);
+
+        if (startCoord != null) {
+            mapView.addMarker(startCoord.latitude, startCoord.longitude, "Start");
+        }
+
+        if (endCoord != null) {
+            mapView.addMarker(endCoord.latitude, endCoord.longitude, "End");
+        }
 
     }
 

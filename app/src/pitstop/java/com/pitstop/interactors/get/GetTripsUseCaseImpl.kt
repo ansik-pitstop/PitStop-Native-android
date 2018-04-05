@@ -58,11 +58,12 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
         userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
             override fun onSuccess(data: Settings?) {
                 Log.d(tag, "got settings with carId: ${data!!.carId}")
-                carRepository.get(data!!.carId)
+                carRepository.get(data.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation(), true)
                         .subscribe({ car ->
-                            Log.d(tag, "got car vin: ${car.data!!.vin}, isLocal = ${car.isLocal}")
+                            if (car.data == null) return@subscribe
+                            Log.d(tag, "got car vin: ${car.data.vin}, isLocal = ${car.isLocal}")
 
                             var whatToReturn: String
                             if (car.isLocal) {
@@ -71,7 +72,7 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                                 whatToReturn = Constants.TRIP_REQUEST_REMOTE
                             }
 
-                            tripRepository.getTripsByCarVin(car.data!!.vin, whatToReturn)
+                            tripRepository.getTripsByCarVin(car.data.vin, whatToReturn)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.computation(), true)
                                     .subscribe({ next ->

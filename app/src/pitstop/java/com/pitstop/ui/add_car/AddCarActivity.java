@@ -1,11 +1,7 @@
 package com.pitstop.ui.add_car;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -46,34 +42,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private boolean serviceBound = false;
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG,"onServiceConnected() name: "+name.toString());
-
-            //Set this for parent class which references auto connect service, this should be restructed later
-            setAutoConnectService(((BluetoothAutoConnectService.BluetoothBinder)service)
-                    .getService());
-
-            bluetoothConnectionObservable = ((BluetoothAutoConnectService.BluetoothBinder)service)
-                    .getService();
-            if (currentFragment == deviceSearchFragment)
-                deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
-
-            checkPermissions();
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG,"onServiceDisconnected() name: "+name.toString());
-            bluetoothConnectionObservable = null;
-            deviceSearchFragment.setBluetoothConnectionObservable(null);
-
-        }
-    };
+    private BluetoothAutoConnectService autoConnectService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,30 +51,32 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         Log.d(TAG,"onCreate()");
 
         setContentView(R.layout.activity_add_car);
-        bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
-                , serviceConnection, Context.BIND_AUTO_CREATE);
-        serviceBound = true;
         mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
 
         askHasDeviceFragment = AskHasDeviceFragment.getInstance();
         deviceSearchFragment = DeviceSearchFragment.getInstance();
         vinEntryFragment = VinEntryFragment.getInstance();
 
+        ((GlobalApplication)getApplicationContext()).getServices()
+                .filter(next -> next instanceof BluetoothAutoConnectService)
+                .map(next -> (BluetoothAutoConnectService) next)
+                .subscribe(next -> {
+                    autoConnectService = next;
+                    bluetoothConnectionObservable = next;
+                    if (currentFragment == deviceSearchFragment)
+                        deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
+                    checkPermissions();
+
+                }, err -> {
+
+                });
 
         setViewAskHasDevice();
     }
 
     @Override
     protected void onResume() {
-
         checkPermissions();
-
-        //Service may have been unbound in onStop(), so bring it back here
-        if (!serviceBound){
-            bindService(new Intent(getApplicationContext(), BluetoothAutoConnectService.class)
-                    , serviceConnection, Context.BIND_AUTO_CREATE);
-            serviceBound = true;
-        }
         super.onResume();
     }
 
@@ -225,15 +196,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         else{
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onStop() {
-        if (serviceBound){
-            unbindService(serviceConnection);
-            serviceBound = false;
-        }
-        super.onStop();
     }
 
     @Override

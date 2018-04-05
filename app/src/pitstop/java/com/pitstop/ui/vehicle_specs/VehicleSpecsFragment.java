@@ -422,7 +422,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                     .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
                     .setTitle("Delete Car")
                     .setView(dialogLayout)
-                    .setMessage("Are you sure you want to delete this car")
+                    .setMessage("Are you sure you want to markAsSent this car")
                     .setPositiveButton("Yes", (dialog, which)
                             -> presenter.deleteCar())
                     .setNegativeButton("No", (dialog, which) -> dialog.cancel())

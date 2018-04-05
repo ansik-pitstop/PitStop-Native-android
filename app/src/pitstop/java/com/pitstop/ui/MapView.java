@@ -73,6 +73,17 @@ public class MapView extends FrameLayout {
         }
     }
 
+    public void addMarker(double lat, double lon, String title) {
+        mapSubject.subscribe(googleMap -> {
+            LatLng position = new LatLng(lat, lon);
+            marker = new MarkerOptions()
+                    .position(position)
+                    .title(title);
+            googleMap.addMarker(marker);
+            //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, zoom));
+        });
+    }
+
     public void addMarker(double lat, double lon, String title, int zoom) {
         mapSubject.subscribe(googleMap -> {
             LatLng position = new LatLng(lat, lon);

@@ -2,6 +2,7 @@ package com.pitstop.ui.trip;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -26,7 +27,8 @@ import java.util.List;
  * Created by David C. on 10/3/18.
  */
 
-public class TripsPresenter extends TabPresenter<TripsView> implements TripListPresenter.OnListChildPresenterInteractorListener, TripDetailPresenter.OnDetailChildPresenterInteractorListener {
+public class TripsPresenter extends TabPresenter<TripsView> implements
+        TripListPresenter.OnListChildPresenterInteractorListener, TripDetailPresenter.OnDetailChildPresenterInteractorListener {
 
     private final String TAG = getClass().getSimpleName();
     public final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_TRIPS);
@@ -110,7 +112,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
         }
 
         // Convert LocationPolyline's to LatLng's String
-        String listLatLng = TripUtils.locationPolylineToLatLngString(trip.getLocationPolyline());
+        String listLatLng = TripUtils.Companion.locationPolylineToLatLngString(trip.getLocationPolyline());
 
         useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
             @Override
@@ -131,7 +133,16 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
 
-                sendPolylineToMap(TripUtils.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
+                LatLng startCoord = null, endCoord = null;
+                if (trip.getLocationStart() != null && trip.getLocationStart().getLatitude() != null && trip.getLocationStart().getLongitude() != null) {
+                    startCoord = new LatLng(Double.parseDouble(trip.getLocationStart().getLatitude()), Double.parseDouble(trip.getLocationStart().getLongitude()));
+                }
+
+                if (trip.getLocationEnd() != null && trip.getLocationEnd().getLatitude() != null && trip.getLocationEnd().getLongitude() != null) {
+                    endCoord = new LatLng(Double.parseDouble(trip.getLocationEnd().getLatitude()), Double.parseDouble(trip.getLocationEnd().getLongitude()));
+                }
+
+                sendPolylineToMap(startCoord, endCoord, TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
 
             }
         });
@@ -175,11 +186,11 @@ public class TripsPresenter extends TabPresenter<TripsView> implements TripListP
 
     }
 
-    private void sendPolylineToMap(PolylineOptions polylineOptions) {
+    private void sendPolylineToMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
 
         if (getView() == null || polylineOptions == null) return;
 
-        getView().displayTripPolylineOnMap(polylineOptions);
+        getView().displayTripPolylineOnMap(startCoord, endCoord, polylineOptions);
 
     }
 

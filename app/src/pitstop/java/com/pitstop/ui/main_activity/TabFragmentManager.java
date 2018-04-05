@@ -7,10 +7,10 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
-import com.pitstop.ui.Notifications.NotificationFragment;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.services.MainServicesView;
 import com.pitstop.ui.trip.TripsFragment;
+import com.pitstop.ui.trip.settings.TripSettingsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 import com.pitstop.utils.MixpanelHelper;
@@ -28,11 +28,11 @@ public class TabFragmentManager implements BadgeDisplayer{
 
     private final String TAG = getClass().getSimpleName();
 
-    public static final int TAB_SERVICES = 2;
-    public static final int TAB_SCAN = 1;
     public static final int TAB_VEHICLE_SPECS = 0;
-    public static final int TAB_NOTIF = 3;
-    public static final int TAB_TRIPS_LIST = 4;
+    public static final int TAB_SCAN = 1;
+    public static final int TAB_SERVICES = 2;
+    public static final int TAB_TRIPS_LIST = 3;
+    public static final int TAB_TRIP_SETTINGS = 4;
 
     public String[] TAB_NAMES;
 
@@ -52,26 +52,28 @@ public class TabFragmentManager implements BadgeDisplayer{
     private MainServicesFragment mainServicesFragment;
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
-    private NotificationFragment notificationFragment;
     private TripsFragment tripsFragment;
+    private TripSettingsFragment tripSettingsFragment;
 
     public TabFragmentManager(FragmentActivity activity, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
-            , NotificationFragment notificationFragment, TripsFragment tripsFragment, MixpanelHelper mixpanelHelper) {
+            , TripsFragment tripsFragment, TripSettingsFragment tripSettingsFragment
+            , MixpanelHelper mixpanelHelper) {
 
         mActivity = activity;
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
-        this.notificationFragment = notificationFragment;
         this.tripsFragment = tripsFragment;
+        this.tripSettingsFragment = tripSettingsFragment;
         mMixpanelHelper = mixpanelHelper;
         TAB_NAMES = new String[]{
                 mActivity.getApplicationContext().getString(R.string.my_garage),
                 mActivity.getApplicationContext().getString(R.string.scan),
                 mActivity.getApplicationContext().getString(R.string.services_nav_text),
-                mActivity.getApplicationContext().getString(R.string.notifications),
-                mActivity.getApplicationContext().getString(R.string.my_trips)
+                mActivity.getApplicationContext().getString(R.string.my_trips),
+                mActivity.getApplicationContext().getString(R.string.trip_settings)
+
         };
     }
 
@@ -83,7 +85,7 @@ public class TabFragmentManager implements BadgeDisplayer{
         ButterKnife.bind(this,mActivity);
         tabViewPagerAdapter
                 = new TabViewPagerAdapter(mActivity.getSupportFragmentManager(), mainServicesFragment
-                , startReportFragment, vehicleSpecsFragment, notificationFragment, tripsFragment, mActivity);
+                , startReportFragment, vehicleSpecsFragment,tripsFragment, tripSettingsFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
         mViewPager.setOffscreenPageLimit(5);
@@ -99,11 +101,11 @@ public class TabFragmentManager implements BadgeDisplayer{
                 case R.id.tab_scan:
                     mViewPager.setCurrentItem(TAB_SCAN);
                     break;
-                case R.id.tab_notifications:
-                    mViewPager.setCurrentItem(TAB_NOTIF);
-                    break;
                 case R.id.tab_trips:
                     mViewPager.setCurrentItem(TAB_TRIPS_LIST);
+                    break;
+                case R.id.tab_trip_settings:
+                    mViewPager.setCurrentItem(TAB_TRIP_SETTINGS);
                     break;
             }
         });
@@ -132,9 +134,6 @@ public class TabFragmentManager implements BadgeDisplayer{
                         break;
                     case TAB_VEHICLE_SPECS:
                         mMixpanelHelper.trackSwitchedToTab("Vehicle specs");
-                        break;
-                    case TAB_NOTIF:
-                        mMixpanelHelper.trackSwitchedToTab("Notifications");
                         break;
                     case TAB_TRIPS_LIST:
                         mMixpanelHelper.trackSwitchedToTab("Trips");
@@ -172,9 +171,11 @@ public class TabFragmentManager implements BadgeDisplayer{
                     case TAB_VEHICLE_SPECS:
                         bottomBar.selectTabWithId(R.id.tab_garage);
                         break;
-                    case TAB_NOTIF:
-                        bottomBar.selectTabWithId(R.id.tab_notifications);
+
+                    case TAB_TRIP_SETTINGS:
+                        bottomBar.selectTabWithId(R.id.tab_trip_settings);
                         break;
+
                     case TAB_TRIPS_LIST:
                         bottomBar.selectTabWithId(R.id.tab_trips);
                         break;
@@ -208,16 +209,6 @@ public class TabFragmentManager implements BadgeDisplayer{
             BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_services);
             if (count == 0) tab.removeBadge();
             else bottomBar.getTabWithId(R.id.tab_services).setBadgeCount(count);
-        }
-    }
-
-    @Override
-    public void displayNotificationsBadgeCount(int count) {
-        Log.d(TAG,"displayNotificationsBadgeCount() count: "+count);
-        if (bottomBar != null){
-            BottomBarTab tab = bottomBar.getTabWithId(R.id.tab_notifications);
-            if (count == 0) tab.removeBadge();
-            else bottomBar.getTabWithId(R.id.tab_notifications).setBadgeCount(count);
         }
     }
 }

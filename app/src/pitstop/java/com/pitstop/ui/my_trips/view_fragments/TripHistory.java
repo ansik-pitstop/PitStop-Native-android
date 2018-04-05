@@ -25,7 +25,7 @@ public class TripHistory extends Fragment {
     private FloatingActionButton addTripFab;
 
     private RecyclerView mTripsList;
-    private TripAdapter mTripAdapter;
+    private ManualTripAdapter mTripAdapter;
     private List<Trip> mTrips;
 
     private View rootView;
@@ -81,7 +81,7 @@ public class TripHistory extends Fragment {
         }else{
             revTrips = new ArrayList<>();
         }
-        mTripAdapter = new TripAdapter(getActivity().getApplicationContext(),revTrips,this);
+        mTripAdapter = new ManualTripAdapter(getActivity().getApplicationContext(),revTrips,this);
         mTripsList.setAdapter(mTripAdapter);
 
     }

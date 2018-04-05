@@ -1,7 +1,12 @@
 package com.pitstop.dependency;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Geocoder;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
@@ -17,10 +22,13 @@ import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Response;
@@ -142,6 +150,12 @@ public class NetworkModule {
 
     @Provides
     @Singleton
+    Geocoder geocoder(Context context){
+        return new Geocoder(context, Locale.getDefault());
+    }
+
+    @Provides
+    @Singleton
     PitstopSmoochApi pitstopSmoochApi(Context context){
         return new Retrofit.Builder()
                 .baseUrl(SecretUtils.getEndpointUrl(context))
@@ -175,5 +189,41 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(GoogleSnapToRoadApi.class);
+    }
+
+
+    private boolean receiverRegistered = false;
+    @Provides
+    @Singleton
+    Observable<Boolean> connectionObservable(Context context){
+        String TAG = "connectionObservable";
+        Log.d(TAG,"connectionObservable being created");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        return Observable.create(emitter -> {
+            Log.d(TAG,"subscribe() emitter");
+            BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context1, Intent intent) {
+                    try {
+                        Log.d(TAG,"Received broadcast!");
+                        ConnectivityManager conn = (ConnectivityManager)
+                                context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                        if (conn != null && conn.getActiveNetworkInfo() != null) {
+                            emitter.onNext(conn.getActiveNetworkInfo().isConnected());
+                        }
+                    }catch(Exception e){
+                        emitter.onError(e);
+                    }
+                }
+            };
+            if (!receiverRegistered){
+                Log.d(TAG,"registering receiver");
+                context.registerReceiver(broadcastReceiver,intentFilter);
+                receiverRegistered = true;
+            }
+        });
+
     }
 }
