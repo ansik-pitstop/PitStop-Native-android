@@ -113,14 +113,14 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
                 this.tripAddress.setTextColor(Color.WHITE);
                 this.tripDate.setTextColor(Color.WHITE);
-                this.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
+                this.tripInfoButton.setImageResource(R.drawable.ic_info_white);
                 this.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
             } else {
 
                 this.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 this.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                this.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
+                this.tripInfoButton.setImageResource(R.drawable.ic_info_black);
                 this.itemView.setBackgroundColor(Color.WHITE);
 
             }
@@ -159,7 +159,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
                 holder.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 holder.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
+                holder.tripInfoButton.setImageResource(R.drawable.ic_info_black);
                 holder.itemView.setBackgroundColor(Color.WHITE);
 
             }
@@ -168,7 +168,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
             holder.tripAddress.setTextColor(Color.WHITE);
             holder.tripDate.setTextColor(Color.WHITE);
-            holder.tripInfoButton.setImageResource(R.mipmap.ic_launcher);
+            holder.tripInfoButton.setImageResource(R.drawable.ic_info_white);
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
 
         }
