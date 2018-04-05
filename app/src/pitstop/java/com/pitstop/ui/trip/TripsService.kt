@@ -385,7 +385,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-
+            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
+                    " = ${TripUtils.activityToString(activity.type)}, confidence = " +
+                    "${activity.confidence}", DebugMessage.TYPE_TRIP)
             //skip ignored activities
             if (activity.type == DetectedActivity.TILTING
                     || activity.type == DetectedActivity.UNKNOWN)
@@ -422,9 +424,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     break
                 }
             }
-            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
-                    " = ${TripUtils.activityToString(activity.type)}, confidence = " +
-                    "${activity.confidence}", DebugMessage.TYPE_TRIP)
         }
     }
 
