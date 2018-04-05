@@ -24,7 +24,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
     private var apiKey: String? = null
 
     override fun execute(listLatLng: String, interpolate: String, apiKey: String, callback: GetSnapToRoadUseCase.Callback) {
-        Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started listLatLng: $listLatLng", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.listLatLng = listLatLng
         this.interpolate = interpolate
@@ -41,7 +41,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                 .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
                 .subscribe({next ->
 
-                    Log.d(tag, "tripRepository.onNext() data: " + next)
+                    Log.d(tag, "snapToRoadRepository.onNext() data: " + next)
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(next.data.orEmpty())
 
                 }, { error ->

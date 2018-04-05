@@ -43,4 +43,13 @@ public class SnappedPoint {
         this.placeId = placeId;
     }
 
+    @Override
+    public String toString(){
+        try{
+            return String.format("(%f,%f)",location.getLongitude(),location.getLatitude());
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
+
 }

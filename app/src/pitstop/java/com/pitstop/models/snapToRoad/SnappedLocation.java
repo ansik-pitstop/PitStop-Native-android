@@ -32,4 +32,13 @@ public class SnappedLocation {
         this.longitude = longitude;
     }
 
+    @Override
+    public String toString(){
+        try{
+            return String.format("(%f,%f)",latitude,longitude);
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
+
 }
