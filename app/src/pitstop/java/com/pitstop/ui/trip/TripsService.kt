@@ -113,7 +113,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
-        Logger.getInstance().logD(tag,"Trip settings: {locInterval" +
+        Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
                 ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeoutTime" +
@@ -311,12 +311,14 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     private fun cancelStillTimer(){
+        Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.cancel()
         stillTimerRunning = false
         sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
     private fun startStillTimer(){
+        Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.start()
         stillTimerRunning = true
         sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
@@ -391,17 +393,16 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             //Start timer if still to end trip on timeout
             else if (activity.type == DetectedActivity.STILL){
                 if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
-                    Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
                     startStillTimer()
                 }
             }
             //Trigger trip start, or resume trip from still state
             else if (activity.type == tripTrigger){
-                Log.d(tag,"trip trigger received, confidence: "+activity.confidence)
+                Logger.getInstance().logI(tag,"trip trigger received, confidence: "+activity.confidence
+                        , DebugMessage.TYPE_TRIP)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
                 }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
-                    Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
                     cancelStillTimer()
                 }
                 break //Don't allow trip end in same receival

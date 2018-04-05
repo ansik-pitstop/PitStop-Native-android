@@ -266,8 +266,8 @@ public class Logger {
     public void logV(String tag, String message, int type) {
         if(BuildConfig.DEBUG) {
             Log.v(tag, message);
-//            new LocalDebugMessageStorage(context).addMessage(
-//                    new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_V));
+            new LocalDebugMessageStorage(context).addMessage(
+                    new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_V));
         }
     }
 

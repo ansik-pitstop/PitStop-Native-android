@@ -43,7 +43,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_margin="20dp"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_info_black" />
 
     <View
         android:layout_width="match_parent"
