@@ -252,8 +252,6 @@
 
         <!-- smooch stuff -->
 
-        <service android:name="io.smooch.core.service.SmoochService" />
-
         <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
             <intent-filter>
                 <action android:name="com.pitstop.auto.MESSAGE_HEARD"/>
