@@ -2,6 +2,7 @@ package com.pitstop.ui.trip;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -132,7 +133,16 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
 
-                sendPolylineToMap(TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
+                LatLng startCoord = null, endCoord = null;
+                if (trip.getLocationStart() != null && trip.getLocationStart().getLatitude() != null && trip.getLocationStart().getLongitude() != null) {
+                    startCoord = new LatLng(Double.parseDouble(trip.getLocationStart().getLatitude()), Double.parseDouble(trip.getLocationStart().getLongitude()));
+                }
+
+                if (trip.getLocationEnd() != null && trip.getLocationEnd().getLatitude() != null && trip.getLocationEnd().getLongitude() != null) {
+                    endCoord = new LatLng(Double.parseDouble(trip.getLocationEnd().getLatitude()), Double.parseDouble(trip.getLocationEnd().getLongitude()));
+                }
+
+                sendPolylineToMap(startCoord, endCoord, TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
 
             }
         });
@@ -176,11 +186,11 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
 
     }
 
-    private void sendPolylineToMap(PolylineOptions polylineOptions) {
+    private void sendPolylineToMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
 
         if (getView() == null || polylineOptions == null) return;
 
-        getView().displayTripPolylineOnMap(polylineOptions);
+        getView().displayTripPolylineOnMap(startCoord, endCoord, polylineOptions);
 
     }
 
