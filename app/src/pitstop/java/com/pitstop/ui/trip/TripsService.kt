@@ -402,22 +402,24 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                         , DebugMessage.TYPE_TRIP)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
+                    break //Don't allow trip end in same receival
                 }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
                     cancelStillTimer()
                 }
-                break //Don't allow trip end in same receival
                 //End trip if type of trigger is NOT ON_FOOT
             }else if (tripTrigger != DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.STILL
                     && activity.type != DetectedActivity.UNKNOWN){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    break
                 }
             //End trip if type of trigger IS ON_FOOT
             }else if (tripTrigger == DetectedActivity.ON_FOOT
                     && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
                 if (tripInProgress && activity.confidence > tripEndThreshold){
                     tripEnd()
+                    break
                 }
             }
             Logger.getInstance()!!.logI(tag, "Activity detected activity" +
