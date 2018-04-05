@@ -62,7 +62,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var tripStartThreshold = 70 //Confidence that starts trip
     private var tripEndThreshold = 80   //Confidence that ends trip
     private var tripTrigger = DetectedActivity.IN_VEHICLE   //Activity which triggers trip start
-    private var stillTimeoutTime = 600  //Time that a user can remain still in seconds before trip is ended
+    private var stillTimeoutTime = 60000  //Time that a user can remain still in seconds before trip is ended
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
@@ -70,21 +70,24 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private var currentTrip = arrayListOf<Location>()
 
+    init{
+        tripInProgress = false
+        observers = arrayListOf()
+    }
+
     private val stillTimeoutTimer = object: TimeoutTimer(stillTimeoutTime/1000,0) {
         override fun onRetry() {
         }
 
         override fun onTimeout() {
-            Logger.getInstance()!!.logI(tag,"Still timer: Timeout",DebugMessage.TYPE_TRIP)
-            tripEnd()
+            Logger.getInstance()!!.logI(tag,"Still timer: Timeout, tripInProgress=$tripInProgress"
+                    ,DebugMessage.TYPE_TRIP)
             stillTimerRunning = false
+            if (tripInProgress){
+                tripEnd()
+            }
         }
 
-    }
-
-    init{
-        tripInProgress = false
-        observers = arrayListOf()
     }
 
     inner class TripsBinder : Binder() {
@@ -109,7 +112,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
-        stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 50000)
+        stillTimeoutTime = sharedPreferences.getInt(STILL_TIMEOUT, 60000)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
@@ -294,7 +297,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun startTripManually(): Boolean {
-        Log.d(tag,"startTripManually()")
+        Logger.getInstance().logI(tag,"Attempting to start trip manually" +
+                ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress) false
         else{
             tripStart()
@@ -303,7 +307,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun endTripManually(): Boolean {
-        Log.d(tag,"endTripManually()")
+        Logger.getInstance().logI(tag,"Attempting to end trip manually" +
+                ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress){
             tripEnd()
             true
