@@ -7,6 +7,8 @@ import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopSmoochApi
 import com.pitstop.utils.Logger
 import io.smooch.core.Smooch
+import java.io.IOException
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 
 /**
@@ -59,7 +61,10 @@ class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler
             }
         }catch(e: SocketTimeoutException){
             onError(RequestError.ERR_OFFLINE)
-            Handler().postDelayed(this,again)
+        }catch(e: IOException){
+            onError(RequestError.ERR_OFFLINE)
+        }catch(e: ConnectException){
+            onError(RequestError.ERR_OFFLINE)
         }
 
     }
@@ -67,6 +72,7 @@ class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler
     private fun onError(err: String){
         Logger.getInstance()!!.logI(tag, "Use case returned error: err=$err, trying again in ${again/1000} seconds"
                 , DebugMessage.TYPE_USE_CASE)
+        Handler().postDelayed(this,again)
         mainHandler.post({callback.onError(err)})
     }
 
