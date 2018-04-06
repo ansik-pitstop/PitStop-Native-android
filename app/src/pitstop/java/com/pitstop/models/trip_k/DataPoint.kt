@@ -6,7 +6,7 @@ package com.pitstop.models.trip_k
 data class DataPoint(val id: String, val data: String){
     companion object {
         const val ID_LATITUDE = "latitude"
-        const val ID_LONGITUDE = "longtitude"
+        const val ID_LONGITUDE = "longitude"
         const val ID_TRIP_INDICATOR = "tripIndicator"
         const val ID_DEVICE_TIMESTAMP = "deviceTimestamp"
         const val ID_TRIP_ID = "tripId"
