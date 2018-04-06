@@ -8,8 +8,6 @@ import com.pitstop.retrofit.PitstopSmoochApi
 import com.pitstop.utils.Logger
 import io.smooch.core.Smooch
 import java.io.IOException
-import java.net.ConnectException
-import java.net.SocketTimeoutException
 
 /**
  * Created by Karol Zdebel on 2/26/2018.
@@ -33,40 +31,35 @@ class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler
 
     override fun run() {
         Log.d(tag,"run()")
-        try{
+        try {
             val call = smoochApi.getSmoochToken(userId.toInt()).execute()
-            if (call.isSuccessful){
-                Log.d(tag,"call successful")
+            if (call.isSuccessful) {
+                Log.d(tag, "call successful")
                 val body = call.body()
-                if (body != null){
+                if (body != null) {
                     val smoochToken = body.get("smoochToken").asString
-                    Log.d(tag,"smooch token: "+smoochToken)
-                    if (smoochToken != null){
-                        Smooch.login(userId,smoochToken, {
-                            Log.d(tag,"login response err: "+it.error)
+                    Log.d(tag, "smooch token: " + smoochToken)
+                    if (smoochToken != null) {
+                        Smooch.login(userId, smoochToken, {
+                            Log.d(tag, "login response err: " + it.error)
                             if (it.error == null) onLogin()
                             else onError(it.error)
                         })
-                    }else{
-                        Log.d(tag,"err smooch token null")
+                    } else {
+                        Log.d(tag, "err smooch token null")
                         onError("err smooch token null")
                     }
-                }else{
-                    Log.d(tag,"err body null")
+                } else {
+                    Log.d(tag, "err body null")
                     onError("err body null")
                 }
-            }else{
-                Log.d(tag,"call unsuccessful")
+            } else {
+                Log.d(tag, "call unsuccessful")
                 onError(call.message())
             }
-        }catch(e: SocketTimeoutException){
-            onError(RequestError.ERR_OFFLINE)
         }catch(e: IOException){
             onError(RequestError.ERR_OFFLINE)
-        }catch(e: ConnectException){
-            onError(RequestError.ERR_OFFLINE)
         }
-
     }
 
     private fun onError(err: String){

@@ -22,7 +22,7 @@ import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
-import java.net.SocketTimeoutException;
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.inject.Singleton;
@@ -91,7 +91,7 @@ public class NetworkModule {
                              tokenResponse = pitstopAuthApi(context)
                                     .refreshAccessToken(jsonObject).execute();
                             Log.d(TAG,"tokenResponse: "+tokenResponse);
-                        }catch(SocketTimeoutException e){
+                        }catch(IOException e){
                             return response;
                         }
 
