@@ -1,11 +1,13 @@
 package com.pitstop.interactors.get;
 
 import android.content.Context;
+import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.pitstop.Util;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -19,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -51,14 +54,16 @@ public class GetSnapToRoadUseCaseTest {
     @Test
     public void getSnapToRoadUseCaseTest() {
 
-        String path = "43.6353078531508,-79.4072789233917|43.6353078531508,-79.4072789233917";
-        String apiKey = "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c";
-        String interpolate = "true";
+        List<Location> path = new ArrayList<>();
+
+        for (int i=0;i<10;i++){
+            path.add(Util.Companion.getRandomLocation());
+        }
 
         CompletableFuture<List<SnappedPoint>> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
 
-        useCaseComponent.getSnapToRoadUseCase().execute(path, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
+        useCaseComponent.getSnapToRoadUseCase().execute(path, new GetSnapToRoadUseCase.Callback() {
 
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {

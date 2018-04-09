@@ -1,5 +1,6 @@
 package com.pitstop.interactors.get
 
+import android.location.Location
 import com.pitstop.interactors.Interactor
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.network.RequestError
@@ -17,6 +18,6 @@ interface GetSnapToRoadUseCase : Interactor {
     }
 
     //Execute the use case
-    fun execute(listLatLng: String, interpolate: String, apiKey: String, callback: Callback)
+    fun execute(polylineList: List<Location>, callback: Callback)
 
 }

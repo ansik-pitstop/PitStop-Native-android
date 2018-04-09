@@ -11,12 +11,14 @@ import io.reactivex.Observable
 class SnapToRoadRepository(private val snapToRoadApi: GoogleSnapToRoadApi) : Repository {
 
     private val tag = javaClass.simpleName
+    private val key = "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c"
 
-    fun getSnapToRoadFromLocations(listLatLng: String, interpolate: String, apiKey: String): Observable<RepositoryResponse<List<SnappedPoint>>> {
+    fun getSnapToRoadFromLocations(listLatLng: String): Observable<RepositoryResponse<List<SnappedPoint>>> {
 
         Log.d(tag, "getSnapToRoadFromLocations() listLatLng: $listLatLng")
 
-        val remoteResponse: Observable<RepositoryResponse<List<SnappedPoint>>> = snapToRoadApi.getSnapToRoadFromLatLng(listLatLng, interpolate, apiKey).map { snappedPointListResponse ->
+        val remoteResponse: Observable<RepositoryResponse<List<SnappedPoint>>> = snapToRoadApi
+                .getSnapToRoadFromLatLng(listLatLng, "true", key).map { snappedPointListResponse ->
 
             return@map RepositoryResponse(snappedPointListResponse.snappedPoints, false)
 
