@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -54,11 +53,7 @@ public class GetSnapToRoadUseCaseTest {
     @Test
     public void getSnapToRoadUseCaseTest() {
 
-        List<Location> path = new ArrayList<>();
-
-        for (int i=0;i<10;i++){
-            path.add(Util.Companion.getRandomLocation());
-        }
+        List<Location> path = Util.Companion.getRandomRoute(220);
 
         CompletableFuture<List<SnappedPoint>> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
@@ -67,7 +62,7 @@ public class GetSnapToRoadUseCaseTest {
 
             @Override
             public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
-                Log.d(TAG, "GetSnapToRoadUseCaseTest onSnapToRoadRetrieved(): " + snappedPointList);
+                Log.d(TAG, "GetSnapToRoadUseCaseTest onSnapToRoadRetrieved() size: " + snappedPointList.size());
                 successFuture.complete((List<SnappedPoint>) snappedPointList);
                 errorFuture.complete(null);
             }
@@ -82,9 +77,11 @@ public class GetSnapToRoadUseCaseTest {
         });
 
         try {
-            if (connected)
-                Assert.assertNotNull(successFuture.get(5000, TimeUnit.MILLISECONDS));
-            else
+            if (connected) {
+                List<SnappedPoint> result = successFuture.get(5000, TimeUnit.MILLISECONDS);
+                Assert.assertNotNull(result);
+                Assert.assertTrue(path.size() <= result.size());
+            } else
                 Assert.assertTrue(errorFuture.get(5000, TimeUnit.MILLISECONDS)
                         .getError().equals(RequestError.ERR_OFFLINE));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {

@@ -10,7 +10,6 @@ import com.pitstop.network.RequestError
 import com.pitstop.repositories.SnapToRoadRepository
 import com.pitstop.utils.Logger
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -35,42 +34,48 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 
         Log.d(tag, "run()")
 
-        val index = 0
+        var index = 0
         val overlap = 10
-        var nextPartitionIndex = 100
+        var nextPartitionIndex = 99
         val listSizeLimit = 100
         var polylinePartition = arrayListOf<Location>()
         var observableList = arrayListOf<Observable<List<SnappedPoint>>>()
 
-        while (index < polylineList.size){
+        while (index <= polylineList.lastIndex){
             polylinePartition.add(polylineList[index])
 
-            if (index != 0 && index == nextPartitionIndex){
-                polylinePartition = arrayListOf()
-                index.minus(overlap)
+            if (index != 0 && (index == nextPartitionIndex || index == polylineList.lastIndex)){
+
+                if (index != polylineList.lastIndex){
+                    index = index.minus(overlap)
+                }
                 nextPartitionIndex = index + listSizeLimit
 
                 //send request
-                val latLngString: String = ""
-                polylineList.forEach({ loc ->
-                    latLngString.plus("${loc.latitude},${loc.longitude}")
-                    if (polylineList.last() != loc) latLngString.plus("|")
+                var latLngString = ""
+                polylinePartition.forEachIndexed({ index,loc->
+                    latLngString = latLngString.plus("${loc.latitude},${loc.longitude}")
+                    if (polylinePartition.lastIndex != index) latLngString = latLngString.plus("|")
                 })
+                polylinePartition = arrayListOf()
                 observableList.add(snapToRoadRepository.getSnapToRoadFromLocations(latLngString)
                         //Remove overlap points on all paritions other than first
                         .map {
-                            return@map if (!observableList.isEmpty())
+                            return@map if (observableList.size > 1)
                                 it.data!!.subList(overlap,it.data.lastIndex)
                             else it.data
                         })
-            }else{
-                index.inc()
             }
+            index = index.inc()
+
         }
 
-        Observable.concat(observableList)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.from(useCaseHandler.looper))
+        Observable.zip(observableList,{
+                    val snappedPoints = arrayListOf<SnappedPoint>()
+                    it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
+                    return@zip snappedPoints
+                }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe({
                     Log.d(tag, "snapToRoadRepository.onNext() data: " + it)
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(it)

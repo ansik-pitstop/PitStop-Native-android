@@ -13,6 +13,29 @@ class Util {
         val TAG = javaClass.simpleName
 
 
+        fun getRandomRoute(num: Int): List<Location> {
+
+            val route = arrayListOf<Location>()
+            var curLoc = Location("")
+            var prevLat = 52.2440835
+            var prevLng = 21.079464
+            curLoc.longitude = prevLng
+            curLoc.latitude = prevLat
+            route.add(curLoc)
+            val random = Random()
+            curLoc.time = System.currentTimeMillis()
+            for (i in 2..num){
+                curLoc = Location("")
+                val lng = prevLng + (random.nextDouble()*2-1)/1000
+                val lat = prevLat + (random.nextDouble()*2-1)/1000
+                curLoc.longitude = lng
+                curLoc.latitude = lat
+                curLoc.time = System.currentTimeMillis()
+                route.add(curLoc)
+            }
+            return route
+        }
+
         fun getRandomLocation(): Location {
             val r = Random()
             val location = Location("dummyprovider")
