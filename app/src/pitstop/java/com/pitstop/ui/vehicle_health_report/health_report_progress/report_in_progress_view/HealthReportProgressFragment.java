@@ -72,8 +72,10 @@ public class HealthReportProgressFragment extends Fragment implements HealthRepo
     }
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
+        Log.d(TAG,"setBluetooth()");
         this.bluetooth = bluetooth;
-        presenter.setBluetooth(bluetooth);
+        if (presenter != null)
+            presenter.setBluetooth(bluetooth);
     }
 
     @Override
@@ -98,6 +100,8 @@ public class HealthReportProgressFragment extends Fragment implements HealthRepo
         Log.d(TAG,"onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        if (bluetooth != null)
+            presenter.setBluetooth(bluetooth);
     }
 
     @Override

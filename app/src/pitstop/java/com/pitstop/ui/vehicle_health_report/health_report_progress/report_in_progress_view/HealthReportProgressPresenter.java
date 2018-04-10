@@ -34,6 +34,7 @@ public class HealthReportProgressPresenter {
     private EmissionsReport emissionsReport;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private VHRMacroUseCase vhrMacroUseCase;
+    private boolean started = false;
 
     public HealthReportProgressPresenter(ReportCallback callback, UseCaseComponent component
             , MixpanelHelper mixpanelHelper){
@@ -48,16 +49,19 @@ public class HealthReportProgressPresenter {
 
     public void unsubscribe(){
         this.view = null;
+        started = false;
     }
 
     private void start(){
         Log.d(TAG,"start()");
-        if(view == null || callback == null){return;}
+        if(view == null || callback == null || started){return;}
         vhrMacroUseCase.start();
+        started = true;
     }
 
     public void setBluetooth(BluetoothConnectionObservable bluetooth){
-       vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
+       Log.d(TAG,"setBluetooth() bluetooth: "+bluetooth);
+        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
 
            @Override
            public void onStartGeneratingReport() {
