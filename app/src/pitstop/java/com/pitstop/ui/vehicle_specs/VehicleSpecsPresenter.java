@@ -408,12 +408,6 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         alarmObservable.subscribe(this);
     }
 
-    public void onMyTripsButtonClicked() {
-        Log.d(TAG, "onMyTripsButtonClicked()");
-        if (getView() != null)
-            getView().startMyTripsActivity();
-    }
-
     public void onAddCarClicked() {
         Log.d(TAG, "onAddCarClicked()");
         getView().startAddCarActivity();

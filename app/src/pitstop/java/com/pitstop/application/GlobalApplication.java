@@ -41,7 +41,6 @@ import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
-import com.pitstop.database.OldLocalTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -84,7 +83,6 @@ public class GlobalApplication extends Application {
     private LocalCarStorage mLocalCarStorage;
     private LocalCarIssueStorage mLocalCarIssueStorage;
     private LocalAppointmentStorage mLocalAppointmentStorage;
-    private OldLocalTripStorage mOldLocalTripStorage;
     private LocalPidStorage mLocalPidStorage;
     private LocalShopStorage mLocalShopStorage;
     private LocalDeviceTripStorage mLocalDeviceTripStorage;
@@ -461,7 +459,6 @@ public class GlobalApplication extends Application {
         mLocalScannerStorage = new LocalScannerStorage(this);
         mLocalCarStorage = new LocalCarStorage(this);
         mLocalAppointmentStorage = new LocalAppointmentStorage(this);
-        mOldLocalTripStorage = new OldLocalTripStorage(this);
         mLocalCarIssueStorage = new LocalCarIssueStorage(this);
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
@@ -483,7 +480,6 @@ public class GlobalApplication extends Application {
         mLocalPidStorage.deleteAllRows();
         mLocalCarStorage.deleteAllRows();
         mLocalAppointmentStorage.deleteAllRows();
-        mOldLocalTripStorage.deleteAllRows();
         mLocalCarIssueStorage.deleteAllRows();
         mLocalShopStorage.removeAllDealerships();
         mLocalDeviceTripStorage.deleteAllRows();
