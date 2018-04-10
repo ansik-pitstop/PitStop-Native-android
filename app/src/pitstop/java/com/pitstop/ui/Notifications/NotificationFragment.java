@@ -82,7 +82,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-        View view = inflater.inflate(R.layout.activity_notifications, null);
+        View view = inflater.inflate(R.layout.fragment_notification, null);
         ButterKnife.bind(this,view);
 
         tabSwitcher = (TabSwitcher)getActivity();

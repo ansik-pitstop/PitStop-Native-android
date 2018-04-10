@@ -48,6 +48,7 @@ import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
+import com.pitstop.ui.Notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -97,6 +98,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var findDirectionsBtn: View? = null
     private var contactView: View? = null
     private var appointmentsView: View? = null
+    private lateinit var notificationsButton: View
     private var progressView: View? = null
     private var textAboveCars: LinearLayout? = null
     private var drawerRefreshLayout: SwipeRefreshLayout? = null
@@ -275,6 +277,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             Log.d(TAG, "addCarButtonClicked()")
             presenter?.onAddCarClicked()
         }
+
+        notificationsButton = findViewById(R.id.news)
+        notificationsButton.setOnClickListener({
+            this.presenter?.onNotificationsClicked()
+        })
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
             Log.d(TAG, "MyAppointmentsClicked()")
@@ -876,6 +883,15 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         } else {
             drawerRefreshLayout?.isRefreshing = false
         }
+    }
+
+    override fun openNotifications() {
+        Log.d(TAG,"openNotifications()")
+        mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
+        showLoading("Loading...")
+        val intent = Intent(this, NotificationsActivity::class.java)
+        startActivity(intent)
+        hideLoading()
     }
 
     override fun openAppointments() {
