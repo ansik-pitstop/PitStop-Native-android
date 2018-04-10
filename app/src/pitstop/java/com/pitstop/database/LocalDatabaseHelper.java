@@ -43,7 +43,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalCarStorage.CREATE_TABLE_CAR);
         db.execSQL(LocalCarIssueStorage.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalAppointmentStorage.CREATE_TABLE_APPOINTMENT);
-        db.execSQL(OldLocalTripStorage.CREATE_TABLE_APPOINTMENT);
         db.execSQL(LocalShopStorage.CREATE_TABLE_DEALERSHIP);
         db.execSQL(LocalParseNotificationStorage.CREATE_TABLE_NOTIFICATION);
         db.execSQL(LocalUserStorage.CREATE_TABLE_USER);

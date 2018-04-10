@@ -52,7 +52,6 @@ import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
-import com.pitstop.ui.my_trips.MyTripsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
@@ -723,13 +722,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
         })
 
-    }
-
-    fun myTrips(car: Car) {
-        val thisInstance: MainActivity = this
-        val intent: Intent = Intent(thisInstance, MyTripsActivity::class.java)
-        intent.putExtra(MainActivity.CAR_EXTRA, car)
-        startActivity(intent)
     }
 
     override fun startDisplayIssueActivity(issues: List<CarIssue>, position: Int) {

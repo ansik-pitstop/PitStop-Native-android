@@ -34,7 +34,6 @@ public interface VehicleSpecsView {
     void openAlarmsActivity();
     void hideBadge();
     void showBadges(int alarmCount);
-    void startMyTripsActivity();
     void startAddCarActivity();
     void showPairScannerDialog();
     void showScannerAlreadyActiveDialog();

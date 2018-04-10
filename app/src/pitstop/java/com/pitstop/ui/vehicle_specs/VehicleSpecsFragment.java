@@ -354,16 +354,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void startMyTripsActivity() {
-        Log.d(TAG, "startMyTripsActivity()");
-        if (presenter.getCar() == null) {
-            displayOfflineErrorDialog();
-            return;
-        }
-        ((MainActivity) getActivity()).myTrips(presenter.getCar());
-    }
-
     public void showNormalLayout() {
         Log.d(TAG, "showNormalLayout()");
         vinIcon.setImageResource(R.drawable.vin_2x);
@@ -404,13 +394,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
     }
-
-    @OnClick(R.id.my_trips_row)
-    protected void onMyTripsButtonClicked() {
-        Log.d(TAG, "onMyTripsButtonClicked()");
-        presenter.onMyTripsButtonClicked();
-    }
-
 
     @OnClick(R.id.delete_car)
     public void onDeleteCarClicked() {
