@@ -13,7 +13,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
- * Created by David C. on 16/3/18.
+ * Created by David C. and Karol Zdebel on 16/3/18.
  */
 class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepository,
                                private val useCaseHandler: Handler,
