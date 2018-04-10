@@ -52,13 +52,14 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
                 .filter(next -> next instanceof BluetoothAutoConnectService)
                 .map(next -> (BluetoothAutoConnectService)next)
                 .subscribe(next -> {
+                    Log.d(TAG,"getServices.onNext()");
                     bluetoothConnectionObservable = next;
                     bluetoothAutoConnectService = next;
                     healthReportProgressFragment.setBluetooth(bluetoothConnectionObservable);
                     checkPermissions();
 
                 }, error -> {
-
+                    Log.d(TAG,"getServices.onError() err"+error);
                 });
 
     }
