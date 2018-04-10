@@ -259,7 +259,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
         val allTripData = hashSetOf<Set<LocationDataFormatted>>()
 
         //Go through each trip
-        tripData.forEach({
+        tripData.forEach{
 
             //calculate mileage
             var locString = ""
@@ -294,7 +294,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 Log.d(tag,"startAddress: $startAddress, endAddress: $endAddress")
             }catch (e: IOException){
                 e.printStackTrace()
-                return null
+                //Go to next trip if geocoder unavailable
+                return@forEach
             }
 
             //Get car and device info
@@ -370,7 +371,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
             locationDataSet.add(LocationDataFormatted(it.locations.first().data.time*4,indicatorDataPoint))
 
             allTripData.add(locationDataSet)
-        })
+        }
 
         return allTripData
     }

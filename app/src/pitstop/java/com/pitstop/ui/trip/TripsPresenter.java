@@ -111,41 +111,40 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
             return;
         }
 
-        // Convert LocationPolyline's to LatLng's String
-        String listLatLng = TripUtils.Companion.locationPolylineToLatLngString(trip.getLocationPolyline());
+        useCaseComponent.getSnapToRoadUseCase().execute(TripUtils.Companion.polylineToLocationList(
+                trip.getLocationPolyline())
+                , new GetSnapToRoadUseCase.Callback() {
+                    @Override
+                    public void onError(@NotNull RequestError error) {
 
-        useCaseComponent.getSnapToRoadUseCase().execute(listLatLng, interpolate, apiKey, new GetSnapToRoadUseCase.Callback() {
-            @Override
-            public void onError(@NotNull RequestError error) {
+                        updating = false;
+                        if (getView() == null) return;
 
-                updating = false;
-                if (getView() == null) return;
+                        if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+                            getView().displayOfflineErrorDialog();
+                        } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
+                            getView().displayUnknownErrorDialog();
+                        }
+                        getView().hideLoading();
 
-                if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                    getView().displayOfflineErrorDialog();
-                } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
-                    getView().displayUnknownErrorDialog();
-                }
-                getView().hideLoading();
+                    }
 
-            }
+                    @Override
+                    public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
 
-            @Override
-            public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
+                        LatLng startCoord = null, endCoord = null;
+                        if (trip.getLocationStart() != null && trip.getLocationStart().getLatitude() != null && trip.getLocationStart().getLongitude() != null) {
+                            startCoord = new LatLng(Double.parseDouble(trip.getLocationStart().getLatitude()), Double.parseDouble(trip.getLocationStart().getLongitude()));
+                        }
 
-                LatLng startCoord = null, endCoord = null;
-                if (trip.getLocationStart() != null && trip.getLocationStart().getLatitude() != null && trip.getLocationStart().getLongitude() != null) {
-                    startCoord = new LatLng(Double.parseDouble(trip.getLocationStart().getLatitude()), Double.parseDouble(trip.getLocationStart().getLongitude()));
-                }
+                        if (trip.getLocationEnd() != null && trip.getLocationEnd().getLatitude() != null && trip.getLocationEnd().getLongitude() != null) {
+                            endCoord = new LatLng(Double.parseDouble(trip.getLocationEnd().getLatitude()), Double.parseDouble(trip.getLocationEnd().getLongitude()));
+                        }
 
-                if (trip.getLocationEnd() != null && trip.getLocationEnd().getLatitude() != null && trip.getLocationEnd().getLongitude() != null) {
-                    endCoord = new LatLng(Double.parseDouble(trip.getLocationEnd().getLatitude()), Double.parseDouble(trip.getLocationEnd().getLongitude()));
-                }
+                        sendPolylineToMap(startCoord, endCoord, TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
 
-                sendPolylineToMap(startCoord, endCoord, TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
-
-            }
-        });
+                    }
+                });
 
     }
 

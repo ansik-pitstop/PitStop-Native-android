@@ -49,11 +49,8 @@ public class SnapToRoadRepositoryTest {
         CompletableFuture<List<SnappedPoint>> future = new CompletableFuture<>();
 
         String latLngList = "43.6194466400637,-79.5550531196223|43.6194466400637,-79.5550531196223|43.6194466400637,-79.5550531196223|43.6190741183642,-79.5537706185873|43.6190741183642,-79.5485321805622";
-//        String path = "43.6353078531508,-79.4072789233917|43.6353078531508,-79.4072789233917";
-        String apiKey = "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c";
-        String interpolate = "true";
 
-        snapToRoadRepository.getSnapToRoadFromLocations(latLngList, interpolate, apiKey)
+        snapToRoadRepository.getSnapToRoadFromLocations(latLngList)
                 .doOnNext(next -> {
 
                     Log.i(TAG, "Got appointments: " + next);
