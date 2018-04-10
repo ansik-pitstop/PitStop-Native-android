@@ -462,7 +462,17 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         } else if (requestCode == RC_REQUEST_SERVICE
                 && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
             mainServicesFragment.onServiceRequested();
-        }else{
+        }else if (requestCode == RC_NOTIFICATIONS){
+            if (resultCode == NotificationsActivity.GO_TO_SCAN){
+                openScanTab()
+            }else if (resultCode == NotificationsActivity.GO_TO_APPOINTMENTS){
+                openAppointments()
+            }
+            else if (resultCode == NotificationsActivity.GO_TO_SERVICES){
+                openCurrentServices()
+            }
+        }
+        else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
     }
@@ -890,7 +900,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
         showLoading("Loading...")
         val intent = Intent(this, NotificationsActivity::class.java)
-        startActivity(intent)
+        startActivityForResult(intent, RC_NOTIFICATIONS)
         hideLoading()
     }
 
@@ -926,6 +936,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         const val RC_SETTINGS = 52
         const val RC_ADD_CUSTOM_ISSUE = 54
         const val RC_REQUEST_SERVICE = 55
+        const val RC_NOTIFICATIONS = 56
         val FROM_NOTIF = "from_notfftfttfttf"
 
         val RC_ENABLE_BT = 102
