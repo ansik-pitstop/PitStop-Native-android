@@ -22,6 +22,7 @@ import com.pitstop.retrofit.Token;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.inject.Singleton;
@@ -85,9 +86,15 @@ public class NetworkModule {
 
                         JsonObject jsonObject = new JsonObject();
                         jsonObject.addProperty("refreshToken",application.getRefreshToken());
-                        Response<Token> tokenResponse = pitstopAuthApi(context)
-                                .refreshAccessToken(jsonObject).execute();
-                        Log.d(TAG,"tokenResponse: "+tokenResponse);
+                        Response<Token> tokenResponse;
+                        try{
+                             tokenResponse = pitstopAuthApi(context)
+                                    .refreshAccessToken(jsonObject).execute();
+                            Log.d(TAG,"tokenResponse: "+tokenResponse);
+                        }catch(IOException e){
+                            return response;
+                        }
+
                         if (tokenResponse.isSuccessful()){
                             String token = tokenResponse.body().getAccessToken();
                             Log.d(TAG,"received new token: "+token);

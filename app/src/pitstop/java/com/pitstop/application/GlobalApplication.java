@@ -143,13 +143,13 @@ public class GlobalApplication extends Application {
         Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
 
         Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
-       // settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(this)).build();
-        if (getCurrentUser() != null){
-            Smooch.init(this, smoochSettings, response -> {
-                Log.d(TAG,"Smooch: init response: "+response.getError());
+        Smooch.init(this, smoochSettings, response -> {
+            Log.d(TAG,"Smooch: init response: "+response.getError());
+            if (getCurrentUser() != null)
                 useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
                     @Override
                     public void onError(@NotNull String err) {
@@ -160,8 +160,7 @@ public class GlobalApplication extends Application {
                         Log.d(TAG,"Smooch: Logged into smooch successfully");
                     }
                 });
-            });
-        }
+        });
 
         // Parse
         ParseObject.registerSubclass(Notification.class);

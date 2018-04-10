@@ -1,6 +1,7 @@
 package com.pitstop.utils
 
 import android.graphics.Color
+import android.location.Location
 import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationRequest
@@ -15,6 +16,21 @@ import com.pitstop.models.trip.LocationPolyline
 class TripUtils {
 
     companion object {
+
+        fun polylineToLocationList(polyline: List<LocationPolyline>): List<Location>{
+            val locList = arrayListOf<Location>()
+            polyline.forEach({
+                val time = it.timestamp.toLong() * 1000
+                val lat = getLatitudeValue(it)
+                val lng = getLongitudeValue(it)
+                val loc = Location("")
+                loc.time = time
+                loc.latitude = lat
+                loc.longitude = lng
+                locList.add(loc)
+            })
+            return locList
+        }
 
         fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
