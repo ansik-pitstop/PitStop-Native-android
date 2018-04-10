@@ -291,54 +291,8 @@
                             android:src="@drawable/right_chevron" />
 
                     </RelativeLayout>
-                    <!-- My Trips row-->
 
                     <include layout="@layout/divider" />
-
-                    <RelativeLayout
-                        android:id="@+id/my_trips_row"
-                        android:background="@color/white"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/trips_icon"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_marginRight="10dp"
-                            android:src="@drawable/route_2"
-                            android:layout_centerVertical="true"/>
-
-                        <TextView
-                            style="@style/vehicle_specs_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentTop="true"
-                            android:layout_gravity="center"
-                            android:layout_toEndOf="@+id/trips_icon"
-                            android:layout_centerVertical="true"
-                            android:text="@string/my_trips"
-                            android:textStyle="bold" />
-
-
-                        <ImageView
-                            android:layout_alignParentRight="true"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:tint="@color/dark_grey"
-                            android:src="@drawable/right_chevron" />
-
-                    </RelativeLayout>
-
-
-                    <include layout="@layout/divider" />
-
-                    <!-- My trips row-->
 
                     <TextView
                         android:paddingLeft="15dp"

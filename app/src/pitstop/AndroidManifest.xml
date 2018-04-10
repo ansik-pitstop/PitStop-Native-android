@@ -98,11 +98,6 @@
 
         <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
 
-        <!-- activities -->
-
-        <!--meta-data android:name="com.google.android.gms.car.application"
-            android:resource="@xml/android_auto" /-->
-
         <activity
             android:name=".ui.main_activity.MainActivity"
             android:label="@string/app_name"
@@ -194,18 +189,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
-        <activity android:name=".ui.my_trips.MyTripsActivity"
-            android:label="My Trips"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-        <service android:name=".ui.services.ManualTripService"/>
-
         <activity android:name=".ui.custom_shops.CustomShopActivity"
             android:label="Choose Shop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
-
-
 
         <receiver android:name=".utils.GcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -226,7 +213,6 @@
         </receiver>
 
         <!-- Parse push notification stuff -->
-
         <service android:name="com.parse.PushService" />
 
 
@@ -249,23 +235,6 @@
                 <category android:name="com.ansik.pitstop" />
             </intent-filter>
         </receiver>
-
-        <!-- smooch stuff -->
-
-        <!--receiver android:name=".auto.AndroidAutoHeardReceiver">
-            <intent-filter>
-                <action android:name="com.pitstop.auto.MESSAGE_HEARD"/>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </receiver-->
-
-        <!--receiver android:name=".auto.AndroidAutoReplyReceiver">
-            <intent-filter>
-                <action android:name="com.pitstop.auto.MESSAGE_REPLY"/>
-            </intent-filter>
-        </receiver-->
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
@@ -298,14 +267,11 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".ui.main_activity.MainActivity"/>
 
-
         <activity
             android:name=".ui.upcoming_timeline.TimelineActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="Upcoming Services"
-            android:parentActivityName=".ui.main_activity.MainActivity"
-            />
-
+            android:parentActivityName=".ui.main_activity.MainActivity" />
 
     </application>
 
