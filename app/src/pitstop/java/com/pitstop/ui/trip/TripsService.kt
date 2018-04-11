@@ -217,18 +217,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"setLocationUpdatePriority() priority: $priority")
         if (!googleApiClient.isConnected) return false
         else{
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
-            val locationRequest = LocationRequest()
-            locationRequest.interval = locationUpdateInterval
-            locationRequest.priority = priority
-            try{
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-            }catch(e: SecurityException){
-                e.printStackTrace()
-                Logger.getInstance().logE(tag,"Failed to request location updates due to SecurityException"
-                        ,DebugMessage.TYPE_TRIP)
-                return false
-            }
+            beginTrackingLocationUpdates(locationUpdateInterval,priority)
             locationUpdatePriority = priority
             sharedPreferences.edit().putInt(LOCATION_UPDATE_PRIORITY,locationUpdatePriority).apply()
             return true
