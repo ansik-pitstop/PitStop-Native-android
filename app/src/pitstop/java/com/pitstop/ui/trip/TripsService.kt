@@ -225,6 +225,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
             }catch(e: SecurityException){
                 e.printStackTrace()
+                Logger.getInstance().logE(tag,"Failed to request location updates due to SecurityException"
+                        ,DebugMessage.TYPE_TRIP)
                 return false
             }
             locationUpdatePriority = priority
