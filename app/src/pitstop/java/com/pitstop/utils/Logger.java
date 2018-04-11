@@ -273,7 +273,7 @@ public class Logger {
     }
 
     public void logD(String tag, String message, int type) {
-        if(BuildConfig.DEBUG) {
+        if(BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
             Log.d(tag, message);
             DebugMessage debugMessage = new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_D);
             localDebugMessageStorage.addMessage(debugMessage);
