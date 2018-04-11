@@ -139,13 +139,11 @@ public class GlobalApplication extends Application {
         // Smooch
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
-
-        Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(this)).build();
-        Smooch.init(this, smoochSettings, response -> {
+        Smooch.init(this, settings, response -> {
             Log.d(TAG,"Smooch: init response: "+response.getError());
             if (getCurrentUser() != null)
                 useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
@@ -328,6 +326,7 @@ public class GlobalApplication extends Application {
     public void logInUser(String accessToken, String refreshToken, User currentUser) {
 
         Log.d(TAG, "logInUser() user: " + currentUser);
+        cleanUpDatabase();
 
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -343,7 +342,7 @@ public class GlobalApplication extends Application {
         int userId = currentUser.getId();
         if (userId != -1){
             Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this).toUpperCase()); //ID must be upper case
-            //smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+            smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
             Smooch.init(this, smoochSettings, response -> {
                 Log.d(TAG,"Smooch: init response: "+response.getError());
                 useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(userId), new SmoochLoginUseCase.Callback() {
