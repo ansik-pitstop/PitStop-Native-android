@@ -97,7 +97,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 60000)
         stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
-        stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -156,6 +155,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onDestroy() {
         Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
+        cancelStillTimer()
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
@@ -284,18 +284,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.cancel()
         stillTimerRunning = false
-        if (tripInProgress){
-            beginTrackingLocationUpdates(locationUpdateInterval, locationUpdatePriority)
-        }
-        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
     private fun startStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.start()
         stillTimerRunning = true
-        stopTrackingLocationUpdates()
-        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
     private fun tripStart(){
@@ -374,6 +368,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             else if (activity.type == DetectedActivity.STILL){
                 if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
                     startStillTimer()
+                    stopTrackingLocationUpdates()
                 }
             }
             //Trigger trip start, or resume trip from still state
@@ -385,6 +380,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     break //Don't allow trip end in same receival
                 }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
                     cancelStillTimer()
+                    beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
                 }
                 //End trip if type of trigger is NOT ON_FOOT
             }else if (tripTrigger != DetectedActivity.ON_FOOT
