@@ -357,7 +357,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
         for (activity in probableActivities) {
-            Logger.getInstance()!!.logI(tag, "Activity detected activity" +
+            Logger.getInstance()!!.logD(tag, "Activity detected activity" +
                     " = ${TripUtils.activityToString(activity.type)}, confidence = " +
                     "${activity.confidence}", DebugMessage.TYPE_TRIP)
             //skip ignored activities
@@ -373,7 +373,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             }
             //Trigger trip start, or resume trip from still state
             else if (activity.type == tripTrigger){
-                Logger.getInstance().logI(tag,"trip trigger received, confidence: "+activity.confidence
+                Logger.getInstance().logD(tag,"trip trigger received, confidence: "+activity.confidence
                         , DebugMessage.TYPE_TRIP)
                 if (!tripInProgress && activity.confidence > tripStartThreshold){
                     tripStart()
