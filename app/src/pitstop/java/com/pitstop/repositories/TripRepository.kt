@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.pitstop.application.Constants
 import com.pitstop.database.LocalPendingTripStorage
 import com.pitstop.database.LocalTripStorage
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.Trip
 import com.pitstop.models.trip_k.DataPoint
@@ -17,6 +18,7 @@ import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
 import com.pitstop.retrofit.SnapToRoadResponse
+import com.pitstop.utils.Logger
 import com.pitstop.utils.TripUtils
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -237,7 +239,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
                             val rows = localPendingTripStorage.markAsSent(locationChunk)
                             Log.d(tag,"marked $rows as sent after storing chunk")
                         }, { err ->
-                            Log.d(tag, "error storing chunk = $err")
+                            Logger.getInstance().logE(tag, "Error storing chunk = $err"
+                                    , DebugMessage.TYPE_REPO)
                         })
                 observableList.add(
                         remote.cache()
@@ -338,9 +341,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     , if (endAddress == null) "null"
                         else "${endAddress.subThoroughfare} ${endAddress.thoroughfare}")
             val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
-                    , if (startAddress == null) "null" else startAddress.locality)
+                    , if (startAddress == null) "null" else startAddress.locality ?: "null")
             val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
-                    , if (endAddress == null) "null" else  endAddress.locality)
+                    , if (endAddress == null) "null" else  endAddress.locality ?: "null")
             val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
                     , if (startAddress == null) "null" else startAddress.latitude.toString())
             val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE

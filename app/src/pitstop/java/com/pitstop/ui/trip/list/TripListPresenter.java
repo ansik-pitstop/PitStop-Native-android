@@ -9,7 +9,6 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.models.trip_k.PendingLocation;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.TripActivityObservable;
@@ -82,7 +81,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     }
 
     @Override
-    public void onTripEnd(@NotNull List<PendingLocation> trip) {
+    public void onTripEnd() {
         Log.d(TAG,"onTripEnd()");
         if (getView() != null){
             onUpdateNeeded(getView().getSortType());

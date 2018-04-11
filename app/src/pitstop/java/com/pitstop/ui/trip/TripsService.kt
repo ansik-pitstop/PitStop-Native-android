@@ -22,7 +22,6 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
-import com.pitstop.models.trip_k.PendingLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import com.pitstop.utils.TimeoutTimer
@@ -337,9 +336,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         cancelStillTimer()
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
-            override fun finished(trip: List<PendingLocation>) {
+            override fun finished() {
                 Log.d(tag,"end trip use case finished()")
-                observers.forEach({ it.onTripEnd(trip) })
+                observers.forEach({ it.onTripEnd() })
             }
 
             override fun onError(err: RequestError) {
