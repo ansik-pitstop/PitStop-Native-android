@@ -624,4 +624,5 @@
     <string name="impossible_delete_trip_when_offline_description">It is not possible to delete a trip when offline. Please, check your internet connection and try it again</string>
     <string name="stop_recording">Stop Recording</string>
     <string name="begin_recording">Begin Recording</string>
+    <string name="news">News</string>
 </resources>

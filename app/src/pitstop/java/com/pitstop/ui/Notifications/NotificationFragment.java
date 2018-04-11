@@ -21,7 +21,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Notification;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -82,7 +81,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
-        View view = inflater.inflate(R.layout.activity_notifications, null);
+        View view = inflater.inflate(R.layout.fragment_notification, null);
         ButterKnife.bind(this,view);
 
         tabSwitcher = (TabSwitcher)getActivity();
@@ -294,7 +293,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public void openRequestService() {
         Log.d(TAG, "openRequestService()");
-        ((MainActivity)getActivity()).requestMultiService(null);
+        ((TabSwitcher)getActivity()).openRequestService();
     }
 
     @OnClick(R.id.try_again_btn)

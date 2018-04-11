@@ -48,6 +48,7 @@ import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.LoginActivity
+import com.pitstop.ui.Notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -97,6 +98,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var findDirectionsBtn: View? = null
     private var contactView: View? = null
     private var appointmentsView: View? = null
+    private lateinit var notificationsButton: View
     private var progressView: View? = null
     private var textAboveCars: LinearLayout? = null
     private var drawerRefreshLayout: SwipeRefreshLayout? = null
@@ -275,6 +277,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             Log.d(TAG, "addCarButtonClicked()")
             presenter?.onAddCarClicked()
         }
+
+        notificationsButton = findViewById(R.id.news)
+        notificationsButton.setOnClickListener({
+            this.presenter?.onNotificationsClicked()
+        })
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
             Log.d(TAG, "MyAppointmentsClicked()")
@@ -455,7 +462,20 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         } else if (requestCode == RC_REQUEST_SERVICE
                 && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
             mainServicesFragment.onServiceRequested();
-        }else{
+        }else if (requestCode == RC_NOTIFICATIONS){
+            if (resultCode == NotificationsActivity.GO_TO_SCAN){
+                openScanTab()
+            }else if (resultCode == NotificationsActivity.GO_TO_APPOINTMENTS){
+                openAppointments()
+            }
+            else if (resultCode == NotificationsActivity.GO_TO_SERVICES){
+                openCurrentServices()
+            }
+            else if (resultCode == NotificationsActivity.GO_TO_REQUEST_SERVICE){
+                openRequestService()
+            }
+        }
+        else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
     }
@@ -833,7 +853,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         hideLoading()
     }
 
+    override fun openRequestService() {
+        openRequestService(false)
+    }
+
     override fun openCurrentServices() {
+        closeDrawer()
         tabFragmentManager!!.openServices()
     }
 
@@ -878,7 +903,18 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
+    override fun openNotifications() {
+        Log.d(TAG,"openNotifications()")
+        mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
+        closeDrawer()
+        showLoading("Loading...")
+        val intent = Intent(this, NotificationsActivity::class.java)
+        startActivityForResult(intent, RC_NOTIFICATIONS)
+        hideLoading()
+    }
+
     override fun openAppointments() {
+        closeDrawer()
         myAppointments()
     }
 
@@ -910,6 +946,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         const val RC_SETTINGS = 52
         const val RC_ADD_CUSTOM_ISSUE = 54
         const val RC_REQUEST_SERVICE = 55
+        const val RC_NOTIFICATIONS = 56
         val FROM_NOTIF = "from_notfftfttfttf"
 
         val RC_ENABLE_BT = 102

@@ -104,6 +104,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppNoActionBarTheme" />
 
+        <activity
+            android:name=".ui.Notifications.NotificationsActivity"
+            android:label="@string/notifications" />
+
 
         <activity android:name=".ui.alarms.AlarmsActivity"
             android:label="@string/app_name"
