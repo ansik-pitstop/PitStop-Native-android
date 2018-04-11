@@ -329,25 +329,25 @@ open class TripRepository(private val tripApi: PitstopTripApi
             //Add indicator data point which marks trip end
             val indicatorDataPoint: MutableSet<DataPoint> = mutableSetOf()
             val startLocation = DataPoint(DataPoint.ID_START_LOCATION
-                    , if (startAddress == null) "null"
+                    , if (startAddress == null || startAddress.locality == null || startAddress.countryCode == null) "Unknown"
                         else "${startAddress.locality} ${startAddress.adminArea}, ${startAddress.countryCode}")
             val endLocation = DataPoint(DataPoint.ID_END_LOCATION
-                    , if (endAddress == null) "null"
+                    , if (endAddress == null || endAddress.locality == null || endAddress.countryCode == null) "Unknown"
                         else "${endAddress.locality} ${endAddress.adminArea}, ${endAddress.countryCode}")
             val startStreetLocation = DataPoint(DataPoint.ID_START_STREET_LOCATION
-                    , if (startAddress == null) "null"
+                    , if (startAddress == null || startAddress.subThoroughfare == null || startAddress.thoroughfare == null) "Unknown"
                         else "${startAddress.subThoroughfare} ${startAddress.thoroughfare}")
             val endStreetLocation = DataPoint(DataPoint.ID_END_STREET_LOCATION
-                    , if (endAddress == null) "null"
+                    , if (endAddress == null || endAddress.subThoroughfare == null || endAddress.thoroughfare == null) "Unknown"
                         else "${endAddress.subThoroughfare} ${endAddress.thoroughfare}")
             val startCityLocation = DataPoint(DataPoint.ID_START_CITY_LOCATION
-                    , if (startAddress == null) "null" else startAddress.locality ?: "null")
+                    , if (startAddress == null) "Unknown" else startAddress.locality ?: "Unknown")
             val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
-                    , if (endAddress == null) "null" else  endAddress.locality ?: "null")
+                    , if (endAddress == null) "Unknown" else  endAddress.locality ?: "Unknown")
             val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
-                    , if (startAddress == null) "null" else startAddress.latitude.toString())
+                    , if (startAddress == null) "Unknown" else startAddress.latitude.toString())
             val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE
-                    , endAddress?.latitude?.toString() ?: "null")
+                    , endAddress?.latitude?.toString() ?: "Unknown")
             val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress?.longitude?.toString() ?: "null")
             val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress?.longitude?.toString() ?: "null")
             val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, it.locations.first().data.time.toString())
