@@ -12,10 +12,6 @@ import com.pitstop.ui.LoadingTabView;
 
 public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
-    void noTrips();
-
-    void thereAreTrips();
-
     void displayTripPolylineOnMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions);
 
     void displayTripDetailsView(Trip trip);

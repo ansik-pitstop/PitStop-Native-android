@@ -28,10 +28,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     public interface OnListChildPresenterInteractorListener {
 
-        void noTrips();
-
-        void thereAreTrips();
-
         void showTripOnMap(Trip trip, String interpolate, String apiKey);
 
         void showTripDetail(Trip trip);
@@ -210,11 +206,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
                     getView().displayUnknownErrorView();
                     return;
                 } else if (tripList.size() == 0) {
-                    notifyParentFragmentNoTrips();
+                    getView().displayNoTrips();
                     Log.d("trips", "zerolist");
                 } else {
                     Log.d("trips", "display");
-                    mParentListener.thereAreTrips();
                     sortTripListBy((List<Trip>) tripList, sortParam);
                 }
 
@@ -245,10 +240,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             }
         });
 
-    }
-
-    public void notifyParentFragmentNoTrips() {
-        mParentListener.noTrips();
     }
 
     public void sortTripListBy(List<Trip> tripList, int sortParam) {
