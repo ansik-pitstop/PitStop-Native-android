@@ -65,7 +65,7 @@ class SmoochLoginUseCaseImpl(val smoochApi: PitstopSmoochApi, val usecaseHandler
     private fun onError(err: String){
         Logger.getInstance()!!.logI(tag, "Use case returned error: err=$err, trying again in ${again/1000} seconds"
                 , DebugMessage.TYPE_USE_CASE)
-        Handler().postDelayed(this,again)
+        usecaseHandler.postDelayed(this,again)
         mainHandler.post({callback.onError(err)})
     }
 
