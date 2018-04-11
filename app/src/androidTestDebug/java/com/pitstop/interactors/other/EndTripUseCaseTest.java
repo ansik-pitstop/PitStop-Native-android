@@ -21,15 +21,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by Karol Zdebel on 3/28/2018.
@@ -59,11 +57,11 @@ public class EndTripUseCaseTest {
     public void endTripUseCaseTest(){
         Log.d(TAG,"endTripUseCaseTest()");
 
-        CompletableFuture<List<PendingLocation>> result = new CompletableFuture<>();
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
 
         List<Location> trip = new ArrayList<>();
         List<PendingLocation> tripPending = new ArrayList<>();
-        for (int i=0;i<3;i++){
+        for (int i=0;i<2;i++){
             Location randomLocation = Util.Companion.getRandomLocation();
             tripPending.add(new PendingLocation(randomLocation.getLongitude()
                     ,randomLocation.getLatitude(),randomLocation.getTime()/1000));
@@ -72,22 +70,21 @@ public class EndTripUseCaseTest {
 
         useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
             @Override
-            public void finished(@NotNull List<PendingLocation> loc) {
-                Log.d(TAG,"finished() trip: "+loc);
-                result.complete(loc);
+            public void finished() {
+                Log.d(TAG,"finished()");
+                result.complete(true);
             }
 
             @Override
             public void onError(@NotNull RequestError err) {
                 Log.d(TAG,"onError() err: "+err);
-                result.complete(null);
+                result.complete(false);
             }
         });
 
         try{
-            List<PendingLocation> tripResult = result.get(10000, TimeUnit.MILLISECONDS);
-            assertNotNull(trip);
-            assertEquals(new HashSet(tripPending),new HashSet(tripResult));
+            Boolean tripResult = result.get(10000, TimeUnit.MILLISECONDS);
+            assertTrue(tripResult);
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }

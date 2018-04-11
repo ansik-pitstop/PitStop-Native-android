@@ -625,4 +625,6 @@
     <string name="stop_recording">Stop Recording</string>
     <string name="begin_recording">Begin Recording</string>
     <string name="news">News</string>
+    <string name="polyline_error_message">Unable to load route</string>
+    <string name="polyline_error_offline_message">No connection, cannot load route on map</string>
 </resources>

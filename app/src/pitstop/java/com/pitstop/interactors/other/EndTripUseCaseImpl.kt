@@ -74,13 +74,13 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                             carRepository.get(data!!.carId)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.from(usecaseHandler.looper),true)
-                                    .subscribe({ car ->
+                                    .subscribe (carRepoSubscribe@{ car ->
 
                                         //Use local response if it has data otherwise use remote
                                         if (car.isLocal && car.data != null){
                                             usedLocalCar = true
                                         }else if (usedLocalCar){
-                                            return@subscribe
+                                            return@carRepoSubscribe
                                         }
 
                                         Log.d(TAG,"proceeding to get tripIdFromRepo, got: $tripIdFromRepo, trip.size: ${trip.size}")
@@ -97,27 +97,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(Schedulers.io())
                                                 .subscribe({ next ->
-
-                                                    //Return complete list of locations
-                                                    val firstTrip = tripRepository.localPendingTripStorage
-                                                            .getCompleted(false).lastOrNull()
-                                                    val locationList = arrayListOf<PendingLocation>()
-                                                    firstTrip?.locations?.forEach({
-                                                        locationList.add(PendingLocation(it.data.longitude,it.data.latitude,it.data.time))
-                                                    })
-                                                    finished(locationList,it)
-                                                    Log.d(TAG, "locationList repo response: $next")
-
-                                                    //Dump data to server after retrieving full trip info
-                                                    tripRepository.dumpData()
-                                                            .subscribeOn(Schedulers.io())
-                                                            .observeOn(Schedulers.io())
-                                                            .subscribe({
-                                                                Log.d(TAG, "dump data response: $it")
-                                                            }, { err ->
-                                                                Log.d(TAG, "dump data err: $err")
-                                                            })
-
+                                                    finished(it)
                                                 }, { err ->
                                                     Log.d(TAG, "Error: " + err)
                                                     onErrorFound(RequestError(err))
@@ -133,19 +113,17 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                 },{
                     it.printStackTrace()
                     onErrorFound(RequestError(it))
-                    Logger.getInstance()!!.logE(TAG, "Use case returned error: err=${it.message}"
-                            , DebugMessage.TYPE_USE_CASE)
                 })
     }
 
-    private fun finished(trip: List<PendingLocation>, rows: Int){
+    private fun finished(rows: Int){
         Logger.getInstance()!!.logI(TAG
                 , "Use case finished: success rows = $rows", DebugMessage.TYPE_USE_CASE)
-        mainHandler.post{callback.finished(trip)}
+        mainHandler.post{callback.finished()}
     }
 
     private fun onErrorFound(err: RequestError){
-        Logger.getInstance().logE(TAG, "Use case returned error: "+err.message, DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logE(TAG, "Use case returned error: $err.message", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(err)})
     }
 }

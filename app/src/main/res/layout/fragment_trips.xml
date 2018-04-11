@@ -11,11 +11,6 @@
         layout="@layout/layout_unknown_error"
         android:visibility="gone" />
 
-    <include
-        android:id="@+id/no_trip_view"
-        layout="@layout/layout_no_trips"
-        android:visibility="gone" />
-
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="50dp"
@@ -34,13 +29,13 @@
             android:id="@+id/mapview_trips"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="40"></com.pitstop.ui.MapView>
+            android:layout_weight="30"></com.pitstop.ui.MapView>
 
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="60" />
+            android:layout_weight="70" />
 
     </LinearLayout>
 

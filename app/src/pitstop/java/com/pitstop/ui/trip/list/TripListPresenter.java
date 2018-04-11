@@ -9,7 +9,6 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.models.trip_k.PendingLocation;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.TripActivityObservable;
@@ -28,10 +27,6 @@ import java.util.List;
 public class TripListPresenter extends TabPresenter<TripListView> implements TripActivityObserver {
 
     public interface OnListChildPresenterInteractorListener {
-
-        void noTrips();
-
-        void thereAreTrips();
 
         void showTripOnMap(Trip trip, String interpolate, String apiKey);
 
@@ -82,7 +77,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     }
 
     @Override
-    public void onTripEnd(@NotNull List<PendingLocation> trip) {
+    public void onTripEnd() {
         Log.d(TAG,"onTripEnd()");
         if (getView() != null){
             onUpdateNeeded(getView().getSortType());
@@ -95,6 +90,9 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         super.subscribe(view);
         if (tripActivityObservable == null && getView().getTripActivityObservable() != null){
             this.tripActivityObservable = getView().getTripActivityObservable();
+            this.tripActivityObservable.subscribeTripActivity(this);
+            view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
+        }else if (tripActivityObservable != null){
             this.tripActivityObservable.subscribeTripActivity(this);
             view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
         }
@@ -208,11 +206,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
                     getView().displayUnknownErrorView();
                     return;
                 } else if (tripList.size() == 0) {
-                    notifyParentFragmentNoTrips();
+                    getView().displayNoTrips();
                     Log.d("trips", "zerolist");
                 } else {
                     Log.d("trips", "display");
-                    mParentListener.thereAreTrips();
                     sortTripListBy((List<Trip>) tripList, sortParam);
                 }
 
@@ -245,10 +242,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     }
 
-    public void notifyParentFragmentNoTrips() {
-        mParentListener.noTrips();
-    }
-
     public void sortTripListBy(List<Trip> tripList, int sortParam) {
 
         List<Trip> sortedTripList;
@@ -275,10 +268,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     private List<Trip> sortTripsByDate(List<Trip> tripList) {
         Collections.sort(tripList, (trip1, trip2) -> {
 
-            int date1 = Integer.valueOf(trip1.getTimeStart());
-            int date2 = Integer.valueOf(trip2.getTimeStart());
+            long date1 = Long.valueOf(trip1.getTimeStart());
+            long date2 = Long.valueOf(trip2.getTimeStart());
 
-            return date1 > date2 ? 1 : -1;
+            return date1 < date2 ? 1 : -1;
         });
 
         return tripList;

@@ -11,7 +11,7 @@ import retrofit2.http.*
 interface PitstopTripApi {
 
     @POST("v1/trip")
-    fun store(@Body body: JsonElement): Observable<Response<String>>
+    fun store(@Body body: JsonElement): Observable<Response<JsonElement>>
 
     @GET("/v1/trip")
     fun getTripListFromCarVin(@Query("vin") vin: String): Observable<PitstopResponse<List<Trip>>>

@@ -10,7 +10,7 @@ import com.pitstop.network.RequestError
  */
 interface EndTripUseCase: Interactor {
     interface Callback{
-        fun finished(trip: List<PendingLocation>)
+        fun finished()
         fun onError(err: RequestError)
     }
 
