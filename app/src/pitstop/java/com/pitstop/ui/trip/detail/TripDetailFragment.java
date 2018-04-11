@@ -8,9 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -62,41 +59,6 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     private AlertDialog unknownErrorDialog;
 
     public TripDetailFragment() {
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onResume() {
-        getActivity().invalidateOptionsMenu();
-        super.onResume();
-    }
-
-//    @Override
-//    public void onPrepareOptionsMenu(Menu menu) {
-//        super.onPrepareOptionsMenu(menu);
-//    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_trip_details,menu);
-        //if (getActivity().getActionBar() != null)
-            //getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-        //else Log.d(TAG,"action bar null inside activity");
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_delete && presenter != null){
-            presenter.onDeleteTripClicked(trip);
-        }else if (item.getItemId() == R.id.home){
-            closeView();
-        }
-        return true;
     }
 
     @Nullable
