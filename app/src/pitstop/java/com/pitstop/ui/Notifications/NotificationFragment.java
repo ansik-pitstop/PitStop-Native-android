@@ -21,7 +21,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Notification;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.main_activity.TabSwitcher;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -294,7 +293,7 @@ public class NotificationFragment extends Fragment implements NotificationView{
     @Override
     public void openRequestService() {
         Log.d(TAG, "openRequestService()");
-        ((MainActivity)getActivity()).requestMultiService(null);
+        ((TabSwitcher)getActivity()).openRequestService();
     }
 
     @OnClick(R.id.try_again_btn)

@@ -19,6 +19,7 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
         const val GO_TO_SERVICES = 1
         const val GO_TO_SCAN = 2
         const val GO_TO_APPOINTMENTS = 3
+        const val GO_TO_REQUEST_SERVICE = 4
     }
 
     private lateinit var notificationFragment: NotificationFragment
@@ -62,6 +63,12 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
     override fun openScanTab() {
         Log.d(tag,"openScanTab()")
         setResult(GO_TO_SCAN)
+        finish()
+    }
+
+    override fun openRequestService() {
+        Log.d(tag,"openRequestService()")
+        setResult(GO_TO_REQUEST_SERVICE)
         finish()
     }
 }

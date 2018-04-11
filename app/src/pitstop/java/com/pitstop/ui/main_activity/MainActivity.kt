@@ -471,6 +471,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             else if (resultCode == NotificationsActivity.GO_TO_SERVICES){
                 openCurrentServices()
             }
+            else if (resultCode == NotificationsActivity.GO_TO_REQUEST_SERVICE){
+                openRequestService()
+            }
         }
         else{
             super.onActivityResult(requestCode, resultCode, intent)
@@ -850,7 +853,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         hideLoading()
     }
 
+    override fun openRequestService() {
+        openRequestService(false)
+    }
+
     override fun openCurrentServices() {
+        closeDrawer()
         tabFragmentManager!!.openServices()
     }
 
@@ -898,6 +906,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun openNotifications() {
         Log.d(TAG,"openNotifications()")
         mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
+        closeDrawer()
         showLoading("Loading...")
         val intent = Intent(this, NotificationsActivity::class.java)
         startActivityForResult(intent, RC_NOTIFICATIONS)
@@ -905,6 +914,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun openAppointments() {
+        closeDrawer()
         myAppointments()
     }
 
