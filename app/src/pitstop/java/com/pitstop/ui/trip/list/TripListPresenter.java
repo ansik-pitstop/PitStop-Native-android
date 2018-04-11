@@ -96,6 +96,9 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             this.tripActivityObservable = getView().getTripActivityObservable();
             this.tripActivityObservable.subscribeTripActivity(this);
             view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
+        }else if (tripActivityObservable != null){
+            this.tripActivityObservable.subscribeTripActivity(this);
+            view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
         }
     }
 

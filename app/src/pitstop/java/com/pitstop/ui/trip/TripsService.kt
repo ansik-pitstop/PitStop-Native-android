@@ -7,13 +7,10 @@ import android.location.Location
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
-import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
@@ -24,6 +21,7 @@ import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.NotificationsHelper
 import com.pitstop.utils.TimeoutTimer
 import com.pitstop.utils.TripUtils
 
@@ -328,7 +326,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
 
-        displayActivityNotif("Trip recording started")
+        NotificationsHelper.sendNotification(applicationContext,"Trip recording started"
+                ,"Pitstop")
     }
 
     private fun tripEnd(){
@@ -349,7 +348,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         currentTrip = arrayListOf()
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-        displayActivityNotif("Trip recording completed, view app for more info")
+        NotificationsHelper.sendNotification(applicationContext
+                ,"Trip finished recording and will soon be displayed in the app"
+                ,"Pitstop")
     }
 
     private fun tripUpdate(locations:List<Location>){
@@ -415,14 +416,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 }
             }
         }
-    }
-
-    private fun displayActivityNotif(notif: String){
-        val builder = NotificationCompat.Builder(this)
-        builder.setContentText(notif)
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-        builder.setContentTitle(getString(R.string.app_name))
-        NotificationManagerCompat.from(this).notify(0, builder.build())
     }
 
     private fun getStillTimeoutTimer(timeoutTime: Int): TimeoutTimer {
