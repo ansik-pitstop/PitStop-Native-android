@@ -284,6 +284,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.cancel()
         stillTimerRunning = false
+        if (tripInProgress){
+            beginTrackingLocationUpdates(locationUpdateInterval, locationUpdatePriority)
+        }
         sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
@@ -291,6 +294,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.start()
         stillTimerRunning = true
+        stopTrackingLocationUpdates()
         sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
