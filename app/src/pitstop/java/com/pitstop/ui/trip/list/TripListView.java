@@ -27,6 +27,8 @@ public interface TripListView extends ErrorHandlingView, LoadingTabView {
 
     int getSortType();
 
+    void displayNoTrips();
+
     TripActivityObservable getTripActivityObservable();
 
 }

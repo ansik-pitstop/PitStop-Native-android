@@ -38,9 +38,6 @@ public class TripsFragment extends Fragment implements TripsView {
     @BindView(R.id.unknown_error_view)
     protected View unknownErrorView;
 
-    @BindView(R.id.no_trip_view)
-    protected View noTripView;
-
     @BindView(R.id.loading_spinner)
     protected View loadingSpinner;
 
@@ -176,31 +173,6 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void noTrips() {
-
-        Log.d(TAG, "noTrips()");
-        mainLayout.setVisibility(View.GONE);
-        loadingSpinner.setVisibility(View.GONE);
-        unknownErrorView.setVisibility(View.GONE);
-        //offlineView.setVisibility(View.GONE);
-        noTripView.setVisibility(View.VISIBLE);
-        loadingSpinner.bringToFront();
-
-    }
-
-    @Override
-    public void thereAreTrips() {
-
-        if (noTripView.getVisibility() == View.VISIBLE) {
-
-            mainLayout.setVisibility(View.VISIBLE);
-            noTripView.setVisibility(View.GONE);
-
-        }
-
-    }
-
-    @Override
     public void displayTripPolylineOnMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
 
         if (mapView == null) return;
@@ -250,9 +222,9 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void showToastStillRefreshing() {
+    public void showToast(int message) {
 
-        Toast.makeText(getContext(), R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -267,7 +239,7 @@ public class TripsFragment extends Fragment implements TripsView {
         return presenter;
     }
 
-    @OnClick(R.id.try_again_btn)
+    @OnClick(R.id.unknown_error_try_again)
     public void onTryAgainClicked() {
         Log.d(TAG, "onTryAgainClicked()");
         presenter.onRefresh();

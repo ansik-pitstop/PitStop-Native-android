@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetSnapToRoadUseCase;
 import com.pitstop.models.snapToRoad.SnappedPoint;
@@ -81,28 +82,6 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
     }
 
     @Override
-    public void noTrips() {
-
-        if (getView() != null) {
-
-            getView().noTrips();
-
-        }
-
-    }
-
-    @Override
-    public void thereAreTrips() {
-
-        if (getView() != null) {
-
-            getView().thereAreTrips();
-
-        }
-
-    }
-
-    @Override
     public void showTripOnMap(Trip trip, String interpolate, String apiKey) {
 
         mixpanelHelper.trackItemTapped(MixpanelHelper.TRIP, trip.getTripId());
@@ -121,9 +100,10 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
                         if (getView() == null) return;
 
                         if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                            getView().displayOfflineErrorDialog();
+                            getView().showToast(R.string.polyline_error_offline_message);
+
                         } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
-                            getView().displayUnknownErrorDialog();
+                            getView().showToast(R.string.polyline_error_message);
                         }
                         getView().hideLoading();
 
@@ -156,7 +136,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
         if (getView() == null) return;
 
         if (updating) {
-            getView().showToastStillRefreshing();
+            getView().showToast(R.string.wait_loading_finish);
 
             return;
         }

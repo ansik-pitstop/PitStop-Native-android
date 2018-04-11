@@ -192,6 +192,8 @@ public class GlobalApplication extends Application {
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
         registerActivityLifecycleCallbacks(activityLifecycleObserver);
 
+        tripsService = null;
+        autoConnectService = null;
         serviceObservable = Observable.create(emitter -> {
             Log.d(TAG,"serviceObservable.subscribe() autoconnectService null? "
                     +(autoConnectService == null) +", tripsService null? "+(tripsService == null));

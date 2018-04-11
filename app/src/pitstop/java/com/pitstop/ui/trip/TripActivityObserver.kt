@@ -8,5 +8,5 @@ import com.pitstop.models.trip_k.PendingLocation
 interface TripActivityObserver {
     fun onTripStart()
     fun onTripUpdate()
-    fun onTripEnd(trip: List<PendingLocation>)
+    fun onTripEnd()
 }

@@ -60,6 +60,12 @@ public class TripListFragment extends Fragment implements TripListView {
     @BindView(R.id.trip_record_button)
     protected Button tripRecordButton;
 
+    @BindView(R.id.no_trips_text)
+    protected View noTripsText;
+
+    @BindView(R.id.trip_holder)
+    protected View tripHolder;
+
     private Context context;
     private boolean hasBeenPopulated = false;
     private TripListPresenter presenter;
@@ -201,6 +207,8 @@ public class TripListFragment extends Fragment implements TripListView {
 
         Log.d(TAG, "displayTripList() notifList: " + listTrip);
 
+        tripsRecyclerView.setVisibility(View.VISIBLE);
+        noTripsText.setVisibility(View.GONE);
         if (listTrip != null && listTrip.size() > 0) {
 
             mTripList.clear();
@@ -212,6 +220,15 @@ public class TripListFragment extends Fragment implements TripListView {
         hasBeenPopulated = true;
 
     }
+
+    @Override
+    public void displayNoTrips(){
+        Log.d(TAG,"displayNoTrips()");
+        noTripsText.setVisibility(View.VISIBLE);
+        tripsRecyclerView.setVisibility(View.GONE);
+    }
+
+
 
     @Override
     public void onTripRowClicked(Trip trip) {
@@ -230,7 +247,7 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void showToastStillRefreshing() {
 
-        Toast.makeText(context, R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.wait_loading_finish, Toast.LENGTH_LONG).show();
 
     }
 

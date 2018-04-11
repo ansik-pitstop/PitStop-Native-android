@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -66,8 +67,8 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-
-        return 5;
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) return 4;
+        else return 5;
     }
 
     @Override

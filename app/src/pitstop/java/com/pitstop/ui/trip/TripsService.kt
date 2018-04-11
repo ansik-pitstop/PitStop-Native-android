@@ -7,13 +7,10 @@ import android.location.Location
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
-import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
@@ -22,9 +19,9 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
-import com.pitstop.models.trip_k.PendingLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.NotificationsHelper
 import com.pitstop.utils.TimeoutTimer
 import com.pitstop.utils.TripUtils
 
@@ -100,7 +97,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 60000)
         stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
-        stillTimerRunning = sharedPreferences.getBoolean(STILL_TIMER_RUNNING,false)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -159,6 +155,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onDestroy() {
         Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
+        cancelStillTimer()
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
@@ -207,16 +204,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"setLocationUpdateInterval() interval: $interval")
         if (!googleApiClient.isConnected || interval < 1000L) return false
         else{
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
-            val locationRequest = LocationRequest()
-            locationRequest.interval = interval
-            locationRequest.priority = locationUpdatePriority
-            try{
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-            }catch(e: SecurityException){
-                e.printStackTrace()
-                return false
-            }
+            beginTrackingLocationUpdates(interval,locationUpdatePriority)
             locationUpdateInterval = interval
             sharedPreferences.edit().putLong(LOCATION_UPDATE_INTERVAL,locationUpdateInterval).apply()
             return true
@@ -229,16 +217,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"setLocationUpdatePriority() priority: $priority")
         if (!googleApiClient.isConnected) return false
         else{
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
-            val locationRequest = LocationRequest()
-            locationRequest.interval = locationUpdateInterval
-            locationRequest.priority = priority
-            try{
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-            }catch(e: SecurityException){
-                e.printStackTrace()
-                return false
-            }
+            beginTrackingLocationUpdates(locationUpdateInterval,priority)
             locationUpdatePriority = priority
             sharedPreferences.edit().putInt(LOCATION_UPDATE_PRIORITY,locationUpdatePriority).apply()
             return true
@@ -305,14 +284,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.cancel()
         stillTimerRunning = false
-        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
     private fun startStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
         stillTimeoutTimer.start()
         stillTimerRunning = true
-        sharedPreferences.edit().putBoolean(STILL_TIMER_RUNNING,stillTimerRunning).apply()
     }
 
     private fun tripStart(){
@@ -328,8 +305,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         })
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-
-        displayActivityNotif("Trip recording started")
+        beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
+        NotificationsHelper.sendNotification(applicationContext,"Trip recording started"
+                ,"Pitstop")
     }
 
     private fun tripEnd(){
@@ -337,9 +315,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         cancelStillTimer()
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
-            override fun finished(trip: List<PendingLocation>) {
+            override fun finished() {
                 Log.d(tag,"end trip use case finished()")
-                observers.forEach({ it.onTripEnd(trip) })
+                observers.forEach({ it.onTripEnd() })
             }
 
             override fun onError(err: RequestError) {
@@ -350,7 +328,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         currentTrip = arrayListOf()
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-        displayActivityNotif("Trip recording completed, view app for more info")
+        stopTrackingLocationUpdates()
+        NotificationsHelper.sendNotification(applicationContext
+                ,"Trip finished recording and will soon be displayed in the app"
+                ,"Pitstop")
     }
 
     private fun tripUpdate(locations:List<Location>){
@@ -387,6 +368,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             else if (activity.type == DetectedActivity.STILL){
                 if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
                     startStillTimer()
+                    stopTrackingLocationUpdates()
                 }
             }
             //Trigger trip start, or resume trip from still state
@@ -398,6 +380,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     break //Don't allow trip end in same receival
                 }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
                     cancelStillTimer()
+                    beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
                 }
                 //End trip if type of trigger is NOT ON_FOOT
             }else if (tripTrigger != DetectedActivity.ON_FOOT
@@ -418,14 +401,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
     }
 
-    private fun displayActivityNotif(notif: String){
-        val builder = NotificationCompat.Builder(this)
-        builder.setContentText(notif)
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-        builder.setContentTitle(getString(R.string.app_name))
-        NotificationManagerCompat.from(this).notify(0, builder.build())
-    }
-
     private fun getStillTimeoutTimer(timeoutTime: Int): TimeoutTimer {
         return object : TimeoutTimer(timeoutTime / 1000, 0) {
             override fun onRetry() {
@@ -440,6 +415,24 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
     }
 
+    private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        val locationRequest = LocationRequest()
+        locationRequest.interval = interval
+        locationRequest.priority = priority
+        try{
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
+        }catch(e: SecurityException){
+            e.printStackTrace()
+            return false
+        }
+        return true
+    }
+
+    private fun stopTrackingLocationUpdates(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+    }
+
     override fun onConnected(p0: Bundle?) {
         Log.d(tag,"onConnected() google api")
         Logger.getInstance()!!.logI(tag, "Google API connected", DebugMessage.TYPE_TRIP)
@@ -447,24 +440,17 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         googlePendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, activityUpdateInterval, googlePendingIntent)
 
-        val locationRequest = LocationRequest()
-        locationRequest.priority = locationUpdatePriority
-        locationRequest.interval = locationUpdateInterval
-        try{
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-        }catch(e: SecurityException){
-            e.printStackTrace()
-        }
+        if (tripInProgress)
+            beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
     }
 
     override fun onConnectionSuspended(p0: Int) {
         Log.d(tag,"onConnectionSuspended() google api")
-        Logger.getInstance()!!.logI(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
+        Logger.getInstance()!!.logE(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d(tag,"onConnectionFailed() google api")
-        Logger.getInstance()!!.logI(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
+        Logger.getInstance()!!.logE(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
     }
 
 }

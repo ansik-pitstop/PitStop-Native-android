@@ -39,7 +39,7 @@ class StartTripUseCaseImpl(private val tripRepository: TripRepository
 
     private fun finished(rows: Int){
         Logger.getInstance()!!.logI(tag
-                , "Use case finished: removed rows = rows$", DebugMessage.TYPE_USE_CASE)
+                , "Use case finished: removed rows = $rows", DebugMessage.TYPE_USE_CASE)
         mainHandler.post{callback.finished()}
     }
 }
