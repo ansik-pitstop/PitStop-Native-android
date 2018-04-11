@@ -204,16 +204,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Log.d(tag,"setLocationUpdateInterval() interval: $interval")
         if (!googleApiClient.isConnected || interval < 1000L) return false
         else{
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
-            val locationRequest = LocationRequest()
-            locationRequest.interval = interval
-            locationRequest.priority = locationUpdatePriority
-            try{
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-            }catch(e: SecurityException){
-                e.printStackTrace()
-                return false
-            }
+            beginTrackingLocationUpdates(interval,locationUpdatePriority)
             locationUpdateInterval = interval
             sharedPreferences.edit().putLong(LOCATION_UPDATE_INTERVAL,locationUpdateInterval).apply()
             return true
@@ -325,7 +316,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         })
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
-
+        beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
         NotificationsHelper.sendNotification(applicationContext,"Trip recording started"
                 ,"Pitstop")
     }
@@ -348,6 +339,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         currentTrip = arrayListOf()
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
+        stopTrackingLocationUpdates()
         NotificationsHelper.sendNotification(applicationContext
                 ,"Trip finished recording and will soon be displayed in the app"
                 ,"Pitstop")
@@ -432,6 +424,24 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
     }
 
+    private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        val locationRequest = LocationRequest()
+        locationRequest.interval = interval
+        locationRequest.priority = priority
+        try{
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
+        }catch(e: SecurityException){
+            e.printStackTrace()
+            return false
+        }
+        return true
+    }
+
+    private fun stopTrackingLocationUpdates(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+    }
+
     override fun onConnected(p0: Bundle?) {
         Log.d(tag,"onConnected() google api")
         Logger.getInstance()!!.logI(tag, "Google API connected", DebugMessage.TYPE_TRIP)
@@ -439,14 +449,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         googlePendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, activityUpdateInterval, googlePendingIntent)
 
-        val locationRequest = LocationRequest()
-        locationRequest.priority = locationUpdatePriority
-        locationRequest.interval = locationUpdateInterval
-        try{
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
-        }catch(e: SecurityException){
-            e.printStackTrace()
-        }
+        if (tripInProgress)
+            beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
     }
 
     override fun onConnectionSuspended(p0: Int) {

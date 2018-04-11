@@ -5,6 +5,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;
 import com.pitstop.ui.services.MainServicesFragment;
@@ -88,8 +89,13 @@ public class TabFragmentManager implements BadgeDisplayer{
                 , startReportFragment, vehicleSpecsFragment,tripsFragment, tripSettingsFragment, mActivity);
 
         mViewPager.setAdapter(tabViewPagerAdapter);
-        mViewPager.setOffscreenPageLimit(5);
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            mViewPager.setOffscreenPageLimit(4);
+        }else{
+            mViewPager.setOffscreenPageLimit(5);
+        }
 
+        bottomBar.setItems(R.xml.bottombar_tabs);
         bottomBar.setOnTabSelectListener(tabId -> {
             switch(tabId){
                 case R.id.tab_services:
