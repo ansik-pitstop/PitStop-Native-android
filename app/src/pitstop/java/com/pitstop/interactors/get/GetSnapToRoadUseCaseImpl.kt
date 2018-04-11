@@ -70,10 +70,10 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 
         }
 
-        Observable.zip(observableList,{
+        Observable.combineLatest(observableList,{
                     val snappedPoints = arrayListOf<SnappedPoint>()
                     it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
-                    return@zip snappedPoints
+                    return@combineLatest snappedPoints
                 }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe({

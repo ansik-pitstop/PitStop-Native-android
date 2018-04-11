@@ -458,12 +458,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onConnectionSuspended(p0: Int) {
         Log.d(tag,"onConnectionSuspended() google api")
-        Logger.getInstance()!!.logI(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
+        Logger.getInstance()!!.logE(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d(tag,"onConnectionFailed() google api")
-        Logger.getInstance()!!.logI(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
+        Logger.getInstance()!!.logE(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
     }
 
 }

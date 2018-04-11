@@ -274,10 +274,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     private List<Trip> sortTripsByDate(List<Trip> tripList) {
         Collections.sort(tripList, (trip1, trip2) -> {
 
-            int date1 = Integer.valueOf(trip1.getTimeStart());
-            int date2 = Integer.valueOf(trip2.getTimeStart());
+            long date1 = Long.valueOf(trip1.getTimeStart());
+            long date2 = Long.valueOf(trip2.getTimeStart());
 
-            return date1 > date2 ? 1 : -1;
+            return date1 < date2 ? 1 : -1;
         });
 
         return tripList;

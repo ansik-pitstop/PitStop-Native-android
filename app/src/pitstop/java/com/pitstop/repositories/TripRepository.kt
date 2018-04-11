@@ -251,8 +251,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
                                 })
             })
         })
-        return Observable.zip(observableList,{ list ->
-            Log.d(tag,"observable.zip()")
+        return Observable.combineLatest(observableList,{ list ->
+            Log.d(tag,"observable.combineLatest()")
             list.sumBy { (it as Int) }
         })
     }
@@ -297,6 +297,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 Log.d(tag,"startAddress: $startAddress, endAddress: $endAddress")
             }catch (e: IOException){
                 e.printStackTrace()
+                Logger.getInstance().logE(tag
+                        ,"Unable to reverse geocode due to geocoder service unavailability"
+                        ,DebugMessage.TYPE_REPO)
                 //Go to next trip if geocoder unavailable
                 return@forEach
             }
