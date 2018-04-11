@@ -250,9 +250,9 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void showToastStillRefreshing() {
+    public void showToast(int message) {
 
-        Toast.makeText(getContext(), R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 
     }
 

@@ -230,7 +230,7 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void showToastStillRefreshing() {
 
-        Toast.makeText(context, R.string.wait_loading_finish, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.wait_loading_finish, Toast.LENGTH_LONG).show();
 
     }
 
