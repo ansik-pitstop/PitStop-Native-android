@@ -9,4 +9,5 @@ public interface TabSwitcher {
     void openCurrentServices();
     void openAppointments();
     void openScanTab();
+    void openRequestService();
 }

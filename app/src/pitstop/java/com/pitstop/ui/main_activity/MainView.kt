@@ -32,4 +32,5 @@ interface MainView  {
     fun showAddCarDialog()
     fun showAddDealerhsipDialog()
     fun startSelectShopActivity(mCar: Car?)
+    fun openNotifications()
 }

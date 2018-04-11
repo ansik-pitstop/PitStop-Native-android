@@ -262,6 +262,11 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
     }
 
+    fun onNotificationsClicked(){
+        Log.d(TAG,"onNotificationsClicked()")
+        view?.openNotifications()
+    }
+
     fun onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()")
         if (this.view == null) return
