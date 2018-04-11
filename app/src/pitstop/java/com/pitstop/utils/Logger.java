@@ -241,6 +241,7 @@ public class Logger {
                 .additionalField("type", type)
                 .additionalField("build",build)
                 .additionalField("version", BuildConfig.VERSION_NAME)
+                .additionalField("versionCode",BuildConfig.VERSION_CODE)
                 .level(gelfLevel)
                 .build();
         try{
