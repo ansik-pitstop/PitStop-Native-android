@@ -95,7 +95,11 @@ public class TabFragmentManager implements BadgeDisplayer{
             mViewPager.setOffscreenPageLimit(5);
         }
 
-        bottomBar.setItems(R.xml.bottombar_tabs);
+        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+            bottomBar.setItems(R.xml.bottombar_tabs);
+        }else{
+            bottomBar.setItems(R.xml.bottombar_tabs_beta);
+        }
         bottomBar.setOnTabSelectListener(tabId -> {
             switch(tabId){
                 case R.id.tab_services:
