@@ -12,7 +12,6 @@ import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.trip_k.PendingLocation;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -59,14 +57,7 @@ public class EndTripUseCaseTest {
 
         CompletableFuture<Boolean> result = new CompletableFuture<>();
 
-        List<Location> trip = new ArrayList<>();
-        List<PendingLocation> tripPending = new ArrayList<>();
-        for (int i=0;i<2;i++){
-            Location randomLocation = Util.Companion.getRandomLocation();
-            tripPending.add(new PendingLocation(randomLocation.getLongitude()
-                    ,randomLocation.getLatitude(),randomLocation.getTime()/1000));
-            trip.add(randomLocation);
-        }
+        List<Location> trip = Util.Companion.getRandomRoute(120);
 
         useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
             @Override
