@@ -41,8 +41,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     @BindView(R.id.textview_mins_num)
     protected TextView minutesNum;
 
-    @BindView(R.id.textview_fuel_num)
-    protected TextView fuelNum;
+//    @BindView(R.id.textview_fuel_num)
+//    protected TextView fuelNum;
 
     @BindView(R.id.textview_street_location)
     protected TextView streetLocation;
@@ -189,7 +189,7 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
         long totalMinutes = totalTimestamp / 60;
         minutesNum.setText(String.valueOf(totalMinutes));
 
-        fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));
+//        fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));
 
     }
 
