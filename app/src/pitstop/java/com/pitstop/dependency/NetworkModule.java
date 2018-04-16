@@ -12,6 +12,7 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.network.HttpRequest;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
@@ -82,6 +83,31 @@ public class NetworkModule {
                     response = chain.proceed(builder.build());
 
                     if (!response.isSuccessful() && response.code() == 401){
+                        //Make sure legacy code won't refresh token, or wait until they do
+                        try{
+                            HttpRequest.semaphore.acquire();
+                            if (!application.isLoggedIn()){
+                                HttpRequest.semaphore.release();
+                                return response;
+                            }
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                            HttpRequest.semaphore.release();
+                            return response;
+                        }
+
+                        //Check if different thread updated token
+                        if (!prevAccessToken.equals("Bearer "+application.getAccessToken())){
+                            HttpRequest.semaphore.release();
+                            //Updated therefore use new token and proceed with request, no need for refresh
+                            //Update headers with new jwt token
+                            Request.Builder builderNew = original.newBuilder()
+                                    .header("client-id", SecretUtils.getClientId(context))
+                                    .header("Content-Type", "application/json")
+                                    .header("Authorization", "Bearer "+application.getAccessToken());
+                            return chain.proceed(builderNew.build()); //Ping same endpoint again after token has been refreshed
+                        }
+
                         Log.d(TAG,"401 unauthorized error received, proceeding to refresh access token");
 
                         JsonObject jsonObject = new JsonObject();
@@ -92,6 +118,7 @@ public class NetworkModule {
                                     .refreshAccessToken(jsonObject).execute();
                             Log.d(TAG,"tokenResponse: "+tokenResponse);
                         }catch(IOException e){
+                            HttpRequest.semaphore.release();
                             return response;
                         }
 
@@ -105,9 +132,14 @@ public class NetworkModule {
                                     .header("client-id", SecretUtils.getClientId(context))
                                     .header("Content-Type", "application/json")
                                     .header("Authorization", "Bearer "+token);
+
+                            //Let other threads proceed to use the new token
+                            HttpRequest.semaphore.release();
                             return chain.proceed(builderNew.build()); //Ping same endpoint again after token has been refreshed
                         }else{
                             Log.d(TAG,"Token refresh response was not successful, raw response: "+tokenResponse.body());
+                            //Let other threads proceed to use the new token
+                            HttpRequest.semaphore.release();
                             //Logout, session cannot be continued
                             ((GlobalApplication)context).logOutUser();
                         }

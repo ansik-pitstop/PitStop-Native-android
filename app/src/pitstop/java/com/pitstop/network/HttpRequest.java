@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Paul Soladoye  on 3/8/2016.
@@ -47,6 +48,7 @@ public class HttpRequest {
     private HashMap<String, String> headers = new HashMap<>();
     private GlobalApplication application;
     private Context context;
+    public static Semaphore semaphore = new Semaphore(1);
 
     private HttpRequest(RequestType requestType,
                         String url,
@@ -241,11 +243,23 @@ public class HttpRequest {
 
                     if (response.getStatusCode() == 401
                             && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
+                        try{
+                            semaphore.acquire();
+
+                            //In case different thread logged out session while waiting for sempahore
+                            if (!application.isLoggedIn()){
+                                semaphore.release();
+                                return;
+                            }
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
                         // Error handling
                         //Check if different thread already refreshed the token, if so don't refresh
                         if (!headers.get("Authorization").equals("Bearer "+application.getAccessToken())){
                             Log.d(TAG,"Token has changed, sending request with new token without refresh");
                             headers.put("Authorization", "Bearer " + application.getAccessToken());
+                            semaphore.release();
                             executeAsync();
                         }
                         //Otherwise refresh token and retry
@@ -269,8 +283,10 @@ public class HttpRequest {
                                             // show failure
                                             showNetworkFailure(e.getMessage());
                                         }
+                                        semaphore.release();
                                     } else {
                                         // show failure
+                                        semaphore.release();
                                         if (requestError.getStatusCode() == 400) {
                                             logOut();
                                         } else {
