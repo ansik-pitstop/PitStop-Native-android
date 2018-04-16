@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.pitstop.models.trip.Location;
 import com.pitstop.models.trip.LocationPolyline;
 
@@ -34,6 +35,8 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 
 public class MapView extends FrameLayout {
+
+    public static final float POLY_WIDTH = 15;
 
     private Subject<GoogleMap> mapSubject;
 
@@ -101,9 +104,11 @@ public class MapView extends FrameLayout {
 
             googleMap.clear();
 
-            polylineOptions.width(4)
+            polylineOptions.width(POLY_WIDTH)
                     .geodesic(true)
-                    .color(Color.BLUE);
+                    .color(Color.BLUE)
+                    .startCap(new RoundCap())
+                    .endCap(new RoundCap());
 
             googleMap.addPolyline(polylineOptions);
 
@@ -149,7 +154,7 @@ public class MapView extends FrameLayout {
             googleMap.clear();
 
             PolylineOptions polylineOptions = new PolylineOptions()
-                    .width(4)
+                    .width(POLY_WIDTH)
                     .geodesic(true)
                     .color(Color.BLUE);
 

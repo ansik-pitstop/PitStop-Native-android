@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -24,6 +25,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
@@ -57,11 +59,11 @@ public class TripListFragment extends Fragment implements TripListView {
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
 
-    @BindView(R.id.trip_record_button)
-    protected Button tripRecordButton;
+    @BindView(R.id.bottom_list_button)
+    protected Button bottomListButton;
 
     @BindView(R.id.no_trips_text)
-    protected View noTripsText;
+    protected TextView noTripsText;
 
     @BindView(R.id.trip_holder)
     protected View tripHolder;
@@ -216,9 +218,7 @@ public class TripListFragment extends Fragment implements TripListView {
             tripListAdapter.notifyDataSetChanged();
 
         }
-
         hasBeenPopulated = true;
-
     }
 
     @Override
@@ -226,9 +226,24 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG,"displayNoTrips()");
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
+        noTripsText.setText(R.string.no_trips_message);
     }
 
+    @Override
+    public void displayNoCar(){
+        Log.d(TAG,"displayNoCar()");
+        noTripsText.setVisibility(View.VISIBLE);
+        tripsRecyclerView.setVisibility(View.GONE);
+        noTripsText.setText(R.string.add_car_trips_message);
+        bottomListButton.setText(R.string.title_activity_add_car);
+    }
 
+    @Override
+    public void beginAddCar() {
+        if (getActivity() != null && getActivity() instanceof MainActivity){
+            ((MainActivity)getActivity()).openAddCarActivity();
+        }
+    }
 
     @Override
     public void onTripRowClicked(Trip trip) {
@@ -261,11 +276,11 @@ public class TripListFragment extends Fragment implements TripListView {
     public void toggleRecordingButton(boolean recording) {
         Log.d(TAG,"toggleRecordingButton() recording: "+recording);
         if (recording){
-            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
-            tripRecordButton.setText(R.string.stop_recording);
+            bottomListButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
+            bottomListButton.setText(R.string.stop_recording);
         }else{
-            tripRecordButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
-            tripRecordButton.setText(R.string.begin_recording);
+            bottomListButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
+            bottomListButton.setText(R.string.begin_recording);
         }
 
     }
@@ -345,9 +360,9 @@ public class TripListFragment extends Fragment implements TripListView {
 
     }
 
-    @OnClick(R.id.trip_record_button)
-    public void onTripRecordClicked(){
+    @OnClick(R.id.bottom_list_button)
+    public void onBottomListButtonClicked(){
         Log.d(TAG,"onTripRecordClicked");
-        presenter.onTripRecordClicked();
+        presenter.onBottomListButtonClicked();
     }
 }

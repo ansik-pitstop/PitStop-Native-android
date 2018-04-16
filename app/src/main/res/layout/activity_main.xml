@@ -36,6 +36,7 @@
             android:background="@color/dark_grey"/>
 
         <com.roughike.bottombar.BottomBar
+            app:bb_tabXmlResource="@xml/bottombar_tabs"
             android:id="@+id/bottomBar"
             android:layout_width="match_parent"
             android:layout_height="60dp"

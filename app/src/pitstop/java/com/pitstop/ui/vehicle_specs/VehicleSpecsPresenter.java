@@ -127,7 +127,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public void deleteCar() {
-        if (getView() == null || updating) return;
+        if (getView() == null || updating || mCar == null) return;
         updating = true;
         getView().showLoadingDialog("Loading...");
         Log.d(TAG, "deleteCar()");
@@ -257,7 +257,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         Log.d(TAG, "getAmountSpent();");
         if (getView() == null) return;
 
-        if (scannerId == null || scannerId.equalsIgnoreCase("")) {
+        if (mCar == null || scannerId == null || scannerId.equalsIgnoreCase("")) {
             getView().showFuelExpense((float) 0.0);
             return;
         }
@@ -308,7 +308,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         useCaseComponent.getGetFuelConsumedAndPriceUseCase().execute(lastKnownLocation, scannerId, new GetFuelConsumedAndPriceUseCase.Callback() {
             @Override
             public void onGotFuelConsumedAndPrice(double price, double fuelConsumed) {
-                if (getView() == null) return;
+                if (getView() == null || mCar == null) return;
                 Log.d(TAG, "onGotFuelConsumedAndPrice, Price: " + Double.toString(price) + " fuelConsumed: " + Double.toString(fuelConsumed));
                 if (getView() == null) return;
                 Log.d(TAG, "fuel consumed got: " + Double.toString(fuelConsumed));
@@ -338,7 +338,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void onFuelConsumptionClicked() {
         Log.d(TAG,"onFuelConsumptionClicked() car: "+mCar);
-        if (this.mCar.getScannerId() == null || this.mCar.getScannerId().isEmpty())
+        if (mCar == null) return;
+        else if (this.mCar.getScannerId() == null || this.mCar.getScannerId().isEmpty())
             getView().showBuyDeviceDialog();
         else
             getView().showFuelConsumptionExplanationDialog();

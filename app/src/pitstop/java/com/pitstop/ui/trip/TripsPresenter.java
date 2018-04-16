@@ -121,7 +121,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
                             endCoord = new LatLng(Double.parseDouble(trip.getLocationEnd().getLatitude()), Double.parseDouble(trip.getLocationEnd().getLongitude()));
                         }
 
-                        sendPolylineToMap(startCoord, endCoord, TripUtils.Companion.snappedPointListToPolylineOptions((List<SnappedPoint>) snappedPointList));
+                        sendPolylineToMap(TripUtils.Companion.snappedPointListToPolylineOptions(snappedPointList));
 
                     }
                 });
@@ -165,11 +165,11 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
 
     }
 
-    private void sendPolylineToMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
+    private void sendPolylineToMap(PolylineOptions polylineOptions) {
 
         if (getView() == null || polylineOptions == null) return;
 
-        getView().displayTripPolylineOnMap(startCoord, endCoord, polylineOptions);
+        getView().displayTripPolylineOnMap(polylineOptions);
 
     }
 
