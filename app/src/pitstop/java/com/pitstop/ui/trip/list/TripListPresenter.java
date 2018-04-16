@@ -308,7 +308,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             int time1 = Integer.valueOf(trip1.getTimeEnd()) - Integer.valueOf(trip1.getTimeStart());
             int time2 = Integer.valueOf(trip2.getTimeEnd()) - Integer.valueOf(trip2.getTimeStart());
 
-            return time1 > time2 ? 1 : -1;
+            return time1 < time2 ? 1 : -1;
         });
 
         return tripList;
@@ -320,7 +320,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             double distance1 = trip1.getMileageAccum();
             double distance2 = trip2.getMileageAccum();
 
-            return distance1 > distance2 ? 1 : -1;
+            return distance1 < distance2 ? 1 : -1;
         });
 
         return tripList;
