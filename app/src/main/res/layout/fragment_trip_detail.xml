@@ -21,7 +21,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:orientation="horizontal"
-        android:weightSum="3">
+        android:weightSum="2">
 
         <RelativeLayout
             android:id="@+id/relative_miles"
@@ -84,38 +84,38 @@
 
         </RelativeLayout>
 
-        <View
-            android:layout_width="1px"
-            android:layout_height="match_parent"
-            android:background="@color/primary" />
+        <!--<View-->
+            <!--android:layout_width="1px"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@color/primary" />-->
 
-        <RelativeLayout
-            android:id="@+id/relative_fuel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1">
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/relative_fuel"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="5dp"-->
+            <!--android:layout_weight="1">-->
 
-            <TextView
-                android:id="@+id/textview_fuel_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="22"
-                android:textColor="@color/primary_dark"
-                android:textSize="16sp" />
+            <!--<TextView-->
+                <!--android:id="@+id/textview_fuel_num"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:text="22"-->
+                <!--android:textColor="@color/primary_dark"-->
+                <!--android:textSize="16sp" />-->
 
-            <TextView
-                android:id="@+id/textview_fuel_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/textview_fuel_num"
-                android:layout_centerHorizontal="true"
-                android:text="fuel"
-                android:textColor="@color/primary"
-                android:textSize="13sp" />
+            <!--<TextView-->
+                <!--android:id="@+id/textview_fuel_label"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@id/textview_fuel_num"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:text="fuel"-->
+                <!--android:textColor="@color/primary"-->
+                <!--android:textSize="13sp" />-->
 
-        </RelativeLayout>
+        <!--</RelativeLayout>-->
 
     </LinearLayout>
 
