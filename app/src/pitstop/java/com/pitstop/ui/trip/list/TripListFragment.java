@@ -219,13 +219,6 @@ public class TripListFragment extends Fragment implements TripListView {
 
         }
         hasBeenPopulated = true;
-
-        try{
-            throw new Exception();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
     }
 
     @Override
