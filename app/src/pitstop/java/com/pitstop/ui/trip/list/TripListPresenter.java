@@ -58,6 +58,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     private TripActivityObservable tripActivityObservable;
 
     private boolean updating = false;
+    private boolean carAdded = true;
 
     public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -67,19 +68,19 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void onTripStart() {
         Log.d(TAG,"onTripStart()");
-        if (getView() != null) getView().toggleRecordingButton(true);
+        if (getView() != null && carAdded) getView().toggleRecordingButton(true);
     }
 
     @Override
     public void onTripUpdate() {
         Log.d(TAG,"onTripUpdate()");
-        if (getView() != null) getView().toggleRecordingButton(true);
+        if (getView() != null && carAdded) getView().toggleRecordingButton(true);
     }
 
     @Override
     public void onTripEnd() {
         Log.d(TAG,"onTripEnd()");
-        if (getView() != null){
+        if (getView() != null && carAdded){
             onUpdateNeeded(getView().getSortType());
             getView().toggleRecordingButton(false);
         }
@@ -91,10 +92,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         if (tripActivityObservable == null && getView().getTripActivityObservable() != null){
             this.tripActivityObservable = getView().getTripActivityObservable();
             this.tripActivityObservable.subscribeTripActivity(this);
-            view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
+            if (carAdded) view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
         }else if (tripActivityObservable != null){
             this.tripActivityObservable.subscribeTripActivity(this);
-            view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
+            if (carAdded) view.toggleRecordingButton(tripActivityObservable.isTripInProgress());
         }
     }
 
@@ -142,9 +143,12 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     }
 
-    public void onTripRecordClicked(){
-        Log.d(TAG,"onTripRecordClicked()");
-        if (tripActivityObservable == null){
+    public void onBottomListButtonClicked(){
+        Log.d(TAG,"onBottomListButtonClicked()");
+        if (!carAdded){
+            getView().beginAddCar();
+        }
+        else if (tripActivityObservable == null){
             if (getView() != null) getView().displayUnknownErrorDialog();
         }else{
             if (!tripActivityObservable.isTripInProgress() && tripActivityObservable.startTripManually()){
@@ -159,7 +163,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         Log.d(TAG,"onTripObservableReady()");
         this.tripActivityObservable = tripActivityObservable;
         tripActivityObservable.subscribeTripActivity(this);
-        if (getView() != null)
+        if (getView() != null && carAdded)
             getView().toggleRecordingButton(tripActivityObservable.isTripInProgress());
     }
 
@@ -188,12 +192,32 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
         useCaseComponent.getTripsUseCase().execute(new GetTripsUseCase.Callback() {
             @Override
+            public void onNoCar() {
+                Log.d(TAG,"GetTripsUseCase.onNoCar()");
+                carAdded = false;
+                if (getView() != null){
+                    getView().hideLoading();
+                    getView().displayNoCar();
+                }
+                updating = false;
+            }
+
+            @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
 
                 Log.d(TAG, "onTripListRetrieved() trips: " + tripList);
+
+                //If were switching from no car added, to car now added then switch recording button from add car
+                if (!carAdded && getView() != null && tripActivityObservable != null)
+                    getView().toggleRecordingButton(tripActivityObservable.isTripInProgress());
+                //Observable null, so just display "begin recording"
+                else if (getView() != null && !carAdded && tripActivityObservable == null)
+                    getView().toggleRecordingButton(true);
+
+                carAdded = true;
+                updating = false;
                 if (getView() == null) {
                     Log.d("trips", "return");
-                    updating = false;
                     return;
                 }
 
@@ -243,6 +267,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     }
 
     public void sortTripListBy(List<Trip> tripList, int sortParam) {
+        if (!carAdded) return;
 
         List<Trip> sortedTripList;
 

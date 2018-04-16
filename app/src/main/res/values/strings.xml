@@ -627,4 +627,6 @@
     <string name="news">News</string>
     <string name="polyline_error_message">Unable to load route</string>
     <string name="polyline_error_offline_message">No connection, cannot load route on map</string>
+    <string name="no_trips_message">You have not recorded any trips yet, our application will record them automatically for you</string>
+    <string name="add_car_trips_message">In order to begin tracking your trips you first need to add a car. Click the button below to do so</string>
 </resources>

@@ -12,6 +12,7 @@ interface GetTripsUseCase : Interactor {
     interface Callback {
 
         fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean)
+        fun onNoCar()
         fun onError(error: RequestError)
 
     }
