@@ -264,25 +264,30 @@ open class TripRepository(private val tripApi: PitstopTripApi
         //Go through each trip
         tripData.forEach{
 
-            //calculate mileage
-            var locString = ""
-            it.locations.map { loc -> loc.data }.forEach({ loc ->
-                locString += "${loc.latitude},${loc.longitude}"
-                if (it.locations.last().data != loc) locString += "|"
-            })
-            lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
-            try{
-                response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
-                        , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
-            }catch(e: SocketTimeoutException){
-                e.printStackTrace()
-                return null
+            val snappedPoints = arrayListOf<SnappedPoint>()
+            it.locations.chunked(100).forEach{
+                //calculate mileage
+                var locString = ""
+                it.map { loc -> loc.data }.forEach({ loc ->
+                    locString += "${loc.latitude},${loc.longitude}"
+                    if (it.last().data != loc) locString += "|"
+                })
+                lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
+                try{
+                    response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
+                            , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
+                    if (response.isSuccessful){
+                        snappedPoints.addAll(response.body()?.snappedPoints ?: emptyList())
+                    }
+                }catch(e: SocketTimeoutException){
+                    e.printStackTrace()
+                    return null
+                }
             }
 
-            val mileageTrip = if (!response.isSuccessful) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
+            val mileageTrip = if (snappedPoints.isEmpty()) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
             else DataPoint(DataPoint.ID_MILEAGE_TRIP
-                    , TripUtils.Companion.getPolylineDistance(
-                            response.body()?.snappedPoints ?: arrayListOf()).toString())
+                    , TripUtils.Companion.getPolylineDistance(snappedPoints).toString())
 
             //Reverse geocode lat and long info
             var startAddress: Address? = null

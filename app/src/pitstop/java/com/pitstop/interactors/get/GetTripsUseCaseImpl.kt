@@ -43,6 +43,13 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
         }
     }
 
+    private fun onNoCar() {
+
+        Logger.getInstance()!!.logI(tag, "Use case finished result: no car added", DebugMessage.TYPE_USE_CASE)
+        mainHandler.post({ callback!!.onNoCar() })
+
+    }
+
     private fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean) {
 
         Logger.getInstance()!!.logI(tag, "Use case finished result: trips=$tripList", DebugMessage.TYPE_USE_CASE)
@@ -53,12 +60,11 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
     override fun run() {
         Log.d(tag, "run()")
 
-        //val currentVin = "WVWXK73C37E116278"
-
         userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
             override fun onSuccess(data: Settings?) {
                 Log.d(tag, "got settings with carId: ${data!!.carId}")
-                carRepository.get(data.carId)
+                if (!data.hasMainCar()) onNoCar()
+                else carRepository.get(data.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation(), true)
                         .subscribe({ car ->

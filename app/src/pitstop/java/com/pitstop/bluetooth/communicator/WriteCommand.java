@@ -46,6 +46,7 @@ public class WriteCommand {
 
             BluetoothGattCharacteristic obdWriteCharacteristic =
                     mainObdGattService.getCharacteristic(writeChar);
+            if (obdWriteCharacteristic == null) return;
             obdWriteCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             obdWriteCharacteristic.setValue(bytes);
             Log.d("Write data", Utils.bytesToHexString(bytes));

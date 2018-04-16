@@ -24,7 +24,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
     private lateinit var polylineList: List<Location>
 
     override fun execute(polylineList: List<Location>, callback: GetSnapToRoadUseCase.Callback) {
-        Logger.getInstance()!!.logI(tag, "Use case execution started: polyline = $polylineList", DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance()!!.logI(tag, "Use case execution started: polyline.size = ${polylineList.size}", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.polylineList = polylineList
         useCaseHandler.post(this)
@@ -34,8 +34,13 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 
         Log.d(tag, "run()")
 
+        //Sort the list
+        polylineList = polylineList.sortedBy { it.time }
+
+        Log.d(tag,"length of trips = ${(polylineList.last().time-polylineList.first().time)/1000/60}")
+
         var index = 0
-        val overlap = 10
+        val overlap = 0
         var nextPartitionIndex = 99
         val listSizeLimit = 100
         var polylinePartition = arrayListOf<Location>()
@@ -47,7 +52,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
             if (index != 0 && (index == nextPartitionIndex || index == polylineList.lastIndex)){
 
                 if (index != polylineList.lastIndex){
-                    index = index.minus(overlap)
+                    index = index.minus(overlap+1) //Add one since index is incremented
                 }
                 nextPartitionIndex = index + listSizeLimit
 
@@ -57,6 +62,9 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                     latLngString = latLngString.plus("${loc.latitude},${loc.longitude}")
                     if (polylinePartition.lastIndex != index) latLngString = latLngString.plus("|")
                 })
+                Log.d(tag,"polylinePartition converted to str, size: ${polylinePartition.size} " +
+                        "last point: (${polylinePartition.last().latitude},${polylinePartition.last().longitude}) " +
+                        "first point: (${polylinePartition.first().latitude},${polylinePartition.first().longitude})")
                 polylinePartition = arrayListOf()
                 observableList.add(snapToRoadRepository.getSnapToRoadFromLocations(latLngString)
                         //Remove overlap points on all paritions other than first
@@ -77,7 +85,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                 }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe({
-                    Log.d(tag, "snapToRoadRepository.onNext() data: " + it)
+                    Log.d(tag, "snapToRoadRepository.onNext() data.size: ${it.size}")
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(it)
 
                 }, { error ->

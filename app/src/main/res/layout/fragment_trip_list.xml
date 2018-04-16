@@ -17,13 +17,13 @@
             android:layout_centerInParent="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:text="You have not recorded any trips yet, our application will record them automatically for you"
+            android:text="@string/no_trips_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:id="@+id/trip_holder"
-            android:layout_above="@id/trip_record_button"
+            android:layout_above="@id/bottom_list_button"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -73,7 +73,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/trip_record_button"
+            android:id="@+id/bottom_list_button"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="1dp"
             android:text="Begin Recording"

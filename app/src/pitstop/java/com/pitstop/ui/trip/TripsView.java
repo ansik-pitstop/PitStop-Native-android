@@ -1,6 +1,5 @@
 package com.pitstop.ui.trip;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.ErrorHandlingView;
@@ -12,7 +11,7 @@ import com.pitstop.ui.LoadingTabView;
 
 public interface TripsView extends LoadingTabView, ErrorHandlingView {
 
-    void displayTripPolylineOnMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions);
+    void displayTripPolylineOnMap(PolylineOptions polylineOptions);
 
     void displayTripDetailsView(Trip trip);
 

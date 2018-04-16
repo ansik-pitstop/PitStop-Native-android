@@ -173,12 +173,14 @@ public class TripsFragment extends Fragment implements TripsView {
     }
 
     @Override
-    public void displayTripPolylineOnMap(LatLng startCoord, LatLng endCoord, PolylineOptions polylineOptions) {
+    public void displayTripPolylineOnMap(PolylineOptions polylineOptions) {
 
         if (mapView == null) return;
 
         mapView.addPolyline(polylineOptions);
 
+        LatLng startCoord = polylineOptions.getPoints().get(0);
+        LatLng endCoord = polylineOptions.getPoints().get(polylineOptions.getPoints().size()-1);
         if (startCoord != null) {
             mapView.addMarker(startCoord.latitude, startCoord.longitude, "Start");
         }

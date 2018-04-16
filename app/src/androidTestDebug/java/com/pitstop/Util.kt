@@ -26,11 +26,12 @@ class Util {
             curLoc.time = System.currentTimeMillis()
             for (i in 2..num){
                 curLoc = Location("")
-                val lng = prevLng + (random.nextDouble()*2-1)/1000
-                val lat = prevLat + (random.nextDouble()*2-1)/1000
+                val lng = prevLng + (random.nextDouble())/100
+                val lat = prevLat + (random.nextDouble())/100
                 curLoc.longitude = lng
                 curLoc.latitude = lat
                 curLoc.time = System.currentTimeMillis()
+                Thread.sleep(100)
                 route.add(curLoc)
             }
             return route

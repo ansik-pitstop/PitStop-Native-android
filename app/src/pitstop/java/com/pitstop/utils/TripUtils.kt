@@ -7,8 +7,10 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.RoundCap
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.LocationPolyline
+import com.pitstop.ui.MapView
 
 /**
  * Created by Karol Zdebel on 3/7/2018.
@@ -178,9 +180,11 @@ class TripUtils {
         fun snappedPointListToPolylineOptions(snappedPointList: List<SnappedPoint>): PolylineOptions {
 
             val polylineOptions = PolylineOptions()
-                    .width(4f)
+                    .width(MapView.POLY_WIDTH)
                     .geodesic(true)
                     .color(Color.BLUE)
+                    .startCap(RoundCap())
+                    .endCap(RoundCap())
 
             for (snappedPoint in snappedPointList) {
 
