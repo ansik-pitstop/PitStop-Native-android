@@ -231,16 +231,12 @@ public class HttpRequest {
                                 Log.d(TAG, "received new token: " + token);
                                 application.setTokens(token, application.getRefreshToken());
                                 executeAsync();
-                                //Response will be provided by the next HttpRequest lauched after the access token
-                                return null;
                             } else {
                                 if (accessTokenResponse.code() == 400) {
                                     logOut();
                                 } else {
                                     showNetworkFailure(RequestError.getOfflineError().getMessage());
                                 }
-                                //Return error back to post response
-                                return response;
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -302,6 +298,8 @@ public class HttpRequest {
 
                     listener.done(null, error);
                 }
+            } else{
+              listener.done(null,RequestError.getOfflineError());
             }
         }
 
