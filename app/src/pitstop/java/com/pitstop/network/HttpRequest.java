@@ -13,19 +13,22 @@ import com.goebl.david.Request;
 import com.goebl.david.Response;
 import com.goebl.david.Webb;
 import com.goebl.david.WebbException;
+import com.google.gson.JsonObject;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
+import com.pitstop.retrofit.PitstopAuthApi;
+import com.pitstop.retrofit.Token;
 import com.pitstop.ui.LoginActivity;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
-import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -48,6 +51,7 @@ public class HttpRequest {
     private HashMap<String, String> headers = new HashMap<>();
     private GlobalApplication application;
     private Context context;
+    private PitstopAuthApi pitstopAuthApi;
     public static Semaphore semaphore = new Semaphore(1);
 
     private HttpRequest(RequestType requestType,
@@ -56,6 +60,7 @@ public class HttpRequest {
                         HashMap<String, String> headers,
                         RequestCallback listener,
                         JSONObject body,
+                        PitstopAuthApi pitstopAuthApi,
                         Context context) {
         BASE_ENDPOINT = url == null ? SecretUtils.getEndpointUrl(context) : url;
         this.context = context;
@@ -66,6 +71,7 @@ public class HttpRequest {
         this.headers = headers;
         this.listener = listener;
         this.body = body;
+        this.pitstopAuthApi = pitstopAuthApi;
 
         Logger.getInstance().logD(TAG, requestType.type() + " REQUEST " + BASE_ENDPOINT + uri + (body != null ? ": " + body.toString() : ""),
                 DebugMessage.TYPE_NETWORK);
@@ -190,6 +196,57 @@ public class HttpRequest {
                         break;
                     }
                 }
+                if (response.getStatusCode() == 401
+                        && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
+                    try {
+                        semaphore.acquire();
+
+                        //In case different thread logged out session while waiting for sempahore
+                        if (!application.isLoggedIn()) {
+                            semaphore.release();
+                            //Null so that the post execute doesn't return a response
+                            return null;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // Error handling
+                    //Check if different thread already refreshed the token, if so don't refresh
+                    if (!headers.get("Authorization").equals("Bearer " + application.getAccessToken())) {
+                        Log.d(TAG, "Token has changed, sending request with new token without refresh");
+                        headers.put("Authorization", "Bearer " + application.getAccessToken());
+                        semaphore.release();
+                        executeAsync();
+                    }
+                    //Otherwise refresh token and retry
+                    else {
+                        Log.d(TAG, "Token has not changed.");
+                        Logger.getInstance().logD(TAG, "Access token refresh request being sent", DebugMessage.TYPE_NETWORK);
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.addProperty("refreshToken", application.getRefreshToken());
+                        try {
+                            retrofit2.Response<Token> accessTokenResponse = pitstopAuthApi.refreshAccessToken(jsonObject).execute();
+                            if (accessTokenResponse.isSuccessful()) {
+                                String token = accessTokenResponse.body().getAccessToken();
+                                Log.d(TAG, "received new token: " + token);
+                                application.setTokens(token, application.getRefreshToken());
+                                executeAsync();
+                                //Response will be provided by the next HttpRequest lauched after the access token
+                                return null;
+                            } else {
+                                if (accessTokenResponse.code() == 400) {
+                                    logOut();
+                                } else {
+                                    showNetworkFailure(RequestError.getOfflineError().getMessage());
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        semaphore.release();
+                    }
+
+                }
             } catch (WebbException e) {
                 Logger.getInstance().logException(TAG,e,DebugMessage.TYPE_NETWORK);
                 if (e.getCause() instanceof SocketTimeoutException){
@@ -241,68 +298,8 @@ public class HttpRequest {
                         error.setStatusCode(500);
                     }
 
-                    if (response.getStatusCode() == 401
-                            && BASE_ENDPOINT.equals(SecretUtils.getEndpointUrl(context))) { // Unauthorized (must refresh)
-                        try{
-                            semaphore.acquire();
-
-                            //In case different thread logged out session while waiting for sempahore
-                            if (!application.isLoggedIn()){
-                                semaphore.release();
-                                return;
-                            }
-                        }catch(InterruptedException e){
-                            e.printStackTrace();
-                        }
-                        // Error handling
-                        //Check if different thread already refreshed the token, if so don't refresh
-                        if (!headers.get("Authorization").equals("Bearer "+application.getAccessToken())){
-                            Log.d(TAG,"Token has changed, sending request with new token without refresh");
-                            headers.put("Authorization", "Bearer " + application.getAccessToken());
-                            semaphore.release();
-                            executeAsync();
-                        }
-                        //Otherwise refresh token and retry
-                        else{
-                            Log.d(TAG,"Token has not changed.");
-                            Logger.getInstance().logD(TAG, "Access token refresh request being sent",DebugMessage.TYPE_NETWORK);
-                            NetworkHelper.refreshToken(application.getRefreshToken(), application, new RequestCallback() {
-                                @Override
-                                public void done(String response, RequestError requestError) {
-                                    Logger.getInstance().logD(TAG, "Access token refresh response received, response: "
-                                            +response+", request error: "+requestError,DebugMessage.TYPE_NETWORK);
-                                    if (requestError == null) {
-                                        // try to parse the refresh token, if success then good, otherwise retry
-                                        try {
-                                            String newAccessToken = new JSONObject(response).getString("accessToken");
-                                            application.setTokens(newAccessToken, application.getRefreshToken());
-                                            headers.put("Authorization", "Bearer " + newAccessToken);
-                                            executeAsync();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            // show failure
-                                            showNetworkFailure(e.getMessage());
-                                        }
-                                        semaphore.release();
-                                    } else {
-                                        // show failure
-                                        semaphore.release();
-                                        if (requestError.getStatusCode() == 400) {
-                                            logOut();
-                                        } else {
-                                            showNetworkFailure(requestError.getMessage());
-                                        }
-                                    }
-                                    Log.d(TAG,"Releasing semaphore");
-                                }
-                            });
-                        }
-                    } else {
-                        listener.done(null, error);
-                    }
+                    listener.done(null, error);
                 }
-            } else {
-                listener.done(null, RequestError.getUnknownError());
             }
         }
 
@@ -341,6 +338,7 @@ public class HttpRequest {
         private RequestType requestType;
         private RequestCallback callback;
         private Context context;
+        private PitstopAuthApi pitstopAuthApi;
 
         public Builder() {
             this.headers = new HashMap<>();
@@ -386,8 +384,14 @@ public class HttpRequest {
             return this;
         }
 
+        public Builder pitstopAuthApi(PitstopAuthApi pitstopAuthApi){
+            this.pitstopAuthApi = pitstopAuthApi;
+            return this;
+        }
+
         public HttpRequest createRequest() {
-            return new HttpRequest(requestType, url, uri, headers, callback, body, context);
+            return new HttpRequest(requestType, url, uri, headers, callback, body
+                    , pitstopAuthApi, context);
         }
     }
 }

@@ -47,8 +47,8 @@ public class NetworkModule {
 
     @Singleton
     @Provides
-    public NetworkHelper networkHelper(Context context, SharedPreferences sharedPreferences){
-        return new NetworkHelper(context, sharedPreferences);
+    public NetworkHelper networkHelper(Context context, PitstopAuthApi pitstopAuthApi, SharedPreferences sharedPreferences){
+        return new NetworkHelper(context, pitstopAuthApi, sharedPreferences);
     }
 
     private OkHttpClient getHttpClientNoAuth(Context context){
