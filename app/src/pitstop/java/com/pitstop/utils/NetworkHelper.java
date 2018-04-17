@@ -14,6 +14,7 @@ import com.pitstop.network.HttpRequest;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
 import com.pitstop.network.RequestType;
+import com.pitstop.retrofit.PitstopAuthApi;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,11 +34,13 @@ public class NetworkHelper {
     private static final String INSTALLATION_ID_KEY = "installationId";
     private Context context;
     private SharedPreferences sharedPreferences;
+    private PitstopAuthApi pitstopAuthApi;
 
-    public NetworkHelper(Context context, SharedPreferences sharedPreferences) {
+    public NetworkHelper(Context context, PitstopAuthApi pitstopAuthApi, SharedPreferences sharedPreferences) {
         this.context = context;
         this.sharedPreferences = sharedPreferences;
         CLIENT_ID = SecretUtils.getClientId(context);
+        this.pitstopAuthApi = pitstopAuthApi;
     }
 
     private String getAccessToken() {
@@ -51,6 +54,7 @@ public class NetworkHelper {
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .context(context)
+                .pitstopAuthApi(pitstopAuthApi)
                 .createRequest()
                 .executeAsync();
     }
@@ -62,6 +66,7 @@ public class NetworkHelper {
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
                 .context(context)
+                .pitstopAuthApi(pitstopAuthApi)
                 .createRequest()
                 .executeAsync();
     }
@@ -74,6 +79,7 @@ public class NetworkHelper {
                 .requestCallBack(callback)
                 .requestType(RequestType.POST)
                 .context(context)
+                .pitstopAuthApi(pitstopAuthApi)
                 .createRequest()
                 .executeAsync();
     }
@@ -85,6 +91,7 @@ public class NetworkHelper {
                 .requestCallBack(callback)
                 .requestType(RequestType.GET)
                 .context(context)
+                .pitstopAuthApi(pitstopAuthApi)
                 .createRequest()
                 .executeAsync();
     }
@@ -96,6 +103,7 @@ public class NetworkHelper {
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
+                .pitstopAuthApi(pitstopAuthApi)
                 .context(context)
                 .createRequest()
                 .executeAsync();
@@ -107,6 +115,7 @@ public class NetworkHelper {
                 .body(body)
                 .requestCallBack(callback)
                 .requestType(RequestType.PUT)
+                .pitstopAuthApi(pitstopAuthApi)
                 .context(context)
                 .createRequest()
                 .executeAsync();
