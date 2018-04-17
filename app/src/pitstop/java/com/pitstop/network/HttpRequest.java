@@ -239,6 +239,8 @@ public class HttpRequest {
                                 } else {
                                     showNetworkFailure(RequestError.getOfflineError().getMessage());
                                 }
+                                //Return error back to post response
+                                return response;
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

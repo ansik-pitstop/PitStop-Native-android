@@ -97,7 +97,7 @@ public class NetworkModule {
                         }
 
                         //Check if different thread updated token
-                        if (!prevAccessToken.equals("Bearer "+application.getAccessToken())){
+                        if (!prevAccessToken.equals(application.getAccessToken())){
                             HttpRequest.semaphore.release();
                             //Updated therefore use new token and proceed with request, no need for refresh
                             //Update headers with new jwt token
