@@ -4,10 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.util.Log
-import com.pitstop.models.trip_k.LocationData
-import com.pitstop.models.trip_k.LocationDataFormatted
-import com.pitstop.models.trip_k.PendingLocation
-import com.pitstop.models.trip_k.TripData
+import com.pitstop.models.sensor_data.trip.LocationData
+import com.pitstop.models.sensor_data.trip.LocationDataFormatted
+import com.pitstop.models.sensor_data.trip.PendingLocation
+import com.pitstop.models.sensor_data.trip.TripData
 
 /**
  * Created by Karol Zdebel on 3/19/2018.
@@ -109,15 +109,15 @@ class LocalPendingTripStorage(private val context: Context) {
 
                 if (curTripId != tripId && curTripId != -1L){
                     //New trip
-                    trips.add(TripData(curTripId,true,vin,curTrip))
+                    trips.add(TripData(curTripId, true, vin, curTrip))
                     Log.d(TAG,"new trip: $curTrip")
                     curTrip = mutableSetOf()
                 }
-                curTrip.add(LocationData(locationId,cursorToLocation(c)))
+                curTrip.add(LocationData(locationId, cursorToLocation(c)))
                 curTripId = tripId
 
                 if (c.isLast){
-                    trips.add(TripData(curTripId,true,vin,curTrip))
+                    trips.add(TripData(curTripId, true, vin, curTrip))
                     Log.d(TAG,"exiting afterlast loop")
                 }
                 c.moveToNext()
@@ -187,9 +187,9 @@ class LocalPendingTripStorage(private val context: Context) {
         db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null)
     }
 
-    private fun cursorToLocation(c: Cursor):PendingLocation = PendingLocation(
-                latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
-                , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
-                , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
-        )
+    private fun cursorToLocation(c: Cursor): PendingLocation = PendingLocation(
+            latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
+            , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
+            , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
+    )
 }

@@ -1,4 +1,6 @@
-package com.pitstop.models.trip_k
+package com.pitstop.models.sensor_data.trip
+
+import com.pitstop.models.sensor_data.DataPoint
 
 /**
  * Created by Karol Zdebel on 3/19/2018.

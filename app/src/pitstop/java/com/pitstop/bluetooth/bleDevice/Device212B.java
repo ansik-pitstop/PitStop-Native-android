@@ -42,6 +42,7 @@ public class Device212B implements AbstractDevice {
 
     private static final String TAG = Device212B.class.getSimpleName();
 
+    public final static String NAME = "212B";
     public final static String FIXED_UPLOAD_TAG = "1202,1201,1203,1204,1205,1206";
     public final static String RTC_TAG = "1A01";
     public final static String VIN_TAG = "2201";
