@@ -94,7 +94,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
-        val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 60000)
+        val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 600000)
         stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
 
