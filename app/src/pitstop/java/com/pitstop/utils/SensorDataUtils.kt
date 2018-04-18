@@ -8,7 +8,6 @@ import com.pitstop.bluetooth.dataPackages.OBD212PidPackage
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.sensor_data.DataPoint
-import com.pitstop.models.sensor_data.pid.PidData
 
 /**
  * Created by Karol Zdebel on 4/18/2018.
@@ -18,7 +17,7 @@ class SensorDataUtils {
         fun pidToSensorDataFormat(pid: PidPackage, vin: String): Set<DataPoint>{
             val dataPointList = mutableSetOf<DataPoint>()
             dataPointList.add(DataPoint(DataPoint.ID_VIN,vin))
-            dataPointList.add(DataPoint(DataPoint.ID_DEVICE_ID))
+            dataPointList.add(DataPoint(DataPoint.ID_DEVICE_ID,pid.deviceId))
             pid.pids.forEach({
                 dataPointList.add(DataPoint(it.key,it.value))
             })
@@ -38,7 +37,7 @@ class SensorDataUtils {
         fun pidListToSensorDataFormat(pids: List<PidPackage>, vin: String): List<Set<DataPoint>>{
             val retData = arrayListOf<Set<DataPoint>>()
             pids.forEach({
-                retData.add(pidToSensorDataFormat(it),vin)
+                retData.add(pidToSensorDataFormat(it,vin))
             })
             return retData
         }

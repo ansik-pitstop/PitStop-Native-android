@@ -11,6 +11,14 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 class RetrofitTestUtil {
     companion object {
+        fun getSensorDataApi(): PitstopSensorDataApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(PitstopSensorDataApi::class.java)
+
         fun getAppointmentApi(): PitstopAppointmentApi = Retrofit.Builder()
                 .baseUrl(getBaseURL())
                 .addConverterFactory(GsonConverterFactory.create())

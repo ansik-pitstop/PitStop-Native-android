@@ -1,10 +1,11 @@
 package com.pitstop.retrofit;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.pitstop.bluetooth.dataPackages.ELM327PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
-import com.pitstop.models.sensor_data.pid.PidData;
+import com.pitstop.models.sensor_data.DataPoint;
 import com.pitstop.utils.SensorDataUtils;
 
 import org.junit.Test;
@@ -15,6 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * Created by Karol Zdebel on 4/18/2018.
@@ -30,10 +40,43 @@ public class PitstopSensorDataApiTest {
         String VIN = "1G1JC5444R7252367";
         String deviceID = "215B002373";
         int pidNum = 1;
+        Gson gson = new Gson();
 
-        Set<PidData> inputData = SensorDataUtils.Companion
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        List<Set<DataPoint>> inputData = SensorDataUtils.Companion
                 .pidListToSensorDataFormat(get215PidData(pidNum,deviceID),VIN);
-        System.out.println("Input data: "+new Gson().toJsonTree(inputData));
+        System.out.println("Input data: "+gson.toJsonTree(inputData));
+
+        RetrofitTestUtil.Companion.getSensorDataApi()
+                .store(gson.toJsonTree(inputData)).subscribeWith(new Observer<JsonObject>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(JsonObject jsonObject) {
+                System.out.println("onNext() json: "+jsonObject);
+                future.complete(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println("onError() err: "+e);
+                future.complete(false);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+        try{
+            assertEquals((Boolean)true,future.get(12000, TimeUnit.MILLISECONDS));
+        }catch(InterruptedException | ExecutionException | TimeoutException e){
+            e.printStackTrace();
+            throw new AssertionError();
+        }
     }
 
     private List<OBD215PidPackage> get215PidData(int len, String deviceID){
