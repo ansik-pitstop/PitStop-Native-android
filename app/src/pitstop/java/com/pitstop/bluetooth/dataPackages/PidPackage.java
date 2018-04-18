@@ -42,7 +42,7 @@ public abstract class PidPackage {
         return pids;
     }
 
-    public void setPids(HashMap<String, String> newpids){
+    public void setPids(Map<String, String> newpids){
         this.pids = newpids;
     }
 

@@ -28,19 +28,36 @@ public class PitstopSensorDataApiTest {
 
     }
 
-    private List<OBD215PidPackage> get215PidData(String deviceID, String VIN, int len){
+    private List<OBD215PidPackage> get215PidData(int len, String deviceID){
         List<OBD215PidPackage> obd215PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
-            //OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID,  )
+            OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
+                    , String.valueOf(System.currentTimeMillis()),"0");
+            obd215PidPackage.setPids(getPidMap());
+            obd215PidPackageList.add(obd215PidPackage);
         }
+        return obd215PidPackageList;
     }
 
-    private List<OBD212PidPackage> get212PidData(){
-
+    private List<OBD212PidPackage> get212PidData(int len, String deviceID){
+        List<OBD212PidPackage> obd212PidPackageList = new ArrayList<>();
+        for (int i=0;i<len;i++){
+            OBD212PidPackage obd212PidPackage = new OBD212PidPackage(deviceID
+                    , String.valueOf(System.currentTimeMillis()),"0");
+            obd212PidPackage.setPids(getPidMap());
+            obd212PidPackageList.add(obd212PidPackage);
+        }
+        return obd212PidPackageList;
     }
 
-    private List<ELM327PidPackage> get327PidData(){
-
+    private List<ELM327PidPackage> get327PidData(int len, String deviceID){
+        List<ELM327PidPackage> elm327PidPackageList = new ArrayList<>();
+        for (int i=0;i<len;i++){
+            ELM327PidPackage elm327PidPackage = new ELM327PidPackage(deviceID);
+            elm327PidPackage.setPids(getPidMap());
+            elm327PidPackageList.add(elm327PidPackage);
+        }
+        return elm327PidPackageList;
     }
 
     private Map<String,String> getPidMap(){
