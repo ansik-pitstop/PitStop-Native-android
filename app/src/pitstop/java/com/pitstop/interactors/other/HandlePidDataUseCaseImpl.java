@@ -202,14 +202,8 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
 
         if (pidPackage instanceof CastelPidPackage){
             CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
-            tripId = castelPidPackage.getTripId();
             tripMileage = castelPidPackage.getMileage();
-            try{
-                tripIdRaw = Long.valueOf(((CastelPidPackage) pidPackage).getTripId());
-            }catch(NumberFormatException e){
-                e.printStackTrace();
-                tripIdRaw = -1;
-            }
+            tripIdRaw = -1;
             try{
                 mileage = Double.valueOf(((CastelPidPackage) pidPackage).getMileage());
             }catch (NumberFormatException e){
@@ -238,7 +232,6 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         if (pidPackage instanceof CastelPidPackage){
             CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
             mileage = castelPidPackage.getMileage();
-            tripId = castelPidPackage.getTripId();
             rtcTime = castelPidPackage.getRtcTime();
         }
 

@@ -376,8 +376,8 @@ public class Device212B implements AbstractDevice {
             if(dataPackageInfo.result == 4 && tripFlag.equals("1")
                     && dataPackageInfo.obdData != null && dataPackageInfo.obdData.size() > 0) {
                 Log.d(TAG, "Result 4 PIDs");
-                OBD212PidPackage templatePidPackage = new OBD212PidPackage(dataPackageInfo.deviceId,dataPackageInfo.rtcTime
-                        ,false,dataPackageInfo.tripId,dataPackageInfo.tripMileage);
+                OBD212PidPackage templatePidPackage = new OBD212PidPackage(dataPackageInfo.deviceId
+                        ,dataPackageInfo.rtcTime,dataPackageInfo.tripMileage);
 
                 // pid map for aggregated pid
                 HashMap<String, String[]> aggregatePidMap = new HashMap<>();

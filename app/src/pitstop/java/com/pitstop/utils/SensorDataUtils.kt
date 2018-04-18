@@ -15,29 +15,32 @@ import com.pitstop.models.sensor_data.pid.PidData
  */
 class SensorDataUtils {
     companion object {
-        fun pidToSensorDataFormat(pid: PidPackage, vin: String): PidData{
-            val dataPointList = arrayListOf<DataPoint>()
+        fun pidToSensorDataFormat(pid: PidPackage, vin: String): Set<DataPoint>{
+            val dataPointList = mutableSetOf<DataPoint>()
+            dataPointList.add(DataPoint(DataPoint.ID_VIN,vin))
+            dataPointList.add(DataPoint(DataPoint.ID_DEVICE_ID))
             pid.pids.forEach({
                 dataPointList.add(DataPoint(it.key,it.value))
             })
             if (pid is OBD215PidPackage){
-                return PidData(dataPointList.toSet(),pid.deviceId,vin,Device215B.NAME)
+                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,Device215B.NAME))
 
             }else if (pid is ELM327PidPackage){
-                return PidData(dataPointList.toSet(),pid.deviceId,vin,ELM327Device.NAME)
+                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,ELM327Device.NAME))
             }else if (pid is OBD212PidPackage){
-                return PidData(dataPointList.toSet(),pid.deviceId,vin,Device212B.NAME)
+                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,Device212B.NAME))
             }else{
                 throw IllegalArgumentException()
             }
+            return dataPointList
         }
 
-        fun pidListToSensorDataFormat(pids: List<PidPackage>, vin: String): Set<PidData>{
-            val pidData = arrayListOf<PidData>()
+        fun pidListToSensorDataFormat(pids: List<PidPackage>, vin: String): List<Set<DataPoint>>{
+            val retData = arrayListOf<Set<DataPoint>>()
             pids.forEach({
-                pidData.add(pidToSensorDataFormat(it,vin))
+                retData.add(pidToSensorDataFormat(it),vin)
             })
-            return pidData.toSet()
+            return retData
         }
     }
 }

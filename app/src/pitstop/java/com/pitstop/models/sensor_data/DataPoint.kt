@@ -24,5 +24,7 @@ data class DataPoint(val id: String, val data: String){
         const val ID_END_LATITUDE = "end_latitude"
         const val ID_START_LONGTITUDE = "start_longitude"
         const val ID_END_LONGITUDE = "end_longitude"
+        const val ID_DEVICE_TYPE = "deviceType"
+        const val ID_DEVICE_ID = "deviceId"
     }
 }

@@ -1,10 +1,11 @@
 package com.pitstop.retrofit;
 
-import android.util.Log;
-
+import com.google.gson.Gson;
 import com.pitstop.bluetooth.dataPackages.ELM327PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
+import com.pitstop.models.sensor_data.pid.PidData;
+import com.pitstop.utils.SensorDataUtils;
 
 import org.junit.Test;
 
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by Karol Zdebel on 4/18/2018.
@@ -24,8 +26,14 @@ public class PitstopSensorDataApiTest {
 
     @Test
     public void storeSensorDataTest(){
-        Log.d(TAG,"storeSensorDataTest()");
+        System.out.println("storeSensorDataTest()");
+        String VIN = "1G1JC5444R7252367";
+        String deviceID = "215B002373";
+        int pidNum = 1;
 
+        Set<PidData> inputData = SensorDataUtils.Companion
+                .pidListToSensorDataFormat(get215PidData(pidNum,deviceID),VIN);
+        System.out.println("Input data: "+new Gson().toJsonTree(inputData));
     }
 
     private List<OBD215PidPackage> get215PidData(int len, String deviceID){
