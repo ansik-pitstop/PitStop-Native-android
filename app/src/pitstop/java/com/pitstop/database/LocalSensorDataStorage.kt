@@ -15,22 +15,25 @@ class LocalSensorDataStorage(context: Context) {
     private val databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
     // TRIP table create statement
-    val CREATE_TABLE_SENSOR_DATA = ("CREATE TABLE IF NOT EXISTS "
-            + TABLES.SENSOR_DATA.TABLE_NAME + "("
-            + TABLES.SENSOR_DATA.DEVICE_TIMESTAMP+ " INTEGER PRIMARY KEY, "
-            + TABLES.SENSOR_DATA.RTC_TIME+ " INTEGER NOT NULL, "
-            + TABLES.SENSOR_DATA.DEVICE_ID+ " TEXT, "
-            + TABLES.SENSOR_DATA.DEVICE_TYPE+ " TEXT, "
-            + TABLES.SENSOR_DATA.VIN + " TEXT" + ")")
+    companion object {
+        const val CREATE_TABLE_SENSOR_DATA = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.SENSOR_DATA.TABLE_NAME + "("
+                + TABLES.SENSOR_DATA.DEVICE_TIMESTAMP+ " INTEGER PRIMARY KEY, "
+                + TABLES.SENSOR_DATA.RTC_TIME+ " INTEGER NOT NULL, "
+                + TABLES.SENSOR_DATA.DEVICE_ID+ " TEXT, "
+                + TABLES.SENSOR_DATA.DEVICE_TYPE+ " TEXT, "
+                + TABLES.SENSOR_DATA.VIN + " TEXT" + ")")
 
-    val CREATE_TABLE_SENSOR_DATA_POINT = ("CREATE TALBE IF NOT EXISTS "
-            + TABLES.SENSOR_DATA_POINT.TABLE_NAME + "("
-            + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + TABLES.SENSOR_DATA.RTC_TIME + " INTEGER, "
-            + TABLES.SENSOR_DATA_POINT.DATA_ID +" TEXT, "
-            + TABLES.SENSOR_DATA_POINT.DATA_VALUE +" TEXT, "
-            + "FOREIGN KEY ("+TABLES.SENSOR_DATA_POINT.TABLE_NAME+") REFERENCES "
-            +TABLES.SENSOR_DATA.TABLE_NAME+"("+TABLES.SENSOR_DATA.RTC_TIME+")" +")")
+        const val CREATE_TABLE_SENSOR_DATA_POINT = ("CREATE TALBE IF NOT EXISTS "
+                + TABLES.SENSOR_DATA_POINT.TABLE_NAME + "("
+                + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + TABLES.SENSOR_DATA.RTC_TIME + " INTEGER, "
+                + TABLES.SENSOR_DATA_POINT.DATA_ID +" TEXT, "
+                + TABLES.SENSOR_DATA_POINT.DATA_VALUE +" TEXT, "
+                + "FOREIGN KEY ("+TABLES.SENSOR_DATA_POINT.TABLE_NAME+") REFERENCES "
+                +TABLES.SENSOR_DATA.TABLE_NAME+"("+TABLES.SENSOR_DATA.RTC_TIME+")" +")")
+
+    }
 
     fun store(sensorData: SensorData){
         Log.d(TAG,"store() sensorData.data.size = ${sensorData.data.size}")
@@ -75,10 +78,13 @@ class LocalSensorDataStorage(context: Context) {
                 val deviceType = cursor.getString(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TYPE))
                 val deviceTimestamp = cursor.getLong(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP))
 
+                Log.d(TAG,"Got sensor data row rtcTime: $rtcTime vin: $vin")
+
                 val dataPointCursor = db.query(TABLES.SENSOR_DATA_POINT.TABLE_NAME
                     ,null,TABLES.SENSOR_DATA.RTC_TIME+"=?", arrayOf(rtcTime.toString())
                 ,TABLES.SENSOR_DATA.RTC_TIME,null,null)
 
+                Log.d(TAG,"Got ${dataPointCursor.count} data points for rtcTime: $rtcTime")
                 val dataPoints = mutableSetOf<DataPoint>()
                 if (dataPointCursor.moveToFirst()){
                     while (!dataPointCursor.isAfterLast){

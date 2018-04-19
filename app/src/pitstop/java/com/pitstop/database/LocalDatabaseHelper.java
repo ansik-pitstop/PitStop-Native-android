@@ -58,6 +58,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION_END);
         db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION_POLYLINE);
         db.execSQL(LocalTripStorage.CREATE_TABLE_LOCATION);
+        db.execSQL(LocalSensorDataStorage.CREATE_TABLE_SENSOR_DATA);
+        db.execSQL(LocalSensorDataStorage.CREATE_TABLE_SENSOR_DATA_POINT);
     }
 
     @Override
@@ -83,6 +85,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_POLYLINE.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PENDING_TRIP_DATA.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.SENSOR_DATA.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.SENSOR_DATA_POINT.TABLE_NAME);
         onCreate(db);
     }
 
