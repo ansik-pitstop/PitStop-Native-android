@@ -39,11 +39,11 @@ public class LocalSensorDataStorageTest {
     public void storeSensorDataTest(){
         Log.d(TAG,"storeSensorDataTest()");
         Collection<SensorData> sensorDataCollection
-                =  SensorDataTestUtil.get215SensorData(2,deviceID,VIN);
-        Log.d(TAG,"generated sensor data: "+sensorDataCollection);
+                =  SensorDataTestUtil.get215SensorData(1,deviceID,VIN);
+        Log.d(TAG,"generated sensor data: "+gson.toJsonTree(sensorDataCollection));
         sensorDataCollection.forEach(sensorData -> localSensorDataStorage.store(sensorData));
         Collection<SensorData> retrievedSensorDataCollection = localSensorDataStorage.getAll();
-        Log.d(TAG,"retrieved: "+retrievedSensorDataCollection);
+        Log.d(TAG,"retrieved: "+gson.toJsonTree(retrievedSensorDataCollection));
         Assert.assertEquals(sensorDataCollection,retrievedSensorDataCollection);
     }
 

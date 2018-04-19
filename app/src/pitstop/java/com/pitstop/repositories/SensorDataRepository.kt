@@ -13,7 +13,7 @@ import com.pitstop.utils.SensorDataUtils
 class SensorDataRepository(private val local: LocalSensorDataStorage
                            , private val remote: PitstopSensorDataApi): Repository {
 
-    private val TAG = SensorDataRepository::class.simpleName
+    private val TAG = SensorDataRepository::class.java.simpleName
     private val CHUNK_SIZE = 10
     private val gson = Gson()
 

@@ -29,8 +29,8 @@ public class SensorDataTestUtil {
         List<OBD215PidPackage> obd215PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
-                    , String.valueOf(System.currentTimeMillis())
-                    ,"0",System.currentTimeMillis()+(i*1000));
+                    , String.valueOf(System.currentTimeMillis()+(i*10000L))
+                    ,"0",System.currentTimeMillis()+(i*10000L));
             obd215PidPackage.setPids(getPidMap());
             obd215PidPackageList.add(obd215PidPackage);
         }
@@ -41,8 +41,8 @@ public class SensorDataTestUtil {
         List<OBD212PidPackage> obd212PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD212PidPackage obd212PidPackage = new OBD212PidPackage(deviceID
-                    , String.valueOf(System.currentTimeMillis()+(i*1000))
-                    ,"0",System.currentTimeMillis());
+                    , String.valueOf(System.currentTimeMillis()+(i*10000L))
+                    ,"0",System.currentTimeMillis()+(i*10000L));
             obd212PidPackage.setPids(getPidMap());
             obd212PidPackageList.add(obd212PidPackage);
         }
@@ -53,7 +53,7 @@ public class SensorDataTestUtil {
         List<ELM327PidPackage> elm327PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             ELM327PidPackage elm327PidPackage = new ELM327PidPackage(deviceID
-                    ,System.currentTimeMillis()+(i*1000));
+                    ,System.currentTimeMillis()+(i*10000L));
             elm327PidPackage.setPids(getPidMap());
             elm327PidPackageList.add(elm327PidPackage);
         }

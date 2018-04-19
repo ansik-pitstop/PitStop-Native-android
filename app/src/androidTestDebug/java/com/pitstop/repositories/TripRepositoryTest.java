@@ -15,7 +15,7 @@ import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.models.trip_k.TripData;
+import com.pitstop.models.sensor_data.trip.TripData;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
