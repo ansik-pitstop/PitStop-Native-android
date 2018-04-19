@@ -22,7 +22,9 @@ import java.util.Collection;
 public class LocalSensorDataStorageTest {
     private final String TAG = LocalSensorDataStorageTest.class.getSimpleName();
     private final String VIN = "1GB0CVCL7BF147611";
-    private String deviceID = "215B002373";
+    private final String deviceID = "215B002373";
+    private final String VIN2 = "1BK0FUC7BF147Y0U";
+    private final String deviceID2 = "215B002888";
 
     private LocalSensorDataStorage localSensorDataStorage;
     private Gson gson;
@@ -36,20 +38,16 @@ public class LocalSensorDataStorageTest {
     }
 
     @Test
-    public void storeSensorDataTest(){
+    public void storeGetAllSensorDataTest(){
         Log.d(TAG,"storeSensorDataTest()");
         Collection<SensorData> sensorDataCollection
-                =  SensorDataTestUtil.get215SensorData(1,deviceID,VIN);
+                =  SensorDataTestUtil.get215SensorData(3,deviceID,VIN);
+        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
         Log.d(TAG,"generated sensor data: "+gson.toJsonTree(sensorDataCollection));
         sensorDataCollection.forEach(sensorData -> localSensorDataStorage.store(sensorData));
         Collection<SensorData> retrievedSensorDataCollection = localSensorDataStorage.getAll();
         Log.d(TAG,"retrieved: "+gson.toJsonTree(retrievedSensorDataCollection));
         Assert.assertEquals(sensorDataCollection,retrievedSensorDataCollection);
-    }
-
-    @Test
-    public void getAllSensorDataTest(){
-        Log.d(TAG,"getAllSensorDataTest");
     }
 
     @Test
