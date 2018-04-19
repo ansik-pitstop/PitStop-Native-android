@@ -1,9 +1,10 @@
 package com.pitstop.database
 
-import com.pitstop.models.sensor_data.SensorData
+import android.content.ContentValues
 import android.content.Context
 import android.util.Log
 import com.pitstop.models.sensor_data.DataPoint
+import com.pitstop.models.sensor_data.SensorData
 
 /**
  * Created by Karol Zdebel on 4/19/2018.
@@ -31,21 +32,39 @@ class LocalSensorDataStorage(context: Context) {
             + "FOREIGN KEY ("+TABLES.SENSOR_DATA_POINT.TABLE_NAME+") REFERENCES "
             +TABLES.SENSOR_DATA.TABLE_NAME+"("+TABLES.SENSOR_DATA.RTC_TIME+")" +")")
 
-            )
-
     fun store(sensorData: SensorData){
         Log.d(TAG,"store() sensorData.data.size = ${sensorData.data.size}")
+
+        val db = databaseHelper.writableDatabase
+
+        db.beginTransaction()
+        val sensorDataContent = ContentValues()
+        sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP,sensorData.timestamp)
+        sensorDataContent.put(TABLES.SENSOR_DATA.RTC_TIME,sensorData.rtcTime)
+        sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_TYPE,sensorData.deviceType)
+        sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_ID,sensorData.deviceId)
+        sensorDataContent.put(TABLES.SENSOR_DATA.VIN,sensorData.vin)
+        db.insert(TABLES.SENSOR_DATA.TABLE_NAME
+                ,null,sensorDataContent)
+
+        sensorData.data.forEach {
+            val sensorDataPointContent = ContentValues()
+            sensorDataPointContent.put(TABLES.SENSOR_DATA_POINT.DATA_ID,it.id)
+            sensorDataPointContent.put(TABLES.SENSOR_DATA_POINT.DATA_VALUE,it.data)
+            sensorDataPointContent.put(TABLES.SENSOR_DATA.RTC_TIME, sensorData.rtcTime)
+            db.insert(TABLES.SENSOR_DATA_POINT.TABLE_NAME,null,sensorDataPointContent)
+        }
+        db.setTransactionSuccessful()
+        db.endTransaction()
     }
 
     fun getAll(): Collection<SensorData>{
         Log.d(TAG,"getAll()")
-        val query = String.format("SELECT * FROM %s INNER JOIN %s ON %s.%s = %s.%s GROUP BY %s ORDER BY %s"
-                ,TABLES.SENSOR_DATA.TABLE_NAME,TABLES.SENSOR_DATA_POINT.TABLE_NAME
-                , TABLES.SENSOR_DATA.TABLE_NAME, TABLES.SENSOR_DATA.RTC_TIME
-                , TABLES.SENSOR_DATA_POINT.TABLE_NAME, TABLES.SENSOR_DATA.RTC_TIME
-                , TABLES.SENSOR_DATA.RTC_TIME, TABLES.SENSOR_DATA.RTC_TIME)
         val sensorDataSet = mutableSetOf<SensorData>()
-        val cursor = databaseHelper.readableDatabase.query(TABLES.SENSOR_DATA.TABLE_NAME,null,null
+        val db = databaseHelper.readableDatabase
+
+        db.beginTransaction()
+        val cursor = db.query(TABLES.SENSOR_DATA.TABLE_NAME,null,null
                 ,null,TABLES.SENSOR_DATA.VIN, null, TABLES.SENSOR_DATA.RTC_TIME)
 
         if (cursor.moveToFirst()){
@@ -56,7 +75,7 @@ class LocalSensorDataStorage(context: Context) {
                 val deviceType = cursor.getString(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TYPE))
                 val deviceTimestamp = cursor.getLong(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP))
 
-                val dataPointCursor = databaseHelper.readableDatabase.query(TABLES.SENSOR_DATA_POINT.TABLE_NAME
+                val dataPointCursor = db.query(TABLES.SENSOR_DATA_POINT.TABLE_NAME
                     ,null,TABLES.SENSOR_DATA.RTC_TIME+"=?", arrayOf(rtcTime.toString())
                 ,TABLES.SENSOR_DATA.RTC_TIME,null,null)
 
@@ -72,8 +91,11 @@ class LocalSensorDataStorage(context: Context) {
                 dataPointCursor.close()
             }
         }
-
         cursor.close()
+        db.setTransactionSuccessful()
+        db.endTransaction()
+
+        return sensorDataSet
 
     }
 
