@@ -11,7 +11,7 @@ import java.util.*
 /**
  * Created by Karol Zdebel on 3/20/2018.
  */
-class Util {
+class TripTestUtil {
     companion object {
 
         val TAG = javaClass.simpleName

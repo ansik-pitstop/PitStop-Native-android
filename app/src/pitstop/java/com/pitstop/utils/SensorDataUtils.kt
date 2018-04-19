@@ -15,30 +15,31 @@ import com.pitstop.models.sensor_data.SensorData
  */
 class SensorDataUtils {
     companion object {
-        fun pidToSensorDataFormat(pid: PidPackage, vin: String): Set<DataPoint>{
-            val dataPointList = mutableSetOf<DataPoint>()
-            dataPointList.add(DataPoint(DataPoint.ID_VIN,vin))
-            dataPointList.add(DataPoint(DataPoint.ID_DEVICE_ID,pid.deviceId))
-            pid.pids.forEach({
-                dataPointList.add(DataPoint(it.key,it.value))
-            })
+        fun pidToSensorData(pid: PidPackage, vin: String): SensorData{
+            val deviceName: String
+            val rtcTime: Long
             if (pid is OBD215PidPackage){
-                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,Device215B.NAME))
+                deviceName = Device215B.NAME
+                rtcTime = pid.rtcTime.toLong()
 
             }else if (pid is ELM327PidPackage){
-                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,ELM327Device.NAME))
+                deviceName = ELM327Device.NAME
+                rtcTime = 0
             }else if (pid is OBD212PidPackage){
-                dataPointList.add(DataPoint(DataPoint.ID_DEVICE_TYPE,Device212B.NAME))
+                deviceName = Device212B.NAME
+                rtcTime = pid.rtcTime.toLong()
             }else{
                 throw IllegalArgumentException()
             }
-            return dataPointList
+
+            return SensorData(pid.deviceId,vin,rtcTime,deviceName,pid.timestamp
+                    , pid.pids.map { DataPoint(it.key,it.value) }.toSet())
         }
 
-        fun pidListToSensorDataFormat(pids: List<PidPackage>, vin: String): List<Set<DataPoint>>{
-            val retData = arrayListOf<Set<DataPoint>>()
+        fun pidCollectionToSensorDataCollection(pids: Collection<PidPackage>, vin: String): Collection<SensorData>{
+            val retData = mutableSetOf<SensorData>()
             pids.forEach({
-                retData.add(pidToSensorDataFormat(it,vin))
+                retData.add(pidToSensorData(it,vin))
             })
             return retData
         }

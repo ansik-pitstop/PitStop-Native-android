@@ -57,7 +57,7 @@ import java.util.UUID;
 
 public class ELM327Device implements AbstractDevice {
 
-    public static String NAME = "ELM327";
+    public static String NAME = "obdELM327";
 
     private final String TAG = getClass().getSimpleName();
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -96,7 +96,7 @@ public class ELM327Device implements AbstractDevice {
 
     private void start(){
         Log.d(TAG,"start()");
-        pidPackage = new ELM327PidPackage(deviceName);
+        pidPackage = new ELM327PidPackage(deviceName,System.currentTimeMillis());
 
         next();
     }

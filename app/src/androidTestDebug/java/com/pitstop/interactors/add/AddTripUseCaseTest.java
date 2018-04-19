@@ -7,7 +7,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.pitstop.Util;
+import com.pitstop.TripTestUtil;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -60,7 +60,7 @@ public class AddTripUseCaseTest {
 
         List<Location> trip = new ArrayList<>();
         for (int i=0;i<3;i++){
-            trip.add(Util.Companion.getRandomLocation());
+            trip.add(TripTestUtil.Companion.getRandomLocation());
         }
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();

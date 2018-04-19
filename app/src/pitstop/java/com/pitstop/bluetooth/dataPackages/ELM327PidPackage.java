@@ -5,8 +5,8 @@ package com.pitstop.bluetooth.dataPackages;
  */
 
 public class ELM327PidPackage extends PidPackage {
-    public ELM327PidPackage(String deviceId) {
-        super(deviceId);
+    public ELM327PidPackage(String deviceId, long timestamp) {
+        super(deviceId,timestamp);
     }
 
     public ELM327PidPackage(ELM327PidPackage pidPackage) {
