@@ -1,7 +1,11 @@
 package com.pitstop
 
 import android.location.Location
-import com.pitstop.models.trip_k.*
+import com.pitstop.models.sensor_data.DataPoint
+import com.pitstop.models.sensor_data.trip.LocationData
+import com.pitstop.models.sensor_data.trip.LocationDataFormatted
+import com.pitstop.models.sensor_data.trip.PendingLocation
+import com.pitstop.models.sensor_data.trip.TripData
 import java.util.*
 
 /**
@@ -46,7 +50,7 @@ class Util {
             return location
         }
 
-        fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData{
+        fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData {
             val trip: MutableSet<LocationData> = hashSetOf()
 
             for (i in 1..locNum){
