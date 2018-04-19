@@ -159,6 +159,22 @@ public final class TABLES {
         String FUEL_CONSUMED = "fuelConsumed";
     }
 
+    // Sensor Data tables //
+    public interface SENSOR_DATA{
+        String TABLE_NAME = "SensorData";
+        String DEVICE_ID = "deviceId";
+        String RTC_TIME = "rtcTime";
+        String VIN = "vin";
+        String DEVICE_TIMESTAMP = "deviceTimestamp";
+        String DEVICE_TYPE = "deviceType";
+    }
+
+    public interface SENSOR_DATA_POINT{
+        String TABLE_NAME = "SensorDataPoint";
+        String DATA_ID = "dataId";
+        String DATA_VALUE = "dataValue";
+    }
+
     // TRIP tables //
 
     public interface TRIP {
