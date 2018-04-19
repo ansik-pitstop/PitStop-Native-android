@@ -5,9 +5,15 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.pitstop.SensorDataTestUtil;
+import com.pitstop.models.sensor_data.SensorData;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
 
 /**
  * Created by Karol Zdebel on 4/19/2018.
@@ -16,6 +22,7 @@ import org.junit.Test;
 public class LocalSensorDataStorageTest {
     private final String TAG = LocalSensorDataStorageTest.class.getSimpleName();
     private final String VIN = "1GB0CVCL7BF147611";
+    private String deviceID = "215B002373";
 
     private LocalSensorDataStorage localSensorDataStorage;
     private Gson gson;
@@ -31,6 +38,13 @@ public class LocalSensorDataStorageTest {
     @Test
     public void storeSensorDataTest(){
         Log.d(TAG,"storeSensorDataTest()");
+        Collection<SensorData> sensorDataCollection
+                =  SensorDataTestUtil.get215SensorData(2,deviceID,VIN);
+        Log.d(TAG,"generated sensor data: "+sensorDataCollection);
+        sensorDataCollection.forEach(sensorData -> localSensorDataStorage.store(sensorData));
+        Collection<SensorData> retrievedSensorDataCollection = localSensorDataStorage.getAll();
+        Log.d(TAG,"retrieved: "+retrievedSensorDataCollection);
+        Assert.assertEquals(sensorDataCollection,retrievedSensorDataCollection);
     }
 
     @Test
