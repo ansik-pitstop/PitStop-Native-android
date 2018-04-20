@@ -13,7 +13,10 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Karol Zdebel on 4/19/2018.
@@ -48,6 +51,28 @@ public class LocalSensorDataStorageTest {
         Collection<SensorData> retrievedSensorDataCollection = localSensorDataStorage.getAll();
         Log.d(TAG,"retrieved: "+gson.toJsonTree(retrievedSensorDataCollection));
         Assert.assertEquals(sensorDataCollection,retrievedSensorDataCollection);
+    }
+
+    @Test
+    public void deleteSensorDataTest(){
+        Log.d(TAG,"deleteSensorDataTest()");
+        List<SensorData> sensorDataCollection
+                =  new ArrayList<>(SensorDataTestUtil.get215SensorData(3,deviceID,VIN));
+        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
+        sensorDataCollection.forEach((next) -> localSensorDataStorage.store(next));
+        List<SensorData> toRemove = new ArrayList<>();
+
+        //Remove first and last from db and compare
+        toRemove.add(sensorDataCollection.get(0));
+        toRemove.add(sensorDataCollection.get(sensorDataCollection.size()-1));
+        sensorDataCollection.remove(0);
+        sensorDataCollection.remove(sensorDataCollection.size()-1);
+        Assert.assertTrue(localSensorDataStorage.delete(toRemove) > 0);
+        Assert.assertEquals(new HashSet<>(sensorDataCollection),new HashSet<>(localSensorDataStorage.getAll()));
+
+        //Remove remaining from db and make sure its empty afterwards
+        Assert.assertTrue(localSensorDataStorage.delete(sensorDataCollection) > 0);
+        Assert.assertTrue(localSensorDataStorage.getAll().isEmpty());
     }
 
     @Test

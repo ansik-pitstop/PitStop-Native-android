@@ -114,6 +114,23 @@ class LocalSensorDataStorage(context: Context) {
 
     }
 
+    fun delete(sensorData: Collection<SensorData>): Int{
+        Log.d(TAG,"delete()")
+        val db = databaseHelper.writableDatabase
+        var rows = 0
+        db.beginTransaction()
+        sensorData.forEach({
+            rows += db.delete(TABLES.SENSOR_DATA_POINT.TABLE_NAME
+                    ,TABLES.SENSOR_DATA.RTC_TIME+"=?", arrayOf(it.rtcTime.toString()))
+            rows += db.delete(TABLES.SENSOR_DATA.TABLE_NAME,TABLES.SENSOR_DATA.RTC_TIME+"=?"
+                    ,arrayOf(it.rtcTime.toString()))
+        })
+        db.setTransactionSuccessful()
+        db.endTransaction()
+        Log.d(TAG,"deleted $rows rows")
+        return rows
+    }
+
     fun deleteAll(){
         Log.d(TAG,"deleteAll()")
         databaseHelper.writableDatabase.delete(TABLES.SENSOR_DATA.TABLE_NAME
