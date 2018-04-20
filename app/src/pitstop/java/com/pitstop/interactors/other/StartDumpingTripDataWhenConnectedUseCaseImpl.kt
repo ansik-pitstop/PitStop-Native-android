@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import com.pitstop.models.DebugMessage
+import com.pitstop.repositories.SensorDataRepository
 import com.pitstop.repositories.TripRepository
 import com.pitstop.utils.Logger
 
@@ -9,6 +10,7 @@ import com.pitstop.utils.Logger
  * Created by Karol Zdebel on 3/21/2018.
  */
 class StartDumpingTripDataWhenConnectedUseCaseImpl(private val tripRepository: TripRepository
+                                                   , private val sensorDataRepository: SensorDataRepository
                                                    , private val usecaseHandler: Handler
                                                    , private val mainHandler: Handler)
     : StartDumpingTripDataWhenConnecteUseCase {
@@ -24,6 +26,7 @@ class StartDumpingTripDataWhenConnectedUseCaseImpl(private val tripRepository: T
 
     override fun run() {
         tripRepository.dumpDataOnConnectedToNetwork()
+        sensorDataRepository.dumpDataOnConnectedToNetwork()
         Logger.getInstance()!!.logI(TAG, "Use case execution finished: started dumping data"
                 , DebugMessage.TYPE_USE_CASE)
         mainHandler.post {
