@@ -29,13 +29,13 @@
             android:id="@+id/mapview_trips"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="70"></com.pitstop.ui.MapView>
+            android:layout_weight="35"></com.pitstop.ui.MapView>
 
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="30" />
+            android:layout_weight="65" />
 
     </LinearLayout>
 
