@@ -43,9 +43,9 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                 })
     }
 
-    fun store(sensorData: SensorData){
+    fun store(sensorData: Collection<SensorData>){
         Log.d(TAG,"store()")
-        local.store(sensorData)
+        sensorData.forEach { local.store(it) }
     }
 
     fun dumpData(): Observable<Int> {
@@ -80,9 +80,9 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
         })
     }
 
-    fun storeThenDump(sensorData: SensorData){
+    fun storeThenDump(sensorData: Collection<SensorData>): Observable<Int>{
         store(sensorData)
-        dumpData()
+        return dumpData()
     }
 
     fun deleteAll(){
