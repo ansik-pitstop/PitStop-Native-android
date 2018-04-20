@@ -63,7 +63,7 @@ public class PidRepository implements Repository{
             Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
         }
 
-        networkHelper.postNoAuth("scan/pids", (response, requestError) -> {
+        networkHelper.post("scan/pids", (response, requestError) -> {
             if (requestError == null) {
                 Log.i(TAG, "PIDS saved");
                 callback.onSuccess(pids);

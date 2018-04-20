@@ -353,11 +353,11 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val endCityLocation = DataPoint(DataPoint.ID_END_CITY_LOCATION
                     , if (endAddress == null) "Unknown" else  endAddress.locality ?: "Unknown")
             val startLatitude = DataPoint(DataPoint.ID_START_LATITUDE
-                    , if (startAddress == null) "Unknown" else startAddress.latitude.toString())
+                    ,it.locations.first().data.latitude.toString())
             val endLatitude = DataPoint(DataPoint.ID_END_LATITUDE
-                    , endAddress?.latitude?.toString() ?: "Unknown")
-            val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, startAddress?.longitude?.toString() ?: "null")
-            val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, startAddress?.longitude?.toString() ?: "null")
+                    , it.locations.last().data.latitude.toString())
+            val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, it.locations.first().data.longitude.toString())
+            val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, it.locations.last().data.longitude.toString())
             val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, it.locations.first().data.time.toString())
             val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, it.locations.last().data.time.toString())
             val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
