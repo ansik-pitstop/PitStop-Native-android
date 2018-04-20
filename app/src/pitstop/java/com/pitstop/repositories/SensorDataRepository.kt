@@ -32,10 +32,10 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                 .subscribe({next ->
                     Log.d(TAG,"connectionObservable onNext(): $next")
                     if (next){
-                        dump().subscribeOn(Schedulers.io())
+                        dumpData().subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                                 .subscribe({next ->
-                                    Log.d(TAG,"dump data response: "+next)
+                                    Log.d(TAG,"dumpData data response: "+next)
                                 })
                     }
                 }, {error ->
@@ -48,8 +48,8 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
         local.store(sensorData)
     }
 
-    fun dump(): Observable<Int> {
-        Log.d(TAG,"dump()")
+    fun dumpData(): Observable<Int> {
+        Log.d(TAG,"dumpData()")
         val observableList = arrayListOf<Observable<Int>>()
 
         local.getAll().chunked(CHUNK_SIZE).forEach {
@@ -80,9 +80,9 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
         })
     }
 
-    fun storeDump(sensorData: SensorData){
+    fun storeThenDump(sensorData: SensorData){
         store(sensorData)
-        dump()
+        dumpData()
     }
 
     fun deleteAll(){

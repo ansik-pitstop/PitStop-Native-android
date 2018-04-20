@@ -175,7 +175,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                         dumpData().subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                                 .subscribe({next ->
-                                    Log.d(tag,"dump data response: "+next)
+                                    Log.d(tag,"dumpData data response: "+next)
                                 })
                     }
                 }, {error ->
