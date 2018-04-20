@@ -17,6 +17,7 @@ import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
+import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.Token;
@@ -216,6 +217,19 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(PitstopTripApi.class);
+    }
+
+    @Provides
+    @Singleton
+    PitstopSensorDataApi pitstopSensorDataApi(Context context) {
+
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient(context))
+                .build()
+                .create(PitstopSensorDataApi.class);
     }
 
     @Provides

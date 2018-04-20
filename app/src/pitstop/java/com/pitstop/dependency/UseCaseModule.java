@@ -165,6 +165,7 @@ import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
+import com.pitstop.repositories.SensorDataRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
@@ -761,11 +762,12 @@ public class UseCaseModule {
 
     @Provides
     StartDumpingTripDataWhenConnecteUseCase startDumpingTripDataWhenConnecteUseCase(
-            TripRepository tripRepository, @Named("useCaseHandler")Handler useCaseHandler
+            TripRepository tripRepository, SensorDataRepository sensorDataRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
         return new StartDumpingTripDataWhenConnectedUseCaseImpl(tripRepository
-                , useCaseHandler,mainHandler);
+                , sensorDataRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
