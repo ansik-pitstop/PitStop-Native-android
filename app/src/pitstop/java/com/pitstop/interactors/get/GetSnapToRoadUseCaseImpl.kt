@@ -81,6 +81,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
         Observable.combineLatest(observableList,{
                     val snappedPoints = arrayListOf<SnappedPoint>()
                     it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
+                   // it.forEach { (it as Collection<SnappedPoint>).forEach { Log.d(tag,"returned original index ${it.originalIndex}, coordinates: ${it.location}") } }
                     return@combineLatest snappedPoints
                 }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
