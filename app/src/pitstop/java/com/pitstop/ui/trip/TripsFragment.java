@@ -49,7 +49,7 @@ public class TripsFragment extends Fragment implements TripsView {
 
     private TripsPresenter presenter;
 
-    private TripListFragment tripListFragment;
+    private TripListFragment tripListFragment = new TripListFragment();
     private TripDetailFragment tripDetailFragment;
 
     private AlertDialog unknownErrorDialog;
@@ -92,9 +92,6 @@ public class TripsFragment extends Fragment implements TripsView {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
-
-        tripListFragment = new TripListFragment();
-
         getChildFragmentManager().beginTransaction().add(R.id.fragment_container, tripListFragment).commit();
 
     }
