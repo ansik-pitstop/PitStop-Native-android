@@ -54,7 +54,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     fun onTripParameterSetterReady(tripParameterSetter: TripParameterSetter){
         Log.d(TAG,"onTripParameterSetterReady()")
         this.tripsParameterSetter = tripsParameterSetter
-        if (presenter != null) presenter?.setTripParameterSetter(tripParameterSetter)
+        if (presenter != null){
+            presenter?.setTripParameterSetter(tripParameterSetter)
+            presenter?.onReadyForLoad()
+        }
     }
 
     override fun getTripParameterSetter(): TripParameterSetter? = tripsParameterSetter
