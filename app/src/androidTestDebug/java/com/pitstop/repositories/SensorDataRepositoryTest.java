@@ -56,8 +56,13 @@ public class SensorDataRepositoryTest {
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io(),true)
                 .subscribe(next -> {
-                    completableFuture.complete(true);
                     Log.d(TAG,"next() : "+next);
+                    if (next > 0){
+                        completableFuture.complete(true);
+                    }else{
+                        completableFuture.complete(false);
+                    }
+
                 }, error -> {
                     completableFuture.complete(false);
                     Log.d(TAG,"error() : "+error);

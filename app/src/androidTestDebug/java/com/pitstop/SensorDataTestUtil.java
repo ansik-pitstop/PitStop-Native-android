@@ -22,15 +22,15 @@ public class SensorDataTestUtil {
     private static final String HEX_VAL = "0123456789ABCDEF";
 
     public static Collection<SensorData> get215SensorData(int len, String deviceId, String vin){
-        return SensorDataUtils.Companion.pidCollectionToSensorDataCollection(get212PidData(len,deviceId),vin);
+        return SensorDataUtils.Companion.pidCollectionToSensorDataCollection(get215PidData(len,deviceId),vin);
     }
 
     public static List<OBD215PidPackage> get215PidData(int len, String deviceID){
         List<OBD215PidPackage> obd215PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
-                    , String.valueOf(System.currentTimeMillis()+(i*10000L))
-                    ,"0",System.currentTimeMillis()+(i*10000L));
+                    , String.valueOf(getCurrentTimeAhead(i))
+                    ,"0",getCurrentTimeAhead(i));
             obd215PidPackage.setPids(getPidMap());
             obd215PidPackageList.add(obd215PidPackage);
         }
@@ -41,8 +41,8 @@ public class SensorDataTestUtil {
         List<OBD212PidPackage> obd212PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD212PidPackage obd212PidPackage = new OBD212PidPackage(deviceID
-                    , String.valueOf(System.currentTimeMillis()+(i*10000L))
-                    ,"0",System.currentTimeMillis()+(i*10000L));
+                    , String.valueOf(getCurrentTimeAhead(i))
+                    ,"0",getCurrentTimeAhead(i));
             obd212PidPackage.setPids(getPidMap());
             obd212PidPackageList.add(obd212PidPackage);
         }
@@ -53,7 +53,7 @@ public class SensorDataTestUtil {
         List<ELM327PidPackage> elm327PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             ELM327PidPackage elm327PidPackage = new ELM327PidPackage(deviceID
-                    ,System.currentTimeMillis()+(i*10000L));
+                    ,getCurrentTimeAhead(i));
             elm327PidPackage.setPids(getPidMap());
             elm327PidPackageList.add(elm327PidPackage);
         }
@@ -83,5 +83,9 @@ public class SensorDataTestUtil {
             buffer.append(HEX_VAL.charAt(index));
         }
         return buffer.toString();
+    }
+
+    private static long getCurrentTimeAhead(int ahead){
+        return (System.currentTimeMillis()+(ahead*10000L))/1000;
     }
 }

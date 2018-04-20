@@ -2,6 +2,7 @@ package com.pitstop.repositories
 
 import android.util.Log
 import com.google.gson.Gson
+import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
 import com.pitstop.database.LocalSensorDataStorage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.sensor_data.SensorData
@@ -54,6 +55,7 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
 
         local.getAll().chunked(CHUNK_SIZE).forEach {
             val body = gson.toJsonTree(SensorDataUtils.sensorDataListToDataPointList(it))
+            Log.d(TAG,"body: $body")
             val remoteObservable = remote.store(body)
             remoteObservable
                     .subscribeOn(Schedulers.io())
@@ -62,7 +64,13 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                         Log.d(TAG,"Stored chunk, response: $next")
                         local.delete(it) }
                     ,{err ->
-                        Logger.getInstance().logE(TAG, "Error storing chunk = $err"
+                        var message: String
+                        if (err is HttpException){
+                            message = err.response().message().toString()
+                        }else{
+                            message = err.message.toString()
+                        }
+                        Logger.getInstance().logE(TAG, "Error storing chunk = $message"
                             , DebugMessage.TYPE_REPO)
                     })
 
