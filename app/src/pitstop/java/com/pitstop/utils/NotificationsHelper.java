@@ -1,5 +1,6 @@
 package com.pitstop.utils;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,6 +24,8 @@ import static com.pitstop.bluetooth.BluetoothAutoConnectService.notifID;
 public class NotificationsHelper {
 
     private static Handler mainHandler = new Handler(Looper.getMainLooper());
+    public static final int TRIPS_FG_NOTIF_ID = 2559;
+
 
     public static void cancelConnectedNotification(Context context){
         mainHandler.post(() -> {
@@ -30,6 +33,36 @@ public class NotificationsHelper {
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(notifID);
         });
+    }
+
+    public static Notification getForegroundTripServiceNotification(Context context){
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_push);
+
+        NotificationCompat.Builder mBuilder =
+            new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
+                    .setLargeIcon(icon)
+                    .setColor(context.getResources().getColor(R.color.highlight))
+                    .setContentTitle("Pitstop")
+                    .setContentText("Pitstop is analyzing your cars health");
+
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        resultIntent.putExtra(MainActivity.Companion.getFROM_NOTIF(), true);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+
+        stackBuilder.addParentStack(MainActivity.class);
+
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+
+
+        return mBuilder.build();
     }
 
     public static void sendNotification(Context context, String message, String title){

@@ -288,13 +288,8 @@ public class HttpRequest {
                                     + response.getStatusLine() + " - " + response.getResponseMessage() + " - " + response.getErrorBody(),
                             DebugMessage.TYPE_NETWORK);
 
-                    RequestError error = RequestError.jsonToRequestErrorObject((String) response.getErrorBody());
-                    if (error != null){
-                        error.setStatusCode(response.getStatusCode());
-                    }else{
-                        error = RequestError.getUnknownError();
-                        error.setStatusCode(500);
-                    }
+                    RequestError error = RequestError.getUnknownError();
+                    error.setStatusCode(500);
 
                     listener.done(null, error);
                 }

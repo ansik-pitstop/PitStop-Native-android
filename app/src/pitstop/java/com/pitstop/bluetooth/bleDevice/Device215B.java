@@ -648,8 +648,9 @@ public class Device215B implements AbstractDevice {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
+                        OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
                             , idrInfo.mileage, idrInfo.ignitionTime == null? "" : idrInfo.ignitionTime);
+                    pidPackage.setPids(parsePids(idrInfo.pid));
                     dataListener.idrPidData(pidPackage);
                 }
                 else{

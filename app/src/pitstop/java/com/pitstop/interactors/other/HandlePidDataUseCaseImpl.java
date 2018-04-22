@@ -41,8 +41,8 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
     private Handler mainHandler;
     private PidPackage pidPackage;
     private Callback callback;
+    private static boolean sent = false;
 
-    private static Handler periodicHandler;
     private Runnable periodicPidDataSender = new Runnable() {
         @Override
         public void run() {
@@ -50,7 +50,7 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
             if (Device215TripRepository.getLocalLatestTripId() != -1){
                 insertPidData(Device215TripRepository.getLocalLatestTripId());
             }
-            periodicHandler.postDelayed(this,SEND_INTERVAL);
+            useCaseHandler.postDelayed(this,SEND_INTERVAL);
         }
     };
 
@@ -72,9 +72,9 @@ public class HandlePidDataUseCaseImpl implements HandlePidDataUseCase {
         this.pidChunkSize = chunkSize;
 
         //This will only happen for one use case execution
-        if (periodicHandler == null){
-            periodicHandler = new Handler();
-            periodicHandler.post(periodicPidDataSender);
+        if (!sent){
+            sent = true;
+            useCaseHandler.post(periodicPidDataSender);
         }
 
         useCaseHandler.post(this);
