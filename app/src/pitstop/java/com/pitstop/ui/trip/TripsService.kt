@@ -81,6 +81,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onCreate() {
         Logger.getInstance()!!.logI(tag, "Trips service created", DebugMessage.TYPE_TRIP)
+        startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                ,NotificationsHelper.getForegroundTripServiceNotification(baseContext))
 
         super.onCreate()
 
