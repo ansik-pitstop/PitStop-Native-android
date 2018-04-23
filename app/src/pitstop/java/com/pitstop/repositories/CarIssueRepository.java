@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.DebugMessage;
@@ -282,10 +283,14 @@ public class CarIssueRepository implements Repository{
             @Override
             public void done(String response, RequestError requestError) {
                 if (requestError == null){
-                    Timeline timelineData = new Gson().fromJson(response, Timeline.class);
-                    List<UpcomingIssue> issues = timelineData.getResults().get(DEALERSHIP_ISSUES)
-                            .getUpcomingIssues();
-                    callback.onSuccess(issues);
+                    try{
+                        Timeline timelineData = new Gson().fromJson(response, Timeline.class);
+                        List<UpcomingIssue> issues = timelineData.getResults().get(DEALERSHIP_ISSUES)
+                                .getUpcomingIssues();
+                        callback.onSuccess(issues);
+                    }catch(JsonSyntaxException e){
+                        callback.onError(RequestError.getUnknownError());
+                    }
                 }
                 else{
                     callback.onError(requestError);
