@@ -1,5 +1,7 @@
 package com.pitstop;
 
+import android.util.Log;
+
 import com.pitstop.bluetooth.dataPackages.ELM327PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
@@ -31,6 +33,7 @@ public class SensorDataTestUtil {
             OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
                     , String.valueOf(getCurrentTimeAhead(i))
                     ,"0",getCurrentTimeAhead(i));
+            Log.d("TAG","created 215B package with rtc time: "+obd215PidPackage.getRtcTime());
             obd215PidPackage.setPids(getPidMap());
             obd215PidPackageList.add(obd215PidPackage);
         }

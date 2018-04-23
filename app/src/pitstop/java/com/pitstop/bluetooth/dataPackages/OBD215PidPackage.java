@@ -7,7 +7,7 @@ package com.pitstop.bluetooth.dataPackages;
 public class OBD215PidPackage extends CastelPidPackage {
 
     public OBD215PidPackage(String deviceId, String rtcTime, String mileage, long timestamp) {
-        super(deviceId,rtcTime,mileage,timestamp);
+        super(deviceId,mileage,rtcTime,timestamp);
     }
 
     public OBD215PidPackage(OBD215PidPackage o) {

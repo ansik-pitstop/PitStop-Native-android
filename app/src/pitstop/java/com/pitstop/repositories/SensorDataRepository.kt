@@ -68,9 +68,9 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                         if (err is HttpException){
                             message = err.response().message().toString()
                         }else{
-                            message = err.message.toString()
+                            message = err.toString()
                         }
-                        Logger.getInstance().logE(TAG, "Error storing chunk = $message"
+                        Logger.getInstance().logE(TAG, "Error storing chunk = $message, cause = ${err.cause}"
                             , DebugMessage.TYPE_REPO)
                     })
 
