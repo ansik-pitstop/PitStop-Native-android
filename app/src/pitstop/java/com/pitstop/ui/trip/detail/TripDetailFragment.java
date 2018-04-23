@@ -35,7 +35,7 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
     private final String TAG = getClass().getSimpleName();
 
-    @BindView(R.id.textview_miles_num)
+    @BindView(R.id.textview_km_num)
     protected TextView milesNum;
 
     @BindView(R.id.textview_mins_num)
