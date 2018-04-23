@@ -210,7 +210,7 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public boolean setRtc(long rtcTime) { //Todo: this method doesn't belong here
-        Log.d(TAG,"setRtc() rtcTime: "+rtcTime);
+        Log.d(TAG,"setRtc() bluetoothDeviceTime: "+rtcTime);
         return true;
     }
 

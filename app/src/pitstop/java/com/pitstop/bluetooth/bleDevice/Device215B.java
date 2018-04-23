@@ -606,7 +606,7 @@ public class Device215B implements AbstractDevice {
                             + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = ignitionTime;
                     Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
-                            +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
+                            +" bluetoothDeviceTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
                     Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                             +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "

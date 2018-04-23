@@ -43,8 +43,8 @@ class LocalSensorDataStorage(context: Context) {
 
         db.beginTransaction()
         val sensorDataContent = ContentValues()
-        sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP,sensorData.timestamp)
-        sensorDataContent.put(TABLES.SENSOR_DATA.RTC_TIME,sensorData.rtcTime)
+        sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP,sensorData.phoneTimestamp)
+        sensorDataContent.put(TABLES.SENSOR_DATA.RTC_TIME,sensorData.bluetoothDeviceTime)
         sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_TYPE,sensorData.deviceType)
         sensorDataContent.put(TABLES.SENSOR_DATA.DEVICE_ID,sensorData.deviceId)
         sensorDataContent.put(TABLES.SENSOR_DATA.VIN,sensorData.vin)
@@ -55,7 +55,7 @@ class LocalSensorDataStorage(context: Context) {
             val sensorDataPointContent = ContentValues()
             sensorDataPointContent.put(TABLES.SENSOR_DATA_POINT.DATA_ID,it.id)
             sensorDataPointContent.put(TABLES.SENSOR_DATA_POINT.DATA_VALUE,it.data)
-            sensorDataPointContent.put(TABLES.SENSOR_DATA.RTC_TIME, sensorData.rtcTime)
+            sensorDataPointContent.put(TABLES.SENSOR_DATA.RTC_TIME, sensorData.bluetoothDeviceTime)
             if (db.insert(TABLES.SENSOR_DATA_POINT.TABLE_NAME,null,sensorDataPointContent) > 0)
                 rows = rows.inc()
         }
@@ -82,13 +82,13 @@ class LocalSensorDataStorage(context: Context) {
                 val deviceType = cursor.getString(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TYPE))
                 val deviceTimestamp = cursor.getLong(cursor.getColumnIndex(TABLES.SENSOR_DATA.DEVICE_TIMESTAMP))
 
-                Log.d(TAG,"Got sensor data row rtcTime: $rtcTime vin: $vin")
+                Log.d(TAG,"Got sensor data row bluetoothDeviceTime: $rtcTime vin: $vin")
 
                 val dataPointCursor = db.query(TABLES.SENSOR_DATA_POINT.TABLE_NAME
                         ,null,TABLES.SENSOR_DATA.RTC_TIME + "=?"
                         , arrayOf(rtcTime.toString()),null,null,TABLES.SENSOR_DATA.RTC_TIME)
 
-                Log.d(TAG,"Got ${dataPointCursor.count} data points for rtcTime: $rtcTime")
+                Log.d(TAG,"Got ${dataPointCursor.count} data points for bluetoothDeviceTime: $rtcTime")
                 val dataPoints = mutableSetOf<DataPoint>()
                 if (dataPointCursor.moveToFirst()){
                     while (!dataPointCursor.isAfterLast){
@@ -121,9 +121,9 @@ class LocalSensorDataStorage(context: Context) {
         db.beginTransaction()
         sensorData.forEach({
             rows += db.delete(TABLES.SENSOR_DATA_POINT.TABLE_NAME
-                    ,TABLES.SENSOR_DATA.RTC_TIME+"=?", arrayOf(it.rtcTime.toString()))
+                    ,TABLES.SENSOR_DATA.RTC_TIME+"=?", arrayOf(it.bluetoothDeviceTime.toString()))
             rows += db.delete(TABLES.SENSOR_DATA.TABLE_NAME,TABLES.SENSOR_DATA.RTC_TIME+"=?"
-                    ,arrayOf(it.rtcTime.toString()))
+                    ,arrayOf(it.bluetoothDeviceTime.toString()))
         })
         db.setTransactionSuccessful()
         db.endTransaction()

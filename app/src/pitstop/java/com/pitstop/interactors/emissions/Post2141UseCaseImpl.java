@@ -91,8 +91,8 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
                     pidSingle.put("data",pid);
                     pidList.put(pidSingle);
                     pidObject.put("pids",pidList);
-                    rtcTime = System.currentTimeMillis()/1000;
-                    pidObject.put("rtcTime", rtcTime);
+                    bluetoothDeviceTime = System.currentTimeMillis()/1000;
+                    pidObject.put("bluetoothDeviceTime", bluetoothDeviceTime);
                     pidObject.put("calculatedMileage",6);//fix this later
                     pidObject.put("tripMileage",data.getMileage());
                     pidArray.put(pidObject);
@@ -107,8 +107,8 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
                     public void done(String response, RequestError requestError) {
                         System.out.println("Testing "+response);
                         if(response != null && requestError == null){
-                            System.out.println("Testing get "+"scan/pids?from=" + DateTimeFormatUtil.rtcToIso(rtcTime*1000-200000) + "&to="+DateTimeFormatUtil.rtcToIso(rtcTime*1000+200000)+"&limit=10");
-                            networkHelper.get("scan/pids?from=" + DateTimeFormatUtil.rtcToIso(rtcTime-10000) + "&to="+DateTimeFormatUtil.rtcToIso(rtcTime+10000)+"&limit=10", new RequestCallback() {
+                            System.out.println("Testing get "+"scan/pids?from=" + DateTimeFormatUtil.rtcToIso(bluetoothDeviceTime*1000-200000) + "&to="+DateTimeFormatUtil.rtcToIso(bluetoothDeviceTime*1000+200000)+"&limit=10");
+                            networkHelper.get("scan/pids?from=" + DateTimeFormatUtil.rtcToIso(bluetoothDeviceTime-10000) + "&to="+DateTimeFormatUtil.rtcToIso(bluetoothDeviceTime+10000)+"&limit=10", new RequestCallback() {
                                 @Override
                                 public void done(String response, RequestError requestError) {
                                     System.out.println("Testing response from get "+ response);

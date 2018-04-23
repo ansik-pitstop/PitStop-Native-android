@@ -121,7 +121,7 @@ public class TripDataHandler{
         if (!tripInfoPackage.flag.equals(TripInfoPackage.TripFlag.UPDATE) && !isConnected215
                 && deviceIsVerified){
 
-            Log.d(TAG, "handling 212 trip rtcTime:"+tripInfoPackage.rtcTime);
+            Log.d(TAG, "handling 212 trip bluetoothDeviceTime:"+tripInfoPackage.rtcTime);
             handle212Trip(tripInfoPackage, deviceId);
             return;
         }
@@ -223,7 +223,7 @@ public class TripDataHandler{
         }
         pendingTripInfoPackages.removeAll(toRemove);
 
-        Log.d(TAG, "rtcTime: "+tripInfoPackage.rtcTime
+        Log.d(TAG, "bluetoothDeviceTime: "+tripInfoPackage.rtcTime
                         +" Completed running all use cases on all pending trips"
                         +" pendingTripList.size() after removing:"
                         +pendingTripInfoPackages.size());

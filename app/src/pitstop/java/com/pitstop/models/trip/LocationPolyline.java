@@ -17,7 +17,7 @@ public class LocationPolyline {
     @Expose
     private List<Location> location;
 
-    @SerializedName("timestamp")
+    @SerializedName("phoneTimestamp")
     @Expose
     private String timestamp;
 

@@ -457,7 +457,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public long getRtcTime() {
-        Log.d(TAG,"getRtcTime()");
+        Log.d(TAG,"getBluetoothDeviceTime()");
         return terminalRtcTime;
     }
 
@@ -1359,7 +1359,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     properties.put("pids",pidPackage.getPids().toString());
                     if (pidPackage instanceof CastelPidPackage){
                         CastelPidPackage castelPidPackage = (CastelPidPackage) pidPackage;
-                        properties.put("rtcTime",castelPidPackage.getRtcTime());
+                        properties.put("bluetoothDeviceTime",castelPidPackage.getRtcTime());
                     }
 
                 }

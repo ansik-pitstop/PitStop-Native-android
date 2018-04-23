@@ -48,8 +48,7 @@ class SensorDataUtils {
             val points = mutableSetOf<DataPoint>()
             points.add(DataPoint(DataPoint.ID_DEVICE_ID,sensorData.deviceId))
             points.add(DataPoint(DataPoint.ID_DEVICE_TYPE,sensorData.deviceType))
-            points.add(DataPoint(DataPoint.ID_RTC,sensorData.rtcTime.toString()))
-            points.add(DataPoint(DataPoint.ID_DEVICE_TIMESTAMP,sensorData.timestamp.toString()))
+            points.add(DataPoint(DataPoint.ID_DEVICE_TIMESTAMP,sensorData.bluetoothDeviceTime.toString()))
             points.addAll(sensorData.data)
             return points
         }

@@ -22,7 +22,7 @@ public class Location2 {
     @SerializedName("longitude")
     @Expose
     private double longitude;
-    @SerializedName("timestamp")
+    @SerializedName("phoneTimestamp")
     @Expose
     private long timestamp;
 
