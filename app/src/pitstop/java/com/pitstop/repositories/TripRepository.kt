@@ -95,8 +95,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     tempList.forEach { trip: Trip? ->
 
                         // Make sure at least two points are present in the trip
-                        if (trip != null && trip.locationPolyline != null
-                                && trip.locationPolyline.size > 1) {
+                        if (trip != null && trip.locationPolyline != null) {
                             deffList.add(trip)
                         }
 
