@@ -729,7 +729,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = pidPackage.getDeviceId();
         }
         pidPackage.setDeviceId(currentDeviceId);
-        pidDataHandler.handlePidData(pidPackage);
+        pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
 
         //212 pid "snapshot" broadcast logic
         if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
@@ -751,7 +751,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
-        pidDataHandler.handlePidData(pidPackage);
+        pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
     }
 
     @Override

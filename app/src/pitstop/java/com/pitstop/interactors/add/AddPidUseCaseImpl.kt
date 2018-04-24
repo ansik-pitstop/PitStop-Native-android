@@ -52,10 +52,10 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                 if (car.data == null || usedLocalCar) return@subscribe
                                 if (car.isLocal) usedLocalCar = true
                                 sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,car.data.vin))
-                                        .observeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io(), true)
                                         .subscribeOn(Schedulers.computation())
                                         .subscribe({next ->
-                                            onAdded()
+                                            onAdded(next)
                                         },{err ->
                                             onError(RequestError(err))
                                         })
@@ -75,16 +75,16 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.computation())
                 .subscribe({next ->
-                    onAdded()
+                    onAdded(next)
                 },{err ->
                     onError(RequestError(err))
                 })
     }
 
-    private fun onAdded(){
+    private fun onAdded(size: Int){
         Logger.getInstance()!!.logI(TAG, "Use case finished: pids added successfully"
                 , DebugMessage.TYPE_USE_CASE)
-        mainHanler.post({callback.onAdded()})
+        mainHanler.post({callback.onAdded(size)})
     }
 
     private fun onError(err: RequestError){

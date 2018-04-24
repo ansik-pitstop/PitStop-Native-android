@@ -80,14 +80,10 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                     })
 
             observableList.add(remoteObservable.cache()
-                    .map { CHUNK_SIZE }
-                    .onErrorResumeNext { t:Throwable ->
-                            Log.d(TAG,"observableList.add().onErrorResumeNext() returning 0")
-                            Observable.just(0)
-            })
+                    .map { CHUNK_SIZE })
         }
 
-        return Observable.combineLatest(observableList,{ list ->
+        return Observable.combineLatestDelayError(observableList,{ list ->
             Log.d(TAG,"observable.combineLatest()")
             list.sumBy { (it as Int) }
         })

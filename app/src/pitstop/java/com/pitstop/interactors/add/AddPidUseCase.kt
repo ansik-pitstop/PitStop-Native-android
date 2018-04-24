@@ -9,7 +9,7 @@ import com.pitstop.network.RequestError
  */
 interface AddPidUseCase: Interactor {
     interface Callback{
-        fun onAdded()
+        fun onAdded(size: Int)
         fun onError(error: RequestError)
     }
 

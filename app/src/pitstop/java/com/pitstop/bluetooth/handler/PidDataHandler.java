@@ -11,8 +11,8 @@ import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.add.AddPidUseCase;
 import com.pitstop.interactors.get.GetCarByVinUseCase;
-import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
@@ -85,7 +85,7 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
-    public void handlePidData(PidPackage pidPackage){
+    public void handlePidData(PidPackage pidPackage, String vin){
         pidsReceived++;
         if (pidPackage == null){
             nullPidsReceived++;
@@ -108,9 +108,9 @@ public class PidDataHandler {
             return;
         }
         for (PidPackage p: pendingPidPackages){
-            useCaseComponent.handlePidDataUseCase().execute(p, new HandlePidDataUseCase.Callback() {
+            useCaseComponent.addPidUseCase().execute(p,vin, new AddPidUseCase.Callback() {
                 @Override
-                public void onDataSent(int size) {
+                public void onAdded(int size) {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
                         visualizePidDataSent(true, context);
                         pidsSavedToServer += size;
@@ -132,11 +132,7 @@ public class PidDataHandler {
                     }
                 }
 
-                @Override
-                public void onDataStored() {
-                    Log.d(TAG, p + " Stored in local database");
-                }
-            }, this.networkChunkSize);
+            });
         }
         pendingPidPackages.clear();
     }
