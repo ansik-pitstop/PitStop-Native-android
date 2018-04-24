@@ -34,6 +34,8 @@ public class SensorDataRepositoryTest {
     private LocalSensorDataStorage localSensorDataStorage;
     private final String VIN = "1GB0CVCL7BF147611";
     private final String deviceID = "215B002373";
+    private final String VIN2 = "1GB0CVCL7BF147613";
+    private final String deviceID2 = "215B002286";
 
     @Before
     public void setup() {
@@ -43,6 +45,7 @@ public class SensorDataRepositoryTest {
         localSensorDataStorage = new LocalSensorDataStorage(context);
         sensorDataRepository = new SensorDataRepository(localSensorDataStorage
                 ,pitstopSensorDataApi, Observable.just(false));
+        localSensorDataStorage.deleteAll();
     }
 
     @Test
@@ -50,7 +53,8 @@ public class SensorDataRepositoryTest {
         Log.d(TAG,"running storeTripTest()");
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        Collection<SensorData> sensorData = SensorDataTestUtil.get215SensorData(1,deviceID,VIN);
+        Collection<SensorData> sensorData = SensorDataTestUtil.get215SensorData(2,deviceID,VIN);
+        sensorData.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
         Log.d(TAG,"generated sensor data "+sensorData);
         sensorDataRepository.storeThenDump(sensorData)
                 .subscribeOn(Schedulers.computation())
@@ -70,6 +74,7 @@ public class SensorDataRepositoryTest {
 
         try{
             assertTrue(completableFuture.get(11000, TimeUnit.MILLISECONDS));
+            assertTrue(localSensorDataStorage.getAll().isEmpty());
         }catch(ExecutionException | InterruptedException | TimeoutException e){
             throw new AssertionError();
         }

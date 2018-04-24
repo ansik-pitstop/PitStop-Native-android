@@ -14,7 +14,7 @@ class RetrofitTestUtil {
     companion object {
 
         fun getSensorDataApi(): PitstopSensorDataApi = Retrofit.Builder()
-                .baseUrl(getSnapToRoadBaseURL())
+                .baseUrl(getBaseURL())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(getHttpClient())
