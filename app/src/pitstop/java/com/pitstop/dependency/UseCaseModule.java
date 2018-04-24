@@ -791,10 +791,11 @@ public class UseCaseModule {
 
     @Provides
     AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository
-            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , UserRepository userRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
-        return new AddPidUseCaseImpl(sensorDataRepository, carRepository
+        return new AddPidUseCaseImpl(sensorDataRepository, userRepository, carRepository
                 , useCaseHandler, mainHandler);
     }
 }

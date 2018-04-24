@@ -39,6 +39,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
     }
 
     override fun run() {
+        //Get vin from car repo if empty
         if (vin.isEmpty()){
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
@@ -69,6 +70,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
 
             })
         }
+        //Use already existing vin
         else sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,vin))
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.computation())

@@ -5,6 +5,7 @@ import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.add.AddDtcUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
+import com.pitstop.interactors.add.AddPidUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
@@ -240,4 +241,6 @@ public interface UseCaseComponent {
     StartTripUseCase startTripUseCase();
 
     EndTripUseCase endTripUseCase();
+
+    AddPidUseCase addPidUseCase();
 }
