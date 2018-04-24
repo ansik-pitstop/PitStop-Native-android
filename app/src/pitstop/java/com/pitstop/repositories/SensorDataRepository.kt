@@ -49,6 +49,11 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
         sensorData.forEach { local.store(it) }
     }
 
+    fun store(sensorData: SensorData){
+        Log.d(TAG,"store()")
+        local.store(sensorData)
+    }
+
     fun dumpData(): Observable<Int> {
         Log.d(TAG,"dumpData()")
         val observableList = arrayListOf<Observable<Int>>()
@@ -89,6 +94,11 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
     }
 
     fun storeThenDump(sensorData: Collection<SensorData>): Observable<Int>{
+        store(sensorData)
+        return dumpData()
+    }
+
+    fun storeThenDump(sensorData: SensorData): Observable<Int>{
         store(sensorData)
         return dumpData()
     }

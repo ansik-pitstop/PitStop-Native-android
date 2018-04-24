@@ -24,6 +24,7 @@ public class VinDataHandler{
 
     private boolean verificationInProgress = false;
     private String vinBeingVerified = "";
+    private String recentVin = "";
 
     public VinDataHandler(Context context, BluetoothDataHandlerManager bluetoothDataHandlerManager
             , DeviceVerificationObserver deviceVerificationObserver){
@@ -42,10 +43,15 @@ public class VinDataHandler{
         }
     }
 
+    public String getRecentVin(){
+        return recentVin;
+    }
+
     public void handleVinData(String vin, String deviceId, boolean ignoreVerification){
         Log.d(TAG,"handleVinData() vin:"+vin+", deviceId:"+deviceId
                 +", ignoreVerification?"+ignoreVerification);
 
+        recentVin = vin;
         bluetoothDataHandlerManager.onHandlerReadVin(vin);
         boolean deviceIsVerified = bluetoothDataHandlerManager.isDeviceVerified();
 

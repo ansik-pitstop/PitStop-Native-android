@@ -16,6 +16,8 @@ import com.pitstop.interactors.add.AddDtcUseCase;
 import com.pitstop.interactors.add.AddDtcUseCaseImpl;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
+import com.pitstop.interactors.add.AddPidUseCase;
+import com.pitstop.interactors.add.AddPidUseCaseImpl;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddScannerUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
@@ -785,6 +787,15 @@ public class UseCaseModule {
 
         return new EndTripUseCaseImpl(userRepository, carRepository
                 , tripRepository, useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository
+            , CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new AddPidUseCaseImpl(sensorDataRepository, carRepository
+                , useCaseHandler, mainHandler);
     }
 }
 
