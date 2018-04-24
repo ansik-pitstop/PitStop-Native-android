@@ -46,10 +46,12 @@ class SensorDataUtils {
 
         fun sensorDataToDataPointList(sensorData: SensorData): Set<DataPoint>{
             val points = mutableSetOf<DataPoint>()
-            points.add(DataPoint(DataPoint.ID_DEVICE_ID,sensorData.deviceId))
+            if (!sensorData.deviceId.isNullOrEmpty())
+                points.add(DataPoint(DataPoint.ID_DEVICE_ID,sensorData.deviceId!!))
             points.add(DataPoint(DataPoint.ID_DEVICE_TYPE,sensorData.deviceType))
             points.add(DataPoint(DataPoint.ID_DEVICE_TIMESTAMP,sensorData.bluetoothDeviceTime.toString()))
-            points.add(DataPoint(DataPoint.ID_VIN,sensorData.vin))
+            if (!sensorData.vin.isNullOrEmpty())
+                points.add(DataPoint(DataPoint.ID_VIN,sensorData.vin!!))
             points.addAll(sensorData.data)
             return points
         }

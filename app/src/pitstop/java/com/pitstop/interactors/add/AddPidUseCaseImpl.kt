@@ -69,7 +69,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
 
             })
         }
-        sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,vin))
+        else sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,vin))
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.computation())
                 .subscribe({next ->
