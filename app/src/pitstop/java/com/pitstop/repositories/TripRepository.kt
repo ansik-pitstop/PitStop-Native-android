@@ -8,11 +8,11 @@ import com.pitstop.application.Constants
 import com.pitstop.database.LocalPendingTripStorage
 import com.pitstop.database.LocalTripStorage
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.sensor_data.DataPoint
+import com.pitstop.models.sensor_data.trip.LocationDataFormatted
+import com.pitstop.models.sensor_data.trip.TripData
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.Trip
-import com.pitstop.models.trip_k.DataPoint
-import com.pitstop.models.trip_k.LocationDataFormatted
-import com.pitstop.models.trip_k.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopResponse
@@ -174,7 +174,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                         dumpData().subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                                 .subscribe({next ->
-                                    Log.d(tag,"dump data response: "+next)
+                                    Log.d(tag,"dumpData data response: "+next)
                                 })
                     }
                 }, {error ->

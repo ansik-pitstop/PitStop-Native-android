@@ -90,6 +90,6 @@ public class Trip215 {
     @Override
     public String toString(){
         return type+ ", tripId: "+tripId+", tripIdRaw:"+tripIdRaw+", scannerName: "+scannerName+", mileage: "+mileage
-                +", rtcTime: "+rtcTime;
+                +", bluetoothDeviceTime: "+rtcTime;
     }
 }

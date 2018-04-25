@@ -1,4 +1,4 @@
-package com.pitstop.models.trip_k
+package com.pitstop.models.sensor_data
 
 /**
  * Created by Karol Zdebel on 3/15/2018.
@@ -24,5 +24,8 @@ data class DataPoint(val id: String, val data: String){
         const val ID_END_LATITUDE = "end_latitude"
         const val ID_START_LONGTITUDE = "start_longitude"
         const val ID_END_LONGITUDE = "end_longitude"
+        const val ID_DEVICE_TYPE = "deviceType"
+        const val ID_DEVICE_ID = "deviceId"
+        const val ID_RTC = "bluetoothDeviceTime"
     }
 }

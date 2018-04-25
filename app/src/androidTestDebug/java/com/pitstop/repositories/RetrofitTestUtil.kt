@@ -2,10 +2,7 @@ package com.pitstop.repositories
 
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import com.pitstop.retrofit.GoogleSnapToRoadApi
-import com.pitstop.retrofit.PitstopAppointmentApi
-import com.pitstop.retrofit.PitstopAuthApi
-import com.pitstop.retrofit.PitstopTripApi
+import com.pitstop.retrofit.*
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,6 +12,14 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 class RetrofitTestUtil {
     companion object {
+
+        fun getSensorDataApi(): PitstopSensorDataApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(PitstopSensorDataApi::class.java)
 
         fun getGoogleSnapToRoadApi(): GoogleSnapToRoadApi = Retrofit.Builder()
                 .baseUrl("https://roads.googleapis.com/")

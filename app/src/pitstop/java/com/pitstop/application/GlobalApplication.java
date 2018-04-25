@@ -37,6 +37,7 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
@@ -91,6 +92,7 @@ public class GlobalApplication extends Application {
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
     private LocalTripStorage mLocalTripStorage;
     private LocalPendingTripStorage mLocalPendingTripStorage;
+    private LocalSensorDataStorage mLocalSensorDataStorage;
 
     private UseCaseComponent useCaseComponent;
     private Observable<Service> serviceObservable;
@@ -469,7 +471,7 @@ public class GlobalApplication extends Application {
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
         mLocalTripStorage = new LocalTripStorage(this);
         mLocalPendingTripStorage = new LocalPendingTripStorage(this);
-
+        mLocalSensorDataStorage = new LocalSensorDataStorage(this);
     }
 
     /**
@@ -490,6 +492,7 @@ public class GlobalApplication extends Application {
         mLocalDebugMessageStorage.deleteAllRows();
         mLocalTripStorage.deleteAllTrips();
         mLocalPendingTripStorage.deleteAll();
+        mLocalSensorDataStorage.deleteAll();
     }
 
 }

@@ -58,6 +58,7 @@ public class Device215B implements AbstractDevice {
     public static final String IDR_INTERVAL_PARAM = "A15";
     public static final String HISTORICAL_DATA_PARAM = "A18";
     public static final String MILEAGE_PARAM = "A09";
+    public static final String NAME = "obd215B";
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
 
@@ -605,7 +606,7 @@ public class Device215B implements AbstractDevice {
                             + Long.parseLong(idrInfo.runTime);
                     tripInfoPackage.tripId = ignitionTime;
                     Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
-                            +" rtcTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
+                            +" bluetoothDeviceTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
 
                     Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
                             +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
@@ -648,8 +649,8 @@ public class Device215B implements AbstractDevice {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                        OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
-                            , idrInfo.mileage, idrInfo.ignitionTime == null? "" : idrInfo.ignitionTime);
+                    OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
+                            , idrInfo.mileage, System.currentTimeMillis());
                     pidPackage.setPids(parsePids(idrInfo.pid));
                     dataListener.idrPidData(pidPackage);
                 }
@@ -796,7 +797,7 @@ public class Device215B implements AbstractDevice {
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 // PIDs are never explicitly requested except in debug activity
                 PIDInfo pidInfo = DataParseUtil.parsePID(msgInfo);
-                OBD215PidPackage pidPackage = new OBD215PidPackage("0","0","0","0");
+                OBD215PidPackage pidPackage = new OBD215PidPackage("0","0","0",System.currentTimeMillis());
 
                 for(int i = 0 ; i < pidInfo.pids.size() ; i++) {
                     pidPackage.addPid(pidInfo.pids.get(i), pidInfo.pidValues.get(i));

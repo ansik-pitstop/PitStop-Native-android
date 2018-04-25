@@ -11,6 +11,7 @@ import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.database.LocalTripStorage;
@@ -101,4 +102,10 @@ public class LocalStorageModule {
     @Singleton
     @Provides
     LocalPendingTripStorage localPendingTripStorage(Context context){return  new LocalPendingTripStorage(context);}
+
+    @Singleton
+    @Provides
+    public LocalSensorDataStorage localSensorDataStorage(Context context) {
+        return new LocalSensorDataStorage(context);
+    }
 }

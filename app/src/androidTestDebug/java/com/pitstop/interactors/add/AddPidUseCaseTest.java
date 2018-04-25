@@ -1,17 +1,15 @@
 package com.pitstop.interactors.add;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.pitstop.TripTestUtil;
+import com.pitstop.SensorDataTestUtil;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -29,16 +25,18 @@ import java.util.concurrent.TimeoutException;
 import static junit.framework.Assert.assertTrue;
 
 /**
- * Created by Karol Zdebel on 3/16/2018.
+ * Created by Karol Zdebel on 4/24/2018.
  */
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AddTripUseCaseTest {
+public class AddPidUseCaseTest {
 
-    private final String TAG = AddTripUseCaseTest.class.getSimpleName();
+    private final String TAG = AddPidUseCaseTest.class.getSimpleName();
 
     private UseCaseComponent useCaseComponent;
+
+    private final String VIN = "1GB0CVCL7BF147611";
+    private final String deviceId = "215B002373";
 
     @Before
     public void setup(){
@@ -52,36 +50,30 @@ public class AddTripUseCaseTest {
 
     @Test
     public void addTripUseCaseTest(){
-        Log.i(TAG,"starting addTripUseCaseTest");
+        Log.i(TAG,"starting addPidUseCaseTest");
 
-        Car dummyCar = new Car();
-        dummyCar.setVin("1GB0CVCL7BF147611");
-        dummyCar.setId(6014);
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        List<Location> trip = new ArrayList<>();
-        for (int i=0;i<3;i++){
-            trip.add(TripTestUtil.Companion.getRandomLocation());
-        }
-
-        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-        useCaseComponent.getAddTripDataUseCase().execute(trip, new AddTripDataUseCase.Callback() {
+        useCaseComponent.addPidUseCase().execute(SensorDataTestUtil.get215PidData(3, deviceId).get(0), VIN, new AddPidUseCase.Callback() {
             @Override
-            public void onAddedTripData() {
-                completableFuture.complete(true);
-                Log.i(TAG,"addTripUseCaseTest: onAddedTripData()");
+            public void onAdded() {
+                Log.d(TAG,"onAdded()");
+                future.complete(true);
             }
 
             @Override
-            public void onError(@NotNull RequestError err) {
-                completableFuture.complete(false);
-                Log.i(TAG,"addTripUseCaseTest: onError()");
+            public void onError(@NotNull RequestError error) {
+                Log.d(TAG,"onError() error: "+error);
+                future.complete(false);
             }
         });
 
         try{
-            assertTrue(completableFuture.get(10000, TimeUnit.MILLISECONDS).equals(true));
+            assertTrue(future.get(10000, TimeUnit.MILLISECONDS).equals(true));
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
+
     }
+
 }

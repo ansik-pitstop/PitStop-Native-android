@@ -57,6 +57,8 @@ import java.util.UUID;
 
 public class ELM327Device implements AbstractDevice {
 
+    public static String NAME = "obdELM327";
+
     private final String TAG = getClass().getSimpleName();
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private final int PID_TIMEOUT_LENGTH = 2;
@@ -94,7 +96,7 @@ public class ELM327Device implements AbstractDevice {
 
     private void start(){
         Log.d(TAG,"start()");
-        pidPackage = new ELM327PidPackage(deviceName);
+        pidPackage = new ELM327PidPackage(deviceName,System.currentTimeMillis());
 
         next();
     }
@@ -208,7 +210,7 @@ public class ELM327Device implements AbstractDevice {
 
     @Override
     public boolean setRtc(long rtcTime) { //Todo: this method doesn't belong here
-        Log.d(TAG,"setRtc() rtcTime: "+rtcTime);
+        Log.d(TAG,"setRtc() bluetoothDeviceTime: "+rtcTime);
         return true;
     }
 

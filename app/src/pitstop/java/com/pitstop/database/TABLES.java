@@ -15,7 +15,7 @@ public final class TABLES {
     public interface DEBUG_MESSAGES extends COMMON {
         String TABLE_NAME = "debug_messages";
         String COLUMN_ID = "id";
-        String COLUMN_TIMESTAMP = "timestamp";
+        String COLUMN_TIMESTAMP = "phoneTimestamp";
         String COLUMN_TYPE = "type";
         String COLUMN_MESSAGE = "message";
         String COLUMN_LEVEL = "level";
@@ -28,8 +28,8 @@ public final class TABLES {
         String TABLE_NAME_RESULT_4 = "pidResult4";
         String KEY_DATANUM = "dataNum";
         String KEY_DEVICE_ID = "deviceId";
-        String KEY_RTCTIME = "rtcTime";
-        String KEY_TIMESTAMP = "timestamp";
+        String KEY_RTCTIME = "bluetoothDeviceTime";
+        String KEY_TIMESTAMP = "phoneTimestamp";
         String KEY_TRIP_ID_RAW = "tripIdRaw";
         String KEY_TRIP_ID = "tripId";
         String KEY_PIDS = "pids";
@@ -89,7 +89,7 @@ public final class TABLES {
 
         String KEY_CAR_ID = "carId";
         String KEY_STATUS = "status";
-        String KEY_TIMESTAMP = "timestamp";
+        String KEY_TIMESTAMP = "phoneTimestamp";
         String KEY_PRIORITY = "priority";
         String KEY_ISSUE_TYPE = "issueType";
         String KEY_ITEM = "item";
@@ -148,7 +148,7 @@ public final class TABLES {
         String TABLE_NAME = "localAlarms";
         String ID = "id";
         String CAR_ID = "carId";
-        String RTC_TIME = "rtcTime";
+        String RTC_TIME = "bluetoothDeviceTime";
         String ALARM_EVENT = "alarmEvent";
         String ALARM_VALUE = "alarmValue";
     }
@@ -157,6 +157,22 @@ public final class TABLES {
         String TABLE_NAME = "LocalFuelConsumption";
         String SCANNER_ID = "scannerID";
         String FUEL_CONSUMED = "fuelConsumed";
+    }
+
+    // Sensor Data tables //
+    public interface SENSOR_DATA{
+        String TABLE_NAME = "SensorData";
+        String DEVICE_ID = "deviceId";
+        String RTC_TIME = "bluetoothDeviceTime";
+        String VIN = "vin";
+        String DEVICE_TIMESTAMP = "deviceTimestamp";
+        String DEVICE_TYPE = "deviceType";
+    }
+
+    public interface SENSOR_DATA_POINT{
+        String TABLE_NAME = "SensorDataPoint";
+        String DATA_ID = "dataId";
+        String DATA_VALUE = "dataValue";
     }
 
     // TRIP tables //
@@ -202,7 +218,7 @@ public final class TABLES {
 
     public interface LOCATION_POLYLINE {
         String TABLE_NAME = "LocationPolyline";
-        String TIMESTAMP = "timestamp";
+        String TIMESTAMP = "phoneTimestamp";
         String FK_TRIP_ID = "tripId";
         String FK_CAR_VIN = "carVin";
     }

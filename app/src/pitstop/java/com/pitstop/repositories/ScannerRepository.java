@@ -152,11 +152,11 @@ public class ScannerRepository implements Repository {
     public void deviceClockSync(@NotNull Long rtcTime, @NotNull String deviceId
             , @NotNull String vin, @NotNull String deviceType, Callback<String> callback) {
 
-        Log.d(TAG,"deviceClockSync() rtcTime: "+rtcTime+", deviceId: "+deviceId
+        Log.d(TAG,"deviceClockSync() bluetoothDeviceTime: "+rtcTime+", deviceId: "+deviceId
                 +", vin: "+vin+", deviceType: "+deviceType);
         JSONObject body = new JSONObject();
         try{
-            body.put("rtcTime",rtcTime);
+            body.put("bluetoothDeviceTime",rtcTime);
             body.put("deviceId",deviceId);
             body.put("vin",vin);
             body.put("deviceType",deviceType);

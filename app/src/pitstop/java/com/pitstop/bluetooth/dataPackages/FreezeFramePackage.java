@@ -16,7 +16,7 @@ public class FreezeFramePackage {
     public String toString() {
         return "FreezeFramePackage{" +
                 "deviceId='" + deviceId + "'" +
-                ", rtcTime=" + rtcTime +
+                ", bluetoothDeviceTime=" + rtcTime +
                 ", freezeData=" + freezeData;
     }
 }

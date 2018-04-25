@@ -35,7 +35,7 @@ public class DataPackageInfo {
 				", tripId='" + tripId + '\'' +
 				", dataNumber='" + dataNumber + '\'' +
 				", tripFlag='" + tripFlag + '\'' +
-				", rtcTime='" + rtcTime + '\'' +
+				", bluetoothDeviceTime='" + rtcTime + '\'' +
 				", tripMileage='" + tripMileage + '\'' +
 				", obdData=" + obdData +
 				'}';

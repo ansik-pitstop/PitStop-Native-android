@@ -2,7 +2,6 @@ package com.pitstop.interactors.other
 
 import android.location.Location
 import com.pitstop.interactors.Interactor
-import com.pitstop.models.trip_k.PendingLocation
 import com.pitstop.network.RequestError
 
 /**

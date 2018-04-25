@@ -131,7 +131,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520629854\"\n" +
+                "                    \"phoneTimestamp\": \"1520629854\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"location\": [\n" +
@@ -144,7 +144,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520629854\"\n" +
+                "                    \"phoneTimestamp\": \"1520629854\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"location\": [\n" +
@@ -157,7 +157,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520629854\"\n" +
+                "                    \"phoneTimestamp\": \"1520629854\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"location\": [\n" +
@@ -170,7 +170,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520631928\"\n" +
+                "                    \"phoneTimestamp\": \"1520631928\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"location\": [\n" +
@@ -183,7 +183,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520631928\"\n" +
+                "                    \"phoneTimestamp\": \"1520631928\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"location\": [\n" +
@@ -196,7 +196,7 @@ public class RemoveTripUseCaseTest {
                 "                            \"data\": \"43.6186889945396\"\n" +
                 "                        }\n" +
                 "                    ],\n" +
-                "                    \"timestamp\": \"1520631928\"\n" +
+                "                    \"phoneTimestamp\": \"1520631928\"\n" +
                 "                }\n" +
                 "            ]\n" +
                 "        }\n" +

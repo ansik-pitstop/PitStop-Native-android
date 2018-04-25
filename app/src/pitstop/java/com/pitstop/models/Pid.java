@@ -101,7 +101,7 @@ public class Pid {
     }
 
     public String toString() {
-        return "dataNumber: " + dataNumber + ", rtcTime: " + rtcTime + ", timeStamp: " + timeStamp + ", tripIdRaw: " + tripIdRaw
+        return "dataNumber: " + dataNumber + ", bluetoothDeviceTime: " + rtcTime + ", timeStamp: " + timeStamp + ", tripIdRaw: " + tripIdRaw
                 + ", mileage: " + mileage + ", calculatedMileage: " + calculatedMileage + ", pids: " + pids;
     }
 }

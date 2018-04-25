@@ -62,6 +62,13 @@ public class GetTripsUseCaseTest {
 
         useCaseComponent.getTripsUseCase().execute(new GetTripsUseCase.Callback() {
             @Override
+            public void onNoCar() {
+                errorFuture.complete(RequestError.getUnknownError());
+                successFuture.complete(null);
+
+            }
+
+            @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
                 Log.d(TAG, "GetTripsUseCaseTest onTripsRetrieved(): " + tripList);
                 successFuture.complete((List<Trip>) tripList);
