@@ -751,7 +751,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
-        pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
     }
 
     @Override
