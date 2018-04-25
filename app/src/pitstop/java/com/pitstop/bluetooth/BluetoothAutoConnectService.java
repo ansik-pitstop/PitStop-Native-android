@@ -457,7 +457,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public long getRtcTime() {
-        Log.d(TAG,"getRtcTime()");
+        Log.d(TAG,"getBluetoothDeviceTime()");
         return terminalRtcTime;
     }
 
@@ -729,7 +729,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             currentDeviceId = pidPackage.getDeviceId();
         }
         pidPackage.setDeviceId(currentDeviceId);
-        pidDataHandler.handlePidData(pidPackage);
+        pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
 
         //212 pid "snapshot" broadcast logic
         if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
@@ -751,7 +751,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
                 , DebugMessage.TYPE_BLUETOOTH);
         notifyGotAllPid(pidPackage);
-        pidDataHandler.handlePidData(pidPackage);
     }
 
     @Override
@@ -1359,8 +1358,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     properties.put("pids",pidPackage.getPids().toString());
                     if (pidPackage instanceof CastelPidPackage){
                         CastelPidPackage castelPidPackage = (CastelPidPackage) pidPackage;
-                        properties.put("tripId",castelPidPackage.getTripId());
-                        properties.put("rtcTime",castelPidPackage.getRtcTime());
+                        properties.put("bluetoothDeviceTime",castelPidPackage.getRtcTime());
                     }
 
                 }

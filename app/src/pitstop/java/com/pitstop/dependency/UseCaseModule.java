@@ -16,6 +16,8 @@ import com.pitstop.interactors.add.AddDtcUseCase;
 import com.pitstop.interactors.add.AddDtcUseCaseImpl;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddLicensePlateUseCaseImpl;
+import com.pitstop.interactors.add.AddPidUseCase;
+import com.pitstop.interactors.add.AddPidUseCaseImpl;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddScannerUseCaseImpl;
 import com.pitstop.interactors.add.AddServiceUseCase;
@@ -165,6 +167,7 @@ import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
+import com.pitstop.repositories.SensorDataRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
@@ -761,11 +764,12 @@ public class UseCaseModule {
 
     @Provides
     StartDumpingTripDataWhenConnecteUseCase startDumpingTripDataWhenConnecteUseCase(
-            TripRepository tripRepository, @Named("useCaseHandler")Handler useCaseHandler
+            TripRepository tripRepository, SensorDataRepository sensorDataRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
         return new StartDumpingTripDataWhenConnectedUseCaseImpl(tripRepository
-                , useCaseHandler,mainHandler);
+                , sensorDataRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
@@ -783,6 +787,16 @@ public class UseCaseModule {
 
         return new EndTripUseCaseImpl(userRepository, carRepository
                 , tripRepository, useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository
+            , UserRepository userRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
+            , @Named("mainHandler")Handler mainHandler){
+
+        return new AddPidUseCaseImpl(sensorDataRepository, userRepository, carRepository
+                , useCaseHandler, mainHandler);
     }
 }
 

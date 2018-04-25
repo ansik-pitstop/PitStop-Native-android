@@ -21,7 +21,7 @@ public class TripInfoPackage {
                 "deviceId='" + deviceId + '\'' +
                 ", tripId=" + tripId +
                 ", mileage=" + mileage +
-                ", rtcTime=" + rtcTime +
+                ", bluetoothDeviceTime=" + rtcTime +
                 ", flag=" + flag +
                 '}';
     }

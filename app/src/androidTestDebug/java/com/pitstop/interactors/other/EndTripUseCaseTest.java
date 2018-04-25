@@ -7,7 +7,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.pitstop.Util;
+import com.pitstop.TripTestUtil;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -57,7 +57,7 @@ public class EndTripUseCaseTest {
 
         CompletableFuture<Boolean> result = new CompletableFuture<>();
 
-        List<Location> trip = Util.Companion.getRandomRoute(120);
+        List<Location> trip = TripTestUtil.Companion.getRandomRoute(120);
 
         useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
             @Override

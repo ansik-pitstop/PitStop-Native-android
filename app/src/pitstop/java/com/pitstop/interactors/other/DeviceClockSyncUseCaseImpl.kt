@@ -22,7 +22,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
 
     override fun execute(rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
-        Logger.getInstance().logI(tag, "Use case started execution: rtcTime=$rtcTime, deviceId=$deviceId, vin=$vin"
+        Logger.getInstance().logI(tag, "Use case started execution: bluetoothDeviceTime=$rtcTime, deviceId=$deviceId, vin=$vin"
                 , DebugMessage.TYPE_USE_CASE)
         this.rtcTime = rtcTime
         this.deviceId = deviceId

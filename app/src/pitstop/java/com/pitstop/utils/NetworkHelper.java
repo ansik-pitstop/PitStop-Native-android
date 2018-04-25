@@ -213,7 +213,7 @@ public class NetworkHelper {
                         .put("data", entry.getValue()));
             }
             freezePidArray.put(new JSONObject()
-                    .put("rtcTime", ffPackage.rtcTime)
+                    .put("bluetoothDeviceTime", ffPackage.rtcTime)
                     .put("pids", pids));
             body.put("scannerId", ffPackage.deviceId).put("freezePidArray", freezePidArray);
         } catch (JSONException e) {

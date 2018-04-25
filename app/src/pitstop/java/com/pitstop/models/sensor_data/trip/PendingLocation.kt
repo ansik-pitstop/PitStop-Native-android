@@ -1,4 +1,4 @@
-package com.pitstop.models.trip_k
+package com.pitstop.models.sensor_data.trip
 
 /**
  * Created by Karol Zdebel on 3/28/2018.

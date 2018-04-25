@@ -9,6 +9,7 @@ import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
+import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.database.LocalUserStorage;
@@ -19,6 +20,7 @@ import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
+import com.pitstop.repositories.SensorDataRepository;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
@@ -26,6 +28,7 @@ import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopCarApi;
+import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.utils.NetworkHelper;
 
@@ -113,6 +116,13 @@ public class RepositoryModule {
             , Observable<Boolean> connectionObservable){
         return new TripRepository(pitstopTripApi, localPendingTripStorage
                 , localTripStorage, googleSnapToRoadApi, geocoder, connectionObservable);
+    }
+
+    @Provides
+    @Singleton
+    SensorDataRepository getSensorDataRepository(LocalSensorDataStorage localSensorDataStorage
+            , PitstopSensorDataApi sensorDataApi, Observable<Boolean> connectionObservable){
+        return new SensorDataRepository(localSensorDataStorage,sensorDataApi, connectionObservable);
     }
 
     @Provides

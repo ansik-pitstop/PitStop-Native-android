@@ -6,10 +6,10 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.pitstop.Util;
-import com.pitstop.models.trip_k.TripData;
 
+import com.google.gson.Gson;
+import com.pitstop.TripTestUtil;
+import com.pitstop.models.sensor_data.trip.TripData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class LocalPendingTripStorageTest {
         Log.d(TAG,"running storePendingTripTest()");
         int locNum = 3;
         localPendingTripStorage.deleteAll();
-        TripData tripData = Util.Companion.generateTripData(true,locNum,VIN,System.currentTimeMillis());
+        TripData tripData = TripTestUtil.Companion.generateTripData(true,locNum,VIN,System.currentTimeMillis());
         Log.d(TAG,"storePendingTripTest() tripData = "+gson.toJsonTree(tripData));
         assertTrue(localPendingTripStorage.store(tripData) > 0);
         int rows = localPendingTripStorage.deleteIncomplete();
@@ -66,7 +66,7 @@ public class LocalPendingTripStorageTest {
         List<TripData> tripDataList = new ArrayList<>();
         localPendingTripStorage.deleteAll();
         for (int i=0;i<3;i++){
-            TripData tripData = Util.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
+            TripData tripData = TripTestUtil.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
             tripDataList.add(tripData);
             localPendingTripStorage.store(tripData);
         }
@@ -87,7 +87,7 @@ public class LocalPendingTripStorageTest {
         Log.d(TAG,"getIncompleteTripIdTest()");
         int locNum = 3;
         localPendingTripStorage.deleteAll();
-        TripData tripData = Util.Companion.generateTripData(false
+        TripData tripData = TripTestUtil.Companion.generateTripData(false
                 ,locNum,VIN,System.currentTimeMillis());
         localPendingTripStorage.store(tripData);
         long incompleteTripId = localPendingTripStorage.getIncompleteTripId();
@@ -100,9 +100,9 @@ public class LocalPendingTripStorageTest {
         Log.d(TAG,"completeTripsTest()");
         int locNum = 3;
         localPendingTripStorage.deleteAll();
-        TripData tripData = Util.Companion.generateTripData(false
+        TripData tripData = TripTestUtil.Companion.generateTripData(false
                 ,locNum,VIN,System.currentTimeMillis());
-        TripData tripData2 = Util.Companion.generateTripData(true
+        TripData tripData2 = TripTestUtil.Companion.generateTripData(true
                 ,locNum,VIN,System.currentTimeMillis());
         localPendingTripStorage.store(tripData);
 

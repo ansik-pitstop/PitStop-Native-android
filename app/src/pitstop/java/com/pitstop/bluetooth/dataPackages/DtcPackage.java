@@ -28,7 +28,7 @@ public class DtcPackage {
         return "DtcPackage{" +
                 "deviceId='" + deviceId + '\'' +
                 ", dtcs=" + dtcs +
-                ", rtcTime='" + rtcTime + '\'' +
+                ", bluetoothDeviceTime='" + rtcTime + '\'' +
                 '}';
     }
 }

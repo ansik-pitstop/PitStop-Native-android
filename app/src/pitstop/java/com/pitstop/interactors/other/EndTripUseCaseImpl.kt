@@ -5,9 +5,9 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
-import com.pitstop.models.trip_k.LocationData
-import com.pitstop.models.trip_k.PendingLocation
-import com.pitstop.models.trip_k.TripData
+import com.pitstop.models.sensor_data.trip.LocationData
+import com.pitstop.models.sensor_data.trip.PendingLocation
+import com.pitstop.models.sensor_data.trip.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -43,7 +43,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
         val trip = arrayListOf<PendingLocation>()
         //Location stores time in ms, we want seconds
         locationList.forEach({
-            trip.add(PendingLocation(it.longitude,it.latitude,it.time/1000))
+            trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))
         })
 
         //Get the tripId of the incomplete trip in local database before marking these rows completed

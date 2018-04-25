@@ -9,13 +9,13 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.pitstop.Util;
+import com.pitstop.TripTestUtil;
 import com.pitstop.application.Constants;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.models.trip_k.TripData;
+import com.pitstop.models.sensor_data.trip.TripData;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
@@ -72,7 +72,7 @@ public class TripRepositoryTest {
         Log.d(TAG,"running storeTripTest()");
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        TripData tripData = Util.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
+        TripData tripData = TripTestUtil.Companion.generateTripData(true,3,VIN,System.currentTimeMillis());
         Log.d(TAG,"generated trip data, location size = "+tripData.getLocations().size());
         tripRepository.storeTripDataAndDump(tripData)
                 .subscribeOn(Schedulers.io())

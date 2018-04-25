@@ -5,9 +5,9 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
-import com.pitstop.models.trip_k.LocationData
-import com.pitstop.models.trip_k.PendingLocation
-import com.pitstop.models.trip_k.TripData
+import com.pitstop.models.sensor_data.trip.LocationData
+import com.pitstop.models.sensor_data.trip.PendingLocation
+import com.pitstop.models.sensor_data.trip.TripData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -44,7 +44,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
         Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${locationList.size}")
 
         val trip = arrayListOf<PendingLocation>()
-        locationList.forEach({trip.add(PendingLocation(it.longitude,it.latitude,it.time/1000))})
+        locationList.forEach({trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))})
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {
@@ -74,7 +74,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                             val locationDataList: MutableSet<LocationData> = hashSetOf()
                             trip.forEach{ locationDataList.add(LocationData(it.time, it)) }
 
-                            tripRepository.storeTripData(TripData(tripId,false, car.data!!.vin
+                            tripRepository.storeTripData(TripData(tripId, false, car.data!!.vin
                                     , locationDataList))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())

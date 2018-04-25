@@ -7,7 +7,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.pitstop.Util;
+import com.pitstop.TripTestUtil;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -53,7 +53,7 @@ public class GetSnapToRoadUseCaseTest {
     @Test
     public void getSnapToRoadUseCaseTest() {
 
-        List<Location> path = Util.Companion.getRandomRoute(220);
+        List<Location> path = TripTestUtil.Companion.getRandomRoute(220);
 
         CompletableFuture<List<SnappedPoint>> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();
