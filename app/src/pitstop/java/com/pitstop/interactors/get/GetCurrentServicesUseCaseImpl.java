@@ -72,32 +72,38 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
+                    //Check user car list
+
                     GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
                     return;
                 }
 
-                carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.Callback<List<CarIssue>>() {
-                    @Override
-                    public void onSuccess(List<CarIssue> carIssueCurrent) {
-                        List<CarIssue> preset = new ArrayList<CarIssue>();
-                        List<CarIssue> custom = new ArrayList<CarIssue>();
-                        for( CarIssue c: carIssueCurrent){
-                            if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
-                                preset.add(c);
-                            }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
-                                custom.add(c);
-                            }else{
-                                preset.add(c);
-                            }
-                        }
-                        GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
-                    }
+                getCurrentCarIssues(data.getCarId());
+            }
 
-                    @Override
-                    public void onError(RequestError error) {
-                        GetCurrentServicesUseCaseImpl.this.onError(error);
+            @Override
+            public void onError(RequestError error) {
+                GetCurrentServicesUseCaseImpl.this.onError(error);
+            }
+        });
+    }
+
+    private void getCurrentCarIssues(int carId){
+        carIssueRepository.getCurrentCarIssues(carId, new CarIssueRepository.Callback<List<CarIssue>>() {
+            @Override
+            public void onSuccess(List<CarIssue> carIssueCurrent) {
+                List<CarIssue> preset = new ArrayList<CarIssue>();
+                List<CarIssue> custom = new ArrayList<CarIssue>();
+                for( CarIssue c: carIssueCurrent){
+                    if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
+                        preset.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
+                        custom.add(c);
+                    }else{
+                        preset.add(c);
                     }
-                });
+                }
+                GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
             }
 
             @Override

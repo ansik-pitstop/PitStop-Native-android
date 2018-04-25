@@ -194,7 +194,10 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 }
                 .subscribe()
 
-        return Observable.concat(localResponse,remote.cache())
+        val list: MutableList<Observable<RepositoryResponse<List<Car>>>> = mutableListOf()
+        list.add(localResponse)
+        list.add(remote.cache())
+        return Observable.concatDelayError(list)
     }
 
     fun get(id: Int): Observable<RepositoryResponse<Car>> {
@@ -234,7 +237,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             RepositoryResponse(carList, false)
         })
 
-        var list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
+        val list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
         list.add(local)
         list.add(retRemote)
 

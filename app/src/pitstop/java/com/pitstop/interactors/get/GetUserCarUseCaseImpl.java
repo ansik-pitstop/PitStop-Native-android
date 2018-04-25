@@ -120,7 +120,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
                 carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                         .doOnError(err -> GetUserCarUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
