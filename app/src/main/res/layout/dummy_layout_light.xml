@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:background="#eeecec"
+        border
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
+
+        <TextView
+            android:id="@+id/topText"
+            android:layout_marginTop="20dp"
+            android:text="Lato Regular #fff"
+            android:fontFamily="@font/lato_regular"
+            android:textColor="#2022e6"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/secondTopText"
+            android:layout_below="@+id/topText"
+            android:text="Lato Heavy #fff"
+            android:fontFamily="@font/lato_bold"
+            android:textColor="#2022e6"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/firstTitle"
+            android:layout_below="@+id/secondTopText"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:text="Title Lato Semibold #f2ed6d"
+            android:fontFamily="@font/lato_bold"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_below="@+id/firstTitle"
+            android:layout_marginTop="20dp"
+            android:text="Text Lato Medium #ffffff"
+            android:textColor="@color/black"
+            android:fontFamily="@font/lato_bold"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_below="@+id/subtitle"
+            android:background="@color/white"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/editTextMessage"
+            android:layout_below="@+id/editText"
+            android:textSize="9sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/lato_regular"
+            android:textAlignment="center"
+            android:text="You can also disable this message here"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_marginTop="40dp"
+            android:layout_below="@id/editTextMessage"
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:text="Lato regular"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:fontFamily="@font/lato_regular"
+                android:background="@android:color/transparent"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:text="Lato regular"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:fontFamily="@font/lato_regular"
+                android:background="@android:color/transparent"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -32,11 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.R;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerUseCaseComponent;
-import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.observer.AutoConnectServiceBindingObserver;
@@ -45,7 +41,6 @@ import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.MixpanelHelper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +48,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -203,33 +197,33 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView()");
-        View view = inflater.inflate(R.layout.fragment_vehicle_specs, null);
-        ButterKnife.bind(this, view);
+        View view = inflater.inflate(R.layout.dummy_layout_blue, null);
+        //ButterKnife.bind(this, view);
         ((MainActivity) getActivity()).subscribe(this);
-        if (presenter == null) {
-            UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(new ContextModule(getActivity()))
-                    .build();
-
-            MixpanelHelper mixpanelHelper = new MixpanelHelper(
-                    (GlobalApplication) getActivity().getApplicationContext());
-
-            presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
-        }
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
+//        if (presenter == null) {
+//            UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
+//                    .contextModule(new ContextModule(getActivity()))
+//                    .build();
+//
+//            MixpanelHelper mixpanelHelper = new MixpanelHelper(
+//                    (GlobalApplication) getActivity().getApplicationContext());
+//
+//            presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
+//        }
+//        progressDialog = new ProgressDialog(getActivity());
+//        progressDialog.setCancelable(false);
+//        progressDialog.setCanceledOnTouchOutside(false);
+//        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
 
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        presenter.subscribe(this);
-        Log.d(TAG, "onViewCreated()");
-        super.onViewCreated(view, savedInstanceState);
-        presenter.onUpdateNeeded();
+//        presenter.subscribe(this);
+//        Log.d(TAG, "onViewCreated()");
+//        super.onViewCreated(view, savedInstanceState);
+//        presenter.onUpdateNeeded();
 
     }
 
