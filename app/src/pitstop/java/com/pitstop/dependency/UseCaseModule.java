@@ -369,29 +369,32 @@ public class UseCaseModule {
 
     @Provides
     GetCurrentServicesUseCase getCurrentServicesUseCase(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , CarIssueRepository carIssueRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository
+        return new GetCurrentServicesUseCaseImpl(userRepository, carIssueRepository, carRepository
                 , useCaseHandler, mainHandler);
     }
 
     @Provides
     GetDoneServicesUseCase getDoneServicesUseCase(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , CarIssueRepository carIssueRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
-        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository
+        return new GetDoneServicesUseCaseImpl(userRepository, carIssueRepository, carRepository
                 , useCaseHandler, mainHandler);
     }
 
     @Provides
     GetUpcomingServicesMapUseCase getUpcomingServicesUseCase(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, @Named("useCaseHandler")Handler useCaseHandler
+            , CarIssueRepository carIssueRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
         return new GetUpcomingServicesMapUseCaseImpl(userRepository, carIssueRepository
-                , useCaseHandler, mainHandler);
+                ,carRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

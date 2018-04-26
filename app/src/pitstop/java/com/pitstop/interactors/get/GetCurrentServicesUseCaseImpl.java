@@ -1,18 +1,23 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Karol Zdebel on 5/31/2017.
@@ -24,17 +29,21 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
 
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
+    private CarRepository carRepository;
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
 
     public GetCurrentServicesUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler) {
+            , CarIssueRepository carIssueRepository
+            , CarRepository carRepository
+            , Handler useCaseHandler, Handler mainHandler) {
 
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
+        this.carRepository = carRepository;
     }
 
     @Override
@@ -72,32 +81,62 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
-                    return;
+                    //Check user car list
+                    carRepository.getCarsByUserId(data.getUserId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                            .subscribe(next -> {
+                                //Ignore local responses
+                                if (next.isLocal()){}
+                                else if (next.getData() != null && next.getData().size() > 0){
+                                    getCurrentCarIssues(next.getData().get(0).getId());
+
+                                    //Fix settings
+                                    userRepository.setUserCar(data.getUserId(), next.getData().get(0).getId()
+                                            , new Repository.Callback<Object>() {
+
+                                                @Override
+                                                public void onSuccess(Object data) {
+                                                    Log.d(TAG,"fixed settings");
+                                                }
+
+                                                @Override
+                                                public void onError(RequestError error) {
+                                                    Log.d(TAG,"Error fixing settings");
+                                                }
+                                            });
+                                }else{
+                                    GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
+                                }
+                            },error -> {
+                                GetCurrentServicesUseCaseImpl.this.onError(new RequestError(error));
+                            });
+                } else getCurrentCarIssues(data.getCarId());
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                GetCurrentServicesUseCaseImpl.this.onError(error);
+            }
+        });
+    }
+
+    private void getCurrentCarIssues(int carId){
+        carIssueRepository.getCurrentCarIssues(carId, new CarIssueRepository.Callback<List<CarIssue>>() {
+            @Override
+            public void onSuccess(List<CarIssue> carIssueCurrent) {
+                List<CarIssue> preset = new ArrayList<CarIssue>();
+                List<CarIssue> custom = new ArrayList<CarIssue>();
+                for( CarIssue c: carIssueCurrent){
+                    if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
+                        preset.add(c);
+                    }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
+                        custom.add(c);
+                    }else{
+                        preset.add(c);
+                    }
                 }
-
-                carIssueRepository.getCurrentCarIssues(data.getCarId(), new CarIssueRepository.Callback<List<CarIssue>>() {
-                    @Override
-                    public void onSuccess(List<CarIssue> carIssueCurrent) {
-                        List<CarIssue> preset = new ArrayList<CarIssue>();
-                        List<CarIssue> custom = new ArrayList<CarIssue>();
-                        for( CarIssue c: carIssueCurrent){
-                            if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
-                                preset.add(c);
-                            }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
-                                custom.add(c);
-                            }else{
-                                preset.add(c);
-                            }
-                        }
-                        GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        GetCurrentServicesUseCaseImpl.this.onError(error);
-                    }
-                });
+                GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
             }
 
             @Override
