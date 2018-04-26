@@ -214,6 +214,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
+        if (getBluetoothConnectionObservable() != null)
+            presenter.setBluetoothConnectionObservable(getBluetoothConnectionObservable());
         presenter.onViewReadyForLoad();
     }
 

@@ -52,6 +52,9 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
     public void setBluetoothConnectionObservable(BluetoothConnectionObservable bluetoothConnectionObservable){
         Log.d(TAG,"setBluetoothConnectionObservable() state: "+bluetoothConnectionObservable.getDeviceState());
+
+        if (this.bluetoothConnectionObservable != null) return;
+
         this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         bluetoothConnectionObservable.subscribe(this);
         if (getView() != null && carAdded){
@@ -107,6 +110,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         carAdded = true;
         if (bluetoothConnectionObservable != null){
             bluetoothConnectionObservable.unsubscribe(this);
+            bluetoothConnectionObservable = null;
         }
     }
 
