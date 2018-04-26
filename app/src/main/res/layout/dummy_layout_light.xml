@@ -4,8 +4,7 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:background="#eeecec"
-        border
+        android:background="@drawable/light_border"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
