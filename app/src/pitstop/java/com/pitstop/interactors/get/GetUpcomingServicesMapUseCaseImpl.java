@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
@@ -8,6 +9,7 @@ import com.pitstop.models.issue.UpcomingIssue;
 import com.pitstop.models.service.UpcomingService;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
+import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
@@ -18,6 +20,9 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Karol Zdebel on 5/31/2017.
@@ -30,14 +35,17 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
     private UserRepository userRepository;
     private CarIssueRepository carIssueRepository;
+    private CarRepository carRepository;
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
 
     public GetUpcomingServicesMapUseCaseImpl(UserRepository userRepository
-            , CarIssueRepository carIssueRepository, Handler useCaseHandler, Handler mainHandler) {
+            , CarIssueRepository carIssueRepository, CarRepository carRepository
+            , Handler useCaseHandler, Handler mainHandler) {
         this.userRepository = userRepository;
         this.carIssueRepository = carIssueRepository;
+        this.carRepository = carRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
     }
@@ -77,30 +85,38 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             public void onSuccess(Settings data) {
 
                 if (!data.hasMainCar()){
-                    GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
-                    return;
-                }
+                    //Check user car list
+                    carRepository.getCarsByUserId(data.getUserId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                            .subscribe(next -> {
+                                //Ignore local responses
+                                if (next.isLocal()){}
+                                else if (next.getData() != null && next.getData().size() > 0){
+                                    getUpcomingCarIssues(next.getData().get(0).getId());
 
-                //Use the current users car to get all the current issues
-                carIssueRepository.getUpcomingCarIssues(data.getCarId()
-                        , new CarIssueRepository.Callback<List<UpcomingIssue>>() {
+                                    //Fix settings
+                                    userRepository.setUserCar(data.getUserId(), next.getData().get(0).getId()
+                                            , new Repository.Callback<Object>() {
 
-                            @Override
-                            public void onSuccess(List<UpcomingIssue> carIssueUpcoming) {
+                                                @Override
+                                                public void onSuccess(Object data) {
+                                                    Log.d(TAG,"fixed settings");
+                                                }
 
-                                //Return ordered upcoming services through parameter to callback
-                                List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
-                                Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
-
-                                GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                GetUpcomingServicesMapUseCaseImpl.this.onError(error);
-                            }
-
-                        });
+                                                @Override
+                                                public void onError(RequestError error) {
+                                                    Log.d(TAG,"Error fixing settings");
+                                                }
+                                            });
+                                }else{
+                                    GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
+                                }
+                            },error -> {
+                                GetUpcomingServicesMapUseCaseImpl.this
+                                        .onError(new RequestError(error));
+                            });
+                } else getUpcomingCarIssues(data.getCarId());
             }
 
             @Override
@@ -109,6 +125,29 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
             }
         });
 
+    }
+
+    private void getUpcomingCarIssues(int carId){
+        //Use the current users car to get all the current issues
+        carIssueRepository.getUpcomingCarIssues(carId
+                , new CarIssueRepository.Callback<List<UpcomingIssue>>() {
+
+                    @Override
+                    public void onSuccess(List<UpcomingIssue> carIssueUpcoming) {
+
+                        //Return ordered upcoming services through parameter to callback
+                        List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
+                        Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
+
+                        GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        GetUpcomingServicesMapUseCaseImpl.this.onError(error);
+                    }
+
+                });
     }
 
     private List<UpcomingService> getUpcomingServicesOrdered(List<UpcomingIssue> carIssueUpcoming){
