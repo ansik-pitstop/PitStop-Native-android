@@ -197,7 +197,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView()");
-        View view = inflater.inflate(R.layout.dummy_layout_blue, null);
+        View view = inflater.inflate(R.layout.dummy_layout_light, null);
         //ButterKnife.bind(this, view);
         ((MainActivity) getActivity()).subscribe(this);
 //        if (presenter == null) {
