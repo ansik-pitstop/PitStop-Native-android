@@ -13,6 +13,7 @@ interface TripSettingsView {
     fun showThresholdStart(threshold: Int)
     fun showThresholdEnd(threshold: Int)
     fun showStillActivityTimeout(timeout: String)
+    fun showMinimumLocationAccuracy(acc: Int)
     fun getTrigger(): Int
     fun getLocationUpdatePriority(): Int
     fun getLocationUpdateInterval(): String
@@ -20,6 +21,7 @@ interface TripSettingsView {
     fun getThresholdStart(): String
     fun getThresholdEnd(): String
     fun getStillActivityTimeout(): String
+    fun getMinimumLocationAccuracy(): String
     fun displayError(err: String)
     fun getTripParameterSetter(): TripParameterSetter?
     fun displayToast(msg: String)

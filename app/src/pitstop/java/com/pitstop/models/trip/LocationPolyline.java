@@ -17,7 +17,7 @@ public class LocationPolyline {
     @Expose
     private List<Location> location;
 
-    @SerializedName("phoneTimestamp")
+    @SerializedName("timestamp")
     @Expose
     private String timestamp;
 
@@ -79,5 +79,10 @@ public class LocationPolyline {
 
     public void setCarVin(String carVin) {
         this.carVin = carVin;
+    }
+
+    @Override
+    public String toString(){
+        return "timestamp: "+timestamp+"locs: {"+location.toString()+"}";
     }
 }

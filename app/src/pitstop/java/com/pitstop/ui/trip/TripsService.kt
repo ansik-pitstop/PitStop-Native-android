@@ -41,6 +41,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val STILL_TIMEOUT = "still_timeout"
         const val TRIP_IN_PROGRESS = "trip_in_progress"
         const val STILL_TIMER_RUNNING = "still_timer_running"
+        const val MINIMUM_LOCATION_ACCURACY = "mnimum_location_accuracy"
     }
 
     private val tag = javaClass.simpleName
@@ -62,6 +63,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var stillStartConfidence = 90   //Confidence to start still timer
     private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
+    private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
     private var stillTimeoutTimer: TimeoutTimer
     private var currentTrip = arrayListOf<Location>()
@@ -99,6 +101,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 600000)
         stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
+        minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -255,12 +258,26 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     override fun getActivityTrigger(): Int = tripTrigger
 
     override fun getStillActivityTimeout(): Int {
+        Log.d(tag,"getStillActivityTimeout()")
         return sharedPreferences.getInt(STILL_TIMEOUT, 60000)
     }
 
     override fun setStillActivityTimeout(timeout: Int) {
+        Log.d(tag,"setStillActivityTimeout() timeout: $timeout")
         stillTimeoutTimer = getStillTimeoutTimer(timeout)
         sharedPreferences.edit().putInt(STILL_TIMEOUT,timeout).apply()
+    }
+
+    override fun getMinimumLocationAccuracy(): Int {
+        Log.d(tag,"getMinimumLocationAccuracy() acc: $minLocationAccuracy")
+
+        return minLocationAccuracy
+    }
+
+    override fun setMinimumLocationAccuracy(acc: Int) {
+        Log.d(tag,"setMinimumLocationAccuracy() acc: $acc")
+        sharedPreferences.edit().putInt(MINIMUM_LOCATION_ACCURACY,acc).apply()
+        minLocationAccuracy = acc
     }
 
     override fun startTripManually(): Boolean {
@@ -339,7 +356,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun tripUpdate(locations:List<Location>){
         Log.d(tag,"tripUpdate()")
         Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = $locations", DebugMessage.TYPE_TRIP)
-        currentTrip.addAll(locations)
+
+        //Filter locations based on minimum accuracy
+        currentTrip.addAll(locations.filter{ it.accuracy > minLocationAccuracy })
+
         //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
         if (currentTrip.size > locationSizeCache){
             useCaseComponent.addTripDataUseCase.execute(currentTrip, object: AddTripDataUseCase.Callback{
