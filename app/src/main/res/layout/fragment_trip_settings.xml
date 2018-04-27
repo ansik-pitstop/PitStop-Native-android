@@ -84,6 +84,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"/>
+        <TextView
+            android:text="Minimum Location Accuracy(m)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:layout_marginTop="5dp"
+            android:id="@+id/minimum_location_accuracy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"/>
 
         <Button
             android:id="@+id/update_button"

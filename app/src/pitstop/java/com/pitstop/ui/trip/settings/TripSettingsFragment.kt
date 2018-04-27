@@ -92,6 +92,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         still_activity_timeout.setText(timeout)
     }
 
+    override fun showMinimumLocationAccuracy(acc: Int) {
+        minimum_location_accuracy.setText(acc.toString())
+    }
+
     override fun getTrigger(): Int {
         return triggers.selectedItemPosition
     }
@@ -118,6 +122,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
 
     override fun getStillActivityTimeout(): String {
         return still_activity_timeout.text.toString()
+    }
+
+    override fun getMinimumLocationAccuracy(): String {
+        return minimum_location_accuracy.text.toString()
     }
 
     override fun displayError(err: String) {

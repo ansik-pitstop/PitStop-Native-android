@@ -18,4 +18,6 @@ interface TripParameterSetter {
     fun getActivityTrigger(): Int
     fun getStillActivityTimeout(): Int
     fun setStillActivityTimeout(timeout: Int)
+    fun getMinimumLocationAccuracy(): Int
+    fun setMinimumLocationAccuracy(acc: Int)
 }

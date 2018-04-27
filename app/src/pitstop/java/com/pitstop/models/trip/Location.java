@@ -89,4 +89,9 @@ public class Location {
     public void setCarVin(String carVin) {
         this.carVin = carVin;
     }
+
+    @Override
+    public String toString(){
+        return data;
+    }
 }

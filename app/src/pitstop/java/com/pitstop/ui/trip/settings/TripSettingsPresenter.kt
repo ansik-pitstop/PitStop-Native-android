@@ -40,6 +40,7 @@ class TripSettingsPresenter {
             view?.showThresholdEnd(tripParameterSetter!!.getEndThreshold())
             view?.showThresholdStart(tripParameterSetter!!.getStartThreshold())
             view?.showStillActivityTimeout(tripParameterSetter!!.getStillActivityTimeout().toString())
+            view?.showMinimumLocationAccuracy(tripParameterSetter!!.getMinimumLocationAccuracy())
         }
     }
 
@@ -115,6 +116,17 @@ class TripSettingsPresenter {
                 }
             }catch(e: NumberFormatException){
                 view?.displayError("Invalid still activity timeout, input a number greater than 0")
+            }
+
+            try{
+                val locationAccuracy = view!!.getMinimumLocationAccuracy().toInt()
+                if (locationAccuracy < 0){
+                    view?.displayError("Invalid location accuracy, input a number greater than 0")
+                }else{
+                    tripParameterSetter?.setMinimumLocationAccuracy(locationAccuracy)
+                }
+            }catch(e: NumberFormatException){
+                view?.displayError("Invalid minimum location accuracy, input a number greater than 0")
             }
         }
 
