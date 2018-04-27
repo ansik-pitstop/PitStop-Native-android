@@ -21,16 +21,18 @@ class TripUtils {
 
         fun polylineToLocationList(polyline: List<LocationPolyline>): List<Location>{
             val locList = arrayListOf<Location>()
-            polyline.forEach({
-                val time = it.timestamp.toLong() * 1000
-                val lat = getLatitudeValue(it)
-                val lng = getLongitudeValue(it)
-                val loc = Location("")
-                loc.time = time
-                loc.latitude = lat
-                loc.longitude = lng
-                locList.add(loc)
-            })
+            polyline.forEach {
+                if (it.timestamp != null && it.location != null){
+                    val time = it.timestamp.toLong() * 1000
+                    val lat = getLatitudeValue(it)
+                    val lng = getLongitudeValue(it)
+                    val loc = Location("")
+                    loc.time = time
+                    loc.latitude = lat
+                    loc.longitude = lng
+                    locList.add(loc)
+                }
+            }
             return locList
         }
 
