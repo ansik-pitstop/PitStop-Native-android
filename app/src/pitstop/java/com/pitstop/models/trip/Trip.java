@@ -209,4 +209,13 @@ public class Trip {
     public void setLocationPolyline(List<LocationPolyline> locationPolyline) {
         this.locationPolyline = locationPolyline;
     }
+
+    @Override
+    public String toString(){
+        try{
+            return locationPolyline.toString();
+        }catch(NullPointerException e){
+            return "null";
+        }
+    }
 }
