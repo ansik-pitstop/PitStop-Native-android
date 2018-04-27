@@ -93,7 +93,7 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     }
 
     override fun showMinimumLocationAccuracy(acc: Int) {
-        minimum_location_accuracy.setText(acc)
+        minimum_location_accuracy.setText(acc.toString())
     }
 
     override fun getTrigger(): Int {

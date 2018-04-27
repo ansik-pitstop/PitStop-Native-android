@@ -269,8 +269,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun getMinimumLocationAccuracy(): Int {
-        Log.d(tag,"getMinimumLocationAccuracy()")
-        return sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY, minLocationAccuracy)
+        Log.d(tag,"getMinimumLocationAccuracy() acc: $minLocationAccuracy")
+
+        return minLocationAccuracy
     }
 
     override fun setMinimumLocationAccuracy(acc: Int) {
