@@ -105,7 +105,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
                 ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeout" +
-                ", tripProg=$tripInProgress, timerRun=$stillTimerRunning}"
+                ", tripProg=$tripInProgress, timerRun=$stillTimerRunning, minAcc=$minLocationAccuracy}"
                 ,DebugMessage.TYPE_TRIP)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
@@ -356,7 +356,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = $locations", DebugMessage.TYPE_TRIP)
 
         //Filter locations based on minimum accuracy
-        currentTrip.addAll(locations.filter{ it.accuracy > minLocationAccuracy })
+        currentTrip.addAll(locations.filter{ it.accuracy < minLocationAccuracy })
 
         //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
         if (currentTrip.size > locationSizeCache){
