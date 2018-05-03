@@ -44,7 +44,7 @@ public class NotificationsHelper {
                     .setLargeIcon(icon)
                     .setColor(context.getResources().getColor(R.color.highlight))
                     .setContentTitle("Pitstop")
-                    .setContentText("Pitstop is analyzing your cars health");
+                    .setContentText("Trip is currently being recorded");
 
         Intent resultIntent = new Intent(context, MainActivity.class);
         resultIntent.putExtra(MainActivity.Companion.getFROM_NOTIF(), true);
