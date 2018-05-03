@@ -83,8 +83,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun onCreate() {
         Logger.getInstance()!!.logI(tag, "Trips service created", DebugMessage.TYPE_TRIP)
-        startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                ,NotificationsHelper.getForegroundTripServiceNotification(baseContext))
 
         super.onCreate()
 
@@ -325,8 +323,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
-        NotificationsHelper.sendNotification(applicationContext,"Trip recording started"
-                ,"Pitstop")
+        startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                ,NotificationsHelper.getForegroundTripServiceNotification(baseContext))
     }
 
     private fun tripEnd(){
@@ -348,8 +346,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         stopTrackingLocationUpdates()
-        NotificationsHelper.sendNotification(applicationContext
-                ,"Trip finished recording and will soon be displayed in the app"
+        stopForeground(true)
+        NotificationsHelper.sendNotification(applicationContext,"Trip recording completed"
                 ,"Pitstop")
     }
 
