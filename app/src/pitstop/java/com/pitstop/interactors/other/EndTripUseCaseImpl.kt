@@ -91,8 +91,42 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                         val locationDataList: MutableSet<LocationData> = hashSetOf()
                                         trip.forEach { locationDataList.add(LocationData(it.time, it)) }
 
+                                        tripRepository.getIncompleteTripData()
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(Schedulers.io())
+                                                .subscribe({
+                                                    //Check to see if incomplete trip has one location point with a minimum threshold of 70
+                                                    //We're checking both the repo and the data stored in memory that is not yet in the repo
+                                                    if (it.locations.find { it.data.confidence > 70 } != null
+                                                            || locationDataList.find { it.data.confidence > 70 } != null){
+
+                                                        tripRepository.storeTripDataAndDump(TripData(tripId, false, car.data!!.vin
+                                                                , locationDataList))
+                                                                .subscribeOn(Schedulers.io())
+                                                                .observeOn(Schedulers.io())
+                                                                .subscribe({next ->
+                                                                    Log.d(TAG,"trip repo response: $next")
+                                                                    EndTripUseCaseImpl@finished(next)
+                                                                }, {err ->
+                                                                    Log.d(TAG,"trip repo err: $err")
+                                                                    AddTripUseCaseImpl@onErrorFound(RequestError(err))
+                                                                })
+
+                                                    }else{
+                                                        //Remove trip since it doesn't have a point with a min conf of 70
+                                                        Log.d(TAG,"no trip point with min confidence of 70")
+                                                        tripRepository.removeIncompleteTripData()
+                                                        EndTripUseCaseImpl@finishedTripDiscarded()
+                                                    }
+
+                                                }, {err ->
+                                                    Log.d(TAG,"trip repo err: $err")
+                                                    AddTripUseCaseImpl@onErrorFound(RequestError(err))
+                                                })
+
+
                                         Log.d(TAG,"Storing trip data")
-                                        tripRepository.storeTripDataAndDump(TripData(tripId, true, car.data!!.vin
+                                        tripRepository.storeTripData(TripData(tripId, true, car.data!!.vin
                                                 , locationDataList))
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(Schedulers.io())
@@ -114,6 +148,13 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                     it.printStackTrace()
                     onErrorFound(RequestError(it))
                 })
+    }
+
+    private fun finishedTripDiscarded(){
+        Logger.getInstance()!!.logI(TAG
+                , "Use case finished: trip was discarded since no location point met minimum confidence"
+                , DebugMessage.TYPE_USE_CASE)
+        mainHandler.post{callback.tripDiscarded()}
     }
 
     private fun finished(rows: Int){

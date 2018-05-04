@@ -129,6 +129,35 @@ class LocalPendingTripStorage(private val context: Context) {
         return trips
     }
 
+    fun getIncompleteTrip(): TripData{
+        val db = databaseHelper.readableDatabase
+        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                , arrayOf(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID)
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+                , arrayOf("0")
+                ,null
+                ,null
+                ,TABLES.PENDING_TRIP_DATA.KEY_TIME+" DESC"
+                ,null)
+        val locationDataList: MutableList<LocationData> = mutableListOf()
+        var tripId: Long = -1L
+        var vin: String = ""
+        if (c.isFirst){
+            while (!c.isAfterLast){
+                val locId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
+                locationDataList.add(LocationData(locId,cursorToLocation(c)))
+                if (tripId == -1L){
+                    tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+                }
+                if (vin.isEmpty()){
+                    vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
+                }
+                c.moveToNext()
+            }
+        }
+        return TripData(tripId,false , vin, locationDataList.toSet())
+    }
+
     //Delete list of locations from database if they're present
     fun markAsSent(locations: List<LocationDataFormatted>): Int{
         Log.d(TAG,"markAsSent() locations size: ${locations.size}")
