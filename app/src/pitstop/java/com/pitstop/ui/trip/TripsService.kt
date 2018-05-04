@@ -377,48 +377,38 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
-        for (activity in probableActivities) {
+
+        var onFootActivity: DetectedActivity? = null
+        var vehicleActivty: DetectedActivity? = null
+        var stillActivity: DetectedActivity? = null
+
+        probableActivities.forEach({ activity ->
             Logger.getInstance()!!.logD(tag, "Activity detected activity" +
                     " = ${TripUtils.activityToString(activity.type)}, confidence = " +
                     "${activity.confidence}", DebugMessage.TYPE_TRIP)
-            //skip ignored activities
-            if (activity.type == DetectedActivity.TILTING
-                    || activity.type == DetectedActivity.UNKNOWN)
+            when(activity.type){
+                DetectedActivity.IN_VEHICLE -> vehicleActivty = activity
+                DetectedActivity.ON_FOOT -> onFootActivity = activity
+                DetectedActivity.STILL -> stillActivity = activity
+            }
+        })
 
-            //Start timer if still to end trip on timeout
-            else if (activity.type == DetectedActivity.STILL){
-                if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
-                    startStillTimer()
-                    stopTrackingLocationUpdates()
-                }
-            }
-            //Trigger trip start, or resume trip from still state
-            else if (activity.type == tripTrigger){
-                Logger.getInstance().logD(tag,"trip trigger received, confidence: "+activity.confidence
-                        , DebugMessage.TYPE_TRIP)
-                if (!tripInProgress && activity.confidence > tripStartThreshold){
-                    tripStart()
-                    break //Don't allow trip end in same receival
-                }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
-                    cancelStillTimer()
-                    beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
-                }
-                //End trip if type of trigger is NOT ON_FOOT
-            }else if (tripTrigger != DetectedActivity.ON_FOOT
-                    && activity.type != DetectedActivity.STILL
-                    && activity.type != DetectedActivity.UNKNOWN){
-                if (tripInProgress && activity.confidence > tripEndThreshold){
-                    tripEnd()
-                    break
-                }
-            //End trip if type of trigger IS ON_FOOT
-            }else if (tripTrigger == DetectedActivity.ON_FOOT
-                    && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
-                if (tripInProgress && activity.confidence > tripEndThreshold){
-                    tripEnd()
-                    break
-                }
-            }
+        //Start trip if possibly driving and definitely not walking
+        if (!tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > 30
+                && ( onFootActivity == null || onFootActivity!!.confidence < 40)) {
+            tripStart()
+        //End trip if definitely walking
+        }else if  (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 95){
+            tripEnd()
+        //Start still timer if definitely not driving, and definitely still or walking
+        }else if (!stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
+                || ( onFootActivity != null && onFootActivity!!.confidence > 90))
+                && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
+            startStillTimer()
+        //Cancel still timer if likely driving and not definitely walking
+        }else if (stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
+                && (onFootActivity == null || onFootActivity!!.confidence < 70)){
+            cancelStillTimer()
         }
     }
 
