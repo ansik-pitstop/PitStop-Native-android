@@ -122,4 +122,18 @@ public class LocalPendingTripStorageTest {
         assertEquals(retrieved.get(0),tripData2);
 
     }
+
+    @Test
+    public void getIncompleteTripTest(){
+        Log.d(TAG,"getIncompleteTripTest()");
+        int locNum =3;
+        TripData tripData = TripTestUtil.Companion.generateTripData(false
+                ,locNum,VIN,System.currentTimeMillis());
+        TripData tripData2 = TripTestUtil.Companion.generateTripData(true
+                ,locNum,VIN,System.currentTimeMillis());
+        localPendingTripStorage.store(tripData);
+        localPendingTripStorage.store(tripData2);
+
+        assertEquals(tripData, localPendingTripStorage.getIncompleteTrip());
+    }
 }
