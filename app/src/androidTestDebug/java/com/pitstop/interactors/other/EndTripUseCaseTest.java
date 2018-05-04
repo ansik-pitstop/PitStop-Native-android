@@ -12,6 +12,7 @@ import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.trip.RecordedLocation;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;
@@ -57,9 +58,15 @@ public class EndTripUseCaseTest {
 
         CompletableFuture<Boolean> result = new CompletableFuture<>();
 
-        List<Location> trip = TripTestUtil.Companion.getRandomRoute(120);
+        List<RecordedLocation> trip = TripTestUtil.Companion.getRandomRoute(120);
 
         useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
+            @Override
+            public void tripDiscarded() {
+                Log.d(TAG,"tripDiscarded()");
+                result.complete(false);
+            }
+
             @Override
             public void finished() {
                 Log.d(TAG,"finished()");

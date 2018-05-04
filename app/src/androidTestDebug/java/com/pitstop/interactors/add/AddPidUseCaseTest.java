@@ -56,8 +56,8 @@ public class AddPidUseCaseTest {
 
         useCaseComponent.addPidUseCase().execute(SensorDataTestUtil.get215PidData(3, deviceId).get(0), VIN, new AddPidUseCase.Callback() {
             @Override
-            public void onAdded() {
-                Log.d(TAG,"onAdded()");
+            public void onAdded(int size) {
+                Log.d(TAG,"onAdded() size: "+size);
                 future.complete(true);
             }
 

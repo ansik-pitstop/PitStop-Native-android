@@ -1,7 +1,6 @@
 package com.pitstop.interactors.add;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -12,6 +11,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.trip.RecordedLocation;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +58,7 @@ public class AddTripUseCaseTest {
         dummyCar.setVin("1GB0CVCL7BF147611");
         dummyCar.setId(6014);
 
-        List<Location> trip = new ArrayList<>();
+        List<RecordedLocation> trip = new ArrayList<>();
         for (int i=0;i<3;i++){
             trip.add(TripTestUtil.Companion.getRandomLocation());
         }

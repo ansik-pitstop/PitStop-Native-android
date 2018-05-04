@@ -1,11 +1,11 @@
 package com.pitstop
 
-import android.location.Location
 import com.pitstop.models.sensor_data.DataPoint
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.LocationDataFormatted
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.RecordedLocation
 import java.util.*
 
 /**
@@ -17,37 +17,34 @@ class TripTestUtil {
         val TAG = javaClass.simpleName
 
 
-        fun getRandomRoute(num: Int): List<Location> {
+        fun getRandomRoute(num: Int): List<RecordedLocation> {
 
-            val route = arrayListOf<Location>()
-            var curLoc = Location("")
+            val route = arrayListOf<RecordedLocation>()
             var prevLat = 52.2440835
             var prevLng = 21.079464
-            curLoc.longitude = prevLng
-            curLoc.latitude = prevLat
-            route.add(curLoc)
+            route.add(RecordedLocation(time = System.currentTimeMillis()
+                    , longitude = prevLng
+                    , latitude = prevLat
+                    , conf = 100))
             val random = Random()
-            curLoc.time = System.currentTimeMillis()
             for (i in 2..num){
-                curLoc = Location("")
                 val lng = prevLng + (random.nextDouble())/100
                 val lat = prevLat + (random.nextDouble())/100
-                curLoc.longitude = lng
-                curLoc.latitude = lat
-                curLoc.time = System.currentTimeMillis()
                 Thread.sleep(100)
-                route.add(curLoc)
+                route.add(RecordedLocation(time = System.currentTimeMillis()
+                        , longitude = lng
+                        , latitude = lat
+                        , conf = 100))
             }
             return route
         }
 
-        fun getRandomLocation(): Location {
+        fun getRandomLocation(): RecordedLocation {
             val r = Random()
-            val location = Location("dummyprovider")
-            location.latitude = r.nextDouble() * 90
-            location.longitude = r.nextDouble() * 90
-            location.time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
-            return location
+            return RecordedLocation(time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
+                    , longitude = r.nextDouble() * 90
+                    , latitude = r.nextDouble() * 90
+                    , conf = 100)
         }
 
         fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData {
@@ -55,7 +52,7 @@ class TripTestUtil {
 
             for (i in 1..locNum){
                 val loc = getRandomLocation()
-                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
+                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000,100)))
             }
 
             return TripData(trip.first().id,completed,inVin,trip)
@@ -64,7 +61,7 @@ class TripTestUtil {
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
         fun generateTripDataFormtted(locNum: Int, inVin: String, deviceTimestampIn: Long): Set<LocationDataFormatted>{
 
-            val trip = hashSetOf<Location>()
+            val trip = hashSetOf<RecordedLocation>()
             for (i in 1..locNum){
                 trip.add(getRandomLocation())
             }
