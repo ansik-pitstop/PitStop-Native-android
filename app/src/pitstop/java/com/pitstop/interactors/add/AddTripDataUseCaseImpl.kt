@@ -1,6 +1,5 @@
 package com.pitstop.interactors.add
 
-import android.location.Location
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
@@ -8,6 +7,7 @@ import com.pitstop.models.Settings
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -26,14 +26,14 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
                              , private val mainHandler: Handler): AddTripDataUseCase {
 
     private val TAG = javaClass.simpleName
-    private lateinit var locationList: List<Location>
+    private lateinit var locationList: List<RecordedLocation>
     private lateinit var callback: AddTripDataUseCase.Callback
 
 
-    override fun execute(locationList: List<Location>, callback: AddTripDataUseCase.Callback) {
+    override fun execute(locationList: List<RecordedLocation>, callback: AddTripDataUseCase.Callback) {
         Logger.getInstance().logI(TAG, "Use case execution started, trip: " + locationList, DebugMessage.TYPE_USE_CASE)
         this.locationList = arrayListOf()
-        (this.locationList as ArrayList<Location>).addAll(locationList)
+        (this.locationList as ArrayList<RecordedLocation>).addAll(locationList)
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -44,7 +44,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
         Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${locationList.size}")
 
         val trip = arrayListOf<PendingLocation>()
-        locationList.forEach({trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))})
+        locationList.forEach({trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000, it.conf))})
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {

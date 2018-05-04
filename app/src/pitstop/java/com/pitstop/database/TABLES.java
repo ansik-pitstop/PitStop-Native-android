@@ -72,6 +72,7 @@ public final class TABLES {
         String KEY_VIN = "vin";
         String KEY_COMPLETED = "completed";
         String KEY_SENT = "sent";
+        String KEY_CONFIDENCE = "confidence";
         }
 
     public interface TRIP_DEVICE{

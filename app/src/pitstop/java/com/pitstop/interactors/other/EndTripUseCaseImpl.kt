@@ -1,6 +1,5 @@
 package com.pitstop.interactors.other
 
-import android.location.Location
 import android.os.Handler
 import android.util.Log
 import com.pitstop.models.DebugMessage
@@ -8,6 +7,7 @@ import com.pitstop.models.Settings
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -28,9 +28,9 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
 
     private val TAG = javaClass.simpleName
     private lateinit var callback: EndTripUseCase.Callback
-    private var locationList: MutableList<Location> = arrayListOf()
+    private var locationList: MutableList<RecordedLocation> = arrayListOf()
 
-    override fun execute(trip: List<Location>, callback: EndTripUseCase.Callback) {
+    override fun execute(trip: List<RecordedLocation>, callback: EndTripUseCase.Callback) {
         Logger.getInstance()!!.logI(TAG, "Use case started execution, trip.size: ${trip.size}"
                 , DebugMessage.TYPE_USE_CASE)
         this.locationList.addAll(trip)
@@ -43,7 +43,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
         val trip = arrayListOf<PendingLocation>()
         //Location stores time in ms, we want seconds
         locationList.forEach({
-            trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))
+            trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000, it.conf))
         })
 
         //Get the tripId of the incomplete trip in local database before marking these rows completed

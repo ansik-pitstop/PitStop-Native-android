@@ -45,6 +45,7 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
+            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE, it.data.confidence)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED, if (trip.completed) 1 else 0)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "0")
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
@@ -190,6 +191,7 @@ class LocalPendingTripStorage(private val context: Context) {
     private fun cursorToLocation(c: Cursor): PendingLocation = PendingLocation(
             latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
             , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
+            , confidence = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE))
             , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
     )
 }

@@ -19,6 +19,7 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NotificationsHelper
@@ -66,7 +67,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
     private var stillTimeoutTimer: TimeoutTimer
-    private var currentTrip = arrayListOf<Location>()
+    private var currentTrip = arrayListOf<RecordedLocation>()
+    private var recentConfidence = 0
 
     init{
         tripInProgress = false
@@ -357,7 +359,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 "${locations.filter { it.accuracy < minLocationAccuracy }}", DebugMessage.TYPE_TRIP)
 
         //Filter locations based on minimum accuracy
-        currentTrip.addAll(locations.filter{ it.accuracy < minLocationAccuracy })
+        currentTrip.addAll(locations
+                .filter{ it.accuracy < minLocationAccuracy }
+                .map { RecordedLocation(it.time,it.longitude,it.latitude,recentConfidence)})
 
         //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
         if (currentTrip.size > locationSizeCache){
@@ -387,7 +391,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     " = ${TripUtils.activityToString(activity.type)}, confidence = " +
                     "${activity.confidence}", DebugMessage.TYPE_TRIP)
             when(activity.type){
-                DetectedActivity.IN_VEHICLE -> vehicleActivty = activity
+                DetectedActivity.IN_VEHICLE -> {
+                    recentConfidence = activity.confidence
+                    vehicleActivty = activity
+                }
                 DetectedActivity.ON_FOOT -> onFootActivity = activity
                 DetectedActivity.STILL -> stillActivity = activity
             }
