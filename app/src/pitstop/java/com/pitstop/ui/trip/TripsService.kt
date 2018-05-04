@@ -334,6 +334,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         cancelStillTimer()
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
+            override fun tripDiscarded() {
+                Log.w(tag,"end trip use case discarded trip!")
+            }
+
             override fun finished() {
                 Log.d(tag,"end trip use case finished()")
                 observers.forEach({ it.onTripEnd() })

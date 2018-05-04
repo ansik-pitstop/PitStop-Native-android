@@ -95,6 +95,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(Schedulers.io())
                                                 .subscribe({
+                                                    Log.d(TAG,"Got incomplete trip data: $it")
                                                     //Check to see if incomplete trip has one location point with a minimum threshold of 70
                                                     //We're checking both the repo and the data stored in memory that is not yet in the repo
                                                     if (it.locations.find { it.data.confidence > 70 } != null
@@ -151,7 +152,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
     }
 
     private fun finishedTripDiscarded(){
-        Logger.getInstance()!!.logI(TAG
+        Logger.getInstance()!!.logW(TAG
                 , "Use case finished: trip was discarded since no location point met minimum confidence"
                 , DebugMessage.TYPE_USE_CASE)
         mainHandler.post{callback.tripDiscarded()}

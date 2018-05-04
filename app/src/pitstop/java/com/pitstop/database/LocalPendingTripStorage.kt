@@ -142,7 +142,7 @@ class LocalPendingTripStorage(private val context: Context) {
         val locationDataList: MutableList<LocationData> = mutableListOf()
         var tripId: Long = -1L
         var vin: String = ""
-        if (c.isFirst){
+        if (c.moveToFirst()){
             while (!c.isAfterLast){
                 val locId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
                 locationDataList.add(LocationData(locId,cursorToLocation(c)))
