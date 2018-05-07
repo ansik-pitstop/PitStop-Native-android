@@ -295,9 +295,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getApplicationContext()))
+                .contextModule(new ContextModule(getApplication()))
                 .build();
-        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplicationContext());
+        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
 
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             if(deviceManager != null) {
@@ -312,11 +312,11 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(connectionReceiver, intentFilter);
 
-        this.pidDataHandler = new PidDataHandler(this,getApplicationContext());
+        this.pidDataHandler = new PidDataHandler(this,getApplication());
         this.dtcDataHandler = new DtcDataHandler(this,useCaseComponent);
         this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
-        this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplicationContext());
+        this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplication());
         this.alarmHandler = new AlarmHandler(this, useCaseComponent);
         this.fuelHandler = new FuelHandler(this, useCaseComponent);
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
@@ -403,7 +403,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setConnectionState(State.DISCONNECTED);
                     notifyDeviceDisconnected();
                     resetConnectionVars();
-                    NotificationsHelper.cancelConnectedNotification(getApplicationContext());
+                    NotificationsHelper.cancelConnectedNotification(getApplication());
                 }
 
                 break;
@@ -1224,13 +1224,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 String carName = "Click here to find out more" +
                         car.getYear() + " " + car.getMake() + " " + car.getModel();
-                NotificationsHelper.sendNotification(getApplicationContext()
+                NotificationsHelper.sendNotification(getApplication()
                         ,carName, "Car is Connected");
             }
 
             @Override
             public void onNoCarSet(boolean isLocal) {
-                NotificationsHelper.sendNotification(getApplicationContext()
+                NotificationsHelper.sendNotification(getApplication()
                         ,"Click here to find out more", "Car is Connected");
             }
 

@@ -109,7 +109,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 ,DebugMessage.TYPE_TRIP)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(ContextModule(applicationContext)).build()
+                .contextModule(ContextModule(application)).build()
 
         useCaseComponent.startDumpingTripDataWhenConnectedUseCase
                 .execute(object: StartDumpingTripDataWhenConnecteUseCase.Callback{
@@ -347,7 +347,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         stopTrackingLocationUpdates()
         stopForeground(true)
-        NotificationsHelper.sendNotification(applicationContext,"Trip recording completed"
+        NotificationsHelper.sendNotification(application,"Trip recording completed"
                 ,"Pitstop")
     }
 

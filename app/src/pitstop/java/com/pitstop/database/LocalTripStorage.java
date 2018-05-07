@@ -177,66 +177,69 @@ public class LocalTripStorage {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.beginTransaction();
 
-        for (Trip trip : tripList) {
+        try{
+            for (Trip trip : tripList) {
 
-            // Delete & Store TRIP
-            db.delete(TABLES.TRIP.TABLE_NAME, TABLES.TRIP.TRIP_ID + "=?",
-                    new String[]{String.valueOf(trip.getTripId())});
-            ContentValues tripValues = tripObjectToContentValues(trip);
-            db.insert(TABLES.TRIP.TABLE_NAME, null, tripValues);
+                // Delete & Store TRIP
+                db.delete(TABLES.TRIP.TABLE_NAME, TABLES.TRIP.TRIP_ID + "=?",
+                        new String[]{String.valueOf(trip.getTripId())});
+                ContentValues tripValues = tripObjectToContentValues(trip);
+                db.insert(TABLES.TRIP.TABLE_NAME, null, tripValues);
 
-            // Delete & Store LOCATION_START
-            LocationStart locationStart = trip.getLocationStart();
-            locationStart.setTripId(trip.getTripId()); // set FK
-            locationStart.setCarVin(trip.getVin()); // set FK
-            db.delete(TABLES.LOCATION_START.TABLE_NAME, TABLES.LOCATION_START.FK_TRIP_ID + "=?",
-                    new String[]{String.valueOf(trip.getTripId())});
-            ContentValues locStartValues = locationStartObjectToContentValues(locationStart);
-            db.insert(TABLES.LOCATION_START.TABLE_NAME, null, locStartValues);
+                // Delete & Store LOCATION_START
+                LocationStart locationStart = trip.getLocationStart();
+                locationStart.setTripId(trip.getTripId()); // set FK
+                locationStart.setCarVin(trip.getVin()); // set FK
+                db.delete(TABLES.LOCATION_START.TABLE_NAME, TABLES.LOCATION_START.FK_TRIP_ID + "=?",
+                        new String[]{String.valueOf(trip.getTripId())});
+                ContentValues locStartValues = locationStartObjectToContentValues(locationStart);
+                db.insert(TABLES.LOCATION_START.TABLE_NAME, null, locStartValues);
 
-            // Delete & Store LOCATION_END
-            LocationEnd locationEnd = trip.getLocationEnd();
-            locationEnd.setTripId(trip.getTripId()); // set FK
-            locationEnd.setCarVin(trip.getVin()); // set FK
-            db.delete(TABLES.LOCATION_END.TABLE_NAME, TABLES.LOCATION_END.FK_TRIP_ID + "=?",
-                    new String[]{String.valueOf(trip.getTripId())});
-            ContentValues locEndValues = locationEndObjectToContentValues(locationEnd);
-            db.insert(TABLES.LOCATION_END.TABLE_NAME, null, locEndValues);
+                // Delete & Store LOCATION_END
+                LocationEnd locationEnd = trip.getLocationEnd();
+                locationEnd.setTripId(trip.getTripId()); // set FK
+                locationEnd.setCarVin(trip.getVin()); // set FK
+                db.delete(TABLES.LOCATION_END.TABLE_NAME, TABLES.LOCATION_END.FK_TRIP_ID + "=?",
+                        new String[]{String.valueOf(trip.getTripId())});
+                ContentValues locEndValues = locationEndObjectToContentValues(locationEnd);
+                db.insert(TABLES.LOCATION_END.TABLE_NAME, null, locEndValues);
 
-            // Delete LOCATION_POLYLINE's
-            db.delete(TABLES.LOCATION_POLYLINE.TABLE_NAME, TABLES.LOCATION_POLYLINE.FK_TRIP_ID + "=?",
-                    new String[]{String.valueOf(trip.getTripId())});
+                // Delete LOCATION_POLYLINE's
+                db.delete(TABLES.LOCATION_POLYLINE.TABLE_NAME, TABLES.LOCATION_POLYLINE.FK_TRIP_ID + "=?",
+                        new String[]{String.valueOf(trip.getTripId())});
 
-            // Delete LOCATION's
-            db.delete(TABLES.LOCATION.TABLE_NAME, TABLES.LOCATION.FK_TRIP_ID + "=?",
-                    new String[]{String.valueOf(trip.getTripId())});
+                // Delete LOCATION's
+                db.delete(TABLES.LOCATION.TABLE_NAME, TABLES.LOCATION.FK_TRIP_ID + "=?",
+                        new String[]{String.valueOf(trip.getTripId())});
 
-            // Store LOCATION_POLYLINE
-            for (LocationPolyline locationPolyline : trip.getLocationPolyline()) {
+                // Store LOCATION_POLYLINE
+                for (LocationPolyline locationPolyline : trip.getLocationPolyline()) {
 
-                locationPolyline.setTripId(trip.getTripId()); // set FK
-                locationPolyline.setCarVin(trip.getVin()); // set FK
-                ContentValues locPolyValues = locationPolylineObjectToContentValues(locationPolyline);
-                long locPolyId = db.insert(TABLES.LOCATION_POLYLINE.TABLE_NAME, null, locPolyValues);
+                    locationPolyline.setTripId(trip.getTripId()); // set FK
+                    locationPolyline.setCarVin(trip.getVin()); // set FK
+                    ContentValues locPolyValues = locationPolylineObjectToContentValues(locationPolyline);
+                    long locPolyId = db.insert(TABLES.LOCATION_POLYLINE.TABLE_NAME, null, locPolyValues);
 
-                // Store LOCATION
-                for (Location location : locationPolyline.getLocation()) {
+                    // Store LOCATION
+                    for (Location location : locationPolyline.getLocation()) {
 
-                    location.setLocationPolylineId((int) locPolyId); // set FK
-                    location.setTripId(trip.getTripId()); // set FK
-                    location.setCarVin(trip.getVin()); // set FK
+                        location.setLocationPolylineId((int) locPolyId); // set FK
+                        location.setTripId(trip.getTripId()); // set FK
+                        location.setCarVin(trip.getVin()); // set FK
 
-                    ContentValues locationValues = locationObjectToContentValues(location);
-                    db.insert(TABLES.LOCATION.TABLE_NAME, null, locationValues);
+                        ContentValues locationValues = locationObjectToContentValues(location);
+                        db.insert(TABLES.LOCATION.TABLE_NAME, null, locationValues);
+
+                    }
 
                 }
 
             }
 
+            db.setTransactionSuccessful();
+        }finally{
+            db.endTransaction();
         }
-
-        db.setTransactionSuccessful();
-        db.endTransaction();
 
     }
 
