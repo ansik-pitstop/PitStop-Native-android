@@ -53,13 +53,16 @@ public class LocalAppointmentStorage {
         Log.d(TAG,"deleteAndStoreAppointments() appointments: "+appointments);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.beginTransaction();
-        db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
-        for (Appointment a: appointments){
-            ContentValues v = appointmentObjectToContentValues(a);
-            db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, v);
+        try{
+            db.delete(TABLES.APPOINTMENT.TABLE_NAME, null, null);
+            for (Appointment a: appointments){
+                ContentValues v = appointmentObjectToContentValues(a);
+                db.insert(TABLES.APPOINTMENT.TABLE_NAME, null, v);
+            }
+            db.setTransactionSuccessful();
+        } finally{
+            db.endTransaction();
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
     }
 
     /**
