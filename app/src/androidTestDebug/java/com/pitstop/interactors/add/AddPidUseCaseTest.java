@@ -49,7 +49,7 @@ public class AddPidUseCaseTest {
     }
 
     @Test
-    public void addTripUseCaseTest(){
+    public void addPidUseCaseTest(){
         Log.i(TAG,"starting addPidUseCaseTest");
 
         CompletableFuture<Boolean> future = new CompletableFuture<>();
