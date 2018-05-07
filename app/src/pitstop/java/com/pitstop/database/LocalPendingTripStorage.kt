@@ -135,15 +135,19 @@ class LocalPendingTripStorage(private val context: Context) {
         var rows = 0
         db.beginTransaction()
 
-        locations.forEach({locationData ->
-            val contentValues = ContentValues()
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "1")
-            rows += db.update(TABLES.PENDING_TRIP_DATA.TABLE_NAME, contentValues
-                    , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=${locationData.id}", null)
-        })
+        try{
+            locations.forEach({locationData ->
+                val contentValues = ContentValues()
+                contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "1")
+                rows += db.update(TABLES.PENDING_TRIP_DATA.TABLE_NAME, contentValues
+                        , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=${locationData.id}", null)
+            })
 
-        db.setTransactionSuccessful()
-        db.endTransaction()
+            db.setTransactionSuccessful()
+        }finally{
+            db.endTransaction()
+        }
+
         Log.d(TAG,"updated $rows rows to sent")
         return rows
     }

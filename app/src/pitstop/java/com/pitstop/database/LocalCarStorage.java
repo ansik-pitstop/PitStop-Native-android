@@ -58,25 +58,33 @@ public class LocalCarStorage {
         Log.d(TAG,"deleteAndStoreCar() car: "+car);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.beginTransaction();
-        db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                new String[]{String.valueOf(car.getId())});
-        ContentValues values = carObjectToContentValues(car);
-        db.insert(TABLES.CAR.TABLE_NAME, null, values);
-        db.setTransactionSuccessful();
-        db.endTransaction();
+        try{
+            db.delete(TABLES.CAR.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+                    new String[]{String.valueOf(car.getId())});
+            ContentValues values = carObjectToContentValues(car);
+            db.insert(TABLES.CAR.TABLE_NAME, null, values);
+            db.setTransactionSuccessful();
+        }finally{
+            db.endTransaction();
+        }
+
     }
 
     public void deleteAndStoreCars(List<Car> carList){
         Log.d(TAG,"deleteAndStoreCars() carList: "+carList);
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         db.beginTransaction();
-        db.delete(TABLES.CAR.TABLE_NAME, null, null);
-        for (Car c: carList){
-            ContentValues values = carObjectToContentValues(c);
-            db.insert(TABLES.CAR.TABLE_NAME, null, values);
+        try{
+            db.delete(TABLES.CAR.TABLE_NAME, null, null);
+            for (Car c: carList){
+                ContentValues values = carObjectToContentValues(c);
+                db.insert(TABLES.CAR.TABLE_NAME, null, values);
+            }
+            db.setTransactionSuccessful();
+        }finally{
+            db.endTransaction();
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
+
     }
 
     public void storeCars(List<Car> carList) {
