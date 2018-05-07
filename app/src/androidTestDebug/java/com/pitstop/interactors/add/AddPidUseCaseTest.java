@@ -54,7 +54,7 @@ public class AddPidUseCaseTest {
 
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        useCaseComponent.addPidUseCase().execute(SensorDataTestUtil.get215PidData(3, deviceId).get(0), VIN, new AddPidUseCase.Callback() {
+        useCaseComponent.addPidUseCase().execute(SensorDataTestUtil.get215PidData(3, deviceId,0).get(0), VIN, new AddPidUseCase.Callback() {
             @Override
             public void onAdded(int size) {
                 Log.d(TAG,"onAdded() size: "+size);

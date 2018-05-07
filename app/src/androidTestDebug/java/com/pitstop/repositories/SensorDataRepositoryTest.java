@@ -53,8 +53,8 @@ public class SensorDataRepositoryTest {
         Log.d(TAG,"running storeTripTest()");
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        Collection<SensorData> sensorData = SensorDataTestUtil.get215SensorData(2,deviceID,VIN);
-        sensorData.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
+        Collection<SensorData> sensorData = SensorDataTestUtil.get215SensorData(2,deviceID,VIN,0);
+        sensorData.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2,2));
         Log.d(TAG,"generated sensor data "+sensorData);
         sensorDataRepository.storeThenDump(sensorData)
                 .subscribeOn(Schedulers.computation())
