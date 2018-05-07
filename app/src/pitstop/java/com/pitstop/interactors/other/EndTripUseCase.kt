@@ -8,6 +8,9 @@ import com.pitstop.network.RequestError
  * Created by Karol Zdebel on 3/28/2018.
  */
 interface EndTripUseCase: Interactor {
+    companion object {
+        const val MIN_CONF = 70
+    }
     interface Callback{
         fun tripDiscarded()
         fun finished()

@@ -17,16 +17,16 @@ class TripTestUtil {
         val TAG = javaClass.simpleName
 
 
-        fun getRandomRoute(num: Int): List<RecordedLocation> {
+        fun getRandomRoute(num: Int, maxConf: Int): List<RecordedLocation> {
 
             val route = arrayListOf<RecordedLocation>()
             var prevLat = 52.2440835
             var prevLng = 21.079464
+            val random = Random()
             route.add(RecordedLocation(time = System.currentTimeMillis()
                     , longitude = prevLng
                     , latitude = prevLat
-                    , conf = 100))
-            val random = Random()
+                    , conf = (random.nextDouble()*maxConf).toInt()))
             for (i in 2..num){
                 val lng = prevLng + (random.nextDouble())/100
                 val lat = prevLat + (random.nextDouble())/100
@@ -34,7 +34,7 @@ class TripTestUtil {
                 route.add(RecordedLocation(time = System.currentTimeMillis()
                         , longitude = lng
                         , latitude = lat
-                        , conf = 100))
+                        , conf = (random.nextDouble()*maxConf).toInt()))
             }
             return route
         }

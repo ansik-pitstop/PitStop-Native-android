@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.interactors.other.EndTripUseCase.Companion.MIN_CONF
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.sensor_data.trip.LocationData
@@ -95,12 +96,13 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(Schedulers.io())
                                                 .subscribe({
-                                                    Log.d(TAG,"Got incomplete trip data: $it")
+                                                    Log.d(TAG,"locationDataList: $locationDataList, incompleteTripData: $it")
                                                     //Check to see if incomplete trip has one location point with a minimum threshold of 70
                                                     //We're checking both the repo and the data stored in memory that is not yet in the repo
-                                                    if (it.locations.find { it.data.confidence > 70 } != null
-                                                            || locationDataList.find { it.data.confidence > 70 } != null){
+                                                    if (it.locations.find { it.data.confidence >= MIN_CONF } != null
+                                                            || locationDataList.find { it.data.confidence >= MIN_CONF } != null){
 
+                                                        Log.d(TAG,"found min confidence > $MIN_CONF")
                                                         tripRepository.storeTripDataAndDump(TripData(tripId, false, car.data!!.vin
                                                                 , locationDataList))
                                                                 .subscribeOn(Schedulers.io())
