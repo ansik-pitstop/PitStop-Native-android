@@ -27,6 +27,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+ " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE+ " INTEGER,"
                 + TABLES.PENDING_TRIP_DATA.KEY_SENT+ " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
@@ -132,7 +133,7 @@ class LocalPendingTripStorage(private val context: Context) {
     fun getIncompleteTrip(): TripData{
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME
-                , arrayOf(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID)
+                , null
                 , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
                 , arrayOf("0")
                 ,null

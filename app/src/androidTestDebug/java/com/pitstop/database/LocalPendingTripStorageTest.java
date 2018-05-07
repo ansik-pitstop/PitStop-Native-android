@@ -114,8 +114,8 @@ public class LocalPendingTripStorageTest {
 
         //Make sure completed data isn't being removed by deleteIncomplete()
         localPendingTripStorage.deleteAll();
-        localPendingTripStorage.store(tripData);
-        localPendingTripStorage.store(tripData2);
+        assertTrue(localPendingTripStorage.store(tripData) > 0);
+        assertTrue(localPendingTripStorage.store(tripData2) > 0);
         assertTrue(localPendingTripStorage.deleteIncomplete() > 0);
         List<TripData> retrieved = localPendingTripStorage.getCompleted(false);
         assertEquals(1,retrieved.size());
@@ -131,9 +131,15 @@ public class LocalPendingTripStorageTest {
                 ,locNum,VIN,System.currentTimeMillis());
         TripData tripData2 = TripTestUtil.Companion.generateTripData(true
                 ,locNum,VIN,System.currentTimeMillis());
-        localPendingTripStorage.store(tripData);
-        localPendingTripStorage.store(tripData2);
+        assertTrue(localPendingTripStorage.store(tripData) > 0);
+        assertTrue(localPendingTripStorage.store(tripData2) > 0);
 
+        //Make sure incomplete trip is returned
         assertEquals(tripData, localPendingTripStorage.getIncompleteTrip());
+
+        //Make sure it empty after all are completed
+        localPendingTripStorage.completeAll();
+        assertEquals(new TripData(-1,false,"",new HashSet<>())
+                ,localPendingTripStorage.getIncompleteTrip());
     }
 }
