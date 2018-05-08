@@ -415,8 +415,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             override fun onTimeout() {
                 Logger.getInstance()!!.logI(tag, "Still timer: Timeout, tripInProgress=$tripInProgress"
                         , DebugMessage.TYPE_TRIP)
+                if (tripInProgress){
+                    tripEnd()
+                }
                 stillTimerRunning = false
-                tripEnd()
             }
         }
     }
