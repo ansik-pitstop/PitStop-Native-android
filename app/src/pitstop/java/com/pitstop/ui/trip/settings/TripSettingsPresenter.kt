@@ -1,7 +1,6 @@
 package com.pitstop.ui.trip.settings
 
 import android.util.Log
-import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationRequest
 import com.pitstop.ui.trip.TripParameterSetter
 
@@ -24,11 +23,6 @@ class TripSettingsPresenter {
     fun onReadyForLoad(){
         Log.d(TAG,"onReadyForLoad()")
         if (tripParameterSetter != null && view != null){
-            when (tripParameterSetter!!.getActivityTrigger()){
-                DetectedActivity.IN_VEHICLE -> view?.showTrigger(0)
-                DetectedActivity.ON_FOOT -> view?.showTrigger(1)
-                DetectedActivity.ON_BICYCLE -> view?.showTrigger(2)
-            }
             when (tripParameterSetter!!.getLocationUpdatePriority()){
                 LocationRequest.PRIORITY_HIGH_ACCURACY -> view?.showLocationUpdatePriority(0)
                 LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY -> view?.showLocationUpdatePriority(1)
@@ -47,13 +41,6 @@ class TripSettingsPresenter {
     fun onUpdateSelected(){
         Log.d(TAG,"onUpdate()")
         if (tripParameterSetter != null && view != null){
-
-            val trigger = view!!.getTrigger()
-            when (trigger){
-                0 -> tripParameterSetter?.setActivityTrigger(DetectedActivity.IN_VEHICLE)
-                1 -> tripParameterSetter?.setActivityTrigger(DetectedActivity.ON_FOOT)
-                2 -> tripParameterSetter?.setActivityTrigger(DetectedActivity.ON_BICYCLE)
-            }
 
             val priority = view!!.getLocationUpdatePriority()
             when (priority){

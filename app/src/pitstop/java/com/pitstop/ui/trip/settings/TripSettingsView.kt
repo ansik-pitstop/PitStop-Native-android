@@ -6,7 +6,6 @@ import com.pitstop.ui.trip.TripParameterSetter
  * Created by Karol Zdebel on 3/7/2018.
  */
 interface TripSettingsView {
-    fun showTrigger(trigger: Int)
     fun showLocationUpdatePriority(priority: Int)
     fun showLocationUpdateInterval(interval: Long)
     fun showActivityUpdateInterval(interval: Long)
@@ -14,7 +13,6 @@ interface TripSettingsView {
     fun showThresholdEnd(threshold: Int)
     fun showStillActivityTimeout(timeout: String)
     fun showMinimumLocationAccuracy(acc: Int)
-    fun getTrigger(): Int
     fun getLocationUpdatePriority(): Int
     fun getLocationUpdateInterval(): String
     fun getActivityUpdateInterval(): String

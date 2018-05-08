@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.pitstop.R
 import com.pitstop.ui.trip.TripParameterSetter
@@ -35,12 +34,6 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         presenter?.subscribe(this)
         if (tripsParameterSetter != null) presenter!!.setTripParameterSetter(tripsParameterSetter!!)
 
-        val triggersArray = resources.getStringArray(R.array.detected_activities)
-        val locationPrioritiesArray = resources.getStringArray(R.array.location_priority)
-
-        triggers.adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, triggersArray)
-        location_priority.adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, locationPrioritiesArray)
-
         update_button.setOnClickListener({presenter?.onUpdateSelected()})
 
         presenter?.onReadyForLoad()
@@ -61,11 +54,6 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     }
 
     override fun getTripParameterSetter(): TripParameterSetter? = tripsParameterSetter
-
-    override fun showTrigger(trigger: Int) {
-        Log.d(TAG,"showTrigger() trigger: "+trigger)
-        triggers.setSelection(trigger)
-    }
 
     override fun showLocationUpdatePriority(priority: Int) {
         Log.d(TAG,"showLocationUpdatePriority() priority: "+priority)
@@ -94,10 +82,6 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
 
     override fun showMinimumLocationAccuracy(acc: Int) {
         minimum_location_accuracy.setText(acc.toString())
-    }
-
-    override fun getTrigger(): Int {
-        return triggers.selectedItemPosition
     }
 
     override fun getLocationUpdatePriority(): Int {

@@ -38,10 +38,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val LOCATION_UPDATE_PRIORITY = "location_update_priority"
         const val ACTIVITY_UPDATE_INTERVAL = "activity_update_interval"
         const val TRIP_END_THRESHOLD = "trip_end_threshold"
-        const val TRIP_TRIGGER = "trip_trigger"
         const val STILL_TIMEOUT = "still_timeout"
         const val TRIP_IN_PROGRESS = "trip_in_progress"
-        const val STILL_TIMER_RUNNING = "still_timer_running"
         const val MINIMUM_LOCATION_ACCURACY = "mnimum_location_accuracy"
     }
 
@@ -60,9 +58,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var activityUpdateInterval = 3000L  //How often activity updates are received
     private var tripStartThreshold = 70 //Confidence that starts trip
     private var tripEndThreshold = 80   //Confidence that ends trip
-    private var tripTrigger = DetectedActivity.IN_VEHICLE   //Activity which triggers trip start
-    private var stillStartConfidence = 90   //Confidence to start still timer
-    private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
     private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
@@ -97,16 +92,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         activityUpdateInterval = sharedPreferences.getLong(ACTIVITY_UPDATE_INTERVAL,3000L)
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
-        tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
-        val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 600000)
-        stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
-                ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeout" +
+                ", tripEndThresh=$tripEndThreshold" +
                 ", tripProg=$tripInProgress, timerRun=$stillTimerRunning, minAcc=$minLocationAccuracy}"
                 ,DebugMessage.TYPE_TRIP)
 
@@ -244,18 +236,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     override fun getActivityUpdateInterval(): Long = activityUpdateInterval
-
-    override fun setActivityTrigger(trigger: Int): Boolean{
-        Log.d(tag,"setActivityTrigger() trigger: $trigger")
-        return if (!TripUtils.isActivityValid(trigger)) false
-        else{
-            tripTrigger = trigger
-            sharedPreferences.edit().putInt(TRIP_TRIGGER,tripTrigger).apply()
-            true
-        }
-    }
-
-    override fun getActivityTrigger(): Int = tripTrigger
 
     override fun getStillActivityTimeout(): Int {
         Log.d(tag,"getStillActivityTimeout()")
@@ -413,7 +393,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
         }else if (!stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
-                || ( onFootActivity != null && onFootActivity!!.confidence > 90))
+                || ( onFootActivity != null && onFootActivity!!.confidence > 80))
                 && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
             startStillTimer()
         //Cancel still timer if likely driving and not definitely walking
