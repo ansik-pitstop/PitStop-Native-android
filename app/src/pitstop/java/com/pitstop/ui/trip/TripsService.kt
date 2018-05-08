@@ -380,29 +380,31 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                     "${activity.confidence}", DebugMessage.TYPE_TRIP)
             when(activity.type){
                 DetectedActivity.IN_VEHICLE -> {
-                    recentConfidence = activity.confidence
                     vehicleActivty = activity
                 }
-                DetectedActivity.ON_FOOT -> onFootActivity = activity
+                DetectedActivity.ON_FOOT -> {
+                    recentConfidence = activity.confidence
+                    onFootActivity = activity
+                }
                 DetectedActivity.STILL -> stillActivity = activity
             }
         })
 
         //Start trip if possibly driving and definitely not walking
-        if (!tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > 30
-                && ( onFootActivity == null || onFootActivity!!.confidence < 40)) {
+        if (!tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 30
+                && ( vehicleActivty == null || vehicleActivty!!.confidence < 40)) {
             tripStart()
         //End trip if definitely walking
-        }else if  (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 95){
+        }else if  (tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > 95){
             tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
         }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
-                || ( onFootActivity != null && onFootActivity!!.confidence > 80))
-                && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
+                || ( vehicleActivty != null && vehicleActivty!!.confidence > 80))
+                && (onFootActivity == null || onFootActivity!!.confidence < 30)) {
             startStillTimer()
         //Cancel still timer if likely driving and not definitely walking
-        }else if (tripInProgress && stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
-                && (onFootActivity == null || onFootActivity!!.confidence < 70)){
+        }else if (tripInProgress && stillTimerRunning && onFootActivity != null && onFootActivity!!.confidence > 30
+                && (vehicleActivty == null || vehicleActivty!!.confidence < 70)){
             cancelStillTimer()
         }
     }
