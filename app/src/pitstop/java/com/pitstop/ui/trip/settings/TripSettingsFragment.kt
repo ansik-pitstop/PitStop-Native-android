@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.pitstop.R
 import com.pitstop.ui.trip.TripParameterSetter
@@ -33,6 +34,10 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
         if (presenter == null) presenter = TripSettingsPresenter()
         presenter?.subscribe(this)
         if (tripsParameterSetter != null) presenter!!.setTripParameterSetter(tripsParameterSetter!!)
+
+        val locationPrioritiesArray = resources.getStringArray(R.array.location_priority)
+
+        location_priority.adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, locationPrioritiesArray)
 
         update_button.setOnClickListener({presenter?.onUpdateSelected()})
 
