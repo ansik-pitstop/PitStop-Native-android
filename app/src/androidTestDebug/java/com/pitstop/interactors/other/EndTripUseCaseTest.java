@@ -85,6 +85,7 @@ public class EndTripUseCaseTest {
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
+        localPendingTripStorage.deleteAll();
     }
 
     @Test
@@ -122,6 +123,7 @@ public class EndTripUseCaseTest {
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
+        localPendingTripStorage.deleteAll();
     }
 
 }
