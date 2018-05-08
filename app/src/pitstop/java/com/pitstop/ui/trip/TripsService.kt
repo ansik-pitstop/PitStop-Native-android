@@ -396,12 +396,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }else if  (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 95){
             tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
-        }else if (!stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
+        }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
                 || ( onFootActivity != null && onFootActivity!!.confidence > 80))
                 && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
             startStillTimer()
         //Cancel still timer if likely driving and not definitely walking
-        }else if (stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
+        }else if (tripInProgress && stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
                 && (onFootActivity == null || onFootActivity!!.confidence < 70)){
             cancelStillTimer()
         }
