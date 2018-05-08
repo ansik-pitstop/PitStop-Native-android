@@ -47,109 +47,89 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
             trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000, it.conf))
         })
 
-        //Get the tripId of the incomplete trip in local database before marking these rows completed
-        //We will be unable to retrieve tripid after that becasue we do not know which the current trip is
-        val tripIdFromRepo = tripRepository.getIncompleteTripId()
-
-        //Complete trip data in the trip repo
-        tripRepository.completeTripData()
+        //Get incomplete data before completing it so that it can be used for checking trip validity
+        tripRepository.getIncompleteTripData()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
-                .subscribe({
-                    Log.d(TAG,"data marked as completed!")
-                    //Insert remaining completed trips
-                    userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
+                .observeOn(Schedulers.io())
+                .subscribe({incompleteTripData ->
 
-                        override fun onError(error: RequestError?) {
-                            if (error == null){
-                                onError(RequestError.getUnknownError())
-                            }else{
-                                onErrorFound(error)
-                            }
-                        }
+                    //Incomplete list of locations
+                    val locationDataList: MutableSet<LocationData> = hashSetOf()
+                    trip.forEach { locationDataList.add(LocationData(it.time, it)) }
 
-                        override fun onSuccess(data: Settings?) {
-                            Log.d(TAG, "got settings with carId: ${data!!.carId}")
-                            var usedLocalCar = false
+                    //Check for minimum confidence in both memory and local storage location points
+                    if (incompleteTripData.locations.find { it.data.confidence >= MIN_CONF } == null
+                            && locationDataList.find { it.data.confidence >= MIN_CONF } == null){
 
-                            carRepository.get(data!!.carId)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.from(usecaseHandler.looper),true)
-                                    .subscribe (carRepoSubscribe@{ car ->
+                        //Remove trip since it doesn't have a point with a min conf of 70
+                        Log.d(TAG,"no trip point with min confidence of 70")
+                        tripRepository.removeIncompleteTripData()
+                        EndTripUseCaseImpl@finishedTripDiscarded()
+                        return@subscribe
+                    }
+                    //Complete trip data in the trip repo
+                    else tripRepository.completeTripData()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
+                            .subscribe({
+                                Log.d(TAG,"data marked as completed!")
+                                //Insert remaining completed trips
+                                userRepository.getCurrentUserSettings(object: Repository.Callback<Settings> {
 
-                                        //Use local response if it has data otherwise use remote
-                                        if (car.isLocal && car.data != null){
-                                            usedLocalCar = true
-                                        }else if (usedLocalCar){
-                                            return@carRepoSubscribe
+                                    override fun onError(error: RequestError?) {
+                                        if (error == null){
+                                            onError(RequestError.getUnknownError())
+                                        }else{
+                                            onErrorFound(error)
                                         }
+                                    }
 
-                                        Log.d(TAG,"proceeding to get tripIdFromRepo, got: $tripIdFromRepo, trip.size: ${trip.size}")
-                                        //First set of locations for this locationList, set locationList id its not in db yet, or use the retrieved if not -1
-                                        val tripId = if (tripIdFromRepo == -1L) trip.firstOrNull()?.time ?: tripIdFromRepo else tripIdFromRepo
+                                    override fun onSuccess(data: Settings?) {
+                                        Log.d(TAG, "got settings with carId: ${data!!.carId}")
+                                        var usedLocalCar = false
 
-                                        //Incomplete list of locations
-                                        val locationDataList: MutableSet<LocationData> = hashSetOf()
-                                        trip.forEach { locationDataList.add(LocationData(it.time, it)) }
-
-                                        tripRepository.getIncompleteTripData()
+                                        carRepository.get(data!!.carId)
                                                 .subscribeOn(Schedulers.io())
-                                                .observeOn(Schedulers.io())
-                                                .subscribe({
-                                                    Log.d(TAG,"locationDataList: $locationDataList, incompleteTripData: $it")
-                                                    //Check to see if incomplete trip has one location point with a minimum threshold of 70
-                                                    //We're checking both the repo and the data stored in memory that is not yet in the repo
-                                                    if (it.locations.find { it.data.confidence >= MIN_CONF } != null
-                                                            || locationDataList.find { it.data.confidence >= MIN_CONF } != null){
+                                                .observeOn(AndroidSchedulers.from(usecaseHandler.looper),true)
+                                                .subscribe (carRepoSubscribe@{ car ->
 
-                                                        Log.d(TAG,"found min confidence > $MIN_CONF")
-                                                        tripRepository.storeTripDataAndDump(TripData(tripId, false, car.data!!.vin
-                                                                , locationDataList))
-                                                                .subscribeOn(Schedulers.io())
-                                                                .observeOn(Schedulers.io())
-                                                                .subscribe({next ->
-                                                                    Log.d(TAG,"trip repo response: $next")
-                                                                    EndTripUseCaseImpl@finished(next)
-                                                                }, {err ->
-                                                                    Log.d(TAG,"trip repo err: $err")
-                                                                    AddTripUseCaseImpl@onErrorFound(RequestError(err))
-                                                                })
-
-                                                    }else{
-                                                        //Remove trip since it doesn't have a point with a min conf of 70
-                                                        Log.d(TAG,"no trip point with min confidence of 70")
-                                                        tripRepository.removeIncompleteTripData()
-                                                        EndTripUseCaseImpl@finishedTripDiscarded()
+                                                    //Use local response if it has data otherwise use remote
+                                                    if (car.isLocal && car.data != null){
+                                                        usedLocalCar = true
+                                                    }else if (usedLocalCar){
+                                                        return@carRepoSubscribe
                                                     }
 
-                                                }, {err ->
-                                                    Log.d(TAG,"trip repo err: $err")
-                                                    AddTripUseCaseImpl@onErrorFound(RequestError(err))
-                                                })
+                                                    Log.d(TAG,"proceeding to get tripIdFromRepo, got: ${incompleteTripData.id}, trip.size: ${trip.size}")
+                                                    //First set of locations for this locationList, set locationList id its not in db yet, or use the retrieved if not -1
+                                                    val tripId = if (incompleteTripData.id == -1L) trip.firstOrNull()?.time ?: incompleteTripData.id else incompleteTripData.id
 
-
-                                        Log.d(TAG,"Storing trip data")
-                                        tripRepository.storeTripData(TripData(tripId, true, car.data!!.vin
-                                                , locationDataList))
-                                                .subscribeOn(Schedulers.io())
-                                                .observeOn(Schedulers.io())
-                                                .subscribe({ next ->
-                                                    finished(it)
-                                                }, { err ->
+                                                    Log.d(TAG,"locationDataList: $locationDataList, incompleteTripData: $it")
+                                                        Log.d(TAG,"found min confidence > $MIN_CONF")
+                                                    tripRepository.storeTripDataAndDump(TripData(tripId, true, car.data!!.vin
+                                                            , locationDataList))
+                                                            .subscribeOn(Schedulers.io())
+                                                            .observeOn(Schedulers.io())
+                                                            .subscribe({next ->
+                                                                Log.d(TAG,"trip repo response: $next")
+                                                                EndTripUseCaseImpl@finished(next)
+                                                            }, {err ->
+                                                                Log.d(TAG,"trip repo err: $err")
+                                                                AddTripUseCaseImpl@onErrorFound(RequestError(err))
+                                                            })
+                                                    }, { err ->
                                                     Log.d(TAG, "Error: " + err)
                                                     onErrorFound(RequestError(err))
                                                 })
+                                    }
+                                })
 
-                                    }, { err ->
-                                        Log.d(TAG, "Error: " + err)
-                                        onErrorFound(RequestError(err))
-                                    })
-                        }
-                    })
-
-                },{
-                    it.printStackTrace()
-                    onErrorFound(RequestError(it))
+                            },{
+                                it.printStackTrace()
+                                onErrorFound(RequestError(it))
+                            })
+                },{error ->
+                    EndTripUseCaseImpl@onErrorFound(RequestError(error))
                 })
     }
 
