@@ -316,11 +316,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
             override fun tripDiscarded() {
                 Log.w(tag,"end trip use case discarded trip!")
+                NotificationsHelper.sendNotification(applicationContext,"Trip discarded due to low vehicle activity"
+                        ,"Pitstop")
             }
 
             override fun finished() {
                 Log.d(tag,"end trip use case finished()")
                 observers.forEach({ it.onTripEnd() })
+                NotificationsHelper.sendNotification(applicationContext,"Trip recording completed"
+                        ,"Pitstop")
             }
 
             override fun onError(err: RequestError) {
@@ -333,8 +337,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         stopTrackingLocationUpdates()
         stopForeground(true)
-        NotificationsHelper.sendNotification(applicationContext,"Trip recording completed"
-                ,"Pitstop")
     }
 
     private fun tripUpdate(locations:List<Location>){
