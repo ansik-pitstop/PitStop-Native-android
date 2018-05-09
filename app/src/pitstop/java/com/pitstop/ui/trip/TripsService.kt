@@ -69,7 +69,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     init{
         tripInProgress = false
         observers = arrayListOf()
-        stillTimeoutTimer = getStillTimeoutTimer(600000)
+        sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
+        stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT,600000))
     }
 
     inner class TripsBinder : Binder() {
@@ -84,8 +85,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
         super.onCreate()
 
-        sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
-
         //Update shared preferences
         locationUpdateInterval = sharedPreferences.getLong(LOCATION_UPDATE_INTERVAL,5000L)
         locationUpdatePriority = sharedPreferences.getInt(LOCATION_UPDATE_PRIORITY
@@ -95,7 +94,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
-        this.stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT,600000))
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
