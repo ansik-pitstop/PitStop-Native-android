@@ -27,6 +27,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+ " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE+ " INTEGER,"
                 + TABLES.PENDING_TRIP_DATA.KEY_SENT+ " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
@@ -45,6 +46,7 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
+            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE, it.data.confidence)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED, if (trip.completed) 1 else 0)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "0")
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
@@ -128,6 +130,36 @@ class LocalPendingTripStorage(private val context: Context) {
         return trips
     }
 
+    fun getIncompleteTrip(): TripData{
+        val db = databaseHelper.readableDatabase
+        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME
+                , null
+                , TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+                , arrayOf("0")
+                ,null
+                ,null
+                ,TABLES.PENDING_TRIP_DATA.KEY_TIME+" DESC"
+                ,null)
+        val locationDataList: MutableList<LocationData> = mutableListOf()
+        var tripId: Long = -1L
+        var vin: String = ""
+        if (c.moveToFirst()){
+            while (!c.isAfterLast){
+                val locId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
+                locationDataList.add(LocationData(locId,cursorToLocation(c)))
+                if (tripId == -1L){
+                    tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
+                }
+                if (vin.isEmpty()){
+                    vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
+                }
+                c.moveToNext()
+            }
+        }
+        c.close()
+        return TripData(tripId,false , vin, locationDataList.toSet())
+    }
+
     //Delete list of locations from database if they're present
     fun markAsSent(locations: List<LocationDataFormatted>): Int{
         Log.d(TAG,"markAsSent() locations size: ${locations.size}")
@@ -194,6 +226,7 @@ class LocalPendingTripStorage(private val context: Context) {
     private fun cursorToLocation(c: Cursor): PendingLocation = PendingLocation(
             latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
             , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
+            , confidence = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE))
             , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
     )
 }

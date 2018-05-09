@@ -1,7 +1,6 @@
 package com.pitstop.interactors.other;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -12,6 +11,7 @@ import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.trip.RecordedLocation;
 import com.pitstop.network.RequestError;
 
 import org.jetbrains.annotations.NotNull;
@@ -57,9 +57,15 @@ public class EndTripUseCaseTest {
 
         CompletableFuture<Boolean> result = new CompletableFuture<>();
 
-        List<Location> trip = TripTestUtil.Companion.getRandomRoute(120);
+        List<RecordedLocation> trip = TripTestUtil.Companion.getRandomRoute(120, EndTripUseCase.MIN_CONF+1);
 
         useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
+            @Override
+            public void tripDiscarded() {
+                Log.d(TAG,"tripDiscarded()");
+                result.complete(false);
+            }
+
             @Override
             public void finished() {
                 Log.d(TAG,"finished()");
@@ -79,6 +85,45 @@ public class EndTripUseCaseTest {
         }catch(InterruptedException | ExecutionException | TimeoutException e){
             e.printStackTrace();
         }
+        localPendingTripStorage.deleteAll();
+    }
+
+    @Test
+    public void endLowConfidenceTripTest(){
+        Log.d(TAG,"endLowConfidenceTripTest()");
+
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
+
+        List<RecordedLocation> trip = TripTestUtil.Companion
+                .getRandomRoute(120,EndTripUseCase.MIN_CONF-1);
+
+        useCaseComponent.endTripUseCase().execute(trip, new EndTripUseCase.Callback() {
+            @Override
+            public void tripDiscarded() {
+                Log.d(TAG,"tripDiscarded()");
+                result.complete(true);
+            }
+
+            @Override
+            public void finished() {
+                Log.d(TAG,"finished()");
+                result.complete(false);
+            }
+
+            @Override
+            public void onError(@NotNull RequestError err) {
+                Log.d(TAG,"onError() err: "+err);
+                result.complete(false);
+            }
+        });
+
+        try{
+            Boolean tripResult = result.get(10000, TimeUnit.MILLISECONDS);
+            assertTrue(tripResult);
+        }catch(InterruptedException | ExecutionException | TimeoutException e){
+            e.printStackTrace();
+        }
+        localPendingTripStorage.deleteAll();
     }
 
 }

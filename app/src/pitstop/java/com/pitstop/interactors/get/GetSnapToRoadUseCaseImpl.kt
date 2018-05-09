@@ -1,11 +1,11 @@
 package com.pitstop.interactors.get
 
-import android.location.Location
 import android.os.Handler
 import android.util.Log
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.snapToRoad.SnappedPoint
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.SnapToRoadRepository
 import com.pitstop.utils.Logger
@@ -21,9 +21,9 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 
     private val tag = javaClass.simpleName
     private lateinit var callback: GetSnapToRoadUseCase.Callback
-    private lateinit var polylineList: List<Location>
+    private lateinit var polylineList: List<RecordedLocation>
 
-    override fun execute(polylineList: List<Location>, callback: GetSnapToRoadUseCase.Callback) {
+    override fun execute(polylineList: List<RecordedLocation>, callback: GetSnapToRoadUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started: polyline.size = ${polylineList.size}", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.polylineList = polylineList
@@ -43,7 +43,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
         val overlap = 0
         var nextPartitionIndex = 99
         val listSizeLimit = 100
-        var polylinePartition = arrayListOf<Location>()
+        var polylinePartition = arrayListOf<RecordedLocation>()
         var observableList = arrayListOf<Observable<List<SnappedPoint>>>()
 
         while (index <= polylineList.lastIndex){

@@ -23,16 +23,16 @@ public class SensorDataTestUtil {
 
     private static final String HEX_VAL = "0123456789ABCDEF";
 
-    public static Collection<SensorData> get215SensorData(int len, String deviceId, String vin){
-        return SensorDataUtils.Companion.pidCollectionToSensorDataCollection(get215PidData(len,deviceId),vin);
+    public static Collection<SensorData> get215SensorData(int len, String deviceId, String vin, int timeIndex){
+        return SensorDataUtils.Companion.pidCollectionToSensorDataCollection(get215PidData(len,deviceId,timeIndex),vin);
     }
 
-    public static List<OBD215PidPackage> get215PidData(int len, String deviceID){
+    public static List<OBD215PidPackage> get215PidData(int len, String deviceID, int timeIndex){
         List<OBD215PidPackage> obd215PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
-                    , String.valueOf(getCurrentTimeAhead(i))
-                    ,"0",getCurrentTimeAhead(i));
+                    , String.valueOf(getCurrentTimeAhead(i+timeIndex))
+                    ,"0",getCurrentTimeAhead(i+timeIndex));
             Log.d("TAG","created 215B package with rtc time: "+obd215PidPackage.getRtcTime());
             obd215PidPackage.setPids(getPidMap());
             obd215PidPackageList.add(obd215PidPackage);
@@ -40,23 +40,23 @@ public class SensorDataTestUtil {
         return obd215PidPackageList;
     }
 
-    public static List<OBD212PidPackage> get212PidData(int len, String deviceID){
+    public static List<OBD212PidPackage> get212PidData(int len, String deviceID, int timeIndex){
         List<OBD212PidPackage> obd212PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             OBD212PidPackage obd212PidPackage = new OBD212PidPackage(deviceID
-                    , String.valueOf(getCurrentTimeAhead(i))
-                    ,"0",getCurrentTimeAhead(i));
+                    , String.valueOf(getCurrentTimeAhead(i+timeIndex))
+                    ,"0",getCurrentTimeAhead(i+timeIndex));
             obd212PidPackage.setPids(getPidMap());
             obd212PidPackageList.add(obd212PidPackage);
         }
         return obd212PidPackageList;
     }
 
-    public static List<ELM327PidPackage> get327PidData(int len, String deviceID){
+    public static List<ELM327PidPackage> get327PidData(int len, String deviceID, int timeIndex){
         List<ELM327PidPackage> elm327PidPackageList = new ArrayList<>();
         for (int i=0;i<len;i++){
             ELM327PidPackage elm327PidPackage = new ELM327PidPackage(deviceID
-                    ,getCurrentTimeAhead(i));
+                    ,getCurrentTimeAhead(i+timeIndex));
             elm327PidPackage.setPids(getPidMap());
             elm327PidPackageList.add(elm327PidPackage);
         }
