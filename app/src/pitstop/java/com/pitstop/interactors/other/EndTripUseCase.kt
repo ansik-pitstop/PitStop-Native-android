@@ -1,17 +1,21 @@
 package com.pitstop.interactors.other
 
-import android.location.Location
 import com.pitstop.interactors.Interactor
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 
 /**
  * Created by Karol Zdebel on 3/28/2018.
  */
 interface EndTripUseCase: Interactor {
+    companion object {
+        const val MIN_CONF = 70
+    }
     interface Callback{
+        fun tripDiscarded()
         fun finished()
         fun onError(err: RequestError)
     }
 
-    fun execute(trip: List<Location>, callback: Callback)
+    fun execute(trip: List<RecordedLocation>, callback: Callback)
 }

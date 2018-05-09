@@ -14,8 +14,6 @@ interface TripParameterSetter {
     fun getLocationUpdatePriority(): Int
     fun setActivityUpdateInterval(interval: Long): Boolean
     fun getActivityUpdateInterval(): Long
-    fun setActivityTrigger(trigger: Int): Boolean
-    fun getActivityTrigger(): Int
     fun getStillActivityTimeout(): Int
     fun setStillActivityTimeout(timeout: Int)
     fun getMinimumLocationAccuracy(): Int

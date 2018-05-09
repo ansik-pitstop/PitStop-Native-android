@@ -1,7 +1,6 @@
 package com.pitstop.utils
 
 import android.graphics.Color
-import android.location.Location
 import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationRequest
@@ -10,6 +9,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.RoundCap
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.LocationPolyline
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.ui.MapView
 
 /**
@@ -19,17 +19,11 @@ class TripUtils {
 
     companion object {
 
-        fun polylineToLocationList(polyline: List<LocationPolyline>): List<Location>{
-            val locList = arrayListOf<Location>()
+        fun polylineToLocationList(polyline: List<LocationPolyline>): List<RecordedLocation>{
+            val locList = arrayListOf<RecordedLocation>()
             polyline.forEach {
-                val time = it.timestamp.toLong() * 1000
-                val lat = getLatitudeValue(it)
-                val lng = getLongitudeValue(it)
-                val loc = Location("")
-                loc.time = time
-                loc.latitude = lat
-                loc.longitude = lng
-                locList.add(loc)
+                locList.add(RecordedLocation(time = it.timestamp.toLong() * 1000
+                        , latitude = getLatitudeValue(it), longitude = getLongitudeValue(it),conf = 100))
             }
             return locList
         }

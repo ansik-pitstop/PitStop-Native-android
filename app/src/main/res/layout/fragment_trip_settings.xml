@@ -14,16 +14,6 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:text="Trip Activity Trigger"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <Spinner
-            android:id="@+id/triggers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            android:spinnerMode="dropdown"/>
-        <TextView
             android:text="Location Update Priority"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

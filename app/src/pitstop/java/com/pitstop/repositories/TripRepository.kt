@@ -208,6 +208,10 @@ open class TripRepository(private val tripApi: PitstopTripApi
         return Observable.just(localPendingTripStorage.completeAll())
     }
 
+    fun getIncompleteTripData(): Observable<TripData>{
+        return Observable.just(localPendingTripStorage.getIncompleteTrip())
+    }
+
     //Dumps data from local database to server
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")

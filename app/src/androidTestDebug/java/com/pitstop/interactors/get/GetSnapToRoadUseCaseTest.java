@@ -1,7 +1,6 @@
 package com.pitstop.interactors.get;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -11,7 +10,9 @@ import com.pitstop.TripTestUtil;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.other.EndTripUseCase;
 import com.pitstop.models.snapToRoad.SnappedPoint;
+import com.pitstop.models.trip.RecordedLocation;
 import com.pitstop.network.RequestError;
 import com.pitstop.utils.NetworkHelper;
 
@@ -53,7 +54,7 @@ public class GetSnapToRoadUseCaseTest {
     @Test
     public void getSnapToRoadUseCaseTest() {
 
-        List<Location> path = TripTestUtil.Companion.getRandomRoute(220);
+        List<RecordedLocation> path = TripTestUtil.Companion.getRandomRoute(220, EndTripUseCase.MIN_CONF+1);
 
         CompletableFuture<List<SnappedPoint>> successFuture = new CompletableFuture<>();
         CompletableFuture<RequestError> errorFuture = new CompletableFuture<>();

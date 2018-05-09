@@ -44,22 +44,27 @@ public class LocalSensorDataStorageTest {
     public void storeGetAllSensorDataTest(){
         Log.d(TAG,"storeSensorDataTest()");
         Collection<SensorData> sensorDataCollection
-                =  SensorDataTestUtil.get215SensorData(3,deviceID,VIN);
-        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
+                =  SensorDataTestUtil.get215SensorData(3,deviceID,VIN,0);
+        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2,3));
         Log.d(TAG,"generated sensor data: "+gson.toJsonTree(sensorDataCollection));
         sensorDataCollection.forEach(sensorData -> localSensorDataStorage.store(sensorData));
         Collection<SensorData> retrievedSensorDataCollection = localSensorDataStorage.getAll();
         Log.d(TAG,"retrieved: "+gson.toJsonTree(retrievedSensorDataCollection));
         Assert.assertEquals(sensorDataCollection,retrievedSensorDataCollection);
+        localSensorDataStorage.deleteAll();
     }
 
     @Test
     public void deleteSensorDataTest(){
         Log.d(TAG,"deleteSensorDataTest()");
         List<SensorData> sensorDataCollection
-                =  new ArrayList<>(SensorDataTestUtil.get215SensorData(3,deviceID,VIN));
-        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2));
-        sensorDataCollection.forEach((next) -> localSensorDataStorage.store(next));
+                =  new ArrayList<>(SensorDataTestUtil.get215SensorData(3,deviceID,VIN,0));
+        sensorDataCollection.addAll(SensorDataTestUtil.get215SensorData(2,deviceID2,VIN2,3));
+
+        sensorDataCollection.forEach((next) -> {
+            Log.d(TAG,"rtcTime: "+next.getBluetoothDeviceTime());
+            localSensorDataStorage.store(next);
+        });
         List<SensorData> toRemove = new ArrayList<>();
 
         //Remove first and last from db and compare
@@ -73,6 +78,7 @@ public class LocalSensorDataStorageTest {
         //Remove remaining from db and make sure its empty afterwards
         Assert.assertTrue(localSensorDataStorage.delete(sensorDataCollection) > 0);
         Assert.assertTrue(localSensorDataStorage.getAll().isEmpty());
+        localSensorDataStorage.deleteAll();
     }
 
     @Test

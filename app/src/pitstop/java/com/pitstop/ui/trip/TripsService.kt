@@ -19,6 +19,7 @@ import com.pitstop.interactors.other.EndTripUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NotificationsHelper
@@ -37,11 +38,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val LOCATION_UPDATE_PRIORITY = "location_update_priority"
         const val ACTIVITY_UPDATE_INTERVAL = "activity_update_interval"
         const val TRIP_END_THRESHOLD = "trip_end_threshold"
-        const val TRIP_TRIGGER = "trip_trigger"
         const val STILL_TIMEOUT = "still_timeout"
         const val TRIP_IN_PROGRESS = "trip_in_progress"
-        const val STILL_TIMER_RUNNING = "still_timer_running"
         const val MINIMUM_LOCATION_ACCURACY = "mnimum_location_accuracy"
+        const val DEF_TIMEOUT = 600000
     }
 
     private val tag = javaClass.simpleName
@@ -59,19 +59,17 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var activityUpdateInterval = 3000L  //How often activity updates are received
     private var tripStartThreshold = 70 //Confidence that starts trip
     private var tripEndThreshold = 80   //Confidence that ends trip
-    private var tripTrigger = DetectedActivity.IN_VEHICLE   //Activity which triggers trip start
-    private var stillStartConfidence = 90   //Confidence to start still timer
-    private var stillEndConfidence = 40 //Confidence to end still timer
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
     private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
-    private var stillTimeoutTimer: TimeoutTimer
-    private var currentTrip = arrayListOf<Location>()
+    private var trackingLocationUpdates = false //Whether location updates are being tracked currently
+    private var stillTimeoutTimer: TimeoutTimer? = null
+    private var currentTrip = arrayListOf<RecordedLocation>()
+    private var recentConfidence = 0
 
     init{
         tripInProgress = false
         observers = arrayListOf()
-        this.stillTimeoutTimer = getStillTimeoutTimer(60000)
     }
 
     inner class TripsBinder : Binder() {
@@ -95,16 +93,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         activityUpdateInterval = sharedPreferences.getLong(ACTIVITY_UPDATE_INTERVAL,3000L)
         tripStartThreshold = sharedPreferences.getInt(TRIP_START_THRESHOLD,70)
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
-        tripTrigger = sharedPreferences.getInt(TRIP_TRIGGER, DetectedActivity.IN_VEHICLE)
-        val stillTimeout = sharedPreferences.getInt(STILL_TIMEOUT, 600000)
-        stillTimeoutTimer = getStillTimeoutTimer(stillTimeout)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
+        if (stillTimeoutTimer == null)
+            stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT))
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
-                ", tripEndThresh=$tripEndThreshold, trig=$tripTrigger, stillTimeout=$stillTimeout" +
+                ", tripEndThresh=$tripEndThreshold, stillTimeout=${sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT)}" +
                 ", tripProg=$tripInProgress, timerRun=$stillTimerRunning, minAcc=$minLocationAccuracy}"
                 ,DebugMessage.TYPE_TRIP)
 
@@ -243,21 +240,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun getActivityUpdateInterval(): Long = activityUpdateInterval
 
-    override fun setActivityTrigger(trigger: Int): Boolean{
-        Log.d(tag,"setActivityTrigger() trigger: $trigger")
-        return if (!TripUtils.isActivityValid(trigger)) false
-        else{
-            tripTrigger = trigger
-            sharedPreferences.edit().putInt(TRIP_TRIGGER,tripTrigger).apply()
-            true
-        }
-    }
-
-    override fun getActivityTrigger(): Int = tripTrigger
-
     override fun getStillActivityTimeout(): Int {
         Log.d(tag,"getStillActivityTimeout()")
-        return sharedPreferences.getInt(STILL_TIMEOUT, 60000)
+        return sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT)
     }
 
     override fun setStillActivityTimeout(timeout: Int) {
@@ -299,13 +284,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun cancelStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.cancel()
+        stillTimeoutTimer?.cancel()
         stillTimerRunning = false
     }
 
     private fun startStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.start()
+        stillTimeoutTimer?.start()
         stillTimerRunning = true
     }
 
@@ -332,12 +317,24 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance()!!.logI(tag, "Broadcasting trip end", DebugMessage.TYPE_TRIP)
         cancelStillTimer()
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
+            override fun tripDiscarded() {
+                Log.w(tag,"end trip use case discarded trip!")
+                observers.forEach({ it.onTripEnd() })
+                if (applicationContext != null)
+                    NotificationsHelper.sendNotification(applicationContext,"Trip discarded due to low vehicle activity"
+                            ,"Pitstop")
+            }
+
             override fun finished() {
                 Log.d(tag,"end trip use case finished()")
                 observers.forEach({ it.onTripEnd() })
+                if (applicationContext != null)
+                    NotificationsHelper.sendNotification(applicationContext,"Trip recording completed"
+                            ,"Pitstop")
             }
 
             override fun onError(err: RequestError) {
+                observers.forEach({ it.onTripEnd() })
                 Log.d(tag,"end trip use case error: ${err.message}")
             }
 
@@ -347,8 +344,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         stopTrackingLocationUpdates()
         stopForeground(true)
-        NotificationsHelper.sendNotification(application,"Trip recording completed"
-                ,"Pitstop")
     }
 
     private fun tripUpdate(locations:List<Location>){
@@ -357,7 +352,9 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 "${locations.filter { it.accuracy < minLocationAccuracy }}", DebugMessage.TYPE_TRIP)
 
         //Filter locations based on minimum accuracy
-        currentTrip.addAll(locations.filter{ it.accuracy < minLocationAccuracy })
+        currentTrip.addAll(locations
+                .filter{ it.accuracy < minLocationAccuracy }
+                .map { RecordedLocation(it.time,it.longitude,it.latitude,recentConfidence)})
 
         //Only launch the use case every 5 location point received, they will be cleared on trip end if leftovers
         if (currentTrip.size > locationSizeCache){
@@ -377,48 +374,50 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun handleDetectedActivities(probableActivities: List<DetectedActivity>) {
         Log.d(tag, "handleDetectedActivities() tripInProgress: $tripInProgress, probableActivities: $probableActivities")
-        for (activity in probableActivities) {
+
+        var onFootActivity: DetectedActivity? = null
+        var vehicleActivty: DetectedActivity? = null
+        var stillActivity: DetectedActivity? = null
+
+        probableActivities.forEach({ activity ->
             Logger.getInstance()!!.logD(tag, "Activity detected activity" +
                     " = ${TripUtils.activityToString(activity.type)}, confidence = " +
                     "${activity.confidence}", DebugMessage.TYPE_TRIP)
-            //skip ignored activities
-            if (activity.type == DetectedActivity.TILTING
-                    || activity.type == DetectedActivity.UNKNOWN)
+            when(activity.type){
+                DetectedActivity.IN_VEHICLE -> {
+                    recentConfidence = activity.confidence
+                    vehicleActivty = activity
+                }
+                DetectedActivity.ON_FOOT -> onFootActivity = activity
+                DetectedActivity.STILL -> stillActivity = activity
+            }
+        })
 
-            //Start timer if still to end trip on timeout
-            else if (activity.type == DetectedActivity.STILL){
-                if (tripInProgress && activity.confidence > stillStartConfidence && !stillTimerRunning){
-                    startStillTimer()
-                    stopTrackingLocationUpdates()
-                }
-            }
-            //Trigger trip start, or resume trip from still state
-            else if (activity.type == tripTrigger){
-                Logger.getInstance().logD(tag,"trip trigger received, confidence: "+activity.confidence
-                        , DebugMessage.TYPE_TRIP)
-                if (!tripInProgress && activity.confidence > tripStartThreshold){
-                    tripStart()
-                    break //Don't allow trip end in same receival
-                }else if (tripInProgress && activity.confidence > stillEndConfidence && stillTimerRunning){
-                    cancelStillTimer()
-                    beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
-                }
-                //End trip if type of trigger is NOT ON_FOOT
-            }else if (tripTrigger != DetectedActivity.ON_FOOT
-                    && activity.type != DetectedActivity.STILL
-                    && activity.type != DetectedActivity.UNKNOWN){
-                if (tripInProgress && activity.confidence > tripEndThreshold){
-                    tripEnd()
-                    break
-                }
-            //End trip if type of trigger IS ON_FOOT
-            }else if (tripTrigger == DetectedActivity.ON_FOOT
-                    && activity.type != DetectedActivity.WALKING && activity.type != DetectedActivity.RUNNING){
-                if (tripInProgress && activity.confidence > tripEndThreshold){
-                    tripEnd()
-                    break
-                }
-            }
+        //Start trip if possibly driving and definitely not walking
+        if (!tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > 30
+                && ( onFootActivity == null || onFootActivity!!.confidence < 40)) {
+            tripStart()
+        //End trip if definitely walking
+        }else if  (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 95){
+            tripEnd()
+        //Start still timer if definitely not driving, and definitely still or walking
+        }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
+                || ( onFootActivity != null && onFootActivity!!.confidence > 80))
+                && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
+            startStillTimer()
+        //Cancel still timer if likely driving and not definitely walking
+        }else if (tripInProgress && stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
+                && (onFootActivity == null || onFootActivity!!.confidence < 70)){
+            cancelStillTimer()
+        }
+
+        //Stop tracking location if the user is completely still and we're very sure of it
+        if (tripInProgress && trackingLocationUpdates && stillActivity != null && stillActivity!!.confidence >= 99){
+            stopTrackingLocationUpdates()
+        }
+        //Begin tracking location updates again if movement is found
+        else if (tripInProgress && !trackingLocationUpdates && (stillActivity == null) || stillActivity!!.confidence < 50){
+            beginTrackingLocationUpdates(interval = locationUpdateInterval, priority = locationUpdatePriority)
         }
     }
 
@@ -430,13 +429,16 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             override fun onTimeout() {
                 Logger.getInstance()!!.logI(tag, "Still timer: Timeout, tripInProgress=$tripInProgress"
                         , DebugMessage.TYPE_TRIP)
+                if (tripInProgress){
+                    tripEnd()
+                }
                 stillTimerRunning = false
-                tripEnd()
             }
         }
     }
 
     private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
+        Log.d(tag,"beginTrackingLocationUpdates()")
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
         val locationRequest = LocationRequest()
         locationRequest.interval = interval
@@ -447,11 +449,14 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             e.printStackTrace()
             return false
         }
+        trackingLocationUpdates = true
         return true
     }
 
     private fun stopTrackingLocationUpdates(){
+        Log.d(tag,"stopTrackingLocationUpdates()");
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        trackingLocationUpdates = false
     }
 
     override fun onConnected(p0: Bundle?) {
