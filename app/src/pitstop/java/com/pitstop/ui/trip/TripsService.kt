@@ -334,6 +334,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             }
 
             override fun onError(err: RequestError) {
+                observers.forEach({ it.onTripEnd() })
                 Log.d(tag,"end trip use case error: ${err.message}")
             }
 
