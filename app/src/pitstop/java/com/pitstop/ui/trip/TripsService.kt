@@ -101,7 +101,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
-                ", tripEndThresh=$tripEndThreshold" +
+                ", tripEndThresh=$tripEndThreshold, stillTimeout=${sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT)}" +
                 ", tripProg=$tripInProgress, timerRun=$stillTimerRunning, minAcc=$minLocationAccuracy}"
                 ,DebugMessage.TYPE_TRIP)
 
