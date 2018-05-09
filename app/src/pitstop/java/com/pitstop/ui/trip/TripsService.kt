@@ -61,6 +61,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private val locationSizeCache = 5 //How many GPS points are collected in memory before sending to use casse
     private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
+    private var trackingLocationUpdates = false //Whether location updates are being tracked currently
     private var stillTimeoutTimer: TimeoutTimer
     private var currentTrip = arrayListOf<RecordedLocation>()
     private var recentConfidence = 0
@@ -316,6 +317,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         useCaseComponent.endTripUseCase().execute(currentTrip, object: EndTripUseCase.Callback{
             override fun tripDiscarded() {
                 Log.w(tag,"end trip use case discarded trip!")
+                observers.forEach({ it.onTripEnd() })
                 if (applicationContext != null)
                     NotificationsHelper.sendNotification(applicationContext,"Trip discarded due to low vehicle activity"
                             ,"Pitstop")
@@ -405,6 +407,15 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 && (onFootActivity == null || onFootActivity!!.confidence < 70)){
             cancelStillTimer()
         }
+
+        //Stop tracking location if the user is completely still and we're very sure of it
+        if (tripInProgress && trackingLocationUpdates && stillActivity != null && stillActivity!!.confidence >= 99){
+            stopTrackingLocationUpdates()
+        }
+        //Begin tracking location updates again if movement is found
+        else if (tripInProgress && !trackingLocationUpdates && (stillActivity == null) || stillActivity!!.confidence < 50){
+            beginTrackingLocationUpdates(interval = locationUpdateInterval, priority = locationUpdatePriority)
+        }
     }
 
     private fun getStillTimeoutTimer(timeoutTime: Int): TimeoutTimer {
@@ -424,6 +435,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     }
 
     private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
+        Log.d(tag,"beginTrackingLocationUpdates()")
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
         val locationRequest = LocationRequest()
         locationRequest.interval = interval
@@ -434,11 +446,14 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             e.printStackTrace()
             return false
         }
+        trackingLocationUpdates = true
         return true
     }
 
     private fun stopTrackingLocationUpdates(){
+        Log.d(tag,"stopTrackingLocationUpdates()");
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        trackingLocationUpdates = false
     }
 
     override fun onConnected(p0: Bundle?) {
