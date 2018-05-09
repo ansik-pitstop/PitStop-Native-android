@@ -156,6 +156,7 @@ class LocalPendingTripStorage(private val context: Context) {
                 c.moveToNext()
             }
         }
+        c.close()
         return TripData(tripId,false , vin, locationDataList.toSet())
     }
 
