@@ -131,7 +131,10 @@ public class UserRepository implements Repository{
 
     public void getRemoteCurrentUser(Callback<User> callback){
         Log.d(TAG,"getRemoteCurrentUser()");
-        networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
+        if (localUserStorage.getUser() == null){
+            callback.onError(RequestError.getUnknownError());
+        }
+        else networkHelper.get(END_POINT_USER+ localUserStorage.getUser().getId()
                     ,getUserGetRequestCallback(callback));
     }
 

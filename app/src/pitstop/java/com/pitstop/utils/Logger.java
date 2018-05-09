@@ -163,7 +163,10 @@ public class Logger {
                             sentList.add(d);
                     }
                     localDebugMessageStorage.markAsSent(sentList);
-                });
+                }, err -> {
+                    Log.d(TAG," Error sending message");
+                }
+        );
 
     }
 

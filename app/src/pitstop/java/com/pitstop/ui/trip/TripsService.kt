@@ -106,7 +106,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 ,DebugMessage.TYPE_TRIP)
 
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(ContextModule(applicationContext)).build()
+                .contextModule(ContextModule(application)).build()
 
         useCaseComponent.startDumpingTripDataWhenConnectedUseCase
                 .execute(object: StartDumpingTripDataWhenConnecteUseCase.Callback{
