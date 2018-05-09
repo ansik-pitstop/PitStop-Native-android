@@ -62,15 +62,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private var minLocationAccuracy = 60 //Minimum location accuracy required for a GPS point to not be discarded
     private var stillTimerRunning = false //Whether timer is ticking
     private var trackingLocationUpdates = false //Whether location updates are being tracked currently
-    private var stillTimeoutTimer: TimeoutTimer
+    private var stillTimeoutTimer: TimeoutTimer? = null
     private var currentTrip = arrayListOf<RecordedLocation>()
     private var recentConfidence = 0
 
     init{
         tripInProgress = false
         observers = arrayListOf()
-        sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
-        stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT,600000))
     }
 
     inner class TripsBinder : Binder() {
@@ -85,6 +83,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
         super.onCreate()
 
+        sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
+
         //Update shared preferences
         locationUpdateInterval = sharedPreferences.getLong(LOCATION_UPDATE_INTERVAL,5000L)
         locationUpdatePriority = sharedPreferences.getInt(LOCATION_UPDATE_PRIORITY
@@ -94,6 +94,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripEndThreshold = sharedPreferences.getInt(TRIP_END_THRESHOLD,80)
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
+        if (stillTimeoutTimer == null)
+            stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT,600000))
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -281,13 +283,13 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun cancelStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Cancelled",DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.cancel()
+        stillTimeoutTimer?.cancel()
         stillTimerRunning = false
     }
 
     private fun startStillTimer(){
         Logger.getInstance()!!.logI(tag,"Still timer: Started",DebugMessage.TYPE_TRIP)
-        stillTimeoutTimer.start()
+        stillTimeoutTimer?.start()
         stillTimerRunning = true
     }
 
