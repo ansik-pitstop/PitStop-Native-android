@@ -41,6 +41,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val STILL_TIMEOUT = "still_timeout"
         const val TRIP_IN_PROGRESS = "trip_in_progress"
         const val MINIMUM_LOCATION_ACCURACY = "mnimum_location_accuracy"
+        const val DEF_TIMEOUT = 600000
     }
 
     private val tag = javaClass.simpleName
@@ -95,7 +96,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = sharedPreferences.getBoolean(TRIP_IN_PROGRESS,false)
         minLocationAccuracy = sharedPreferences.getInt(MINIMUM_LOCATION_ACCURACY,minLocationAccuracy)
         if (stillTimeoutTimer == null)
-            stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT,600000))
+            stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT))
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -241,7 +242,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun getStillActivityTimeout(): Int {
         Log.d(tag,"getStillActivityTimeout()")
-        return sharedPreferences.getInt(STILL_TIMEOUT, 60000)
+        return sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT)
     }
 
     override fun setStillActivityTimeout(timeout: Int) {
