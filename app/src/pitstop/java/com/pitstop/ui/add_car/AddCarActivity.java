@@ -64,21 +64,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
                     bluetoothConnectionObservable = next;
                     if (currentFragment == deviceSearchFragment)
                         deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
-                    checkPermissions();
 
                 }, err -> {
 
                 });
 
         setViewAskHasDevice();
-    }
-
-
-
-    @Override
-    protected void onResume() {
-        checkPermissions();
-        super.onResume();
     }
 
     @Override
