@@ -25,6 +25,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.ui.trip.TripsFragment;
@@ -358,6 +359,13 @@ public class TripListFragment extends Fragment implements TripListView {
 
         presenter.sortTripListBy(listToSort, position);
 
+    }
+
+    @Override
+    public void checkPermissions() {
+        if (getActivity() != null && getActivity() instanceof IBluetoothServiceActivity){
+            ((IBluetoothServiceActivity)getActivity()).checkPermissions();
+        }
     }
 
     @OnClick(R.id.bottom_list_button)

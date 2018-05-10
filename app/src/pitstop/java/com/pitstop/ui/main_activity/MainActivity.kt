@@ -411,7 +411,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         Log.d(TAG, "onResume, serviceBound? " + serviceIsBound);
         supportActionBar?.title = tabFragmentManager?.currentTabTitle
-        checkPermissions()
         if (autoConnectService != null) {
             displayDeviceState(autoConnectService?.deviceState
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)

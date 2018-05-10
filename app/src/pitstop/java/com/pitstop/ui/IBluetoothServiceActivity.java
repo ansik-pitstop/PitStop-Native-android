@@ -57,6 +57,12 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     }
 
     @Override
+    protected void onStart() {
+        checkPermissions();
+        super.onStart();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions
                                             ,int[] grantResults) {
         if (requestCode == RC_LOCATION_PERM) {

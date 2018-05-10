@@ -35,4 +35,6 @@ public interface TripListView extends ErrorHandlingView, LoadingTabView {
 
     TripActivityObservable getTripActivityObservable();
 
+    void checkPermissions();
+
 }

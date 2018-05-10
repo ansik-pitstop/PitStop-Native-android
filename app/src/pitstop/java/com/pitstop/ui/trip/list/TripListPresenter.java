@@ -145,6 +145,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     public void onBottomListButtonClicked(){
         Log.d(TAG,"onBottomListButtonClicked()");
+        if (getView() == null) return;
+
+        getView().checkPermissions();
+
         if (!carAdded){
             getView().beginAddCar();
         }
