@@ -371,5 +371,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         showLoading(getString(R.string.connecting_to_device));
     }
 
+    @Override
+    public void displayToast(int message) {
+        Log.d(TAG,"displayToast() message: "+getString(message));
+        if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
+
 
 }
