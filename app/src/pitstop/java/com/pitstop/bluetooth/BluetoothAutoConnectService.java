@@ -559,8 +559,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
 
     @Override
-    public void requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
+    public boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
         Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
+        if (deviceManager == null) return false;
         this.ignoreVerification = ignoreVerification;
         if (urgent) deviceManager.changeScanUrgency(urgent); //Only set to more urgent to avoid autmatic scans from overriding user
         vinDataHandler.vinVerificationFlagChange(ignoreVerification);
@@ -568,7 +569,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                 && !deviceConnState.equals(State.SEARCHING)){
             Log.d(TAG, "device state is not searching or disconnected");
             Log.d(TAG, "state is : " + deviceConnState);
-            return;
+            return false;
         }
         Logger.getInstance().logI(TAG,"Request device search, verification ignored? "+ignoreVerification+", urgent? "+urgent
                 , DebugMessage.TYPE_BLUETOOTH);
@@ -580,7 +581,9 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         }
         else{
             Log.d(TAG,"Scan failed");
+            return false;
         }
+        return true;
     }
 
     @Override

@@ -218,10 +218,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         //Otherwise request search and wait for callback
         else{
-            view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
-            searchingForDevice = true;
-            findDeviceTimer.start();
-            bluetoothConnectionObservable.requestDeviceSearch(true, true);
+            if (bluetoothConnectionObservable.requestDeviceSearch(true, true)){
+                view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
+                searchingForDevice = true;
+                findDeviceTimer.start();
+
+            }
         }
     }
 
