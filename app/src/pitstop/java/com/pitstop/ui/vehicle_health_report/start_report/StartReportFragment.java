@@ -20,6 +20,7 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.EmissionsProgressActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportProgressActivity;
@@ -251,6 +252,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
         startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.primary));
         //modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);
+    }
+
+    @Override
+    public void checkPermissions(){
+        if (getActivity() != null && getActivity() instanceof IBluetoothServiceActivity){
+            ((IBluetoothServiceActivity)getActivity()).checkPermissions();
+        }
     }
 
     @OnClick(R.id.show_reports_button)
