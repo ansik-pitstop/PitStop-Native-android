@@ -1,7 +1,6 @@
 package com.pitstop.ui;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -17,6 +16,8 @@ import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 /**
  * Created by david on 7/21/2016.
  */
@@ -26,7 +27,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
 
     public static final int RC_LOCATION_PERM = 101;
 
-    public static final String[] LOC_PERMS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+    public static final String[] LOC_PERMS = {ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION};
 
     public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
@@ -53,21 +54,13 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     }
 
     public void checkPermissions(){
-        Log.d(TAG,"checkPermissions(), adapter null?"+(BluetoothAdapter.getDefaultAdapter() == null));
-        // Send request to user to turn on locations
-        Log.d(TAG,"onServiceConnected() Bluetooth adapter is not null!");
-        final String[] locationPermissions = getResources().getStringArray(R.array.permissions_location);
-        for (String permission : locationPermissions) {
-            Log.d(TAG,"Checking permisssion: "+permission);
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG,"Permission not granted! requesting permission!");
-                requestPermission(this, locationPermissions, RC_LOCATION_PERM,
-                        true, getString(R.string.request_permission_location_message));
-                break;
-            }
-            else if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED){
-                Log.d(TAG,"Permission granted!");
-            }
+        if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG,"Permission not granted! requesting permission!");
+            requestPermission(this, new String[]{ACCESS_FINE_LOCATION}, RC_LOCATION_PERM,
+                    true, getString(R.string.request_permission_location_message));
+        }
+        else if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            Log.d(TAG,"Permission granted!");
         }
     }
 
