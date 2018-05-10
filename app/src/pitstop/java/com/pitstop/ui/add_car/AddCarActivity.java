@@ -21,8 +21,6 @@ import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 
-import io.reactivex.Observable;
-
 /**
  * Created by Karol Zdebel on 8/1/2017.
  */
@@ -44,7 +42,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private BluetoothAutoConnectService autoConnectService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,16 +73,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         setViewAskHasDevice();
     }
 
-    @Override
-    public Observable<BluetoothAutoConnectService> getAutoConnectService(){
-        return ((GlobalApplication)getApplicationContext())
-                .getServices()
-                .filter ((it)-> it instanceof BluetoothAutoConnectService)
-                .map((it)->{
-                    autoConnectService = (BluetoothAutoConnectService)it;
-                    return autoConnectService;
-                });
-    }
+
 
     @Override
     protected void onResume() {

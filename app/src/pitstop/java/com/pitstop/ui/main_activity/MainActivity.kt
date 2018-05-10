@@ -65,7 +65,6 @@ import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MigrationService
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
-import io.reactivex.Observable
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -136,7 +135,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var tabFragmentManager: TabFragmentManager? = null
 
     private var useCaseComponent: UseCaseComponent? = null
-    private var autoConnectService: BluetoothAutoConnectService? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -429,17 +427,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         super.onStop()
     }
-
-    override fun getAutoConnectService(): Observable<BluetoothAutoConnectService> {
-        return (applicationContext as GlobalApplication)
-                .services
-                .filter { it is BluetoothAutoConnectService }
-                .map{
-                    autoConnectService = it as BluetoothAutoConnectService
-                    autoConnectService
-                }
-    }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
