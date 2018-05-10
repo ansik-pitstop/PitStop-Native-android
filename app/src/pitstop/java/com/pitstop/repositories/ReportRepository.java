@@ -249,7 +249,7 @@ public class ReportRepository implements Repository {
             try{
                 dtcJson.put("code",entry.getKey());
                 dtcJson.put("isPending",entry.getValue());
-                dtcJson.put("bluetoothDeviceTime",Long.valueOf(dtcPackage.rtcTime));
+                dtcJson.put("rtcTime",Long.valueOf(dtcPackage.rtcTime));
                 dtcArr.put(dtcJson);
             }catch(JSONException e){
                 Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);
@@ -271,7 +271,7 @@ public class ReportRepository implements Repository {
                     CastelPidPackage castelPidPackage = (CastelPidPackage)pidPackage;
                     rtcTime = castelPidPackage.getRtcTime();
                 }
-                dtcJson.put("bluetoothDeviceTime",Long.valueOf(rtcTime));
+                dtcJson.put("rtcTime",Long.valueOf(rtcTime));
                 pidArr.put(dtcJson);
             }catch(JSONException e){
                 Logger.getInstance().logException(TAG,e, DebugMessage.TYPE_REPO);

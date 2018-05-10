@@ -70,7 +70,7 @@ public class CarIssueRepository implements Repository{
             body.put("issueType", CarIssue.DTC);
             body.put("data",
                     new JSONObject().put("mileage", mileage)
-                            .put("bluetoothDeviceTime", rtcTime)
+                            .put("rtcTime", rtcTime)
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending));
             //.put("freezeData", data));
