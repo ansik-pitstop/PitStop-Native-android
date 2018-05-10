@@ -45,14 +45,16 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         }
     }
 
-    public void checkPermissions(){
+    public boolean checkPermissions(){
         if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG,"Permission not granted! requesting permission!");
             requestPermission(this, new String[]{ACCESS_FINE_LOCATION}, RC_LOCATION_PERM
                     , getString(R.string.request_permission_location_message));
+            return false;
         }
-        else if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        else{
             Log.d(TAG,"Permission granted!");
+            return true;
         }
     }
 

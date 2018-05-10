@@ -22,4 +22,5 @@ public interface DeviceSearchView extends LoadingView{
     void onCouldNotConnectToDevice();
     void connectingToDevice();
     void displayToast(int message);
+    boolean checkPermissions();
 }

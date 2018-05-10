@@ -154,7 +154,9 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
                 MixpanelHelper.BUTTON_VHR_START,MixpanelHelper.VIEW_VHR_TAB);
         if (getView() == null || getView().getBluetoothConnectionObservable() == null) return;
 
-        getView().checkPermissions();
+        if (!getView().checkPermissions()){
+            return;
+        }
 
         //Check network connection
         useCaseComponent.getCheckNetworkConnectionUseCase().execute(status -> {

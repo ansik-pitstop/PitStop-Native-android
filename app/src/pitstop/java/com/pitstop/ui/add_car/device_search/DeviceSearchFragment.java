@@ -22,6 +22,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
+import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
@@ -377,5 +378,13 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-
+    @Override
+    public boolean checkPermissions(){
+        Log.d(TAG,"checkPermissions()");
+        if (getActivity() != null && getActivity() instanceof IBluetoothServiceActivity){
+            return ((IBluetoothServiceActivity)getActivity()).checkPermissions();
+        }else{
+            return false;
+        }
+    }
 }

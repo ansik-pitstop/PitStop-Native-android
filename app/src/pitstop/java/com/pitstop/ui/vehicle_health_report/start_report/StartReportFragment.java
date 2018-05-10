@@ -255,9 +255,11 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void checkPermissions(){
+    public boolean checkPermissions(){
         if (getActivity() != null && getActivity() instanceof IBluetoothServiceActivity){
-            ((IBluetoothServiceActivity)getActivity()).checkPermissions();
+            return ((IBluetoothServiceActivity)getActivity()).checkPermissions();
+        }else{
+            return true;
         }
     }
 
