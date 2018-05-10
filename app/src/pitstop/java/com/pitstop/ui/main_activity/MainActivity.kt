@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
@@ -245,7 +244,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         startReportFragment.bluetoothConnectionObservable = it
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
-                        checkPermissions()
                     }else if (it is TripsService){
                         Log.d(TAG,"got trips service")
                         tripsFragment.onTripActivityObservableReady(it as TripActivityObservable)
@@ -632,10 +630,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 getAutoConnectService()
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
                         .subscribe{it.requestDeviceSearch(false,false) }
-            } else {
-                Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Retry") { ActivityCompat.requestPermissions(this@MainActivity, LOC_PERMS, RC_LOCATION_PERM) }
-                        .show()
             }
         }
     }

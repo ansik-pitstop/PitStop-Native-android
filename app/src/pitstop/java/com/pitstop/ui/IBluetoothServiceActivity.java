@@ -3,16 +3,12 @@ package com.pitstop.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
 
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothServiceConnection;
 import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
@@ -61,26 +57,6 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         }
         else if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             Log.d(TAG,"Permission granted!");
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == BluetoothServiceConnection.RC_LOCATION_PERM) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Snackbar.make(findViewById(android.R.id.content), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(getString(R.string.retry_button), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                ActivityCompat.requestPermissions(IBluetoothServiceActivity.this,
-                                        getResources().getStringArray(R.array.permissions_location),
-                                        BluetoothServiceConnection.RC_LOCATION_PERM);
-                            }
-                        })
-                        .show();
-            }
         }
     }
 }
