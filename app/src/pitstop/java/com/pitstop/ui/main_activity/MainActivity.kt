@@ -1,6 +1,5 @@
 package com.pitstop.ui.main_activity
 
-import android.app.Activity
 import android.app.NotificationManager
 import android.app.ProgressDialog
 import android.content.Context
@@ -9,7 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -432,7 +430,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         super.onStop()
     }
 
-    fun getAutoConnectService(): Observable<BluetoothAutoConnectService> {
+    override fun getAutoConnectService(): Observable<BluetoothAutoConnectService> {
         return (applicationContext as GlobalApplication)
                 .services
                 .filter { it is BluetoothAutoConnectService }
@@ -631,25 +629,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
                         .subscribe{it.requestDeviceSearch(false,false) }
             }
-        }
-    }
-
-    override fun requestPermission(activity: Activity, permissions: Array<String>, requestCode: Int,
-                                   needDescription: Boolean, message: String?) {
-        if (isFinishing) {
-            return
-        }
-
-        if (needDescription) {
-            AnimatedDialogBuilder(activity)
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setCancelable(false)
-                    .setTitle("Request Permissions")
-                    .setMessage(message ?: getString(R.string.request_permission_message_default))
-                    .setNegativeButton("", null)
-                    .setPositiveButton("OK") { dialog, which -> ActivityCompat.requestPermissions(activity, permissions, requestCode) }.show()
-        } else {
-            ActivityCompat.requestPermissions(activity, permissions, requestCode)
         }
     }
 
