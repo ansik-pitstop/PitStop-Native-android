@@ -42,7 +42,7 @@ public class PidRepository implements Repository{
             try{
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("dataNum", p.getDataNumber());
-                jsonObject.put("bluetoothDeviceTime", Long.parseLong(p.getRtcTime()));
+                jsonObject.put("rtcTime", Long.parseLong(p.getRtcTime()));
                 jsonObject.put("tripMileage", p.getMileage());
                 jsonObject.put("tripIdRaw", p.getTripIdRaw());
                 jsonObject.put("calculatedMileage", p.getCalculatedMileage());

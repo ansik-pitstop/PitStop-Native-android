@@ -416,7 +416,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             stopTrackingLocationUpdates()
         }
         //Begin tracking location updates again if movement is found
-        else if (tripInProgress && !trackingLocationUpdates && (stillActivity == null) || stillActivity!!.confidence < 50){
+        else if (tripInProgress && !trackingLocationUpdates && (stillActivity == null || stillActivity!!.confidence < 50)){
             beginTrackingLocationUpdates(interval = locationUpdateInterval, priority = locationUpdatePriority)
         }
     }

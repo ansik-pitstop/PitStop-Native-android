@@ -156,7 +156,7 @@ public class ScannerRepository implements Repository {
                 +", vin: "+vin+", deviceType: "+deviceType);
         JSONObject body = new JSONObject();
         try{
-            body.put("bluetoothDeviceTime",rtcTime);
+            body.put("rtcTime",rtcTime);
             body.put("deviceId",deviceId);
             body.put("vin",vin);
             body.put("deviceType",deviceType);
