@@ -42,7 +42,6 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private BluetoothAutoConnectService autoConnectService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,19 +64,12 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
                     bluetoothConnectionObservable = next;
                     if (currentFragment == deviceSearchFragment)
                         deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
-                    checkPermissions();
 
                 }, err -> {
 
                 });
 
         setViewAskHasDevice();
-    }
-
-    @Override
-    protected void onResume() {
-        checkPermissions();
-        super.onResume();
     }
 
     @Override

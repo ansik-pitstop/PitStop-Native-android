@@ -17,12 +17,10 @@
 
     <string-array name="permissions_location">
         <item>android.permission.ACCESS_FINE_LOCATION</item>
-        <item>android.permission.ACCESS_COARSE_LOCATION</item>
     </string-array>
 
     <string name="request_permission_message_default">Please grant our permission requests to allow Pitstop app to function.</string>
-    <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device, we need the permission to access your location. We will not actually use or share your location with others.</string>
-
+    <string name="request_permission_location_message">To communicate with the Pitstop Bluetooth device and access to the trips feature, we need the permission to access your location. You will be prompted for permission after closing this popup.</string>
 
     <!--Debug-->
     <string name="debug_drawer_header">Debug</string>
@@ -629,4 +627,5 @@
     <string name="polyline_error_offline_message">No connection, cannot load route on map</string>
     <string name="no_trips_message">You have not recorded any trips yet, our application will record them automatically for you</string>
     <string name="add_car_trips_message">In order to begin tracking your trips you first need to add a car. Click the button below to do so</string>
+    <string name="request_search_failed_add_car_message">Unable to start add car process with a device, please make sure your locations permissions are enabled.</string>
 </resources>

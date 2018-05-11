@@ -192,6 +192,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.onMileageInvalid();
             return;
         }
+        //Check if permissions are granted
+        if (!view.checkPermissions()){
+            Log.d(TAG,"Permissions not granted, cannot start search");
+            return;
+        }
 
         //Check if already connected to device
         if (bluetoothConnectionObservable.getDeviceState()
@@ -218,10 +223,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         //Otherwise request search and wait for callback
         else{
-            view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
-            searchingForDevice = true;
-            findDeviceTimer.start();
-            bluetoothConnectionObservable.requestDeviceSearch(true, true);
+            if (bluetoothConnectionObservable.requestDeviceSearch(true, true)){
+                view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
+                searchingForDevice = true;
+                findDeviceTimer.start();
+
+            }else{
+                view.displayToast(R.string.request_search_failed_add_car_message);
+            }
         }
     }
 

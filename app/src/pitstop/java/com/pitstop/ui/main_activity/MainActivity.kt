@@ -1,6 +1,5 @@
 package com.pitstop.ui.main_activity
 
-import android.app.Activity
 import android.app.NotificationManager
 import android.app.ProgressDialog
 import android.content.Context
@@ -9,8 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -68,7 +65,6 @@ import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MigrationService
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
-import io.reactivex.Observable
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -139,7 +135,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var tabFragmentManager: TabFragmentManager? = null
 
     private var useCaseComponent: UseCaseComponent? = null
-    private var autoConnectService: BluetoothAutoConnectService? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -245,7 +240,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         startReportFragment.bluetoothConnectionObservable = it
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
-                        checkPermissions()
                     }else if (it is TripsService){
                         Log.d(TAG,"got trips service")
                         tripsFragment.onTripActivityObservableReady(it as TripActivityObservable)
@@ -417,7 +411,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         Log.d(TAG, "onResume, serviceBound? " + serviceIsBound);
         supportActionBar?.title = tabFragmentManager?.currentTabTitle
-        checkPermissions()
         if (autoConnectService != null) {
             displayDeviceState(autoConnectService?.deviceState
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)
@@ -433,17 +426,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         super.onStop()
     }
-
-    fun getAutoConnectService(): Observable<BluetoothAutoConnectService> {
-        return (applicationContext as GlobalApplication)
-                .services
-                .filter { it is BluetoothAutoConnectService }
-                .map{
-                    autoConnectService = it as BluetoothAutoConnectService
-                    autoConnectService
-                }
-    }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         Log.d(TAG, "onActivityResult() resultCode: $resultCode , requestCode: $requestCode")
@@ -632,30 +614,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 getAutoConnectService()
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
                         .subscribe{it.requestDeviceSearch(false,false) }
-            } else {
-                Snackbar.make(findViewById(R.id.main_view), R.string.location_request_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Retry") { ActivityCompat.requestPermissions(this@MainActivity, LOC_PERMS, RC_LOCATION_PERM) }
-                        .show()
             }
-        }
-    }
-
-    override fun requestPermission(activity: Activity, permissions: Array<String>, requestCode: Int,
-                                   needDescription: Boolean, message: String?) {
-        if (isFinishing) {
-            return
-        }
-
-        if (needDescription) {
-            AnimatedDialogBuilder(activity)
-                    .setAnimation(AnimatedDialogBuilder.ANIMATION_GROW)
-                    .setCancelable(false)
-                    .setTitle("Request Permissions")
-                    .setMessage(message ?: getString(R.string.request_permission_message_default))
-                    .setNegativeButton("", null)
-                    .setPositiveButton("OK") { dialog, which -> ActivityCompat.requestPermissions(activity, permissions, requestCode) }.show()
-        } else {
-            ActivityCompat.requestPermissions(activity, permissions, requestCode)
         }
     }
 
