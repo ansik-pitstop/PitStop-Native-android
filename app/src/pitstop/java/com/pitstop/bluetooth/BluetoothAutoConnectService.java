@@ -1358,7 +1358,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     properties.put("pids",pidPackage.getPids().toString());
                     if (pidPackage instanceof CastelPidPackage){
                         CastelPidPackage castelPidPackage = (CastelPidPackage) pidPackage;
-                        properties.put("bluetoothDeviceTime",castelPidPackage.getRtcTime());
+                        properties.put("rtcTime",castelPidPackage.getRtcTime());
                     }
 
                 }
