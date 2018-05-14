@@ -83,7 +83,7 @@ android {
         targetSdkVersion 24
         // Change versioning in productFlavors instead of here
         versionCode 250
-        versionName "5.1.2"
+        versionName "9.9.9"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
