@@ -147,7 +147,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
     }
 
     private fun onErrorFound(err: RequestError){
-        Logger.getInstance().logE(TAG, "Use case returned error: $err.message", DebugMessage.TYPE_USE_CASE)
+        Logger.getInstance().logE(TAG, "Use case returned error: $err", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(err)})
     }
 }
