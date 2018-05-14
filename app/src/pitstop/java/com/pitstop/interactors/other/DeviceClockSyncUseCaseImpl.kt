@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
@@ -49,16 +50,24 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.from(useCaseHandler.looper),true)
                                 .subscribe({next ->
+                                    if (next.isLocal) return@subscribe //Only use remote responses
                                     if (next.data == null){
+                                        Log.e(tag,"Data is null")
                                         onErrorSyncingClock(RequestError.getUnknownError())
                                     }else{
+                                        Log.d(tag,"car scanner id: ${next.data.scannerId}, device id in execute: $deviceId")
                                         //Use deviceId directly from device since its not associated with car on backend
                                         if (!deviceId.isEmpty() && next.data.scannerId.isEmpty()){
+                                            Log.d(tag,"using deviceId: $deviceId, vin: ${next.data.vin}")
                                             deviceClockSync(rtcTime, deviceId, next.data.vin)
                                         }
                                         //Use deviceId and VIN both which are associated with the currently selected car by user
-                                        else{
+                                        else if (next.data.scannerId != null){
+                                            Log.d(tag,"using deviceId: ${next.data.scannerId}, vin: ${next.data.vin}")
                                             deviceClockSync(rtcTime, next.data.scannerId, next.data.vin)
+                                        }else{
+                                            Log.e(tag,"no device id to associate with vehicle")
+                                            onErrorSyncingClock(RequestError.getUnknownError())
                                         }
                                     }
                                 },{err ->
@@ -66,18 +75,23 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                                 })
 
                     }else{
+                        Log.e(tag,"No main car found")
                         onErrorSyncingClock(RequestError.getUnknownError())
                     }
                 }
 
                 override fun onError(error: RequestError?) {
+                    Log.e(tag,"error retrieving settings")
                     onErrorSyncingClock(error ?: RequestError.getUnknownError())
                 }
 
             })
         }
         //Otherwise use values provided directly by the device
-        else deviceClockSync(rtcTime,deviceId,vin)
+        else{
+            Log.d(tag,"using deviceId: $deviceId, vin: $vin")
+            deviceClockSync(rtcTime,deviceId,vin)
+        }
     }
 
     private fun onClockSynced(){
@@ -101,6 +115,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
             }
 
             override fun onError(error: RequestError) {
+                Log.e(tag,"error syncing clock")
                 onErrorSyncingClock(error)
             }
 

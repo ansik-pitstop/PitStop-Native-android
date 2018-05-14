@@ -651,9 +651,11 @@ public class UseCaseModule {
 
     @Provides
     DeviceClockSyncUseCase getDeviceClockSyncUseCase(ScannerRepository scannerRepository
+            , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new DeviceClockSyncUseCaseImpl(scannerRepository, useCaseHandler, mainHandler);
+        return new DeviceClockSyncUseCaseImpl(scannerRepository, userRepository
+                , carRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
