@@ -40,9 +40,10 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
     }
 
     override fun run() {
-
+        Log.d(tag,"run()")
         //If the deviceId or VIN is missing then attempt to retrieve it from the car repository
         if (deviceId.isEmpty() || vin.isEmpty()){
+            Log.d(tag,"device id is empty or vin is empty")
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
                     if (data?.hasMainCar() == true){
@@ -57,7 +58,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                                     }else{
                                         Log.d(tag,"car scanner id: ${next.data.scannerId}, device id in execute: $deviceId")
                                         //Use deviceId directly from device since its not associated with car on backend
-                                        if (!deviceId.isEmpty() && next.data.scannerId.isEmpty()){
+                                        if (!deviceId.isEmpty() && next.data.scannerId.isNullOrEmpty()){
                                             Log.d(tag,"using deviceId: $deviceId, vin: ${next.data.vin}")
                                             deviceClockSync(rtcTime, deviceId, next.data.vin)
                                         }

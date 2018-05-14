@@ -47,8 +47,8 @@ public class DeviceClockSyncUseCaseTest {
 
     @Test
     public void deviceClockSyncTest(){
-        String deviceId = "215B002373";
-        long rtcTime = 10000;
+        String deviceId = "";
+        long rtcTime = System.currentTimeMillis()/1000;
         String vin = "";
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
