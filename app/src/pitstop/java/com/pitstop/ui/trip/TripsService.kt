@@ -335,6 +335,20 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
             override fun onError(err: RequestError) {
                 observers.forEach({ it.onTripEnd() })
+                if (applicationContext != null){
+                    if (err.error.equals(RequestError.ERR_OFFLINE)){
+                        NotificationsHelper.sendNotification(applicationContext
+                                ,"Trip recording completed, but unable to be processed " +
+                                "since there's no network connection at this time. " +
+                                "Please connect to the internet and check back"
+                                ,"Pitstop")
+                    }else{
+                        NotificationsHelper.sendNotification(applicationContext
+                                ,"Trip recording completed, but unable to be processed " +
+                                "at this time. Please check back later."
+                                ,"Pitstop")
+                    }
+                }
                 Log.d(tag,"end trip use case error: ${err.message}")
             }
 
