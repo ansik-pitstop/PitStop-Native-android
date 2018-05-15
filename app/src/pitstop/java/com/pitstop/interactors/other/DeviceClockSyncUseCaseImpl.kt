@@ -41,6 +41,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
 
     override fun run() {
         Log.d(tag,"run()")
+        val timestamp = (System.currentTimeMillis()/1000).toString()
         //If the deviceId or VIN is missing then attempt to retrieve it from the car repository
         if (deviceId.isEmpty() || vin.isEmpty()){
             Log.d(tag,"device id is empty or vin is empty")
@@ -60,12 +61,12 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                                         //Use deviceId directly from device since its not associated with car on backend
                                         if (!deviceId.isEmpty() && next.data.scannerId.isNullOrEmpty()){
                                             Log.d(tag,"using deviceId: $deviceId, vin: ${next.data.vin}")
-                                            deviceClockSync(rtcTime, deviceId, next.data.vin)
+                                            deviceClockSync(rtcTime, deviceId, next.data.vin,timestamp)
                                         }
                                         //Use deviceId and VIN both which are associated with the currently selected car by user
                                         else if (next.data.scannerId != null){
                                             Log.d(tag,"using deviceId: ${next.data.scannerId}, vin: ${next.data.vin}")
-                                            deviceClockSync(rtcTime, next.data.scannerId, next.data.vin)
+                                            deviceClockSync(rtcTime, next.data.scannerId, next.data.vin,timestamp)
                                         }else{
                                             Log.e(tag,"no device id to associate with vehicle")
                                             onErrorSyncingClock(RequestError.getUnknownError())
@@ -91,7 +92,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
         //Otherwise use values provided directly by the device
         else{
             Log.d(tag,"using deviceId: $deviceId, vin: $vin")
-            deviceClockSync(rtcTime,deviceId,vin)
+            deviceClockSync(rtcTime,deviceId,vin,timestamp)
         }
     }
 
@@ -107,9 +108,9 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
         mainHandler.post({callback!!.onError(error)})
     }
 
-    private fun deviceClockSync(rtcTime: Long, deviceId: String, vin: String){
+    private fun deviceClockSync(rtcTime: Long, deviceId: String, vin: String, timestamp: String){
         scannerRepository.deviceClockSync(rtcTime,deviceId,vin.toUpperCase(),"scanner"
-                , object: Repository.Callback<String>{
+                , timestamp, object: Repository.Callback<String>{
 
             override fun onSuccess(data: String) {
                 onClockSynced()

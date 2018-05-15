@@ -150,7 +150,8 @@ public class ScannerRepository implements Repository {
     }
 
     public void deviceClockSync(@NotNull Long rtcTime, @NotNull String deviceId
-            , @NotNull String vin, @NotNull String deviceType, Callback<String> callback) {
+            , @NotNull String vin, @NotNull String deviceType, @NotNull String timeStamp
+            , Callback<String> callback) {
 
         Log.d(TAG,"deviceClockSync() bluetoothDeviceTime: "+rtcTime+", deviceId: "+deviceId
                 +", vin: "+vin+", deviceType: "+deviceType);
@@ -160,6 +161,7 @@ public class ScannerRepository implements Repository {
             body.put("deviceId",deviceId);
             body.put("vin",vin);
             body.put("deviceType",deviceType);
+            body.put("utcTime",timeStamp);
             networkHelper.post("v1/device-clock-sync",(response, requestError) -> {
                 if (requestError == null){
                     Log.d(TAG,"deviceClockSync() success response: "+response);
