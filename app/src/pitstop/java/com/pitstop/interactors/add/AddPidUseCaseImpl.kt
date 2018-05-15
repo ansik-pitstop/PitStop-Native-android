@@ -57,15 +57,15 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                         .subscribe({next ->
                                             onAdded(next)
                                         },{err ->
-                                            onError(RequestError(err))
+                                            AddPidUseCaseImpl@onError(RequestError(err))
                                         })
                             },{err ->
-                                onError(RequestError(err))
+                                AddPidUseCaseImpl@onError(RequestError(err))
                             })
                 }
 
                 override fun onError(error: RequestError?) {
-                    onError(error)
+                    AddPidUseCaseImpl@onError(error)
                 }
 
             })
@@ -77,7 +77,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                 .subscribe({next ->
                     onAdded(next)
                 },{err ->
-                    onError(RequestError(err))
+                    AddPidUseCaseImpl@onError(RequestError(err))
                 })
     }
 
