@@ -15,7 +15,7 @@ class StartDumpingTripDataWhenConnectedUseCaseImpl(private val tripRepository: T
                                                    , private val mainHandler: Handler)
     : StartDumpingTripDataWhenConnecteUseCase {
 
-    private val TAG = javaClass.simpleName
+    private val TAG = StartDumpingTripDataWhenConnecteUseCase::class.simpleName
     private lateinit var callback: StartDumpingTripDataWhenConnecteUseCase.Callback
 
     override fun execute(callback: StartDumpingTripDataWhenConnecteUseCase.Callback) {

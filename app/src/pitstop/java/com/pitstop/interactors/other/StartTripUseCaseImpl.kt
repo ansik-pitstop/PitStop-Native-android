@@ -14,7 +14,7 @@ class StartTripUseCaseImpl(private val tripRepository: TripRepository
                            , private val usecaseHandler: Handler
                            , private val mainHandler: Handler): StartTripUseCase {
 
-    private val tag = javaClass.simpleName
+    private val tag = StartTripUseCaseImpl::class.simpleName
     private lateinit var callback: StartTripUseCase.Callback
 
     override fun execute(callback: StartTripUseCase.Callback) {
