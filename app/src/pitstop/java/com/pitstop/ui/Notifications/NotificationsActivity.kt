@@ -12,7 +12,7 @@ import com.pitstop.ui.main_activity.TabSwitcher
  */
 class NotificationsActivity: AppCompatActivity(), TabSwitcher {
 
-    private val tag = NotificationsActivity::class.simpleName
+    private val tag = NotificationsActivity::class.java.simpleName
 
     companion object{
         const val GO_TO_NONE = 0

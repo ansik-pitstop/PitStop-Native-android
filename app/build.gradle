@@ -134,12 +134,6 @@ android {
     }
 }
 
-allprojects {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-    }
-}
-
 repositories {
     maven{
         url "https://maven.google.com"

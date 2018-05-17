@@ -19,7 +19,7 @@ import com.pitstop.utils.Logger
 class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
                                  ,val useCaseHandler: Handler,val mainHandler: Handler): SetServicesDoneUseCase {
 
-    val tag: String? = SetServicesDoneUseCaseImpl::class.simpleName
+    val tag: String? = SetServicesDoneUseCaseImpl::class.java.simpleName
     var carIssues: List<CarIssue>? = null
     var eventSource: EventSource? = null
     var callback: SetServicesDoneUseCase.Callback? = null
