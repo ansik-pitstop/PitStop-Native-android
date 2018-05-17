@@ -220,7 +220,6 @@
         <!-- Parse push notification stuff -->
         <service android:name="com.parse.PushService" />
 
-
         <receiver
             android:name=".utils.PitstopPushBroadcastReceiver"
             android:exported="false">

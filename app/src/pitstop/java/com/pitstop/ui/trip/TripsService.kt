@@ -408,29 +408,29 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         })
 
         //Start trip if possibly driving and definitely not walking
-        if (!tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > 30
-                && ( onFootActivity == null || onFootActivity!!.confidence < 40)) {
+        if (!tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 30
+                && ( onFootActivity === null || onFootActivity!!.confidence < 40)) {
             tripStart()
         //End trip if definitely walking
-        }else if  (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > 95){
+        }else if  (tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 95){
             tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
-        }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity != null && stillActivity!!.confidence == 100)
-                || ( onFootActivity != null && onFootActivity!!.confidence > 80))
-                && (vehicleActivty == null || vehicleActivty!!.confidence < 30)) {
+        }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity !== null && stillActivity!!.confidence == 100)
+                || ( onFootActivity !== null && onFootActivity!!.confidence > 80))
+                && (vehicleActivty === null || vehicleActivty!!.confidence < 30)) {
             startStillTimer()
         //Cancel still timer if likely driving and not definitely walking
-        }else if (tripInProgress && stillTimerRunning && vehicleActivty != null && vehicleActivty!!.confidence > 30
-                && (onFootActivity == null || onFootActivity!!.confidence < 70)){
+        }else if (tripInProgress && stillTimerRunning && vehicleActivty !== null && vehicleActivty!!.confidence > 30
+                && (onFootActivity === null || onFootActivity!!.confidence < 70)){
             cancelStillTimer()
         }
 
         //Stop tracking location if the user is completely still and we're very sure of it
-        if (tripInProgress && trackingLocationUpdates && stillActivity != null && stillActivity!!.confidence >= 99){
+        if (tripInProgress && trackingLocationUpdates && stillActivity !== null && stillActivity!!.confidence >= 99){
             stopTrackingLocationUpdates()
         }
         //Begin tracking location updates again if movement is found
-        else if (tripInProgress && !trackingLocationUpdates && (stillActivity == null || stillActivity!!.confidence < 50)){
+        else if (tripInProgress && !trackingLocationUpdates && (stillActivity === null || stillActivity!!.confidence < 50)){
             beginTrackingLocationUpdates(interval = locationUpdateInterval, priority = locationUpdatePriority)
         }
     }
@@ -454,7 +454,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
         Log.d(tag,"beginTrackingLocationUpdates()")
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
-        val locationRequest = LocationRequest()
+        val locationRequest = LocationRequest.create()
         locationRequest.interval = interval
         locationRequest.priority = priority
         try{
