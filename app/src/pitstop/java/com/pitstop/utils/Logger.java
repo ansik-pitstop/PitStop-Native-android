@@ -161,6 +161,7 @@ public class Logger {
                     localDebugMessageStorage.markAsSent(sentList);
                 }, err -> {
                     Log.d(TAG," Error sending message");
+                    err.printStackTrace();
                 }
         );
 
