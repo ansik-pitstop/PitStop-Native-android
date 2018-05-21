@@ -128,10 +128,6 @@ public class Logger {
         localDebugMessageStorage.getUnsentQueryObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .onErrorReturn(err -> {
-                    Log.d(TAG,"error");
-                    return null;
-                }).doOnError(err -> Log.d(TAG,"err: "+err))
                 .map(query -> {
                     Cursor c = query.run();
                     List<DebugMessage> messageList = new ArrayList<>();

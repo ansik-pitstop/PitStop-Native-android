@@ -59,7 +59,8 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
                     checkPermissions();
 
                 }, error -> {
-                    Log.d(TAG,"getServices.onError() err"+error);
+                    Log.e(TAG,"getServices.onError() err"+error);
+                    error.printStackTrace();
                 });
 
     }

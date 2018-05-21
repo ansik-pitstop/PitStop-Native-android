@@ -3,7 +3,6 @@ package com.pitstop.interactors.other;
 import android.os.Handler;
 import android.util.Log;
 
-import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.models.Appointment;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
@@ -13,11 +12,8 @@ import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Date;
 
@@ -80,25 +76,24 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                         carRepository.get(data.getCarId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                            .doOnError(err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err)))
-                            .doOnNext(response -> {
-                                Log.d(TAG,"got car: "+response);
-                                if (response.isLocal()){
-                                    Log.d(TAG,"local data, returning");
+                            .subscribe(response -> {
+                                Log.d(TAG, "got car: " + response);
+                                if (response.isLocal()) {
+                                    Log.d(TAG, "local data, returning");
                                     return;
                                 }
-                                Log.d(TAG,"remote data, proceeding");
-                                if (response.getData() == null){
-                                    Log.d(TAG,"data null, returning");
+                                Log.d(TAG, "remote data, proceeding");
+                                if (response.getData() == null) {
+                                    Log.d(TAG, "data null, returning");
                                     callback.onError(RequestError.getUnknownError());
                                     return;
                                 }
-                                Log.d(TAG,"data is fine, proceeding");
+                                Log.d(TAG, "data is fine, proceeding");
                                 Car car = response.getData();
 
                                 Appointment appointment = new Appointment(car.getShopId()
                                         , state, date, comments);
-                                Log.d(TAG,"requestingService");
+                                Log.d(TAG, "requestingService");
                                 carIssueRepository.requestService(user.getId(), car.getId(), appointment
                                         , new Repository.Callback<Object>() {
 
@@ -108,12 +103,12 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                                             }
 
                                             @Override
-                                            public void onError(RequestError error){
+                                            public void onError(RequestError error) {
                                                 RequestServiceUseCaseImpl.this.onError(error);
                                             }
                                         });
-                            }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
-                            .subscribe();
+                            }, err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err))
+                        );
                     }
 
                     @Override
