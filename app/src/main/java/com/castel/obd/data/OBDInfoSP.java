@@ -10,7 +10,6 @@ public class OBDInfoSP {
 	private final static String FILE_NAME = "OBD_INFO";
 
 	/**
-	 * 保存已连接的OBD设备ID及已读取到的数据包ID
 	 * @param context
 	 * @param deviceId
 	 * @param dataNum

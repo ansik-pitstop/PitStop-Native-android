@@ -42,11 +42,11 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
     private lateinit var mileageUpdateDialog: AlertDialog
     private var hasBeenPopulated = false
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d(TAG,"onCreateView()")
         hasBeenPopulated = false
-        val rootview = inflater!!.inflate(R.layout.fragment_services, null)
-        servicesPager = activity.findViewById(R.id.services_viewpager)
+        val rootview = inflater.inflate(R.layout.fragment_services, null)
+        servicesPager = activity?.findViewById(R.id.services_viewpager)
 
         val dialogLayout = LayoutInflater.from(
                 activity).inflate(R.layout.dialog_input_mileage, null)
@@ -65,10 +65,10 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
 
         if (presenter == null){
             val usecaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(context.applicationContext))
+                    .contextModule(ContextModule(context?.applicationContext))
                     .build()
             presenter = MainServicesPresenter(usecaseComponent
-                    , MixpanelHelper(context.applicationContext as GlobalApplication))
+                    , MixpanelHelper(context?.applicationContext as GlobalApplication))
 
         }
 
@@ -93,7 +93,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
         if (presenter != null) presenter!!.onServiceRequested()
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter!!.subscribe(this)
         presenter!!.loadView()
@@ -112,11 +112,11 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.d(TAG,"onActivityCreated()")
         super.onActivityCreated(savedInstanceState)
-        servicesPager = activity.findViewById<View>(R.id.services_viewpager) as SubServiceViewPager
+        servicesPager = activity?.findViewById<View>(R.id.services_viewpager) as SubServiceViewPager
         servicesPager!!.offscreenPageLimit = 2
 
         //Create tab layout
-        tabLayout = activity.findViewById<View>(R.id.tab_layout) as TabLayout
+        tabLayout = activity?.findViewById<View>(R.id.tab_layout) as TabLayout
         tabLayout!!.addTab(tabLayout!!.newTab().setText(getString(R.string.upcoming_services)))
         tabLayout!!.addTab(tabLayout!!.newTab().setText(getString(R.string.current_services)))
         tabLayout!!.addTab(tabLayout!!.newTab().setText(getString(R.string.history_services)))
@@ -187,7 +187,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
     }
 
     override fun displayAppointmentBooked(d: String,who: String) {
-        Log.d(TAG,"displayAppointmentBooked() date: "+d);
+        Log.d(TAG,"displayAppointmentBooked() date: "+d)
         hasBeenPopulated = true
         appointment_info_holder.visibility = View.VISIBLE
         layout_waiting_predicted_service.visibility = View.GONE

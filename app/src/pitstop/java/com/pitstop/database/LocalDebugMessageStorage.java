@@ -83,7 +83,7 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     }
 
     public void deleteAllRows(){
-        mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,null,null);
+        mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME,null);
     }
 
 }

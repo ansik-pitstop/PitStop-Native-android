@@ -23,12 +23,12 @@ class TripSettingsFragment: Fragment(), TripSettingsView {
     private var presenter: TripSettingsPresenter? = null
     private var tripsParameterSetter: TripParameterSetter? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater!!.inflate(R.layout.fragment_trip_settings, null)
         return rootView
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         if (presenter == null) presenter = TripSettingsPresenter()

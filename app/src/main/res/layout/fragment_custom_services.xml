@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:text="@string/what_service_to_perform"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Notification.Info" />
+                    android:textAppearance="@style/TextAppearance.Compat.Notification.Info" />
 
             </LinearLayout>
 
@@ -138,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:text="@string/what_car_part"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Notification.Info" />
+                    android:textAppearance="@style/TextAppearance.Compat.Notification.Info" />
 
             </LinearLayout>
 
@@ -206,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:text="@string/service_importance"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Notification.Info" />
+                    android:textAppearance="@style/TextAppearance.Compat.Notification.Info" />
 
             </LinearLayout>
 

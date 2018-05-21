@@ -47,7 +47,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
     @Override
     protected void onPushReceive(Context context, Intent intent) {
         Log.i(TAG, "PUSH RECEIVED!!");
-        JSONObject pushData = getPushData(intent);
+        JSONObject pushData = getJsonPushData(intent);
         if (pushData == null || (!pushData.has("alert") && !pushData.has("title"))) {
             return;
         }
@@ -170,7 +170,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         super.onPushDismiss(context, intent);
     }
 
-    private JSONObject getPushData(Intent intent) {
+    private JSONObject getJsonPushData(Intent intent) {
         try {
             return new JSONObject(intent.getStringExtra(KEY_PUSH_DATA));
         } catch (JSONException e) {

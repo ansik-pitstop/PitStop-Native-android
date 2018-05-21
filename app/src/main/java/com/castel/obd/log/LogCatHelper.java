@@ -13,11 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * log?¥å?ç»??ä¿????D??
- * 
+ *
  * 
  */
-// ?¥å?ä¿??ä½¿ç??¹æ?
 // LogcatHelper.getInstance(this).start();
 // LogcatHelper.getInstance(this).stop();
 public class LogCatHelper {
@@ -28,8 +26,7 @@ public class LogCatHelper {
 
 	/**
 	 * 
-	 * ??????å½?
-	 * 
+	 *
 	 * */
 	public void init(Context context) {
 		if (Environment.getExternalStorageState().equals(
@@ -38,7 +35,7 @@ public class LogCatHelper {
 					.getAbsolutePath()
 					+ File.separator
 					+ "PITSTOP_DEBUG";
-		} else {// å¦??SD?¡ä?å­??ï¼?°±ä¿???°æ?åº?????å½??
+		} else {
 			PATH_LOGCAT = context.getFilesDir().getAbsolutePath()
 					+ File.separator + "Chap";
 		}
@@ -93,17 +90,10 @@ public class LogCatHelper {
 
 			/**
 			 * 
-			 * ?¥å?ç­?º§ï¼?*:v , *:d , *:w , *:e , *:f , *:s
-			 * 
-			 * ?¾ç¤ºå½??mPIDç¨???? E??ç­?º§???å¿?.
-			 * 
+			 *
 			 * */
 
-			// cmds = "logcat *:e *:w | grep \"(" + mPID + ")\"";
-			// cmds = "logcat  | grep \"(" + mPID + ")\"";//????????å¿?¿¡??
-			cmds = "logcat -s gf";// ??????è¿?»¤ä¿¡æ?
-			// cmds = "logcat *:e *:i | grep \"(" + mPID + ")\"";
-			// cmds = "logcat -s System.out";
+			cmds = "logcat -s gf";
 
 		}
 
