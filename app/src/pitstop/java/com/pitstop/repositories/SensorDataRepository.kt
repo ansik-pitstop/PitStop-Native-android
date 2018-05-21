@@ -72,6 +72,10 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                         var message: String
                         if (err is HttpException){
                             message = err.response().message().toString()
+                            if (err.code().toString().isNotEmpty() && err.code().toString()[0] == '4'){
+                                //Remove data that failed to send due to server rejection
+                                local.delete(it)
+                            }
                         }else{
                             message = err.toString()
                         }
