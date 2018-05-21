@@ -46,6 +46,7 @@ public class PitstopTripApiTest {
                 .subscribe(stringResponse -> {
                     completableFuture.complete(true);
                 }, errResponse -> {
+                    errResponse.printStackTrace();
                     completableFuture.complete(false);
                 });
         try{

@@ -6,7 +6,10 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.*
+import com.pitstop.repositories.CarIssueRepository
+import com.pitstop.repositories.CarRepository
+import com.pitstop.repositories.Repository
+import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -54,12 +57,11 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 carRepository.get(settings.carId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                    .doOnError{err -> this@AddDtcUseCaseImpl.onError(RequestError(err)) }
-                    .doOnNext({response ->
-                            if (response.isLocal) return@doOnNext
+                    .subscribe({response ->
+                        if (response.isLocal) return@subscribe
                         if (response.data == null){
                             callback?.onError(RequestError.getUnknownError())
-                            return@doOnNext
+                            return@subscribe
                         }
                         for ((dtc, isPending) in dtcPackage!!.dtcs){
                             Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
@@ -81,11 +83,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
 
                             })
                         }
-                    }).onErrorReturn({err ->
-                        Log.d(tag,"Error retrieving car err: "+err.message)
-                        RepositoryResponse(null,false)
-                    })
-                    .subscribe()
+                    }, {err -> this@AddDtcUseCaseImpl.onError(RequestError(err)) })
             }
             override fun onError(error: RequestError){
                 Log.d(tag,"Error retrieving user err: "+error.message)

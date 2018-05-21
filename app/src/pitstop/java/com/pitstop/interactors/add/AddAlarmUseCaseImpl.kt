@@ -8,7 +8,6 @@ import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
-import com.pitstop.repositories.RepositoryResponse
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -61,13 +60,12 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                    carRepository.get(settings.carId)
                            .subscribeOn(Schedulers.io())
                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                           .doOnError{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err))}
-                           .doOnNext{response ->
-                               if (response.isLocal) return@doOnNext
+                           .subscribe({response ->
+                               if (response.isLocal) return@subscribe
                                val car = response.data
                                if (car == null){
                                    callback!!.onError(RequestError.getUnknownError())
-                                   return@doOnNext
+                                   return@subscribe
                                }
                                alarm?.carID = car.id
                                localAlarmStorage.storeAlarm(alarm,
@@ -80,8 +78,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                                            }
                                        })
 
-                           }.onErrorReturn { err -> RepositoryResponse(null,false) }
-                           .subscribe()
+                           },{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err)) })
                }
            }
            override fun onError(error: RequestError) {
