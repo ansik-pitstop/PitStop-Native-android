@@ -91,6 +91,7 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
 
                         }, { err ->
                             Log.d(tag, "Error: " + err)
+                            err.printStackTrace();
                             this@GetTripsUseCaseImpl.onError(RequestError(err))
                         })
             }

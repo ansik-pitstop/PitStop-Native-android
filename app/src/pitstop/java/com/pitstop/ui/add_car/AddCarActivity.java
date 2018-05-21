@@ -66,7 +66,8 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
                         deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
 
                 }, err -> {
-
+                    err.printStackTrace();
+                    Log.e(TAG,"Error getting services");
                 });
 
         setViewAskHasDevice();

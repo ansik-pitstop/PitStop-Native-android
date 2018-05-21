@@ -246,7 +246,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
                     }
                 }, {
-                    Log.d(TAG,"GlobalApplication.services() onError() err= ${it.message}")
+                    Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")
+                    it.printStackTrace()
                 })
     }
 

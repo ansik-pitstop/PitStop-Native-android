@@ -57,6 +57,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                         .subscribe({next ->
                                             onAdded(next)
                                         },{err ->
+                                            err.printStackTrace()
                                             AddPidUseCaseImpl@onError(RequestError(err))
                                         })
                             },{err ->
@@ -77,6 +78,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                 .subscribe({next ->
                     onAdded(next)
                 },{err ->
+                    err.printStackTrace()
                     AddPidUseCaseImpl@onError(RequestError(err))
                 })
     }

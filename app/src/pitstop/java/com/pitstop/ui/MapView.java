@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -37,6 +38,7 @@ import io.reactivex.subjects.Subject;
 public class MapView extends FrameLayout {
 
     public static final float POLY_WIDTH = 15;
+    private final String TAG = MapView.class.getSimpleName();
 
     private Subject<GoogleMap> mapSubject;
 
@@ -84,6 +86,9 @@ public class MapView extends FrameLayout {
                     .title(title);
             googleMap.addMarker(marker);
             //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, zoom));
+        }, err -> {
+            Log.e(TAG,"Error adding marker!");
+            err.printStackTrace();
         });
     }
 
@@ -95,6 +100,9 @@ public class MapView extends FrameLayout {
                     .title(title);
             googleMap.addMarker(marker);
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, zoom));
+        }, err -> {
+            Log.e(TAG,"error adding marker");
+            err.printStackTrace();
         });
     }
 
@@ -133,6 +141,9 @@ public class MapView extends FrameLayout {
                 e.printStackTrace();
             }
 
+        }, err -> {
+            err.printStackTrace();
+            Log.e(TAG,"error adding polyline!");
         });
 
     }
@@ -143,6 +154,9 @@ public class MapView extends FrameLayout {
 
             googleMap.clear();
 
+        }, err -> {
+            err.printStackTrace();
+            Log.e(TAG,"error clearing polyline");
         });
 
     }
@@ -210,8 +224,12 @@ public class MapView extends FrameLayout {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.e(TAG,"error adding polyline old!");
             }
 
+        }, err -> {
+            err.printStackTrace();
+            Log.e(TAG,"Error adding polyline old!");
         });
 
     }

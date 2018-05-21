@@ -56,7 +56,8 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
                     checkPermissions();
                     inProgressFragment.setBluetooth(bluetoothConnectionObservable);
                 }, err ->{
-
+                    err.printStackTrace();
+                    Log.e(TAG,"error getting bluetooth service");
                 });
     }
 
