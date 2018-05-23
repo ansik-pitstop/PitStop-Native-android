@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalFuelConsumptionStorage;
-import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddAlarmUseCaseImpl;
@@ -88,8 +87,6 @@ import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCaseImpl;
 import com.pitstop.interactors.get.GetPredictedServiceUseCase;
 import com.pitstop.interactors.get.GetPredictedServiceUseCaseImpl;
-import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
-import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCaseImpl;
 import com.pitstop.interactors.get.GetReportUseCaseImpl;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
@@ -110,14 +107,10 @@ import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.EndTripUseCase;
 import com.pitstop.interactors.other.EndTripUseCaseImpl;
-import com.pitstop.interactors.other.HandlePidDataUseCase;
-import com.pitstop.interactors.other.HandlePidDataUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
-import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
-import com.pitstop.interactors.other.PeriodicCachedTripSendUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
@@ -126,14 +119,10 @@ import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnectedUseCaseImpl;
-import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
-import com.pitstop.interactors.other.StoreFuelConsumedUseCaseImpl;
-import com.pitstop.interactors.other.Trip215EndUseCase;
-import com.pitstop.interactors.other.Trip215EndUseCaseImpl;
-import com.pitstop.interactors.other.Trip215StartUseCase;
-import com.pitstop.interactors.other.Trip215StartUseCaseImpl;
 import com.pitstop.interactors.other.StartTripUseCase;
 import com.pitstop.interactors.other.StartTripUseCaseImpl;
+import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
+import com.pitstop.interactors.other.StoreFuelConsumedUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
@@ -163,8 +152,6 @@ import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.repositories.Device215TripRepository;
-import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.SensorDataRepository;
@@ -173,7 +160,6 @@ import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopSmoochApi;
-import com.pitstop.utils.ConnectionChecker;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Named;
@@ -190,12 +176,10 @@ import dagger.Provides;
 public class UseCaseModule {
 
     @Provides
-    Post2141UseCase getPost2141UseCase(Device215TripRepository device215TripRepository
-            , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
+    Post2141UseCase getPost2141UseCase(NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
 
-        return new Post2141UseCaseImpl(device215TripRepository, networkHelper
-                , useCaseHandler, mainHandler);
+        return new Post2141UseCaseImpl(networkHelper, useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -436,29 +420,6 @@ public class UseCaseModule {
     }
 
     @Provides
-    Trip215StartUseCase trip215StartUseCase(Device215TripRepository device215TripRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new Trip215StartUseCaseImpl(device215TripRepository, useCaseHandler, mainHandler);
-    }
-
-    @Provides
-    Trip215EndUseCase trip215EndUseCase(Device215TripRepository device215TripRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new Trip215EndUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
-    }
-
-    @Provides
-    PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase(Device215TripRepository device215TripRepository
-            , ConnectionChecker connectionChecker, @Named("useCaseHandler")Handler useCaseHandler
-            ,@Named("mainHandler") Handler mainHandler){
-
-        return new PeriodicCachedTripSendUseCaseImpl(device215TripRepository
-                , connectionChecker, useCaseHandler);
-    }
-
-    @Provides
     HandleVinOnConnectUseCase handleVinOnConnectUseCase(ScannerRepository scannerRepository
             , CarRepository carRepository, UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
@@ -468,30 +429,11 @@ public class UseCaseModule {
     }
 
     @Provides
-    GetPrevIgnitionTimeUseCase getPreviousIgnitionTimeUseCase(
-            Device215TripRepository device215TripRepository
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new GetPrevIgnitionTimeUseCaseImpl(device215TripRepository, useCaseHandler,mainHandler);
-    }
-
-    @Provides
     GetUserNotificationUseCase getUserNotificationUseCase(
             UserRepository userRepository
             , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
 
         return new GetUserNotificationUseCaseImpl(userRepository, mainHandler, useCaseHandler);
-    }
-
-
-
-    @Provides
-    HandlePidDataUseCase handlePidDataUseCase(PidRepository pidRepository
-            , Device215TripRepository device215TripRepository, LocalPidStorage localPidStorage
-            , @Named("useCaseHandler")Handler useCaseHandler,@Named("mainHandler") Handler mainHandler){
-
-        return new HandlePidDataUseCaseImpl(pidRepository,device215TripRepository
-                , localPidStorage, useCaseHandler, mainHandler);
     }
 
     @Provides

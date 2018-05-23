@@ -9,7 +9,6 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Alarm;
 
 import java.util.ArrayList;
@@ -72,8 +71,6 @@ public class ObdManager {
         void setParameterResponse(ResponsePackageInfo responsePackageInfo);
 
         void deviceLogin(LoginPackageInfo loginPackageInfo);
-
-        void tripData(TripInfoPackage tripInfoPackage);
 
         void parameterData(ParameterPackage parameterPackage);
 
