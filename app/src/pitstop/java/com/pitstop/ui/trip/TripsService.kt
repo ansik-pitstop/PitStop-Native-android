@@ -320,7 +320,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 Log.w(tag,"end trip use case discarded trip!")
                 observers.forEach({ it.onTripEnd() })
                 if (applicationContext != null)
-                    NotificationsHelper.sendNotification(applicationContext,"Trip discarded due to low vehicle activity"
+                    NotificationsHelper.sendNotification(applicationContext,"Going back to idle"
                             ,"Pitstop")
             }
 
