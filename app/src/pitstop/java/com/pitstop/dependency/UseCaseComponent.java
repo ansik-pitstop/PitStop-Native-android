@@ -40,7 +40,6 @@ import com.pitstop.interactors.get.GetPIDUseCase;
 import com.pitstop.interactors.get.GetPitstopShopsUseCase;
 import com.pitstop.interactors.get.GetPlaceDetailsUseCase;
 import com.pitstop.interactors.get.GetPredictedServiceUseCase;
-import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.interactors.get.GetReportsUseCase;
 import com.pitstop.interactors.get.GetShopHoursUseCase;
 import com.pitstop.interactors.get.GetSnapToRoadUseCase;
@@ -51,18 +50,14 @@ import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.EndTripUseCase;
-import com.pitstop.interactors.other.HandlePidDataUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
-import com.pitstop.interactors.other.PeriodicCachedTripSendUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
 import com.pitstop.interactors.other.StartTripUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
-import com.pitstop.interactors.other.Trip215EndUseCase;
-import com.pitstop.interactors.other.Trip215StartUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
 import com.pitstop.interactors.remove.RemoveTripUseCase;
@@ -151,16 +146,6 @@ public interface UseCaseComponent {
     SetFirstCarAddedUseCase setFirstCarAddedUseCase();
 
     HandleVinOnConnectUseCase handleVinOnConnectUseCase();
-
-    Trip215StartUseCase trip215StartUseCase();
-
-    Trip215EndUseCase trip215EndUseCase();
-
-    GetPrevIgnitionTimeUseCase getPrevIgnitionTimeUseCase();
-
-    HandlePidDataUseCase handlePidDataUseCase();
-
-    PeriodicCachedTripSendUseCase periodicCachedTripSendUseCase();
 
     GetUserNotificationUseCase getUserNotificationUseCase();
 

@@ -24,9 +24,7 @@ import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.interactors.get.GetPrevIgnitionTimeUseCase;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.network.RequestError;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -245,36 +243,11 @@ public class BluetoothDeviceManager{
 
     private void connectTo215Device(BluetoothDevice device) {
         Log.d(TAG,"connectTo215Device() device: "+device.getName());
-        useCaseComponent.getPrevIgnitionTimeUseCase().execute(device.getName()
-                , new GetPrevIgnitionTimeUseCase.Callback() {
+        deviceInterface = new Device215B(mContext, dataListener
+                , device.getName(), BluetoothDeviceManager.this);
 
-                    @Override
-                    public void onGotIgnitionTime(long ignitionTime) {
-                        Log.v(TAG, "Received ignition time: " + ignitionTime);
-                        deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName(), ignitionTime, BluetoothDeviceManager.this);
+        deviceInterface.connectToDevice(device);
 
-                        deviceInterface.connectToDevice(device);
-
-                    }
-
-                    @Override
-                    public void onNoneExists() {
-                        Log.v(TAG, "No previous ignition time exists!");
-                        deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName(), BluetoothDeviceManager.this);
-                        deviceInterface.connectToDevice(device);
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        deviceInterface = new Device215B(mContext, dataListener
-                                , device.getName(), BluetoothDeviceManager.this);
-                        deviceInterface.connectToDevice(device);
-                        Log.v(TAG, "ERROR: could not get previous ignition time");
-
-                    }
-                });
     }
 
     private void connectToELMDevice(BluetoothDevice device){

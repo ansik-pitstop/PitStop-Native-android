@@ -24,7 +24,6 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
@@ -413,28 +412,6 @@ public class Device212B implements AbstractDevice {
                 }
             }
 
-            // trip start or trip end flag or real-time data
-            if(((dataPackageInfo.result == 4 && (tripFlag.equals("0") || tripFlag.equals("9"))) ||
-                    dataPackageInfo.result == 5) && !dataPackageInfo.tripMileage.isEmpty()) {
-                TripInfoPackage tripInfoPackage = new TripInfoPackage();
-                tripInfoPackage.deviceId = dataPackageInfo.deviceId;
-                try {
-                    tripInfoPackage.tripId = Integer.parseInt(dataPackageInfo.tripId);
-                } catch(NumberFormatException e) {
-                    tripInfoPackage.tripId = 0;
-                }
-                tripInfoPackage.mileage = Double.parseDouble(dataPackageInfo.tripMileage) / 1000;
-                tripInfoPackage.rtcTime = Long.parseLong(dataPackageInfo.rtcTime);
-
-                if(dataPackageInfo.result == 5) {
-                    tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
-                } else if(tripFlag.equals("0")) {
-                    tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-                } else if(tripFlag.equals("9")) {
-                    tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-                }
-                dataListener.tripData(tripInfoPackage);
-            }
             // handle freeze frame data
             if (dataPackageInfo.freezeData != null && !dataPackageInfo.freezeData.isEmpty()){ // TODO: 16/12/13 Check what happen if result 6 is removed
                 if (/*dataPackageInfo.result == 6 || */(dataPackageInfo.result == 4 && ObdManager.FREEZE_FRAME_FLAG.equals(dataPackageInfo.tripFlag))){

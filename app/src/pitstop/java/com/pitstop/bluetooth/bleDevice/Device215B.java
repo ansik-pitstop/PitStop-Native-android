@@ -25,7 +25,6 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.MultiParameterPackage;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
@@ -65,26 +64,12 @@ public class Device215B implements AbstractDevice {
     ObdManager.IBluetoothDataListener dataListener;
     private Context context;
     private final String deviceName;
-    private long prevIgnitionTime = -1;
-
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName
-            , long prevIgnitionTime, BluetoothDeviceManager manager) {
-
-        this.dataListener = dataListener;
-        this.context = context;
-        this.deviceName = deviceName;
-        this.prevIgnitionTime = prevIgnitionTime;
-        this.manager = manager;
-        if (this.communicator == null){
-            this.communicator = new BluetoothLeComm(context, this); }
-    }
 
     public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
 
         this.dataListener = dataListener;
         this.context = context;
         this.deviceName = deviceName;
-        this.prevIgnitionTime = -1;
         this.manager = manager;
         if (this.communicator == null){
             this.communicator = new BluetoothLeComm(context, this); }
@@ -400,12 +385,6 @@ public class Device215B implements AbstractDevice {
 
     private StringBuilder sbRead = new StringBuilder();
 
-    private long lastSentTripStart = -1;
-    private long lastSentTripEnd = -1;
-
-    // parser for 215B data
-
-
     private long parseRtcTime(String rtcTime) throws ParseException {
         Log.d(TAG,"parseRtcTime() rtc: "+rtcTime);
         return new SimpleDateFormat("yyMMddHHmmss").parse(rtcTime).getTime() / 1000;
@@ -592,37 +571,8 @@ public class Device215B implements AbstractDevice {
 
                 boolean ignitionTimeChanged = false;
 
-                if (prevIgnitionTime != ignitionTime){
-                    ignitionTimeChanged = true;
-                    prevIgnitionTime = ignitionTime;
-                }
-
                 // Trip end/start
                 if(idrInfo.mileage != null && !idrInfo.mileage.isEmpty()) {
-
-                    TripInfoPackage tripInfoPackage = new TripInfoPackage();
-                    tripInfoPackage.deviceId = idrInfo.terminalSN;
-                    tripInfoPackage.rtcTime = parseRtcTime(String.valueOf(ignitionTime))
-                            + Long.parseLong(idrInfo.runTime);
-                    tripInfoPackage.tripId = ignitionTime;
-                    Log.d(TAG,"tripInfoPackage.tripId = "+tripInfoPackage.tripId
-                            +" bluetoothDeviceTime = "+tripInfoPackage.rtcTime +" runTime: "+idrInfo.runTime);
-
-                    Logger.getInstance().logD(TAG, "IDR_INFO TRIP, alarmEvent: "+idrInfo.alarmEvents
-                            +", ignitionTimeChanged?"+ignitionTimeChanged +", deviceId: "
-                            +idrInfo.terminalSN, DebugMessage.TYPE_BLUETOOTH);
-
-                    if (idrInfo.alarmEvents.equals("2")){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.END;
-                    }
-                    /*Trip start detected by ignition time changing or alarm, if both occur
-                    /* , one will be sent as an update*/
-                    else if (idrInfo.alarmEvents.equals("1") || ignitionTimeChanged){
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.START;
-                    }
-                    else{
-                        tripInfoPackage.flag = TripInfoPackage.TripFlag.UPDATE;
-                    }
                     if (idrInfo.alarmEvents != null && !idrInfo.alarmEvents.isEmpty()){
                         Float alarmValue;
                         if (idrInfo.alarmValues == null|| idrInfo.alarmValues.equalsIgnoreCase("")){
@@ -636,9 +586,6 @@ public class Device215B implements AbstractDevice {
                                 String.valueOf(Long.valueOf(idrInfo.runTime) +parseRtcTime(Long.toString(ignitionTime)))
                                 , null));
                     }
-                    tripInfoPackage.mileage = Double.parseDouble(idrInfo.mileage) / 1000;
-
-                    dataListener.tripData(tripInfoPackage);
                 }
 
                 if(idrInfo.pid != null && !idrInfo.pid.isEmpty()) {

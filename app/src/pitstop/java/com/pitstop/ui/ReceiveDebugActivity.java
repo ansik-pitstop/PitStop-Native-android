@@ -12,17 +12,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
-import com.pitstop.bluetooth.communicator.ObdManager;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
+import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.models.Alarm;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
@@ -140,16 +139,6 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
     @Override
     public void setParameterResponse(ResponsePackageInfo responsePackageInfo) {
         Log.i(TAG, "setParameterResponse: " + responsePackageInfo.toString());
-    }
-
-//    @Override
-//    public void getParameterData(ParameterPackageInfo parameterPackageInfo) {
-//        Log.i(TAG, "getParameterData: " + parameterPackageInfo.toString());
-//    }
-
-    @Override
-    public void tripData(TripInfoPackage tripInfoPackage) {
-
     }
 
     @Override
