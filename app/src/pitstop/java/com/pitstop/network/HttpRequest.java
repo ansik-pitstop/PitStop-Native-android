@@ -289,7 +289,20 @@ public class HttpRequest {
                             DebugMessage.TYPE_NETWORK);
 
                     RequestError error = RequestError.getUnknownError();
-                    error.setStatusCode(500);
+
+                    error.setStatusCode(response.getStatusCode());
+                    if (error.getMessage() != null)
+                        error.setError(response.getResponseMessage());
+                    if (response.getErrorBody() != null){
+                        Log.e(TAG,"error body: "+response.getErrorBody());
+                        try{
+                            JSONObject errorBody = new JSONObject(response.getErrorBody().toString());
+                            error.setMessage(errorBody.get("message").toString());
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+
+                    }
 
                     listener.done(null, error);
                 }
