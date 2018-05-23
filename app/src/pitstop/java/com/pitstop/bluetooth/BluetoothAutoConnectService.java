@@ -24,7 +24,6 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.dataPackages.TripInfoPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.bluetooth.handler.AlarmHandler;
 import com.pitstop.bluetooth.handler.BluetoothDataHandlerManager;
@@ -32,7 +31,6 @@ import com.pitstop.bluetooth.handler.DtcDataHandler;
 import com.pitstop.bluetooth.handler.FreezeFrameDataHandler;
 import com.pitstop.bluetooth.handler.FuelHandler;
 import com.pitstop.bluetooth.handler.PidDataHandler;
-import com.pitstop.bluetooth.handler.TripDataHandler;
 import com.pitstop.bluetooth.handler.VinDataHandler;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -129,7 +127,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Data is passed down to these fellas so they can deal with it
     private PidDataHandler pidDataHandler;
     private DtcDataHandler dtcDataHandler;
-    private TripDataHandler tripDataHandler;
     private VinDataHandler vinDataHandler;
     private FreezeFrameDataHandler freezeFrameDataHandler;
 
@@ -314,7 +311,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         this.pidDataHandler = new PidDataHandler(this,getApplication());
         this.dtcDataHandler = new DtcDataHandler(this,useCaseComponent);
-        this.tripDataHandler = new TripDataHandler(this,this);
         this.vinDataHandler = new VinDataHandler(this,this,this);
         this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplication());
         this.alarmHandler = new AlarmHandler(this, useCaseComponent);
@@ -609,24 +605,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         }
         Log.i(TAG, "Setting parameter response on service callbacks - auto-connect service");
-    }
-
-    /**
-     * Handles trip data containing mileage
-     * @param tripInfoPackage
-     */
-    @Override
-    public void tripData(final TripInfoPackage tripInfoPackage) {
-        Log.d(TAG,"tripData()");
-
-        deviceManager.requestData();
-
-        if (tripInfoPackage.deviceId != null && !tripInfoPackage.deviceId.isEmpty()){
-            currentDeviceId = tripInfoPackage.deviceId;
-        }
-
-        tripInfoPackage.deviceId = currentDeviceId;
-        tripDataHandler.handleTripData(tripInfoPackage);
     }
 
     /**
@@ -1247,7 +1225,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     //Remove data that was acquired from the wrong device during the VIN verification process
     private void clearInvalidDeviceData(){
         pidDataHandler.clearPendingData();
-        tripDataHandler.clearPendingData();
         dtcDataHandler.clearPendingData();
     }
 

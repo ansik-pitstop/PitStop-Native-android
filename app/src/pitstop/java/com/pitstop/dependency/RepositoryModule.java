@@ -5,7 +5,6 @@ import android.location.Geocoder;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
-import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -16,7 +15,6 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
-import com.pitstop.repositories.Device215TripRepository;
 import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
@@ -79,14 +77,6 @@ public class RepositoryModule {
             , LocalScannerStorage localScannerStorage){
 
         return new ScannerRepository(networkHelper, localScannerStorage);
-    }
-
-    @Provides
-    @Singleton
-    Device215TripRepository getDevice215TripRepository(NetworkHelper networkHelper
-            , LocalDeviceTripStorage localDeviceTripStorage){
-
-        return new Device215TripRepository(networkHelper,localDeviceTripStorage);
     }
 
     @Provides

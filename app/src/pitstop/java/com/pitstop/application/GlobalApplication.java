@@ -33,7 +33,6 @@ import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
-import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalScannerStorage;
@@ -86,7 +85,6 @@ public class GlobalApplication extends Application {
     private LocalAppointmentStorage mLocalAppointmentStorage;
     private LocalPidStorage mLocalPidStorage;
     private LocalShopStorage mLocalShopStorage;
-    private LocalDeviceTripStorage mLocalDeviceTripStorage;
     private LocalSpecsStorage mLocalSpecsStorage;
     private LocalAlarmStorage mLocalAlarmStorage;
     private LocalDebugMessageStorage mLocalDebugMessageStorage;
@@ -465,7 +463,6 @@ public class GlobalApplication extends Application {
         mLocalCarIssueStorage = new LocalCarIssueStorage(this);
         mLocalPidStorage = new LocalPidStorage(this);
         mLocalShopStorage = new LocalShopStorage(this);
-        mLocalDeviceTripStorage = new LocalDeviceTripStorage(this);
         mLocalSpecsStorage  = new LocalSpecsStorage(this);
         mLocalAlarmStorage = new LocalAlarmStorage(this);
         mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
@@ -485,10 +482,8 @@ public class GlobalApplication extends Application {
         mLocalAppointmentStorage.deleteAllRows();
         mLocalCarIssueStorage.deleteAllRows();
         mLocalShopStorage.removeAllDealerships();
-        mLocalDeviceTripStorage.deleteAllRows();
         mLocalSpecsStorage.deleteAllRows();
         mLocalAlarmStorage.deleteAllRows();
-        mLocalDeviceTripStorage.deleteAllRows();
         mLocalDebugMessageStorage.deleteAllRows();
         mLocalTripStorage.deleteAllTrips();
         mLocalPendingTripStorage.deleteAll();

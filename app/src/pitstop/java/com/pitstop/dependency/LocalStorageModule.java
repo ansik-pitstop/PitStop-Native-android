@@ -6,7 +6,6 @@ import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
-import com.pitstop.database.LocalDeviceTripStorage;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
@@ -63,12 +62,6 @@ public class LocalStorageModule {
     @Provides
     LocalPidStorage localPidStorage(Context context) {
         return new LocalPidStorage(context);
-    }
-
-    @Singleton
-    @Provides
-    LocalDeviceTripStorage localDeviceTripStorage(Context context) {
-        return new LocalDeviceTripStorage(context);
     }
 
     @Singleton
