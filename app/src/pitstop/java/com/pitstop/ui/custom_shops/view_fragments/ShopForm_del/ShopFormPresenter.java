@@ -1,10 +1,6 @@
 package com.pitstop.ui.custom_shops.view_fragments.ShopForm_del;
 
 import android.app.Fragment;
-import android.content.res.Resources;
-
-import android.app.Fragment;
-import android.content.res.Resources;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
@@ -25,9 +21,8 @@ import com.pitstop.utils.MixpanelHelper;
 
 public class ShopFormPresenter {
 
-
-
     private ShopFormView shopForm;
+
     private CustomShopActivityCallback switcher1;
     private FragmentSwitcher switcher2;
     private UseCaseComponent component;
@@ -116,7 +111,7 @@ public class ShopFormPresenter {
             component.getAddShopUseCase().execute(dealership, new AddShopUseCase.Callback() {
                 @Override
                 public void onShopAdded() {
-                        component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership,EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
+                        if (shopForm != null) component.getUpdateCarDealershipUseCase().execute(shopForm.getCar().getId(), dealership,EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
                             @Override
                             public void onCarDealerUpdated() {
                                 if(shopForm != null){
