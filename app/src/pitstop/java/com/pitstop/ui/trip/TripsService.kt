@@ -42,6 +42,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         const val TRIP_IN_PROGRESS = "trip_in_progress"
         const val MINIMUM_LOCATION_ACCURACY = "mnimum_location_accuracy"
         const val DEF_TIMEOUT = 600000
+        const val MIN_TRIP_NOTIF_CONF = 70
     }
 
     private val tag = javaClass.simpleName
@@ -308,8 +309,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = true
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
-        startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                ,NotificationsHelper.getForegroundTripServiceNotification(baseContext))
     }
 
     private fun tripEnd(){
@@ -411,6 +410,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         if (!tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 30
                 && ( onFootActivity === null || onFootActivity!!.confidence < 40)) {
             tripStart()
+            //Display trip notification and begin foreground, message varies depending on confidence
+            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                    ,NotificationsHelper.getForegroundTripServiceNotification
+            (vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF,baseContext))
+
         //End trip if definitely walking
         }else if  (tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 95){
             tripEnd()
@@ -423,6 +427,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }else if (tripInProgress && stillTimerRunning && vehicleActivty !== null && vehicleActivty!!.confidence > 30
                 && (onFootActivity === null || onFootActivity!!.confidence < 70)){
             cancelStillTimer()
+        }
+
+        //If vehicle confidence passed the threshold begin showing trip start notification
+        if (tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF){
+            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                    ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
         }
 
         //Stop tracking location if the user is completely still and we're very sure of it
