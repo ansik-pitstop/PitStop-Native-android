@@ -35,8 +35,15 @@ public class NotificationsHelper {
         });
     }
 
-    public static Notification getForegroundTripServiceNotification(Context context){
+    public static Notification getForegroundTripServiceNotification(boolean confident, Context context){
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_push);
+
+        String message = "";
+        if (confident){
+            message = "Pitstop has began recording your trip";
+        }else{
+            message = "Pitstop is ready to begin recording your trip";
+        }
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(context)
@@ -44,7 +51,7 @@ public class NotificationsHelper {
                     .setLargeIcon(icon)
                     .setColor(context.getResources().getColor(R.color.highlight))
                     .setContentTitle("Pitstop")
-                    .setContentText("Trip is currently being recorded");
+                    .setContentText(message);
 
         Intent resultIntent = new Intent(context, MainActivity.class);
         resultIntent.putExtra(MainActivity.Companion.getFROM_NOTIF(), true);
