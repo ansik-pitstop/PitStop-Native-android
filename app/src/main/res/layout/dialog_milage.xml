@@ -1,32 +1,117 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="8dp">
+    android:background="#EEECEC"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/topIcon"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:src="@drawable/ic_announcement_blue_600_24dp"
+        android:layout_height="wrap_content" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/textView1"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/change_later"/>
+        android:layout_below="@id/topIcon"
+        android:fontFamily="@font/lato_regular"
+        android:text="Your actual mileage is"
+        android:textAlignment="center"
+        android:textColor="@color/persian_blue" />
 
-    <android.support.design.widget.TextInputLayout
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_marginTop="2dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:fontFamily="@font/lato_bold"
+        android:text="20,000 KM"
+        android:textAlignment="center"
+        android:textColor="@color/persian_blue" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView2"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/lato_bold"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Remember to update your mileage!"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView3"
+        android:layout_marginTop="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:fontFamily="@font/lato_regular"
+        android:text="Update the mileage of your car, so we can make better predictions about future failures"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="10sp" />
+
+    <EditText
+        android:layout_below="@id/textView4"
+        android:layout_marginTop="20dp"
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editText"
+        android:fontFamily="@font/lato_regular"
+        android:text="Click here to disable this popup"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="10sp" />
+
+    <LinearLayout
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/textView5"
+        android:weightSum="2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/mileage"
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
-            android:hint="@string/mileage_title"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:maxLines="1"/>
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            android:background="@drawable/button_border"
+            android:fontFamily="@font/lato_regular"
+            android:text="Yes" />
 
-    </android.support.design.widget.TextInputLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            android:background="@drawable/button_border"
+            android:fontFamily="@font/lato_regular"
+            android:text="No" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>
