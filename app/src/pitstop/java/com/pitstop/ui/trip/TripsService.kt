@@ -269,6 +269,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress) false
         else{
+            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                    ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
             tripStart()
             return true
         }
@@ -319,9 +321,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             override fun tripDiscarded() {
                 Log.w(tag,"end trip use case discarded trip!")
                 observers.forEach({ it.onTripEnd() })
-                if (applicationContext != null)
-                    NotificationsHelper.sendNotification(applicationContext,"Going back to idle"
-                            ,"Pitstop")
             }
 
             override fun finished() {
