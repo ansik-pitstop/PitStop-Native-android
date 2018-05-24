@@ -40,9 +40,9 @@ public class NotificationsHelper {
 
         String message = "";
         if (confident){
-            message = "Pitstop is ready to begin recording your trip";
-        }else{
             message = "Pitstop has began recording your trip";
+        }else{
+            message = "Pitstop is ready to begin recording your trip";
         }
 
         NotificationCompat.Builder mBuilder =

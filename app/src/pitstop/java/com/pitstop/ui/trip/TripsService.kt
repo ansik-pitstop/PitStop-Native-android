@@ -269,6 +269,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress) false
         else{
+            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                    ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
             tripStart()
             return true
         }
@@ -319,9 +321,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
             override fun tripDiscarded() {
                 Log.w(tag,"end trip use case discarded trip!")
                 observers.forEach({ it.onTripEnd() })
-                if (applicationContext != null)
-                    NotificationsHelper.sendNotification(applicationContext,"Going back to idle"
-                            ,"Pitstop")
             }
 
             override fun finished() {
@@ -407,30 +406,30 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         })
 
         //Start trip if possibly driving and definitely not walking
-        if (!tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 30
-                && ( onFootActivity === null || onFootActivity!!.confidence < 40)) {
+        if (!tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 30
+                && ( vehicleActivty === null || vehicleActivty!!.confidence < 40)) {
             tripStart()
             //Display trip notification and begin foreground, message varies depending on confidence
             startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                    ,NotificationsHelper.getForegroundTripServiceNotification
-            (vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF,baseContext))
+                    ,NotificationsHelper.getForegroundTripServiceNotification(
+                    onFootActivity != null && onFootActivity!!.confidence > MIN_TRIP_NOTIF_CONF,baseContext))
 
         //End trip if definitely walking
-        }else if  (tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 95){
+        }else if  (tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 95){
             tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
         }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity !== null && stillActivity!!.confidence == 100)
-                || ( onFootActivity !== null && onFootActivity!!.confidence > 80))
-                && (vehicleActivty === null || vehicleActivty!!.confidence < 30)) {
+                || ( vehicleActivty !== null && vehicleActivty!!.confidence > 80))
+                && (onFootActivity === null || onFootActivity!!.confidence < 30)) {
             startStillTimer()
         //Cancel still timer if likely driving and not definitely walking
-        }else if (tripInProgress && stillTimerRunning && vehicleActivty !== null && vehicleActivty!!.confidence > 30
-                && (onFootActivity === null || onFootActivity!!.confidence < 70)){
+        }else if (tripInProgress && stillTimerRunning && onFootActivity !== null && onFootActivity!!.confidence > 30
+                && (vehicleActivty === null || vehicleActivty!!.confidence < 70)){
             cancelStillTimer()
         }
 
         //If vehicle confidence passed the threshold begin showing trip start notification
-        if (tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF){
+        if (tripInProgress && onFootActivity != null && onFootActivity!!.confidence > MIN_TRIP_NOTIF_CONF){
             startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
                     ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
         }
