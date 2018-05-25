@@ -289,11 +289,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     @Override
     public void hideLoading(@Nullable String message) {
         Log.d(TAG,"hideLoading(): "+message);
-        if (progressDialog == null || getActivity() == null) return;
+        if (progressDialog == null || getContext() == null) return;
 
         progressDialog.dismiss();
         if (message != null && !message.isEmpty()){
-            Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(),message,Toast.LENGTH_LONG).show();
         }
     }
 
