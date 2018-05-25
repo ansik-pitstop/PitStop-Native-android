@@ -170,9 +170,16 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
         this.view = null;
-
         if (bluetoothConnectionObservable != null){
             bluetoothConnectionObservable.unsubscribe(this);
+
+            findDeviceTimer.cancel();
+            connectionTimer.cancel();
+            getVinTimer.cancel();
+
+            searchingForVin = false;
+            connectingToDevice = false;
+            searchingForVin = false;
         }
     }
 
@@ -223,12 +230,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
         //Otherwise request search and wait for callback
         else{
-            if (bluetoothConnectionObservable.requestDeviceSearch(true, true)){
+            //Try to start search or check if state isn't disconnected and therefore already searching
+            if (bluetoothConnectionObservable.requestDeviceSearch(true, true)
+                    || !bluetoothConnectionObservable.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
                 view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                 searchingForDevice = true;
                 findDeviceTimer.start();
 
-            }else{
+            } else{
                 view.displayToast(R.string.request_search_failed_add_car_message);
             }
         }
@@ -288,11 +297,13 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             connectingToDevice = false;
             connectionTimer.cancel();
             view.onCouldNotConnectToDevice();
+            view.hideLoading(null);
         }
         if (searchingForVin){
             searchingForVin = false;
             getVinTimer.cancel();
             view.onCouldNotConnectToDevice();
+            view.hideLoading(null);
         }
     }
 
