@@ -104,7 +104,7 @@
             android:textAllCaps="false"
             android:background="@drawable/button_border"
             android:fontFamily="@font/lato_regular"
-            android:text="Yes" />
+            android:text="Update" />
 
         <Button
             android:id="@+id/button_negative"
@@ -114,7 +114,7 @@
             android:textAllCaps="false"
             android:background="@drawable/button_border"
             android:fontFamily="@font/lato_regular"
-            android:text="No" />
+            android:text="Remind me later" />
 
     </LinearLayout>
 

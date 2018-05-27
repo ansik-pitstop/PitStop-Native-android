@@ -28,9 +28,13 @@ class MileageDialogFragment(): DialogFragment(),MileageDialogView {
                 .build())
 
         val view = inflater.inflate(R.layout.dialog_milage, container, false)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         button_negative.setOnClickListener({presenter?.onNegativeButtonCliced()})
         button_positive.setOnClickListener({presenter?.onPositiveButtonClicked()})
-        return view
     }
 
     override fun onStart() {
