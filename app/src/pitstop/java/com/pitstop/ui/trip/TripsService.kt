@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.*
 import android.location.Location
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -269,8 +270,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
                 ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress) false
         else{
-            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                    ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+                startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                        ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
+            }
             tripStart()
             return true
         }
@@ -355,7 +358,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         tripInProgress = false
         sharedPreferences.edit().putBoolean(TRIP_IN_PROGRESS,tripInProgress).apply()
         stopTrackingLocationUpdates()
-        stopForeground(true)
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+            stopForeground(true)
+        }
     }
 
     private fun tripUpdate(locations:List<Location>){
@@ -409,11 +415,12 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         if (!tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 30
                 && ( onFootActivity === null || onFootActivity!!.confidence < 40)) {
             tripStart()
-            //Display trip notification and begin foreground, message varies depending on confidence
-            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                    ,NotificationsHelper.getForegroundTripServiceNotification
-            (vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF,baseContext))
-
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+                //Display trip notification and begin foreground, message varies depending on confidence
+                startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                        ,NotificationsHelper.getForegroundTripServiceNotification
+                (vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF,baseContext))
+            }
         //End trip if definitely walking
         }else if  (tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 95){
             tripEnd()
@@ -430,8 +437,10 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
         //If vehicle confidence passed the threshold begin showing trip start notification
         if (tripInProgress && vehicleActivty != null && vehicleActivty!!.confidence > MIN_TRIP_NOTIF_CONF){
-            startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
-                    ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+                startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
+                        ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
+            }
         }
 
         //Stop tracking location if the user is completely still and we're very sure of it
