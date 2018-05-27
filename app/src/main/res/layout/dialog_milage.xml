@@ -12,7 +12,7 @@
         android:paddingRight="10dp"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:src="@drawable/ic_announcement_blue_600_24dp"
+        android:src="@drawable/ic_mileage"
         android:layout_height="wrap_content" />
 
     <TextView
