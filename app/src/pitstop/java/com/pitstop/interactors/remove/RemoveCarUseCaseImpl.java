@@ -92,77 +92,83 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             @Override
             public void onSuccess(Settings data) {
 
-                final String[] carToDeleteVin = {""};
-
                 // GET the VIN from the car to be deleted BEFORE it
                 carRepository.get(carToDeleteId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                        .doOnNext(carRepositoryResponse -> {
-
-                            carToDeleteVin[0] = carRepositoryResponse.getData().getVin();
-
-                        })
-                        .subscribe();
-
-                carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
-
-                    @Override
-                    public void onSuccess(Object response) {
-
-                        // Once the car is successfully delete, let's delete all the associated Trips from the local DB
-                        tripRepository.deleteAllTripsFromCarVin(carToDeleteVin[0], new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object data) {
-                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() response: " + data);
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() error: " + error);
-                                RemoveCarUseCaseImpl.this.onError(error);
-                            }
-                        });
-
-                        if(data.getCarId() == carToDeleteId){// deleted the users current car
-                            userRepository.getCurrentUser(new Repository.Callback<User>() {
+                        .subscribe(carRepositoryResponse -> {
+                            if (carRepositoryResponse.isLocal() || carRepositoryResponse.getData() == null) return;
+                            else carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
 
                                 @Override
-                                public void onSuccess(User user) {
-                                    carRepository.getCarsByUserId(user.getId())
-                                            .subscribeOn(Schedulers.io())
-                                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                                            .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
-                                            .doOnNext(carListResponse -> {
-                                                if (carListResponse.isLocal()) return;
-                                                Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
-                                                List<Car> cars = carListResponse.getData();
-                                                if (cars == null){
-                                                    RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                                                    return;
-                                                }
+                                public void onSuccess(Object response) {
 
-                                                int carId = cars.size() > 0 ? cars.get(cars.size() - 1).getId() : -1;
-                                                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
+                                    // Once the car is successfully delete, let's delete all the associated Trips from the local DB
+                                    tripRepository.deleteAllTripsFromCarVin(carRepositoryResponse.getData().getVin(), new Repository.Callback<Object>() {
+                                        @Override
+                                        public void onSuccess(Object data) {
+                                            Log.d(TAG, "tripRepository.deleteTripsFromCarVin() response: " + data);
+                                        }
 
-                                                    @Override
-                                                    public void onSuccess(Object object) {
-                                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                                ,eventSource));
-                                                        RemoveCarUseCaseImpl.this.onCarRemoved();
-                                                    }
+                                        @Override
+                                        public void onError(RequestError error) {
+                                            Log.d(TAG, "tripRepository.deleteTripsFromCarVin() error: " + error);
+                                            RemoveCarUseCaseImpl.this.onError(error);
+                                        }
+                                    });
 
-                                                    @Override
-                                                    public void onError(RequestError error) {
-                                                        RemoveCarUseCaseImpl.this.onError(error);
-                                                    }
-                                                });
-                                            }).onErrorReturn(err -> {
-                                                Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
-                                                return new RepositoryResponse<List<Car>>(null,false);
-                                            })
-                                            .subscribe();
+                                    if(data.getCarId() == carToDeleteId){// deleted the users current car
+                                        userRepository.getCurrentUser(new Repository.Callback<User>() {
+
+                                            @Override
+                                            public void onSuccess(User user) {
+                                                carRepository.getCarsByUserId(user.getId())
+                                                        .subscribeOn(Schedulers.io())
+                                                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                                        .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
+                                                        .doOnNext(carListResponse -> {
+                                                            if (carListResponse.isLocal()) return;
+                                                            Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
+                                                            List<Car> cars = carListResponse.getData();
+                                                            if (cars == null){
+                                                                RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                                                return;
+                                                            }
+
+                                                            int carId = cars.size() > 0 ? cars.get(cars.size() - 1).getId() : -1;
+                                                            userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
+
+                                                                @Override
+                                                                public void onSuccess(Object object) {
+                                                                    EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                                                    EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                                            ,eventSource));
+                                                                    RemoveCarUseCaseImpl.this.onCarRemoved();
+                                                                }
+
+                                                                @Override
+                                                                public void onError(RequestError error) {
+                                                                    RemoveCarUseCaseImpl.this.onError(error);
+                                                                }
+                                                            });
+                                                        }).onErrorReturn(err -> {
+                                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
+                                                    return new RepositoryResponse<List<Car>>(null,false);
+                                                })
+                                                        .subscribe();
+                                            }
+
+                                            @Override
+                                            public void onError(RequestError error) {
+                                                RemoveCarUseCaseImpl.this.onError(error);
+                                            }
+                                        });
+                                    }else{
+                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                                                ,eventSource));
+                                        RemoveCarUseCaseImpl.this.onCarRemoved();
+                                    }
                                 }
 
                                 @Override
@@ -170,19 +176,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                     RemoveCarUseCaseImpl.this.onError(error);
                                 }
                             });
-                        }else{
-                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                    ,eventSource));
-                            RemoveCarUseCaseImpl.this.onCarRemoved();
-                        }
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        RemoveCarUseCaseImpl.this.onError(error);
-                    }
-                });
+                        },err -> {
+                            RemoveCarUseCaseImpl.this.onError(new RequestError(err));
+                        });
             }
 
             @Override

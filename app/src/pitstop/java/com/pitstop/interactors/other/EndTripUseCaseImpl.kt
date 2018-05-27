@@ -119,7 +119,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                                                             })
                                                     }, { err ->
                                                     Log.d(TAG, "Error: " + err)
-                                                    onErrorFound(RequestError(err))
+                                                    EndTripUseCaseImpl@onErrorFound(RequestError(err))
                                                 })
                                     }
                                 })

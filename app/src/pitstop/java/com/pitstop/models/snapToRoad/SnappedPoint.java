@@ -46,7 +46,7 @@ public class SnappedPoint {
     @Override
     public String toString(){
         try{
-            return String.format("(%f,%f)",location.getLongitude(),location.getLatitude());
+            return String.format("[%d](%f,%f)",originalIndex,location.getLatitude(),location.getLongitude());
         }catch(NullPointerException e){
             return "null";
         }
