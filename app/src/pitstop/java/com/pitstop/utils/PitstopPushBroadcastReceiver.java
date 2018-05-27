@@ -92,7 +92,7 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
                 R.mipmap.ic_push);
 
         List<ParseNotification> notificationList = localStore.getAllNotifications();
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context, NotificationsHelper.CHANNEL_ID);
         notification
                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                 .setColor(context.getResources().getColor(R.color.highlight))

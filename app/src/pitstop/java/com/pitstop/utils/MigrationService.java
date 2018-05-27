@@ -76,7 +76,7 @@ public class MigrationService extends Service {
 
         final PendingIntent failedPendingIntent = PendingIntent.getActivity(this, 45435, failedIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final NotificationCompat.Builder notif = new NotificationCompat.Builder(this)
+        final NotificationCompat.Builder notif = new NotificationCompat.Builder(this,NotificationsHelper.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_directions_car_white_24dp)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_push))
                 .setContentTitle("Update in progress")
