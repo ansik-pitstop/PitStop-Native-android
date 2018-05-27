@@ -50,6 +50,7 @@ import com.pitstop.models.Notification;
 import com.pitstop.models.User;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
+import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
 
@@ -133,6 +134,8 @@ public class GlobalApplication extends Application {
         }
 
         Logger.initLogger(this);
+
+        NotificationsHelper.createNotificationChannels(this);
 
         initiateDatabase();
 
@@ -251,6 +254,8 @@ public class GlobalApplication extends Application {
             }
         });
     }
+
+
 
     public void setUpMixPanel(){
         User user = mLocalUserStorage.getUser();
