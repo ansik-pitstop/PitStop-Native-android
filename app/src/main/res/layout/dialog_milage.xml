@@ -71,6 +71,8 @@
     <EditText
         android:layout_below="@id/textView4"
         android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:id="@+id/editText"
         android:inputType="numberDecimal"
         android:layout_width="match_parent"
