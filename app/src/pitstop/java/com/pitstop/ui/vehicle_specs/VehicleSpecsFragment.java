@@ -43,7 +43,6 @@ import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
-import com.pitstop.ui.dialog.MileageDialogFragment;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -370,10 +369,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @OnClick(R.id.license_plate_row)
     public void showLicensePlateDialog() {
-
-        MileageDialogFragment mileageDialogFragment = new MileageDialogFragment();
-        mileageDialogFragment.show(getFragmentManager(),TAG);
-        if (1 > 0 ) return;
         Log.d(TAG, "showLicensePlateDialog()");
         if (licensePlateDialog == null) {
             final View dialogLayout = LayoutInflater.from(

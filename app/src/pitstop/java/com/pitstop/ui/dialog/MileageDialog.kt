@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.dialog_milage.*
 /**
  * Created by Karol Zdebel on 5/24/2018.
  */
-class MileageDialogFragment(): DialogFragment(),MileageDialogView {
+class MileageDialog(): DialogFragment(),MileageDialogView {
 
     private var presenter: MileageDialogPresenter? = null
 
