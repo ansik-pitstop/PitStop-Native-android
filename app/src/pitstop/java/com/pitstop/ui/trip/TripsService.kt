@@ -471,6 +471,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
         Log.d(tag,"beginTrackingLocationUpdates()")
+        if (!googleApiClient.isConnected) return false
+
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
         val locationRequest = LocationRequest.create()
         locationRequest.interval = interval
@@ -487,6 +489,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun stopTrackingLocationUpdates(){
         Log.d(tag,"stopTrackingLocationUpdates()");
+        if (!googleApiClient.isConnected) return
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
         trackingLocationUpdates = false
     }
