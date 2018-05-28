@@ -54,6 +54,13 @@ public final class TABLES {
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
     }
 
+    public interface CAR_PENDING {
+        String TABLE_NAME = "car_pending";
+        String KEY_VIN = "vin";
+        String KEY_TYPE = "type";
+        String KEY_VALUE = "value";
+    }
+
     public interface APPOINTMENT {
         String TABLE_NAME = "appointment";
         String KEY_COMMENT = "comment";
