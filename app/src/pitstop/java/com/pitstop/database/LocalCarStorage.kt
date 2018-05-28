@@ -40,12 +40,12 @@ class LocalCarStorage(context: Context) {
         val CREATE_TABLE_PENDING_UPDATES = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.CAR_PENDING.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID
                 + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + TABLES.CAR_PENDING.KEY_VIN + " TEXT, "
+                + TABLES.CAR_PENDING.KEY_CAR_ID + " INTEGER, "
                 + TABLES.CAR_PENDING.KEY_TYPE + " TEXT, "
                 + TABLES.CAR_PENDING.KEY_VALUE + " TEXT, "
                 + TABLES.COMMON.KEY_TIMESTAMP + " TIMESTAMP, "
-                + " FOREIGN KEY ("+TABLES.CAR.KEY_VIN+") REFERENCES "
-                +TABLES.CAR_PENDING.TABLE_NAME+"("+TABLES.CAR_PENDING.KEY_VIN+")" +")")
+                + " FOREIGN KEY ("+TABLES.COMMON.KEY_ID+") REFERENCES "
+                +TABLES.CAR_PENDING.TABLE_NAME+"("+TABLES.CAR_PENDING.KEY_CAR_ID+")" +")")
     }
 
     fun storePendingUpdate(pendingUpdate: PendingUpdate): Boolean{
@@ -53,7 +53,7 @@ class LocalCarStorage(context: Context) {
         val contentValues = ContentValues()
         contentValues.put(TABLES.CAR_PENDING.KEY_TYPE,pendingUpdate.type)
         contentValues.put(TABLES.CAR_PENDING.KEY_VALUE,pendingUpdate.value)
-        contentValues.put(TABLES.CAR_PENDING.KEY_VIN,pendingUpdate.vin)
+        contentValues.put(TABLES.CAR_PENDING.KEY_CAR_ID,pendingUpdate.id)
         contentValues.put(TABLES.COMMON.KEY_TIMESTAMP,pendingUpdate.timestamp)
         return db.insert(TABLES.CAR_PENDING.TABLE_NAME,null,contentValues) > 0
     }
@@ -67,9 +67,9 @@ class LocalCarStorage(context: Context) {
             while(!c.isAfterLast){
                 val type = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_TYPE))
                 val value = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_VALUE))
-                val vin = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_VIN))
+                val id = c.getInt(c.getColumnIndex(TABLES.CAR_PENDING.KEY_CAR_ID))
                 val timestamp = c.getLong(c.getColumnIndex(TABLES.COMMON.KEY_TIMESTAMP))
-                pendingUpdates.add(PendingUpdate(vin,type,value,timestamp))
+                pendingUpdates.add(PendingUpdate(id,type,value,timestamp))
             }
         }
         c.close()

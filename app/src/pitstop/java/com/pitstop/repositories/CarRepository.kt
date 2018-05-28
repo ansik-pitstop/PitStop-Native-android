@@ -10,6 +10,7 @@ import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.PendingUpdate
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
 import com.pitstop.utils.Logger
@@ -149,6 +150,26 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
+    fun updateMileage(carId: Int, mileage: Double, callback: Repository.Callback<Any>){
+        val body = JSONObject()
+
+        try {
+            body.put("carId", carId)
+            body.put("totalMileage", mileage)
+        } catch (e: JSONException) {
+            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
+            e.printStackTrace()
+        }
+
+        networkHelper.put("car", { response, requestError ->
+            if (requestError == null) {
+                callback.onSuccess(response)
+            } else {
+                callback.onError(requestError)
+            }
+        }, body)
+    }
+
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
@@ -258,5 +279,20 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 callback.onError(RequestError.getUnknownError())
             }
         }
+    }
+
+    fun sendingPendingUpdates(): Observable<Int>{
+        val pendingUpdates = localCarStorage.getPendingUpdates()
+        Log.d(tag,"Got pending updates: $pendingUpdates")
+        pendingUpdates.forEach {
+            when(it.type){
+                (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
+//                    try{
+//                        updateMileage(it.id,it.value.toDouble(), )
+//                    }
+                }
+            }
+        }
+        return Observable.just(1)
     }
 }

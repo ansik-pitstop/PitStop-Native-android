@@ -57,7 +57,7 @@ public final class TABLES {
 
     public interface CAR_PENDING {
         String TABLE_NAME = "car_pending";
-        String KEY_VIN = "vin";
+        String KEY_CAR_ID = "car_id";
         String KEY_TYPE = "type";
         String KEY_VALUE = "value";
     }
