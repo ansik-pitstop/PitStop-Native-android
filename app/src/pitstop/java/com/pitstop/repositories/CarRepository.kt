@@ -281,18 +281,17 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun sendingPendingUpdates(): Observable<Int>{
+    fun sendPendingUpdates(): Observable<List<PendingUpdate>>{
         val pendingUpdates = localCarStorage.getPendingUpdates()
         Log.d(tag,"Got pending updates: $pendingUpdates")
+        val observables = arrayListOf<Observable<PendingUpdate>>()
         pendingUpdates.forEach {
             when(it.type){
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
-//                    try{
-//                        updateMileage(it.id,it.value.toDouble(), )
-//                    }
+                    observables.add(carApi.updateMileage(it.id,it.value.toDouble()).map { _ -> it })
                 }
             }
         }
-        return Observable.just(1)
+        return Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
     }
 }
