@@ -35,7 +35,6 @@ import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
-import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -79,7 +78,6 @@ public class GlobalApplication extends Application {
      * Database open helper
      */
     private LocalUserStorage mLocalUserStorage;
-    private LocalScannerStorage mLocalScannerStorage;
     private LocalCarStorage mLocalCarStorage;
     private LocalCarIssueStorage mLocalCarIssueStorage;
     private LocalAppointmentStorage mLocalAppointmentStorage;
@@ -457,7 +455,6 @@ public class GlobalApplication extends Application {
      */
     private void initiateDatabase() {
         mLocalUserStorage = new LocalUserStorage(this);
-        mLocalScannerStorage = new LocalScannerStorage(this);
         mLocalCarStorage = new LocalCarStorage(this);
         mLocalAppointmentStorage = new LocalAppointmentStorage(this);
         mLocalCarIssueStorage = new LocalCarIssueStorage(this);
@@ -476,7 +473,6 @@ public class GlobalApplication extends Application {
      */
     private void cleanUpDatabase() {
         mLocalUserStorage.deleteAllUsers();
-        mLocalScannerStorage.deleteAllRows();
         mLocalPidStorage.deleteAllRows();
         mLocalCarStorage.deleteAllRows();
         mLocalAppointmentStorage.deleteAllRows();

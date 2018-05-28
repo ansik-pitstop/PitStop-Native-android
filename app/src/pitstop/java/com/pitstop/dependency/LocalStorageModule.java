@@ -9,7 +9,6 @@ import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
-import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -50,12 +49,6 @@ public class LocalStorageModule {
     @Provides
     public LocalUserStorage userAdapter(Context context) {
         return new LocalUserStorage(context);
-    }
-
-    @Singleton
-    @Provides
-    LocalScannerStorage localScannerAdapter(Context context) {
-        return new LocalScannerStorage(context);
     }
 
     @Singleton

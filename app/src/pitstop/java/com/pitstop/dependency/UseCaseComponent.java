@@ -53,6 +53,7 @@ import com.pitstop.interactors.other.EndTripUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
+import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
@@ -228,4 +229,6 @@ public interface UseCaseComponent {
     EndTripUseCase endTripUseCase();
 
     AddPidUseCase addPidUseCase();
+
+    SendPendingUpdatesUseCase sendPendingUpdatesUseCase();
 }

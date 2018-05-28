@@ -249,7 +249,7 @@ class LocalCarStorage(context: Context) {
 
     fun deleteAllRows() {
         val db = databaseHelper.writableDatabase
-
+        db.delete(TABLES.CAR_PENDING.TABLE_NAME,null,null)
         db.delete(TABLES.CAR.TABLE_NAME, null, null)
     }
 

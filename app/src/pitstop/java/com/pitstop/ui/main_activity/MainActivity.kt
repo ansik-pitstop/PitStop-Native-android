@@ -27,7 +27,6 @@ import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.database.LocalCarStorage
-import com.pitstop.database.LocalScannerStorage
 import com.pitstop.database.LocalShopStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
@@ -119,7 +118,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     // Database accesses
     private var carLocalStore: LocalCarStorage? = null
     private var shopLocalStore: LocalShopStorage? = null
-    private var scannerLocalStore: LocalScannerStorage? = null
 
     // Views
     private var rootView: View? = null
@@ -215,12 +213,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         progressDialog!!.setCancelable(false)
         progressDialog!!.setCanceledOnTouchOutside(false)
         // Local db adapters
-        carLocalStore = LocalCarStorage(application)
+        carLocalStore = LocalCarStorage(application!!)
         shopLocalStore = LocalShopStorage(application)
-        scannerLocalStore = LocalScannerStorage(application)
 
         logAuthInfo()
-        updateScannerLocalStore()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
                 , vehicleSpecsFragment, tripsFragment, tripSettingsFragment, mixpanelHelper)
@@ -529,26 +525,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         drawerToggle?.syncState();
-    }
-
-    private fun updateScannerLocalStore() {
-        useCaseComponent!!.carsByUserIdUseCase.execute(object : GetCarsByUserIdUseCase.Callback {
-            override fun onCarsRetrieved(cars: List<Car>) {
-                Log.d(TAG, "retrievedCars: " + cars)
-                for (car in cars) { // populate scanner table with scanner ids associated with the cars
-                    if (!scannerLocalStore!!.isCarExist(car.id)) {
-                        carLocalStore!!.deleteAllCars()
-                        carLocalStore!!.storeCars(cars)
-                        scannerLocalStore!!.storeScanner(ObdScanner(car.id, car.scannerId))
-                        Log.d("Storing Scanner", car.id.toString() + " " + car.scannerId)
-                    }
-                }
-            }
-
-            override fun onError(error: RequestError) {
-
-            }
-        })
     }
 
     private var ignoreMissingDeviceName = false
