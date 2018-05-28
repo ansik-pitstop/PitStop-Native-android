@@ -288,7 +288,10 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         pendingUpdates.forEach {
             when(it.type){
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
-                    observables.add(carApi.updateMileage(it.id,it.value.toDouble()).map { _ -> it })
+                    observables.add(carApi.updateMileage(it.id,it.value.toDouble())
+                            .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
+                            .map { _ -> it }
+                    )
                 }
             }
         }
