@@ -58,7 +58,7 @@ class LocalCarStorage(context: Context) {
         return db.insert(TABLES.CAR_PENDING.TABLE_NAME,null,contentValues) > 0
     }
 
-    fun getPendingUpdates(): Collection<PendingUpdate>{
+    fun getPendingUpdates(): List<PendingUpdate>{
         val db = databaseHelper.readableDatabase
         val c = db.query(TABLES.CAR_PENDING.TABLE_NAME,null,null,null
                 ,null,null,null)
