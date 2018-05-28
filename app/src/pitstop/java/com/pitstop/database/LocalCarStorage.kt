@@ -38,7 +38,7 @@ class LocalCarStorage(context: Context) {
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
 
         val CREATE_TABLE_PENDING_UPDATES = ("CREATE TABLE IF NOT EXISTS "
-                + TABLES.CAR_PENDING.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID
+                + TABLES.CAR_PENDING.TABLE_NAME
                 + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + TABLES.CAR_PENDING.KEY_CAR_ID + " INTEGER, "
                 + TABLES.CAR_PENDING.KEY_TYPE + " TEXT, "
