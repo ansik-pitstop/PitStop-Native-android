@@ -10,6 +10,7 @@ public final class TABLES {
         String KEY_ID = "id";
         String KEY_OBJECT_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
+        String KEY_TIMESTAMP = "timestamp";
     }
 
     public interface DEBUG_MESSAGES extends COMMON {

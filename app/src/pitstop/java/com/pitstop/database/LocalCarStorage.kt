@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import com.pitstop.models.Car
+import com.pitstop.models.PendingUpdate
 import java.util.*
 
 /**
@@ -35,16 +36,64 @@ class LocalCarStorage(context: Context) {
                 + TABLES.CAR.KEY_IS_DASHBOARD_CAR + " INTEGER, "
                 + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
+
+        val CREATE_TABLE_PENDING_UPDATES = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.CAR_PENDING.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID
+                + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + TABLES.CAR_PENDING.KEY_VIN + " TEXT, "
+                + TABLES.CAR_PENDING.KEY_TYPE + " TEXT, "
+                + TABLES.CAR_PENDING.KEY_VALUE + " TEXT, "
+                + TABLES.COMMON.KEY_TIMESTAMP + " TIMESTAMP, "
+                + " FOREIGN KEY ("+TABLES.CAR.KEY_VIN+") REFERENCES "
+                +TABLES.CAR_PENDING.TABLE_NAME+"("+TABLES.CAR_PENDING.KEY_VIN+")" +")")
     }
 
-    /**
-     * Get all cars
-     */
+    fun storePendingUpdate(pendingUpdate: PendingUpdate): Boolean{
+        val db = databaseHelper.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(TABLES.CAR_PENDING.KEY_TYPE,pendingUpdate.type)
+        contentValues.put(TABLES.CAR_PENDING.KEY_VALUE,pendingUpdate.value)
+        contentValues.put(TABLES.CAR_PENDING.KEY_VIN,pendingUpdate.vin)
+        contentValues.put(TABLES.COMMON.KEY_TIMESTAMP,pendingUpdate.timestamp)
+        return db.insert(TABLES.CAR_PENDING.TABLE_NAME,null,contentValues) > 0
+    }
+
+    fun getPendingUpdates(): Collection<PendingUpdate>{
+        val db = databaseHelper.readableDatabase
+        val c = db.query(TABLES.CAR_PENDING.TABLE_NAME,null,null,null
+                ,null,null,null)
+        val pendingUpdates = arrayListOf<PendingUpdate>()
+        if (c.moveToFirst()){
+            while(!c.isAfterLast){
+                val type = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_TYPE))
+                val value = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_VALUE))
+                val vin = c.getString(c.getColumnIndex(TABLES.CAR_PENDING.KEY_VIN))
+                val timestamp = c.getLong(c.getColumnIndex(TABLES.COMMON.KEY_TIMESTAMP))
+                pendingUpdates.add(PendingUpdate(vin,type,value,timestamp))
+            }
+        }
+        c.close()
+        return pendingUpdates
+    }
+
+    fun removeAllPendingUpdates(): Int{
+        val db = databaseHelper.writableDatabase
+        return db.delete(TABLES.CAR_PENDING.TABLE_NAME,null,null)
+    }
+
+    fun removePendingUpdate(pendingUpdate: PendingUpdate): Int{
+        val db = databaseHelper.writableDatabase
+        return db.delete(TABLES.CAR_PENDING.TABLE_NAME
+                ,"${TABLES.COMMON.KEY_TIMESTAMP} = ?"
+                , arrayOf(pendingUpdate.timestamp.toString()))
+    }
+
     fun getAllCars(): List<Car> {
         val cars = ArrayList<Car>()
 
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.CAR.TABLE_NAME, null, null, null, null, null, null)
+        val c = db.query(TABLES.CAR.TABLE_NAME, null, null, null
+                , null, null, null)
 
         if (c.moveToFirst()) {
             while (!c.isAfterLast) {
@@ -57,9 +106,6 @@ class LocalCarStorage(context: Context) {
         return cars
     }
 
-    /**
-     * Store car data
-     */
     fun storeCarData(car: Car): Boolean {
         val db = databaseHelper.writableDatabase
 
@@ -113,7 +159,8 @@ class LocalCarStorage(context: Context) {
         val db = databaseHelper.readableDatabase
 
         val c = db.query(TABLES.CAR.TABLE_NAME, null,
-                TABLES.COMMON.KEY_OBJECT_ID + "=?", arrayOf(carId.toString()), null, null, null)
+                TABLES.COMMON.KEY_OBJECT_ID + "=?", arrayOf(carId.toString()), null
+                , null, null)
         var car: Car? = null
         if (c.moveToFirst()) {
             car = cursorToCar(c)
@@ -127,7 +174,8 @@ class LocalCarStorage(context: Context) {
     fun getCarsByUserId(userId: Int): List<Car> {
         val cars = ArrayList<Car>()
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.CAR.TABLE_NAME, null, null, null, null, null, null)
+        val c = db.query(TABLES.CAR.TABLE_NAME, null, null, null
+                , null, null, null)
 
         if (c.moveToFirst()) {
             while (!c.isAfterLast) {
@@ -148,20 +196,13 @@ class LocalCarStorage(context: Context) {
 
         val values = carObjectToContentValues(car)
 
-        val rows = db.update(TABLES.CAR.TABLE_NAME, values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                arrayOf(car.id.toString()))
-
-
         return db.update(TABLES.CAR.TABLE_NAME, values, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 arrayOf(car.id.toString()))
     }
 
-    /** Delete all cars */
     fun deleteAllCars() {
         val db = databaseHelper.writableDatabase
-
         db.delete(TABLES.CAR.TABLE_NAME, null, null)
-
     }
 
 
@@ -210,8 +251,6 @@ class LocalCarStorage(context: Context) {
         val db = databaseHelper.writableDatabase
 
         db.delete(TABLES.CAR.TABLE_NAME, null, null)
-
-
     }
 
     fun deleteCar(carId: Int) {
