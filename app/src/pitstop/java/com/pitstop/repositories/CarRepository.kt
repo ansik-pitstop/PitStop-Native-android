@@ -152,7 +152,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
-        val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true)).map { next ->
+        val localResponse = Observable.just(RepositoryResponse(localCarStorage.getAllCars(),true)).map { next ->
             Log.d(tag,"remote.replay() next: $next")
             next.data
                 .orEmpty()
@@ -187,7 +187,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 .doOnNext({next ->
                     if (next == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                    localCarStorage.deleteAndStoreCars(next.data)
+                    localCarStorage.deleteAndStoreCars(next.data ?: arrayListOf())
                 }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err err cause: {${err.cause}}")
                     RepositoryResponse(null,false)
