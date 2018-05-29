@@ -70,6 +70,7 @@ class LocalCarStorage(context: Context) {
                 val id = c.getInt(c.getColumnIndex(TABLES.CAR_PENDING.KEY_CAR_ID))
                 val timestamp = c.getLong(c.getColumnIndex(TABLES.COMMON.KEY_TIMESTAMP))
                 pendingUpdates.add(PendingUpdate(id,type,value,timestamp))
+                c.moveToNext()
             }
         }
         c.close()

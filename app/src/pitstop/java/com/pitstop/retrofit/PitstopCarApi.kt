@@ -15,7 +15,7 @@ interface PitstopCarApi {
     fun getCar(@Path("carId") id: Int): Observable<Car>
 
     @PUT("v1/car/{carId}")
-    fun updateMileage(@Path("carId") id: Int, @Field("totalMileage") mileage: Double): Observable<PitstopResponse<Car>>
+    fun updateMileage(@Path("carId") id: Int, @Query("totalMileage") mileage: Double): Observable<PitstopResponse<Car>>
 
     @GET("v1/car")
     fun getCar(@Query("vin") vin: String): Observable<Response<List<Car>>>

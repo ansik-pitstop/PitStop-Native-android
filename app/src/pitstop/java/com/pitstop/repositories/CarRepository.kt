@@ -150,7 +150,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
-    fun updateMileage(carId: Int, mileage: Double, callback: Repository.Callback<Any>){
+    fun updateMileage(carId: Int, mileage: Double): Observable<Boolean>{
         val body = JSONObject()
 
         try {
@@ -161,13 +161,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             e.printStackTrace()
         }
 
-        networkHelper.put("car", { response, requestError ->
-            if (requestError == null) {
-                callback.onSuccess(response)
-            } else {
-                callback.onError(requestError)
-            }
-        }, body)
+        return carApi.updateMileage(carId,mileage).map { true }
     }
 
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
