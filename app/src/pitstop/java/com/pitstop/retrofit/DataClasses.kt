@@ -17,6 +17,8 @@ data class CarList(val data: List<Car>, val emptyData: Object)
 
 data class SnapToRoadResponse<T>(val snappedPoints: T)
 
+data class TotalMileage(val totalMileage: Double)
+
 data class PredictedService(val predictedDate: Date, val confidenceInterval: Int
                                 ,   val confidenceLevel: Double, val nextServiceMileage: Int)
 

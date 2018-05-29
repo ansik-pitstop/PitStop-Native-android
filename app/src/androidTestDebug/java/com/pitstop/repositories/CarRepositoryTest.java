@@ -44,7 +44,38 @@ public class CarRepositoryTest {
     }
 
     @Test
+    //Have phone offline for this test
+    public void checkPendingUpdateStoredTest(){
+        Log.d(TAG,"running checkPendingUpdateStoredTest()");
+        int carId = 6164;
+        double mileage = 400000;
+
+        localCarStorage.removeAllPendingUpdates();
+        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+
+        carRepository.updateMileage(carId, mileage)
+                .subscribe(next -> {
+                    completableFuture.complete(false);
+                }, err -> {
+                    Log.d(TAG,"pending updates after mileage update: "
+                            +localCarStorage.getPendingUpdates());
+                    if (localCarStorage.getPendingUpdates().get(0).getValue().equals(""+mileage)){
+                        completableFuture.complete(true);
+                    }else completableFuture.complete(false);
+                });
+
+        try{
+            assertTrue(completableFuture
+                    .get(2000, java.util.concurrent.TimeUnit.MILLISECONDS));
+        }catch( InterruptedException | ExecutionException | TimeoutException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
     public void sendPendingUpdatesTest(){
+        Log.d(TAG,"running sendPendingUpdatesTest()");
         int carId = 6164;
         double mileageBefore = 400000;
         double mileage = 500000;
@@ -82,7 +113,7 @@ public class CarRepositoryTest {
                             });
 
                 }, err -> {
-                    Log.d(TAG,"error updating mileage to "+mileageBefore);
+                    Log.d(TAG,"error updating mileage to "+mileageBefore+", err: "+err);
                     completableFuture.complete(false);
                 });
 

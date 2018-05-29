@@ -13,6 +13,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.models.PendingUpdate
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
+import com.pitstop.retrofit.TotalMileage
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -161,7 +162,12 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             e.printStackTrace()
         }
 
-        return carApi.updateMileage(carId,mileage).map { true }
+        return carApi.updateMileage(carId, TotalMileage(mileage))
+                .map { true }
+                .doOnError({
+                    localCarStorage.storePendingUpdate(
+                            PendingUpdate(carId,PendingUpdate.CAR_MILEAGE_UPDATE,mileage.toString(),System.currentTimeMillis())
+                    )})
     }
 
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
@@ -282,7 +288,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         pendingUpdates.forEach {
             when(it.type){
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
-                    observables.add(carApi.updateMileage(it.id,it.value.toDouble())
+                    observables.add(carApi.updateMileage(it.id,TotalMileage(it.value.toDouble()))
                             .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
                             .map { _ -> it }
                     )
