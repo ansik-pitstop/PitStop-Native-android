@@ -43,6 +43,7 @@ public class CarRepositoryTest {
                 ,RetrofitTestUtil.Companion.getCarApi());
     }
 
+    //This test makes sure that if an update fails, that an update is then stored in the database
     @Test
     //Have phone offline for this test
     public void checkPendingUpdateStoredTest(){
@@ -73,6 +74,7 @@ public class CarRepositoryTest {
 
     }
 
+    //This test makes sure that if the pending update is in the database, that it is then sent
     @Test
     public void sendPendingUpdatesTest(){
         Log.d(TAG,"running sendPendingUpdatesTest()");
