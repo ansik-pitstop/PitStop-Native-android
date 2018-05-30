@@ -3,6 +3,7 @@ package com.pitstop.utils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
@@ -16,7 +17,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // BOOT_COMPLETED start CarService
-        if (intent.getAction().equals(ACTION)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && intent.getAction().equals(ACTION)) {
             //CarService
             Log.i(MainActivity.Companion.getTAG(),"Starting auto connect service from boot broadcast receiver");
             Intent serviceIntent = new Intent(context, BluetoothAutoConnectService.class);
