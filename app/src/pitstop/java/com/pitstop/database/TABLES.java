@@ -10,6 +10,7 @@ public final class TABLES {
         String KEY_ID = "id";
         String KEY_OBJECT_ID = "parseId";
         String KEY_CREATED_AT = "createdAt";
+        String KEY_TIMESTAMP = "timestamp";
     }
 
     public interface DEBUG_MESSAGES extends COMMON {
@@ -52,6 +53,13 @@ public final class TABLES {
         String KEY_USER_ID = "ownerId";
         String KEY_NUM_SERVICES = "numberOfServices";
         String KEY_IS_DASHBOARD_CAR = "isDashboardCar";
+    }
+
+    public interface CAR_PENDING {
+        String TABLE_NAME = "car_pending";
+        String KEY_CAR_ID = "car_id";
+        String KEY_TYPE = "type";
+        String KEY_VALUE = "value";
     }
 
     public interface APPOINTMENT {

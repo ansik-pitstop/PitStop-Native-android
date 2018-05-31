@@ -19,7 +19,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-    private static final int DATABASE_VERSION = 68;
+    private static final int DATABASE_VERSION = 70;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private BriteDatabase mBriteDatabase;
@@ -39,13 +39,13 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LocalPidStorage.CREATE_TABLE_PID_DATA);
-        db.execSQL(LocalCarStorage.CREATE_TABLE_CAR);
+        db.execSQL(LocalCarStorage.Companion.getCREATE_TABLE_CAR());
+        db.execSQL(LocalCarStorage.Companion.getCREATE_TABLE_PENDING_UPDATES());
         db.execSQL(LocalCarIssueStorage.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalAppointmentStorage.CREATE_TABLE_APPOINTMENT);
         db.execSQL(LocalShopStorage.CREATE_TABLE_DEALERSHIP);
         db.execSQL(LocalParseNotificationStorage.CREATE_TABLE_NOTIFICATION);
         db.execSQL(LocalUserStorage.CREATE_TABLE_USER);
-        db.execSQL(LocalScannerStorage.CREATE_TABLE_CAR_ISSUES);
         db.execSQL(LocalDebugMessageStorage.CREATE_TABLE_DEBUG_MESSAGE);
         db.execSQL(LocalSpecsStorage.CREATE_LOCAL_SPEC_STORAGE);
         db.execSQL(LocalAlarmStorage.CREATE_LOCAL_ALARM_STORAGE);
@@ -65,6 +65,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME_RESULT_4);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_PENDING.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_ISSUES.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.APPOINTMENT.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.TRIP.TABLE_NAME);

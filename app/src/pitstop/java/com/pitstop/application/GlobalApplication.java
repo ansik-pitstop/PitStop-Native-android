@@ -2,13 +2,16 @@ package com.pitstop.application;
 
 import android.app.Application;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
@@ -35,7 +38,6 @@ import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
-import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -44,10 +46,13 @@ import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
+import com.pitstop.models.PendingUpdate;
 import com.pitstop.models.User;
+import com.pitstop.network.RequestError;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.NotificationsHelper;
@@ -80,7 +85,6 @@ public class GlobalApplication extends Application {
      * Database open helper
      */
     private LocalUserStorage mLocalUserStorage;
-    private LocalScannerStorage mLocalScannerStorage;
     private LocalCarStorage mLocalCarStorage;
     private LocalCarIssueStorage mLocalCarIssueStorage;
     private LocalAppointmentStorage mLocalAppointmentStorage;
@@ -241,6 +245,36 @@ public class GlobalApplication extends Application {
                         }
                     }
                 };
+
+                //Begin sending pending updates when connectivity intent is received
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context1, Intent intent) {
+                        try {
+                            Log.d(TAG,"Received broadcast!");
+                            ConnectivityManager conn = (ConnectivityManager)
+                                    context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                            if (conn != null && conn.getActiveNetworkInfo() != null) {
+                                useCaseComponent.sendPendingUpdatesUseCase().execute(new SendPendingUpdatesUseCase.Callback() {
+                                    @Override
+                                    public void updatesSent(@NotNull List<PendingUpdate> pendingUpdates) {
+                                        Log.d(TAG,"updatesSent() pendingUpdates: "+pendingUpdates);
+                                    }
+
+                                    @Override
+                                    public void errorSending(@NotNull RequestError err) {
+                                        Log.d(TAG,"errorSending() err: "+err);
+                                    }
+                                });
+                            }
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                registerReceiver(broadcastReceiver,intentFilter);
 
                 Intent serviceIntent = new Intent(GlobalApplication.this
                         , BluetoothAutoConnectService.class);
@@ -462,7 +496,6 @@ public class GlobalApplication extends Application {
      */
     private void initiateDatabase() {
         mLocalUserStorage = new LocalUserStorage(this);
-        mLocalScannerStorage = new LocalScannerStorage(this);
         mLocalCarStorage = new LocalCarStorage(this);
         mLocalAppointmentStorage = new LocalAppointmentStorage(this);
         mLocalCarIssueStorage = new LocalCarIssueStorage(this);
@@ -481,7 +514,6 @@ public class GlobalApplication extends Application {
      */
     private void cleanUpDatabase() {
         mLocalUserStorage.deleteAllUsers();
-        mLocalScannerStorage.deleteAllRows();
         mLocalPidStorage.deleteAllRows();
         mLocalCarStorage.deleteAllRows();
         mLocalAppointmentStorage.deleteAllRows();
