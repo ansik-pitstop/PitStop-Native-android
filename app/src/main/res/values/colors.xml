@@ -62,5 +62,6 @@
     <color name="indicator_medium">#FF6F00</color>
     <!--<color name="indicator_low">#59DCEC</color>-->
     <color name="indicator_low">#FFCE54</color>
+    <color name="persian_blue">#2022e6</color>
 
 </resources>

@@ -7,7 +7,6 @@ import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
-import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.database.LocalTripStorage;
@@ -73,10 +72,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    ScannerRepository getScannerRepository(NetworkHelper networkHelper
-            , LocalScannerStorage localScannerStorage){
-
-        return new ScannerRepository(networkHelper, localScannerStorage);
+    ScannerRepository getScannerRepository(NetworkHelper networkHelper){
+        return new ScannerRepository(networkHelper);
     }
 
     @Provides

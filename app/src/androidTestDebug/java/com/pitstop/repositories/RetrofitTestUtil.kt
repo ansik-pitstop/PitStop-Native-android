@@ -37,6 +37,14 @@ class RetrofitTestUtil {
                 .build()
                 .create(PitstopAppointmentApi::class.java)
 
+        fun getCarApi(): PitstopCarApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient())
+                .build()
+                .create(PitstopCarApi::class.java)
+
         fun getTripApi(): PitstopTripApi = Retrofit.Builder()
                 .baseUrl(getBaseURL())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -44,6 +52,14 @@ class RetrofitTestUtil {
                 .client(getHttpClient())
                 .build()
                 .create(PitstopTripApi::class.java)
+
+        fun getAuthApi(): PitstopAuthApi = Retrofit.Builder()
+                .baseUrl(getBaseURL())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getNoAuthHttpClient())
+                .build()
+                .create(PitstopAuthApi::class.java)
 
         fun getSnapToRoadApi(): GoogleSnapToRoadApi = Retrofit.Builder()
                 .baseUrl(getSnapToRoadBaseURL())

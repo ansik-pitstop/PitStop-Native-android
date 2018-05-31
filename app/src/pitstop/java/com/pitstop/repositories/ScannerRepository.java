@@ -2,7 +2,6 @@ package com.pitstop.repositories;
 
 import android.util.Log;
 
-import com.pitstop.database.LocalScannerStorage;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestCallback;
@@ -24,11 +23,9 @@ public class ScannerRepository implements Repository {
     private final String TAG = getClass().getSimpleName();
 
     private NetworkHelper networkHelper;
-    private LocalScannerStorage localScannerStorage;
 
-    public ScannerRepository(NetworkHelper networkHelper, LocalScannerStorage localScannerStorage){
+    public ScannerRepository(NetworkHelper networkHelper){
         this.networkHelper = networkHelper;
-        this.localScannerStorage = localScannerStorage;
     }
 
     public void createScanner(ObdScanner scanner, Callback callback){
@@ -67,7 +64,6 @@ public class ScannerRepository implements Repository {
             public void done(String response, RequestError requestError) {
                 Log.d(TAG,"Create scanner response: "+response+", error: "+requestError);
                 if (requestError == null){
-                    localScannerStorage.storeScanner(scanner);
                     callback.onSuccess(response);
                 }
                 else{
@@ -90,7 +86,6 @@ public class ScannerRepository implements Repository {
             public void done(String response, RequestError requestError) {
                 Log.d(TAG,"Update scanner response: "+response+", error: "+requestError);
                 if (requestError == null){
-                    localScannerStorage.updateScanner(scanner);
                     callback.onSuccess(response);
                 }
                 else{
@@ -133,8 +128,6 @@ public class ScannerRepository implements Repository {
                         ObdScanner obdScanner = new ObdScanner(carId,deviceName,scannerId);
                         obdScanner.setStatus(isActive);
 
-                        localScannerStorage.removeScanner(obdScanner.getCarId());
-                        localScannerStorage.storeScanner(obdScanner);
                         callback.onSuccess(obdScanner);
                     }
                     catch(JSONException e){

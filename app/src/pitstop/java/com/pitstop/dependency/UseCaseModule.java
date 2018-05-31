@@ -113,6 +113,8 @@ import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
+import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
+import com.pitstop.interactors.other.SendPendingUpdatesUseCaseImpl;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
@@ -744,6 +746,13 @@ public class UseCaseModule {
 
         return new AddPidUseCaseImpl(sensorDataRepository, userRepository, carRepository
                 , useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SendPendingUpdatesUseCase sendPendingUpdatesUseCase(CarRepository carRepository
+            , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new SendPendingUpdatesUseCaseImpl(carRepository,useCaseHandler,mainHandler);
     }
 }
 

@@ -10,8 +10,10 @@ import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.models.Car
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.PendingUpdate
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.PitstopCarApi
+import com.pitstop.retrofit.TotalMileage
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -149,10 +151,29 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
+    fun updateMileage(carId: Int, mileage: Double): Observable<Boolean>{
+        val body = JSONObject()
+
+        try {
+            body.put("carId", carId)
+            body.put("totalMileage", mileage)
+        } catch (e: JSONException) {
+            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
+            e.printStackTrace()
+        }
+
+        return carApi.updateMileage(carId, TotalMileage(mileage))
+                .map { true }
+                .doOnError({
+                    localCarStorage.storePendingUpdate(
+                            PendingUpdate(carId,PendingUpdate.CAR_MILEAGE_UPDATE,mileage.toString(),System.currentTimeMillis())
+                    )})
+    }
+
     fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
 
-        val localResponse = Observable.just(RepositoryResponse(localCarStorage.allCars,true)).map { next ->
+        val localResponse = Observable.just(RepositoryResponse(localCarStorage.getAllCars(),true)).map { next ->
             Log.d(tag,"remote.replay() next: $next")
             next.data
                 .orEmpty()
@@ -187,7 +208,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 .doOnNext({next ->
                     if (next == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                    localCarStorage.deleteAndStoreCars(next.data)
+                    localCarStorage.deleteAndStoreCars(next.data ?: arrayListOf())
                 }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err err cause: {${err.cause}}")
                     RepositoryResponse(null,false)
@@ -258,5 +279,23 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 callback.onError(RequestError.getUnknownError())
             }
         }
+    }
+
+    fun sendPendingUpdates(): Observable<List<PendingUpdate>>{
+        val pendingUpdates = localCarStorage.getPendingUpdates()
+        Log.d(tag,"Got pending updates: $pendingUpdates")
+        val observables = arrayListOf<Observable<PendingUpdate>>()
+        pendingUpdates.forEach {
+            when(it.type){
+                (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
+                    observables.add(carApi.updateMileage(it.id,TotalMileage(it.value.toDouble()))
+                            .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
+                            .doOnError({ _ -> localCarStorage.removePendingUpdate(it)}) //Remove it because it is stored again in the mileage update anyway
+                            .map { _ -> it }
+                    )
+                }
+            }
+        }
+        return Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
     }
 }
