@@ -122,6 +122,11 @@ public class PidDataHandler {
                 }
 
                 @Override
+                public void onStoredLocally(int size) {
+                    Log.d(TAG, "pids saved locall #: "+size);
+                }
+
+                @Override
                 public void onError(RequestError error) {
                     Log.d(TAG,"Error handling pids. Message: "+error.getMessage());
                     if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA) || BuildConfig.DEBUG){
