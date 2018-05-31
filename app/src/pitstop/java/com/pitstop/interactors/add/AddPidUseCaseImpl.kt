@@ -1,9 +1,11 @@
 package com.pitstop.interactors.add
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
+import com.pitstop.models.sensor_data.SensorData
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
@@ -51,15 +53,9 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                             .subscribe({car ->
                                 if (car.data == null || usedLocalCar) return@subscribe
                                 if (car.isLocal) usedLocalCar = true
-                                sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,car.data.vin))
-                                        .observeOn(Schedulers.io(), true)
-                                        .subscribeOn(Schedulers.computation())
-                                        .subscribe({next ->
-                                            onAdded(next)
-                                        },{err ->
-                                            err.printStackTrace()
-                                            AddPidUseCaseImpl@onError(RequestError(err))
-                                        })
+
+                                sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
+
                             },{err ->
                                 AddPidUseCaseImpl@onError(RequestError(err))
                             })
@@ -72,27 +68,49 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
             })
         }
         //Use already existing vin
-        else sensorDataRepository.storeThenDump(SensorDataUtils.pidToSensorData(pidPackage,vin))
-                .observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.computation())
-                .subscribe({next ->
-                    onAdded(next)
-                },{err ->
-                    err.printStackTrace()
-                    AddPidUseCaseImpl@onError(RequestError(err))
-                })
+        else{
+            Log.d(TAG,"using already existing VIN")
+            sendData(SensorDataUtils.pidToSensorData(pidPackage,vin))
+        }
     }
 
     private fun onAdded(size: Int){
-        Logger.getInstance()!!.logI(TAG, "Use case finished: pids added successfully"
+        Logger.getInstance()!!.logI(TAG, "Use case finished: pids sent to server successfully"
                 , DebugMessage.TYPE_USE_CASE)
         mainHanler.post({callback.onAdded(size)})
+    }
+
+    private fun onStoredLocally(size: Int){
+        Logger.getInstance()!!.logI(TAG, "Use case finished: pids stored locally"
+                , DebugMessage.TYPE_USE_CASE)
+        mainHanler.post({callback.onStoredLocally(size)})
     }
 
     private fun onError(err: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case finished: error = $err"
                 , DebugMessage.TYPE_USE_CASE)
         mainHanler.post({callback.onError(err)})
+    }
+
+    private fun sendData(sensorData: SensorData){
+        val locallyStoredCount = sensorDataRepository
+                .store(sensorData)
+
+        if (sensorDataRepository.getSensorDataCount()
+                >= sensorDataRepository.getChunkSize()){
+
+            sensorDataRepository.dumpData()
+                    .observeOn(Schedulers.io(), true)
+                    .subscribeOn(Schedulers.computation())
+                    .subscribe({next ->
+                        onAdded(next)
+                    },{err ->
+                        err.printStackTrace()
+                        AddPidUseCaseImpl@onError(RequestError(err))
+                    })
+        }else{
+            onStoredLocally(locallyStoredCount)
+        }
     }
 
 }
