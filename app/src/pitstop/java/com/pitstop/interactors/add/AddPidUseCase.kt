@@ -10,6 +10,7 @@ import com.pitstop.network.RequestError
 interface AddPidUseCase: Interactor {
     interface Callback{
         fun onAdded(size: Int)
+        fun onStoredLocally(size: Int)
         fun onError(error: RequestError)
     }
 
