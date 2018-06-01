@@ -102,8 +102,8 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public boolean requestSnapshot(){
-        Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"0"));
-        String command =  pidPackage("0",0,null,"0");
+        Log.d(TAG,"requestSnapshot() returning: "+pidPackage("0",0,null,"215B006377"));
+        String command =  pidPackage("0",0,null,"215B006377");
         return writeToObd(command);
     }
 
@@ -164,14 +164,14 @@ public class Device215B implements AbstractDevice {
 
     @Override
     public boolean clearDtcs() {
-        String command =  dtcPackage("1", "0");
+        String command =  dtcPackage("1", "215B006377");
         Log.d(TAG, "clearing DTC, command:  " +command);
         return writeToObd(command);
     }
 
     @Override
     public boolean getDtcs() {
-        String command = dtcPackage("0", "0");
+        String command = dtcPackage("0", "215B006377");
         Log.d(TAG, "getDtc()");
         return writeToObd(command);
     }
@@ -196,7 +196,7 @@ public class Device215B implements AbstractDevice {
     public String replyIDRPackage() {
         StringBuilder sb = new StringBuilder();
         sb.append(Constants.INSTRUCTION_HEAD);
-        sb.append("0,");
+        sb.append("215B006377,");
         sb.append(Constants.INSTRUCTION_IDR);
         sb.append(",0,");
         sb.append(Constants.INSTRUCTION_STAR);
@@ -211,7 +211,7 @@ public class Device215B implements AbstractDevice {
 
     private String qiSingle(String param) {
         String crcData = Constants.INSTRUCTION_HEAD
-                + "0"
+                + "215B006377"
                 + ","
                 + Constants.INSTRUCTION_QI
                 + ",2,A01,"
@@ -228,7 +228,7 @@ public class Device215B implements AbstractDevice {
 
     private String siSingle(String param, String value) {
         String crcData = Constants.INSTRUCTION_HEAD
-                + "0"
+                + "215B006377"
                 + ","
                 + Constants.INSTRUCTION_SI
                 + ",1,"
@@ -268,7 +268,7 @@ public class Device215B implements AbstractDevice {
         }
 
         String crcData = Constants.INSTRUCTION_HEAD
-                + "0"
+                + "215B006377"
                 + ","
                 + Constants.INSTRUCTION_SI
                 + ","
@@ -288,7 +288,7 @@ public class Device215B implements AbstractDevice {
         int numberOfParams = params.split(",").length;
 
         String crcData = Constants.INSTRUCTION_HEAD
-                + "0"
+                + "215B006377"
                 + ","
                 + Constants.INSTRUCTION_QI
                 + ","
@@ -359,7 +359,7 @@ public class Device215B implements AbstractDevice {
     private String ciSingle(String command){
 
         String crcData =  Constants.INSTRUCTION_HEAD +
-                "0," +
+                "215B006377," +
                 Constants.INSTRUCTION_CI +
                 "," +
                 command +
