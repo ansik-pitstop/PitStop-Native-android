@@ -27,7 +27,6 @@ class LocalPendingTripStorage(private val context: Context) {
                 + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
                 + TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+ " INTEGER,"
-                + TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE+ " INTEGER,"
                 + TABLES.PENDING_TRIP_DATA.KEY_SENT+ " INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }

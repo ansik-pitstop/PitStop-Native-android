@@ -6,11 +6,8 @@ import android.content.*
 import android.location.Location
 import android.os.Binder
 import android.os.Build
-import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -30,8 +27,7 @@ import com.pitstop.utils.TripUtils
 /**
  * Created by Karol Zdebel on 3/1/2018.
  */
-class TripsService: Service(), TripActivityObservable, TripParameterSetter, GoogleApiClient.ConnectionCallbacks
-        , GoogleApiClient.OnConnectionFailedListener {
+class TripsService: Service(), TripActivityObservable, TripParameterSetter{
 
     companion object {
         const val LOCATION_UPDATE_INTERVAL = "location_update_interval"
@@ -49,7 +45,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
     private val tag = javaClass.simpleName
     private var tripInProgress: Boolean
     private var observers: ArrayList<TripActivityObserver>
-    private lateinit var googleApiClient: GoogleApiClient
     private val binder = TripsBinder()
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
@@ -145,14 +140,6 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
         }
         registerReceiver(receiver,intentFilter)
 
-        googleApiClient = GoogleApiClient.Builder(this)
-                .addApi(ActivityRecognition.API)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build()
-
-        googleApiClient.connect()
     }
 
     override fun onDestroy() {
@@ -204,40 +191,32 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     override fun setLocationUpdateInterval(interval: Long): Boolean {
         Log.d(tag,"setLocationUpdateInterval() interval: $interval")
-        if (!googleApiClient.isConnected || interval < 1000L) return false
-        else{
-            beginTrackingLocationUpdates(interval,locationUpdatePriority)
-            locationUpdateInterval = interval
-            sharedPreferences.edit().putLong(LOCATION_UPDATE_INTERVAL,locationUpdateInterval).apply()
-            return true
-        }
+        val isSuccessful = beginTrackingLocationUpdates(interval,locationUpdatePriority)
+        locationUpdateInterval = interval
+        sharedPreferences.edit().putLong(LOCATION_UPDATE_INTERVAL,locationUpdateInterval).apply()
+        return isSuccessful
     }
 
     override fun getLocationUpdateInterval(): Long = locationUpdateInterval
 
     override fun setLocationUpdatePriority(priority: Int): Boolean {
         Log.d(tag,"setLocationUpdatePriority() priority: $priority")
-        if (!googleApiClient.isConnected) return false
-        else{
-            beginTrackingLocationUpdates(locationUpdateInterval,priority)
-            locationUpdatePriority = priority
-            sharedPreferences.edit().putInt(LOCATION_UPDATE_PRIORITY,locationUpdatePriority).apply()
-            return true
-        }
+        val isSuccessful = beginTrackingLocationUpdates(locationUpdateInterval,priority)
+        locationUpdatePriority = priority
+        sharedPreferences.edit().putInt(LOCATION_UPDATE_PRIORITY,locationUpdatePriority).apply()
+        return isSuccessful
     }
 
     override fun getLocationUpdatePriority(): Int = locationUpdatePriority
 
     override fun setActivityUpdateInterval(interval: Long): Boolean {
         Log.d(tag,"setActivityUpdateInterval() interval: $interval")
-        return if (!googleApiClient.isConnected) false
-        else{
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates( googleApiClient, googlePendingIntent)
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, interval, googlePendingIntent)
-            activityUpdateInterval = interval
-            sharedPreferences.edit().putLong(ACTIVITY_UPDATE_INTERVAL,activityUpdateInterval).apply()
-            true
-        }
+        ActivityRecognition.getClient(baseContext).removeActivityUpdates(googlePendingIntent)
+        val isSuccessful
+                = ActivityRecognition.getClient(baseContext).requestActivityUpdates(interval, googlePendingIntent).isSuccessful
+        activityUpdateInterval = interval
+        sharedPreferences.edit().putLong(ACTIVITY_UPDATE_INTERVAL,activityUpdateInterval).apply()
+        return isSuccessful
     }
 
     override fun getActivityUpdateInterval(): Long = activityUpdateInterval
@@ -366,7 +345,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun tripUpdate(locations:List<Location>){
         Log.d(tag,"tripUpdate()")
-        Logger.getInstance()!!.logI(tag, "Broadcasting trip update: trip = " +
+        Logger.getInstance()!!.logI(tag, "Broadcasting trip update: recentConf " +
+                "= $recentConfidence, trip = " +
                 "${locations.filter { it.accuracy < minLocationAccuracy }}", DebugMessage.TYPE_TRIP)
 
         //Filter locations based on minimum accuracy
@@ -471,47 +451,28 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter, Goog
 
     private fun beginTrackingLocationUpdates(interval: Long, priority: Int): Boolean{
         Log.d(tag,"beginTrackingLocationUpdates()")
-        if (!googleApiClient.isConnected) return false
 
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        LocationServices.getFusedLocationProviderClient(baseContext).removeLocationUpdates(googlePendingIntent)
         val locationRequest = LocationRequest.create()
         locationRequest.interval = interval
         locationRequest.priority = priority
+        val isSuccessful: Boolean
         try{
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googlePendingIntent)
+            isSuccessful = LocationServices.getFusedLocationProviderClient(baseContext)
+                    .requestLocationUpdates(locationRequest, googlePendingIntent).isSuccessful
         }catch(e: SecurityException){
             e.printStackTrace()
             return false
         }
         trackingLocationUpdates = true
-        return true
+        return isSuccessful
     }
 
-    private fun stopTrackingLocationUpdates(){
+    private fun stopTrackingLocationUpdates() :Boolean{
         Log.d(tag,"stopTrackingLocationUpdates()");
-        if (!googleApiClient.isConnected) return
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,googlePendingIntent)
+        val isSuccessful = LocationServices.getFusedLocationProviderClient(baseContext)
+                .removeLocationUpdates(googlePendingIntent).isSuccessful
         trackingLocationUpdates = false
+        return isSuccessful
     }
-
-    override fun onConnected(p0: Bundle?) {
-        Log.d(tag,"onConnected() google api")
-        Logger.getInstance()!!.logI(tag, "Google API connected", DebugMessage.TYPE_TRIP)
-        val intent = Intent(this, ActivityService::class.java)
-        googlePendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( googleApiClient, activityUpdateInterval, googlePendingIntent)
-
-        if (tripInProgress)
-            beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
-    }
-
-    override fun onConnectionSuspended(p0: Int) {
-        Log.d(tag,"onConnectionSuspended() google api")
-        Logger.getInstance()!!.logE(tag, "Google API connection suspended", DebugMessage.TYPE_TRIP)
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Logger.getInstance()!!.logE(tag, "Google API connection failed", DebugMessage.TYPE_TRIP)
-    }
-
 }
