@@ -8,7 +8,7 @@ import com.pitstop.models.trip.CarLocation
 /**
  * Created by Karol Zdebel on 6/4/2018.
  */
-class LocalLocationData(val context: Context) {
+class LocalLocationStorage(val context: Context) {
 
     private val TAG = javaClass.simpleName
     private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
@@ -73,11 +73,17 @@ class LocalLocationData(val context: Context) {
         val db = databaseHelper.writableDatabase
         db.beginTransaction()
         var rows = 0
-        locations.forEach{
-            rows += db.delete(TABLES.LOCATION_DATA.TABLE_NAME
-                    ,TABLES.LOCATION_DATA.KEY_TIME+" = ?"
-                    , arrayOf(it.time.toString()))
+        try{
+            locations.forEach{
+                rows += db.delete(TABLES.LOCATION_DATA.TABLE_NAME
+                        ,TABLES.LOCATION_DATA.KEY_TIME+" = ?"
+                        , arrayOf(it.time.toString()))
+            }
+            db.setTransactionSuccessful()
+        }finally {
+            db.endTransaction()
         }
+
         return rows
     }
 

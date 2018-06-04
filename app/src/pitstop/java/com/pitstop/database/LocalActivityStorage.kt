@@ -18,7 +18,7 @@ class LocalActivityStorage(context: Context) {
                 + TABLES.ACTIVITY_DATA.TABLE_NAME + "("
                 + TABLES.ACTIVITY_DATA.KEY_TIME+" TIMESTAMP,"
                 + TABLES.ACTIVITY_DATA.KEY_TYPE+ " INTEGER,"
-                + TABLES.ACTIVITY_DATA.KEY_CONFIDENCE+ " REAL,"
+                + TABLES.ACTIVITY_DATA.KEY_CONFIDENCE+ " INTEGER,"
                 + TABLES.ACTIVITY_DATA.KEY_VIN+ " TEXT," + ")")
     }
 
@@ -51,7 +51,7 @@ class LocalActivityStorage(context: Context) {
             while (!c.isAfterLast){
                 val time = c.getLong(c.getColumnIndex(TABLES.ACTIVITY_DATA.KEY_TIME))
                 val type = c.getInt(c.getColumnIndex(TABLES.ACTIVITY_DATA.KEY_TYPE))
-                val conf = c.getDouble(c.getColumnIndex(TABLES.ACTIVITY_DATA.KEY_CONFIDENCE))
+                val conf = c.getInt(c.getColumnIndex(TABLES.ACTIVITY_DATA.KEY_CONFIDENCE))
                 val vin = c.getString(c.getColumnIndex(TABLES.ACTIVITY_DATA.KEY_VIN))
                 result.add(CarActivity(vin,time,type,conf))
                 c.moveToNext()
@@ -73,11 +73,17 @@ class LocalActivityStorage(context: Context) {
         val db = databaseHelper.writableDatabase
         db.beginTransaction()
         var rows = 0
-        carActivity.forEach{
-            rows += db.delete(TABLES.ACTIVITY_DATA.TABLE_NAME
-                    ,TABLES.ACTIVITY_DATA.KEY_TIME+" = ?"
-                    , arrayOf(it.time.toString()))
+        try{
+            carActivity.forEach{
+                rows += db.delete(TABLES.ACTIVITY_DATA.TABLE_NAME
+                        ,TABLES.ACTIVITY_DATA.KEY_TIME+" = ?"
+                        , arrayOf(it.time.toString()))
+            }
+            db.setTransactionSuccessful()
+        }finally{
+            db.endTransaction()
         }
+
         return rows
     }
 
