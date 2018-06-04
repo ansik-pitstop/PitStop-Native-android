@@ -37,6 +37,8 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                                 .observeOn(Schedulers.io())
                                 .subscribe({next ->
                                     Log.d(TAG,"dumpData data response: "+next)
+                                },{err ->
+                                    Log.d(TAG,"err: $err")
                                 })
                     }
                 }, {error ->
