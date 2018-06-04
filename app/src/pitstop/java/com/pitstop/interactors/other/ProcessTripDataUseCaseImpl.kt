@@ -1,0 +1,119 @@
+package com.pitstop.interactors.other
+
+import android.os.Handler
+import com.google.android.gms.location.DetectedActivity
+import com.pitstop.database.LocalActivityStorage
+import com.pitstop.database.LocalLocationStorage
+import com.pitstop.models.trip.CarLocation
+
+/**
+ * Created by Karol Zdebel on 6/4/2018.
+ */
+class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocationStorage
+                                 , private val localActivityStorage: LocalActivityStorage
+                                 , private val usecaseHandler: Handler
+                                 , private val mainHandler: Handler): ProcessTripDataUseCase {
+
+    private lateinit var callback: ProcessTripDataUseCase.Callback
+
+    private val LOW_FOOT_CONF = 40
+    private val LOW_VEH_CONF = 30
+    private val HIGH_VEH_CONF = 70
+    private val HIGH_FOOT_CONF = 90
+    private val HIGH_STILL_CONF = 99
+    private val STILL_TIMEOUT = 600000
+
+    private var hardStart = -1L
+    private var softStart = -1L
+    private var hardEnd = -1L
+    private var softEnd = -1L
+
+    override fun execute(callback: ProcessTripDataUseCase.Callback) {
+        this.callback = callback
+        usecaseHandler.post(this)
+    }
+
+    override fun run() {
+        val locations = localLocationStorage.getAll()
+        val activities = localActivityStorage.getAll()
+
+        activities.forEach loop@{
+            when(it.type){
+                (DetectedActivity.IN_VEHICLE) -> {
+                    //End soft still end or soft start
+                    if (it.conf >= LOW_VEH_CONF &&
+                            (softEnd != -1L || (softStart == -1L && hardStart == -1L) ) ){
+                        //See if walking confidence is less than 40 for that time or null
+                        val footActivity = activities.find{a -> a.time == it.time
+                                && it.type == DetectedActivity.ON_FOOT}
+                        if (footActivity == null || footActivity.conf < LOW_FOOT_CONF){
+                            //Soft start
+                            softStart = it.time
+                            softEnd = -1
+                        }
+                    }else if (it.conf >= HIGH_VEH_CONF
+                            && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
+                        hardStart = it.time
+                        if (softStart == -1L) softStart = it.time
+                        softEnd = -1
+                    }
+                }
+                (DetectedActivity.ON_FOOT) -> {
+                    if (it.conf > HIGH_FOOT_CONF){
+                        hardEnd = it.time
+
+                        //Process trip location points
+                        if (hardStart != -1L){
+                            processTrip(locations,softStart,hardEnd)
+
+                            //Remove all processed data points
+                            localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                            localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                            //Reset variables in case another trip is present
+                            softStart = -1L
+                            softEnd = -1L
+                            hardStart = -1L
+                            hardEnd = -1L
+                        }
+                    }
+                }
+                (DetectedActivity.STILL) -> {
+                    if (it.conf >= HIGH_STILL_CONF && (softStart != -1L || hardStart != -1L)){
+                        if (softEnd == -1L) softEnd = it.time
+                        //See how long we've been still for
+                        else if (it.time - softEnd > STILL_TIMEOUT){
+                            hardEnd = it.time
+
+                            //Process trip location points
+                            if (hardStart != -1L){
+                                processTrip(locations,softStart,hardEnd)
+                                //Remove all processed data points
+
+                                localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                                localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                                //Reset variables in case another trip is present
+                                softStart = -1L
+                                softEnd = -1L
+                                hardStart = -1L
+                                hardEnd = -1L
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun processTrip(locations: List<CarLocation>, startTime: Long, endTime: Long){
+
+        val trip = arrayListOf<CarLocation>()
+
+        locations.forEach {
+            if (it.time in startTime..endTime){
+                trip.add(it)
+            }
+        }
+    }
+}

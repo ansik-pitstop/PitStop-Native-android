@@ -45,7 +45,7 @@ class LocalLocationStorage(val context: Context) {
 
         val db = databaseHelper.writableDatabase
         val c = db.query(TABLES.LOCATION_DATA.TABLE_NAME,null,null,null
-                ,null,null,null)
+                ,null,null,TABLES.LOCATION_DATA.KEY_TIME)
         val result = arrayListOf<CarLocation>()
         if (c.moveToFirst()){
             while (!c.isAfterLast){
