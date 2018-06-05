@@ -44,8 +44,17 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         activities.forEach loop@{
             when(it.type){
                 (DetectedActivity.IN_VEHICLE) -> {
+
+                    //Hard start
+                    if (it.conf >= HIGH_VEH_CONF
+                            && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
+                        hardStart = it.time
+                        if (softStart == -1L) softStart = it.time
+                        softEnd = -1
+                        Log.d(tag,"Hard start")
+                    }
                     //End soft still end or soft start
-                    if (it.conf >= LOW_VEH_CONF &&
+                    else if (it.conf >= LOW_VEH_CONF &&
                             (softEnd != -1L || (softStart == -1L && hardStart == -1L) ) ){
                         //See if walking confidence is less than 40 for that time or null
                         val footActivity = activities.find{a -> a.time == it.time
@@ -56,14 +65,6 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             softEnd = -1
                             Log.d(tag,"Soft start")
                         }
-                    }
-                    //hard start
-                    else if (it.conf >= HIGH_VEH_CONF
-                            && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
-                        hardStart = it.time
-                        if (softStart == -1L) softStart = it.time
-                        softEnd = -1
-                        Log.d(tag,"Hard start")
                     }
                 }
                 (DetectedActivity.ON_FOOT) -> {

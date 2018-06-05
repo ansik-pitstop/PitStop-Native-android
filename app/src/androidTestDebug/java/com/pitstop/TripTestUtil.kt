@@ -49,7 +49,7 @@ class TripTestUtil {
 
         fun getRandomCarLocation(vin: String, timeOffsetIndex: Int): CarLocation {
             val r = Random()
-            return CarLocation(vin, System.currentTimeMillis() + 1000*timeOffsetIndex
+            return CarLocation(vin, (1000*timeOffsetIndex).toLong()
                     , r.nextDouble() * 90, r.nextDouble() * 90)
         }
 
