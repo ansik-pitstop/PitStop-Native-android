@@ -37,6 +37,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val locations = localLocationStorage.getAll()
         val activities = localActivityStorage.getAll()
 
+        val processedTrips = arrayListOf<List<CarLocation>>()
+
         activities.forEach loop@{
             when(it.type){
                 (DetectedActivity.IN_VEHICLE) -> {
@@ -64,7 +66,14 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                         //Process trip location points
                         if (hardStart != -1L){
-                            processTrip(locations,softStart,hardEnd)
+
+                            val trip = arrayListOf<CarLocation>()
+                            locations.forEach {
+                                if (it.time in softStart..hardEnd){
+                                    trip.add(it)
+                                }
+                            }
+                            processedTrips.add(trip)
 
                             //Remove all processed data points
                             localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -87,9 +96,15 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                             //Process trip location points
                             if (hardStart != -1L){
-                                processTrip(locations,softStart,hardEnd)
-                                //Remove all processed data points
+                                val trip = arrayListOf<CarLocation>()
+                                locations.forEach {
+                                    if (it.time in softStart..hardEnd){
+                                        trip.add(it)
+                                    }
+                                }
+                                processedTrips.add(trip)
 
+                                //Remove all processed data points
                                 localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                                 localActivityStorage.remove(activities.filter {it.time <= hardEnd})
 
@@ -104,16 +119,9 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 }
             }
         }
-    }
 
-    private fun processTrip(locations: List<CarLocation>, startTime: Long, endTime: Long){
-
-        val trip = arrayListOf<CarLocation>()
-
-        locations.forEach {
-            if (it.time in startTime..endTime){
-                trip.add(it)
-            }
-        }
+        mainHandler.post({
+            callback.processed(processedTrips)
+        })
     }
 }
