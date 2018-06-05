@@ -5,6 +5,8 @@ import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.LocationDataFormatted
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.CarActivity
+import com.pitstop.models.trip.CarLocation
 import com.pitstop.models.trip.RecordedLocation
 import java.util.*
 
@@ -37,6 +39,18 @@ class TripTestUtil {
                         , conf = (random.nextDouble()*maxConf).toInt()))
             }
             return route
+        }
+
+        fun getRandomCarActivity(vin: String, timeOffsetIndex: Int): CarActivity {
+            val r = Random()
+            return CarActivity(vin, System.currentTimeMillis() + 1000*timeOffsetIndex
+                    , (r.nextDouble()*8).toInt(), (r.nextDouble()*100).toInt())
+        }
+
+        fun getRandomCarLocation(vin: String, timeOffsetIndex: Int): CarLocation {
+            val r = Random()
+            return CarLocation(vin, System.currentTimeMillis() + 1000*timeOffsetIndex
+                    , r.nextDouble() * 90, r.nextDouble() * 90)
         }
 
         fun getRandomLocation(): RecordedLocation {

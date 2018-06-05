@@ -16,10 +16,11 @@ class LocalActivityStorage(context: Context) {
     companion object {
         val CREATE_ACTIVITY_DATA_TABLE = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.ACTIVITY_DATA.TABLE_NAME + "("
+                + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + TABLES.ACTIVITY_DATA.KEY_TIME+" TIMESTAMP,"
                 + TABLES.ACTIVITY_DATA.KEY_TYPE+ " INTEGER,"
                 + TABLES.ACTIVITY_DATA.KEY_CONFIDENCE+ " INTEGER,"
-                + TABLES.ACTIVITY_DATA.KEY_VIN+ " TEXT," + ")")
+                + TABLES.ACTIVITY_DATA.KEY_VIN+ " TEXT" + ")")
     }
 
     fun store(activityList: List<CarActivity>): Int{
@@ -33,7 +34,7 @@ class LocalActivityStorage(context: Context) {
             contentValues.put(TABLES.ACTIVITY_DATA.KEY_TYPE, it.type)
             contentValues.put(TABLES.ACTIVITY_DATA.KEY_CONFIDENCE, it.conf)
             contentValues.put(TABLES.ACTIVITY_DATA.KEY_VIN, it.vin)
-            if (db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues) > 0 )
+            if (db.insert(TABLES.ACTIVITY_DATA.TABLE_NAME,null,contentValues) > 0 )
                 rows = rows.inc()
         })
 

@@ -2,8 +2,10 @@ package com.pitstop.dependency;
 
 import android.os.Handler;
 
+import com.pitstop.database.LocalActivityStorage;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalFuelConsumptionStorage;
+import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalSpecsStorage;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddAlarmUseCaseImpl;
@@ -111,6 +113,8 @@ import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
+import com.pitstop.interactors.other.ProcessTripDataUseCase;
+import com.pitstop.interactors.other.ProcessTripDataUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
@@ -753,6 +757,14 @@ public class UseCaseModule {
             , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
         return new SendPendingUpdatesUseCaseImpl(carRepository,useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    ProcessTripDataUseCase processTripDataUseCase(LocalLocationStorage localLocationStorage
+            , LocalActivityStorage localActivityStorage, @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new ProcessTripDataUseCaseImpl(localLocationStorage,localActivityStorage
+                ,useCaseHandler,mainHandler);
     }
 }
 

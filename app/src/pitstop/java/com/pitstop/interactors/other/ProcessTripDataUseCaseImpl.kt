@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.pitstop.database.LocalActivityStorage
 import com.pitstop.database.LocalLocationStorage
@@ -14,6 +15,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                                  , private val usecaseHandler: Handler
                                  , private val mainHandler: Handler): ProcessTripDataUseCase {
 
+    private val tag = ProcessTripDataUseCaseImpl::class.java.simpleName
     private lateinit var callback: ProcessTripDataUseCase.Callback
 
     private val LOW_FOOT_CONF = 40
@@ -52,12 +54,16 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             //Soft start
                             softStart = it.time
                             softEnd = -1
+                            Log.d(tag,"Soft start")
                         }
-                    }else if (it.conf >= HIGH_VEH_CONF
+                    }
+                    //hard start
+                    else if (it.conf >= HIGH_VEH_CONF
                             && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
                         hardStart = it.time
                         if (softStart == -1L) softStart = it.time
                         softEnd = -1
+                        Log.d(tag,"Hard start")
                     }
                 }
                 (DetectedActivity.ON_FOOT) -> {
@@ -66,6 +72,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                         //Process trip location points
                         if (hardStart != -1L){
+                            Log.d(tag,"Hard end")
 
                             val trip = arrayListOf<CarLocation>()
                             locations.forEach {
@@ -89,7 +96,10 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 }
                 (DetectedActivity.STILL) -> {
                     if (it.conf >= HIGH_STILL_CONF && (softStart != -1L || hardStart != -1L)){
-                        if (softEnd == -1L) softEnd = it.time
+                        if (softEnd == -1L){
+                            softEnd = it.time
+                            Log.d(tag,"Soft end start found")
+                        }
                         //See how long we've been still for
                         else if (it.time - softEnd > STILL_TIMEOUT){
                             hardEnd = it.time

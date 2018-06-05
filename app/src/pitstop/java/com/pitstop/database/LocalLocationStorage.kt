@@ -16,11 +16,12 @@ class LocalLocationStorage(val context: Context) {
     companion object {
         val CREATE_LOCATION_DATA_TABLE = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.LOCATION_DATA.TABLE_NAME + "("
+                + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + TABLES.LOCATION_DATA.KEY_TIME+" TIMESTAMP,"
                 + TABLES.LOCATION_DATA.KEY_LONGITUDE+ " REAL,"
                 + TABLES.LOCATION_DATA.KEY_LATITUDE+ " REAL,"
                 + TABLES.LOCATION_DATA.KEY_CONFIDENCE+ " REAL,"
-                + TABLES.LOCATION_DATA.KEY_VIN+ " TEXT," + ")")
+                + TABLES.LOCATION_DATA.KEY_VIN+ " TEXT" + ")")
     }
 
     fun store(locations: List<CarLocation>): Int{
@@ -34,7 +35,7 @@ class LocalLocationStorage(val context: Context) {
             contentValues.put(TABLES.LOCATION_DATA.KEY_LATITUDE, it.latitude)
             contentValues.put(TABLES.LOCATION_DATA.KEY_LONGITUDE, it.longitude)
             contentValues.put(TABLES.LOCATION_DATA.KEY_VIN, it.vin)
-            if (db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues) > 0 ) rows = rows.inc()
+            if (db.insert(TABLES.LOCATION_DATA.TABLE_NAME,null,contentValues) > 0 ) rows = rows.inc()
         })
 
         return rows
@@ -45,7 +46,7 @@ class LocalLocationStorage(val context: Context) {
 
         val db = databaseHelper.writableDatabase
         val c = db.query(TABLES.LOCATION_DATA.TABLE_NAME,null,null,null
-                ,null,null,TABLES.LOCATION_DATA.KEY_TIME)
+                ,null,null,TABLES.LOCATION_DATA.KEY_TIME+" ASC")
         val result = arrayListOf<CarLocation>()
         if (c.moveToFirst()){
             while (!c.isAfterLast){
@@ -57,6 +58,7 @@ class LocalLocationStorage(val context: Context) {
                 c.moveToNext()
             }
         }
+        c.close()
         return result
     }
 
