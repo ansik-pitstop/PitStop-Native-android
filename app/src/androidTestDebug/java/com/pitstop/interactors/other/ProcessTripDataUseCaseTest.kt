@@ -137,10 +137,13 @@ class ProcessTripDataUseCaseTest {
             localActivityStorage.removeAll()
         } catch (e: InterruptedException) {
             e.printStackTrace()
+            throw AssertionError()
         } catch (e: ExecutionException) {
             e.printStackTrace()
+            throw AssertionError()
         } catch (e: TimeoutException) {
             e.printStackTrace()
+            throw AssertionError()
         }
 
     }

@@ -761,10 +761,12 @@ public class UseCaseModule {
 
     @Provides
     ProcessTripDataUseCase processTripDataUseCase(LocalLocationStorage localLocationStorage
-            , LocalActivityStorage localActivityStorage, @Named("useCaseHandler") Handler useCaseHandler
+            , LocalActivityStorage localActivityStorage
+            , TripRepository tripRepository
+            , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
         return new ProcessTripDataUseCaseImpl(localLocationStorage,localActivityStorage
-                ,useCaseHandler,mainHandler);
+                ,tripRepository,useCaseHandler,mainHandler);
     }
 }
 

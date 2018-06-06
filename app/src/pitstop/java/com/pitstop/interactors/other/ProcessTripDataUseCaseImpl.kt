@@ -10,6 +10,7 @@ import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
 import com.pitstop.models.trip.CarLocation
 import com.pitstop.repositories.TripRepository
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -142,26 +143,44 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
         }
 
-        processedTrips.filter { it.isEmpty() }.forEach({
+        val observableList = arrayListOf<Observable<Int>>()
+
+        Log.d(tag,"processedTrips: $processedTrips")
+
+        processedTrips.filter { !it.isEmpty() }.forEach({
             val recordedLocationList = mutableSetOf<LocationData>()
             it.forEach { carLocation ->
                 recordedLocationList.add(LocationData(carLocation.time, PendingLocation(carLocation.longitude
                         ,carLocation.latitude,carLocation.time,100)))
             }
+            Log.d(tag,"recorded location list: $recordedLocationList")
             val tripData = TripData(it[0].time,true,it[0].vin,recordedLocationList)
-            tripRepository.storeTripDataAndDump(tripData)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(Schedulers.io())
-                    .subscribe({next ->
-                        Log.d(tag,"next: $next")
-                    },{err ->
-                        Log.e(tag,"err: $err")
-                    })
+            observableList.add(tripRepository.storeTripDataAndDump(tripData))
+        })
+
+        Log.d(tag,"observable list size: ${observableList.size}")
+
+        if (observableList.isEmpty()){
+            mainHandler.post({
+                callback.processed(processedTrips)
+            })
+        }
+        else Observable.combineLatest(observableList, {
+            it.sumBy { 1 } //add one per trip stored
+        }).subscribeOn(Schedulers.computation())
+        .observeOn(Schedulers.io(),true)
+        .subscribe({next ->
+            Log.d(tag,"next: $next")
+            mainHandler.post({
+                callback.processed(processedTrips)
+            })
+        },{err ->
+            Log.d(tag,"err: $err")
+            mainHandler.post({
+                callback.processed(processedTrips)
+            })
         })
 
 
-        mainHandler.post({
-            callback.processed(processedTrips)
-        })
     }
 }
