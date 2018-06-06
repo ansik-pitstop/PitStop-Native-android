@@ -1063,9 +1063,9 @@ class ProcessTripDataUseCaseTest {
             val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
             Assert.assertTrue(result.size == 2)
             Log.d(TAG,"result[1]: ${result[1]}")
-            Log.d(TAG,"expected: ${carLocationList.subList(9,13)}")
-            Assert.assertEquals(carLocationList.subList(2,11),result[0])
-            Assert.assertEquals(carLocationList.subList(13,17),result[1])
+            Log.d(TAG,"expected: ${carLocationList.subList(2,12)}")
+            Assert.assertEquals(carLocationList.subList(2,12),result[0])
+            Assert.assertEquals(carLocationList.subList(13,18),result[1])
             localLocationStorage.removeAll()
             localActivityStorage.removeAll()
         } catch (e: InterruptedException) {
