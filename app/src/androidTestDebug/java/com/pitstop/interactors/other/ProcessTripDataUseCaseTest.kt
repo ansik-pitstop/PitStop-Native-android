@@ -371,6 +371,194 @@ class ProcessTripDataUseCaseTest {
 
     }
 
+    @Test
+    fun softStartAndNothingTest(){
+        Log.d(TAG,"softStartAndNothingTest() started")
+        val completableFuture = CompletableFuture<List<List<CarLocation>>>()
+
+        localLocationStorage.removeAll()
+        localActivityStorage.removeAll()
+
+        val carLocationList = arrayListOf<CarLocation>()
+        val carActivityList = arrayListOf<CarActivity>()
+
+        carActivityList.add(getLowConfidenceCarActivity(0))
+        carActivityList.add(getHighConfidenceFootActivity(0))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,0))
+        carActivityList.add(getHighConfidenceStillActivity(1))
+        carActivityList.add(getHighConfidenceFootActivity(1))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1))
+
+        //Soft Start
+        carActivityList.add(getSoftConfidenceCarActivity(2))
+        carActivityList.add(getLowConfidenceFootActivity(2))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,2))
+        carActivityList.add(getLowConfidenceFootActivity(3))
+        carActivityList.add(getLowConfidenceCarActivity(3))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3))
+
+        //Random Data, no hard start or other alert
+        carActivityList.add(getLowConfidenceStillActivity(4))
+        carActivityList.add(getLowConfidenceCarActivity(4))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4))
+        carActivityList.add(getLowConfidenceCarActivity(5))
+        carActivityList.add(getLowConfidenceFootActivity(5))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,5))
+        carActivityList.add(getLowConfidenceStillActivity(6))
+        carActivityList.add(getLowConfidenceCarActivity(6))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,6))
+
+        localLocationStorage.store(carLocationList)
+        localActivityStorage.store(carActivityList)
+
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(TAG,"processed trip: $trip")
+                completableFuture.complete(trip)
+            }
+
+        })
+
+        try {
+            val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
+            Assert.assertTrue(result.isEmpty())
+            localLocationStorage.removeAll()
+            localActivityStorage.removeAll()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+        }
+
+    }
+
+    @Test
+    fun hardStartAndNothingTest(){
+        Log.d(TAG,"hardStartAndNothingTest() started")
+        val completableFuture = CompletableFuture<List<List<CarLocation>>>()
+
+        localLocationStorage.removeAll()
+        localActivityStorage.removeAll()
+
+        val carLocationList = arrayListOf<CarLocation>()
+        val carActivityList = arrayListOf<CarActivity>()
+
+        carActivityList.add(getLowConfidenceCarActivity(0))
+        carActivityList.add(getHighConfidenceFootActivity(0))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,0))
+        carActivityList.add(getHighConfidenceStillActivity(1))
+        carActivityList.add(getHighConfidenceFootActivity(1))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1))
+
+        //Hard Start
+        carActivityList.add(getHighConfidenceCarActivity(2))
+        carActivityList.add(getLowConfidenceFootActivity(2))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,2))
+        carActivityList.add(getLowConfidenceFootActivity(3))
+        carActivityList.add(getLowConfidenceCarActivity(3))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3))
+
+        //Random Data, no hard start or other alert
+        carActivityList.add(getLowConfidenceStillActivity(4))
+        carActivityList.add(getLowConfidenceCarActivity(4))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4))
+        carActivityList.add(getLowConfidenceCarActivity(5))
+        carActivityList.add(getLowConfidenceFootActivity(5))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,5))
+        carActivityList.add(getLowConfidenceStillActivity(6))
+        carActivityList.add(getLowConfidenceCarActivity(6))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,6))
+
+        localLocationStorage.store(carLocationList)
+        localActivityStorage.store(carActivityList)
+
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(TAG,"processed trip: $trip")
+                completableFuture.complete(trip)
+            }
+
+        })
+
+        try {
+            val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
+            Assert.assertTrue(result.isEmpty())
+            localLocationStorage.removeAll()
+            localActivityStorage.removeAll()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+        }
+
+    }
+
+    @Test
+    fun softStartAndHardEndTest(){
+        Log.d(TAG,"softStartAndHardEndTest() started")
+        val completableFuture = CompletableFuture<List<List<CarLocation>>>()
+
+        localLocationStorage.removeAll()
+        localActivityStorage.removeAll()
+
+        val carLocationList = arrayListOf<CarLocation>()
+        val carActivityList = arrayListOf<CarActivity>()
+
+        carActivityList.add(getLowConfidenceCarActivity(0))
+        carActivityList.add(getHighConfidenceFootActivity(0))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,0))
+        carActivityList.add(getHighConfidenceStillActivity(1))
+        carActivityList.add(getHighConfidenceFootActivity(1))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1))
+
+        //Soft Start
+        carActivityList.add(getSoftConfidenceCarActivity(2))
+        carActivityList.add(getLowConfidenceFootActivity(2))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,2))
+        carActivityList.add(getLowConfidenceFootActivity(3))
+        carActivityList.add(getLowConfidenceCarActivity(3))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3))
+        carActivityList.add(getHighConfidenceFootActivity(4))
+        carActivityList.add(getLowConfidenceCarActivity(4))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4))
+
+        //Hard End
+        carActivityList.add(getLowConfidenceCarActivity(5))
+        carActivityList.add(getLowConfidenceFootActivity(5))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,5))
+        carActivityList.add(getLowConfidenceStillActivity(6))
+        carActivityList.add(getLowConfidenceCarActivity(6))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,6))
+
+        localLocationStorage.store(carLocationList)
+        localActivityStorage.store(carActivityList)
+
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(TAG,"processed trip: $trip")
+                completableFuture.complete(trip)
+            }
+
+        })
+
+        try {
+            val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
+            Assert.assertTrue(result.isEmpty())
+            localLocationStorage.removeAll()
+            localActivityStorage.removeAll()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+        }
+
+    }
 
     fun getHighConfidenceCarActivity(indexTimeOffset: Int): CarActivity
             = CarActivity(VIN,(1000*indexTimeOffset).toLong()
