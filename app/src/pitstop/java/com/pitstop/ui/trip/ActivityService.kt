@@ -9,6 +9,9 @@ import com.pitstop.database.LocalActivityStorage
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalLocationStorage
 import com.pitstop.database.LocalUserStorage
+import com.pitstop.dependency.ContextModule
+import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.interactors.other.ProcessTripDataUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
@@ -37,7 +40,7 @@ class ActivityService: JobIntentService() {
             Logger.getInstance().logD(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
             val intent = Intent(DETECTED_ACTIVITY)
             intent.putExtra(ACTIVITY_EXTRA,activityResult)
-            sendBroadcast(intent)
+            //sendBroadcast(intent)
 
             val localUserStorage = LocalUserStorage(baseContext)
             val carId = localUserStorage.user.settings.carId
@@ -57,7 +60,7 @@ class ActivityService: JobIntentService() {
             intent.putExtra(LOCATION_EXTRA,locationResult)
             Logger.getInstance().logD(tag,"Received activity location intent, loc.size = " +
                     "${locationResult.locations.size}",DebugMessage.TYPE_TRIP)
-            sendBroadcast(intent)
+            //sendBroadcast(intent)
 
             val localUserStorage = LocalUserStorage(baseContext)
             val carId = localUserStorage.user.settings.carId
@@ -73,6 +76,14 @@ class ActivityService: JobIntentService() {
         }else{
             Log.d(tag,"location unavailable")
         }
+
+        val useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(ContextModule(baseContext)).build()
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(tag,"processed() trip: $trip")
+            }
+        })
     }
 
 }

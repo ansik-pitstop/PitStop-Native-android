@@ -95,6 +95,8 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         if (stillTimeoutTimer == null)
             stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT))
 
+        beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
+
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
                 ", actInterval=$activityUpdateInterval, startThresh=$tripStartThreshold" +
@@ -253,7 +255,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
                 startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
                         ,NotificationsHelper.getForegroundTripServiceNotification(true,baseContext))
             }
-            tripStart()
+            //tripStart()
             return true
         }
     }
@@ -262,7 +264,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         Logger.getInstance().logI(tag,"Attempting to end trip manually" +
                 ", tripInProgress = $tripInProgress",DebugMessage.TYPE_TRIP)
         return if (tripInProgress){
-            tripEnd()
+            //tripEnd()
             true
         } else false
     }
@@ -394,7 +396,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         //Start trip if possibly driving and definitely not walking
         if (!tripInProgress && vehicleActivty !== null && vehicleActivty!!.confidence > 30
                 && ( onFootActivity === null || onFootActivity!!.confidence < 40)) {
-            tripStart()
+            //tripStart()
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
                 //Display trip notification and begin foreground, message varies depending on confidence
                 startForeground(NotificationsHelper.TRIPS_FG_NOTIF_ID
@@ -403,7 +405,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
             }
         //End trip if definitely walking
         }else if  (tripInProgress && onFootActivity !== null && onFootActivity!!.confidence > 95){
-            tripEnd()
+            //tripEnd()
         //Start still timer if definitely not driving, and definitely still or walking
         }else if (tripInProgress && !stillTimerRunning && ( ( stillActivity !== null && stillActivity!!.confidence == 100)
                 || ( onFootActivity !== null && onFootActivity!!.confidence > 80))
@@ -442,7 +444,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
                 Logger.getInstance()!!.logI(tag, "Still timer: Timeout, tripInProgress=$tripInProgress"
                         , DebugMessage.TYPE_TRIP)
                 if (tripInProgress){
-                    tripEnd()
+                    //tripEnd()
                 }
                 stillTimerRunning = false
             }
@@ -468,7 +470,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         return isSuccessful
     }
 
-    private fun stopTrackingLocationUpdates() :Boolean{
+    private fun stopTrackingLocationUpdates():Boolean{
         Log.d(tag,"stopTrackingLocationUpdates()");
         val isSuccessful = LocationServices.getFusedLocationProviderClient(baseContext)
                 .removeLocationUpdates(googlePendingIntent).isSuccessful
