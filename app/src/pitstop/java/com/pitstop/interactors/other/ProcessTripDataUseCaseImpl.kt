@@ -45,6 +45,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
             //See how long we've been still for, if at all
             if (softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
+                Log.d(tag,"soft end end time=${it.time}")
                 hardEnd = it.time
 
                 //Process trip location points
@@ -78,7 +79,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         hardStart = it.time
                         if (softStart == -1L) softStart = it.time
                         softEnd = -1
-                        Log.d(tag,"Hard start")
+                        Log.d(tag,"Hard start time=${it.time}")
                     }
                     //End soft still end or soft start
                     else if (it.conf >= LOW_VEH_CONF &&
@@ -88,9 +89,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                                 && it.type == DetectedActivity.ON_FOOT}
                         if (footActivity == null || footActivity.conf < LOW_FOOT_CONF){
                             //Soft start
-                            softStart = it.time
+
+                            //Set soft start if it already wasn't set, we might just be resetting softEnd here
+                            if (softStart == -1L) softStart = it.time
                             softEnd = -1
-                            Log.d(tag,"Soft start")
+                            Log.d(tag,"Soft start time=${it.time}")
                         }
                     }
                 }
@@ -100,7 +103,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                         //Process trip location points
                         if (hardStart != -1L){
-                            Log.d(tag,"Hard end")
+                            Log.d(tag,"Hard end time=${it.time}")
 
                             val trip = arrayListOf<CarLocation>()
                             locations.forEach {
@@ -126,7 +129,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     if (it.conf >= HIGH_STILL_CONF && (softStart != -1L || hardStart != -1L)){
                         if (softEnd == -1L){
                             softEnd = it.time
-                            Log.d(tag,"Soft end start found")
+                            Log.d(tag,"Soft end start found time=${it.time}")
                         }
                     }
                 }
