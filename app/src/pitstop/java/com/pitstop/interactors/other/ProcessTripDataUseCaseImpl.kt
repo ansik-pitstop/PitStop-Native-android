@@ -42,6 +42,33 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val processedTrips = arrayListOf<List<CarLocation>>()
 
         activities.forEach loop@{
+
+            //See how long we've been still for, if at all
+            if (softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
+                hardEnd = it.time
+
+                //Process trip location points
+                if (hardStart != -1L){
+                    val trip = arrayListOf<CarLocation>()
+                    locations.forEach {
+                        if (it.time in softStart..softEnd){
+                            trip.add(it)
+                        }
+                    }
+                    processedTrips.add(trip)
+
+                    //Remove all processed data points
+                    localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                    localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                    //Reset variables in case another trip is present
+                    softStart = -1L
+                    softEnd = -1L
+                    hardStart = -1L
+                    hardEnd = -1L
+                }
+            }
+
             when(it.type){
                 (DetectedActivity.IN_VEHICLE) -> {
 
@@ -68,7 +95,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     }
                 }
                 (DetectedActivity.ON_FOOT) -> {
-                    if (it.conf > HIGH_FOOT_CONF){
+                    if (hardStart != -1L && it.conf > HIGH_FOOT_CONF){
                         hardEnd = it.time
 
                         //Process trip location points
@@ -100,31 +127,6 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         if (softEnd == -1L){
                             softEnd = it.time
                             Log.d(tag,"Soft end start found")
-                        }
-                        //See how long we've been still for
-                        else if (it.time - softEnd > STILL_TIMEOUT){
-                            hardEnd = it.time
-
-                            //Process trip location points
-                            if (hardStart != -1L){
-                                val trip = arrayListOf<CarLocation>()
-                                locations.forEach {
-                                    if (it.time in softStart..hardEnd){
-                                        trip.add(it)
-                                    }
-                                }
-                                processedTrips.add(trip)
-
-                                //Remove all processed data points
-                                localLocationStorage.remove(locations.filter { it.time <= hardEnd })
-                                localActivityStorage.remove(activities.filter {it.time <= hardEnd})
-
-                                //Reset variables in case another trip is present
-                                softStart = -1L
-                                softEnd = -1L
-                                hardStart = -1L
-                                hardEnd = -1L
-                            }
                         }
                     }
                 }
