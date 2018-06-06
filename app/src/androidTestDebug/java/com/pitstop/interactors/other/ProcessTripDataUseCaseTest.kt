@@ -822,6 +822,7 @@ class ProcessTripDataUseCaseTest {
 
     }
 
+    //Test is here primarily to check whether soft end variable will be reset by another soft start
     @Test
     fun softStartHardStartSoftEndStartSoftStartSoftEndStartAndFinishTest(){
         Log.d(TAG, "softStartHardStartSoftEndStartSoftStartSoftEndStartAndFinishTest() started")
@@ -918,6 +919,153 @@ class ProcessTripDataUseCaseTest {
             val expected = carLocationList.subList(2,12)
             Assert.assertTrue(result.size == 1)
             Assert.assertEquals(expected,result[0])
+            localLocationStorage.removeAll()
+            localActivityStorage.removeAll()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+        }
+
+    }
+
+    //Two trips recorded back to back then trip with no end
+    @Test
+    fun twoTripsThenTripWithNothingTest(){
+        Log.d(TAG,"twoTripsThenTripWithNothingTest() started")
+        val completableFuture = CompletableFuture<List<List<CarLocation>>>()
+
+        localLocationStorage.removeAll()
+        localActivityStorage.removeAll()
+
+        val carLocationList = arrayListOf<CarLocation>()
+        val carActivityList = arrayListOf<CarActivity>()
+
+        // 0 - 1
+        carActivityList.add(getLowConfidenceCarActivity(0))
+        carActivityList.add(getLowConfidenceFootActivity(0))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,0))
+        carActivityList.add(getLowConfidenceCarActivity(1))
+        carActivityList.add(getHighConfidenceFootActivity(1))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1))
+
+        //Soft Start 2-3
+        carActivityList.add(getSoftConfidenceCarActivity(2))
+        carActivityList.add(getLowConfidenceFootActivity(2))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,2))
+        carActivityList.add(getLowConfidenceFootActivity(3))
+        carActivityList.add(getLowConfidenceCarActivity(3))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3))
+
+        //Filler data, but no alerts 4-5
+        carActivityList.add(getLowConfidenceCarActivity(5))
+        carActivityList.add(getLowConfidenceFootActivity(5))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,5))
+        carActivityList.add(getLowConfidenceStillActivity(6))
+        carActivityList.add(getLowConfidenceCarActivity(6))
+        carActivityList.add(getLowConfidenceFootActivity(6))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,6))
+
+        //Soft End Start 6
+        carActivityList.add(getHighConfidenceFootActivity(500))
+        carActivityList.add(getLowConfidenceCarActivity(500))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,500))
+
+        //Still activity period 7
+        carActivityList.add(getHighConfidenceStillActivity(600))
+        carActivityList.add(getLowConfidenceFootActivity(600))
+        carActivityList.add(getLowConfidenceCarActivity(600))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,600))
+
+        //Hard Start 8
+        carActivityList.add(getHighConfidenceCarActivity(1200))
+        carActivityList.add(getLowConfidenceFootActivity(1200))
+        carActivityList.add(getLowConfidenceStillActivity(1200))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1200))
+
+        //Filler Data 9-10
+        carActivityList.add(getLowConfidenceCarActivity(3300))
+        carActivityList.add(getLowConfidenceFootActivity(3300))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3300))
+        carActivityList.add(getLowConfidenceStillActivity(3301))
+        carActivityList.add(getLowConfidenceCarActivity(3301))
+        carActivityList.add(getLowConfidenceFootActivity(3301))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3301))
+
+        //Hard End 11
+        carActivityList.add(getHighConfidenceFootActivity(3500))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3500))
+
+        //Some data after 12
+        carActivityList.add(getLowConfidenceCarActivity(3600))
+        carActivityList.add(getLowConfidenceFootActivity(3600))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3600))
+
+        //Soft Start 13
+        carActivityList.add(getLowConfidenceFootActivity(3700))
+        carActivityList.add(getSoftConfidenceCarActivity(3700))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3700))
+
+
+        //Some data 14
+        carActivityList.add(getLowConfidenceCarActivity(3705))
+        carActivityList.add(getLowConfidenceFootActivity(3705))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3705))
+
+        //Hard Start 15
+        carActivityList.add(getHighConfidenceCarActivity(3800))
+        carActivityList.add(getLowConfidenceFootActivity(3800))
+        carActivityList.add(getLowConfidenceStillActivity(3800))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3800))
+
+        //Some data 16
+        carActivityList.add(getLowConfidenceCarActivity(3801))
+        carActivityList.add(getLowConfidenceFootActivity(3801))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3801))
+
+        //Hard End 17
+        carActivityList.add(getHighConfidenceFootActivity(3802))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3802))
+
+        //Some data 18
+        carActivityList.add(getLowConfidenceCarActivity(3900))
+        carActivityList.add(getLowConfidenceFootActivity(3900))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3900))
+
+        //Hard Start 19
+        carActivityList.add(getHighConfidenceCarActivity(3901))
+        carActivityList.add(getLowConfidenceFootActivity(3901))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3901))
+
+        //Filler Data 20
+        carActivityList.add(getLowConfidenceCarActivity(4000))
+        carActivityList.add(getLowConfidenceFootActivity(4000))
+        carActivityList.add(getLowConfidenceFootActivity(4000))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4000))
+
+        //Nothing
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4050))
+
+        localLocationStorage.store(carLocationList)
+        localActivityStorage.store(carActivityList)
+
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(TAG,"processed trip: $trip")
+                completableFuture.complete(trip)
+            }
+
+        })
+
+        try {
+            val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
+            Assert.assertTrue(result.size == 2)
+            Log.d(TAG,"result[1]: ${result[1]}")
+            Log.d(TAG,"expected: ${carLocationList.subList(9,13)}")
+            Assert.assertEquals(carLocationList.subList(2,11),result[0])
+            Assert.assertEquals(carLocationList.subList(13,17),result[1])
             localLocationStorage.removeAll()
             localActivityStorage.removeAll()
         } catch (e: InterruptedException) {
