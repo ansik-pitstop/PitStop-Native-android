@@ -5,13 +5,19 @@ import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.pitstop.database.LocalActivityStorage
 import com.pitstop.database.LocalLocationStorage
+import com.pitstop.models.sensor_data.trip.LocationData
+import com.pitstop.models.sensor_data.trip.PendingLocation
+import com.pitstop.models.sensor_data.trip.TripData
 import com.pitstop.models.trip.CarLocation
+import com.pitstop.repositories.TripRepository
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Karol Zdebel on 6/4/2018.
  */
 class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocationStorage
                                  , private val localActivityStorage: LocalActivityStorage
+                                 , private val tripRepository: TripRepository
                                  , private val usecaseHandler: Handler
                                  , private val mainHandler: Handler): ProcessTripDataUseCase {
 
@@ -135,6 +141,24 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 }
             }
         }
+
+        processedTrips.filter { it.isEmpty() }.forEach({
+            val recordedLocationList = mutableSetOf<LocationData>()
+            it.forEach { carLocation ->
+                recordedLocationList.add(LocationData(carLocation.time, PendingLocation(carLocation.longitude
+                        ,carLocation.latitude,carLocation.time,100)))
+            }
+            val tripData = TripData(it[0].time,true,it[0].vin,recordedLocationList)
+            tripRepository.storeTripDataAndDump(tripData)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.io())
+                    .subscribe({next ->
+                        Log.d(tag,"next: $next")
+                    },{err ->
+                        Log.e(tag,"err: $err")
+                    })
+        })
+
 
         mainHandler.post({
             callback.processed(processedTrips)
