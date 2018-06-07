@@ -11,7 +11,6 @@ import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
-import com.pitstop.ui.trip.TripActivityObservable;
 import com.pitstop.ui.trip.TripActivityObserver;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -55,7 +54,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
-    private TripActivityObservable tripActivityObservable;
 
     private boolean updating = false;
     private boolean carAdded = true;
@@ -86,18 +84,11 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void subscribe(TripListView view) {
         super.subscribe(view);
-        if (tripActivityObservable == null && getView().getTripActivityObservable() != null){
-            this.tripActivityObservable = getView().getTripActivityObservable();
-            this.tripActivityObservable.subscribeTripActivity(this);
-        }else if (tripActivityObservable != null){
-            this.tripActivityObservable.subscribeTripActivity(this);
-        }
     }
 
     @Override
     public void unsubscribe(){
         super.unsubscribe();
-        if (tripActivityObservable != null) tripActivityObservable.unsubscribeTripActivity(this);
     }
 
     public void setCommunicationInteractor(OnListChildPresenterInteractorListener onListChildPresenterInteractorListener) {
@@ -147,15 +138,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         if (!carAdded){
             getView().beginAddCar();
         }
-        else if (tripActivityObservable == null){
-            if (getView() != null) getView().displayUnknownErrorDialog();
-        }
-    }
-
-    public void onTripActivityObservableReady(TripActivityObservable tripActivityObservable){
-        Log.d(TAG,"onTripObservableReady()");
-        this.tripActivityObservable = tripActivityObservable;
-        tripActivityObservable.subscribeTripActivity(this);
     }
 
     public boolean isRefreshing() {

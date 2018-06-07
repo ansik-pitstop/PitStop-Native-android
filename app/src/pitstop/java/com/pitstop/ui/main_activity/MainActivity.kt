@@ -32,12 +32,10 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
-import com.pitstop.models.ObdScanner
 import com.pitstop.models.ReadyDevice
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
@@ -52,11 +50,7 @@ import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
-import com.pitstop.ui.trip.TripActivityObservable
-import com.pitstop.ui.trip.TripParameterSetter
 import com.pitstop.ui.trip.TripsFragment
-import com.pitstop.ui.trip.TripsService
-import com.pitstop.ui.trip.settings.TripSettingsFragment
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
@@ -81,7 +75,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var application: GlobalApplication? = null
     private var serviceIsBound: Boolean = false
     private var isFirstAppointment: Boolean = false
-    private var serviceIntent: Intent? = null
     private var appointmentsButton: View? = null
     private var requestAppointmentButton: View? = null
     private var drawerToggle: ActionBarDrawerToggle? = null
@@ -113,7 +106,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var tripsFragment: TripsFragment
-    private lateinit var tripSettingsFragment: TripSettingsFragment
 
     // Database accesses
     private var carLocalStore: LocalCarStorage? = null
@@ -203,7 +195,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         startReportFragment = StartReportFragment()
         vehicleSpecsFragment = VehicleSpecsFragment()
         tripsFragment = TripsFragment()
-        tripSettingsFragment = TripSettingsFragment()
 
         toolbar = findViewById<View>(R.id.toolbar) as Toolbar?
         setSupportActionBar(toolbar)
@@ -219,7 +210,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         logAuthInfo()
 
         tabFragmentManager = TabFragmentManager(this, mainServicesFragment, startReportFragment
-                , vehicleSpecsFragment, tripsFragment, tripSettingsFragment, mixpanelHelper)
+                , vehicleSpecsFragment, tripsFragment, mixpanelHelper)
         tabFragmentManager!!.createTabs()
         //tabFragmentManager!!.openServices()
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
@@ -236,10 +227,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         startReportFragment.bluetoothConnectionObservable = it
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
-                    }else if (it is TripsService){
-                        Log.d(TAG,"got trips service")
-                        tripsFragment.onTripActivityObservableReady(it as TripActivityObservable)
-                        tripSettingsFragment.onTripParameterSetterReady(it as TripParameterSetter)
                     }
                 }, {
                     Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")

@@ -155,9 +155,6 @@
             android:name=".utils.MigrationService"
             android:exported="false"/>
 
-        <service
-            android:name=".ui.trip.ActivityService" />
-
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -215,6 +212,11 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="com.ansik.pitstop" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".ui.trip.TripBroadcastReceiver"
+            android:exported="false">
         </receiver>
 
         <receiver
