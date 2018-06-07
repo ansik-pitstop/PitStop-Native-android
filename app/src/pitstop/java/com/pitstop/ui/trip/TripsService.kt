@@ -6,6 +6,7 @@ import android.content.*
 import android.location.Location
 import android.os.Binder
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.location.*
@@ -14,9 +15,11 @@ import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.add.AddTripDataUseCase
 import com.pitstop.interactors.other.EndTripUseCase
+import com.pitstop.interactors.other.ProcessTripDataUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.interactors.other.StartTripUseCase
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.trip.CarLocation
 import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
@@ -81,6 +84,21 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
 
         super.onCreate()
 
+        lateinit var runnable: Runnable
+        runnable = Runnable {
+            val useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(ContextModule(baseContext)).build()
+
+            useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+                override fun processed(trip: List<List<CarLocation>>) {
+                    Log.d(tag,"processed() trip: $trip")
+                }
+            })
+            Handler().postDelayed(runnable,45000)
+        }
+        //Delay so app doesn't freeze up on start
+        Handler().postDelayed(runnable,5000)
+
         sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
 
         //Update shared preferences
@@ -95,7 +113,11 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         if (stillTimeoutTimer == null)
             stillTimeoutTimer = getStillTimeoutTimer(sharedPreferences.getInt(STILL_TIMEOUT, DEF_TIMEOUT))
 
-        beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
+        val intent = Intent(this, ActivityService::class.java)
+        googlePendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
+        val tracking = beginTrackingLocationUpdates(locationUpdateInterval,locationUpdatePriority)
+        Logger.getInstance().logI(tag,"beginTrackingLocations response: $tracking"
+                ,DebugMessage.TYPE_TRIP)
 
         Logger.getInstance().logI(tag,"Trip settings: {locInterval" +
                 "=$locationUpdateInterval, locPriority=$locationUpdatePriority" +
@@ -150,7 +172,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         try{
             unregisterReceiver(receiver)
         }catch(e: Exception){
-            
+
         }
         super.onDestroy()
     }
@@ -458,6 +480,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         val locationRequest = LocationRequest.create()
         locationRequest.interval = interval
         locationRequest.priority = priority
+        locationRequest.
         val isSuccessful: Boolean
         try{
             isSuccessful = LocationServices.getFusedLocationProviderClient(baseContext)

@@ -44,7 +44,7 @@ class AddTripDataUseCaseImpl(private val tripRepository: TripRepository
         Log.i(TAG,"AddTripUseCaseImpl: run(), trip.size ${locationList.size}")
 
         val trip = arrayListOf<PendingLocation>()
-        locationList.forEach({trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000, it.conf))})
+        locationList.forEach({trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))})
 
         userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
             override fun onSuccess(data: Settings?) {

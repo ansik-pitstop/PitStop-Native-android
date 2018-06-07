@@ -215,7 +215,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
     //Dumps data from local database to server
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
-        val localPendingData = localPendingTripStorage.getCompleted(false)
+        val localPendingData = localPendingTripStorage.getAll(false)
         Log.d(tag,"dumping ${localPendingData.size} data points")
         if (localPendingData.isEmpty()) return Observable.just(0)
 

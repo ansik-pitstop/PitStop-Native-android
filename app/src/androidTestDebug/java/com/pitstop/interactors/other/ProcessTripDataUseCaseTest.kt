@@ -152,6 +152,72 @@ class ProcessTripDataUseCaseTest {
     }
 
     @Test
+    fun severalHardStartTest(){
+        Log.d(TAG,"severalHardStartTest()")
+        val completableFuture = CompletableFuture<List<List<CarLocation>>>()
+
+        localLocationStorage.removeAll()
+        localActivityStorage.removeAll()
+
+        val carLocationList = arrayListOf<CarLocation>()
+        val carActivityList = arrayListOf<CarActivity>()
+
+        //Dummy data 0-1
+        carActivityList.add(getLowConfidenceCarActivity(0))
+        carActivityList.add(getLowConfidenceFootActivity(0))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,0))
+        carActivityList.add(getLowConfidenceCarActivity(1))
+        carActivityList.add(getHighConfidenceFootActivity(1))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,1))
+
+        //hard Start 2-3
+        carActivityList.add(getHighConfidenceCarActivity(2))
+        carActivityList.add(getLowConfidenceFootActivity(2))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,2))
+        carActivityList.add(getLowConfidenceFootActivity(3))
+        carActivityList.add(getLowConfidenceCarActivity(3))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,3))
+        //Hard start again 4
+        carActivityList.add(getHighConfidenceCarActivity(4))
+        carActivityList.add(getLowConfidenceCarActivity(4))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,4))
+
+        //Hard end 5
+        carActivityList.add(getLowConfidenceCarActivity(5))
+        carActivityList.add(getHighConfidenceFootActivity(5))
+        carLocationList.add(TripTestUtil.getRandomCarLocation(VIN,5))
+
+        localLocationStorage.store(carLocationList)
+        localActivityStorage.store(carActivityList)
+
+        useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+            override fun processed(trip: List<List<CarLocation>>) {
+                Log.d(TAG,"processed trip: $trip")
+                completableFuture.complete(trip)
+            }
+
+        })
+
+        try {
+            val result = completableFuture.get(10000, TimeUnit.MILLISECONDS)
+            val expected = carLocationList.subList(2,6)
+            Assert.assertTrue(result.size == 1)
+            Assert.assertEquals(expected, result[0])
+            localLocationStorage.removeAll()
+            localActivityStorage.removeAll()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+            throw AssertionError()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+            throw AssertionError()
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+            throw AssertionError()
+        }
+    }
+
+    @Test
     fun softStartHardStartHardEndTest(){
         Log.d(TAG,"hardStartHardEndTest()")
         val completableFuture = CompletableFuture<List<List<CarLocation>>>()

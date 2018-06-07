@@ -45,7 +45,6 @@ class LocalPendingTripStorage(private val context: Context) {
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE, it.data.confidence)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_COMPLETED, if (trip.completed) 1 else 0)
             contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_SENT, "0")
             rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
@@ -77,19 +76,19 @@ class LocalPendingTripStorage(private val context: Context) {
 
     //Return list of trips stored in database that are completed
     //If sent is false all trips are returned whether or not they have been sent to server
-    fun getCompleted(sent: Boolean): List<TripData> {
+    fun getAll(sent: Boolean): List<TripData> {
         Log.d(TAG,"get()")
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
         val selection = if (sent){
-            TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=? AND "+TABLES.PENDING_TRIP_DATA.KEY_SENT+"=?"
+            TABLES.PENDING_TRIP_DATA.KEY_SENT+"=?"
         }else{
-            TABLES.PENDING_TRIP_DATA.KEY_COMPLETED+"=?"
+            null
         }
         val selectionArgs = if (sent){
-            arrayOf("1","0")
-        }else{
             arrayOf("1")
+        }else{
+            null
         }
         val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null
                 , selection, selectionArgs, null, null
@@ -225,7 +224,6 @@ class LocalPendingTripStorage(private val context: Context) {
     private fun cursorToLocation(c: Cursor): PendingLocation = PendingLocation(
             latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
             , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
-            , confidence = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_CONFIDENCE))
             , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
     )
 }

@@ -41,6 +41,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
     override fun execute(callback: ProcessTripDataUseCase.Callback) {
         this.callback = callback
+        Logger.getInstance().logD(tag,"\n\n---------Use case running-------------"
+                ,DebugMessage.TYPE_USE_CASE)
         usecaseHandler.post(this)
     }
 
@@ -69,8 +71,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     processedTrips.add(trip)
 
                     //Remove all processed data points
-                    localLocationStorage.remove(locations.filter { it.time <= hardEnd })
-                    localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+                    val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                    val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                    Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
+                            "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
 
                     //Reset variables in case another trip is present
                     softStart = -1L
@@ -86,10 +91,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
                             && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
-                        hardStart = it.time
+                        if (hardStart == -1L) hardStart = it.time
                         if (softStart == -1L) softStart = it.time
                         softEnd = -1
-                        Logger.getInstance().logI(tag,"Hard start time=${it.time}"
+                        Logger.getInstance().logI(tag,"Hard start time=${it.time}" +
+                                ", hardstart = $hardStart, softStart=$softStart, softEnd=$softEnd"
                                 ,DebugMessage.TYPE_USE_CASE)
                     }
                     //End soft still end or soft start
@@ -127,8 +133,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             processedTrips.add(trip)
 
                             //Remove all processed data points
-                            localLocationStorage.remove(locations.filter { it.time <= hardEnd })
-                            localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+                            val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                            val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                            Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
+                                    "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
 
                             //Reset variables in case another trip is present
                             softStart = -1L
@@ -152,16 +161,16 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         val observableList = arrayListOf<Observable<Int>>()
 
-        Log.d(tag,"processedTrips: $processedTrips")
+        Log.d(tag,"processedTrips: size=${processedTrips.size} data=$processedTrips")
 
         processedTrips.filter { !it.isEmpty() }.forEach({
             val recordedLocationList = mutableSetOf<LocationData>()
             it.forEach { carLocation ->
                 recordedLocationList.add(LocationData(carLocation.time, PendingLocation(carLocation.longitude
-                        ,carLocation.latitude,carLocation.time,100)))
+                        ,carLocation.latitude,carLocation.time/1000)))
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
-            val tripData = TripData(it[0].time,true,it[0].vin,recordedLocationList)
+            val tripData = TripData(it[0].time/1000,true,it[0].vin,recordedLocationList)
             observableList.add(tripRepository.storeTripDataAndDump(tripData))
         })
 

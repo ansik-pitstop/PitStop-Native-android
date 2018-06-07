@@ -58,6 +58,7 @@ class LocalActivityStorage(context: Context) {
                 c.moveToNext()
             }
         }
+        c.close()
         return result
     }
 

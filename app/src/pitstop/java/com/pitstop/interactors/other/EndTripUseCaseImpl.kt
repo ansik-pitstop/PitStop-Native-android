@@ -44,7 +44,7 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
         val trip = arrayListOf<PendingLocation>()
         //Location stores time in ms, we want seconds
         locationList.forEach({
-            trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000, it.conf))
+            trip.add(PendingLocation(it.longitude, it.latitude, it.time / 1000))
         })
 
         //Get incomplete data before completing it so that it can be used for checking trip validity
@@ -57,18 +57,8 @@ class EndTripUseCaseImpl(private val userRepository: UserRepository
                     val locationDataList: MutableSet<LocationData> = hashSetOf()
                     trip.forEach { locationDataList.add(LocationData(it.time, it)) }
 
-                    //Check for minimum confidence in both memory and local storage location points
-                    if (incompleteTripData.locations.find { it.data.confidence >= MIN_CONF } == null
-                            && locationDataList.find { it.data.confidence >= MIN_CONF } == null){
-
-                        //Remove trip since it doesn't have a point with a min conf of 70
-                        Log.d(TAG,"no trip point with min confidence of 70")
-                        tripRepository.removeIncompleteTripData()
-                        EndTripUseCaseImpl@finishedTripDiscarded()
-                        return@subscribe
-                    }
                     //Complete trip data in the trip repo
-                    else tripRepository.completeTripData()
+                        tripRepository.completeTripData()
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                             .subscribe({
