@@ -480,7 +480,7 @@ class TripsService: Service(), TripActivityObservable, TripParameterSetter{
         val locationRequest = LocationRequest.create()
         locationRequest.interval = interval
         locationRequest.priority = priority
-        locationRequest.
+
         val isSuccessful: Boolean
         try{
             isSuccessful = LocationServices.getFusedLocationProviderClient(baseContext)
