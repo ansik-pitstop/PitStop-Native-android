@@ -170,7 +170,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         ,carLocation.latitude,carLocation.time/1000)))
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
-            val tripData = TripData(it[0].time/1000,true,it[0].vin,recordedLocationList)
+            val tripData = TripData(it[0].time/1000,it[0].vin,recordedLocationList)
             observableList.add(tripRepository.storeTripDataAndDump(tripData))
         })
 

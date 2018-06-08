@@ -78,9 +78,6 @@ public final class TABLES {
         String KEY_LATITUDE = "latitude";
         String KEY_TIME = "time";
         String KEY_VIN = "vin";
-        String KEY_COMPLETED = "completed";
-        String KEY_SENT = "sent";
-        String KEY_CONFIDENCE = "confidence";
     }
 
     public interface ACTIVITY_DATA {

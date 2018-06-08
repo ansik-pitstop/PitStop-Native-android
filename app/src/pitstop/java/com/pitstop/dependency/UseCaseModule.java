@@ -27,8 +27,6 @@ import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddServicesUseCaseImpl;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
-import com.pitstop.interactors.add.AddTripDataUseCase;
-import com.pitstop.interactors.add.AddTripDataUseCaseImpl;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
 import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
@@ -107,8 +105,6 @@ import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
-import com.pitstop.interactors.other.EndTripUseCase;
-import com.pitstop.interactors.other.EndTripUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -125,8 +121,6 @@ import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.SortReportsUseCaseImpl;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnectedUseCaseImpl;
-import com.pitstop.interactors.other.StartTripUseCase;
-import com.pitstop.interactors.other.StartTripUseCaseImpl;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCaseImpl;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
@@ -707,15 +701,6 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddTripDataUseCase addTripUseCase(TripRepository tripRepository
-            , UserRepository userRepository, CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler")Handler mainHandler){
-
-        return new AddTripDataUseCaseImpl(tripRepository, userRepository, carRepository
-                , useCaseHandler,mainHandler);
-    }
-
-    @Provides
     StartDumpingTripDataWhenConnecteUseCase startDumpingTripDataWhenConnecteUseCase(
             TripRepository tripRepository, SensorDataRepository sensorDataRepository
             , @Named("useCaseHandler")Handler useCaseHandler
@@ -723,23 +708,6 @@ public class UseCaseModule {
 
         return new StartDumpingTripDataWhenConnectedUseCaseImpl(tripRepository
                 , sensorDataRepository, useCaseHandler,mainHandler);
-    }
-
-    @Provides
-    StartTripUseCase tripStartUseCase(TripRepository tripRepository
-            , @Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler")Handler mainHandler){
-
-        return new StartTripUseCaseImpl(tripRepository, useCaseHandler,mainHandler);
-    }
-
-    @Provides
-    EndTripUseCase endTripUseCase(TripRepository tripRepository
-            , UserRepository userRepository, CarRepository carRepository, @Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler")Handler mainHandler){
-
-        return new EndTripUseCaseImpl(userRepository, carRepository
-                , tripRepository, useCaseHandler,mainHandler);
     }
 
     @Provides
