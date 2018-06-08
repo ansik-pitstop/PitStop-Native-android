@@ -51,6 +51,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var receiver: BroadcastReceiver
+    private var tripsProcessing = false
 
     inner class TripsBinder : Binder() {
         val service: TripsService
@@ -65,15 +66,21 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         super.onCreate()
 
         lateinit var runnable: Runnable
+
         runnable = Runnable {
             val useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(ContextModule(baseContext)).build()
 
-            useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
-                override fun processed(trip: List<List<CarLocation>>) {
-                    Log.d(tag,"processed() trip: $trip")
-                }
-            })
+            if (!tripsProcessing){
+                tripsProcessing = true
+                useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+                    override fun processed(trip: List<List<CarLocation>>) {
+                        Log.d(tag,"processed() trip: $trip")
+                        tripsProcessing = false
+                    }
+                })
+            }
+
             Handler().postDelayed(runnable,PROCESS_TRIPS_INTERVAL)
         }
         //Delay so app doesn't freeze up on start
