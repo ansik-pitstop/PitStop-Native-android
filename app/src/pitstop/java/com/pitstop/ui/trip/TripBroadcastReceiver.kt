@@ -36,10 +36,8 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
             val localUserStorage = LocalUserStorage(context)
             if (localUserStorage.user == null || localUserStorage.user.id == -1){
-                if (localUserStorage.user == null || localUserStorage.user.id == -1){
-                    Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
-                    return
-                }
+                Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
+                return
             }
             val carId = localUserStorage.user.settings.carId
             val localCarStorage = LocalCarStorage(context)
