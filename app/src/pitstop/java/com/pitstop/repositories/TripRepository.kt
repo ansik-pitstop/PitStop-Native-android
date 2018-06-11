@@ -195,27 +195,10 @@ open class TripRepository(private val tripApi: PitstopTripApi
         return dumpData()
     }
 
-    //Returns -1 if no current trip data points have been stored yet, returns trip id otherwise
-    fun getIncompleteTripId(): Long = localPendingTripStorage.getIncompleteTripId()
-
-    fun removeIncompleteTripData(): Observable<Int>{
-        Log.d(tag, "removeIncompleteTripData()")
-        return Observable.just(localPendingTripStorage.deleteIncomplete())
-    }
-
-    fun completeTripData(): Observable<Int>{
-        Log.d(tag, "completeTripData")
-        return Observable.just(localPendingTripStorage.completeAll())
-    }
-
-    fun getIncompleteTripData(): Observable<TripData>{
-        return Observable.just(localPendingTripStorage.getIncompleteTrip())
-    }
-
     //Dumps data from local database to server
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
-        val localPendingData = localPendingTripStorage.getCompleted(false)
+        val localPendingData = localPendingTripStorage.getAll()
         Log.d(tag,"dumping ${localPendingData.size} data points")
         if (localPendingData.isEmpty()) return Observable.just(0)
 
@@ -241,7 +224,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                         .observeOn(Schedulers.io())
                         .subscribe({ next ->
                             Log.d(tag, "successfully stored chunk = $next")
-                            val rows = localPendingTripStorage.markAsSent(locationChunk)
+                            val rows = localPendingTripStorage.remove(locationChunk)
                             Log.d(tag,"marked $rows as sent after storing chunk")
                         }, { err ->
                             Logger.getInstance().logE(tag, "Error storing chunk = $err"

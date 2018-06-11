@@ -78,10 +78,24 @@ public final class TABLES {
         String KEY_LATITUDE = "latitude";
         String KEY_TIME = "time";
         String KEY_VIN = "vin";
-        String KEY_COMPLETED = "completed";
-        String KEY_SENT = "sent";
+    }
+
+    public interface ACTIVITY_DATA {
+        String TABLE_NAME = "activity_data";
+        String KEY_TIME = "time";
+        String KEY_VIN = "vin";
         String KEY_CONFIDENCE = "confidence";
-        }
+        String KEY_TYPE = "type";
+    }
+
+    public interface LOCATION_DATA {
+        String TABLE_NAME = "location_data";
+        String KEY_TIME = "time";
+        String KEY_VIN = "vin";
+        String KEY_CONFIDENCE = "confidence";
+        String KEY_LONGITUDE = "longitude";
+        String KEY_LATITUDE = "latitude";
+    }
 
     public interface TRIP_DEVICE{
         String TABLE_NAME = "tripsDevice";

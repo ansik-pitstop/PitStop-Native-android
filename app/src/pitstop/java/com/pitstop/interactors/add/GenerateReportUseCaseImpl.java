@@ -64,7 +64,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     private void onReportAdded(VehicleHealthReport vehicleHealthReport
             , EmissionsReport emissionsReport){
-        Logger.getInstance().logI(TAG,"Use case execution started: added with emissions, vhr="+vehicleHealthReport
+        Logger.getInstance().logI(TAG,"Use case execution finished: added with emissions, vhr="+vehicleHealthReport
                 +"et="+emissionsReport, DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onReportAdded(vehicleHealthReport,emissionsReport));
     }

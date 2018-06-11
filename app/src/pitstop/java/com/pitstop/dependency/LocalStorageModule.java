@@ -2,11 +2,13 @@ package com.pitstop.dependency;
 
 import android.content.Context;
 
+import com.pitstop.database.LocalActivityStorage;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalFuelConsumptionStorage;
+import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSensorDataStorage;
@@ -93,5 +95,17 @@ public class LocalStorageModule {
     @Provides
     public LocalSensorDataStorage localSensorDataStorage(Context context) {
         return new LocalSensorDataStorage(context);
+    }
+
+    @Singleton
+    @Provides
+    public LocalLocationStorage localLocationStorage(Context context){
+        return new LocalLocationStorage(context);
+    }
+
+    @Singleton
+    @Provides
+    public LocalActivityStorage localActivityStorage(Context context){
+        return new LocalActivityStorage(context);
     }
 }

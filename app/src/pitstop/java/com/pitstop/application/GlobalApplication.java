@@ -31,11 +31,13 @@ import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.database.LocalActivityStorage;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDebugMessageStorage;
+import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalPidStorage;
 import com.pitstop.database.LocalSensorDataStorage;
@@ -96,6 +98,8 @@ public class GlobalApplication extends Application {
     private LocalTripStorage mLocalTripStorage;
     private LocalPendingTripStorage mLocalPendingTripStorage;
     private LocalSensorDataStorage mLocalSensorDataStorage;
+    private LocalLocationStorage mLocalLocationStorage;
+    private LocalActivityStorage mLocalActivityStorage;
 
     private UseCaseComponent useCaseComponent;
     private Observable<Service> serviceObservable;
@@ -507,6 +511,8 @@ public class GlobalApplication extends Application {
         mLocalTripStorage = new LocalTripStorage(this);
         mLocalPendingTripStorage = new LocalPendingTripStorage(this);
         mLocalSensorDataStorage = new LocalSensorDataStorage(this);
+        mLocalActivityStorage = new LocalActivityStorage(this);
+        mLocalLocationStorage = new LocalLocationStorage(this);
     }
 
     /**
@@ -525,6 +531,8 @@ public class GlobalApplication extends Application {
         mLocalTripStorage.deleteAllTrips();
         mLocalPendingTripStorage.deleteAll();
         mLocalSensorDataStorage.deleteAll();
+        mLocalLocationStorage.removeAll();
+        mLocalActivityStorage.removeAll();
     }
 
 }
