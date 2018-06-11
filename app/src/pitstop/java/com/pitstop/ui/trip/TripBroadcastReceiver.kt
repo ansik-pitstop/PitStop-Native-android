@@ -26,6 +26,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val GOT_LOCATION = "got_location"
         const val LOCATION_EXTRA = "location_extra"
         const val ACTION_PROCESS_UPDATE = "action_process_update"
+        const val MIN_LOC_ACCURACY = 60
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -83,7 +84,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 Logger.getInstance().logE(tag,"Vin is null!",DebugMessage.TYPE_TRIP)
             }
 
-            locationResult.locations.forEach({
+            locationResult.locations.filter { it.accuracy < MIN_LOC_ACCURACY }.forEach({
                 locations.add(CarLocation(vin ?: "",System.currentTimeMillis(),it.longitude,it.latitude))
             })
 
