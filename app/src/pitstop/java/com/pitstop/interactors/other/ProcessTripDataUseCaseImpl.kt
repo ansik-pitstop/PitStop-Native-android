@@ -41,7 +41,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
     override fun execute(callback: ProcessTripDataUseCase.Callback) {
         this.callback = callback
-        Logger.getInstance().logD(tag,"\n\n---------Use case running-------------"
+        Logger.getInstance().logI(tag,"Use case execution started"
                 ,DebugMessage.TYPE_USE_CASE)
         usecaseHandler.post(this)
     }
@@ -110,7 +110,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             //Set soft start if it already wasn't set, we might just be resetting softEnd here
                             if (softStart == -1L) softStart = it.time
                             softEnd = -1
-                            Logger.getInstance().logI(tag,"Soft start time=${it.time}"
+                            Logger.getInstance().logD(tag,"Soft start time=${it.time}"
                                     ,DebugMessage.TYPE_USE_CASE)
                         }
                     }
@@ -121,7 +121,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                         //Process trip location points
                         if (hardStart != -1L){
-                            Logger.getInstance().logI(tag,"Hard end time=${it.time}"
+                            Logger.getInstance().logD(tag,"Hard end time=${it.time}"
                                     ,DebugMessage.TYPE_USE_CASE)
 
                             val trip = arrayListOf<CarLocation>()
@@ -151,7 +151,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     if (it.conf >= HIGH_STILL_CONF && (softStart != -1L || hardStart != -1L)){
                         if (softEnd == -1L){
                             softEnd = it.time
-                            Logger.getInstance().logI(tag,"Soft end start found time=${it.time}"
+                            Logger.getInstance().logD(tag,"Soft end start found time=${it.time}"
                                     ,DebugMessage.TYPE_USE_CASE)
                         }
                     }
@@ -174,7 +174,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             observableList.add(tripRepository.storeTripDataAndDump(tripData))
         })
 
-        Logger.getInstance().logI(tag,"observable list size: ${observableList.size}"
+        Logger.getInstance().logD(tag,"observable list size: ${observableList.size}"
                 ,DebugMessage.TYPE_USE_CASE)
 
         if (observableList.isEmpty()){
