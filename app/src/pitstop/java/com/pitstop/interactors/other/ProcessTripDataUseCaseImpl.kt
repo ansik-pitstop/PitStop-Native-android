@@ -178,6 +178,17 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 ,DebugMessage.TYPE_USE_CASE)
 
         if (observableList.isEmpty()){
+
+            //Remove all data before soft start, if none exists then remove all data
+            //since a trip cannot be produced, a hard start also sets the soft start variable
+            var end = Long.MAX_VALUE
+            if (softStart != -1L)
+                end = softStart
+            val removedLocs = localLocationStorage.remove(locations.filter { it.time < end})
+            val removedActivities = localActivityStorage.remove(activities.filter {it.time < end})
+            Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
+                    "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
+
             mainHandler.post({
                 callback.processed(processedTrips)
             })
