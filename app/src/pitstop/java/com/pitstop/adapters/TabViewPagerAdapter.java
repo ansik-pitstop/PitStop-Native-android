@@ -5,12 +5,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.ui.main_activity.TabFragmentManager;
 import com.pitstop.ui.services.MainServicesFragment;
 import com.pitstop.ui.trip.TripsFragment;
-import com.pitstop.ui.trip.settings.TripSettingsFragment;
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment;
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
 
@@ -27,19 +25,17 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
     private StartReportFragment startReportFragment;
     private VehicleSpecsFragment vehicleSpecsFragment;
     private TripsFragment tripsFragment;
-    private TripSettingsFragment tripSettingsFragment;
     private Context context;
 
     public TabViewPagerAdapter(FragmentManager fm, MainServicesFragment mainServicesFragment
             , StartReportFragment startReportFragment, VehicleSpecsFragment vehicleSpecsFragment
             , TripsFragment tripsFragment
-            , TripSettingsFragment tripSettingsFragment, Context context) {
+            , Context context) {
         super(fm);
         this.mainServicesFragment = mainServicesFragment;
         this.startReportFragment = startReportFragment;
         this.vehicleSpecsFragment = vehicleSpecsFragment;
         this.tripsFragment = tripsFragment;
-        this.tripSettingsFragment = tripSettingsFragment;
         this.context = context;
     }
 
@@ -59,16 +55,13 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
             case TabFragmentManager.TAB_TRIPS_LIST:
                 return tripsFragment;
 
-            case TabFragmentManager.TAB_TRIP_SETTINGS:
-                return tripSettingsFragment;
         }
         return null;
     }
 
     @Override
     public int getCount() {
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)) return 4;
-        else return 5;
+        return 4;
     }
 
     @Override
@@ -80,8 +73,6 @@ public class TabViewPagerAdapter extends FragmentStatePagerAdapter {
                 return "My Car";
             case TabFragmentManager.TAB_SERVICES:
                 return context.getString(R.string.services_nav_text);
-            case TabFragmentManager.TAB_TRIP_SETTINGS:
-                return context.getString(R.string.trip_settings);
             case TabFragmentManager.TAB_TRIPS_LIST:
                 return context.getString(R.string.my_trips);
         }

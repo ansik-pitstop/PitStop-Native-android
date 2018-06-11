@@ -5,6 +5,8 @@ import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.LocationDataFormatted
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.CarActivity
+import com.pitstop.models.trip.CarLocation
 import com.pitstop.models.trip.RecordedLocation
 import java.util.*
 
@@ -39,6 +41,18 @@ class TripTestUtil {
             return route
         }
 
+        fun getRandomCarActivity(vin: String, timeOffsetIndex: Int): CarActivity {
+            val r = Random()
+            return CarActivity(vin, System.currentTimeMillis() + 1000*timeOffsetIndex
+                    , (r.nextDouble()*8).toInt(), (r.nextDouble()*100).toInt())
+        }
+
+        fun getRandomCarLocation(vin: String, timeOffsetIndex: Int): CarLocation {
+            val r = Random()
+            return CarLocation(vin, (1000*timeOffsetIndex).toLong()
+                    , r.nextDouble() * 90, r.nextDouble() * 90)
+        }
+
         fun getRandomLocation(): RecordedLocation {
             val r = Random()
             return RecordedLocation(time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
@@ -47,15 +61,15 @@ class TripTestUtil {
                     , conf = 100)
         }
 
-        fun generateTripData(completed: Boolean, locNum: Int, inVin:String, deviceTimestampIn: Long): TripData {
+        fun generateTripData(locNum: Int, inVin:String, deviceTimestampIn: Long): TripData {
             val trip: MutableSet<LocationData> = hashSetOf()
 
             for (i in 1..locNum){
                 val loc = getRandomLocation()
-                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000,100)))
+                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
             }
 
-            return TripData(trip.first().id,completed,inVin,trip)
+            return TripData(trip.first().id,inVin,trip)
         }
 
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added

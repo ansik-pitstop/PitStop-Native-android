@@ -9,7 +9,6 @@ import com.pitstop.interactors.add.AddPidUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
-import com.pitstop.interactors.add.AddTripDataUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
@@ -49,15 +48,14 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
-import com.pitstop.interactors.other.EndTripUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
+import com.pitstop.interactors.other.ProcessTripDataUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
-import com.pitstop.interactors.other.StartTripUseCase;
 import com.pitstop.interactors.other.StoreFuelConsumedUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.interactors.remove.RemoveShopUseCase;
@@ -214,8 +212,6 @@ public interface UseCaseComponent {
 
     SmoochLoginUseCase getSmoochLoginUseCase();
 
-    AddTripDataUseCase getAddTripDataUseCase();
-
     GetTripsUseCase getTripsUseCase();
 
     GetSnapToRoadUseCase getSnapToRoadUseCase();
@@ -224,11 +220,9 @@ public interface UseCaseComponent {
 
     StartDumpingTripDataWhenConnecteUseCase getStartDumpingTripDataWhenConnectedUseCase();
 
-    StartTripUseCase startTripUseCase();
-
-    EndTripUseCase endTripUseCase();
-
     AddPidUseCase addPidUseCase();
 
     SendPendingUpdatesUseCase sendPendingUpdatesUseCase();
+
+    ProcessTripDataUseCase processTripDataUseCase();
 }
