@@ -90,7 +90,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
-                            && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
+                            && (hardStart == -1L || softStart == -1L || softEnd != -1L)){
                         if (hardStart == -1L) hardStart = it.time
                         if (softStart == -1L) softStart = it.time
                         softEnd = -1
