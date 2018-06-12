@@ -1,6 +1,7 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.ui.service_request.RequestServiceCallback;
 
 import java.util.List;
 
@@ -30,5 +31,6 @@ public interface ServiceFormView {
     void disableButton(boolean disable);
     void showLoadingTime(boolean show);
     void finish();
+    RequestServiceCallback getRequestServiceCallback();
 
 }
