@@ -250,7 +250,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         Log.d(TAG,"outDate: "+outDate);
         Date realDate;
         try{
-            realDate = new SimpleDateFormat("yyyy/MM/dd hh:mm aa", Locale.ENGLISH).parse(outDate);
+            realDate = new SimpleDateFormat("yyyy/MM/dd hh:mm aa", Locale.getDefault()).parse(outDate);
         }catch(ParseException e){
             e.printStackTrace();
             return;
