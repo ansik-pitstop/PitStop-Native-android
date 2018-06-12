@@ -262,7 +262,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                 lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
                 try{
                     response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
-                            , "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c").execute()
+                            , "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU").execute()
                     if (response.isSuccessful){
                         snappedPoints.addAll(response.body()?.snappedPoints ?: emptyList())
                     }
