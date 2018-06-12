@@ -109,15 +109,15 @@ Java_com_pitstop_utils_SecretUtils_getSnapToRoadEndpointRelease(JNIEnv *env, job
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getMapsApiKeyStaging(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c");
+    return (*env) ->  NewStringUTF(env, "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU");
 }
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getMapsApiKeySnapshot(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c");
+    return (*env) ->  NewStringUTF(env, "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU");
 }
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getMapsApiKeyRelease(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c");
+    return (*env) ->  NewStringUTF(env, "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU");
 }

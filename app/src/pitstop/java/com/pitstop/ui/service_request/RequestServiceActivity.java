@@ -48,9 +48,6 @@ public class RequestServiceActivity extends AppCompatActivity implements Request
         presenter = new RequestServicePresenter(this,mixpanelHelper);
 
         serviceFormFragment = new ServiceFormFragment();
-        serviceFormFragment.setActivityCallback(this);
-
-
     }
 
     @Override

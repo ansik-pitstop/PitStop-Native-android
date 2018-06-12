@@ -11,7 +11,7 @@ import io.reactivex.Observable
 class SnapToRoadRepository(private val snapToRoadApi: GoogleSnapToRoadApi) : Repository {
 
     private val tag = javaClass.simpleName
-    private val key = "AIzaSyCD67x7-8vacAhDWMoarx245UKAcvbw5_c"
+    private val key = "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU"
 
     fun getSnapToRoadFromLocations(listLatLng: String): Observable<RepositoryResponse<List<SnappedPoint>>> {
 

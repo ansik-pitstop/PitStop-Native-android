@@ -15,7 +15,6 @@ import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.models.issue.CarIssue;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.service_request.RequestServiceCallback;
 import com.pitstop.utils.MixpanelHelper;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
@@ -41,7 +40,6 @@ public class ServiceFormPresenter implements PresenterCallback{
     public static final String STATE_REQUESTED = "requested";
 
     private ServiceFormView view;
-    private RequestServiceCallback callback;
     private UseCaseComponent component;
 
     private Car dashCar;
@@ -59,17 +57,16 @@ public class ServiceFormPresenter implements PresenterCallback{
     private MixpanelHelper mixpanelHelper;
 
 
-    public ServiceFormPresenter(RequestServiceCallback callback, UseCaseComponent component
+    public ServiceFormPresenter(UseCaseComponent component
             , MixpanelHelper mixpanelHelper){
         this.component = component;
-        this.callback = callback;
         this.mixpanelHelper = mixpanelHelper;
 
     }
 
     public void subscribe(ServiceFormView view ){
         Log.d(TAG,"subscribe()");
-        if(callback == null){return;}
+        if(view.getRequestServiceCallback() == null){return;}
         mixpanelHelper.trackViewAppeared("RequestServiceForm");
         dateSelected = false;
         timeSelected = false;
@@ -83,7 +80,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     void populateViews(){
-        if(callback.checkTentative().equals(STATE_TENTATIVE)){
+        if(view.getRequestServiceCallback().checkTentative().equals(STATE_TENTATIVE)){
             setCommentHint("Salesperson");
         }
         view.showLoading(true);
@@ -116,14 +113,14 @@ public class ServiceFormPresenter implements PresenterCallback{
             }
         });
 
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         view.setupPresetIssues(view.getPresetList());
     }
 
     public void timeButtonClicked(){
         Log.d(TAG,"timeButtonClicked()");
         mixpanelHelper.trackButtonTapped("TimeMenuButton","RequestServiceForm");
-        if(view == null || callback == null || dealership == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null || dealership == null){return;}
         if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
             return;
@@ -138,7 +135,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void dateButtonClicked(){
         Log.d(TAG,"dateButtonClicked()");
         mixpanelHelper.trackButtonTapped("DateMenuButton","RequestServiceForm");
-        if(view == null || callback == null || dealership == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null || dealership == null){return;}
         if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
             return;
@@ -147,7 +144,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     public void dateSelected(Date dateArg, int year, int month, int dayOfMonth, MaterialCalendarView calendarView){
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         mixpanelHelper.trackButtonTapped("DateItemButton","RequestServiceForm");
         Log.d(TAG,"dateArg: "+dateArg);
         String date = year+"/"+month+"/"+dayOfMonth;
@@ -164,28 +161,28 @@ public class ServiceFormPresenter implements PresenterCallback{
                     , day, new GetShopHoursUseCase.Callback() {
                @Override
                public void onHoursGot(List<String> hours) {
-                   if(view == null || callback == null){return;}
+                   if(view == null || view.getRequestServiceCallback() == null){return;}
                    view.setupTimeList(hours);
                    view.showLoadingTime(false);
                }
 
                @Override
                public void onNoHoursAvailable(List<String> defaultHours) {
-                   if(view == null || callback == null){return;}
+                   if(view == null || view.getRequestServiceCallback() == null){return;}
                    view.setupTimeList(defaultHours);
                    view.showLoadingTime(false);
                }
 
                 @Override
                 public void onNotOpen() {
-                    if(view == null || callback == null){return;}
+                    if(view == null || view.getRequestServiceCallback() == null){return;}
                     resetDate(calendarView,((Fragment)view).getString(R.string.no_times_for_date));
                     view.showLoadingTime(false);
                 }
 
                 @Override
                public void onError(RequestError error) {
-                    if(view == null || callback == null){return;}
+                    if(view == null || view.getRequestServiceCallback() == null){return;}
                     resetDate(calendarView,((Fragment)view).getString(R.string.error_loading_times));
                     view.showLoadingTime(false);
                }
@@ -198,7 +195,7 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     private void finalizeDate(String sendDate){
         Log.d(TAG,"finalizeDate() sendDate: "+sendDate);
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         view.hideCalender();
         view.showDate(sendDate);
         date = sendDate;
@@ -211,7 +208,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void onTimeClicked(String time) {
         Log.d(TAG,"onTimeClicked time: "+time);
         mixpanelHelper.trackButtonTapped("TimeItemButton","RequestServiceForm");
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         view.showTime(time);
         view.hideTimeList();
         this.time = time;
@@ -219,7 +216,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     }
 
     private void resetDate( MaterialCalendarView calendarView, String message){
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         Calendar calendar = Calendar.getInstance();
         calendarView.setCurrentDate(calendar);
         view.showDate(((Fragment)view).getString(R.string.select_date));
@@ -231,7 +228,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     void onSubmitClicked(){
         Log.d(TAG,"onSubmitClicked()");
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
-        if(view == null || callback == null || dealership == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null || dealership == null){return;}
 
         if(dealership.getName().equals("No Shop") || dealership == null){
             view.showReminder("Please set a shop for this car first");
@@ -253,14 +250,14 @@ public class ServiceFormPresenter implements PresenterCallback{
         Log.d(TAG,"outDate: "+outDate);
         Date realDate;
         try{
-            realDate = new SimpleDateFormat("yyyy/MM/dd hh:mm aa", Locale.CANADA).parse(outDate);
+            realDate = new SimpleDateFormat("yyyy/MM/dd hh:mm aa", Locale.ENGLISH).parse(outDate);
         }catch(ParseException e){
             e.printStackTrace();
             return;
         }
         view.disableButton(true);
         view.showLoading(true);
-        component.getRequestServiceUseCase().execute(callback.checkTentative(), realDate
+        component.getRequestServiceUseCase().execute(view.getRequestServiceCallback().checkTentative(), realDate
                 , view.getComments(), new RequestServiceUseCase.Callback() {
                     @Override
                     public void onServicesRequested() {
@@ -270,23 +267,23 @@ public class ServiceFormPresenter implements PresenterCallback{
                             if (c.getIssueType().equals(CarIssue.TYPE_PRESET))
                                 toAdd.add(c);
                         }
-                        if(view == null || callback == null){return;}
+                        if(view == null || view.getRequestServiceCallback() == null){return;}
                        component.getAddServicesUseCase().execute(toAdd
                                , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                            @Override
                            public void onServicesAdded() {
                                Log.d(TAG,"onServicesAdded()");
-                               if(view == null || callback == null){return;}
+                               if(view == null || view.getRequestServiceCallback() == null){return;}
                                view.showLoading(false);
                                view.disableButton(false);
                                view.toast("Service requested successfully.");
-                               callback.finishActivity(true);
+                               view.getRequestServiceCallback().finishActivity(true);
                            }
 
                            @Override
                            public void onError(RequestError error) {
                                Log.d(TAG,"onError() error: "+error.getMessage());
-                               if(view == null || callback == null){return;}
+                               if(view == null || view.getRequestServiceCallback() == null){return;}
                                view.showLoading(false);
                                view.disableButton(false);
                                view.toast(((Fragment)view).getString(R.string.add_service_error));
@@ -297,7 +294,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                     @Override
                     public void onError(RequestError error) {
                         Log.d(TAG,"onServiceRequested() error: "+error.getMessage());
-                        if(view == null || callback == null){return;}
+                        if(view == null || view.getRequestServiceCallback() == null){return;}
                         view.showLoading(false);
                         view.disableButton(false);
                       view.toast(((Fragment)view).getString(R.string.add_service_error));
@@ -308,7 +305,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     @Override
     public void onIssueClicked(CarIssue issue) {
         Log.d(TAG,"onIssueClicked() issue: "+issue);
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         mixpanelHelper.trackButtonTapped("IssueItemButton","RequestServiceForm");
         if(!issues.contains(issue)){
             issues.add(issue);
@@ -318,14 +315,14 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     void setCommentHint(String hint){
         Log.d(TAG,"setCommentHint() hint: "+hint);
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         view.setCommentHint(hint);
     }
 
     @Override
     public void onRemoveClicked(CarIssue issue) {
         Log.d(TAG,"onRemoveClicked() ");
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         mixpanelHelper.trackButtonTapped("RemoveIssueItemButton","RequestServiceForm");
         issues.remove(issue);
         view.setupSelectedIssues(issues);
@@ -333,7 +330,7 @@ public class ServiceFormPresenter implements PresenterCallback{
 
     void addButtonClicked(){
         Log.d(TAG,"addButtonClicked()");
-        if(view == null || callback == null){return;}
+        if(view == null || view.getRequestServiceCallback() == null){return;}
         mixpanelHelper.trackButtonTapped("IssueMenuButton","RequestServiceForm");
         view.toggleServiceList();
     }
