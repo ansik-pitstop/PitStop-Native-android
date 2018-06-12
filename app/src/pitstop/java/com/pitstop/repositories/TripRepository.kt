@@ -24,7 +24,6 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 import java.io.IOException
-import java.net.SocketTimeoutException
 
 /**
  * Created by David C. on 9/3/18.
@@ -267,7 +266,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     if (response.isSuccessful){
                         snappedPoints.addAll(response.body()?.snappedPoints ?: emptyList())
                     }
-                }catch(e: SocketTimeoutException){
+                }catch(e: Exception){
                     e.printStackTrace()
                     return null
                 }
