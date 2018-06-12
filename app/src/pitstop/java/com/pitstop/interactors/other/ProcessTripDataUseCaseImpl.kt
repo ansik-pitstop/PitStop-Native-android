@@ -164,9 +164,13 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         processedTrips.filter { !it.isEmpty() }.forEach({
             val recordedLocationList = mutableSetOf<LocationData>()
-            it.forEach { carLocation ->
-                recordedLocationList.add(LocationData(carLocation.time/1000, PendingLocation(carLocation.longitude
-                        ,carLocation.latitude,carLocation.time/1000)))
+            it.forEachIndexed { i,carLocation ->
+                //Do not include points in the same location back to back
+                if ((it.lastIndex != i && it[i+1].latitude != carLocation.latitude
+                        || it[i+1].longitude != carLocation.longitude ) || it.lastIndex == i){
+                    recordedLocationList.add(LocationData(carLocation.time/1000, PendingLocation(carLocation.longitude
+                            ,carLocation.latitude,carLocation.time/1000)))
+                }
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
             val tripData = TripData(it[0].time/1000,it[0].vin,recordedLocationList)
